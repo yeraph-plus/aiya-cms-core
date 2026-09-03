@@ -146,13 +146,24 @@ aiya-core/
   - ✅ 工具链已就绪（2026-09-04）：composer dev 依赖（phpstan 2 @ level 8、wpcs 3 + PHPCompatibilityWP、parallel-lint、wp-cli i18n-command）+ `phpstan.neon.dist` / `phpcs.xml.dist` / `phpstan-bootstrap.php`，`composer php:stan|php:cs|php:cbf|php:lint|i18n:pot` 全部通过；宿主机无 PHP 时用 `docker run --rm -v <插件目录>:/app -w /app composer:2 <script>` 执行。`.pot` 已生成于 `languages/aiya-core.pot`。剩余：phpunit 与单测落地。
 - 验收：以旧 `opt-basic.php` 的真实字段集在新框架重建「站点」页，保存/校验/重置/动态选项全部工作；单测与 phpstan 绿。
 
-### M2 元数据注册表（对应 MIGRATION 交付序列 2）
+### M2 元数据注册表与内容类型注册（代码能力，无 ACF 式界面——2026-09-04 定稿）
 
-- `Metadata/Registry`：`addPostBox(['id','title','screens','context','priority','template','fields'])`、`addTermBox`、`addUserFields`；
-- `Admin/MetaboxAdmin` 复用 FieldRenderer 渲染 + ValueNormalizer 保存 + MetaStore 写入；`save_post`（priority 999，模板条件）、`edited_{taxonomy}`、`profile_update` 钩子；
-- 兼容读取 `aya_box_{id}`（旧单键全组）；落地 `post_seo` box（seo_keywords / seo_desc）作为第一刀；
-- 旧 `action_checkbox` 字段的真实用例已确认：`basic-automatic` 的保存时动作勾选（排版/清理/自动标签），见 `docs/optimize-migration-assessment.md`，随本里程碑决定去留；
-- 验收：旧主题「独立文章模板」类 metabox 场景重建，字段可存可读；Integration 测试走通保存链路。
+**M2a 字段组（ACF 式封装的代码面，替代旧 `new_box`/`new_tex`）**：
+
+- `Metadata/Registry`：`addPostBox(['id','title','screens','context','priority','template','fields'])`、`addTermBox(['id','taxonomies','fields'])`、`addUserFields(['fields'])`；字段复用 Settings 的同一套 `Field` schema（一套字段系统贯穿设置/元数据/未来 API 投影）；
+- `Admin/MetaboxAdmin`：post box 渲染进编辑屏（context/priority/页面模板条件照旧），term box 渲染进添加/编辑表单，user fields 进资料页；渲染统一走公开的 `FieldRenderer::control`，保存统一走 `ValueNormalizer`（消灭旧版 htmlspecialchars hack 与字段类型排除表）；
+- 存储形状沿协议：post box 保持组键 `aya_box_{id}` 单键全组（兼容读取旧数据），term 保持逐字段 term meta 键；
+- `action_checkbox` 字段从"待定"转为**必做**：`post_automatic` box 的保存时动作勾选（排版/清理/自动标签）是第一个真实消费方；
+- 第一刀落地 `post_seo` box（seo_keywords/seo_desc，协议键 `aya_box_post_seo`）。
+
+**M2b 内容类型注册（替代旧 `Register_Post_Type`/`Register_Tax_Type` 模块）**：
+
+- `Domain/Content/` 增加 `PostTypeDefinition` / `TaxonomyDefinition` 值对象 + 注册器模块：领域模块（Tweet/Issue）在代码里声明，注册器在 `init` 统一 `register_post_type`/`register_taxonomy`；
+- 无头默认值与旧版差异：`show_in_rest => true`（旧 CPT 包装器缺失，M5 API 刚需）、`supports` 显式声明且默认**不含 comments**（按类型勾选）、`capability_type => post`、rewrite slug 可配；
+- 旧版的置顶归档 `the_posts` hack 与"作者可见未发布"逻辑**弃**（前台行为，归 Astro）；`__destruct` 注册 hook 的坏味道不迁；
+- 旧消费方对齐：`tweet` CPT + `tweet_tag`（tag 模式分类法）、`tips` 分类法 + 字段组，都在 M4 领域切片里用这套 API 重建。
+
+验收：以代码声明重建 `post_seo` box 与一个测试 CPT/分类法，字段可存可读可重置；Integration 测试走通 post/term/user 三条保存链路。
 
 ### M3 运行时硬化（缩减版：生命周期已随 0.2.0 前移完成）
 
