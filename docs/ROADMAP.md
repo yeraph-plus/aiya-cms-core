@@ -139,7 +139,8 @@ aiya-core/
 
 - `Metadata/Registry`：`addPostBox(['id','title','screens','context','priority','template','fields'])`、`addTermBox`、`addUserFields`；
 - `Admin/MetaboxAdmin` 复用 FieldRenderer 渲染 + ValueNormalizer 保存 + MetaStore 写入；`save_post`（priority 999，模板条件）、`edited_{taxonomy}`、`profile_update` 钩子；
-- 兼容读取 `aya_box_{id}`（旧单键全组）；
+- 兼容读取 `aya_box_{id}`（旧单键全组）；落地 `post_seo` box（seo_keywords / seo_desc）作为第一刀；
+- 旧 `action_checkbox` 字段的真实用例已确认：`basic-automatic` 的保存时动作勾选（排版/清理/自动标签），见 `docs/optimize-migration-assessment.md`，随本里程碑决定去留；
 - 验收：旧主题「独立文章模板」类 metabox 场景重建，字段可存可读；Integration 测试走通保存链路。
 
 ### M3 运行时硬化（缩减版：生命周期已随 0.2.0 前移完成）
