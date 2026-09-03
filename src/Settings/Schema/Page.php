@@ -63,4 +63,29 @@ final class Page
 
     /** @return list<Field> */
     public function fields(): array { return $this->fields; }
+
+    /**
+     * Appends fields to the page. Lets several modules contribute to one
+     * shared settings page; duplicate field ids are rejected.
+     *
+     * @param list<Field> $fields
+     */
+    public function appendFields(array $fields): void
+    {
+        $known = [];
+        foreach ($this->fields as $field) {
+            $known[$field->id()] = true;
+        }
+
+        foreach ($fields as $field) {
+            if (!$field instanceof Field) {
+                throw new InvalidArgumentException('appendFields expects Field instances.');
+            }
+            if (isset($known[$field->id()])) {
+                throw new InvalidArgumentException(sprintf('The field "%s" already exists on page "%s".', $field->id(), $this->slug));
+            }
+            $known[$field->id()] = true;
+            $this->fields[] = $field;
+        }
+    }
 }

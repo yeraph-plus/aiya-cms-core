@@ -84,7 +84,9 @@
     });
 
     $(function () {
-        $('.aiya-core-settings').each(function () {
+        // Settings screens plus the user profile form, which hosts shared
+        // field controls (e.g. the local avatar media picker).
+        $('.aiya-core-settings, #your-profile').each(function () {
             new SettingsView({ el: this });
         });
     });

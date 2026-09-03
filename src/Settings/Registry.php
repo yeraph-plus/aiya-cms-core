@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Settings;
 
+use Aiya\Core\Settings\Schema\Field;
 use Aiya\Core\Settings\Schema\Page;
 use InvalidArgumentException;
 
@@ -27,6 +28,25 @@ final class Registry
     public function page(string $slug): ?Page
     {
         return $this->pages[sanitize_key($slug)] ?? null;
+    }
+
+    /**
+     * Appends field definitions to an already-registered page so multiple
+     * modules can contribute to one shared settings page.
+     *
+     * @param list<array<string, mixed>> $fields
+     */
+    public function addFields(string $page, array $fields): void
+    {
+        $existing = $this->page($page);
+        if ($existing === null) {
+            throw new InvalidArgumentException(sprintf('Settings page "%s" is not registered.', $page));
+        }
+
+        $existing->appendFields(array_map(
+            static fn (array $field): Field => Field::fromArray($field),
+            array_values(array_filter($fields, 'is_array'))
+        ));
     }
 
     /** @return list<Page> */

@@ -2,7 +2,7 @@
 
 本文是当前迭代的实施规划：对照旧 `framework-required` 评估完成度，定义目标目录树与里程碑。模块归属的最终裁决仍以 [MIGRATION.md](MIGRATION.md) 为准，注册方式见 [ARCHITECTURE.md](ARCHITECTURE.md)。
 
-基线：v0.4.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活，示例页 16 字段保存链路实测可用；完整生命周期（activate / deactivate / uninstall）已随 0.2.0 落地；无头化裁剪（HeadlessModule）随 0.3.0、安全加固（SecurityModule）随 0.4.0 落地。
+基线：v0.5.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活，示例页 16 字段保存链路实测可用；完整生命周期（activate / deactivate / uninstall）已随 0.2.0 落地；无头化裁剪（HeadlessModule）随 0.3.0、安全加固（SecurityModule）随 0.4.0、本地头像与 Gravatar 镜像（AvatarModule）随 0.5.0 落地。
 
 ## 一、完成度对照（vs framework-required v1.3）
 
@@ -76,6 +76,9 @@ aiya-core/
 │  │  ├─ Presenter/                 # M4：唯一允许触碰 WP_Post / WP_Term 的映射层（WP 对象 → DTO）
 │  │  └─ Rest/                      # M5：aiya/core/v1 控制器（只调用读服务与 Presenter，不查询数据）
 │  ├─ Domain/
+│  │  ├─ Identity/                  # ✅ 0.5.0：AvatarModule——本地头像（协议键 basic_user_avatar，
+│  │                                #   新形状 ['id','full']、兼容旧 ['full']）、七牛/WeAvatar 镜像、
+│  │                                #   默认头像 URL；设置追加在 Headless optimization 页（不开新页）
 │  │  └─ Content/                   # M4 读服务：ContentQuery（旧 WP_Query 原型）、MenuService（旧
 │  │                                #   WP_Menu 蓝本：结构缓存+每请求激活态）、BreadcrumbService、
 │  │                                #   PaginationService；Issue/ Tweet/ 内容域切片在此层扩展
@@ -136,6 +139,7 @@ aiya-core/
 - 读取门面 `aiya_core_opt(string $page, string $id, mixed $default = null)` 与 `aiya_core_opt_bool(...)`；`Storage/LegacyOptionReader` 只读兼容 `aya_opt_{slug}` 旧键，旧→新无写回、无同步；
   - ✅ `aiya_core_opt()` 已随 0.3.0 落地（aiya-core.php 顶层函数，回退字段默认值；`aiya_core_opt_bool` 暂无需求，布尔用 `(bool)` 强转即可）；
   - ✅ 设置框架的真实消费方：`Infrastructure/Headless/HeadlessModule`（0.3.0，无头化裁剪）与 `Infrastructure/Security/SecurityModule`（0.4.0，安全加固）；组件逐项评估见 `docs/optimize-migration-assessment.md`。
+  - ✅ `Registry::addFields()` / `Page::appendFields()`（0.5.0）：多个模块向同一设置页追加字段（AvatarModule 的头像设置挂在 Headless 页，不开新页）；`FieldRenderer::control` 转公开，供个人资料页等管理屏复用媒体控件。
 - `languages/` + .pot；`tests/Unit` 覆盖 ValueNormalizer 与 Field；
   - ✅ 工具链已就绪（2026-09-04）：composer dev 依赖（phpstan 2 @ level 8、wpcs 3 + PHPCompatibilityWP、parallel-lint、wp-cli i18n-command）+ `phpstan.neon.dist` / `phpcs.xml.dist` / `phpstan-bootstrap.php`，`composer php:stan|php:cs|php:cbf|php:lint|i18n:pot` 全部通过；宿主机无 PHP 时用 `docker run --rm -v <插件目录>:/app -w /app composer:2 <script>` 执行。`.pot` 已生成于 `languages/aiya-core.pot`。剩余：phpunit 与单测落地。
 - 验收：以旧 `opt-basic.php` 的真实字段集在新框架重建「站点」页，保存/校验/重置/动态选项全部工作；单测与 phpstan 绿。

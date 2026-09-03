@@ -10,9 +10,9 @@
 |---|---|---|---|---|
 | `basic-optimize.php` | 批量禁用开关 | ✅ | ✅ 已迁移 | `HeadlessModule`（0.3.0） |
 | `basic-security.php` | 后台访问控制、邮箱登录、用户名防护、REST users/sitemap 移除、登录页参数门禁 | ✅（`wp_sitemaps_add_provider`、`rest_endpoints`、`authenticate` 均在） | **高价值，迁移**；其中用户名防护组（logged_sanitize_user_*）按决定取消（2026-09-04） | `Infrastructure/Security/SecurityModule`，第一批（✅ 0.4.0） |
-| `wp-local-avatars.php` | 本地头像（user meta `basic_user_avatar`，`get_avatar_data` 过滤） | ✅（`get_avatar_data` / `get_avatar_url` 在 link-template.php） | **高价值，改造迁移**——meta 键已是持久协议（AGENTS.md 协议表），无头下头像 URL 是 API 契约的一部分 | `Domain/Identity/Avatars`，第二批 |
-| `avatar-speed.php` | Gravatar CDN 镜像（七牛/loli/v2ex/weavatar）、默认头像 | ✅（同一组头像过滤器） | 有价值，与本地头像合并（本地优先、CDN 镜像兜底）；Google Fonts 替换部分弃（前台归 Astro） | 并入 `Domain/Identity/Avatars`，第二批 |
-| `stmp-mail.php` | SMTP 发信（`phpmailer_init`）+ 关闭新用户通知邮件 | ✅（pluggable.php:622） | 有价值——后台邮件（密码重置等）在无头架构下仍是刚需；SMTP 密码正好用设置框架的写后即焚 `password` 字段 | `Infrastructure/Mail/MailModule`，第二批 |
+| `wp-local-avatars.php` | 本地头像（user meta `basic_user_avatar`，`get_avatar_data` 过滤） | ✅（`get_avatar_data` / `get_avatar_url` 在 link-template.php） | ✅ 已随 0.5.0 按新架构重建：媒体库选择器、协议键保留、新形状 `['id','full']` 兼容旧 `['full']` | `Domain/Identity/AvatarModule` |
+| `avatar-speed.php` | Gravatar CDN 镜像（七牛/loli/v2ex/weavatar）、默认头像 | ✅（同一组头像过滤器） | ✅ 镜像部分随 0.5.0 落地——仅保留七牛与 WeAvatar（loli/v2ex 已失效，不提供）；默认头像 URL 字段就位；Google Fonts 替换部分弃（前台归 Astro） | 并入 `Domain/Identity/AvatarModule` |
+| `stmp-mail.php` | SMTP 发信（`phpmailer_init`）+ 关闭新用户通知邮件 | ✅ | **不迁移**——发信改由外部服务商（SMTP2GO 等）提供，插件不再自建 SMTP 配置层（2026-09-04 决定） | 弃（外部化） |
 | `basic-automatic.php` | 自动别名（拼音/ID 式 AV·BV 风格）、保存时中文排版纠正、HTML 清理、自动匹配标签、重置日期、编辑器默认内容 | ✅（`wp_insert_post_data`、`wp_unique_post_slug`、`wp_insert_term_data`、`wp_update_term_data`、`default_content` 均在；`default_content` 现仅后台编辑器上下文） | **高价值，分两步**：拼音/ID 别名独立成片（只依赖 overtrue/pinyin）；排版清理 + 自动标签依赖保存时的动作勾选（`AYF::get_post_action` → 恰是 M1 待定的 `action_checkbox` 字段的真实用例），等 M2 metabox 落地后迁 | `Domain/Content/`（别名为 `SlugGenerator`），第三批 |
 | `basic-request.php` | 主查询优化（no_found_rows + EXPLAIN found_posts）、搜索重定向/权限/限流/SQL 改写（标题搜索、ID 搜索、meta 搜索） | ✅（`pre_get_posts`、`posts_clauses` 均在） | **拆解**：前台主查询在无头下不存在，前台搜索 UI 死亡 → 代码不迁；但「IP 限流」「仅标题搜索」「meta 搜索」是 M4 `ContentQuery` / M5 API 的直接设计输入 | 设计参考 → M4/M5；URL 参数拦截（eval/base64/超长）可并入 SecurityModule |
 | `seo-stk.php` | wp_head 输出 title/keywords/description、正文关键词自动链接、robots.txt 自定义 | ✅（`pre_get_document_title`、`robots_txt` 在） | **拆解**：输出面随主题退役（SEO 归 Astro head）；**数据面进新架构**——`post_seo` metabox（seo_keywords/seo_desc，协议键 `aya_box_post_seo`）由 M2 Metadata 重建，字段投影进 M4 `PostDetail`/`PageMeta` DTO | 数据 → M2/M4；输出 → 弃 |
@@ -33,9 +33,11 @@
    - 后台按角色门禁 + 登录页 `?auth=` 参数门禁（开关化）
    - URL 参数非法拦截（从 basic-request 摘入）
    - ✅ 已随 0.4.0 落地。旧 `logged_sanitize_user_*` 用户名防护组（注册/登录黑名单与用户名清理）按决定取消，不迁移
-2. **第二批 `Domain/Identity/Avatars` + `Infrastructure/Mail/MailModule`**：
-   - 本地头像保留协议键 `basic_user_avatar`，`get_avatar_data` 过滤服务后台；Gravatar CDN 镜像兜底；M5 在 `AuthorDto.avatar` 中投影
-   - SMTP：host/port/auth/加密/from 配置走设置页，密码用 `password` 字段
+2. **第二批 `Domain/Identity/AvatarModule`**（✅ 0.5.0，设置追加到 Headless optimization 页，未新开页面）：
+   - 本地头像按新架构重建：个人资料页媒体库选择器（复用 `FieldRenderer::control` + 共享 admin.js），协议键 `basic_user_avatar` 保留；新存储形状 `['id' => 附件ID, 'full' => URL]`，兼容读取旧 `['full']` 形状且普通保存不会误清无法解析的旧条目
+   - Gravatar 镜像仅提供七牛（dn-qiniu-avatar.qbox.me）与 WeAvatar（loli/v2ex 已失效，按决定不提供），默认七牛；本地头像始终优先
+   - 默认头像 URL 字段：非空时经 `pre_option_avatar_default` 全站强制生效
+   - **SMTP 不迁移**：发信交由外部服务商（SMTP2GO 等），`Infrastructure/Mail` 从批次中移除（2026-09-04 决定）
 3. **第三批 `Domain/Content/` 自动别名**（可早于 M2 做别名部分）：
    - 拼音 slug（post/term）+ ID 式 slug（AV/BV 风格 + 前缀设置）；运行时依赖 `overtrue/pinyin` 进根 composer require（core 直接依赖，理由：这是内容写入行为而非独立基础设施，不值得做成包）
    - 中文排版/HTML 清理/自动标签/重置日期：等 M2 的 metabox + `action_checkbox` 字段（此处即该字段的真实用例），批量刷新工具改为 wp-cli command

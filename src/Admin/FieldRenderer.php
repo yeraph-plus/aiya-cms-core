@@ -31,7 +31,12 @@ final class FieldRenderer
         echo '</td></tr>';
     }
 
-    private function control(Field $field, mixed $value, string $name, string $id): void
+    /**
+     * Renders a single field control. Public so admin screens outside the
+     * settings framework (user profile fields, M2 metaboxes) can reuse the
+     * same markup and Backbone bindings.
+     */
+    public function control(Field $field, mixed $value, string $name, string $id): void
     {
         $type = $field->type();
         if ($type === 'textarea') {
