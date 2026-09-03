@@ -9,7 +9,7 @@
 | 组件 | 职责 | WP 7.1 | 评估 | 去向 |
 |---|---|---|---|---|
 | `basic-optimize.php` | 批量禁用开关 | ✅ | ✅ 已迁移 | `HeadlessModule`（0.3.0） |
-| `basic-security.php` | 后台访问控制、邮箱登录、用户名防护、REST users/sitemap 移除、登录页参数门禁 | ✅（`wp_sitemaps_add_provider`、`rest_endpoints`、`authenticate` 均在） | **高价值，迁移** | `Infrastructure/Security/SecurityModule`，第一批 |
+| `basic-security.php` | 后台访问控制、邮箱登录、用户名防护、REST users/sitemap 移除、登录页参数门禁 | ✅（`wp_sitemaps_add_provider`、`rest_endpoints`、`authenticate` 均在） | **高价值，迁移**；其中用户名防护组（logged_sanitize_user_*）按决定取消（2026-09-04） | `Infrastructure/Security/SecurityModule`，第一批（✅ 0.4.0） |
 | `wp-local-avatars.php` | 本地头像（user meta `basic_user_avatar`，`get_avatar_data` 过滤） | ✅（`get_avatar_data` / `get_avatar_url` 在 link-template.php） | **高价值，改造迁移**——meta 键已是持久协议（AGENTS.md 协议表），无头下头像 URL 是 API 契约的一部分 | `Domain/Identity/Avatars`，第二批 |
 | `avatar-speed.php` | Gravatar CDN 镜像（七牛/loli/v2ex/weavatar）、默认头像 | ✅（同一组头像过滤器） | 有价值，与本地头像合并（本地优先、CDN 镜像兜底）；Google Fonts 替换部分弃（前台归 Astro） | 并入 `Domain/Identity/Avatars`，第二批 |
 | `stmp-mail.php` | SMTP 发信（`phpmailer_init`）+ 关闭新用户通知邮件 | ✅（pluggable.php:622） | 有价值——后台邮件（密码重置等）在无头架构下仍是刚需；SMTP 密码正好用设置框架的写后即焚 `password` 字段 | `Infrastructure/Mail/MailModule`，第二批 |
@@ -29,9 +29,10 @@
 
 1. **第一批 `Infrastructure/Security/SecurityModule`**（替代 basic-security 的有效面）：
    - REST `/wp/v2/users` 与 sitemap users provider 移除（无头下的用户枚举防护；作者信息走 M4 `AuthorDto` 嵌入文章响应，不需要 users 端点）
-   - 强制邮箱登录、admin 用户名注册/登录防护
+   - 强制邮箱登录
    - 后台按角色门禁 + 登录页 `?auth=` 参数门禁（开关化）
    - URL 参数非法拦截（从 basic-request 摘入）
+   - ✅ 已随 0.4.0 落地。旧 `logged_sanitize_user_*` 用户名防护组（注册/登录黑名单与用户名清理）按决定取消，不迁移
 2. **第二批 `Domain/Identity/Avatars` + `Infrastructure/Mail/MailModule`**：
    - 本地头像保留协议键 `basic_user_avatar`，`get_avatar_data` 过滤服务后台；Gravatar CDN 镜像兜底；M5 在 `AuthorDto.avatar` 中投影
    - SMTP：host/port/auth/加密/from 配置走设置页，密码用 `password` 字段

@@ -2,7 +2,7 @@
 
 本文是当前迭代的实施规划：对照旧 `framework-required` 评估完成度，定义目标目录树与里程碑。模块归属的最终裁决仍以 [MIGRATION.md](MIGRATION.md) 为准，注册方式见 [ARCHITECTURE.md](ARCHITECTURE.md)。
 
-基线：v0.2.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活，示例页 16 字段保存链路实测可用；完整生命周期（activate / deactivate / uninstall）已随 0.2.0 落地。
+基线：v0.4.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活，示例页 16 字段保存链路实测可用；完整生命周期（activate / deactivate / uninstall）已随 0.2.0 落地；无头化裁剪（HeadlessModule）随 0.3.0、安全加固（SecurityModule）随 0.4.0 落地。
 
 ## 一、完成度对照（vs framework-required v1.3）
 
@@ -95,6 +95,9 @@ aiya-core/
 │  │                                #   仅作整体关闭逃生口；开关存储在 aiya_core_headless，总开关
 │  │                                #   off = 恢复原生行为；已对照 WP 7.1 源码逐钩子验证，普通插件
 │  │                                #   即可实现全部裁剪，无需 MU
+│  │  └─ Security/                   # ✅ 0.4.0：SecurityModule——REST users/sitemap users 移除、
+│  │                                #   强制邮箱登录、后台角色门禁、登录页参数门禁、URI 探测拦截；
+│  │                                #   用户名防护组按决定取消；AIYA Core > Security hardening
 │  │                                # 其余（Media/ 等）有真实需求才建
 │  └─ Http/                         # （M5 起并入 Api/Rest，不再单独设 Http/）
 ├─ packages/                        # ✅ 基础设施包目录（约定与批次见下节）；opencc-convert tracer 已建
@@ -132,7 +135,7 @@ aiya-core/
 - `Options/OptionsResolver`：`options_source => ['source' => 'terms|posts|users|sidebars', ...]`，Schema 校验来源定义，Admin 渲染前惰性求值（不查询直到渲染）；
 - 读取门面 `aiya_core_opt(string $page, string $id, mixed $default = null)` 与 `aiya_core_opt_bool(...)`；`Storage/LegacyOptionReader` 只读兼容 `aya_opt_{slug}` 旧键，旧→新无写回、无同步；
   - ✅ `aiya_core_opt()` 已随 0.3.0 落地（aiya-core.php 顶层函数，回退字段默认值；`aiya_core_opt_bool` 暂无需求，布尔用 `(bool)` 强转即可）；
-  - ✅ 设置框架的首个真实消费方已就位：`Infrastructure/Headless/HeadlessModule`（0.3.0），替代旧 basic-optimize 的禁用开关语义，11 组开关全部走设置框架。
+  - ✅ 设置框架的真实消费方：`Infrastructure/Headless/HeadlessModule`（0.3.0，无头化裁剪）与 `Infrastructure/Security/SecurityModule`（0.4.0，安全加固）；组件逐项评估见 `docs/optimize-migration-assessment.md`。
 - `languages/` + .pot；`tests/Unit` 覆盖 ValueNormalizer 与 Field；
   - ✅ 工具链已就绪（2026-09-04）：composer dev 依赖（phpstan 2 @ level 8、wpcs 3 + PHPCompatibilityWP、parallel-lint、wp-cli i18n-command）+ `phpstan.neon.dist` / `phpcs.xml.dist` / `phpstan-bootstrap.php`，`composer php:stan|php:cs|php:cbf|php:lint|i18n:pot` 全部通过；宿主机无 PHP 时用 `docker run --rm -v <插件目录>:/app -w /app composer:2 <script>` 执行。`.pot` 已生成于 `languages/aiya-core.pot`。剩余：phpunit 与单测落地。
 - 验收：以旧 `opt-basic.php` 的真实字段集在新框架重建「站点」页，保存/校验/重置/动态选项全部工作；单测与 phpstan 绿。
