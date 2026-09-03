@@ -4,8 +4,97 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "be9b3418900bdbec822b9f9063fbb4e2",
-    "packages": [],
+    "content-hash": "12d9549b5da6657bf2554d5318db933d",
+    "packages": [
+        {
+            "name": "aiya/slug-toolkit",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/slug-toolkit",
+                "reference": "da6e02ecd1581b0b96ded469d6cb089adad56f5a"
+            },
+            "require": {
+                "overtrue/pinyin": "^6.0",
+                "php": ">=8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Aiya\\Infra\\SlugToolkit\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "description": "Slug generation primitives for AIYA CMS: pinyin conversion and XDE-style ID encoding (WordPress-free).",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "overtrue/pinyin",
+            "version": "6.0.1",
+            "dist": {
+                "type": "zip",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/overtrue/pinyin/6.0.1/overtrue-pinyin-6.0.1.zip",
+                "reference": "d79364f289f5ccdabdd3142556d4254c7574f87c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "brainmaestro/composer-git-hooks": "^3.0",
+                "laravel/pint": "^1.10",
+                "nunomaduro/termwind": "^1.0 || ^2.0",
+                "phpunit/phpunit": "^10.5 || ^11.5 || ^12.0"
+            },
+            "bin": [
+                "bin/pinyin"
+            ],
+            "type": "library",
+            "extra": {
+                "hooks": {
+                    "pre-push": [
+                        "composer pint",
+                        "composer test"
+                    ],
+                    "pre-commit": [
+                        "composer pint",
+                        "composer test"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Overtrue\\Pinyin\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "overtrue",
+                    "email": "anzhengchao@gmail.com",
+                    "homepage": "http://github.com/overtrue"
+                }
+            ],
+            "description": "Chinese to pinyin translator.",
+            "homepage": "https://github.com/overtrue/pinyin",
+            "keywords": [
+                "Chinese",
+                "Pinyin",
+                "cn2pinyin"
+            ],
+            "support": {
+                "issues": "https://github.com/overtrue/pinyin/issues",
+                "source": "https://github.com/overtrue/pinyin/tree/6.0.1"
+            },
+            "time": "2026-03-06T13:15:43+00:00"
+        }
+    ],
     "packages-dev": [
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
@@ -1267,7 +1356,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "aiya/slug-toolkit": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

@@ -2,7 +2,7 @@
 
 本文是当前迭代的实施规划：对照旧 `framework-required` 评估完成度，定义目标目录树与里程碑。模块归属的最终裁决仍以 [MIGRATION.md](MIGRATION.md) 为准，注册方式见 [ARCHITECTURE.md](ARCHITECTURE.md)。
 
-基线：v0.5.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活，示例页 16 字段保存链路实测可用；完整生命周期（activate / deactivate / uninstall）已随 0.2.0 落地；无头化裁剪（HeadlessModule）随 0.3.0、安全加固（SecurityModule）随 0.4.0、本地头像与 Gravatar 镜像（AvatarModule）随 0.5.0 落地。
+基线：v0.6.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活，示例页 16 字段保存链路实测可用；完整生命周期（activate / deactivate / uninstall）已随 0.2.0 落地；无头化裁剪（HeadlessModule）随 0.3.0、安全加固（SecurityModule）随 0.4.0、本地头像与 Gravatar 镜像（AvatarModule）随 0.5.0、自动别名（SlugModule + slug-toolkit 包）随 0.6.0 落地。
 
 ## 一、完成度对照（vs framework-required v1.3）
 
@@ -79,9 +79,10 @@ aiya-core/
 │  │  ├─ Identity/                  # ✅ 0.5.0：AvatarModule——本地头像（协议键 basic_user_avatar，
 │  │                                #   新形状 ['id','full']、兼容旧 ['full']）、七牛/WeAvatar 镜像、
 │  │                                #   默认头像 URL；设置追加在 Headless optimization 页（不开新页）
-│  │  └─ Content/                   # M4 读服务：ContentQuery（旧 WP_Query 原型）、MenuService（旧
-│  │                                #   WP_Menu 蓝本：结构缓存+每请求激活态）、BreadcrumbService、
-│  │                                #   PaginationService；Issue/ Tweet/ 内容域切片在此层扩展
+│  │  └─ Content/                   # ✅ 0.6.0：SlugModule——自动别名（pinyin / id_av / id_bv，
+│  │                                #   术语 pinyin），原语来自 slug-toolkit 包；M4 再落 ContentQuery
+│  │                                #   （旧 WP_Query 原型）、MenuService（旧 WP_Menu 蓝本）、
+│  │                                #   BreadcrumbService、PaginationService；Issue/ Tweet/ 域在此扩展
 │  ├─ Modules/                      # 基础设施包适配器：实例化 packages/ 服务 + 注册「拓展功能」设置页
 │  ├─ Admin/
 │  │  ├─ SettingsAdmin.php          # ✅
@@ -103,7 +104,8 @@ aiya-core/
 │  │                                #   用户名防护组按决定取消；AIYA Core > Security hardening
 │  │                                # 其余（Media/ 等）有真实需求才建
 │  └─ Http/                         # （M5 起并入 Api/Rest，不再单独设 Http/）
-├─ packages/                        # ✅ 基础设施包目录（约定与批次见下节）；opencc-convert tracer 已建
+├─ packages/                        # ✅ 基础设施包目录（约定与批次见下节）；opencc-convert（待接适配器）
+│                                   #   与 slug-toolkit（✅ 0.6.0 已接入）
 ├─ assets/                          # ✅ admin.css / admin.js
 ├─ languages/                       # ✅ aiya-core.pot 已生成；.po/.mo 待译
 ├─ tests/

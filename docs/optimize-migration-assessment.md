@@ -13,7 +13,7 @@
 | `wp-local-avatars.php` | 本地头像（user meta `basic_user_avatar`，`get_avatar_data` 过滤） | ✅（`get_avatar_data` / `get_avatar_url` 在 link-template.php） | ✅ 已随 0.5.0 按新架构重建：媒体库选择器、协议键保留、新形状 `['id','full']` 兼容旧 `['full']` | `Domain/Identity/AvatarModule` |
 | `avatar-speed.php` | Gravatar CDN 镜像（七牛/loli/v2ex/weavatar）、默认头像 | ✅（同一组头像过滤器） | ✅ 镜像部分随 0.5.0 落地——仅保留七牛与 WeAvatar（loli/v2ex 已失效，不提供）；默认头像 URL 字段就位；Google Fonts 替换部分弃（前台归 Astro） | 并入 `Domain/Identity/AvatarModule` |
 | `stmp-mail.php` | SMTP 发信（`phpmailer_init`）+ 关闭新用户通知邮件 | ✅ | **不迁移**——发信改由外部服务商（SMTP2GO 等）提供，插件不再自建 SMTP 配置层（2026-09-04 决定） | 弃（外部化） |
-| `basic-automatic.php` | 自动别名（拼音/ID 式 AV·BV 风格）、保存时中文排版纠正、HTML 清理、自动匹配标签、重置日期、编辑器默认内容 | ✅（`wp_insert_post_data`、`wp_unique_post_slug`、`wp_insert_term_data`、`wp_update_term_data`、`default_content` 均在；`default_content` 现仅后台编辑器上下文） | **高价值，分两步**：拼音/ID 别名独立成片（只依赖 overtrue/pinyin）；排版清理 + 自动标签依赖保存时的动作勾选（`AYF::get_post_action` → 恰是 M1 待定的 `action_checkbox` 字段的真实用例），等 M2 metabox 落地后迁 | `Domain/Content/`（别名为 `SlugGenerator`），第三批 |
+| `basic-automatic.php` | 自动别名（拼音/ID 式 AV·BV 风格）、保存时中文排版纠正、HTML 清理、自动匹配标签、重置日期、编辑器默认内容 | ✅（`wp_insert_post_data`、`wp_unique_post_slug`、`wp_insert_term_data`、`wp_update_term_data`、`default_content` 均在；`default_content` 现仅后台编辑器上下文） | **拆两步**：✅ 拼音/ID 别名已随 0.6.0 落地（`Domain/Content/SlugModule`，原语在 `packages/slug-toolkit`：`PinyinConverter` + 继承冻结算法的 `IdSlugEncoder`，与旧站输出逐字节一致，经 `sanitize_title` 转小写不与旧数据冲突）；排版清理 + 自动标签依赖保存时的动作勾选（`AYF::get_post_action` → 恰是 M1 待定的 `action_checkbox` 字段的真实用例），等 M2 metabox 落地后迁 | `Domain/Content/`，第三批 |
 | `basic-request.php` | 主查询优化（no_found_rows + EXPLAIN found_posts）、搜索重定向/权限/限流/SQL 改写（标题搜索、ID 搜索、meta 搜索） | ✅（`pre_get_posts`、`posts_clauses` 均在） | **拆解**：前台主查询在无头下不存在，前台搜索 UI 死亡 → 代码不迁；但「IP 限流」「仅标题搜索」「meta 搜索」是 M4 `ContentQuery` / M5 API 的直接设计输入 | 设计参考 → M4/M5；URL 参数拦截（eval/base64/超长）可并入 SecurityModule |
 | `seo-stk.php` | wp_head 输出 title/keywords/description、正文关键词自动链接、robots.txt 自定义 | ✅（`pre_get_document_title`、`robots_txt` 在） | **拆解**：输出面随主题退役（SEO 归 Astro head）；**数据面进新架构**——`post_seo` metabox（seo_keywords/seo_desc，协议键 `aya_box_post_seo`）由 M2 Metadata 重建，字段投影进 M4 `PostDetail`/`PageMeta` DTO | 数据 → M2/M4；输出 → 弃 |
 | `ua-firewall.php` | UA/IP/URL 参数黑名单 403 | ✅（init 钩子 wp_die 可行） | 低价值——无头后 WP 攻击面只剩 wp-login.php，边缘防护应交给反代/CDN；旧代码里被注释的「登录失败限速」半成品值得重新设计（transients 实现） | SecurityModule backlog，非首批 |
@@ -38,11 +38,12 @@
    - Gravatar 镜像仅提供七牛（dn-qiniu-avatar.qbox.me）与 WeAvatar（loli/v2ex 已失效，按决定不提供），默认七牛；本地头像始终优先
    - 默认头像 URL 字段：非空时经 `pre_option_avatar_default` 全站强制生效
    - **SMTP 不迁移**：发信交由外部服务商（SMTP2GO 等），`Infrastructure/Mail` 从批次中移除（2026-09-04 决定）
-3. **第三批 `Domain/Content/` 自动别名**（可早于 M2 做别名部分）：
-   - 拼音 slug（post/term）+ ID 式 slug（AV/BV 风格 + 前缀设置）；运行时依赖 `overtrue/pinyin` 进根 composer require（core 直接依赖，理由：这是内容写入行为而非独立基础设施，不值得做成包）
-   - 中文排版/HTML 清理/自动标签/重置日期：等 M2 的 metabox + `action_checkbox` 字段（此处即该字段的真实用例），批量刷新工具改为 wp-cli command
+3. **第三批 `Domain/Content/` 自动别名**（别名部分 ✅ 0.6.0）：
+   - ✅ `packages/slug-toolkit` 包：`PinyinConverter`（overtrue/pinyin 基础调用，无策略）+ `IdSlugEncoder`（**继承**旧 `inc/lib/XDeode.php` 的 `XDE_code` 冻结算法，输出与旧站逐字节一致），根 composer require `overtrue/pinyin ^6.0` 随包进入
+   - ✅ `Domain/Content/SlugModule`：`slug_post_mode`（off/pinyin/id_av/id_bv）+ `slug_post_types`（默认 post）+ `slug_term_pinyin`（默认开）+ `slug_id_prefix`；拼音模式填空 slug（检查原始 `$postarr['post_name']`——核心在过滤器之前已预填编码 slug）并自做 `wp_unique_post_slug`；ID 模式经 `wp_unique_post_slug` 强制 + `wp_insert_post` 创建后补写（创建时 post_id 尚不存在）；术语拼音走 `wp_insert_term_data`/`wp_update_term_data`（检查原始 `$args['slug']`）
+   - ⏳ 中文排版/HTML 清理/自动标签/重置日期：等 M2 的 metabox + `action_checkbox` 字段，批量刷新工具改为 wp-cli command
 4. **M4/M5 设计输入**（不迁代码）：搜索限流/标题搜索/meta 搜索 → `ContentQuery` 搜索参数与 API 限流；SEO meta → `PostDetail`/`PageMeta` DTO；robots.txt 与 sitemap 的最终归属（Astro 生成、WP 提供数据）在 M5 一并定。
 
 ## 依赖账本
 
-迁移将新增的 composer 依赖：`overtrue/pinyin ^6.0`（第三批，运行时）；`jxlwqq/chinese-typesetting ^1.2`（排版功能落地时，运行时）。均沿用旧 `plugins/composer.json` 已验证的约束。
+迁移将新增的 composer 依赖：`overtrue/pinyin ^6.0`（✅ 0.6.0 随 `packages/slug-toolkit` 进入根 require）；`jxlwqq/chinese-typesetting ^1.2`（排版功能落地时，运行时）。均沿用旧 `plugins/composer.json` 已验证的约束。

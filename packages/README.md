@@ -22,3 +22,4 @@
 | 包 | 状态 |
 |---|---|
 | `opencc-convert` | 包体就绪（Converter + locale 策略映射）；等 `src/Modules/OpenCcModule.php` 适配器接入根 require |
+| `slug-toolkit` | ✅ 0.6.0 已接入根 require：`PinyinConverter`（overtrue/pinyin 基础调用，无策略）+ `IdSlugEncoder`（继承冻结算法 `XDE_code`，输出与旧站逐字节一致）；消费方为 `Domain/Content/SlugModule` |

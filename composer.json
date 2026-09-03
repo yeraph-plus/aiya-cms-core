@@ -4,7 +4,8 @@
     "type": "wordpress-plugin",
     "license": "GPL-3.0-or-later",
     "require": {
-        "php": ">=8.2"
+        "php": ">=8.2",
+        "aiya/slug-toolkit": "@dev"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",

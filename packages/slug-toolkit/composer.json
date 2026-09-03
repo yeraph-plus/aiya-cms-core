@@ -1,0 +1,15 @@
+{
+    "name": "aiya/slug-toolkit",
+    "description": "Slug generation primitives for AIYA CMS: pinyin conversion and XDE-style ID encoding (WordPress-free).",
+    "type": "library",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "php": ">=8.2",
+        "overtrue/pinyin": "^6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aiya\\Infra\\SlugToolkit\\": "src/"
+        }
+    }
+}

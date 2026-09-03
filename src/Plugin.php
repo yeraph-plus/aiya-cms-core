@@ -7,6 +7,7 @@ namespace Aiya\Core;
 use Aiya\Core\Admin\SettingsAdmin;
 use Aiya\Core\Admin\SampleSettings;
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Content\SlugModule;
 use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Infrastructure\Headless\HeadlessModule;
 use Aiya\Core\Infrastructure\Security\SecurityModule;
@@ -43,6 +44,7 @@ final class Plugin
         $this->addModule(new HeadlessModule($this->settings));
         $this->addModule(new SecurityModule($this->settings));
         $this->addModule(new AvatarModule($this->settings));
+        $this->addModule(new SlugModule($this->settings));
 
         add_action('plugins_loaded', function (): void {
             load_plugin_textdomain('aiya-core', false, dirname(plugin_basename(AIYA_CORE_FILE)) . '/languages');
