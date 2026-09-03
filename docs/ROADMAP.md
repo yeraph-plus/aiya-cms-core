@@ -87,7 +87,13 @@ aiya-core/
 │  ├─ Metadata/
 │  │  ├─ Registry.php               # M2：addPostBox / addTermBox / addUserFields
 │  │  └─ Storage/                   # ✅ PostMetaStore / TermMetaStore / UserMetaStore
-│  ├─ Infrastructure/               # 按需：Media/ 等第一刀有真实需求才建
+│  ├─ Infrastructure/
+│  │  └─ Headless/                  # ✅ 0.3.0：HeadlessModule——无头化功能裁剪（区块编辑器/站点编辑器/
+│  │                                #   外观与定制器/区块小工具/字体库与全局样式/区块样板/评论与
+│  │                                #   Pingback/前台头部冗余/Emoji/oEmbed/XML-RPC），开关存储在
+│  │                                #   aiya_core_headless，总开关 off = 恢复原生行为；已对照 WP 7.1
+│  │                                #   源码逐钩子验证，普通插件即可实现全部裁剪，无需 MU
+│  │                                # 其余（Media/ 等）有真实需求才建
 │  └─ Http/                         # （M5 起并入 Api/Rest，不再单独设 Http/）
 ├─ packages/                        # ✅ 基础设施包目录（约定与批次见下节）；opencc-convert tracer 已建
 ├─ assets/                          # ✅ admin.css / admin.js
@@ -123,6 +129,8 @@ aiya-core/
 - 新增 `note` 字段（info/success/warning/error 变体）与字段分组标题，替代旧 title/content 伪字段；
 - `Options/OptionsResolver`：`options_source => ['source' => 'terms|posts|users|sidebars', ...]`，Schema 校验来源定义，Admin 渲染前惰性求值（不查询直到渲染）；
 - 读取门面 `aiya_core_opt(string $page, string $id, mixed $default = null)` 与 `aiya_core_opt_bool(...)`；`Storage/LegacyOptionReader` 只读兼容 `aya_opt_{slug}` 旧键，旧→新无写回、无同步；
+  - ✅ `aiya_core_opt()` 已随 0.3.0 落地（aiya-core.php 顶层函数，回退字段默认值；`aiya_core_opt_bool` 暂无需求，布尔用 `(bool)` 强转即可）；
+  - ✅ 设置框架的首个真实消费方已就位：`Infrastructure/Headless/HeadlessModule`（0.3.0），替代旧 basic-optimize 的禁用开关语义，11 组开关全部走设置框架。
 - `languages/` + .pot；`tests/Unit` 覆盖 ValueNormalizer 与 Field；
   - ✅ 工具链已就绪（2026-09-04）：composer dev 依赖（phpstan 2 @ level 8、wpcs 3 + PHPCompatibilityWP、parallel-lint、wp-cli i18n-command）+ `phpstan.neon.dist` / `phpcs.xml.dist` / `phpstan-bootstrap.php`，`composer php:stan|php:cs|php:cbf|php:lint|i18n:pot` 全部通过；宿主机无 PHP 时用 `docker run --rm -v <插件目录>:/app -w /app composer:2 <script>` 执行。`.pot` 已生成于 `languages/aiya-core.pot`。剩余：phpunit 与单测落地。
 - 验收：以旧 `opt-basic.php` 的真实字段集在新框架重建「站点」页，保存/校验/重置/动态选项全部工作；单测与 phpstan 绿。

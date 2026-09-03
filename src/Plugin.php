@@ -7,6 +7,7 @@ namespace Aiya\Core;
 use Aiya\Core\Admin\SettingsAdmin;
 use Aiya\Core\Admin\SampleSettings;
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Infrastructure\Headless\HeadlessModule;
 use Aiya\Core\Settings\Registry;
 
 final class Plugin
@@ -37,6 +38,7 @@ final class Plugin
     {
         $this->addModule(new SettingsAdmin($this->settings));
         $this->addModule(new SampleSettings($this->settings));
+        $this->addModule(new HeadlessModule($this->settings));
 
         add_action('plugins_loaded', function (): void {
             load_plugin_textdomain('aiya-core', false, dirname(plugin_basename(AIYA_CORE_FILE)) . '/languages');
