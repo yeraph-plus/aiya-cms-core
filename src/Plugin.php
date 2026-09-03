@@ -28,13 +28,13 @@ final class Plugin
         return self::$instance ??= new self();
     }
 
-    public function boot(): void
+    /**
+     * Registers modules and hooks. Idempotent, and safe to call on any
+     * request; note that on the activation request the settings registry is
+     * not populated until init fires.
+     */
+    public function register(): void
     {
-        if ($this->booted) {
-            return;
-        }
-
-        $this->booted = true;
         $this->addModule(new SettingsAdmin($this->settings));
         $this->addModule(new SampleSettings($this->settings));
 
@@ -45,6 +45,39 @@ final class Plugin
         add_action('init', function (): void {
             do_action('aiya_core_register', $this->settings, $this);
         }, 0);
+    }
+
+    public function boot(): void
+    {
+        if ($this->booted) {
+            return;
+        }
+
+        $this->booted = true;
+        $this->register();
+    }
+
+    /**
+     * Runs on plugin activation. Field defaults are applied lazily at read
+     * time, so activation only records the installed schema version.
+     */
+    public function activate(): void
+    {
+        if (get_option('aiya_core_schema_version') === false) {
+            add_option('aiya_core_schema_version', AIYA_CORE_VERSION, '', false);
+        }
+    }
+
+    /**
+     * Runs on plugin deactivation. Modules register their cron hooks through
+     * the aiya_core_scheduled_events filter so deactivation can clear them;
+     * no core events are scheduled today.
+     */
+    public function deactivate(): void
+    {
+        foreach ((array) apply_filters('aiya_core_scheduled_events', []) as $hook) {
+            wp_clear_scheduled_hook((string) $hook);
+        }
     }
 
     public function settings(): Registry

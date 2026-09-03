@@ -3,6 +3,7 @@
     <description>PHPCS rules for the AIYA Core WordPress plugin.</description>
 
     <file>aiya-core.php</file>
+    <file>uninstall.php</file>
     <file>src</file>
 
     <exclude-pattern>*/vendor/*</exclude-pattern>

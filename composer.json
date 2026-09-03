@@ -18,6 +18,10 @@
         "wp-cli/i18n-command": "^2.6"
     },
     "repositories": {
+        "packages": {
+            "type": "path",
+            "url": "packages/*"
+        },
         "packagist": {
             "type": "composer",
             "url": "https://mirrors.cloud.tencent.com/composer/"
