@@ -1,0 +1,16 @@
+# Dependencies
+vendor/
+node_modules/
+
+# Build artifacts
+*.zip
+*.mo
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Runtime artifacts (never commit local WP data)
+*.log

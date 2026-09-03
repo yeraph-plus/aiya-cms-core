@@ -1,0 +1,48 @@
+.aiya-core-settings .form-table {
+    max-width: 960px;
+}
+
+.aiya-core-settings .aiya-core-radio {
+    display: block;
+    margin: 0 0 6px;
+}
+
+.aiya-core-media-preview img {
+    display: block;
+    height: auto;
+    margin: 0 0 8px;
+    max-height: 150px;
+    max-width: 150px;
+}
+
+.aiya-core-repeater-item {
+    margin: 0 0 10px;
+    max-width: 720px;
+}
+
+.aiya-core-repeater-handle {
+    align-items: center;
+    border-bottom: 1px solid #dcdcde;
+    cursor: move;
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+}
+
+.aiya-core-repeater-item .inside {
+    margin: 0;
+    padding: 12px;
+}
+
+.aiya-core-repeater-item .regular-text,
+.aiya-core-repeater-item .large-text {
+    width: 100%;
+}
+
+.aiya-core-sort-placeholder {
+    border: 1px dashed #8c8f94;
+    height: 72px;
+    margin-bottom: 10px;
+    max-width: 720px;
+}
+
