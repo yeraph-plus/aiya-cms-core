@@ -89,10 +89,12 @@ aiya-core/
 │  │  └─ Storage/                   # ✅ PostMetaStore / TermMetaStore / UserMetaStore
 │  ├─ Infrastructure/
 │  │  └─ Headless/                  # ✅ 0.3.0：HeadlessModule——无头化功能裁剪（区块编辑器/站点编辑器/
-│  │                                #   外观与定制器/区块小工具/字体库与全局样式/区块样板/评论与
-│  │                                #   Pingback/前台头部冗余/Emoji/oEmbed/XML-RPC），开关存储在
-│  │                                #   aiya_core_headless，总开关 off = 恢复原生行为；已对照 WP 7.1
-│  │                                #   源码逐钩子验证，普通插件即可实现全部裁剪，无需 MU
+│  │                                #   外观与定制器/区块小工具/字体库与全局样式/区块样板/Pingback
+│  │                                #   与Trackback/前台头部冗余/Emoji/oEmbed/XML-RPC）；评论默认
+│  │                                #   保留（WP 为评论存储+审核面，Astro 经 REST 读写），kill switch
+│  │                                #   仅作整体关闭逃生口；开关存储在 aiya_core_headless，总开关
+│  │                                #   off = 恢复原生行为；已对照 WP 7.1 源码逐钩子验证，普通插件
+│  │                                #   即可实现全部裁剪，无需 MU
 │  │                                # 其余（Media/ 等）有真实需求才建
 │  └─ Http/                         # （M5 起并入 Api/Rest，不再单独设 Http/）
 ├─ packages/                        # ✅ 基础设施包目录（约定与批次见下节）；opencc-convert tracer 已建
@@ -161,7 +163,7 @@ DTO 清单直接翻译旧 `inc/core` 的 `*_In_While` 属性表（见工作区 A
 
 ### M5 版本化 REST ＋ Astro SSR
 
-- `Api/Rest/`：命名空间 `aiya/core/v1`；控制器只调用 M4 的读服务与 Presenter；资源：内容列表/详情、terms、导航菜单、面包屑/分页（嵌入响应元数据）、站点设置白名单、媒体引用；
+- `Api/Rest/`：命名空间 `aiya/core/v1`；控制器只调用 M4 的读服务与 Presenter；资源：内容列表/详情、terms、导航菜单、面包屑/分页（嵌入响应元数据）、站点设置白名单、媒体引用；**评论走 `/wp/v2/comments` 原生路由（保留开放）＋加固层**（限流、垃圾规则、`rest_pre_insert_comment` 钩子——`preprocess_comment` 在 REST 写入路径不触发），Astro 侧评论系统建立其上；
 - 公开读 + 应用密码写；CORS 允许 Astro 来源白名单；ETag / Cache-Control；
 - 产出面向前端的类型契约（OpenAPI 或从 Contract 生成 TS 类型脚本）；
 - Astro 侧在 `aiya-astro-bulid/` 初始化：SSR 模式（node adapter，保 SEO），`src/lib/aiya/`（类型化 API client，镜像 Contract、缓存）、`src/pages|components|layouts`；

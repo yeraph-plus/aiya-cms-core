@@ -10,8 +10,15 @@ use Aiya\Core\Settings\Registry;
 /**
  * Strips WordPress surfaces that are meaningless for a headless backend
  * (block editor, site editor, customizer, block widgets, font library,
- * block patterns, comments/pings, XML-RPC, emoji, oEmbed discovery) and
- * cleans the remaining front-end head output.
+ * block patterns, pingbacks/trackbacks, XML-RPC, emoji, oEmbed discovery)
+ * and cleans the remaining front-end head output.
+ *
+ * Comments are deliberately NOT stripped by default: WordPress keeps acting
+ * as the comment store and moderation surface while the Astro front end
+ * talks to the comments REST routes. disable_comments exists only as a
+ * kill switch for setups that truly want no comment system at all.
+ * Pingbacks and trackbacks are protocol-level spam vectors and stay
+ * disabled by default regardless.
  *
  * Everything here works from a normal active plugin: core loads plugins
  * before admin_menu / init / rest_endpoints, and every guard below is a
@@ -20,8 +27,8 @@ use Aiya\Core\Settings\Registry;
  * escape hatch instead of a hard-wired state.
  *
  * The toggles live in the aiya_core_headless option and default to "strip"
- * so a fresh activation is headless by design; flipping headless_mode off
- * restores stock WordPress behaviour without code changes.
+ * (comments: keep) so a fresh activation is headless by design; flipping
+ * headless_mode off restores stock WordPress behaviour without code changes.
  */
 final class HeadlessModule implements Module
 {
@@ -111,8 +118,16 @@ final class HeadlessModule implements Module
                 [
                     'id' => 'disable_comments',
                     'type' => 'switch',
-                    'label' => __('Comments, pingbacks and trackbacks', 'aiya-core'),
-                    'checkbox_label' => __('Close discussions everywhere and remove their screens and REST routes', 'aiya-core'),
+                    'label' => __('Comments (kill switch)', 'aiya-core'),
+                    'checkbox_label' => __('Disable the comment system entirely: store, moderation screen and REST routes', 'aiya-core'),
+                    'description' => __('Leave off by default: WordPress stays the comment store and moderation surface for the Astro front end.', 'aiya-core'),
+                    'default' => false,
+                ],
+                [
+                    'id' => 'disable_pings',
+                    'type' => 'switch',
+                    'label' => __('Pingbacks and trackbacks', 'aiya-core'),
+                    'checkbox_label' => __('Disable the pingback/trackback protocols entirely', 'aiya-core'),
                     'default' => true,
                 ],
                 [
@@ -177,6 +192,10 @@ final class HeadlessModule implements Module
             add_filter('should_load_remote_block_patterns', '__return_false');
         }
 
+        if ($this->enabled('disable_pings')) {
+            $this->stripPings();
+        }
+
         if ($this->enabled('disable_comments')) {
             $this->stripComments();
         }
@@ -200,14 +219,15 @@ final class HeadlessModule implements Module
         }
     }
 
-    private function stripComments(): void
+    /**
+     * Protocol-level ping disablement. Runs by default and is independent of
+     * the comment kill switch.
+     */
+    private function stripPings(): void
     {
-        add_filter('comments_open', '__return_false');
         add_filter('pings_open', '__return_false');
-        add_filter('option_default_comment_status', static fn (): string => 'closed');
 
         foreach (get_post_types(['public' => true]) as $post_type) {
-            remove_post_type_support($post_type, 'comments');
             remove_post_type_support($post_type, 'trackbacks');
         }
 
@@ -218,6 +238,20 @@ final class HeadlessModule implements Module
         });
         remove_action('do_pings', 'do_all_pings', 10);
         remove_action('publish_post', '_publish_post_hook', 5);
+    }
+
+    /**
+     * Full comment kill switch: store, moderation screen and REST routes.
+     * Off by default — see the class docblock.
+     */
+    private function stripComments(): void
+    {
+        add_filter('comments_open', '__return_false');
+        add_filter('option_default_comment_status', static fn (): string => 'closed');
+
+        foreach (get_post_types(['public' => true]) as $post_type) {
+            remove_post_type_support($post_type, 'comments');
+        }
     }
 
     private function stripEmoji(): void

@@ -19,7 +19,7 @@
 | `ua-firewall.php` | UA/IP/URL 参数黑名单 403 | ✅（init 钩子 wp_die 可行） | 低价值——无头后 WP 攻击面只剩 wp-login.php，边缘防护应交给反代/CDN；旧代码里被注释的「登录失败限速」半成品值得重新设计（transients 实现） | SecurityModule backlog，非首批 |
 | `custom-dashboard.php` | 后台化妆（前台 admin bar、页脚、欢迎面板、admin bar 链接） | ✅ | 可选、便宜；前台 admin bar 部分无意义 | 可选迁移（后台体验组），低优先级 |
 | `wp-dashboard-widget.php` | 仪表盘服务器状态（PHP/OPCache/Apache） | ✅ | 可选诊断工具；Docker 环境下用 wp-cli 也能查 | 可选迁移，低优先级 |
-| `comment-filter.php` | 评论反垃圾（黑名单/语言/长度/链接数/自定义正则，`preprocess_comment`） | ✅ | **弃**——评论已整体禁用；未来若 Astro 侧做评论系统，按新架构重设计 | 弃 |
+| `comment-filter.php` | 评论反垃圾（黑名单/语言/长度/链接数/自定义正则，`preprocess_comment`） | ✅ | **改造迁移（backlog）**——评论系统保留（WP 存储 + Astro 读写），这组规则就是服务端评论加固的直接参考。注意 `preprocess_comment` 在 REST 写入路径不触发，API 评论的加固必须挂 `rest_pre_insert_comment`；随 M5 评论加固层落地 |
 | `wp-widget-cache.php` | 小工具输出缓存 | ✅ | **弃**——widgets/侧边栏随旧前端退役（MIGRATION.md 已定） | 弃 |
 | `wp-no-category-url.php` | 去除分类 URL 的 /category/ 前缀 + 301 | ✅ | **弃**——前台 URL 结构归 Astro 路由；旧链接 301 由反代/Astro 处理 | 弃 |
 | `site-statistics.php` | GA/自定义脚本注入 wp_head | ✅ | **弃**——统计脚本归 Astro（组件/布局层注入） | 弃 |
