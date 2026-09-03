@@ -2,7 +2,7 @@
 
 本文是当前迭代的实施规划：对照旧 `framework-required` 评估完成度，定义目标目录树与里程碑。模块归属的最终裁决仍以 [MIGRATION.md](MIGRATION.md) 为准，注册方式见 [ARCHITECTURE.md](ARCHITECTURE.md)。
 
-基线：v0.6.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活，示例页 16 字段保存链路实测可用；完整生命周期（activate / deactivate / uninstall）已随 0.2.0 落地；无头化裁剪（HeadlessModule）随 0.3.0、安全加固（SecurityModule）随 0.4.0、本地头像与 Gravatar 镜像（AvatarModule）随 0.5.0、自动别名（SlugModule + slug-toolkit 包）随 0.6.0 落地。
+基线：v0.7.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活，示例页 16 字段保存链路实测可用；完整生命周期（activate / deactivate / uninstall）已随 0.2.0 落地；无头化裁剪（HeadlessModule）随 0.3.0、安全加固（SecurityModule）随 0.4.0、本地头像与 Gravatar 镜像（AvatarModule）随 0.5.0、自动别名（SlugModule + slug-toolkit 包）随 0.6.0、元数据字段组与内容类型注册（Metadata/Registry + MetaboxAdmin + ContentTypeModule）随 0.7.0 落地。
 
 ## 一、完成度对照（vs framework-required v1.3）
 
@@ -80,16 +80,21 @@ aiya-core/
 │  │                                #   新形状 ['id','full']、兼容旧 ['full']）、七牛/WeAvatar 镜像、
 │  │                                #   默认头像 URL；设置追加在 Headless optimization 页（不开新页）
 │  │  └─ Content/                   # ✅ 0.6.0：SlugModule——自动别名（pinyin / id_av / id_bv，
-│  │                                #   术语 pinyin），原语来自 slug-toolkit 包；M4 再落 ContentQuery
-│  │                                #   （旧 WP_Query 原型）、MenuService（旧 WP_Menu 蓝本）、
-│  │                                #   BreadcrumbService、PaginationService；Issue/ Tweet/ 域在此扩展
+│  │                                #   术语 pinyin），原语来自 slug-toolkit 包
+│  │                                # ✅ 0.7.0：ContentTypeModule + PostType/TaxonomyDefinition +
+│  │                                #   ContentTypeRegistry（代码式 CPT/分类法，show_in_rest 默认开）
+│  │                                #   + SeoBoxModule（post_seo 协议键字段组）
+│  │                                # M4 再落 ContentQuery（旧 WP_Query 原型）、MenuService（旧
+│  │                                #   WP_Menu 蓝本）、BreadcrumbService、PaginationService；
+│  │                                #   Issue/ Tweet/ 域在此扩展
 │  ├─ Modules/                      # 基础设施包适配器：实例化 packages/ 服务 + 注册「拓展功能」设置页
 │  ├─ Admin/
 │  │  ├─ SettingsAdmin.php          # ✅
-│  │  ├─ FieldRenderer.php          # ✅；M1 支持 note/分组渲染
-│  │  └─ MetaboxAdmin.php           # M2：post/term/user 编辑屏注册、渲染、保存
+│  │  ├─ FieldRenderer.php          # ✅；control() 公开供元数据/资料页复用
+│  │  └─ MetaboxAdmin.php           # ✅ 0.7.0：post box / term box / user fields 渲染与保存
 │  ├─ Metadata/
-│  │  ├─ Registry.php               # M2：addPostBox / addTermBox / addUserFields
+│  │  ├─ Registry.php               # ✅ 0.7.0：addPostBox / addTermBox / addUserFields
+│  │  │                             #    （+ PostBox / TermBox 值对象）
 │  │  └─ Storage/                   # ✅ PostMetaStore / TermMetaStore / UserMetaStore
 │  ├─ Infrastructure/
 │  │  └─ Headless/                  # ✅ 0.3.0：HeadlessModule——无头化功能裁剪（区块编辑器/站点编辑器/
@@ -146,24 +151,22 @@ aiya-core/
   - ✅ 工具链已就绪（2026-09-04）：composer dev 依赖（phpstan 2 @ level 8、wpcs 3 + PHPCompatibilityWP、parallel-lint、wp-cli i18n-command）+ `phpstan.neon.dist` / `phpcs.xml.dist` / `phpstan-bootstrap.php`，`composer php:stan|php:cs|php:cbf|php:lint|i18n:pot` 全部通过；宿主机无 PHP 时用 `docker run --rm -v <插件目录>:/app -w /app composer:2 <script>` 执行。`.pot` 已生成于 `languages/aiya-core.pot`。剩余：phpunit 与单测落地。
 - 验收：以旧 `opt-basic.php` 的真实字段集在新框架重建「站点」页，保存/校验/重置/动态选项全部工作；单测与 phpstan 绿。
 
-### M2 元数据注册表与内容类型注册（代码能力，无 ACF 式界面——2026-09-04 定稿）
+### M2 元数据注册表与内容类型注册 —— ✅ 已完成（0.7.0，代码能力，无 ACF 式界面）
 
-**M2a 字段组（ACF 式封装的代码面，替代旧 `new_box`/`new_tex`）**：
+**M2a 字段组（替代旧 `new_box`/`new_tex`）** ✅：
 
-- `Metadata/Registry`：`addPostBox(['id','title','screens','context','priority','template','fields'])`、`addTermBox(['id','taxonomies','fields'])`、`addUserFields(['fields'])`；字段复用 Settings 的同一套 `Field` schema（一套字段系统贯穿设置/元数据/未来 API 投影）；
-- `Admin/MetaboxAdmin`：post box 渲染进编辑屏（context/priority/页面模板条件照旧），term box 渲染进添加/编辑表单，user fields 进资料页；渲染统一走公开的 `FieldRenderer::control`，保存统一走 `ValueNormalizer`（消灭旧版 htmlspecialchars hack 与字段类型排除表）；
-- 存储形状沿协议：post box 保持组键 `aya_box_{id}` 单键全组（兼容读取旧数据），term 保持逐字段 term meta 键；
-- `action_checkbox` 字段从"待定"转为**必做**：`post_automatic` box 的保存时动作勾选（排版/清理/自动标签）是第一个真实消费方；
-- 第一刀落地 `post_seo` box（seo_keywords/seo_desc，协议键 `aya_box_post_seo`）。
+- `Metadata/Registry` + `Metadata/PostBox`/`TermBox` 值对象：`addPostBox(['id','title','screens','context','priority','template','fields'])`、`addTermBox(['id','taxonomies','fields'])`、`addUserFields(['fields'])`；字段复用 Settings 的同一套 `Field` schema，`action_checkbox` 类型已实现（保存时触发 `action` 设置指定的钩子，值不落库）；
+- `Admin/MetaboxAdmin`：post box 渲染进编辑屏（context/priority/页面模板条件），term box 渲染进添加/编辑表单（div/tr 两种结构），user fields 进资料页；渲染统一走 `FieldRenderer::control`（公开），保存统一走 `ValueNormalizer`（phpcs 探针确认 nonce/capability 逐 box 校验）；
+- 存储沿协议：post box 组键 `aya_box_{id}`（单键全组），term/user 逐字段 meta 键；
+- 第一刀 `Domain/Content/SeoBoxModule`：`post_seo` box（seo_keywords/seo_desc，协议键 `aya_box_post_seo`）；
+- 运行时验证：渲染含字段与 nonce、保存写协议键、action 触发且不落库、term/user 保存链路全通过。
 
-**M2b 内容类型注册（替代旧 `Register_Post_Type`/`Register_Tax_Type` 模块）**：
+**M2b 内容类型注册（替代旧 `Register_Post_Type`/`Register_Tax_Type`）** ✅：
 
-- `Domain/Content/` 增加 `PostTypeDefinition` / `TaxonomyDefinition` 值对象 + 注册器模块：领域模块（Tweet/Issue）在代码里声明，注册器在 `init` 统一 `register_post_type`/`register_taxonomy`；
-- 无头默认值与旧版差异：`show_in_rest => true`（旧 CPT 包装器缺失，M5 API 刚需）、`supports` 显式声明且默认**不含 comments**（按类型勾选）、`capability_type => post`、rewrite slug 可配；
-- 旧版的置顶归档 `the_posts` hack 与"作者可见未发布"逻辑**弃**（前台行为，归 Astro）；`__destruct` 注册 hook 的坏味道不迁；
-- 旧消费方对齐：`tweet` CPT + `tweet_tag`（tag 模式分类法）、`tips` 分类法 + 字段组，都在 M4 领域切片里用这套 API 重建。
-
-验收：以代码声明重建 `post_seo` box 与一个测试 CPT/分类法，字段可存可读可重置；Integration 测试走通 post/term/user 三条保存链路。
+- `Domain/Content/PostTypeDefinition` / `TaxonomyDefinition` / `ContentTypeRegistry` / `ContentTypeModule`：领域模块代码声明，注册器在 init 5 统一注册；
+- 无头默认值：`show_in_rest => true`、`rest_base => slug`、supports 显式默认不含 comments、context/priority 白名单校验；
+- 旧版置顶归档 `the_posts` hack、`__destruct` 注册不迁（前台行为/坏味道）；
+- 运行时验证：CPT 注册（REST on）、层级分类法注册。
 
 ### M3 运行时硬化（缩减版：生命周期已随 0.2.0 前移完成）
 

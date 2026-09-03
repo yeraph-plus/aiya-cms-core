@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace Aiya\Core;
 
+use Aiya\Core\Admin\MetaboxAdmin;
 use Aiya\Core\Admin\SettingsAdmin;
 use Aiya\Core\Admin\SampleSettings;
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Content\ContentTypeModule;
+use Aiya\Core\Domain\Content\ContentTypeRegistry;
+use Aiya\Core\Domain\Content\SeoBoxModule;
 use Aiya\Core\Domain\Content\SlugModule;
 use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Infrastructure\Headless\HeadlessModule;
 use Aiya\Core\Infrastructure\Security\SecurityModule;
+use Aiya\Core\Metadata\Registry as MetadataRegistry;
 use Aiya\Core\Settings\Registry;
 
 final class Plugin
@@ -18,6 +23,8 @@ final class Plugin
     private static ?self $instance = null;
     private bool $booted = false;
     private Registry $settings;
+    private MetadataRegistry $metadata;
+    private ContentTypeRegistry $contentTypes;
 
     /** @var array<class-string<Module>, Module> */
     private array $modules = [];
@@ -25,6 +32,8 @@ final class Plugin
     private function __construct()
     {
         $this->settings = new Registry();
+        $this->metadata = new MetadataRegistry();
+        $this->contentTypes = new ContentTypeRegistry();
     }
 
     public static function instance(): self
@@ -45,6 +54,9 @@ final class Plugin
         $this->addModule(new SecurityModule($this->settings));
         $this->addModule(new AvatarModule($this->settings));
         $this->addModule(new SlugModule($this->settings));
+        $this->addModule(new ContentTypeModule($this->contentTypes));
+        $this->addModule(new MetaboxAdmin($this->metadata));
+        $this->addModule(new SeoBoxModule($this->metadata));
 
         add_action('plugins_loaded', function (): void {
             load_plugin_textdomain('aiya-core', false, dirname(plugin_basename(AIYA_CORE_FILE)) . '/languages');
@@ -91,6 +103,16 @@ final class Plugin
     public function settings(): Registry
     {
         return $this->settings;
+    }
+
+    public function metadata(): MetadataRegistry
+    {
+        return $this->metadata;
+    }
+
+    public function contentTypes(): ContentTypeRegistry
+    {
+        return $this->contentTypes;
     }
 
     public function addModule(Module $module): void

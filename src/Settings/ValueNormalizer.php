@@ -19,6 +19,11 @@ final class ValueNormalizer
     {
         $result = [];
         foreach ($fields as $field) {
+            // One-shot save triggers are never stored; the metabox admin fires
+            // their action hooks when the checkbox was ticked.
+            if ($field->type() === 'action_checkbox') {
+                continue;
+            }
             $present = array_key_exists($field->id(), $input);
             $value = $present ? $input[$field->id()] : $field->defaultValue();
 

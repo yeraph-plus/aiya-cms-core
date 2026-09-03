@@ -84,9 +84,9 @@
     });
 
     $(function () {
-        // Settings screens plus the user profile form, which hosts shared
-        // field controls (e.g. the local avatar media picker).
-        $('.aiya-core-settings, #your-profile').each(function () {
+        // Settings screens, the user profile form, and metabox field groups
+        // all host shared field controls.
+        $('.aiya-core-settings, #your-profile, .aiya-core-fieldgroup').each(function () {
             new SettingsView({ el: this });
         });
     });

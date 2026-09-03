@@ -52,6 +52,12 @@ final class FieldRenderer
             echo '<textarea class="large-text code aiya-core-code" data-code-mime="' . esc_attr($mime) . '" rows="10" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '">' . esc_textarea((string) $value) . '</textarea>';
             return;
         }
+        if ($type === 'action_checkbox') {
+            // Never rendered with a stored value and never persisted; the
+            // checked state is a one-shot save trigger (see MetaboxAdmin).
+            echo '<label><input type="checkbox" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '" value="1"> ' . esc_html((string) $field->setting('checkbox_label', '')) . '</label>';
+            return;
+        }
         if (in_array($type, ['checkbox', 'switch'], true)) {
             echo '<input type="hidden" name="' . esc_attr($name) . '" value="0">';
             echo '<label><input type="checkbox" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '" value="1" ' . checked((bool) $value, true, false) . '> ' . esc_html((string) $field->setting('checkbox_label', '')) . '</label>';

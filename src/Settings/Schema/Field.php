@@ -9,7 +9,7 @@ use InvalidArgumentException;
 final class Field
 {
     private const TYPES = [
-        'array', 'checkbox', 'code', 'color', 'email', 'hidden', 'key_value', 'media',
+        'action_checkbox', 'array', 'checkbox', 'code', 'color', 'email', 'hidden', 'key_value', 'media',
         'number', 'password', 'radio', 'repeater', 'select', 'switch', 'text', 'textarea',
         'tinymce', 'url',
     ];
