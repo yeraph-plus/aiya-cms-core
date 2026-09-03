@@ -116,9 +116,11 @@ final class ValueNormalizer
         $minimum = $field->setting('min');
         $maximum = $field->setting('max');
         if ($minimum !== null && $number < (float) $minimum) {
+            /* translators: %s: minimum allowed value. */
             return $this->error($field, sprintf(__('The minimum value is %s.', 'aiya-core'), (string) $minimum));
         }
         if ($maximum !== null && $number > (float) $maximum) {
+            /* translators: %s: maximum allowed value. */
             return $this->error($field, sprintf(__('The maximum value is %s.', 'aiya-core'), (string) $maximum));
         }
         return $number;

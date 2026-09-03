@@ -8,7 +8,8 @@ use Aiya\Core\Settings\Schema\Field;
 
 final class FieldRenderer
 {
-    /** @param array<string, mixed> $values */
+    /** @param list<Field> $fields
+     *  @param array<string, mixed> $values */
     public function table(array $fields, array $values): void
     {
         echo '<table class="form-table" role="presentation"><tbody>';
@@ -75,7 +76,7 @@ final class FieldRenderer
             return;
         }
         if ($type === 'repeater') {
-            $this->repeater($field, is_array($value) ? $value : [], $name, $id);
+            $this->repeater($field, array_values(is_array($value) ? $value : []), $name, $id);
             return;
         }
         if ($type === 'array') {
@@ -94,6 +95,7 @@ final class FieldRenderer
         $htmlType = in_array($type, ['email', 'url', 'number', 'hidden'], true) ? $type : 'text';
         $classes = $type === 'color' ? 'regular-text aiya-core-color' : 'regular-text';
         $attributes = $this->attributes($field);
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every attribute name and value is escaped inside attributes().
         echo '<input class="' . esc_attr($classes) . '" type="' . esc_attr($htmlType) . '" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '" value="' . esc_attr((string) $value) . '"' . $attributes . '>';
     }
 

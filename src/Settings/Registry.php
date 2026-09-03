@@ -35,4 +35,3 @@ final class Registry
         return array_values($this->pages);
     }
 }
-

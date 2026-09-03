@@ -21,13 +21,13 @@ define('AIYA_CORE_FILE', __FILE__);
 define('AIYA_CORE_PATH', plugin_dir_path(__FILE__));
 define('AIYA_CORE_URL', plugin_dir_url(__FILE__));
 
-spl_autoload_register(static function (string $class): void {
+spl_autoload_register(static function (string $className): void {
     $prefix = 'Aiya\\Core\\';
-    if (!str_starts_with($class, $prefix)) {
+    if (!str_starts_with($className, $prefix)) {
         return;
     }
 
-    $relative = substr($class, strlen($prefix));
+    $relative = substr($className, strlen($prefix));
     $path = AIYA_CORE_PATH . 'src/' . str_replace('\\', '/', $relative) . '.php';
     if (is_readable($path)) {
         require_once $path;
@@ -40,4 +40,3 @@ function aiya_core(): Aiya\Core\Plugin
 }
 
 aiya_core()->boot();
-

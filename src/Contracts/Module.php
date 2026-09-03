@@ -8,4 +8,3 @@ interface Module
 {
     public function register(): void;
 }
-

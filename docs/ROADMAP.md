@@ -98,6 +98,7 @@ aiya-core/
 - `Options/OptionsResolver`：`options_source => ['source' => 'terms|posts|users|sidebars', ...]`，Schema 校验来源定义，Admin 渲染前惰性求值（不查询直到渲染）；
 - 读取门面 `aiya_core_opt(string $page, string $id, mixed $default = null)` 与 `aiya_core_opt_bool(...)`；`Storage/LegacyOptionReader` 只读兼容 `aya_opt_{slug}` 旧键，旧→新无写回、无同步；
 - `languages/` + .pot；`tests/Unit` 覆盖 ValueNormalizer 与 Field；composer.json（phpstan max level + phpunit）；
+  - ✅ 工具链已就绪（2026-09-04）：composer dev 依赖（phpstan 2 @ level 8、wpcs 3 + PHPCompatibilityWP、parallel-lint、wp-cli i18n-command）+ `phpstan.neon.dist` / `phpcs.xml.dist` / `phpstan-bootstrap.php`，`composer php:stan|php:cs|php:cbf|php:lint|i18n:pot` 全部通过；宿主机无 PHP 时用 `docker run --rm -v <插件目录>:/app -w /app composer:2 <script>` 执行。`.pot` 已生成于 `languages/aiya-core.pot`。剩余：phpunit 与单测落地。
 - 验收：以旧 `opt-basic.php` 的真实字段集在新框架重建「站点」页，保存/校验/重置/动态选项全部工作；单测与 phpstan 绿。
 
 ### M2 元数据注册表（对应 MIGRATION 交付序列 2）

@@ -79,8 +79,8 @@ final class Field
     /** @return list<Field> */
     public function children(): array { return $this->definition['children']; }
 
-    public function setting(string $name, mixed $default = null): mixed
+    public function setting(string $name, mixed $fallback = null): mixed
     {
-        return $this->definition[$name] ?? $default;
+        return $this->definition[$name] ?? $fallback;
     }
 }

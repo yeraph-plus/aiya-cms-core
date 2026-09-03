@@ -14,7 +14,7 @@ final class Page
         private string $title,
         private string $menuTitle,
         private string $capability,
-        private string $parent,
+        private string $parentSlug,
         private string $icon,
         private int $position,
         private string $optionName,
@@ -55,7 +55,7 @@ final class Page
     public function title(): string { return $this->title; }
     public function menuTitle(): string { return $this->menuTitle; }
     public function capability(): string { return $this->capability; }
-    public function parent(): string { return $this->parent; }
+    public function parent(): string { return $this->parentSlug; }
     public function icon(): string { return $this->icon; }
     public function position(): int { return $this->position; }
     public function optionName(): string { return $this->optionName; }
@@ -64,4 +64,3 @@ final class Page
     /** @return list<Field> */
     public function fields(): array { return $this->fields; }
 }
-

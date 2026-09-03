@@ -14,4 +14,3 @@ interface ValueStore
 
     public function delete(): void;
 }
-

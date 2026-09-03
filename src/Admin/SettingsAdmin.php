@@ -58,7 +58,10 @@ final class SettingsAdmin implements Module
         }
         if (isset($types['code'])) {
             foreach ($this->codeMimes($page->fields()) as $mime) {
-                $codeSettings[$mime] = wp_enqueue_code_editor(['type' => $mime]) ?: null;
+                $editorSettings = wp_enqueue_code_editor(['type' => $mime]);
+                if ($editorSettings !== false) {
+                    $codeSettings[$mime] = $editorSettings;
+                }
             }
             $dependencies[] = 'code-editor';
         }
@@ -156,6 +159,7 @@ final class SettingsAdmin implements Module
         }
 
         $values = (new OptionStore($page->optionName(), $page->network()))->all();
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect status notice, not form data.
         $status = sanitize_key((string) ($_GET['aiya_status'] ?? ''));
         echo '<div class="wrap aiya-core-settings"><h1>' . esc_html($page->title()) . '</h1>';
         if ($status === 'saved') {
@@ -163,6 +167,7 @@ final class SettingsAdmin implements Module
         } elseif ($status === 'reset') {
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings reset.', 'aiya-core') . '</p></div>';
         } elseif ($status === 'error') {
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect message, sanitized below.
             echo '<div class="notice notice-error"><p>' . esc_html((string) ($_GET['message'] ?? __('Unable to save settings.', 'aiya-core'))) . '</p></div>';
         }
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
@@ -170,7 +175,7 @@ final class SettingsAdmin implements Module
         wp_nonce_field('aiya_core_save_' . $page->slug());
         (new FieldRenderer())->table($page->fields(), $values);
         echo '<p class="submit"><button class="button button-primary" name="command" value="save">' . esc_html__('Save changes', 'aiya-core') . '</button> ';
-        echo '<button class="button" name="command" value="reset" onclick="return window.confirm(' . esc_attr(wp_json_encode(__('Reset all settings on this page?', 'aiya-core'))) . ')">' . esc_html__('Reset', 'aiya-core') . '</button></p></form></div>';
+        echo '<button class="button" name="command" value="reset" onclick="return window.confirm(' . esc_attr((string) wp_json_encode(__('Reset all settings on this page?', 'aiya-core'))) . ')">' . esc_html__('Reset', 'aiya-core') . '</button></p></form></div>';
         return null;
     }
 

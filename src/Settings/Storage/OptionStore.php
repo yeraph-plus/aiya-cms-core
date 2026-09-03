@@ -30,4 +30,3 @@ final class OptionStore implements ValueStore
         $this->network ? delete_site_option($this->optionName) : delete_option($this->optionName);
     }
 }
-
