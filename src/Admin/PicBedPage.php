@@ -7,11 +7,11 @@ namespace Aiya\Core\Admin;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Media\MediaPaths;
 use Closure;
-use DirectoryIterator;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
+use SplFileInfo;
 
 /**
  * Standalone pic-bed screen (legacy internal-pic-bed): uploads images
@@ -265,7 +265,9 @@ final class PicBedPage implements Module
         $files = [];
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
         foreach ($iterator as $file) {
-            if ($file instanceof DirectoryIterator && $file->isFile()) {
+            // RecursiveDirectoryIterator's default current is SplFileInfo
+            // (CURRENT_AS_FILEINFO), not a DirectoryIterator instance.
+            if ($file instanceof SplFileInfo && $file->isFile()) {
                 $files[] = str_replace('\\', '/', $file->getPathname());
             }
         }
