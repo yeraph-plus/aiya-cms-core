@@ -18,6 +18,12 @@ final class PostMetaStore implements ValueStore
         return is_array($value) ? $value : [];
     }
 
-    public function replace(array $values): void { update_post_meta($this->postId, $this->metaKey, $values); }
+    public function replace(array $values): void
+    {
+        // Callers hand over unslashed values (post-normalization of unslashed
+        // input); the WP meta API expects slashed data and would strip real
+        // backslashes otherwise.
+        update_post_meta($this->postId, $this->metaKey, wp_slash($values));
+    }
     public function delete(): void { delete_post_meta($this->postId, $this->metaKey); }
 }

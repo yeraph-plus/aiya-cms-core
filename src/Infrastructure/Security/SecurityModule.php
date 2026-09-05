@@ -28,6 +28,8 @@ use Aiya\Core\Settings\Registry;
 final class SecurityModule implements Module
 {
     private const PAGE_SLUG = 'security';
+    private const GATE_COOKIE = 'aiya_core_login_gate';
+    private const GATE_COOKIE_TTL = 10 * MINUTE_IN_SECONDS;
 
     private const CAPABILITY_BY_ROLE = [
         'subscriber' => 'read',
@@ -116,7 +118,7 @@ final class SecurityModule implements Module
                     'id' => 'login_param_gate_value',
                     'type' => 'text',
                     'label' => __('Login gate parameter value', 'aiya-core'),
-                    'description' => __('Reach the login screen via /wp-login.php?auth=<value>. Leave empty to disable the gate regardless of the switch above.', 'aiya-core'),
+                    'description' => __('Reach the login screen via /wp-login.php?auth=<value>; the pass persists for 10 minutes as a cookie and covers the full flow including password reset. Leave empty to disable the gate regardless of the switch above.', 'aiya-core'),
                     'default' => '',
                     'attributes' => ['autocomplete' => 'off'],
                 ],
@@ -206,24 +208,36 @@ final class SecurityModule implements Module
     }
 
     /**
-     * wp-login.php only loads when the secret query parameter matches; both
-     * the screen (GET) and the form submission (POST, which preserves the
-     * query string) are gated here.
+     * wp-login.php only loads for visitors holding the secret. The presented
+     * secret (query string or form field) exchanges for a short-lived cookie
+     * that unlocks the whole flow — the form POST back to wp-login.php never
+     * carries the original query parameter, and lost-password / reset forms
+     * are separate submissions as well.
      */
     public function gateLoginPage(): void
     {
-        if (!(bool) aiya_core_opt(self::PAGE_SLUG, 'login_param_gate_enable', false)) {
+        $expected = $this->gateSecret();
+        if ($expected === null) {
             return;
         }
 
-        $expected = trim((string) aiya_core_opt(self::PAGE_SLUG, 'login_param_gate_value', ''));
-        if ($expected === '') {
+        $presented = isset($_REQUEST['auth']) ? wp_unslash((string) $_REQUEST['auth']) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the secret itself is the gate; its value is only compared, never stored or rendered.
+        if ($presented !== '' && hash_equals($expected, $presented)) {
+            if (!isset($_COOKIE[self::GATE_COOKIE]) || !hash_equals($this->gateCookieValue($expected), (string) $_COOKIE[self::GATE_COOKIE])) {
+                setcookie(self::GATE_COOKIE, $this->gateCookieValue($expected), [
+                    'expires' => time() + self::GATE_COOKIE_TTL,
+                    'path' => COOKIEPATH,
+                    'domain' => COOKIE_DOMAIN,
+                    'secure' => is_ssl(),
+                    'httponly' => true,
+                    'samesite' => 'Lax',
+                ]);
+            }
             return;
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the secret parameter itself is the gate; nothing is processed from it.
-        $provided = isset($_GET['auth']) ? sanitize_text_field(wp_unslash((string) $_GET['auth'])) : '';
-        if (is_string($provided) && $provided !== '' && hash_equals($expected, $provided)) {
+        $cookie = isset($_COOKIE[self::GATE_COOKIE]) ? (string) $_COOKIE[self::GATE_COOKIE] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above.
+        if ($cookie !== '' && hash_equals($this->gateCookieValue($expected), $cookie)) {
             return;
         }
 
@@ -232,6 +246,22 @@ final class SecurityModule implements Module
             '',
             ['response' => 404]
         );
+    }
+
+    private function gateSecret(): ?string
+    {
+        if (!(bool) aiya_core_opt(self::PAGE_SLUG, 'login_param_gate_enable', false)) {
+            return null;
+        }
+        $expected = trim((string) aiya_core_opt(self::PAGE_SLUG, 'login_param_gate_value', ''));
+
+        return $expected !== '' ? $expected : null;
+    }
+
+    /** The cookie carries a salted hash of the secret, never the secret itself. */
+    private function gateCookieValue(string $expected): string
+    {
+        return hash('sha256', 'aiya_core_login_gate|' . $expected);
     }
 
     /**

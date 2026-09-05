@@ -162,6 +162,83 @@ if (!function_exists('is_email')) {
     }
 }
 
+if (!function_exists('wp_slash')) {
+    function wp_slash(mixed $value): mixed
+    {
+        if (is_array($value)) {
+            foreach ($value as $key => $item) {
+                $value[$key] = wp_slash($item);
+            }
+            return $value;
+        }
+        return is_string($value) ? addslashes($value) : $value;
+    }
+}
+
+if (!function_exists('wp_unslash')) {
+    function wp_unslash(mixed $value): mixed
+    {
+        if (is_array($value)) {
+            foreach ($value as $key => $item) {
+                $value[$key] = wp_unslash($item);
+            }
+            return $value;
+        }
+        // Core uses stripcslashes (C-style), not stripslashes.
+        return is_string($value) ? stripcslashes($value) : $value;
+    }
+}
+
+// --- Post meta store (for PostMetaStore) ---------------------------------
+
+$GLOBALS['__aiya_test_post_meta'] = [];
+
+if (!function_exists('update_post_meta')) {
+    function update_post_meta(int $objectId, string $key, mixed $value): bool
+    {
+        // Mirrors core: the meta API unslashes incoming (slashed) values
+        // before persisting them.
+        $GLOBALS['__aiya_test_post_meta'][$objectId][$key] = wp_unslash($value);
+        return true;
+    }
+}
+
+if (!function_exists('get_post_meta')) {
+    function get_post_meta(int $objectId, string $key, bool $single = false): mixed
+    {
+        $value = $GLOBALS['__aiya_test_post_meta'][$objectId][$key] ?? '';
+        return $single ? $value : [$value];
+    }
+}
+
+if (!function_exists('delete_post_meta')) {
+    function delete_post_meta(int $objectId, string $key): bool
+    {
+        unset($GLOBALS['__aiya_test_post_meta'][$objectId][$key]);
+        return true;
+    }
+}
+
+// --- Term queries (for OptionsResolver) -----------------------------------
+
+$GLOBALS['__aiya_test_terms'] = [];
+
+if (!function_exists('taxonomy_exists')) {
+    function taxonomy_exists(string $taxonomy): bool
+    {
+        return array_key_exists($taxonomy, $GLOBALS['__aiya_test_terms']);
+    }
+}
+
+if (!function_exists('get_terms')) {
+    function get_terms(array $args = []): mixed
+    {
+        $taxonomy = (string) ($args['taxonomy'] ?? '');
+        $terms = $GLOBALS['__aiya_test_terms'][$taxonomy] ?? [];
+        return $terms === [] ? [] : $terms;
+    }
+}
+
 // --- Options and filters (for the schema version runner) ------------------
 
 $GLOBALS['__aiya_test_options'] = [];

@@ -35,6 +35,7 @@ final class SlugModule implements Module
 
     private ?PinyinConverter $pinyin = null;
     private ?IdSlugEncoder $encoder = null;
+    private bool $deduplicatingIdSlug = false;
 
     public function __construct(private Registry $settings)
     {
@@ -127,17 +128,29 @@ final class SlugModule implements Module
     /**
      * ID modes: forces the ID-based slug whenever the post ID exists (all
      * saves after creation; creation itself is handled by applyIdSlugAfterInsert).
+     * The raw candidate may collide with an existing manual slug, so it is
+     * re-run through core's uniqueness check instead of overriding the
+     * already-deduplicated result this filter receives.
      */
     public function forcedIdSlug(string $slug, int $postId, string $postStatus, string $postType, int $postParent, ?string $originalSlug = null): string
     {
-        if ($postId <= 0 || !in_array((string) aiya_core_opt(self::PAGE_SLUG, 'slug_post_mode', 'off'), ['id_av', 'id_bv'], true)) {
+        if ($this->deduplicatingIdSlug || $postId <= 0 || !in_array((string) aiya_core_opt(self::PAGE_SLUG, 'slug_post_mode', 'off'), ['id_av', 'id_bv'], true)) {
             return $slug;
         }
         if (!in_array($postType, $this->postTypes(), true)) {
             return $slug;
         }
 
-        return $this->idCandidate($postId);
+        $candidate = $this->idCandidate($postId);
+        if ($candidate === $slug) {
+            return $slug;
+        }
+
+        $this->deduplicatingIdSlug = true;
+        $unique = wp_unique_post_slug($candidate, $postId, $postStatus, $postType, $postParent);
+        $this->deduplicatingIdSlug = false;
+
+        return $unique;
     }
 
     /**
@@ -172,7 +185,7 @@ final class SlugModule implements Module
      */
     public function termSlugOnInsert(array $data, string $taxonomy, array $args): array
     {
-        return $this->fillTermSlug($data, $args);
+        return $this->fillTermSlug($data, $taxonomy, $args);
     }
 
     /**
@@ -182,7 +195,7 @@ final class SlugModule implements Module
      */
     public function termSlugOnUpdate(array $data, int $termId, string $taxonomy, array $args): array
     {
-        return $this->fillTermSlug($data, $args);
+        return $this->fillTermSlug($data, $taxonomy, $args, $termId);
     }
 
     /**
@@ -190,7 +203,7 @@ final class SlugModule implements Module
      * @param array<string, mixed> $args
      * @return array<string, mixed>
      */
-    private function fillTermSlug(array $data, array $args): array
+    private function fillTermSlug(array $data, string $taxonomy, array $args, int $termId = 0): array
     {
         if (!(bool) aiya_core_opt(self::PAGE_SLUG, 'slug_term_pinyin', true)) {
             return $data;
@@ -201,7 +214,16 @@ final class SlugModule implements Module
             return $data;
         }
 
-        $data['slug'] = sanitize_title($this->pinyin()->permalink((string) $data['name']));
+        $candidate = sanitize_title($this->pinyin()->permalink((string) $data['name']));
+
+        // The data filters run after core's wp_unique_term_slug pass, so the
+        // candidate must be deduplicated here; the term context lets core
+        // exclude the term itself on updates.
+        $term = (object) ['taxonomy' => $taxonomy];
+        if ($termId > 0) {
+            $term->term_id = $termId;
+        }
+        $data['slug'] = wp_unique_term_slug($candidate, $term);
 
         return $data;
     }

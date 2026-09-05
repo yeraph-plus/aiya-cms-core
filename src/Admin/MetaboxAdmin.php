@@ -89,9 +89,14 @@ final class MetaboxAdmin implements Module
 
         foreach ($box->fields() as $field) {
             $value = $values[$field->id()] ?? $field->defaultValue();
+            // Action checkboxes post under the dedicated trigger namespace so
+            // the save handler can distinguish "ticked" from stored values.
+            $name = $field->type() === 'action_checkbox'
+                ? self::ACTION_INPUT . '[' . $field->id() . ']'
+                : self::META_INPUT . '[' . $box->id() . '][' . $field->id() . ']';
             echo '<p class="aiya-core-box-field">';
             echo '<label for="aiya-core-box-' . esc_attr($box->id()) . '-' . esc_attr($field->id()) . '"><strong>' . esc_html($field->label()) . '</strong></label><br>';
-            $renderer->control($field, $value, self::META_INPUT . '[' . $box->id() . '][' . $field->id() . ']', 'aiya-core-box-' . $box->id() . '-' . $field->id());
+            $renderer->control($field, $value, $name, 'aiya-core-box-' . $box->id() . '-' . $field->id());
             if ($field->description() !== '') {
                 echo '<span class="description"><br>' . wp_kses_post($field->description()) . '</span>';
             }
@@ -209,7 +214,7 @@ final class MetaboxAdmin implements Module
                 $value = $field->defaultValue() ?? '';
             }
 
-            echo '<tr class="form-field aiya-core-box-field">';
+            echo '<tr class="form-field aiya-core-box-field aiya-core-fieldgroup">';
             echo '<th scope="row"><label for="aiya-core-term-' . esc_attr($box->id()) . '-' . esc_attr($field->id()) . '">' . esc_html($field->label()) . '</label></th><td>';
             $renderer->control($field, $value, self::TERM_INPUT . '[' . $field->id() . ']', 'aiya-core-term-' . $box->id() . '-' . $field->id());
             if ($field->description() !== '') {
@@ -240,12 +245,13 @@ final class MetaboxAdmin implements Module
         }
 
         foreach ($values as $fieldId => $value) {
-            // Term protocol shape: per-field meta keys with scalars.
+            // Term protocol shape: per-field meta keys with scalars. Values
+            // are unslashed; the meta API expects slashed data.
             if ($value === '' || $value === null || $value === []) {
                 delete_term_meta($termId, $fieldId);
                 continue;
             }
-            update_term_meta($termId, $fieldId, $value);
+            update_term_meta($termId, $fieldId, wp_slash($value));
         }
     }
 
@@ -260,7 +266,6 @@ final class MetaboxAdmin implements Module
         $renderer = new FieldRenderer();
         echo '<h2>' . esc_html__('Additional fields', 'aiya-core') . '</h2>';
         echo '<table class="form-table aiya-core-fieldgroup" role="presentation"><tbody>';
-        wp_nonce_field('aiya_core_user_fields', 'aiya_core_user_nonce');
         foreach ($fields as $field) {
             $value = get_user_meta($user->ID, $field->id(), true);
             if ($value === '') {
@@ -280,10 +285,16 @@ final class MetaboxAdmin implements Module
     /** Saves the shared user profile fields; values live under per-field user meta keys. */
     public function saveUserFields(int $userId): void
     {
+        // Without registered fields this handler must stay fully inert — the
+        // profile form carries no aiya nonce in that case, and dying here
+        // would break every native profile save.
+        if ($this->registry->userFields() === []) {
+            return;
+        }
         if (!current_user_can('edit_user', $userId)) {
             return;
         }
-        check_admin_referer('aiya_core_user_fields', 'aiya_core_user_nonce');
+        check_admin_referer('update-user_' . $userId);
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- the dedicated nonce is verified above.
         $raw = isset($_POST[self::USER_INPUT]) && is_array($_POST[self::USER_INPUT]) ? wp_unslash($_POST[self::USER_INPUT]) : [];
@@ -299,7 +310,7 @@ final class MetaboxAdmin implements Module
                 delete_user_meta($userId, $fieldId);
                 continue;
             }
-            update_user_meta($userId, $fieldId, $value);
+            update_user_meta($userId, $fieldId, wp_slash($value));
         }
     }
 

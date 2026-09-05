@@ -18,6 +18,10 @@ final class TermMetaStore implements ValueStore
         return is_array($value) ? $value : [];
     }
 
-    public function replace(array $values): void { update_term_meta($this->termId, $this->metaKey, $values); }
+    public function replace(array $values): void
+    {
+        // See PostMetaStore::replace(): the meta API expects slashed data.
+        update_term_meta($this->termId, $this->metaKey, wp_slash($values));
+    }
     public function delete(): void { delete_term_meta($this->termId, $this->metaKey); }
 }

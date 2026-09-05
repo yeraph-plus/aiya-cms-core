@@ -18,6 +18,10 @@ final class UserMetaStore implements ValueStore
         return is_array($value) ? $value : [];
     }
 
-    public function replace(array $values): void { update_user_meta($this->userId, $this->metaKey, $values); }
+    public function replace(array $values): void
+    {
+        // See PostMetaStore::replace(): the meta API expects slashed data.
+        update_user_meta($this->userId, $this->metaKey, wp_slash($values));
+    }
     public function delete(): void { delete_user_meta($this->userId, $this->metaKey); }
 }

@@ -6,7 +6,7 @@
  */
 
 if (!defined('AIYA_CORE_VERSION')) {
-    define('AIYA_CORE_VERSION', '0.8.0');
+    define('AIYA_CORE_VERSION', '0.8.1');
 }
 if (!defined('AIYA_CORE_FILE')) {
     define('AIYA_CORE_FILE', '/var/www/html/wp-content/plugins/aiya-core/aiya-core.php');
@@ -16,4 +16,10 @@ if (!defined('AIYA_CORE_PATH')) {
 }
 if (!defined('AIYA_CORE_URL')) {
     define('AIYA_CORE_URL', 'http://example.com/wp-content/plugins/aiya-core/');
+}
+if (!defined('COOKIEPATH')) {
+    define('COOKIEPATH', '/');
+}
+if (!defined('COOKIE_DOMAIN')) {
+    define('COOKIE_DOMAIN', 'example.com');
 }

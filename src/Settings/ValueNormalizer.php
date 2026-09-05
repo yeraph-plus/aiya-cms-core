@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Settings;
 
+use Aiya\Core\Settings\Options\OptionsResolver;
 use Aiya\Core\Settings\Schema\Field;
 use WP_Error;
 
@@ -155,7 +156,13 @@ final class ValueNormalizer
 
     private function choice(Field $field, mixed $value): string|int|WP_Error
     {
-        foreach ($field->options() as $allowed => $_label) {
+        // Render and save must validate against the same option set: fields
+        // backed by a lazy option source resolve it here as well.
+        $options = $field->options();
+        if ($options === [] && $field->optionsSource() !== []) {
+            $options = (new OptionsResolver())->resolve($field);
+        }
+        foreach ($options as $allowed => $_label) {
             if ((string) $allowed === (string) $value) {
                 return $allowed;
             }

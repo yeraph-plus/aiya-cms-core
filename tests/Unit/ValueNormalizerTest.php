@@ -74,6 +74,25 @@ final class ValueNormalizerTest extends TestCase
         $this->assertTrue(is_wp_error($bad));
     }
 
+    public function testSelectWithLazySourceValidatesAgainstResolvedOptions(): void
+    {
+        $GLOBALS['__aiya_test_terms']['category'] = [
+            (object) ['term_id' => 1, 'name' => 'Uncategorized', 'slug' => 'uncategorized'],
+            (object) ['term_id' => 5, 'name' => 'Notes', 'slug' => 'notes'],
+        ];
+        $fields = [Field::fromArray([
+            'id' => 'pick',
+            'type' => 'select',
+            'options_source' => ['source' => 'terms', 'taxonomy' => 'category'],
+        ])];
+
+        $ok = $this->normalizer->normalize($fields, ['pick' => '5']);
+        $this->assertSame(5, $ok['pick']);
+
+        $bad = $this->normalizer->normalize($fields, ['pick' => '999']);
+        $this->assertTrue(is_wp_error($bad));
+    }
+
     public function testSwitchNormalizesToBoolean(): void
     {
         $fields = [Field::fromArray(['id' => 'flag', 'type' => 'switch', 'default' => false])];
