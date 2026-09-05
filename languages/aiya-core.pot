@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.9.0\n"
+"Project-Id-Version: AIYA Core 0.9.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/app\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-05T12:16:49+00:00\n"
+"POT-Creation-Date: 2026-09-05T13:22:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -111,95 +111,94 @@ msgstr ""
 msgid "Additional fields"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:68
-#: src/Admin/PicBedPage.php:69
-#: src/Admin/PicBedPage.php:82
-#: src/Modules/MediaModule.php:186
+#: src/Admin/PicBedPage.php:61
+#: src/Admin/PicBedPage.php:62
+#: src/Admin/PicBedPage.php:76
 msgid "Pic bed"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:83
-msgid "Upload images directly to wp-content/upload-pics without using the media library. Copy the relative path for headless templates."
+#: src/Admin/PicBedPage.php:77
+msgid "Upload images to wp-content/upload-pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:88
-#: src/Admin/PicBedPage.php:147
+#: src/Admin/PicBedPage.php:82
+#: src/Admin/PicBedPage.php:151
 msgid "Upload image"
 msgstr ""
 
 #. translators: %d: maximum upload size in megabytes.
-#: src/Admin/PicBedPage.php:93
+#: src/Admin/PicBedPage.php:87
 #, php-format
 msgid "JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:99
+#: src/Admin/PicBedPage.php:93
 msgid "Upload result"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:103
+#: src/Admin/PicBedPage.php:97
 msgid "Dimensions"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:104
+#: src/Admin/PicBedPage.php:98
 #: src/Admin/SampleSettings.php:165
 msgid "URL"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:105
+#: src/Admin/PicBedPage.php:99
 msgid "Relative path"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:112
+#: src/Admin/PicBedPage.php:106
 msgid "Uploaded images"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:127
+#: src/Admin/PicBedPage.php:121
 msgid "Uploading…"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:136
+#: src/Admin/PicBedPage.php:140
 msgid "Upload failed."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:168
+#: src/Admin/PicBedPage.php:172
 msgid "Insufficient permissions."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:174
+#: src/Admin/PicBedPage.php:178
 msgid "No file was uploaded."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:177
+#: src/Admin/PicBedPage.php:181
 msgid "Invalid upload."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:180
+#: src/Admin/PicBedPage.php:184
 msgid "The upload failed with a file error."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:185
+#: src/Admin/PicBedPage.php:189
 msgid "The file is too large."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:192
+#: src/Admin/PicBedPage.php:196
 msgid "This file type is not supported."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:197
+#: src/Admin/PicBedPage.php:201
 msgid "The file could not be written."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:203
+#: src/Admin/PicBedPage.php:207
 msgid "Image processing failed."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:210
+#: src/Admin/PicBedPage.php:214
 msgid "The image URL could not be resolved."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:256
-#: src/Admin/PicBedPage.php:269
+#: src/Admin/PicBedPage.php:260
+#: src/Admin/PicBedPage.php:273
 msgid "No uploads yet."
 msgstr ""
 
@@ -748,180 +747,164 @@ msgstr ""
 msgid "Not found."
 msgstr ""
 
-#: src/Modules/MediaModule.php:59
-#: src/Modules/MediaModule.php:60
-msgid "Extensions"
+#: src/Modules/MediaModule.php:63
+msgid "Image processor"
 msgstr ""
 
-#: src/Modules/MediaModule.php:67
-msgid "Image processing"
-msgstr ""
-
-#: src/Modules/MediaModule.php:73
-msgid "Media library takeover"
-msgstr ""
-
-#: src/Modules/MediaModule.php:74
-msgid "Run uploads through the image processor: scale, watermark, format conversion"
-msgstr ""
-
-#: src/Modules/MediaModule.php:75
-msgid "WebP/AVIF saving requires the libwebp/libavif PHP libraries; unsupported targets fall back to the source format."
-msgstr ""
-
-#: src/Modules/MediaModule.php:81
-msgid "Save format"
-msgstr ""
-
-#: src/Modules/MediaModule.php:84
-msgid "Keep source format"
-msgstr ""
-
-#: src/Modules/MediaModule.php:85
-msgid "JPG"
-msgstr ""
-
-#: src/Modules/MediaModule.php:86
-msgid "WebP"
-msgstr ""
-
-#: src/Modules/MediaModule.php:87
-msgid "AVIF"
-msgstr ""
-
-#: src/Modules/MediaModule.php:93
-msgid "Max image width"
-msgstr ""
-
-#: src/Modules/MediaModule.php:94
-msgid "Uploads wider than this are scaled down; 0 disables the limit."
-msgstr ""
-
-#: src/Modules/MediaModule.php:102
-msgid "Image quality"
-msgstr ""
-
-#: src/Modules/MediaModule.php:103
-msgid "Save quality from 0 to 100; PNG maps it to the compression level."
-msgstr ""
-
-#: src/Modules/MediaModule.php:112
-msgid "Font file"
-msgstr ""
-
-#: src/Modules/MediaModule.php:113
-msgid "Content URL, content-relative path or absolute path for cover titles and text watermarks. Leave empty to use the bundled font."
-msgstr ""
-
-#: src/Modules/MediaModule.php:119
-msgid "Watermark"
-msgstr ""
-
-#: src/Modules/MediaModule.php:125
-msgid "Watermark mode"
-msgstr ""
-
-#: src/Modules/MediaModule.php:128
-msgid "Disabled"
-msgstr ""
-
-#: src/Modules/MediaModule.php:129
+#: src/Modules/MediaModule.php:64
+#: src/Modules/MediaModule.php:133
 msgid "Image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:130
+#: src/Modules/MediaModule.php:71
+msgid "Image processing"
+msgstr ""
+
+#: src/Modules/MediaModule.php:77
+msgid "Media library takeover"
+msgstr ""
+
+#: src/Modules/MediaModule.php:78
+msgid "Run uploads through the image processor: scale, watermark, format conversion"
+msgstr ""
+
+#: src/Modules/MediaModule.php:79
+msgid "WebP/AVIF saving requires the libwebp/libavif PHP libraries; unsupported targets fall back to the source format."
+msgstr ""
+
+#: src/Modules/MediaModule.php:85
+msgid "Save format"
+msgstr ""
+
+#: src/Modules/MediaModule.php:88
+msgid "Keep source format"
+msgstr ""
+
+#: src/Modules/MediaModule.php:89
+msgid "JPG"
+msgstr ""
+
+#: src/Modules/MediaModule.php:90
+msgid "WebP"
+msgstr ""
+
+#: src/Modules/MediaModule.php:91
+msgid "AVIF"
+msgstr ""
+
+#: src/Modules/MediaModule.php:97
+msgid "Max image width"
+msgstr ""
+
+#: src/Modules/MediaModule.php:98
+msgid "Uploads wider than this are scaled down; 0 disables the limit."
+msgstr ""
+
+#: src/Modules/MediaModule.php:106
+msgid "Image quality"
+msgstr ""
+
+#: src/Modules/MediaModule.php:107
+msgid "Save quality from 0 to 100; PNG maps it to the compression level."
+msgstr ""
+
+#: src/Modules/MediaModule.php:116
+msgid "Font file"
+msgstr ""
+
+#: src/Modules/MediaModule.php:117
+msgid "Content URL, content-relative path or absolute path for cover titles and text watermarks. Leave empty to use the bundled font."
+msgstr ""
+
+#: src/Modules/MediaModule.php:123
+msgid "Watermark"
+msgstr ""
+
+#: src/Modules/MediaModule.php:129
+msgid "Watermark mode"
+msgstr ""
+
+#: src/Modules/MediaModule.php:132
+msgid "Disabled"
+msgstr ""
+
+#: src/Modules/MediaModule.php:134
 msgid "Text"
 msgstr ""
 
-#: src/Modules/MediaModule.php:136
+#: src/Modules/MediaModule.php:140
 msgid "Watermark position"
 msgstr ""
 
-#: src/Modules/MediaModule.php:139
+#: src/Modules/MediaModule.php:143
 msgid "Center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:140
+#: src/Modules/MediaModule.php:144
 msgid "Center left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:141
+#: src/Modules/MediaModule.php:145
 msgid "Center right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:142
+#: src/Modules/MediaModule.php:146
 msgid "Center top"
 msgstr ""
 
-#: src/Modules/MediaModule.php:143
+#: src/Modules/MediaModule.php:147
 msgid "Center bottom"
 msgstr ""
 
-#: src/Modules/MediaModule.php:144
+#: src/Modules/MediaModule.php:148
 msgid "Top right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:145
+#: src/Modules/MediaModule.php:149
 msgid "Top left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:146
+#: src/Modules/MediaModule.php:150
 msgid "Top center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:147
+#: src/Modules/MediaModule.php:151
 msgid "Bottom right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:148
+#: src/Modules/MediaModule.php:152
 msgid "Bottom left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:149
+#: src/Modules/MediaModule.php:153
 msgid "Bottom center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:155
+#: src/Modules/MediaModule.php:159
 msgid "Watermark image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:156
+#: src/Modules/MediaModule.php:160
 msgid "Media library attachment used in image mode; its own alpha is kept as-is."
 msgstr ""
 
-#: src/Modules/MediaModule.php:162
+#: src/Modules/MediaModule.php:166
 msgid "Watermark text"
 msgstr ""
 
-#: src/Modules/MediaModule.php:168
+#: src/Modules/MediaModule.php:172
 msgid "Watermark font size"
 msgstr ""
 
-#: src/Modules/MediaModule.php:176
+#: src/Modules/MediaModule.php:180
 msgid "Watermark opacity (text)"
 msgstr ""
 
-#: src/Modules/MediaModule.php:177
+#: src/Modules/MediaModule.php:181
 msgid "0 = fully transparent, 100 = fully opaque; applies to the text watermark only."
 msgstr ""
 
-#: src/Modules/MediaModule.php:192
-msgid "Pic bed page"
-msgstr ""
-
-#: src/Modules/MediaModule.php:193
-msgid "Enable the standalone upload page that bypasses the media library"
-msgstr ""
-
-#: src/Modules/MediaModule.php:194
-msgid "Files land in wp-content/upload-pics/YYYY/MM/ and are addressed by path; no attachment IDs and no WP thumbnail generation."
-msgstr ""
-
-#: src/Modules/MediaModule.php:200
-msgid "Pic bed max upload size (MB)"
-msgstr ""
-
-#: src/Modules/MediaModule.php:279
+#: src/Modules/MediaModule.php:260
 msgid "Image processing failed; the upload was cancelled."
 msgstr ""
 

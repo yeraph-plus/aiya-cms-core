@@ -65,12 +65,7 @@ final class Plugin
         $media = new MediaModule($this->settings);
         $this->addModule($media);
         $this->addModule(new CoverMetabox($media->covers()));
-        $this->addModule(new PicBedPage(
-            $media->uploadProcessor(),
-            $media->paths(),
-            static fn (): int => (int) aiya_core_opt(MediaModule::PAGE_SLUG, 'pic_bed_max_size', 10),
-            static fn (): bool => (bool) aiya_core_opt(MediaModule::PAGE_SLUG, 'pic_bed_enabled', true)
-        ));
+        $this->addModule(new PicBedPage($media->uploadProcessor(), $media->paths()));
 
         $this->addModule(new SchemaVersionRunner());
 

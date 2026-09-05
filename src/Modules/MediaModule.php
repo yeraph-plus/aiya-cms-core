@@ -19,9 +19,13 @@ use Imagine\Image\ImagineInterface;
 
 /**
  * Adapter for the aiya/image-processor package (legacy image-manager): owns
- * every WordPress touchpoint — the extensions settings page, the media
+ * every WordPress touchpoint — the image processor settings page, the media
  * library takeover filter, and the lazy composition of the domain services.
  * The package itself never sees WordPress.
+ *
+ * The legacy fake-plugin settings structure (one shared page with per-plugin
+ * sections) is deliberately not inherited: each feature owns a dedicated
+ * page, so this page is the image processor and nothing else.
  *
  * Semantics preserved from the legacy component and fixed where the review
  * found defects:
@@ -35,8 +39,8 @@ use Imagine\Image\ImagineInterface;
  */
 final class MediaModule implements Module
 {
-    public const PAGE_SLUG = 'addons';
-    public const OPTION_NAME = 'aiya_core_addons';
+    public const PAGE_SLUG = 'image';
+    public const OPTION_NAME = 'aiya_core_image';
 
     private MediaPaths|null $paths = null;
     private ThumbnailService|null $thumbnails = null;
@@ -56,8 +60,8 @@ final class MediaModule implements Module
     {
         $this->settings->addPage([
             'slug' => self::PAGE_SLUG,
-            'title' => __('Extensions', 'aiya-core'),
-            'menu_title' => __('Extensions', 'aiya-core'),
+            'title' => __('Image processor', 'aiya-core'),
+            'menu_title' => __('Image', 'aiya-core'),
             'parent' => 'aiya-core-sample',
             'option_name' => self::OPTION_NAME,
             'fields' => [
@@ -177,29 +181,6 @@ final class MediaModule implements Module
                     'description' => __('0 = fully transparent, 100 = fully opaque; applies to the text watermark only.', 'aiya-core'),
                     'default' => 80,
                     'min' => 0,
-                    'max' => 100,
-                    'step' => 1,
-                ],
-                [
-                    'id' => 'heading_pic_bed',
-                    'type' => 'heading',
-                    'label' => __('Pic bed', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'pic_bed_enabled',
-                    'type' => 'switch',
-                    'label' => __('Pic bed page', 'aiya-core'),
-                    'checkbox_label' => __('Enable the standalone upload page that bypasses the media library', 'aiya-core'),
-                    'description' => __('Files land in wp-content/upload-pics/YYYY/MM/ and are addressed by path; no attachment IDs and no WP thumbnail generation.', 'aiya-core'),
-                    'default' => true,
-                ],
-                [
-                    'id' => 'pic_bed_max_size',
-                    'type' => 'number',
-                    'label' => __('Pic bed max upload size (MB)', 'aiya-core'),
-                    'default' => 10,
-                    'min' => 1,
                     'max' => 100,
                     'step' => 1,
                 ],

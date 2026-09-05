@@ -14,20 +14,22 @@ use RecursiveIteratorIterator;
 use RuntimeException;
 
 /**
- * Standalone pic-bed page (legacy internal-pic-bed, page-per-feature
- * instead of a package): uploads images straight into
- * wp-content/upload-pics/YYYY/MM/ without touching the media library —
- * no attachment IDs, no WP thumbnail generation. Files are addressed by
- * path; the headless front end consumes the content-relative path, the
- * legacy shortcode/HTML outputs are retired.
+ * Standalone pic-bed screen (legacy internal-pic-bed): uploads images
+ * straight into wp-content/upload-pics/YYYY/MM/ without touching the media
+ * library — no attachment IDs, no WP thumbnail generation, nothing lands in
+ * wp-content/uploads. Files are addressed by path; the headless front end
+ * consumes the content-relative path, the legacy shortcode/HTML outputs are
+ * retired.
  *
- * Image processing is injected as a closure by the media adapter so this
- * screen composes the pipeline without importing the package.
+ * Each upload is compressed exactly once through the image-processor
+ * pipeline (scale/watermark/format), injected as a closure by the media
+ * adapter, and the processed file is the only artifact written to disk.
  */
 final class PicBedPage implements Module
 {
     private const AJAX_ACTION = 'aiya_core_pic_bed_upload';
     private const NONCE_ACTION = 'aiya_core_pic_bed_upload';
+    private const MAX_SIZE_MB = 10;
 
     private const MIME_EXTENSIONS = [
         'image/jpeg' => '.jpg',
@@ -40,14 +42,10 @@ final class PicBedPage implements Module
 
     /**
      * @param Closure(string): (string|false) $processUpload Media pipeline.
-     * @param Closure(): int $maxSizeMb Max upload size in megabytes.
-     * @param Closure(): bool $enabled Feature toggle.
      */
     public function __construct(
         private readonly Closure $processUpload,
-        private readonly MediaPaths $paths,
-        private readonly Closure $maxSizeMb,
-        private readonly Closure $enabled
+        private readonly MediaPaths $paths
     ) {
     }
 
@@ -59,28 +57,24 @@ final class PicBedPage implements Module
 
     public function menu(): void
     {
-        if (!($this->enabled)()) {
-            return;
-        }
-
-        add_submenu_page(
-            'aiya-core-sample',
+        add_menu_page(
             __('Pic bed', 'aiya-core'),
             __('Pic bed', 'aiya-core'),
             'upload_files',
             'aiya-core-pic-bed',
-            [$this, 'render']
+            [$this, 'render'],
+            'dashicons-format-image',
+            82
         );
     }
 
     public function render(): void
     {
-        $maxSize = max(1, ($this->maxSizeMb)());
         $accept = implode(',', array_keys(self::MIME_EXTENSIONS));
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Pic bed', 'aiya-core'); ?></h1>
-            <p class="description"><?php esc_html_e('Upload images directly to wp-content/upload-pics without using the media library. Copy the relative path for headless templates.', 'aiya-core'); ?></p>
+            <p class="description"><?php esc_html_e('Upload images to wp-content/upload-pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk.', 'aiya-core'); ?></p>
 
             <form id="aiya-core-picbed-form">
                 <input type="file" id="aiya-core-picbed-file" name="image" accept="<?php echo esc_attr($accept); ?>" required>
@@ -90,7 +84,7 @@ final class PicBedPage implements Module
             <p class="description">
                 <?php
                 /* translators: %d: maximum upload size in megabytes. */
-                echo esc_html(sprintf(__('JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB.', 'aiya-core'), $maxSize));
+                echo esc_html(sprintf(__('JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB.', 'aiya-core'), self::MAX_SIZE_MB));
                 ?>
             </p>
 
@@ -131,7 +125,17 @@ final class PicBedPage implements Module
                     data.append('nonce', $('input[name="nonce"]', this).val());
                     data.append('image', file.files[0]);
 
-                    $.post(ajaxurl, data).done(function (res) {
+                    // FormData must bypass jQuery's query-string serialization
+                    // and the default content type, or the multipart body is
+                    // dropped and the nonce never reaches the server.
+                    $.ajax({
+                        url: ajaxurl,
+                        method: 'POST',
+                        data: data,
+                        processData: false,
+                        contentType: false,
+                        dataType: 'json'
+                    }).done(function (res) {
                         if (!res || !res.success) {
                             window.alert(res && res.data && res.data.message ? res.data.message : <?php echo wp_json_encode(__('Upload failed.', 'aiya-core')); ?>);
                             return;
@@ -180,7 +184,7 @@ final class PicBedPage implements Module
             throw new RuntimeException(__('The upload failed with a file error.', 'aiya-core'));
         }
 
-        $maxBytes = max(1, ($this->maxSizeMb)()) * 1024 * 1024;
+        $maxBytes = self::MAX_SIZE_MB * 1024 * 1024;
         if ((int) ($file['size'] ?? 0) <= 0 || (int) $file['size'] > $maxBytes) {
             throw new RuntimeException(__('The file is too large.', 'aiya-core'));
         }
