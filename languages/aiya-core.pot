@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.11.0\n"
+"Project-Id-Version: AIYA Core 0.11.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/app\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-05T15:14:29+00:00\n"
+"POT-Creation-Date: 2026-09-05T15:57:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -75,7 +75,7 @@ msgid "Generation failed."
 msgstr ""
 
 #: src/Admin/CoverMetabox.php:112
-#: src/Admin/SendMailPage.php:120
+#: src/Admin/SendMailPage.php:158
 #: src/Domain/Identity/AvatarModule.php:323
 msgid "Request failed."
 msgstr ""
@@ -364,56 +364,61 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:39
-#: src/Admin/SendMailPage.php:40
-#: src/Admin/SendMailPage.php:62
+#: src/Admin/SendMailPage.php:44
+#: src/Admin/SendMailPage.php:45
+#: src/Admin/SendMailPage.php:67
 msgid "Send Mail"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:63
-msgid "Compose an HTML email for one site user and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport."
+#: src/Admin/SendMailPage.php:68
+msgid "Compose an HTML email and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:67
+#: src/Admin/SendMailPage.php:72
 msgid "Recipient"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:76
-msgid "Subject"
+#: src/Admin/SendMailPage.php:75
+msgid "Any email address works, registered or not. Typing a username or name suggests site users."
 msgstr ""
 
 #: src/Admin/SendMailPage.php:80
+msgid "Subject"
+msgstr ""
+
+#: src/Admin/SendMailPage.php:84
 msgid "Message"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:86
-#: src/Admin/SendMailPage.php:122
+#: src/Admin/SendMailPage.php:90
+#: src/Admin/SendMailPage.php:160
 msgid "Send email"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:100
+#: src/Admin/SendMailPage.php:137
 msgid "Sending…"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:109
-#: src/Admin/SendMailPage.php:176
+#: src/Admin/SendMailPage.php:146
+#: src/Admin/SendMailPage.php:258
 msgid "The email could not be sent."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:137
+#: src/Admin/SendMailPage.php:176
+#: src/Admin/SendMailPage.php:206
 msgid "You are not allowed to send mail to users."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:144
-msgid "Pick a recipient first."
+#: src/Admin/SendMailPage.php:182
+msgid "Enter a valid recipient email address."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:150
+#: src/Admin/SendMailPage.php:188
 msgid "A subject and a message body are required."
 msgstr ""
 
 #. translators: %s: recipient email address.
-#: src/Admin/SendMailPage.php:160
+#: src/Admin/SendMailPage.php:198
 #, php-format
 msgid "Email sent to %s."
 msgstr ""
