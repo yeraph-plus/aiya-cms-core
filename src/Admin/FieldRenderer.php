@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Admin;
 
 use Aiya\Core\Settings\Schema\Field;
+use Aiya\Core\Settings\Options\OptionsResolver;
 
 final class FieldRenderer
 {
@@ -14,6 +15,12 @@ final class FieldRenderer
     {
         echo '<table class="form-table" role="presentation"><tbody>';
         foreach ($fields as $field) {
+            if (!$field->isPersistable()) {
+                echo '<tr class="aiya-core-nondata"><td colspan="2">';
+                $this->renderPresentation($field);
+                echo '</td></tr>';
+                continue;
+            }
             $this->row($field, $values[$field->id()] ?? $field->defaultValue());
         }
         echo '</tbody></table>';
@@ -39,6 +46,10 @@ final class FieldRenderer
     public function control(Field $field, mixed $value, string $name, string $id): void
     {
         $type = $field->type();
+        if (in_array($type, ['note', 'heading'], true)) {
+            $this->renderPresentation($field);
+            return;
+        }
         if ($type === 'textarea') {
             echo '<textarea class="large-text" rows="5" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '">' . esc_textarea((string) $value) . '</textarea>';
             return;
@@ -65,14 +76,14 @@ final class FieldRenderer
         }
         if ($type === 'select') {
             echo '<select id="' . esc_attr($id) . '" name="' . esc_attr($name) . '">';
-            foreach ($field->options() as $optionValue => $label) {
+            foreach ($this->resolveOptions($field) as $optionValue => $label) {
                 echo '<option value="' . esc_attr((string) $optionValue) . '" ' . selected((string) $value, (string) $optionValue, false) . '>' . esc_html((string) $label) . '</option>';
             }
             echo '</select>';
             return;
         }
         if ($type === 'radio') {
-            foreach ($field->options() as $optionValue => $label) {
+            foreach ($this->resolveOptions($field) as $optionValue => $label) {
                 echo '<label class="aiya-core-radio"><input type="radio" name="' . esc_attr($name) . '" value="' . esc_attr((string) $optionValue) . '" ' . checked((string) $value, (string) $optionValue, false) . '> ' . esc_html((string) $label) . '</label>';
             }
             return;
@@ -135,6 +146,45 @@ final class FieldRenderer
             echo '</p>';
         }
         echo '</div></div>';
+    }
+
+    /** Renders the shared field control for the resolved options; falls back to the lazy option source.
+     *
+     * @return array<string|int, string>
+     */
+    private function resolveOptions(Field $field): array
+    {
+        $options = $field->options();
+        if ($options !== [] || $field->optionsSource() === []) {
+            return $options;
+        }
+
+        return (new OptionsResolver())->resolve($field);
+    }
+
+    /** Renders presentation-only fields: notices (note) and section titles (heading). */
+    private function renderPresentation(Field $field): void
+    {
+        if ($field->type() === 'heading') {
+            $level = in_array((string) $field->setting('level', '2'), ['1', '2', '3'], true) ? (int) $field->setting('level', '2') : 2;
+            if ($level === 1) {
+                echo '<h1 class="aiya-core-heading">' . esc_html($field->label()) . '</h1>';
+                return;
+            }
+            if ($level === 3) {
+                echo '<h3 class="aiya-core-heading">' . esc_html($field->label()) . '</h3>';
+                return;
+            }
+            echo '<h2 class="aiya-core-heading">' . esc_html($field->label()) . '</h2>';
+            return;
+        }
+
+        $variant = (string) $field->setting('variant', 'info');
+        if (!in_array($variant, ['info', 'success', 'warning', 'error'], true)) {
+            $variant = 'info';
+        }
+        $text = $field->description() !== '' ? $field->description() : $field->label();
+        echo '<div class="notice notice-' . esc_attr($variant) . ' inline"><p>' . wp_kses_post($text) . '</p></div>';
     }
 
     private function attributes(Field $field): string

@@ -16,6 +16,7 @@ use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Infrastructure\Headless\HeadlessModule;
 use Aiya\Core\Infrastructure\Security\SecurityModule;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
+use Aiya\Core\Runtime\SchemaVersionRunner;
 use Aiya\Core\Settings\Registry;
 
 final class Plugin
@@ -57,6 +58,7 @@ final class Plugin
         $this->addModule(new ContentTypeModule($this->contentTypes));
         $this->addModule(new MetaboxAdmin($this->metadata));
         $this->addModule(new SeoBoxModule($this->metadata));
+        $this->addModule(new SchemaVersionRunner());
 
         add_action('plugins_loaded', function (): void {
             load_plugin_textdomain('aiya-core', false, dirname(plugin_basename(AIYA_CORE_FILE)) . '/languages');

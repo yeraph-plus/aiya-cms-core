@@ -9,10 +9,18 @@ use InvalidArgumentException;
 final class Field
 {
     private const TYPES = [
-        'action_checkbox', 'array', 'checkbox', 'code', 'color', 'email', 'hidden', 'key_value', 'media',
-        'number', 'password', 'radio', 'repeater', 'select', 'switch', 'text', 'textarea',
+        'action_checkbox', 'array', 'checkbox', 'code', 'color', 'email', 'heading', 'hidden', 'key_value', 'media',
+        'note', 'number', 'password', 'radio', 'repeater', 'select', 'switch', 'text', 'textarea',
         'tinymce', 'url',
     ];
+
+    /**
+     * Field types that never store a value: action checkboxes fire hooks on
+     * save, notes and headings are pure presentation.
+     */
+    private const NON_PERSISTENT_TYPES = ['action_checkbox', 'heading', 'note'];
+
+    private const OPTIONS_SOURCES = ['posts', 'terms', 'users'];
 
     private const REPEATER_CHILD_TYPES = [
         'checkbox', 'color', 'email', 'hidden', 'number', 'radio', 'select',
@@ -48,6 +56,7 @@ final class Field
         $definition['options'] = is_array($definition['options'] ?? null)
             ? $definition['options']
             : (is_array($definition['entries'] ?? null) ? $definition['entries'] : []);
+        $definition['options_source'] = self::normalizeOptionsSource($definition['options_source'] ?? null);
         $definition['attributes'] = is_array($definition['attributes'] ?? null) ? $definition['attributes'] : [];
         $definition['children'] = array_map(
             static fn (array $child): self => self::fromArray($child),
@@ -73,6 +82,15 @@ final class Field
     /** @return array<string|int, mixed> */
     public function options(): array { return $this->definition['options']; }
 
+    /** @return array<string, mixed> The lazy option source definition; empty when static options are used. */
+    public function optionsSource(): array { return $this->definition['options_source']; }
+
+    /** True when the field persists a value; presentation and trigger fields do not. */
+    public function isPersistable(): bool
+    {
+        return !in_array($this->definition['type'], self::NON_PERSISTENT_TYPES, true);
+    }
+
     /** @return array<string, mixed> */
     public function attributes(): array { return $this->definition['attributes']; }
 
@@ -82,5 +100,34 @@ final class Field
     public function setting(string $name, mixed $fallback = null): mixed
     {
         return $this->definition[$name] ?? $fallback;
+    }
+
+    /**
+     * Validates a lazy option source definition. Resolution happens at
+     * render time (OptionsResolver); the schema only guards the shape.
+     *
+     * @return array<string, mixed> Normalized source definition or an empty array.
+     */
+    private static function normalizeOptionsSource(mixed $source): array
+    {
+        if ($source === null || $source === []) {
+            return [];
+        }
+        if (!is_array($source)) {
+            throw new InvalidArgumentException('The options_source must be an array.');
+        }
+
+        $kind = (string) ($source['source'] ?? '');
+        if (!in_array($kind, self::OPTIONS_SOURCES, true)) {
+            throw new InvalidArgumentException(sprintf('The option source "%s" is not supported.', $kind));
+        }
+        if ($kind === 'terms' && empty($source['taxonomy'])) {
+            throw new InvalidArgumentException('The terms option source requires a taxonomy.');
+        }
+        if ($kind === 'posts' && empty($source['post_type'])) {
+            throw new InvalidArgumentException('The posts option source requires a post_type.');
+        }
+
+        return $source;
     }
 }

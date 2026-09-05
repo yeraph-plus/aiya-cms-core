@@ -19,9 +19,9 @@ final class ValueNormalizer
     {
         $result = [];
         foreach ($fields as $field) {
-            // One-shot save triggers are never stored; the metabox admin fires
-            // their action hooks when the checkbox was ticked.
-            if ($field->type() === 'action_checkbox') {
+            // One-shot triggers (action_checkbox) and presentation fields
+            // (note, heading) never store a value.
+            if (!$field->isPersistable()) {
                 continue;
             }
             $present = array_key_exists($field->id(), $input);

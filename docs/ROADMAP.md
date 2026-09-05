@@ -2,7 +2,7 @@
 
 本文是当前迭代的实施规划：对照旧 `framework-required` 评估完成度，定义目标目录树与里程碑。模块归属的最终裁决仍以 [MIGRATION.md](MIGRATION.md) 为准，注册方式见 [ARCHITECTURE.md](ARCHITECTURE.md)。
 
-基线：v0.7.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活，示例页 16 字段保存链路实测可用；完整生命周期（activate / deactivate / uninstall）已随 0.2.0 落地；无头化裁剪（HeadlessModule）随 0.3.0、安全加固（SecurityModule）随 0.4.0、本地头像与 Gravatar 镜像（AvatarModule）随 0.5.0、自动别名（SlugModule + slug-toolkit 包）随 0.6.0、元数据字段组与内容类型注册（Metadata/Registry + MetaboxAdmin + ContentTypeModule）随 0.7.0 落地。
+基线：v0.8.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活。已落地：完整生命周期（0.2.0）、无头化裁剪（0.3.0 HeadlessModule）、安全加固（0.4.0 SecurityModule）、头像（0.5.0 AvatarModule）、自动别名（0.6.0 SlugModule + slug-toolkit 包）、元数据字段组与内容类型注册（0.7.0）、设置框架收尾与 schema 迁移 runner（0.8.0，M1/M3 关闭）。**当前里程碑：M4（数据契约与内容读取层）**。
 
 ## 一、完成度对照（vs framework-required v1.3）
 
@@ -62,13 +62,15 @@ aiya-core/
 ├─ uninstall.php                    # ✅ 0.2.0：前缀清理全部选项（多站点覆盖）
 ├─ src/
 │  ├─ Contracts/                    # ✅ Module
-│  ├─ Runtime/                      # M3 剩余：SchemaVersion 迁移 runner
+│  ├─ Runtime/                      # ✅ 0.8.0：SchemaVersionRunner（aiya_core_schema_migrations
+│  │                                #   过滤器注册迁移，init 1 自动对齐版本）
 │  ├─ Settings/
 │  │  ├─ Registry.php               # ✅
-│  │  ├─ ValueNormalizer.php        # ✅
-│  │  ├─ Schema/                    # ✅ Page / Field；M1 增加 note 类型与 options_source
+│  │  ├─ ValueNormalizer.php        # ✅（isPersistable 字段跳过存储）
+│  │  ├─ Schema/                    # ✅ Page / Field；0.8.0 + note/heading 类型、options_source、
+│  │  │                             #   Field::isPersistable()
 │  │  ├─ Storage/                   # ✅ ValueStore / OptionStore；M1 + LegacyOptionReader（只读 aya_opt_*）
-│  │  └─ Options/                   # M1：OptionsResolver（terms/posts/users/sidebars 惰性查询）
+│  │  └─ Options/                   # ✅ 0.8.0：OptionsResolver（terms/posts/users 惰性求值）
 │  ├─ Api/
 │  │  ├─ Contract/                  # M4：DTO 契约（纯值对象，零 WP 依赖）
 │  │  │   PostSummary / PostDetail / TermDto / AuthorDto / ThumbnailDto /
@@ -114,10 +116,11 @@ aiya-core/
 ├─ assets/                          # ✅ admin.css / admin.js
 ├─ languages/                       # ✅ aiya-core.pot 已生成；.po/.mo 待译
 ├─ tests/
-│  ├─ Unit/                         # M1 起：ValueNormalizer / Field / OptionStore
+│  ├─ Unit/                         # ✅ 0.8.0：ValueNormalizer / Field / SchemaVersionRunner
+│  │                                #   （tests/bootstrap.php 最小 WP 垫片，无 WP 环境可跑）
 │  └─ Integration/                  # M2+：metabox 保存链路（wp-env 或 wp-cli 驱动）
-├─ composer.json                    # ✅ dev 工具链 + path repositories（packages/*）
-└─ docs/                            # ✅ ARCHITECTURE / MIGRATION / ROADMAP
+├─ composer.json                    # ✅ dev 工具链 + path repositories（packages/*）+ phpunit
+└─ docs/                            # ✅ ARCHITECTURE / MIGRATION / ROADMAP + 迁移评估两份
 ```
 
 依赖方向（违反即架构错误）：
@@ -139,17 +142,14 @@ aiya-core/
 
 ## 四、里程碑
 
-### M1 设置框架收尾（当前迭代）
+### M1 设置框架收尾 —— ✅ 已完成（0.8.0）
 
-- 新增 `note` 字段（info/success/warning/error 变体）与字段分组标题，替代旧 title/content 伪字段；
-- `Options/OptionsResolver`：`options_source => ['source' => 'terms|posts|users|sidebars', ...]`，Schema 校验来源定义，Admin 渲染前惰性求值（不查询直到渲染）；
-- 读取门面 `aiya_core_opt(string $page, string $id, mixed $default = null)` 与 `aiya_core_opt_bool(...)`；`Storage/LegacyOptionReader` 只读兼容 `aya_opt_{slug}` 旧键，旧→新无写回、无同步；
-  - ✅ `aiya_core_opt()` 已随 0.3.0 落地（aiya-core.php 顶层函数，回退字段默认值；`aiya_core_opt_bool` 暂无需求，布尔用 `(bool)` 强转即可）；
-  - ✅ 设置框架的真实消费方：`Infrastructure/Headless/HeadlessModule`（0.3.0，无头化裁剪）与 `Infrastructure/Security/SecurityModule`（0.4.0，安全加固）；组件逐项评估见 `docs/optimize-migration-assessment.md`。
-  - ✅ `Registry::addFields()` / `Page::appendFields()`（0.5.0）：多个模块向同一设置页追加字段（AvatarModule 的头像设置挂在 Headless 页，不开新页）；`FieldRenderer::control` 转公开，供个人资料页等管理屏复用媒体控件。
-- `languages/` + .pot；`tests/Unit` 覆盖 ValueNormalizer 与 Field；
-  - ✅ 工具链已就绪（2026-09-04）：composer dev 依赖（phpstan 2 @ level 8、wpcs 3 + PHPCompatibilityWP、parallel-lint、wp-cli i18n-command）+ `phpstan.neon.dist` / `phpcs.xml.dist` / `phpstan-bootstrap.php`，`composer php:stan|php:cs|php:cbf|php:lint|i18n:pot` 全部通过；宿主机无 PHP 时用 `docker run --rm -v <插件目录>:/app -w /app composer:2 <script>` 执行。`.pot` 已生成于 `languages/aiya-core.pot`。剩余：phpunit 与单测落地。
-- 验收：以旧 `opt-basic.php` 的真实字段集在新框架重建「站点」页，保存/校验/重置/动态选项全部工作；单测与 phpstan 绿。
+- ✅ `note` 字段（info/success/warning/error 变体，正文取 description、label 兜底）与 `heading` 字段（level 1-3 分组标题），两者均为非持久字段（`Field::isPersistable()`，ValueNormalizer 跳过、渲染走 WP 原生 notice 样式）；Headless 页已分组消费（三组标题 + 顶部警告）；
+- ✅ `Settings/Options/OptionsResolver`：`options_source => ['source' => 'terms|posts|users', ...]`，Schema 校验来源形状（terms 需 taxonomy、posts 需 post_type），渲染前惰性求值（不查询直到渲染）；select/radio 静态 options 优先、有 source 时回退解析；旧 `sub_mode` 的 page/category 用法映射为 posts/terms 源；
+- ✅ `aiya_core_opt()` 门面（0.3.0）；`Registry::addFields()` / `Page::appendFields()`（0.5.0）；`FieldRenderer::control` 转公开（0.5.0）；
+- ✅ `tests/Unit`：phpunit ^11 + `tests/bootstrap.php`（最小 WP 垫片 + 插件 autoloader 镜像），覆盖 ValueNormalizer（24 断言级）/ Field / SchemaVersionRunner，25 tests 46 assertions 全绿；`composer php:unit`；
+- ✅ 工具链（0.3.0 起）：phpstan 2 @ level 8、wpcs 3 + PHPCompatibilityWP、parallel-lint、wp-cli i18n-command；`.pot` 已生成；
+- ⏳ 剩余（延后）：以旧 `opt-basic.php` 真实字段集重建「站点」页（验收动态选项 + note/heading 的完整实战）；zh_CN .po/.mo 翻译。
 
 ### M2 元数据注册表与内容类型注册 —— ✅ 已完成（0.7.0，代码能力，无 ACF 式界面）
 
@@ -168,11 +168,11 @@ aiya-core/
 - 旧版置顶归档 `the_posts` hack、`__destruct` 注册不迁（前台行为/坏味道）；
 - 运行时验证：CPT 注册（REST on）、层级分类法注册。
 
-### M3 运行时硬化（缩减版：生命周期已随 0.2.0 前移完成）
+### M3 运行时硬化 —— ✅ 已完成（0.8.0，生命周期随 0.2.0 前移）
 
-- 剩余：`Runtime/SchemaVersion` 迁移 runner（schema_version 变更时执行结构升级，如选项形状迁移）；
-- `SampleSettings` 降级策略：改为 `WP_DEBUG` 或常量开关下注册，生产不出现示例页；
-- 验收：伪造旧 schema_version 走一次升级路径有测试。
+- ✅ `Runtime/SchemaVersionRunner`：`aiya_core_schema_migrations` 过滤器注册迁移（`['version', 'callback']`），按版本升序执行，失败中止且不推进 stored 版本（错误记入 `aiya_core_last_migration_error`）；`aiya_core_schema_version` 在 init 1 自动对齐当前版本；单测覆盖（升序执行 / 当前跳过 / 旧迁移不跑 / 失败中止保留版本）+ 实测 0.7.0→0.8.0 自动推进；
+- ⏳ `SampleSettings` 降级策略（WP_DEBUG 或常量开关下注册）：留给站长确认可见性行为时执行；
+- ⏳ 伪造升级路径的 Integration 测试已由单测覆盖，无需额外脚本。
 
 ### M4 数据契约与内容读取层（契约优先，前移）
 
