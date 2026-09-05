@@ -23,4 +23,4 @@
 |---|---|
 | `opencc-convert` | 包体就绪（Converter + locale 策略映射）；等 `src/Modules/OpenCcModule.php` 适配器接入根 require |
 | `slug-toolkit` | ✅ 0.6.0 已接入根 require：`PinyinConverter`（overtrue/pinyin 基础调用，无策略）+ `IdSlugEncoder`（继承冻结算法 `XDE_code`，输出与旧站逐字节一致）；消费方为 `Domain/Content/SlugModule` |
-| `image-processor` | ✅ 0.9.0 已接入根 require：`WatermarkSpec`/`CoverSpec`/`ThumbnailGenerator`/`CoverGenerator`/`UploadApplier`（Imagine 能力经 `ImagineAware` 闭包惰性注入）+ `FirstImageMatcher`/`SaveOptions`/`Colors` 纯工具 + `Assets` 自带字体与花纹素材；消费方为 `Modules/MediaModule`（详见包内 README 的语义约定） |
+| `image-processor` | ✅ 0.9.0 已接入根 require：`WatermarkSpec`/`CoverSpec`/`ThumbnailGenerator`/`CoverGenerator`/`UploadApplier`/`CropGenerator`（Imagine 能力经 `ImagineAware` 闭包惰性注入）+ `FirstImageMatcher`/`SaveOptions`/`Colors` 纯工具 + `Assets` 自带字体与花纹素材；消费方为 `Modules/MediaModule` 与 `Domain/Identity/AvatarModule`（详见包内 README 的语义约定） |

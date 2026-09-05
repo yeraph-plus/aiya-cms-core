@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Identity;
 
-use Aiya\Core\Admin\FieldRenderer;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Registry;
-use Aiya\Core\Settings\Schema\Field;
+use Aiya\Infra\ImageProcessor\CropGenerator;
+use Aiya\Infra\ImageProcessor\ImagineFactory;
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RuntimeException;
+use SplFileInfo;
+use Throwable;
 
 /**
  * Avatar handling for the headless backend: local avatars per user, a
@@ -15,18 +21,33 @@ use Aiya\Core\Settings\Schema\Field;
  * site-wide default avatar URL.
  *
  * The user meta key `basic_user_avatar` is a persistent data protocol
- * carried over from the legacy theme (workspace AGENTS.md). New entries
- * store `['id' => attachmentId, 'full' => url]`; the legacy URL-only shape
- * (`['full' => url]`) stays readable and is never wiped by an ordinary
- * profile save.
+ * carried over from the legacy theme (workspace AGENTS.md). Three shapes
+ * stay readable:
+ * - file avatars (current): `['full' => 'avatars/{user}/128.jpg', 'v' => int]`
+ *   with pre-generated 128px and 64px square crops under
+ *   wp-content/avatars/{user_id}/ — outside the media library and uploads,
+ *   assembled to static URLs with no PHP hit per render;
+ * - `['id' => attachmentId, 'full' => url]` (media-library era);
+ * - `['full' => url]` (legacy absolute URL).
  *
- * Settings are appended to the shared Headless optimization page instead of
- * a page of their own; SMTP is intentionally absent — outgoing mail is
- * delegated to an external provider (SMTP2GO and friends).
+ * Uploads are processed straight from the PHP temp file through the
+ * image-processor package (center crop + scale) so the original image is
+ * never persisted. Any logged-in user can manage their own avatar — the
+ * media library is not involved, so no upload_files capability is needed.
  */
 final class AvatarModule implements Module
 {
     private const META_KEY = 'basic_user_avatar';
+
+    /** Pre-generated square sizes; requests at or below 64 serve the small one. */
+    private const FILE_SIZES = [128, 64];
+    private const LARGE_SIZE = 128;
+    private const SMALL_SIZE = 64;
+
+    private const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+
+    /** Accepted source types; the stored files are always JPEG. */
+    private const SOURCE_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
     private const GRAVATAR_HOSTS = [
         'gravatar.com',
@@ -59,11 +80,12 @@ final class AvatarModule implements Module
         add_action('edit_user_profile', [$this, 'renderProfileField']);
         add_action('personal_options_update', [$this, 'saveProfileField']);
         add_action('edit_user_profile_update', [$this, 'saveProfileField']);
-        add_action('admin_enqueue_scripts', [$this, 'enqueueProfileAssets']);
+        add_action('user_edit_form_tag', [$this, 'formEnctype']);
+        add_action('delete_user', [$this, 'deleteUserAvatars']);
     }
 
     /**
-     * Appends this module's fields to the shared Headless optimization page.
+     * Appends this module's fields to the Headless optimization page.
      * Priority 11 keeps it behind HeadlessModule's page registration (10).
      */
     public function settings(): void
@@ -93,6 +115,9 @@ final class AvatarModule implements Module
 
     /**
      * Serves the local avatar for a user; wins over gravatar and mirrors.
+     * File avatars pick the pre-generated size (requests at or below 64px
+     * serve the small file, everything else the large one) and carry a
+     * version query for cache busting.
      *
      * @param array<string, mixed> $args
      * @return array<string, mixed>
@@ -108,7 +133,7 @@ final class AvatarModule implements Module
             return $args;
         }
 
-        $url = $this->localAvatarUrl($userId);
+        $url = $this->localAvatarUrl($userId, (int) ($args['size'] ?? 96));
         if ($url === null) {
             return $args;
         }
@@ -195,8 +220,11 @@ final class AvatarModule implements Module
         return 0;
     }
 
-    /** Reads the protocol meta in both the new and the legacy shape. */
-    private function localAvatarUrl(int $userId): ?string
+    /**
+     * Resolves the local avatar URL in all three protocol shapes. Legacy
+     * entries carry no size variants or version, so they return as stored.
+     */
+    private function localAvatarUrl(int $userId, int $size): ?string
     {
         $meta = get_user_meta($userId, self::META_KEY, true);
         if (!is_array($meta)) {
@@ -207,55 +235,70 @@ final class AvatarModule implements Module
 
             return is_string($url) && $url !== '' ? $url : null;
         }
-        if (isset($meta['full']) && is_string($meta['full']) && $meta['full'] !== '') {
-            return $meta['full'];
+
+        $full = isset($meta['full']) && is_string($meta['full']) ? $meta['full'] : '';
+        if ($full === '') {
+            return null;
         }
 
-        return null;
+        // Legacy absolute URL: no pre-generated variants exist.
+        if (str_contains($full, '://')) {
+            return $full;
+        }
+
+        // File avatar: swap the size file under the user's avatar directory.
+        $chosen = $size <= self::SMALL_SIZE ? self::SMALL_SIZE : self::LARGE_SIZE;
+        $url = content_url('/' . ltrim(dirname($full), '/') . '/' . $chosen . '.jpg');
+        $version = isset($meta['v']) ? (int) $meta['v'] : 0;
+
+        return $version > 0 ? $url . '?v=' . $version : $url;
+    }
+
+    /** True while the user has a file avatar (current shape) in place. */
+    private function fileAvatarVersion(int $userId): int
+    {
+        $meta = get_user_meta($userId, self::META_KEY, true);
+
+        return is_array($meta) && isset($meta['v']) && (int) $meta['v'] > 0 ? (int) $meta['v'] : 0;
     }
 
     /**
-     * Local avatar picker on the profile screens, rendered through the
-     * shared media control so the settings-framework JS applies as is.
+     * Profile section: a plain file input instead of the media library so
+     * users without upload_files (subscribers and up) can manage their own
+     * avatar.
      */
     public function renderProfileField(\WP_User $user): void
     {
-        $meta = get_user_meta($user->ID, self::META_KEY, true);
-        $meta = is_array($meta) ? $meta : [];
-
-        $attachmentId = isset($meta['id']) ? absint($meta['id']) : 0;
-        $legacy = false;
-        if ($attachmentId === 0 && isset($meta['full']) && is_string($meta['full']) && $meta['full'] !== '') {
-            $attachmentId = absint(attachment_url_to_postid($meta['full']));
-            $legacy = $attachmentId === 0;
+        $version = $this->fileAvatarVersion($user->ID);
+        $previewUrl = null;
+        if ($version > 0) {
+            $previewUrl = content_url('/avatars/' . $user->ID . '/' . self::LARGE_SIZE . '.jpg?v=' . $version);
+        } else {
+            $meta = get_user_meta($user->ID, self::META_KEY, true);
+            if (is_array($meta) && isset($meta['full']) && is_string($meta['full']) && $meta['full'] !== '') {
+                $previewUrl = str_contains($meta['full'], '://')
+                    ? $meta['full']
+                    : (string) content_url('/' . ltrim($meta['full'], '/'));
+            }
         }
-
-        $description = $legacy
-            ? __('A legacy avatar entry without an attachment link is in place; pick a new image to replace it (it cannot be cleared from here).', 'aiya-core')
-            : __('Pick an image from the media library; it is served for this user across wp-admin and the headless API.', 'aiya-core');
-
-        $field = Field::fromArray([
-            'id' => 'local_avatar',
-            'type' => 'media',
-            'label' => __('Local avatar', 'aiya-core'),
-            'description' => $description,
-        ]);
-
-        echo '<tr class="aiya-core-field aiya-core-field--media">';
-        echo '<th scope="row"><label for="aiya-core-local-avatar">' . esc_html__('Local avatar', 'aiya-core') . '</label></th><td>';
-        (new FieldRenderer())->control($field, $attachmentId, 'aiya_core_avatar_id', 'aiya-core-local-avatar');
-        echo '<p class="description">' . esc_html($description) . '</p>';
-        echo '</td></tr>';
-
-        if ($legacy) {
-            echo '<input type="hidden" name="aiya_core_avatar_legacy" value="1">';
-        }
+        ?>
+        <tr class="aiya-core-field aiya-core-field--avatar">
+            <th scope="row"><label for="aiya-core-avatar-file"><?php esc_html_e('Local avatar', 'aiya-core'); ?></label></th>
+            <td>
+                <?php if (is_string($previewUrl) && $previewUrl !== '') : ?>
+                    <p><img src="<?php echo esc_url($previewUrl); ?>" alt="" loading="lazy" decoding="async" style="width:64px;height:64px;border-radius:50%;object-fit:cover;vertical-align:middle;"></p>
+                <?php endif; ?>
+                <input type="file" id="aiya-core-avatar-file" name="aiya_core_avatar_upload" accept="image/jpeg,image/png,image/webp,image/gif">
+                <p class="description"><?php esc_html_e('JPEG, PNG, WebP or GIF up to 4 MB. The image is center-cropped and stored as 128px and 64px copies; the uploaded original is not kept.', 'aiya-core'); ?></p>
+                <label><input type="checkbox" name="aiya_core_avatar_remove" value="1"> <?php esc_html_e('Remove local avatar', 'aiya-core'); ?></label>
+            </td>
+        </tr>
+        <?php
     }
 
     /**
-     * Persists the picker value in the new protocol shape. Legacy entries
-     * whose URL cannot be resolved to an attachment are never wiped by an
-     * untouched form submission; picking a replacement rewrites the entry.
+     * Profile save: remove checkbox first, then a fresh upload (which wins).
+     * Runs for any user editing their own profile — no upload_files needed.
      */
     public function saveProfileField(int $userId): void
     {
@@ -265,36 +308,142 @@ final class AvatarModule implements Module
         check_admin_referer('update-user_' . $userId);
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- the profile nonce is verified above.
-        if (!isset($_POST['aiya_core_avatar_id'])) {
-            return;
-        }
-
-        $attachmentId = absint(wp_unslash((string) $_POST['aiya_core_avatar_id']));
-        if ($attachmentId > 0) {
-            $url = wp_get_attachment_url($attachmentId);
-            if (is_string($url) && $url !== '') {
-                update_user_meta($userId, self::META_KEY, ['id' => $attachmentId, 'full' => $url]);
-            }
-            return;
+        if (isset($_POST['aiya_core_avatar_remove'])) {
+            $this->removeAvatar($userId);
         }
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- the profile nonce is verified above.
-        if (isset($_POST['aiya_core_avatar_legacy'])) {
+        $file = $_FILES['aiya_core_avatar_upload'] ?? null;
+        if (!is_array($file) || empty($file['tmp_name']) || !is_string($file['tmp_name'])) {
             return;
+        }
+
+        try {
+            $this->validateUpload($file);
+            $this->storeAvatar($userId, $file['tmp_name']);
+        } catch (RuntimeException $error) {
+            wp_die(esc_html($error->getMessage()), '', ['response' => 400]);
+        }
+    }
+
+    /** Profile forms are not multipart by default; the upload needs it. */
+    public function formEnctype(): void
+    {
+        echo ' enctype="multipart/form-data"';
+    }
+
+    /**
+     * Stores the file avatars for a user from a local source path. Public so
+     * a future REST route for the headless front end can reuse the pipeline.
+     *
+     * @throws RuntimeException When the source cannot be processed.
+     */
+    public function storeAvatar(int $userId, string $sourcePath): void
+    {
+        if ($userId <= 0 || !is_file($sourcePath)) {
+            throw new RuntimeException(__('No avatar image was provided.', 'aiya-core'));
+        }
+
+        $dir = $this->avatarsDir($userId);
+        $quality = min(100, max(1, (int) aiya_core_opt('image', 'image_quality', 96)));
+        $crops = new CropGenerator(static fn (): \Imagine\Image\ImagineInterface => ImagineFactory::create());
+
+        foreach (self::FILE_SIZES as $size) {
+            $result = $crops->generate($sourcePath, $dir . '/' . $size . '.jpg', $size, $size, ['jpeg_quality' => $quality]);
+            if (!is_string($result)) {
+                throw new RuntimeException(__('The avatar could not be processed.', 'aiya-core'));
+            }
+        }
+
+        update_user_meta($userId, self::META_KEY, [
+            'full' => 'avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg',
+            'v' => time(),
+        ]);
+    }
+
+    /** Removes the avatar files and the protocol meta for a user. */
+    public function removeAvatar(int $userId): void
+    {
+        if ($userId <= 0) {
+            return;
+        }
+
+        $dir = WP_CONTENT_DIR . '/avatars/' . $userId;
+        if (is_dir($dir)) {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+            foreach ($iterator as $item) {
+                if (!$item instanceof SplFileInfo) {
+                    continue;
+                }
+                if ($item->isDir()) {
+                    // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- best-effort cleanup of our own pool.
+                    @rmdir($item->getPathname());
+                } else {
+                    wp_delete_file($item->getPathname());
+                }
+            }
+            // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- best-effort cleanup of our own pool.
+            @rmdir($dir);
         }
 
         delete_user_meta($userId, self::META_KEY);
     }
 
-    /** Enqueues the shared media control assets on the profile screens. */
-    public function enqueueProfileAssets(string $hook): void
+    /** Account deletion cleans the pooled files along with the user. */
+    public function deleteUserAvatars(int $userId): void
     {
-        if (!in_array($hook, ['profile.php', 'user-edit.php'], true)) {
-            return;
+        $this->removeAvatar($userId);
+    }
+
+    /**
+     * Validates one $_FILES entry for the avatar pipeline.
+     *
+     * @param array<string, mixed> $file
+     * @throws RuntimeException When the source cannot be used.
+     */
+    private function validateUpload(array $file): void
+    {
+        $tmp = isset($file['tmp_name']) && is_string($file['tmp_name']) ? $file['tmp_name'] : '';
+        if ($tmp === '' || !is_uploaded_file($tmp)) {
+            throw new RuntimeException(__('Invalid avatar upload.', 'aiya-core'));
+        }
+        if ((int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            throw new RuntimeException(__('The upload failed with a file error.', 'aiya-core'));
+        }
+        if ((int) ($file['size'] ?? 0) <= 0 || (int) $file['size'] > self::MAX_UPLOAD_BYTES) {
+            throw new RuntimeException(__('The avatar image is too large (4 MB maximum).', 'aiya-core'));
         }
 
-        wp_enqueue_media();
-        wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], AIYA_CORE_VERSION);
-        wp_enqueue_script('aiya-core-admin', AIYA_CORE_URL . 'assets/js/admin.js', ['jquery', 'underscore', 'backbone', 'wp-util', 'wp-a11y'], AIYA_CORE_VERSION, true);
+        $mime = null;
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            if ($finfo !== false) {
+                $detected = finfo_file($finfo, $tmp);
+                if (is_string($detected) && $detected !== '') {
+                    $mime = $detected;
+                }
+            }
+        }
+        if ($mime === null && function_exists('mime_content_type')) {
+            $detected = mime_content_type($tmp);
+            $mime = is_string($detected) && $detected !== '' ? $detected : null;
+        }
+
+        if ($mime === null || !in_array($mime, self::SOURCE_MIMES, true)) {
+            throw new RuntimeException(__('Only JPEG, PNG, WebP and GIF images can be used as an avatar.', 'aiya-core'));
+        }
+    }
+
+    private function avatarsDir(int $userId): string
+    {
+        $dir = WP_CONTENT_DIR . '/avatars/' . $userId;
+        if (!is_dir($dir)) {
+            wp_mkdir_p($dir);
+        }
+
+        return $dir;
     }
 }

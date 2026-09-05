@@ -25,6 +25,7 @@
 | `WatermarkSpec` | 水印参数模型（off/image/text，九宫格位置） |
 | `CoverSpec` | 封面参数模型（photo/pattern 两模型） |
 | `ThumbnailGenerator` | cover-crop-center 缩略图；比例差过大时模糊底 + 等比前景双层渲染 |
+| `CropGenerator` | 无合成的纯居中裁剪缩放（头像等固定尺寸资产），总是覆写目标文件 |
 | `CoverGenerator` | photo（背景图+蒙版+标题）/ pattern（纯色+花纹+标题）封面绘制 |
 | `UploadApplier` | 上传管道：限宽缩放 → 水印 → 格式转换保存（转换后删源文件） |
 | `FirstImageMatcher` | 纯正则提取 HTML 内容中第一张图片 URL |

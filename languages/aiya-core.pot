@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.9.1\n"
+"Project-Id-Version: AIYA Core 0.10.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/app\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-05T13:22:23+00:00\n"
+"POT-Creation-Date: 2026-09-05T14:42:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -117,89 +117,96 @@ msgstr ""
 msgid "Pic bed"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:77
+#: src/Admin/PicBedPage.php:78
 msgid "Upload images to wp-content/upload-pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:82
-#: src/Admin/PicBedPage.php:151
+#: src/Admin/PicBedPage.php:81
+msgid "Upload"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:86
+#: src/Admin/PicBedPage.php:161
 msgid "Upload image"
 msgstr ""
 
 #. translators: %d: maximum upload size in megabytes.
-#: src/Admin/PicBedPage.php:87
+#: src/Admin/PicBedPage.php:91
 #, php-format
 msgid "JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:93
-msgid "Upload result"
-msgstr ""
-
-#: src/Admin/PicBedPage.php:97
+#: src/Admin/PicBedPage.php:104
 msgid "Dimensions"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:98
+#: src/Admin/PicBedPage.php:106
+#: src/Admin/PicBedPage.php:295
 #: src/Admin/SampleSettings.php:165
 msgid "URL"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:99
+#: src/Admin/PicBedPage.php:108
+#: src/Admin/PicBedPage.php:296
 msgid "Relative path"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:106
+#: src/Admin/PicBedPage.php:116
 msgid "Uploaded images"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:121
+#: src/Admin/PicBedPage.php:131
 msgid "Uploading…"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:140
+#: src/Admin/PicBedPage.php:150
 msgid "Upload failed."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:172
+#: src/Admin/PicBedPage.php:182
 msgid "Insufficient permissions."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:178
+#: src/Admin/PicBedPage.php:188
 msgid "No file was uploaded."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:181
+#: src/Admin/PicBedPage.php:191
 msgid "Invalid upload."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:184
+#: src/Admin/PicBedPage.php:194
+#: src/Domain/Identity/AvatarModule.php:414
 msgid "The upload failed with a file error."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:189
+#: src/Admin/PicBedPage.php:199
 msgid "The file is too large."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:196
+#: src/Admin/PicBedPage.php:206
 msgid "This file type is not supported."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:201
+#: src/Admin/PicBedPage.php:211
 msgid "The file could not be written."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:207
+#: src/Admin/PicBedPage.php:217
 msgid "Image processing failed."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:214
+#: src/Admin/PicBedPage.php:224
 msgid "The image URL could not be resolved."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:260
-#: src/Admin/PicBedPage.php:273
+#: src/Admin/PicBedPage.php:270
+#: src/Admin/PicBedPage.php:285
 msgid "No uploads yet."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:294
+msgid "Preview"
 msgstr ""
 
 #: src/Admin/SampleSettings.php:25
@@ -419,7 +426,7 @@ msgid "Pinyin fills empty slugs from the title; the ID modes force an ID-based s
 msgstr ""
 
 #: src/Domain/Content/SlugModule.php:64
-#: src/Domain/Identity/AvatarModule.php:79
+#: src/Domain/Identity/AvatarModule.php:101
 #: src/Infrastructure/Security/SecurityModule.php:101
 msgid "Off"
 msgstr ""
@@ -460,45 +467,64 @@ msgstr ""
 msgid "Prepended to generated ID slugs; non-URL characters are stripped."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:75
+#: src/Domain/Identity/AvatarModule.php:97
 msgid "Gravatar mirror"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:76
+#: src/Domain/Identity/AvatarModule.php:98
 msgid "Rewrites gravatar.com hosts to a reachable mirror. Local avatars always win. Loli and v2ex are defunct and not offered."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:80
+#: src/Domain/Identity/AvatarModule.php:102
 msgid "Qiniu (dn-qiniu-avatar.qbox.me)"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:81
+#: src/Domain/Identity/AvatarModule.php:103
 msgid "WeAvatar (weavatar.com)"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:87
+#: src/Domain/Identity/AvatarModule.php:109
 msgid "Default avatar URL"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:88
+#: src/Domain/Identity/AvatarModule.php:110
 msgid "Used whenever a user has neither a local avatar nor a gravatar. Overrides the Discussion settings choice while non-empty."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:156
+#: src/Domain/Identity/AvatarModule.php:181
 msgid "Custom default"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:234
-msgid "A legacy avatar entry without an attachment link is in place; pick a new image to replace it (it cannot be cleared from here)."
-msgstr ""
-
-#: src/Domain/Identity/AvatarModule.php:235
-msgid "Pick an image from the media library; it is served for this user across wp-admin and the headless API."
-msgstr ""
-
-#: src/Domain/Identity/AvatarModule.php:240
-#: src/Domain/Identity/AvatarModule.php:245
+#: src/Domain/Identity/AvatarModule.php:286
 msgid "Local avatar"
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:292
+msgid "JPEG, PNG, WebP or GIF up to 4 MB. The image is center-cropped and stored as 128px and 64px copies; the uploaded original is not kept."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:293
+msgid "Remove local avatar"
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:344
+msgid "No avatar image was provided."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:354
+msgid "The avatar could not be processed."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:411
+msgid "Invalid avatar upload."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:417
+msgid "The avatar image is too large (4 MB maximum)."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:436
+msgid "Only JPEG, PNG, WebP and GIF images can be used as an avatar."
 msgstr ""
 
 #: src/Domain/Media/CoverService.php:64

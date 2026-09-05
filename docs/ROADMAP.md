@@ -78,9 +78,13 @@ aiya-core/
 │  │  ├─ Presenter/                 # M4：唯一允许触碰 WP_Post / WP_Term 的映射层（WP 对象 → DTO）
 │  │  └─ Rest/                      # M5：aiya/core/v1 控制器（只调用读服务与 Presenter，不查询数据）
 │  ├─ Domain/
-│  │  ├─ Identity/                  # ✅ 0.5.0：AvatarModule——本地头像（协议键 basic_user_avatar，
-│  │                                #   新形状 ['id','full']、兼容旧 ['full']）、七牛/WeAvatar 镜像、
-│  │                                #   默认头像 URL；设置追加在 Headless optimization 页（不开新页）
+│  │  ├─ Identity/                  # ✅ 0.5.0：AvatarModule——本地头像（协议键 basic_user_avatar）、
+│  │                                #   七牛/WeAvatar 镜像、默认头像 URL；设置追加在 Headless
+│  │                                #   optimization 页（不开新页）；✅ 0.10.0 v2 重写：文件头像
+│  │                                #   `wp-content/avatars/{user_id}/{128,64}.jpg`（CropGenerator
+│  │                                #   纯居中裁剪、原图不落盘、URL 直接拼接 + ?v= 缓存击穿），
+│  │                                #   资料页文件上传控件（订阅者可自传），storeAvatar 公开供
+│  │                                #   M5 REST 复用
 │  │  └─ Content/                   # ✅ 0.6.0：SlugModule——自动别名（pinyin / id_av / id_bv，
 │  │                                #   术语 pinyin），原语来自 slug-toolkit 包
 │  │                                # ✅ 0.7.0：ContentTypeModule + PostType/TaxonomyDefinition +
