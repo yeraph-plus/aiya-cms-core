@@ -107,6 +107,9 @@ aiya-core/
 │  │  ├─ CoverMetabox.php           # ✅ 0.9.0：封面生成 metabox + AJAX（富交互控件，不走字段组 schema）
 │  │  └─ PicBedPage.php             # ✅ 0.9.0：图床（0.9.1 起为主菜单项，upload-pics 池、不进媒体库
 │  │                                #   与 uploads/、单次压缩落盘、不占媒体库 ID）
+│  │  └─ SendMailPage.php           # ✅ 0.11.0：Send Mail 主菜单页——用户 HTML 邮件撰写（经典编辑器
+│  │                                #   + 收件人选择），投递仅走 wp_mail() 交由 SMTP 插件接管；
+│  │                                #   edit_users 权限 + 会话 nonce
 │  ├─ Metadata/
 │  │  ├─ Registry.php               # ✅ 0.7.0：addPostBox / addTermBox / addUserFields
 │  │  │                             #    （+ PostBox / TermBox 值对象）

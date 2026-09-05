@@ -7,6 +7,7 @@ namespace Aiya\Core;
 use Aiya\Core\Admin\CoverMetabox;
 use Aiya\Core\Admin\MetaboxAdmin;
 use Aiya\Core\Admin\PicBedPage;
+use Aiya\Core\Admin\SendMailPage;
 use Aiya\Core\Admin\SettingsAdmin;
 use Aiya\Core\Admin\SampleSettings;
 use Aiya\Core\Contracts\Module;
@@ -57,6 +58,7 @@ final class Plugin
         $this->addModule(new HeadlessModule($this->settings));
         $this->addModule(new SecurityModule($this->settings));
         $this->addModule(new AvatarModule($this->settings));
+        $this->addModule(new SendMailPage());
         $this->addModule(new SlugModule($this->settings));
         $this->addModule(new ContentTypeModule($this->contentTypes));
         $this->addModule(new MetaboxAdmin($this->metadata));

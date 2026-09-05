@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.10.0\n"
+"Project-Id-Version: AIYA Core 0.11.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/app\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-05T14:42:27+00:00\n"
+"POT-Creation-Date: 2026-09-05T15:14:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -75,6 +75,8 @@ msgid "Generation failed."
 msgstr ""
 
 #: src/Admin/CoverMetabox.php:112
+#: src/Admin/SendMailPage.php:120
+#: src/Domain/Identity/AvatarModule.php:323
 msgid "Request failed."
 msgstr ""
 
@@ -168,6 +170,7 @@ msgid "Insufficient permissions."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:188
+#: src/Domain/Identity/AvatarModule.php:385
 msgid "No file was uploaded."
 msgstr ""
 
@@ -176,7 +179,7 @@ msgid "Invalid upload."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:194
-#: src/Domain/Identity/AvatarModule.php:414
+#: src/Domain/Identity/AvatarModule.php:494
 msgid "The upload failed with a file error."
 msgstr ""
 
@@ -361,6 +364,60 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
+#: src/Admin/SendMailPage.php:39
+#: src/Admin/SendMailPage.php:40
+#: src/Admin/SendMailPage.php:62
+msgid "Send Mail"
+msgstr ""
+
+#: src/Admin/SendMailPage.php:63
+msgid "Compose an HTML email for one site user and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport."
+msgstr ""
+
+#: src/Admin/SendMailPage.php:67
+msgid "Recipient"
+msgstr ""
+
+#: src/Admin/SendMailPage.php:76
+msgid "Subject"
+msgstr ""
+
+#: src/Admin/SendMailPage.php:80
+msgid "Message"
+msgstr ""
+
+#: src/Admin/SendMailPage.php:86
+#: src/Admin/SendMailPage.php:122
+msgid "Send email"
+msgstr ""
+
+#: src/Admin/SendMailPage.php:100
+msgid "Sending…"
+msgstr ""
+
+#: src/Admin/SendMailPage.php:109
+#: src/Admin/SendMailPage.php:176
+msgid "The email could not be sent."
+msgstr ""
+
+#: src/Admin/SendMailPage.php:137
+msgid "You are not allowed to send mail to users."
+msgstr ""
+
+#: src/Admin/SendMailPage.php:144
+msgid "Pick a recipient first."
+msgstr ""
+
+#: src/Admin/SendMailPage.php:150
+msgid "A subject and a message body are required."
+msgstr ""
+
+#. translators: %s: recipient email address.
+#: src/Admin/SendMailPage.php:160
+#, php-format
+msgid "Email sent to %s."
+msgstr ""
+
 #: src/Admin/SettingsAdmin.php:85
 msgid "Unknown settings page."
 msgstr ""
@@ -426,7 +483,7 @@ msgid "Pinyin fills empty slugs from the title; the ID modes force an ID-based s
 msgstr ""
 
 #: src/Domain/Content/SlugModule.php:64
-#: src/Domain/Identity/AvatarModule.php:101
+#: src/Domain/Identity/AvatarModule.php:100
 #: src/Infrastructure/Security/SecurityModule.php:101
 msgid "Off"
 msgstr ""
@@ -467,63 +524,88 @@ msgstr ""
 msgid "Prepended to generated ID slugs; non-URL characters are stripped."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:97
+#: src/Domain/Identity/AvatarModule.php:96
 msgid "Gravatar mirror"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:98
+#: src/Domain/Identity/AvatarModule.php:97
 msgid "Rewrites gravatar.com hosts to a reachable mirror. Local avatars always win. Loli and v2ex are defunct and not offered."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:102
+#: src/Domain/Identity/AvatarModule.php:101
 msgid "Qiniu (dn-qiniu-avatar.qbox.me)"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:103
+#: src/Domain/Identity/AvatarModule.php:102
 msgid "WeAvatar (weavatar.com)"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:109
+#: src/Domain/Identity/AvatarModule.php:108
 msgid "Default avatar URL"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:110
+#: src/Domain/Identity/AvatarModule.php:109
 msgid "Used whenever a user has neither a local avatar nor a gravatar. Overrides the Discussion settings choice while non-empty."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:181
+#: src/Domain/Identity/AvatarModule.php:180
 msgid "Custom default"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:286
+#: src/Domain/Identity/AvatarModule.php:288
 msgid "Local avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:292
-msgid "JPEG, PNG, WebP or GIF up to 4 MB. The image is center-cropped and stored as 128px and 64px copies; the uploaded original is not kept."
+#: src/Domain/Identity/AvatarModule.php:295
+msgid "Upload avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:293
+#: src/Domain/Identity/AvatarModule.php:296
 msgid "Remove local avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:344
+#: src/Domain/Identity/AvatarModule.php:298
+msgid "JPEG, PNG, WebP or GIF up to 4 MB. The image is center-cropped and stored as 128px and 64px copies; the uploaded original is not kept."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:317
+msgid "Operation failed."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:333
+msgid "Choose an image first."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:346
+msgid "Avatar updated."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:353
+msgid "Remove the local avatar?"
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:378
+#: src/Domain/Identity/AvatarModule.php:406
+msgid "You are not allowed to edit this user."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:424
 msgid "No avatar image was provided."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:354
+#: src/Domain/Identity/AvatarModule.php:434
 msgid "The avatar could not be processed."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:411
+#: src/Domain/Identity/AvatarModule.php:491
 msgid "Invalid avatar upload."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:417
+#: src/Domain/Identity/AvatarModule.php:497
 msgid "The avatar image is too large (4 MB maximum)."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:436
+#: src/Domain/Identity/AvatarModule.php:516
 msgid "Only JPEG, PNG, WebP and GIF images can be used as an avatar."
 msgstr ""
 
