@@ -278,18 +278,25 @@ final class PicBedPage implements Module
         }
         rsort($files, SORT_STRING);
 
-        echo '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;">';
+        // A plain table keeps the screen light for large pools: browser-side
+        // lazy loading defers the previews until they are scrolled into view.
+        echo '<table class="widefat striped"><thead><tr>';
+        echo '<th style="width:80px;">' . esc_html__('Preview', 'aiya-core') . '</th>';
+        echo '<th>' . esc_html__('URL', 'aiya-core') . '</th>';
+        echo '<th>' . esc_html__('Relative path', 'aiya-core') . '</th>';
+        echo '</tr></thead><tbody>';
         foreach ($files as $file) {
             $url = $this->paths->localToUrl($file);
             $path = $this->paths->relativePath($file);
             if ($url === null || $path === null) {
                 continue;
             }
-            echo '<div style="border:1px solid #dcdcde;padding:8px;">';
-            echo '<img src="' . esc_url($url) . '" alt="" style="width:100%;height:auto;">';
-            echo '<p style="word-break:break-all;"><code>' . esc_html($path) . '</code></p>';
-            echo '</div>';
+            echo '<tr>';
+            echo '<td><img src="' . esc_url($url) . '" alt="" loading="lazy" decoding="async" style="max-width:64px;max-height:48px;width:auto;height:auto;"></td>';
+            echo '<td><code style="word-break:break-all;">' . esc_html($url) . '</code></td>';
+            echo '<td><code style="word-break:break-all;">' . esc_html($path) . '</code></td>';
+            echo '</tr>';
         }
-        echo '</div>';
+        echo '</tbody></table>';
     }
 }
