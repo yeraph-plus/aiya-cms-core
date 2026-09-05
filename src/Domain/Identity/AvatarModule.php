@@ -78,9 +78,8 @@ final class AvatarModule implements Module
         add_filter('pre_option_avatar_default', [$this, 'forceDefaultAvatar']);
         add_action('show_user_profile', [$this, 'renderProfileField']);
         add_action('edit_user_profile', [$this, 'renderProfileField']);
-        add_action('personal_options_update', [$this, 'saveProfileField']);
-        add_action('edit_user_profile_update', [$this, 'saveProfileField']);
-        add_action('user_edit_form_tag', [$this, 'formEnctype']);
+        add_action('wp_ajax_aiya_core_avatar_upload', [$this, 'handleAjaxUpload']);
+        add_action('wp_ajax_aiya_core_avatar_remove', [$this, 'handleAjaxRemove']);
         add_action('delete_user', [$this, 'deleteUserAvatars']);
     }
 
@@ -263,9 +262,10 @@ final class AvatarModule implements Module
     }
 
     /**
-     * Profile section: a plain file input instead of the media library so
-     * users without upload_files (subscribers and up) can manage their own
-     * avatar.
+     * Profile section: a plain file upload with dedicated buttons instead of
+     * the media library, so users without upload_files (subscribers and up)
+     * can manage their own avatar. Both actions run over AJAX immediately —
+     * the profile form's save button is not involved.
      */
     public function renderProfileField(\WP_User $user): void
     {
@@ -281,55 +281,135 @@ final class AvatarModule implements Module
                     : (string) content_url('/' . ltrim($meta['full'], '/'));
             }
         }
+
+        $nonce = wp_create_nonce('aiya_core_avatar_' . $user->ID);
         ?>
         <tr class="aiya-core-field aiya-core-field--avatar">
             <th scope="row"><label for="aiya-core-avatar-file"><?php esc_html_e('Local avatar', 'aiya-core'); ?></label></th>
             <td>
-                <?php if (is_string($previewUrl) && $previewUrl !== '') : ?>
-                    <p><img src="<?php echo esc_url($previewUrl); ?>" alt="" loading="lazy" decoding="async" style="width:64px;height:64px;border-radius:50%;object-fit:cover;vertical-align:middle;"></p>
-                <?php endif; ?>
-                <input type="file" id="aiya-core-avatar-file" name="aiya_core_avatar_upload" accept="image/jpeg,image/png,image/webp,image/gif">
+                <p id="aiya-core-avatar-preview" style="display:<?php echo $previewUrl !== null ? 'block' : 'none'; ?>;margin-top:0;">
+                    <img id="aiya-core-avatar-image" src="<?php echo esc_url((string) $previewUrl); ?>" alt="" loading="lazy" decoding="async" style="width:64px;height:64px;border-radius:50%;object-fit:cover;vertical-align:middle;">
+                </p>
+                <p>
+                    <input type="file" id="aiya-core-avatar-file" accept="image/jpeg,image/png,image/webp,image/gif">
+                    <button type="button" class="button button-primary" id="aiya-core-avatar-upload" data-nonce="<?php echo esc_attr($nonce); ?>" data-user="<?php echo (int) $user->ID; ?>"><?php esc_html_e('Upload avatar', 'aiya-core'); ?></button>
+                    <button type="button" class="button-link-delete" id="aiya-core-avatar-remove" data-nonce="<?php echo esc_attr($nonce); ?>" data-user="<?php echo (int) $user->ID; ?>" style="color:#b32d2e;margin-left:8px;cursor:pointer;background:none;border:none;"><?php esc_html_e('Remove local avatar', 'aiya-core'); ?></button>
+                </p>
                 <p class="description"><?php esc_html_e('JPEG, PNG, WebP or GIF up to 4 MB. The image is center-cropped and stored as 128px and 64px copies; the uploaded original is not kept.', 'aiya-core'); ?></p>
-                <label><input type="checkbox" name="aiya_core_avatar_remove" value="1"> <?php esc_html_e('Remove local avatar', 'aiya-core'); ?></label>
+                <div id="aiya-core-avatar-status" class="description"></div>
             </td>
         </tr>
+        <script>
+            jQuery(function ($) {
+                var $status = $('#aiya-core-avatar-status');
+
+                function post(action, data, $button, done) {
+                    $button.prop('disabled', true);
+                    $.ajax({
+                        url: ajaxurl,
+                        method: 'POST',
+                        data: data,
+                        processData: false,
+                        contentType: false,
+                        dataType: 'json'
+                    }).done(function (res) {
+                        if (!res || !res.success) {
+                            $status.text(res && res.data && res.data.message ? res.data.message : <?php echo wp_json_encode(__('Operation failed.', 'aiya-core')); ?>);
+                            return;
+                        }
+                        $status.text('');
+                        done(res.data || {});
+                    }).fail(function () {
+                        $status.text(<?php echo wp_json_encode(__('Request failed.', 'aiya-core')); ?>);
+                    }).always(function () {
+                        $button.prop('disabled', false);
+                    });
+                }
+
+                $('#aiya-core-avatar-upload').on('click', function (e) {
+                    e.preventDefault();
+                    var file = document.getElementById('aiya-core-avatar-file');
+                    if (!file.files.length) {
+                        $status.text(<?php echo wp_json_encode(__('Choose an image first.', 'aiya-core')); ?>);
+                        return;
+                    }
+                    var data = new FormData();
+                    data.append('action', 'aiya_core_avatar_upload');
+                    data.append('nonce', $(this).data('nonce'));
+                    data.append('user_id', $(this).data('user'));
+                    data.append('avatar', file.files[0]);
+                    var self = this;
+                    post('upload', data, $(this), function (res) {
+                        $('#aiya-core-avatar-image').attr('src', res.url);
+                        $('#aiya-core-avatar-preview').show();
+                        $('#aiya-core-avatar-file').val('');
+                        $status.text(<?php echo wp_json_encode(__('Avatar updated.', 'aiya-core')); ?>);
+                        $(self).data('nonce', res.nonce || $(self).data('nonce'));
+                    });
+                });
+
+                $('#aiya-core-avatar-remove').on('click', function (e) {
+                    e.preventDefault();
+                    if (!window.confirm(<?php echo wp_json_encode(__('Remove the local avatar?', 'aiya-core')); ?>)) {
+                        return;
+                    }
+                    var data = new FormData();
+                    data.append('action', 'aiya_core_avatar_remove');
+                    data.append('nonce', $(this).data('nonce'));
+                    data.append('user_id', $(this).data('user'));
+                    post('remove', data, $(this), function () {
+                        $('#aiya-core-avatar-preview').hide();
+                        $('#aiya-core-avatar-image').attr('src', '');
+                    });
+                });
+            });
+        </script>
         <?php
     }
 
     /**
-     * Profile save: remove checkbox first, then a fresh upload (which wins).
-     * Runs for any user editing their own profile — no upload_files needed.
+     * AJAX upload: validates and processes the file immediately, returns the
+     * fresh preview URL. Nonce is bound to the target user.
      */
-    public function saveProfileField(int $userId): void
+    public function handleAjaxUpload(): void
     {
-        if (!current_user_can('edit_user', $userId)) {
-            return;
+        $userId = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
+        if ($userId <= 0 || !current_user_can('edit_user', $userId)) {
+            wp_send_json_error(['message' => __('You are not allowed to edit this user.', 'aiya-core')], 403);
         }
-        check_admin_referer('update-user_' . $userId);
+        check_ajax_referer('aiya_core_avatar_' . $userId, 'nonce');
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- the profile nonce is verified above.
-        if (isset($_POST['aiya_core_avatar_remove'])) {
-            $this->removeAvatar($userId);
-        }
-
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- the profile nonce is verified above.
-        $file = $_FILES['aiya_core_avatar_upload'] ?? null;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked above.
+        $file = $_FILES['avatar'] ?? null;
         if (!is_array($file) || empty($file['tmp_name']) || !is_string($file['tmp_name'])) {
-            return;
+            wp_send_json_error(['message' => __('No file was uploaded.', 'aiya-core')]);
         }
 
         try {
             $this->validateUpload($file);
             $this->storeAvatar($userId, $file['tmp_name']);
         } catch (RuntimeException $error) {
-            wp_die(esc_html($error->getMessage()), '', ['response' => 400]);
+            wp_send_json_error(['message' => $error->getMessage()]);
         }
+
+        wp_send_json_success([
+            'url' => content_url('/avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg?v=' . $this->fileAvatarVersion($userId)),
+            'nonce' => wp_create_nonce('aiya_core_avatar_' . $userId),
+        ]);
     }
 
-    /** Profile forms are not multipart by default; the upload needs it. */
-    public function formEnctype(): void
+    /** AJAX removal: clears the pooled files and the protocol meta. */
+    public function handleAjaxRemove(): void
     {
-        echo ' enctype="multipart/form-data"';
+        $userId = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
+        if ($userId <= 0 || !current_user_can('edit_user', $userId)) {
+            wp_send_json_error(['message' => __('You are not allowed to edit this user.', 'aiya-core')], 403);
+        }
+        check_ajax_referer('aiya_core_avatar_' . $userId, 'nonce');
+
+        $this->removeAvatar($userId);
+
+        wp_send_json_success(['nonce' => wp_create_nonce('aiya_core_avatar_' . $userId)]);
     }
 
     /**
