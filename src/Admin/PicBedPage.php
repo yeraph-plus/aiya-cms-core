@@ -76,6 +76,7 @@ final class PicBedPage implements Module
             <h1><?php esc_html_e('Pic bed', 'aiya-core'); ?></h1>
             <p class="description"><?php esc_html_e('Upload images to wp-content/upload-pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk.', 'aiya-core'); ?></p>
 
+            <h2><?php esc_html_e('Upload', 'aiya-core'); ?></h2>
             <form id="aiya-core-picbed-form">
                 <input type="file" id="aiya-core-picbed-file" name="image" accept="<?php echo esc_attr($accept); ?>" required>
                 <input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce(self::NONCE_ACTION)); ?>">
@@ -89,20 +90,16 @@ final class PicBedPage implements Module
             </p>
 
             <div id="aiya-core-picbed-result" style="display:none;">
-                <hr>
                 <h2><?php esc_html_e('Upload result', 'aiya-core'); ?></h2>
-                <div style="display:flex;gap:24px;align-items:flex-start;">
-                    <img id="aiya-core-picbed-preview" src="" alt="" style="max-width:320px;height:auto;border:1px solid #dcdcde;">
-                    <div>
-                        <p><strong><?php esc_html_e('Dimensions', 'aiya-core'); ?>:</strong> <span id="aiya-core-picbed-dims"></span> — <span id="aiya-core-picbed-mime"></span></p>
-                        <p><strong><?php esc_html_e('URL', 'aiya-core'); ?>:</strong><br><input type="text" class="regular-text" id="aiya-core-picbed-url" readonly></p>
-                        <p><strong><?php esc_html_e('Relative path', 'aiya-core'); ?>:</strong><br><input type="text" class="regular-text" id="aiya-core-picbed-path" readonly></p>
-                    </div>
-                </div>
+                <table class="widefat striped"><tbody>
+                    <tr>
+                        <td style="width:110px;"><img id="aiya-core-picbed-preview" src="" alt="" loading="lazy" decoding="async" style="max-width:80px;max-height:60px;width:auto;height:auto;display:block;"><span class="description" id="aiya-core-picbed-dims"></span><br><span class="description" id="aiya-core-picbed-mime"></span></td>
+                        <td><p class="description" style="margin-top:0;"><?php esc_html_e('URL', 'aiya-core'); ?></p><input type="text" class="regular-text code" id="aiya-core-picbed-url" readonly></td>
+                        <td><p class="description" style="margin-top:0;"><?php esc_html_e('Relative path', 'aiya-core'); ?></p><input type="text" class="regular-text code" id="aiya-core-picbed-path" readonly></td>
+                    </tr>
+                </tbody></table>
             </div>
-        </div>
 
-        <div class="wrap">
             <h2><?php esc_html_e('Uploaded images', 'aiya-core'); ?></h2>
             <div id="aiya-core-picbed-list">
                 <?php $this->renderList(); ?>
