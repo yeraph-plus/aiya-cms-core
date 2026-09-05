@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.1.0\n"
+"Project-Id-Version: AIYA Core 0.9.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/app\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-03T16:48:04+00:00\n"
+"POT-Creation-Date: 2026-09-05T12:16:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -30,25 +30,177 @@ msgstr ""
 msgid "Yeraph Studio"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:74
+#: src/Admin/CoverMetabox.php:41
+msgid "Post cover"
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:61
+msgid "Current generated cover."
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:65
+msgid "Cover model"
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:67
+msgid "Photo background"
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:68
+msgid "Pattern"
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:72
+msgid "Title"
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:76
+msgid "Background color"
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:80
+msgid "Title color"
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:84
+msgid "Generate cover"
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:93
+msgid "Generating…"
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:104
+msgid "Generation failed."
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:112
+msgid "Request failed."
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:126
+msgid "You are not allowed to edit this post."
+msgstr ""
+
+#: src/Admin/CoverMetabox.php:143
+msgid "Cover generated."
+msgstr ""
+
+#: src/Admin/FieldRenderer.php:96
 msgid "Select media"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:75
-#: src/Admin/FieldRenderer.php:118
+#: src/Admin/FieldRenderer.php:97
+#: src/Admin/FieldRenderer.php:140
 msgid "Remove"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:88
+#: src/Admin/FieldRenderer.php:110
 msgid "A value is stored; leave blank to keep it"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:90
+#: src/Admin/FieldRenderer.php:112
 msgid "Clear the stored value"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:109
+#: src/Admin/FieldRenderer.php:131
 msgid "Add item"
+msgstr ""
+
+#: src/Admin/MetaboxAdmin.php:267
+msgid "Additional fields"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:68
+#: src/Admin/PicBedPage.php:69
+#: src/Admin/PicBedPage.php:82
+#: src/Modules/MediaModule.php:186
+msgid "Pic bed"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:83
+msgid "Upload images directly to wp-content/upload-pics without using the media library. Copy the relative path for headless templates."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:88
+#: src/Admin/PicBedPage.php:147
+msgid "Upload image"
+msgstr ""
+
+#. translators: %d: maximum upload size in megabytes.
+#: src/Admin/PicBedPage.php:93
+#, php-format
+msgid "JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:99
+msgid "Upload result"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:103
+msgid "Dimensions"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:104
+#: src/Admin/SampleSettings.php:165
+msgid "URL"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:105
+msgid "Relative path"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:112
+msgid "Uploaded images"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:127
+msgid "Uploading…"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:136
+msgid "Upload failed."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:168
+msgid "Insufficient permissions."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:174
+msgid "No file was uploaded."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:177
+msgid "Invalid upload."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:180
+msgid "The upload failed with a file error."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:185
+msgid "The file is too large."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:192
+msgid "This file type is not supported."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:197
+msgid "The file could not be written."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:203
+msgid "Image processing failed."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:210
+msgid "The image URL could not be resolved."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:256
+#: src/Admin/PicBedPage.php:269
+msgid "No uploads yet."
 msgstr ""
 
 #: src/Admin/SampleSettings.php:25
@@ -195,10 +347,6 @@ msgstr ""
 msgid "Label"
 msgstr ""
 
-#: src/Admin/SampleSettings.php:165
-msgid "URL"
-msgstr ""
-
 #: src/Admin/SampleSettings.php:171
 msgid "Priority"
 msgstr ""
@@ -243,38 +391,572 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:39
+#: src/Domain/Content/SeoBoxModule.php:31
+msgid "SEO fields"
+msgstr ""
+
+#: src/Domain/Content/SeoBoxModule.php:39
+msgid "SEO keywords"
+msgstr ""
+
+#: src/Domain/Content/SeoBoxModule.php:40
+msgid "Comma-separated keywords projected into the headless API."
+msgstr ""
+
+#: src/Domain/Content/SeoBoxModule.php:46
+msgid "SEO description"
+msgstr ""
+
+#: src/Domain/Content/SeoBoxModule.php:47
+msgid "Meta description projected into the headless API."
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:60
+msgid "Post slug generation"
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:61
+msgid "Pinyin fills empty slugs from the title; the ID modes force an ID-based slug on every save."
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:64
+#: src/Domain/Identity/AvatarModule.php:79
+#: src/Infrastructure/Security/SecurityModule.php:101
+msgid "Off"
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:65
+msgid "Pinyin from title"
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:66
+msgid "ID, zero padded (AV style)"
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:67
+msgid "ID, XDE encoded (BV style)"
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:73
+msgid "Slug post types"
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:74
+msgid "Comma-separated post type names the slug modes apply to."
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:80
+msgid "Term slugs from pinyin"
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:81
+msgid "Generate pinyin slugs for terms with empty slugs"
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:87
+msgid "ID slug prefix"
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:88
+msgid "Prepended to generated ID slugs; non-URL characters are stripped."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:75
+msgid "Gravatar mirror"
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:76
+msgid "Rewrites gravatar.com hosts to a reachable mirror. Local avatars always win. Loli and v2ex are defunct and not offered."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:80
+msgid "Qiniu (dn-qiniu-avatar.qbox.me)"
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:81
+msgid "WeAvatar (weavatar.com)"
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:87
+msgid "Default avatar URL"
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:88
+msgid "Used whenever a user has neither a local avatar nor a gravatar. Overrides the Discussion settings choice while non-empty."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:156
+msgid "Custom default"
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:234
+msgid "A legacy avatar entry without an attachment link is in place; pick a new image to replace it (it cannot be cleared from here)."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:235
+msgid "Pick an image from the media library; it is served for this user across wp-admin and the headless API."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:240
+#: src/Domain/Identity/AvatarModule.php:245
+msgid "Local avatar"
+msgstr ""
+
+#: src/Domain/Media/CoverService.php:64
+msgid "The post does not exist."
+msgstr ""
+
+#: src/Domain/Media/CoverService.php:98
+msgid "Cover generation failed."
+msgstr ""
+
+#: src/Domain/Media/CoverService.php:103
+msgid "The cover URL could not be resolved."
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:69
+#: src/Infrastructure/Headless/HeadlessModule.php:70
+msgid "Headless optimization"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:77
+msgid "Master switch"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:78
+msgid "Strip headless-irrelevant WordPress features"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:79
+msgid "Turn off to restore stock WordPress behaviour without code changes."
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:86
+msgid "These toggles only apply while the master switch is on."
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:87
+msgid "Stripping is enforced at runtime; REST reads for content stay available for the Astro front end."
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:93
+msgid "Editor surfaces"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:99
+msgid "Block editor (Gutenberg)"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:100
+msgid "Force the classic editor for every post type"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:106
+msgid "Block widgets"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:107
+msgid "Revert the widgets screen to the classic interface"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:113
+msgid "Front end and protocols"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:119
+msgid "Comments (kill switch)"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:120
+msgid "Disable the comment system entirely: store, moderation screen and REST routes"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:121
+msgid "Leave off by default: WordPress stays the comment store and moderation surface for the Astro front end."
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:127
+msgid "Pingbacks and trackbacks"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:128
+msgid "Disable the pingback/trackback protocols entirely"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:134
+msgid "Emoji"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:135
+msgid "Remove the emoji detection script and staticization filters"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:141
+msgid "oEmbed discovery"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:142
+msgid "Remove discovery links, the embed route and auto-embeds"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:148
+msgid "XML-RPC"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:149
+msgid "Disable the XML-RPC server entirely"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:155
+msgid "Front-end head cleanup"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:156
+msgid "Strip generator, RSD, shortlink, REST hints and block CSS from front-end output"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:162
+msgid "Admin screens and block services"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:168
+msgid "Appearance, themes, customizer, site editor"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:169
+msgid "Remove the appearance screens and block direct access"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:170
+msgid "Theme switching stays available through WP-CLI."
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:176
+msgid "Font library and global styles"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:177
+msgid "Remove the font library screen and the font/global-style REST routes"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:183
+msgid "Block patterns and block directory"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:184
+msgid "Drop core block patterns, remote patterns and their REST routes"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:398
+msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA Core > Headless optimization."
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:67
+#: src/Infrastructure/Security/SecurityModule.php:68
+msgid "Security hardening"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:75
+msgid "REST user enumeration"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:76
+msgid "Remove the /wp/v2/users endpoints for anonymous visitors"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:77
+msgid "Author data reaches the front end through the post DTOs. Admin screens that read /wp/v2/users (media library author filter) degrade; turn off if that matters."
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:83
+msgid "Sitemap user list"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:84
+msgid "Drop the users provider from WP sitemaps"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:90
+msgid "Email-address logins"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:91
+msgid "Only accept email addresses as the login field"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:97
+msgid "Admin back end minimum role"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:98
+msgid "Users below the selected role are redirected away from wp-admin. Off by default."
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:102
+msgid "Subscriber and above"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:103
+msgid "Contributor and above"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:104
+msgid "Author and above"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:105
+msgid "Editor and above"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:106
+msgid "Administrator only"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:112
+msgid "Login page parameter gate"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:113
+msgid "wp-login.php only loads with the secret parameter below"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:114
+msgid "Obscurity, not authentication: keep the value long and treat it as a compliment to credentials, never a replacement."
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:120
+msgid "Login gate parameter value"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:121
+msgid "Reach the login screen via /wp-login.php?auth=<value>; the pass persists for 10 minutes as a cookie and covers the full flow including password reset. Leave empty to disable the gate regardless of the switch above."
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:128
+msgid "Request URI guard"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:129
+msgid "Reject logged-out requests with oversized or probe-shaped URIs (414)"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:183
+msgid "Please log in with your email address."
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:245
+msgid "Not found."
+msgstr ""
+
+#: src/Modules/MediaModule.php:59
+#: src/Modules/MediaModule.php:60
+msgid "Extensions"
+msgstr ""
+
+#: src/Modules/MediaModule.php:67
+msgid "Image processing"
+msgstr ""
+
+#: src/Modules/MediaModule.php:73
+msgid "Media library takeover"
+msgstr ""
+
+#: src/Modules/MediaModule.php:74
+msgid "Run uploads through the image processor: scale, watermark, format conversion"
+msgstr ""
+
+#: src/Modules/MediaModule.php:75
+msgid "WebP/AVIF saving requires the libwebp/libavif PHP libraries; unsupported targets fall back to the source format."
+msgstr ""
+
+#: src/Modules/MediaModule.php:81
+msgid "Save format"
+msgstr ""
+
+#: src/Modules/MediaModule.php:84
+msgid "Keep source format"
+msgstr ""
+
+#: src/Modules/MediaModule.php:85
+msgid "JPG"
+msgstr ""
+
+#: src/Modules/MediaModule.php:86
+msgid "WebP"
+msgstr ""
+
+#: src/Modules/MediaModule.php:87
+msgid "AVIF"
+msgstr ""
+
+#: src/Modules/MediaModule.php:93
+msgid "Max image width"
+msgstr ""
+
+#: src/Modules/MediaModule.php:94
+msgid "Uploads wider than this are scaled down; 0 disables the limit."
+msgstr ""
+
+#: src/Modules/MediaModule.php:102
+msgid "Image quality"
+msgstr ""
+
+#: src/Modules/MediaModule.php:103
+msgid "Save quality from 0 to 100; PNG maps it to the compression level."
+msgstr ""
+
+#: src/Modules/MediaModule.php:112
+msgid "Font file"
+msgstr ""
+
+#: src/Modules/MediaModule.php:113
+msgid "Content URL, content-relative path or absolute path for cover titles and text watermarks. Leave empty to use the bundled font."
+msgstr ""
+
+#: src/Modules/MediaModule.php:119
+msgid "Watermark"
+msgstr ""
+
+#: src/Modules/MediaModule.php:125
+msgid "Watermark mode"
+msgstr ""
+
+#: src/Modules/MediaModule.php:128
+msgid "Disabled"
+msgstr ""
+
+#: src/Modules/MediaModule.php:129
+msgid "Image"
+msgstr ""
+
+#: src/Modules/MediaModule.php:130
+msgid "Text"
+msgstr ""
+
+#: src/Modules/MediaModule.php:136
+msgid "Watermark position"
+msgstr ""
+
+#: src/Modules/MediaModule.php:139
+msgid "Center"
+msgstr ""
+
+#: src/Modules/MediaModule.php:140
+msgid "Center left"
+msgstr ""
+
+#: src/Modules/MediaModule.php:141
+msgid "Center right"
+msgstr ""
+
+#: src/Modules/MediaModule.php:142
+msgid "Center top"
+msgstr ""
+
+#: src/Modules/MediaModule.php:143
+msgid "Center bottom"
+msgstr ""
+
+#: src/Modules/MediaModule.php:144
+msgid "Top right"
+msgstr ""
+
+#: src/Modules/MediaModule.php:145
+msgid "Top left"
+msgstr ""
+
+#: src/Modules/MediaModule.php:146
+msgid "Top center"
+msgstr ""
+
+#: src/Modules/MediaModule.php:147
+msgid "Bottom right"
+msgstr ""
+
+#: src/Modules/MediaModule.php:148
+msgid "Bottom left"
+msgstr ""
+
+#: src/Modules/MediaModule.php:149
+msgid "Bottom center"
+msgstr ""
+
+#: src/Modules/MediaModule.php:155
+msgid "Watermark image"
+msgstr ""
+
+#: src/Modules/MediaModule.php:156
+msgid "Media library attachment used in image mode; its own alpha is kept as-is."
+msgstr ""
+
+#: src/Modules/MediaModule.php:162
+msgid "Watermark text"
+msgstr ""
+
+#: src/Modules/MediaModule.php:168
+msgid "Watermark font size"
+msgstr ""
+
+#: src/Modules/MediaModule.php:176
+msgid "Watermark opacity (text)"
+msgstr ""
+
+#: src/Modules/MediaModule.php:177
+msgid "0 = fully transparent, 100 = fully opaque; applies to the text watermark only."
+msgstr ""
+
+#: src/Modules/MediaModule.php:192
+msgid "Pic bed page"
+msgstr ""
+
+#: src/Modules/MediaModule.php:193
+msgid "Enable the standalone upload page that bypasses the media library"
+msgstr ""
+
+#: src/Modules/MediaModule.php:194
+msgid "Files land in wp-content/upload-pics/YYYY/MM/ and are addressed by path; no attachment IDs and no WP thumbnail generation."
+msgstr ""
+
+#: src/Modules/MediaModule.php:200
+msgid "Pic bed max upload size (MB)"
+msgstr ""
+
+#: src/Modules/MediaModule.php:279
+msgid "Image processing failed; the upload was cancelled."
+msgstr ""
+
+#: src/Settings/ValueNormalizer.php:45
 msgid "A value is required."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:113
+#: src/Settings/ValueNormalizer.php:119
 msgid "Enter a valid number."
 msgstr ""
 
 #. translators: %s: minimum allowed value.
-#: src/Settings/ValueNormalizer.php:120
+#: src/Settings/ValueNormalizer.php:126
 #, php-format
 msgid "The minimum value is %s."
 msgstr ""
 
 #. translators: %s: maximum allowed value.
-#: src/Settings/ValueNormalizer.php:124
+#: src/Settings/ValueNormalizer.php:130
 #, php-format
 msgid "The maximum value is %s."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:132
+#: src/Settings/ValueNormalizer.php:138
 msgid "Enter a valid email address."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:138
+#: src/Settings/ValueNormalizer.php:144
 msgid "Enter a valid URL."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:148
+#: src/Settings/ValueNormalizer.php:154
 msgid "Select a valid media attachment."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:158
+#: src/Settings/ValueNormalizer.php:170
 msgid "Select a valid option."
 msgstr ""

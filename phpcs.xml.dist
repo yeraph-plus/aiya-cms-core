@@ -5,6 +5,7 @@
     <file>aiya-core.php</file>
     <file>uninstall.php</file>
     <file>src</file>
+    <file>packages/image-processor/src</file>
 
     <exclude-pattern>*/vendor/*</exclude-pattern>
 

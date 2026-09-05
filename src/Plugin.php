@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Aiya\Core;
 
+use Aiya\Core\Admin\CoverMetabox;
 use Aiya\Core\Admin\MetaboxAdmin;
+use Aiya\Core\Admin\PicBedPage;
 use Aiya\Core\Admin\SettingsAdmin;
 use Aiya\Core\Admin\SampleSettings;
 use Aiya\Core\Contracts\Module;
@@ -16,6 +18,7 @@ use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Infrastructure\Headless\HeadlessModule;
 use Aiya\Core\Infrastructure\Security\SecurityModule;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
+use Aiya\Core\Modules\MediaModule;
 use Aiya\Core\Runtime\SchemaVersionRunner;
 use Aiya\Core\Settings\Registry;
 
@@ -58,6 +61,17 @@ final class Plugin
         $this->addModule(new ContentTypeModule($this->contentTypes));
         $this->addModule(new MetaboxAdmin($this->metadata));
         $this->addModule(new SeoBoxModule($this->metadata));
+
+        $media = new MediaModule($this->settings);
+        $this->addModule($media);
+        $this->addModule(new CoverMetabox($media->covers()));
+        $this->addModule(new PicBedPage(
+            $media->uploadProcessor(),
+            $media->paths(),
+            static fn (): int => (int) aiya_core_opt(MediaModule::PAGE_SLUG, 'pic_bed_max_size', 10),
+            static fn (): bool => (bool) aiya_core_opt(MediaModule::PAGE_SLUG, 'pic_bed_enabled', true)
+        ));
+
         $this->addModule(new SchemaVersionRunner());
 
         add_action('plugins_loaded', function (): void {

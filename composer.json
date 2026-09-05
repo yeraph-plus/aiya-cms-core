@@ -5,7 +5,8 @@
     "license": "GPL-3.0-or-later",
     "require": {
         "php": ">=8.2",
-        "aiya/slug-toolkit": "@dev"
+        "aiya/slug-toolkit": "@dev",
+        "aiya/image-processor": "@dev"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",

@@ -2,7 +2,7 @@
 
 本文是当前迭代的实施规划：对照旧 `framework-required` 评估完成度，定义目标目录树与里程碑。模块归属的最终裁决仍以 [MIGRATION.md](MIGRATION.md) 为准，注册方式见 [ARCHITECTURE.md](ARCHITECTURE.md)。
 
-基线：v0.8.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活。已落地：完整生命周期（0.2.0）、无头化裁剪（0.3.0 HeadlessModule）、安全加固（0.4.0 SecurityModule）、头像（0.5.0 AvatarModule）、自动别名（0.6.0 SlugModule + slug-toolkit 包）、元数据字段组与内容类型注册（0.7.0）、设置框架收尾与 schema 迁移 runner（0.8.0，M1/M3 关闭）。**当前里程碑：M4（数据契约与内容读取层）**。
+基线：v0.8.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活。已落地：完整生命周期（0.2.0）、无头化裁剪（0.3.0 HeadlessModule）、安全加固（0.4.0 SecurityModule）、头像（0.5.0 AvatarModule）、自动别名（0.6.0 SlugModule + slug-toolkit 包）、元数据字段组与内容类型注册（0.7.0）、设置框架收尾与 schema 迁移 runner（0.8.0，M1/M3 关闭）、媒体栈迁移（0.9.0，image-manager → aiya/image-processor 包 + pic-bed 页面化）。**当前里程碑：M4（数据契约与内容读取层）**。
 
 ## 一、完成度对照（vs framework-required v1.3）
 
@@ -86,14 +86,21 @@ aiya-core/
 │  │                                # ✅ 0.7.0：ContentTypeModule + PostType/TaxonomyDefinition +
 │  │                                #   ContentTypeRegistry（代码式 CPT/分类法，show_in_rest 默认开）
 │  │                                #   + SeoBoxModule（post_seo 协议键字段组）
+│  │  ├─ Media/                      # ✅ 0.9.0：MediaPaths（URL↔路径/目录规划）+ ThumbnailService
+│  │                                #   （缓存键含质量，只读不写 meta）+ CoverService（封面生成 +
+│  │                                #   `_aya_thumb` 协议键唯一写入方）
 │  │                                # M4 再落 ContentQuery（旧 WP_Query 原型）、MenuService（旧
 │  │                                #   WP_Menu 蓝本）、BreadcrumbService、PaginationService；
 │  │                                #   Issue/ Tweet/ 域在此扩展
-│  ├─ Modules/                      # 基础设施包适配器：实例化 packages/ 服务 + 注册「拓展功能」设置页
+│  ├─ Modules/                      # ✅ 0.9.0：MediaModule——image-processor 包适配器（接管媒体库、
+│  │                                #   惰性 Imagine 闭包注入、格式支持检查统一化）+ aiya_core_addons
+│  │                                #   「拓展功能」设置页（16 字段）；后续包适配器在此追加
 │  ├─ Admin/
 │  │  ├─ SettingsAdmin.php          # ✅
 │  │  ├─ FieldRenderer.php          # ✅；control() 公开供元数据/资料页复用
-│  │  └─ MetaboxAdmin.php           # ✅ 0.7.0：post box / term box / user fields 渲染与保存
+│  │  ├─ MetaboxAdmin.php           # ✅ 0.7.0：post box / term box / user fields 渲染与保存
+│  │  ├─ CoverMetabox.php           # ✅ 0.9.0：封面生成 metabox + AJAX（富交互控件，不走字段组 schema）
+│  │  └─ PicBedPage.php             # ✅ 0.9.0：图床页面（upload-pics 池，纯文件、不占媒体库 ID）
 │  ├─ Metadata/
 │  │  ├─ Registry.php               # ✅ 0.7.0：addPostBox / addTermBox / addUserFields
 │  │  │                             #    （+ PostBox / TermBox 值对象）
@@ -111,13 +118,16 @@ aiya-core/
 │  │                                #   用户名防护组按决定取消；AIYA Core > Security hardening
 │  │                                # 其余（Media/ 等）有真实需求才建
 │  └─ Http/                         # （M5 起并入 Api/Rest，不再单独设 Http/）
-├─ packages/                        # ✅ 基础设施包目录（约定与批次见下节）；opencc-convert（待接适配器）
-│                                   #   与 slug-toolkit（✅ 0.6.0 已接入）
+├─ packages/                        # ✅ 基础设施包目录（约定与批次见下节）；slug-toolkit（✅ 0.6.0）
+│                                   #   与 image-processor（✅ 0.9.0，含字体/花纹素材）已接入；
+│                                   #   opencc-convert（包体就绪，待适配器）
 ├─ assets/                          # ✅ admin.css / admin.js
 ├─ languages/                       # ✅ aiya-core.pot 已生成；.po/.mo 待译
 ├─ tests/
-│  ├─ Unit/                         # ✅ 0.8.0：ValueNormalizer / Field / SchemaVersionRunner
-│  │                                #   （tests/bootstrap.php 最小 WP 垫片，无 WP 环境可跑）
+│  ├─ Unit/                         # ✅ 0.8.0：ValueNormalizer / Field / SchemaVersionRunner；
+│  │                                #   0.9.0 + SaveOptions / WatermarkSpec / CoverSpec / Colors /
+│  │                                #   FirstImageMatcher / ImagineAware（56 tests 126 assertions；
+│  │                                #   tests/bootstrap.php 最小 WP 垫片，无 WP 环境可跑）
 │  └─ Integration/                  # M2+：metabox 保存链路（wp-env 或 wp-cli 驱动）
 ├─ composer.json                    # ✅ dev 工具链 + path repositories（packages/*）+ phpunit
 └─ docs/                            # ✅ ARCHITECTURE / MIGRATION / ROADMAP + 迁移评估两份
@@ -133,10 +143,10 @@ aiya-core/
 
 替代旧主题 `plugins/` require 加载结构。每个子目录一个独立 composer 包：`aiya/<slug>`、`type: library`、PSR-4 `Aiya\Infra\<CamelName>\`，自带 composer.json（php>=8.2 + 自身三方依赖，随根仓库腾讯镜像解析）。core 侧 `Modules/<Name>Module.php` 适配器实例化包服务、把包配置注册进统一「拓展功能」设置页（`aiya_core_addons`，沿用旧 extra-plugin 单页分区开关的 UX），并挂入 Module 系统。
 
-迁移批次（按旧 plugins/ 耦合度探查结论）：
+迁移批次（按旧 plugins/ 耦合度探查结论，随落地更新）：
 
-1. **第一批**：`opencc-convert`（tracer 包已建，Converter + locale 策略映射，待接入适配器）、`multi-domain`、`internal-pic-bed`
-2. **第二批**：`classic-editor-modify`、`image-manager`（替换 `aya_plugin_opt` 设置层；imagine/imagine 随包）
+1. **第一批**：`opencc-convert`（tracer 包已建，Converter + locale 策略映射，待接入适配器）、`multi-domain`；`internal-pic-bed` 已改为 core 内页面（0.9.0 `Admin/PicBedPage`），不再做包
+2. **第二批**：`image-manager` ✅ 0.9.0 → `aiya/image-processor` 包 + `Modules/MediaModule` 适配器；`classic-editor-modify`（替换 `aya_plugin_opt` 设置层）
 3. **basic-optimize** 组件不改造成包，直接变成 core 的 Domain/Infrastructure 模块（安全/SMTP/SEO/头像各归其位）
 4. **最后**：`sponsor-order-compat`、`patch-flow-hub-post` 重写；`gdluxx-dl` 空目录弃
 
@@ -174,6 +184,16 @@ aiya-core/
 - ⏳ `SampleSettings` 降级策略（WP_DEBUG 或常量开关下注册）：留给站长确认可见性行为时执行；
 - ⏳ 伪造升级路径的 Integration 测试已由单测覆盖，无需额外脚本。
 
+### 媒体栈迁移 —— ✅ 已完成（0.9.0）
+
+旧 `plugins/image-manager`（重型包：封面绘制 + 缩略图生产 + 媒体库接管）与 `plugins/internal-pic-bed` 的重构落地，按审查结论修正四类缺陷（字体路径判断反转、水印透明度语义反转、格式支持检查接错路径、缩略图缓存键缺质量参数）：
+
+- ✅ `packages/image-processor`（WP-free，PSR-4 `Aiya\Infra\ImageProcessor`）：`WatermarkSpec` / `CoverSpec` 纯数据模型、`ThumbnailGenerator`（cover-crop + 比例差过大时模糊底双层渲染）、`CoverGenerator`（photo/pattern 两模型 + 反色衬底标题）、`UploadApplier`（限宽→水印→格式转换，转换删源）、`FirstImageMatcher` 纯正则工具、`SaveOptions`（旧三处重复的保存参数表合一）；**Imagine 能力闭包化**——`ImagineAware` 构造器接受 `ImagineInterface|Closure` 惰性解析；`ImagineFactory` 修复旧缺陷（GD 分支只查 class_exists）并加 Imagick 委托健康探测（Docker 镜像缺 PNG delegate 的运行时自动回落 GD）；字体（752K）与花纹素材（4.6M）随包自带（`Assets::fontFile()/patternDir()`），旧默认值不再指向弃用主题；
+- ✅ `Modules/MediaModule` 适配器：`aiya_core_addons`「拓展功能」设置页（16 字段，新键名、语义 1:1；水印不透明度改为 Imagine 同向语义 0 透明→100 不透明，默认 80）；`wp_handle_upload` 接管（`image_take_over_uploads`）；`uploadProcessor()` 以闭包暴露管线供 Admin 控制器组合；惰性组装 `Domain/Media` 两个服务；
+- ✅ `Domain/Media`：`MediaPaths`（URL/绝对路径/content 相对路径三种入参 → content 目录内本地文件，外部 URL 一律 null）；`ThumbnailService`（缓存键含质量，命中复用；**只读服务不写 meta**——旧版前台渲染时写库的反模式移除）；`CoverService`（photo 模式取特色图→正文首图、无本地背景自动降级 pattern；结果写 `_aya_thumb` 协议键，content 相对路径优先、完整 URL 兜底——该键的唯一写入方）；
+- ✅ `Admin/CoverMetabox`：富交互封面生成控件（模式/标题/颜色/预览 + 异步 AJAX），超出字段组 schema 表达力故为 bespoke metabox，原生 admin 样式；`Admin/PicBedPage`：图床页面（upload-pics/YYYY/MM 池、finfo 真实类型 + mime 白名单定扩展名 + 随机文件名、经管线重编码消毒、列表页），路径寻址不占媒体库 ID，短码/HTML 输出随旧前台退役；
+- 验证：单测 56/126 全绿（包纯类），phpstan L8 + phpcs 全绿；wp-cli 运行时 18 项验证全过（PNG→JPG 转换、缩略图缓存复用、photo/pattern 封面、`_aya_thumb` 形状、pic-bed 子菜单、外部引用 null 语义），测试数据已清理。
+
 ### M4 数据契约与内容读取层（契约优先，前移）
 
 DTO 清单直接翻译旧 `inc/core` 的 `*_In_While` 属性表（见工作区 AGENTS.md 的结构说明），并剥离其展示逻辑（K 格式化、timeago、本地化兜底文案、分页 CSS class、菜单 HTML 构造器）：
@@ -181,7 +201,7 @@ DTO 清单直接翻译旧 `inc/core` 的 `*_In_While` 属性表（见工作区 A
 - `Api/Contract/`：`PostSummary`（id/url/title/type/dates+ISO/excerpt/preview/thumbnail/views/likes/评论数/分类标签/作者摘要）、`PostDetail`（增 content HTML、prev/next、gallery）、`TermDto`（补齐旧版 parent/children 未 DTO 化的不对称）、`AuthorDto`、`ThumbnailDto`、`MenuTree`/`MenuItem`（label/url/target/object/type/children/active）、`Pagination`（standard + simple 两形态）、`Breadcrumb`（`{label,url}[]`）+ 契约版本常量；
 - `Presenter/`：WP 对象 → DTO 映射；`the_content` 过滤器在此执行（content HTML 是契约数据）；修复旧 `get_post_views/likes` 缺 property_exists、`WP_Term::get_term()` 布尔优先级两类旧 bug（新实现不引入同类路径）；
 - `Domain/Content/`：`ContentQuery`（封装旧 WP_Query 的预设查询集合）、`MenuService`（结构 `wp_cache` 缓存 + 每请求激活态注入 + `wp_update_nav_menu` 清缓存，沿用旧蓝本）、`BreadcrumbService`、`PaginationService`；
-- `Modules/` 适配器第一刀：接入 opencc-convert 包 + `aiya_core_addons` 拓展功能设置页；
+- `Modules/` 适配器：`aiya_core_addons` 拓展功能设置页已随 0.9.0 MediaModule 落地；opencc-convert 适配器在此追加；
 - 验收：读服务产出 DTO 的形状有单测锁定；Astro 侧可直接按 Contract 生成 TS 类型（M5 才生成）。
 
 ### M5 版本化 REST ＋ Astro SSR

@@ -4,8 +4,34 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "407a2f07af30585d8454dd68bb499924",
+    "content-hash": "e779676a4653cdc6aa1deda30e9cb73d",
     "packages": [
+        {
+            "name": "aiya/image-processor",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/image-processor",
+                "reference": "91919f228e22f43a02d7e15b93a4d1295b17b5fa"
+            },
+            "require": {
+                "imagine/imagine": "^1.5",
+                "php": ">=8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Aiya\\Infra\\ImageProcessor\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "description": "Image primitives for AIYA CMS: watermarking, thumbnail and cover generation on top of imagine/imagine (WordPress-free).",
+            "transport-options": {
+                "relative": true
+            }
+        },
         {
             "name": "aiya/slug-toolkit",
             "version": "dev-main",
@@ -31,6 +57,62 @@
             "transport-options": {
                 "relative": true
             }
+        },
+        {
+            "name": "imagine/imagine",
+            "version": "1.5.4",
+            "dist": {
+                "type": "zip",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/imagine/imagine/1.5.4/imagine-imagine-1.5.4.zip",
+                "reference": "dd57a4c290ff4d223d17bcd219dac9ac8bf1cc16",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8 || ^5.7 || ^6.5 || ^7.5 || ^8.4 || ^9.3"
+            },
+            "suggest": {
+                "ext-exif": "to read EXIF metadata",
+                "ext-gd": "to use the GD implementation",
+                "ext-gmagick": "to use the Gmagick implementation",
+                "ext-imagick": "to use the Imagick implementation"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-develop": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Imagine\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bulat Shakirzyanov",
+                    "email": "mallluhuct@gmail.com",
+                    "homepage": "http://avalanche123.com"
+                }
+            ],
+            "description": "Image processing for PHP",
+            "homepage": "http://imagine.readthedocs.org/",
+            "keywords": [
+                "drawing",
+                "graphics",
+                "image manipulation",
+                "image processing"
+            ],
+            "support": {
+                "issues": "https://github.com/php-imagine/Imagine/issues",
+                "source": "https://github.com/php-imagine/Imagine/tree/1.5.4"
+            },
+            "time": "2026-06-04T10:05:48+00:00"
         },
         {
             "name": "overtrue/pinyin",
@@ -2725,6 +2807,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "aiya/image-processor": 20,
         "aiya/slug-toolkit": 20
     },
     "prefer-stable": false,

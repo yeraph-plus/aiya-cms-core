@@ -61,7 +61,8 @@ Directories are created when their first working tracer slice is implemented; em
 | TinyMCE and shortcode manager | Optional ClassicEditor module |
 | REST helper | Do not migrate; design new versioned API |
 | AJAX helper | Replace per admin use case |
-| image manager | Infrastructure/Media plus Content cover ownership |
+| image manager | ✅ 0.9.0: `packages/image-processor` package + `Modules/MediaModule` adapter; cover pipeline and the `_aya_thumb` protocol writer in `Domain/Media/CoverService` |
+| internal-pic-bed | ✅ 0.9.0: `Admin/PicBedPage` — path-addressed upload-pics pool, no attachment IDs, processing pipeline injected as a closure |
 | visitor counter | Domain/Engagement |
 | theme registration and templates | Remain in legacy theme, then retire |
 | widget framework | Retire with legacy front end |
@@ -74,7 +75,7 @@ Field-group consumers in the legacy theme (for parity tracking): `oplist_client`
 2. Add metadata registries for post, term and user editing screens.
 3. Complete field validation, conditional visibility and nested repeater behavior.
 4. Add activation, schema-version and migration runners.
-5. Move media processing behind an Infrastructure/Media seam.
+5. ✅ Media processing moved behind the `aiya/image-processor` package seam (0.9.0).
 6. Move one content domain at a time, starting with Issue or Tweet.
 7. Design the new REST representation after domain use cases stabilize.
 8. Add compatibility readers only where legacy data must remain readable.

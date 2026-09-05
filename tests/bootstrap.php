@@ -184,8 +184,8 @@ if (!function_exists('wp_unslash')) {
             }
             return $value;
         }
-        // Core uses stripcslashes (C-style), not stripslashes.
-        return is_string($value) ? stripcslashes($value) : $value;
+        // Mirrors core: wp_unslash -> stripslashes_deep -> stripslashes.
+        return is_string($value) ? stripslashes($value) : $value;
     }
 }
 
