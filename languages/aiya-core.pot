@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.11.1\n"
+"Project-Id-Version: AIYA Core 0.14.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/app\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-05T15:57:23+00:00\n"
+"POT-Creation-Date: 2026-09-06T14:31:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -179,7 +179,7 @@ msgid "Invalid upload."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:194
-#: src/Domain/Identity/AvatarModule.php:494
+#: src/Domain/Identity/AvatarModule.php:508
 msgid "The upload failed with a file error."
 msgstr ""
 
@@ -459,6 +459,84 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
+#: src/Api/Rest/AuthController.php:51
+msgid "You are already logged in."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:123
+msgid "Registration is currently disabled."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:134
+#: src/Api/Rest/UserController.php:97
+msgid "The nickname must be 1-50 characters."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:137
+#: src/Api/Rest/AuthController.php:218
+#: src/Api/Rest/UserController.php:119
+msgid "The email address is not valid."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:140
+#: src/Api/Rest/UserController.php:121
+msgid "This email address is already registered."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:155
+#: src/Api/Rest/AuthController.php:160
+msgid "The account could not be created, please retry."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:182
+msgid "Please provide the email address and the password."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:190
+msgid "The email address or the password is incorrect."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:272
+msgid "The reset link is missing required parameters."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:279
+msgid "This password reset link is invalid or has expired."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:291
+msgid "The account could not be loaded."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:306
+#: src/Api/Rest/UserController.php:217
+msgid "Authentication required."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:311
+msgid "Too many requests, please retry later."
+msgstr ""
+
+#: src/Api/Rest/UserController.php:131
+msgid "The locale is not supported."
+msgstr ""
+
+#: src/Api/Rest/UserController.php:142
+msgid "The profile could not be saved."
+msgstr ""
+
+#: src/Api/Rest/UserController.php:154
+msgid "No avatar image was uploaded."
+msgstr ""
+
+#: src/Api/Rest/UserController.php:179
+msgid "The current password is incorrect."
+msgstr ""
+
+#: src/Domain/Content/ContentTypeModule.php:30
+msgid "Page categories"
+msgstr ""
+
 #: src/Domain/Content/SeoBoxModule.php:31
 msgid "SEO fields"
 msgstr ""
@@ -590,28 +668,78 @@ msgid "Remove the local avatar?"
 msgstr ""
 
 #: src/Domain/Identity/AvatarModule.php:378
-#: src/Domain/Identity/AvatarModule.php:406
+#: src/Domain/Identity/AvatarModule.php:405
 msgid "You are not allowed to edit this user."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:424
+#: src/Domain/Identity/AvatarModule.php:438
 msgid "No avatar image was provided."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:434
+#: src/Domain/Identity/AvatarModule.php:448
 msgid "The avatar could not be processed."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:491
+#: src/Domain/Identity/AvatarModule.php:505
 msgid "Invalid avatar upload."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:497
+#: src/Domain/Identity/AvatarModule.php:511
 msgid "The avatar image is too large (4 MB maximum)."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:516
+#: src/Domain/Identity/AvatarModule.php:530
 msgid "Only JPEG, PNG, WebP and GIF images can be used as an avatar."
+msgstr ""
+
+#. translators: %d: minimum password length.
+#: src/Domain/Identity/PasswordPolicy.php:26
+#, php-format
+msgid "Password must be at least %d characters long."
+msgstr ""
+
+#: src/Domain/Identity/PasswordPolicy.php:32
+msgid "Password must contain both letters and digits."
+msgstr ""
+
+#: src/Domain/Identity/PasswordPolicy.php:36
+msgid "The two passwords do not match."
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Domain/Identity/PasswordResetService.php:44
+#, php-format
+msgid "[%s] Password reset"
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Domain/Identity/PasswordResetService.php:50
+#, php-format
+msgid "Someone requested a password reset for your account at %s."
+msgstr ""
+
+#. translators: %s: login email address.
+#: src/Domain/Identity/PasswordResetService.php:55
+#, php-format
+msgid "Login email: %s"
+msgstr ""
+
+#: src/Domain/Identity/PasswordResetService.php:58
+msgid "If this was not you, ignore this email and your password will stay unchanged."
+msgstr ""
+
+#. translators: %d: number of hours the reset link stays valid.
+#: src/Domain/Identity/PasswordResetService.php:61
+#, php-format
+msgid "Open the link below within %d hours to choose a new password:"
+msgstr ""
+
+#: src/Domain/Identity/PasswordResetService.php:67
+msgid "The password reset email could not be sent."
+msgstr ""
+
+#: src/Domain/Identity/TokenStore.php:35
+msgid "No user to issue a token for."
 msgstr ""
 
 #: src/Domain/Media/CoverService.php:64

@@ -6,7 +6,7 @@
  */
 
 if (!defined('AIYA_CORE_VERSION')) {
-    define('AIYA_CORE_VERSION', '0.11.1');
+    define('AIYA_CORE_VERSION', '0.14.0');
 }
 if (!defined('AIYA_CORE_FILE')) {
     define('AIYA_CORE_FILE', '/var/www/html/wp-content/plugins/aiya-core/aiya-core.php');

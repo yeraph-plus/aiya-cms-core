@@ -70,6 +70,10 @@ final class TaxonomyDefinition
             'show_ui' => true,
             'show_in_rest' => true,
             'show_admin_column' => $this->showAdminColumn,
+            // Explicit REST base: core's default for it is false and the
+            // REST layer only falls back to the name lazily — the contract
+            // wants the surface deterministic.
+            'rest_base' => $this->slug,
             'query_var' => true,
             'rewrite' => $this->rewrite,
         ];
