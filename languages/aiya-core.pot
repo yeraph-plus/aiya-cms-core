@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.14.0\n"
+"Project-Id-Version: AIYA Core 0.15.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/app\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-06T14:31:26+00:00\n"
+"POT-Creation-Date: 2026-09-06T14:42:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -537,11 +537,40 @@ msgstr ""
 msgid "Page categories"
 msgstr ""
 
+#: src/Domain/Content/ContentTypeModule.php:40
+msgid "Resource"
+msgstr ""
+
+#: src/Domain/Content/ContentTypeModule.php:46
+msgid "Resource categories"
+msgstr ""
+
+#: src/Domain/Content/ContentTypeModule.php:51
+msgid "Original work"
+msgstr ""
+
+#: src/Domain/Content/ContentTypeModule.php:52
+msgid "Characters"
+msgstr ""
+
+#: src/Domain/Content/ContentTypeModule.php:53
+msgid "Author"
+msgstr ""
+
+#: src/Domain/Content/ContentTypeModule.php:54
+msgid "Content description"
+msgstr ""
+
+#: src/Domain/Content/ContentTypeModule.php:55
+msgid "Other"
+msgstr ""
+
 #: src/Domain/Content/SeoBoxModule.php:31
 msgid "SEO fields"
 msgstr ""
 
 #: src/Domain/Content/SeoBoxModule.php:39
+#: src/Domain/Content/TermExtrasModule.php:52
 msgid "SEO keywords"
 msgstr ""
 
@@ -605,6 +634,26 @@ msgstr ""
 
 #: src/Domain/Content/SlugModule.php:88
 msgid "Prepended to generated ID slugs; non-URL characters are stripped."
+msgstr ""
+
+#: src/Domain/Content/TermExtrasModule.php:45
+msgid "Term SEO and cover"
+msgstr ""
+
+#: src/Domain/Content/TermExtrasModule.php:47
+msgid "Used by the headless front end for this term's archive page."
+msgstr ""
+
+#: src/Domain/Content/TermExtrasModule.php:53
+msgid "Comma-separated keywords for the term archive page."
+msgstr ""
+
+#: src/Domain/Content/TermExtrasModule.php:59
+msgid "Cover image"
+msgstr ""
+
+#: src/Domain/Content/TermExtrasModule.php:60
+msgid "Upload or pick an image from the media library; it serves as the cover of the term archive page."
 msgstr ""
 
 #: src/Domain/Identity/AvatarModule.php:96
