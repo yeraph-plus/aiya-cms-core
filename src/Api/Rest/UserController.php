@@ -72,9 +72,9 @@ final class UserController
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->changePassword($request),
             'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
             'args' => [
-                'current_password' => ['type' => 'string', 'required' => true],
+                'currentPassword' => ['type' => 'string', 'required' => true],
                 'password' => ['type' => 'string', 'required' => true],
-                'password_confirm' => ['type' => 'string', 'required' => true],
+                'passwordConfirm' => ['type' => 'string', 'required' => true],
             ],
         ]);
     }
@@ -174,13 +174,13 @@ final class UserController
     {
         $user = $this->currentUser();
 
-        $current = (string) $request->get_param('current_password');
+        $current = (string) $request->get_param('currentPassword');
         if (!wp_check_password($current, (string) $user->user_pass, (int) $user->ID)) {
             return new WP_Error('aiya_wrong_password', __('The current password is incorrect.', 'aiya-core'), ['status' => 400]);
         }
 
         $password = (string) $request->get_param('password');
-        $violations = $this->policy->validate($password, (string) $request->get_param('password_confirm'));
+        $violations = $this->policy->validate($password, (string) $request->get_param('passwordConfirm'));
         if ($violations !== []) {
             return new WP_Error('aiya_invalid_password', implode(' ', $violations), ['status' => 400]);
         }

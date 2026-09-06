@@ -57,7 +57,7 @@ final class AuthController
                 'nickname' => ['type' => 'string', 'required' => true],
                 'email' => ['type' => 'string', 'required' => true, 'format' => 'email'],
                 'password' => ['type' => 'string', 'required' => true],
-                'password_confirm' => ['type' => 'string', 'required' => true],
+                'passwordConfirm' => ['type' => 'string', 'required' => true],
             ],
         ]);
 
@@ -106,7 +106,7 @@ final class AuthController
                 'login' => ['type' => 'string', 'required' => true],
                 'key' => ['type' => 'string', 'required' => true],
                 'password' => ['type' => 'string', 'required' => true],
-                'password_confirm' => ['type' => 'string', 'required' => true],
+                'passwordConfirm' => ['type' => 'string', 'required' => true],
             ],
         ]);
     }
@@ -128,7 +128,7 @@ final class AuthController
         $nickname = trim(sanitize_text_field((string) $request->get_param('nickname')));
         $email = sanitize_email((string) $request->get_param('email'));
         $password = (string) $request->get_param('password');
-        $confirmation = (string) $request->get_param('password_confirm');
+        $confirmation = (string) $request->get_param('passwordConfirm');
 
         if ($nickname === '' || mb_strlen($nickname) > 50) {
             return $this->invalidParam(__('The nickname must be 1-50 characters.', 'aiya-core'));
@@ -248,7 +248,7 @@ final class AuthController
         }
 
         $password = (string) $request->get_param('password');
-        $violations = $this->policy->validate($password, (string) $request->get_param('password_confirm'));
+        $violations = $this->policy->validate($password, (string) $request->get_param('passwordConfirm'));
         if ($violations !== []) {
             return new WP_Error('aiya_invalid_password', implode(' ', $violations), ['status' => 400]);
         }
