@@ -7,6 +7,7 @@ namespace Aiya\Core\Api\Rest;
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Engagement\CounterService;
 use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
@@ -45,6 +46,8 @@ final class RestController implements Module
             ))->registerRoutes();
 
             (new UserController($presenter, $this->avatars, $tokens, $policy))->registerRoutes();
+
+            (new CounterController(new CounterService(), new RateLimiter()))->registerRoutes();
         });
     }
 }
