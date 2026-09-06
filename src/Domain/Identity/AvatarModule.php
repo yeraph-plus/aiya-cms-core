@@ -386,8 +386,7 @@ final class AvatarModule implements Module
         }
 
         try {
-            $this->validateUpload($file);
-            $this->storeAvatar($userId, $file['tmp_name']);
+            $this->storeUploadedAvatar($userId, $file);
         } catch (RuntimeException $error) {
             wp_send_json_error(['message' => $error->getMessage()]);
         }
@@ -410,6 +409,21 @@ final class AvatarModule implements Module
         $this->removeAvatar($userId);
 
         wp_send_json_success(['nonce' => wp_create_nonce('aiya_core_avatar_' . $userId)]);
+    }
+
+    /**
+     * Validates one $_FILES entry and stores the file avatars for a user.
+     * Shared by the admin AJAX handler and the headless REST route.
+     *
+     * @param array<string, mixed> $file
+     * @throws RuntimeException When the source cannot be used.
+     */
+    public function storeUploadedAvatar(int $userId, array $file): void
+    {
+        $this->validateUpload($file);
+        $tmp = isset($file['tmp_name']) && is_string($file['tmp_name']) ? $file['tmp_name'] : '';
+
+        $this->storeAvatar($userId, $tmp);
     }
 
     /**

@@ -34,8 +34,10 @@ aiya-core/
 │  │  ├─ ExternalFiles/
 │  │  ├─ Embeds/
 │  │  └─ SiteComposition/
-│  └─ Http/
-│     └─ Rest/
+│  ├─ Api/
+│  │  ├─ Contract/
+│  │  ├─ Presenter/
+│  │  └─ Rest/
 ├─ assets/
 │  ├─ css/
 │  └─ js/
@@ -59,7 +61,7 @@ Directories are created when their first working tracer slice is implemented; em
 | `plugin/register-theme-post-type.php` | Rebuild as code-first post-type registrar with headless defaults (`show_in_rest`); the sticky-in-archive `the_posts` hack retires with the front end |
 | `plugin/register-theme-taxonomy.php` | Rebuild as code-first taxonomy registrar (`show_in_rest` was already on) |
 | TinyMCE and shortcode manager | Optional ClassicEditor module |
-| REST helper | Do not migrate; design new versioned API |
+| REST helper | Do not migrate; design new versioned API — auth/user routes rebuilt at ✅ 0.12.0: `aiya/core/v1` AuthController (register with server-side UUID login name, email-only login, password reset via front-end-supplied origin) + UserController (me / profile / avatar / password) with bearer tokens |
 | AJAX helper | Replace per admin use case |
 | image manager | ✅ 0.9.0: `packages/image-processor` package + `Modules/MediaModule` adapter; cover pipeline and the `_aya_thumb` protocol writer in `Domain/Media/CoverService` |
 | internal-pic-bed | ✅ 0.9.0: `Admin/PicBedPage` — path-addressed upload-pics pool, no attachment IDs, processing pipeline injected as a closure |

@@ -10,6 +10,7 @@ use Aiya\Core\Admin\PicBedPage;
 use Aiya\Core\Admin\SendMailPage;
 use Aiya\Core\Admin\SettingsAdmin;
 use Aiya\Core\Admin\SampleSettings;
+use Aiya\Core\Api\Rest\RestController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentTypeModule;
 use Aiya\Core\Domain\Content\ContentTypeRegistry;
@@ -57,7 +58,8 @@ final class Plugin
         $this->addModule(new SampleSettings($this->settings));
         $this->addModule(new HeadlessModule($this->settings));
         $this->addModule(new SecurityModule($this->settings));
-        $this->addModule(new AvatarModule($this->settings));
+        $avatar = new AvatarModule($this->settings);
+        $this->addModule($avatar);
         $this->addModule(new SendMailPage());
         $this->addModule(new SlugModule($this->settings));
         $this->addModule(new ContentTypeModule($this->contentTypes));
@@ -70,6 +72,7 @@ final class Plugin
         $this->addModule(new PicBedPage($media->uploadProcessor(), $media->paths()));
 
         $this->addModule(new SchemaVersionRunner());
+        $this->addModule(new RestController($avatar));
 
         add_action('plugins_loaded', function (): void {
             load_plugin_textdomain('aiya-core', false, dirname(plugin_basename(AIYA_CORE_FILE)) . '/languages');

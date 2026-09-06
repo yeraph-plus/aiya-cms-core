@@ -2,7 +2,7 @@
 
 本文是当前迭代的实施规划：对照旧 `framework-required` 评估完成度，定义目标目录树与里程碑。模块归属的最终裁决仍以 [MIGRATION.md](MIGRATION.md) 为准，注册方式见 [ARCHITECTURE.md](ARCHITECTURE.md)。
 
-基线：v0.8.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活。已落地：完整生命周期（0.2.0）、无头化裁剪（0.3.0 HeadlessModule）、安全加固（0.4.0 SecurityModule）、头像（0.5.0 AvatarModule）、自动别名（0.6.0 SlugModule + slug-toolkit 包）、元数据字段组与内容类型注册（0.7.0）、设置框架收尾与 schema 迁移 runner（0.8.0，M1/M3 关闭）、媒体栈迁移（0.9.0，image-manager → aiya/image-processor 包 + pic-bed 页面化）。**当前里程碑：M4（数据契约与内容读取层）**。
+基线：v0.8.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活。已落地：完整生命周期（0.2.0）、无头化裁剪（0.3.0 HeadlessModule）、安全加固（0.4.0 SecurityModule）、头像（0.5.0 AvatarModule）、自动别名（0.6.0 SlugModule + slug-toolkit 包）、元数据字段组与内容类型注册（0.7.0）、设置框架收尾与 schema 迁移 runner（0.8.0，M1/M3 关闭）、媒体栈迁移（0.9.0，image-manager → aiya/image-processor 包 + pic-bed 页面化）。**当前里程碑：M4（数据契约与内容读取层）**；M4 按域分批推进，用户域批次（0.12.0）已把 Identity 的 Contract + Presenter + REST 打样提前落地（见 M4 小节）。
 
 ## 一、完成度对照（vs framework-required v1.3）
 
@@ -72,11 +72,19 @@ aiya-core/
 │  │  ├─ Storage/                   # ✅ ValueStore / OptionStore；M1 + LegacyOptionReader（只读 aya_opt_*）
 │  │  └─ Options/                   # ✅ 0.8.0：OptionsResolver（terms/posts/users 惰性求值）
 │  ├─ Api/
-│  │  ├─ Contract/                  # M4：DTO 契约（纯值对象，零 WP 依赖）
-│  │  │   PostSummary / PostDetail / TermDto / AuthorDto / ThumbnailDto /
-│  │  │   MenuTree / MenuItem / Pagination / Breadcrumb + 契约版本常量
-│  │  ├─ Presenter/                 # M4：唯一允许触碰 WP_Post / WP_Term 的映射层（WP 对象 → DTO）
-│  │  └─ Rest/                      # M5：aiya/core/v1 控制器（只调用读服务与 Presenter，不查询数据）
+│  │  ├─ Contract/                  # M4：DTO 契约（纯值对象，零 WP 依赖）；
+│  │  │                             #   ✅ 0.12.0 用户域切片：UserProfile / AvatarImage /
+│  │  │                             #   AuthSession + Contract 版本常量（VERSION / API_NAMESPACE）
+│  │  │                             #   PostSummary / PostDetail / TermDto / AuthorDto /
+│  │  │                             #   ThumbnailDto / MenuTree / MenuItem / Pagination /
+│  │  │                             #   Breadcrumb 待内容批次
+│  │  ├─ Presenter/                 # M4：唯一允许触碰 WP_Post / WP_Term 的映射层（WP 对象 → DTO）；
+│  │  │                             #   ✅ 0.12.0 UserPresenter（含旧版 role 语义与赞助协议键兼容读）
+│  │  └─ Rest/                      # aiya/core/v1 控制器（只调用读服务与 Presenter，不查询数据）；
+│  │                                #   ✅ 0.12.0 用户域打样：RestController（模块 + rest_api_init）+
+│  │                                #   TokenAuthentication（determine_current_user Bearer）+
+│  │                                #   AuthController + UserController + RateLimiter（transient 固定窗口）；
+│  │                                #   内容控制器仍 M5
 │  ├─ Domain/
 │  │  ├─ Identity/                  # ✅ 0.5.0：AvatarModule——本地头像（协议键 basic_user_avatar）、
 │  │                                #   七牛/WeAvatar 镜像、默认头像 URL；设置追加在 Headless
@@ -84,7 +92,13 @@ aiya-core/
 │  │                                #   `wp-content/avatars/{user_id}/{128,64}.jpg`（CropGenerator
 │  │                                #   纯居中裁剪、原图不落盘、URL 直接拼接 + ?v= 缓存击穿），
 │  │                                #   资料页文件上传控件（订阅者可自传），storeAvatar 公开供
-│  │                                #   M5 REST 复用
+│  │                                #   REST 复用（0.12.0 起经 storeUploadedAvatar 校验+存储）；
+│  │                                #   ✅ 0.12.0：PasswordPolicy（≥8 位 + 字母数字，注册/改密/重置
+│  │                                #   共用）、TokenStore（不透明 Bearer 令牌 `{userId}.{secret}`，
+│  │                                #   HMAC 哈希落 user meta，14/2 天 TTL，上限 10 枚，改密全吊销）、
+│  │                                #   PasswordResetService（WP 原生 reset key + 前台自报域名拼接
+│  │                                #   `/reset-password?login=&key=`，来源归一化仅 scheme+host+port，
+│  │                                #   `aiya_core_password_reset_allowed_hosts` 过滤器可加白名单）
 │  │  └─ Content/                   # ✅ 0.6.0：SlugModule——自动别名（pinyin / id_av / id_bv，
 │  │                                #   术语 pinyin），原语来自 slug-toolkit 包
 │  │                                # ✅ 0.7.0：ContentTypeModule + PostType/TaxonomyDefinition +
@@ -206,7 +220,9 @@ aiya-core/
 
 ### M4 数据契约与内容读取层（契约优先，前移）
 
-DTO 清单直接翻译旧 `inc/core` 的 `*_In_While` 属性表（见工作区 AGENTS.md 的结构说明），并剥离其展示逻辑（K 格式化、timeago、本地化兜底文案、分页 CSS class、菜单 HTML 构造器）：
+**契约权威与批次计划（2026-09-06 定）**：DTO 清单以前端契约 `aiya-astro-bulid/src/lib/aiya/contracts.ts`（v1，camelCase + `{data, meta}` 信封）为对照基准，落地语义见 [AIYA-astro DATA-MAP.md](../../../../aiya-astro-bulid/docs/DATA-MAP.md)；批次顺序 A0 契约对齐（0.13.0）→ B1 站点骨架+文章读取层（0.14.0）→ B5 公开作者页（0.15.0）。**站长拍板暂缓**：Mod/Game 新域、Discussion/旧 Tweet 域、`/home` 聚合（依赖前两者）。用户域批次（0.12.0）已完成。
+
+原 M4 清单（保留作 DTO 语义蓝本），DTO 清单直接翻译旧 `inc/core` 的 `*_In_While` 属性表（见工作区 AGENTS.md 的结构说明），并剥离其展示逻辑（K 格式化、timeago、本地化兜底文案、分页 CSS class、菜单 HTML 构造器）：
 
 - `Api/Contract/`：`PostSummary`（id/url/title/type/dates+ISO/excerpt/preview/thumbnail/views/likes/评论数/分类标签/作者摘要）、`PostDetail`（增 content HTML、prev/next、gallery）、`TermDto`（补齐旧版 parent/children 未 DTO 化的不对称）、`AuthorDto`、`ThumbnailDto`、`MenuTree`/`MenuItem`（label/url/target/object/type/children/active）、`Pagination`（standard + simple 两形态）、`Breadcrumb`（`{label,url}[]`）+ 契约版本常量；
 - `Presenter/`：WP 对象 → DTO 映射；`the_content` 过滤器在此执行（content HTML 是契约数据）；修复旧 `get_post_views/likes` 缺 property_exists、`WP_Term::get_term()` 布尔优先级两类旧 bug（新实现不引入同类路径）；
@@ -214,9 +230,20 @@ DTO 清单直接翻译旧 `inc/core` 的 `*_In_While` 属性表（见工作区 A
 - `Modules/` 适配器：image 包的「Image processor」页已落地；opencc-convert 适配器在此追加（独立功能页）；
 - 验收：读服务产出 DTO 的形状有单测锁定；Astro 侧可直接按 Contract 生成 TS 类型（M5 才生成）。
 
+### M4 用户域批次 —— ✅ 已完成（0.12.0，Contract + Presenter + REST 打样）
+
+用户域是 M4 第一个落地切片，REST 层随本批次提前进入（内容控制器仍留 M5）：
+
+- **契约**（`Api/Contract/`，零 WP 依赖）：`UserProfile`（id/username/nickname/email/url/description/locale/registered_at ISO8601/role/avatar）、`AvatarImage`（url + thumb_url，版本参数已含在 URL 内）、`AuthSession`（token/token_type/expires_at/expires_in/user）+ `Contract::VERSION` / `API_NAMESPACE` 常量；DTO 均 `toArray()` 锁形，单测锁定；
+- **Presenter**：`UserPresenter` 唯一触碰 WP_User；role 沿旧版 `aya_user_toggle_level` 语义（administrator/author/sponsor/subscriber，赞助有效性读协议键 `sponsor_expiration` + `aya_force_cancel_sponsor`）；
+- **认证**：不透明 Bearer 令牌（`{userId}.{secret}`），HMAC-SHA256 哈希存 user meta（键 `aiya_core_auth_tokens`，非协议键），`determine_current_user` 过滤器接入、cookie 会话不受影响；TTL 沿 WP cookie 语义（remember 14 天 / 2 天），改密/重置全吊销，登出吊销当枚；公开认证端点带 transient 固定窗口限流（login 20/10min、register 5/h、reset 5/15min，超限 429）；
+- **路由**（`aiya/core/v1`）：`POST /auth/register`（表单沿旧版：昵称+邮箱+密码+确认；**登录名由后台生成 UUID**（`wp_generate_uuid4`），前端只交昵称；`users_can_register` 关闭时 403；成功即签发长会话）、`POST /auth/login`（**仅邮箱登录**，`wp_authenticate_email_password`，错误不区分邮箱/密码）、`POST /auth/logout`、`POST /auth/password-reset-request`（`domain` 参数=前台自报来源，链接 `{domain}/reset-password?login=&key=`，来源只保留 scheme+host+port、可经 `aiya_core_password_reset_allowed_hosts` 过滤器加白名单，非法来源回退 site_url；响应不区分邮箱存在与否）、`POST /auth/password-reset/validate`、`POST /auth/password-reset`（复用 WP 原生 `get_password_reset_key`/`check_password_reset_key`/`reset_password`，key 一次性、24h 有效）、`GET /users/me`、`POST|PATCH|PUT /users/me/profile`（nickname/description/url/email/locale，locale 白名单 zh_CN/zh_TW/zh_HK/en_US 沿旧版）、`POST /users/me/avatar`（multipart `avatar` 字段，复用 `AvatarModule::storeUploadedAvatar`）、`DELETE /users/me/avatar`、`POST /users/me/password`（需当前密码，改后所有会话失效）；
+- **错误形状**：WP 标准 `{code,message,data:{status}}`，业务码 `aiya_*`；成功载荷纯数据（旧版面向展示的 message/redirect 字段不进契约）；
+- 验证：单测 66/144 全绿；wp-cli + curl 运行时全链路实测（注册→登录→me→资料→赞助 role 语义→头像（协议键形状/128+64 文件/?v= 版本）→改密吊销→找回邮件捕获→validate→reset→新密码登录→登出吊销→key 复用 400→注册关闭 403→未授权 401/409/429 分支），测试数据已清理。
+
 ### M5 版本化 REST ＋ Astro SSR
 
-- `Api/Rest/`：命名空间 `aiya/core/v1`；控制器只调用 M4 的读服务与 Presenter；资源：内容列表/详情、terms、导航菜单、面包屑/分页（嵌入响应元数据）、站点设置白名单、媒体引用；**评论走 `/wp/v2/comments` 原生路由（保留开放）＋加固层**（限流、垃圾规则、`rest_pre_insert_comment` 钩子——`preprocess_comment` 在 REST 写入路径不触发），Astro 侧评论系统建立其上；
+- `Api/Rest/`：命名空间 `aiya/core/v1`；控制器只调用 M4 的读服务与 Presenter；**认证/用户域骨架已随 M4 用户域批次落地（0.12.0：RestController 模块、Bearer 认证、auth/users 路由、限流）**，本里程碑追加内容资源：内容列表/详情、terms、导航菜单、面包屑/分页（嵌入响应元数据）、站点设置白名单、媒体引用；**评论走 `/wp/v2/comments` 原生路由（保留开放）＋加固层**（限流、垃圾规则、`rest_pre_insert_comment` 钩子——`preprocess_comment` 在 REST 写入路径不触发），Astro 侧评论系统建立其上；
 - 公开读 + 应用密码写；CORS 允许 Astro 来源白名单；ETag / Cache-Control；
 - 产出面向前端的类型契约（OpenAPI 或从 Contract 生成 TS 类型脚本）；
 - Astro 侧在 `aiya-astro-bulid/` 初始化：SSR 模式（node adapter，保 SEO），`src/lib/aiya/`（类型化 API client，镜像 Contract、缓存）、`src/pages|components|layouts`；
