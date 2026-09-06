@@ -34,12 +34,14 @@ final class ContentTypeModule implements Module
 
         // Resource library: one standard category plus five flat tag
         // taxonomies (original work, characters, author, content description,
-        // other) — all REST surface for the headless front end.
+        // other) — all REST surface for the headless front end. Comments are
+        // explicitly on: resources are the comment-backed surface of the
+        // headless setup alongside posts.
         $this->registry->addPostType([
             'slug' => 'resource',
             'label' => __('Resource', 'aiya-core'),
             'icon' => 'dashicons-admin-links',
-            'supports' => ['title', 'editor', 'author', 'thumbnail', 'excerpt', 'custom-fields'],
+            'supports' => ['title', 'editor', 'author', 'thumbnail', 'excerpt', 'custom-fields', 'comments'],
         ]);
         $this->registry->addTaxonomy([
             'slug' => 'resource_category',
