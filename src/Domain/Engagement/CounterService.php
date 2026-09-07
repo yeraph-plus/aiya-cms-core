@@ -7,11 +7,16 @@ namespace Aiya\Core\Domain\Engagement;
 use WP_Error;
 
 /**
- * Like, view and rating counters for content (posts and pages by default),
- * carried on the persistent protocol postmeta keys `like_count` /
- * `view_count` / `rating_score` / `rating_count` (workspace AGENTS.md) —
- * read-write compatible with the legacy values (the rating keys are new
- * protocol: nothing in the legacy theme wrote them).
+ * Like, view and rating counters for content, carried on the persistent
+ * protocol postmeta keys `like_count` / `view_count` / `rating_score` /
+ * `rating_count` (workspace AGENTS.md) — read-write compatible with the
+ * legacy values (the rating keys are new protocol: nothing in the legacy
+ * theme wrote them).
+ *
+ * Each protocol has its own post-type surface (the feature matrix): posts
+ * and pages carry likes and views, resources carry views and ratings —
+ * articles are liked, resources are rated. Every surface is extensible
+ * through the aiya_core_{feature}_post_types filters.
  *
  * Ratings use a 10-point scale. Only the rounded average and the voter
  * count are stored: `rating_score` holds the average rounded to a whole
@@ -38,15 +43,31 @@ final class CounterService
     /** Highest value on the 10-point rating scale. */
     public const RATING_MAX = 10;
 
+    /**
+     * Per-protocol post-type surfaces. Like and rating are deliberately
+     * disjoint by design: posts/pages are liked, resources are rated.
+     *
+     * @var array<string, list<string>>
+     */
+    private const FEATURE_TYPES = [
+        'like' => ['post', 'page'],
+        'view' => ['post', 'page', 'resource'],
+        'rating' => ['resource'],
+    ];
+
     private const VIEW_THROTTLE_TTL = 3600;
     private const LIKE_DEDUPE_TTL = 2592000;
     private const RATING_DEDUPE_TTL = 2592000;
 
-    /** @return list<string> */
-    public function postTypes(): array
+    /**
+     * Post types carrying a protocol, after the per-feature filter.
+     *
+     * @return list<string>
+     */
+    public function featureTypes(string $feature): array
     {
         /** @var list<string> $types */
-        $types = (array) apply_filters('aiya_core_counter_post_types', ['post', 'page']);
+        $types = (array) apply_filters('aiya_core_' . $feature . '_post_types', self::FEATURE_TYPES[$feature] ?? []);
 
         return array_values(array_filter(array_map('strval', $types)));
     }
@@ -80,7 +101,7 @@ final class CounterService
      */
     public function registerView(int $postId, string $visitorHash): int|WP_Error
     {
-        $error = $this->ensureTarget($postId);
+        $error = $this->ensureTarget($postId, 'view');
         if ($error !== null) {
             return $error;
         }
@@ -104,7 +125,7 @@ final class CounterService
      */
     public function registerLike(int $postId, string $visitorHash): array|WP_Error
     {
-        $error = $this->ensureTarget($postId);
+        $error = $this->ensureTarget($postId, 'like');
         if ($error !== null) {
             return $error;
         }
@@ -131,7 +152,7 @@ final class CounterService
      */
     public function registerRating(int $postId, int $value, string $visitorHash): array|WP_Error
     {
-        $error = $this->ensureTarget($postId);
+        $error = $this->ensureTarget($postId, 'rating');
         if ($error !== null) {
             return $error;
         }
@@ -189,13 +210,13 @@ final class CounterService
         return 'g' . md5($ip . '|' . $agent);
     }
 
-    private function ensureTarget(int $postId): ?WP_Error
+    private function ensureTarget(int $postId, string $feature): ?WP_Error
     {
         $post = get_post($postId);
         if (!$post instanceof \WP_Post) {
             return new WP_Error('aiya_counter_missing_post', __('The content does not exist.', 'aiya-core'), ['status' => 404]);
         }
-        if (!in_array($post->post_type, $this->postTypes(), true) || $post->post_status !== 'publish') {
+        if (!in_array($post->post_type, $this->featureTypes($feature), true) || $post->post_status !== 'publish') {
             return new WP_Error('aiya_counter_not_supported', __('This content does not carry counters.', 'aiya-core'), ['status' => 404]);
         }
 
