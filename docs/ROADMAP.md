@@ -103,7 +103,7 @@ aiya-core/
 │  │                                #   术语 pinyin），原语来自 slug-toolkit 包
 │  │                                # ✅ 0.7.0：ContentTypeModule + PostType/TaxonomyDefinition +
 │  │                                #   ContentTypeRegistry（代码式 CPT/分类法，show_in_rest 默认开）
-│  │                                #   + SeoBoxModule（post_seo 协议键字段组）；0.12.0 内置 page_category 独立分类法挂 page，0.15.0 内置 resource CPT + 标准分类 + 5 标签分类法；0.16.0 Engagement 计数服务 + content like/view REST 端点，0.17.0 加 rating 评分端点
+│  │                                #   + SeoBoxModule（post_seo 协议键字段组）；0.12.0 内置 page_category 独立分类法挂 page，0.15.0 内置 resource CPT + 标准分类 + 5 标签分类法；0.16.0 Engagement 计数服务 + content like/view REST 端点，0.17.0 加 rating 评分端点，0.18.0 特性矩阵（资源评分/文章点赞）
 │  │  ├─ Media/                      # ✅ 0.9.0：MediaPaths（URL↔路径/目录规划）+ ThumbnailService
 │  │                                #   （缓存键含质量，只读不写 meta）+ CoverService（封面生成 +
 │  │                                #   `_aya_thumb` 协议键唯一写入方）
