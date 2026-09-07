@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.16.0\n"
+"Project-Id-Version: AIYA Core 0.17.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/app\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-06T15:00:16+00:00\n"
+"POT-Creation-Date: 2026-09-07T16:56:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -517,8 +517,13 @@ msgstr ""
 msgid "Too many requests, please retry later."
 msgstr ""
 
-#: src/Api/Rest/CounterController.php:44
-#: src/Api/Rest/CounterController.php:59
+#: src/Api/Rest/ContentController.php:119
+msgid "Content not found."
+msgstr ""
+
+#: src/Api/Rest/CounterController.php:50
+#: src/Api/Rest/CounterController.php:65
+#: src/Api/Rest/CounterController.php:80
 msgid "Too many requests, try again later."
 msgstr ""
 
@@ -661,11 +666,11 @@ msgstr ""
 msgid "Upload or pick an image from the media library; it serves as the cover of the term archive page."
 msgstr ""
 
-#: src/Domain/Engagement/CounterService.php:125
+#: src/Domain/Engagement/CounterService.php:197
 msgid "The content does not exist."
 msgstr ""
 
-#: src/Domain/Engagement/CounterService.php:128
+#: src/Domain/Engagement/CounterService.php:200
 msgid "This content does not carry counters."
 msgstr ""
 

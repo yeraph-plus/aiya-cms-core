@@ -35,6 +35,12 @@ final class CounterController
             'callback' => fn (WP_REST_Request $request): array|WP_Error => $this->view($request),
             'permission_callback' => '__return_true',
         ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/content/(?P<id>\d+)/rating', [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => fn (WP_REST_Request $request): array|WP_Error => $this->rating($request),
+            'permission_callback' => '__return_true',
+        ]);
     }
 
     /** @return array<string, mixed>|WP_Error */
@@ -65,5 +71,28 @@ final class CounterController
         }
 
         return ['views' => $views];
+    }
+
+    /** @return array<string, mixed>|WP_Error */
+    private function rating(WP_REST_Request $request): array|WP_Error
+    {
+        if (!$this->limiter->hit('counter_rating', 30, 60)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        }
+
+        $value = isset($request['value']) && is_numeric((string) $request['value'])
+            ? (int) (float) (string) $request['value']
+            : 0;
+
+        $result = $this->counters->registerRating(absint((string) $request['id']), $value, $this->counters->visitorHash());
+        if (is_wp_error($result)) {
+            return $result;
+        }
+
+        return [
+            'score' => $result['score'],
+            'count' => $result['count'],
+            'already' => $result['already'],
+        ];
     }
 }

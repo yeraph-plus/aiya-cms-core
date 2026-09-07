@@ -7,9 +7,16 @@ namespace Aiya\Core\Domain\Engagement;
 use WP_Error;
 
 /**
- * Like and view counters for content (posts and pages by default), carried
- * on the persistent protocol postmeta keys `like_count` / `view_count`
- * (workspace AGENTS.md) — read-write compatible with the legacy values.
+ * Like, view and rating counters for content (posts and pages by default),
+ * carried on the persistent protocol postmeta keys `like_count` /
+ * `view_count` / `rating_score` / `rating_count` (workspace AGENTS.md) —
+ * read-write compatible with the legacy values (the rating keys are new
+ * protocol: nothing in the legacy theme wrote them).
+ *
+ * Ratings use a 10-point scale. Only the rounded average and the voter
+ * count are stored: `rating_score` holds the average rounded to a whole
+ * point (8.33 -> 8, PHP round half up), `rating_count` holds the number of
+ * votes; the count increments through a single atomic SQL statement.
  *
  * Unlike the legacy implementation, which read and wrote these through lazy
  * properties hanging off the global post wrapper, counting lives in this
@@ -25,9 +32,15 @@ final class CounterService
     /** Persistent protocol keys — the key names are the contract. */
     public const LIKE_KEY = 'like_count';
     public const VIEW_KEY = 'view_count';
+    public const RATING_KEY = 'rating_score';
+    public const RATING_COUNT_KEY = 'rating_count';
+
+    /** Highest value on the 10-point rating scale. */
+    public const RATING_MAX = 10;
 
     private const VIEW_THROTTLE_TTL = 3600;
     private const LIKE_DEDUPE_TTL = 2592000;
+    private const RATING_DEDUPE_TTL = 2592000;
 
     /** @return list<string> */
     public function postTypes(): array
@@ -46,6 +59,17 @@ final class CounterService
     public function views(int $postId): int
     {
         return absint((string) get_post_meta($postId, self::VIEW_KEY, true));
+    }
+
+    /** Stored rounded average on the 10-point scale (8.33 votes average -> 8). */
+    public function ratingScore(int $postId): int
+    {
+        return absint((string) get_post_meta($postId, self::RATING_KEY, true));
+    }
+
+    public function ratingCount(int $postId): int
+    {
+        return absint((string) get_post_meta($postId, self::RATING_COUNT_KEY, true));
     }
 
     /**
@@ -94,6 +118,53 @@ final class CounterService
         set_transient($key, 1, max(1, $ttl));
 
         return ['likes' => $this->bump($postId, self::LIKE_KEY), 'already' => false];
+    }
+
+    /**
+     * Records one rating on the 10-point scale and folds it into the stored
+     * rounded average and the voter count. The same visitor is deduplicated
+     * like likes (default window: 30 days); the vote value is clamped to
+     * 1..10.
+     *
+     * @return array{score: int, count: int, already: bool}|WP_Error `score`
+     *         is the rounded whole-point average, `count` the voters.
+     */
+    public function registerRating(int $postId, int $value, string $visitorHash): array|WP_Error
+    {
+        $error = $this->ensureTarget($postId);
+        if ($error !== null) {
+            return $error;
+        }
+
+        $value = min(self::RATING_MAX, max(1, $value));
+
+        $key = 'aiya_core_rating_' . md5($postId . '|' . $visitorHash);
+        if (get_transient($key) !== false) {
+            return [
+                'score' => $this->ratingScore($postId),
+                'count' => $this->ratingCount($postId),
+                'already' => true,
+            ];
+        }
+
+        $ttl = (int) apply_filters('aiya_core_rating_dedupe_ttl', self::RATING_DEDUPE_TTL);
+        set_transient($key, 1, max(1, $ttl));
+
+        $count = $this->bump($postId, self::RATING_COUNT_KEY);
+        $storedScore = $this->ratingScore($postId);
+        // Fold the new vote into the running average in integer arithmetic:
+        // the atomic increment above guarantees the count already includes
+        // this vote, so there is no read-modify-write race on the count. The
+        // stored average is rounded, so the reconstructed total carries at
+        // most half a point of display error per fold — acceptable for a
+        // display-only value and the spec stores nothing else.
+        $previousTotal = $storedScore * ($count - 1) + $value;
+        $average = max(0, (int) round($previousTotal / max(1, $count)));
+
+        update_post_meta($postId, self::RATING_KEY, wp_slash((string) $average));
+        wp_cache_delete($postId, 'post_meta');
+
+        return ['score' => $average, 'count' => $count, 'already' => false];
     }
 
     /**
