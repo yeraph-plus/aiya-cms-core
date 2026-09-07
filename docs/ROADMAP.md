@@ -220,7 +220,7 @@ aiya-core/
 
 ### M4 数据契约与内容读取层（契约优先，前移）
 
-**契约权威与批次计划（2026-09-06 定）**：DTO 清单以前端契约 `aiya-astro-bulid/src/lib/aiya/contracts.ts`（v1，camelCase + `{data, meta}` 信封）为对照基准，落地语义见 [AIYA-astro DATA-MAP.md](../../../../aiya-astro-bulid/docs/DATA-MAP.md)；批次顺序 A0 契约对齐 ✅（0.13.0：后端信封/camelCase + 前端认证接线完成）→ B1 站点骨架+文章读取层（0.14.0）→ B5 公开作者页（0.15.0）。**站长拍板暂缓**：Mod/Game 新域、Discussion/旧 Tweet 域、`/home` 聚合（依赖前两者）。用户域批次（0.12.0）已完成。
+**契约权威与批次计划（2026-09-06 定）**：DTO 清单以前端契约 `aiya-astro-bulid/src/lib/aiya/contracts.ts`（v1，camelCase + `{data, meta}` 信封）为对照基准，落地语义见 [AIYA-astro DATA-MAP.md](../../../../aiya-astro-bulid/docs/DATA-MAP.md)；批次顺序 A0 契约对齐 ✅（0.13.0：后端信封/camelCase + 前端认证接线完成）→ B1 站点骨架+文章读取层 ✅（0.18.0：ContentQuery/MenuService/PostPresenter + /site /menus/primary /terms /posts /posts/{id}，DTO 与前端契约对齐）→ B5 公开作者页（下一批）。**站长拍板暂缓**：Mod/Game 新域、Discussion/旧 Tweet 域、`/home` 聚合（依赖前两者）。用户域批次（0.12.0）已完成。
 
 原 M4 清单（保留作 DTO 语义蓝本），DTO 清单直接翻译旧 `inc/core` 的 `*_In_While` 属性表（见工作区 AGENTS.md 的结构说明），并剥离其展示逻辑（K 格式化、timeago、本地化兜底文案、分页 CSS class、菜单 HTML 构造器）：
 
