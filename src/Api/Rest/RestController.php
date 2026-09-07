@@ -5,18 +5,24 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Api\Presenter\PostPresenter;
+use Aiya\Core\Api\Presenter\SitePresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Content\ContentQuery;
+use Aiya\Core\Domain\Content\MenuService;
 use Aiya\Core\Domain\Engagement\CounterService;
 use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
 use Aiya\Core\Domain\Identity\TokenStore;
+use Aiya\Core\Domain\Media\MediaPaths;
 
 /**
  * Module owning the versioned headless API (`aiya/core/v1`): bearer-token
- * authentication plus the auth and self-service user controllers of the
- * user-domain batch. Content controllers land here with the M4/M5 slices.
+ * authentication, the auth and self-service user controllers, engagement
+ * counters, and the public content read routes (site shell, primary
+ * menu, terms, posts).
  */
 final class RestController implements Module
 {
@@ -32,7 +38,10 @@ final class RestController implements Module
         $authentication = new TokenAuthentication($tokens);
         $authentication->register();
 
-        add_action('rest_api_init', function () use ($tokens, $authentication): void {
+        $menus = new MenuService();
+        $menus->register();
+
+        add_action('rest_api_init', function () use ($tokens, $authentication, $menus): void {
             $presenter = new UserPresenter();
             $policy = new PasswordPolicy();
 
@@ -48,6 +57,13 @@ final class RestController implements Module
             (new UserController($presenter, $this->avatars, $tokens, $policy))->registerRoutes();
 
             (new CounterController(new CounterService(), new RateLimiter()))->registerRoutes();
+
+            (new ContentController(
+                new ContentQuery(),
+                new PostPresenter(new MediaPaths()),
+                new SitePresenter(),
+                $menus
+            ))->registerRoutes();
         });
     }
 }
