@@ -6,6 +6,7 @@ namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Presenter\PostPresenter;
+use Aiya\Core\Api\Presenter\ProfilePresenter;
 use Aiya\Core\Api\Presenter\SitePresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Contracts\Module;
@@ -44,6 +45,7 @@ final class RestController implements Module
         add_action('rest_api_init', function () use ($tokens, $authentication, $menus): void {
             $presenter = new UserPresenter();
             $policy = new PasswordPolicy();
+            $postPresenter = new PostPresenter(new MediaPaths());
 
             (new AuthController(
                 $tokens,
@@ -60,9 +62,10 @@ final class RestController implements Module
 
             (new ContentController(
                 new ContentQuery(),
-                new PostPresenter(new MediaPaths()),
+                $postPresenter,
                 new SitePresenter(),
-                $menus
+                $menus,
+                new ProfilePresenter($postPresenter)
             ))->registerRoutes();
         });
     }
