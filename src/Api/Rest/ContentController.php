@@ -10,7 +10,7 @@ use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\ProfilePresenter;
 use Aiya\Core\Api\Presenter\SitePresenter;
 use Aiya\Core\Domain\Content\ContentQuery;
-use Aiya\Core\Domain\Content\MenuService;
+use Aiya\Core\Domain\Content\PrimaryMenu;
 use Aiya\Core\Domain\Content\PublicTypes;
 use WP_Error;
 use WP_REST_Request;
@@ -20,10 +20,10 @@ use WP_User;
 
 /**
  * Public read routes of the content batch (`/site`, `/menus/primary`,
- * `/terms`, `/posts`, `/posts/{id}`, `/pages`, `/pages/{id}`,
- * `/resources`, `/resources/{id}`, `/profiles/{slug}`). Controllers only
- * orchestrate: queries run in Domain, mapping in the presenter, envelope
- * in the dispatcher.
+ * `/menus/secondary`, `/terms`, `/posts`, `/posts/{id}`, `/pages`,
+ * `/pages/{id}`, `/resources`, `/resources/{id}`, `/profiles/{slug}`).
+ * Controllers only orchestrate: queries run in Domain, mapping in the
+ * presenter, envelope in the dispatcher.
  */
 final class ContentController
 {
@@ -31,7 +31,7 @@ final class ContentController
         private ContentQuery $query,
         private PostPresenter $posts,
         private SitePresenter $site,
-        private MenuService $menus,
+        private PrimaryMenu $menus,
         private ProfilePresenter $profiles,
     ) {
     }
@@ -44,14 +44,8 @@ final class ContentController
             'permission_callback' => '__return_true',
         ]);
 
-        register_rest_route(Contract::API_NAMESPACE, '/menus/primary', [
-            'methods' => WP_REST_Server::READABLE,
-            'callback' => fn (): WP_REST_Response => new WP_REST_Response([
-                'location' => 'primary',
-                'items' => array_map(static fn ($item): array => $item->toArray(), $this->menus->primary()),
-            ]),
-            'permission_callback' => '__return_true',
-        ]);
+        $this->registerMenuRoute(PrimaryMenu::GROUP_PRIMARY);
+        $this->registerMenuRoute(PrimaryMenu::GROUP_SECONDARY);
 
         register_rest_route(Contract::API_NAMESPACE, '/terms', [
             'methods' => WP_REST_Server::READABLE,
@@ -74,6 +68,24 @@ final class ContentController
             'args' => [
                 'slug' => ['type' => 'string', 'required' => true],
             ],
+        ]);
+    }
+
+    /**
+     * Registers one menu group read route; the response `location` mirrors
+     * the group key so the front end can reuse one schema per group.
+     *
+     * @param PrimaryMenu::GROUP_* $group
+     */
+    private function registerMenuRoute(string $group): void
+    {
+        register_rest_route(Contract::API_NAMESPACE, '/menus/' . $group, [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => fn (): WP_REST_Response => new WP_REST_Response([
+                'location' => $group,
+                'items' => array_map(static fn ($item): array => $item->toArray(), $this->menus->group($group)),
+            ]),
+            'permission_callback' => '__return_true',
         ]);
     }
 

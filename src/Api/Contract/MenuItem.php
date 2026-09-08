@@ -7,8 +7,9 @@ namespace Aiya\Core\Api\Contract;
 /**
  * One navigation entry of the primary menu. Site-internal targets are
  * front-end paths (`/posts/`), external ones absolute http(s) URLs — the
- * union mirrors the front end's menuItemSchema. `target` maps the WP
- * `_menu_item_target` blank flag.
+ * union mirrors the front end's menuItemSchema. Rows come from the
+ * Navigation settings page; `target` is the row's open-in choice and
+ * `children` stays empty for the flat settings-driven list.
  */
 final class MenuItem
 {

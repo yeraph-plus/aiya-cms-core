@@ -12,7 +12,7 @@ use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Api\Presenter\DiscussionPresenter;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
-use Aiya\Core\Domain\Content\MenuService;
+use Aiya\Core\Domain\Content\PrimaryMenu;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Engagement\CounterService;
 use Aiya\Core\Domain\ExternalFiles\AttachmentService;
@@ -46,8 +46,7 @@ final class RestController implements Module
         $authentication = new TokenAuthentication($tokens);
         $authentication->register();
 
-        $menus = new MenuService();
-        $menus->register();
+        $menus = new PrimaryMenu();
 
         add_action('rest_api_init', function () use ($tokens, $authentication, $menus): void {
             $presenter = new UserPresenter();

@@ -120,9 +120,12 @@ aiya-core/
 │  │  ├─ Media/                      # ✅ 0.9.0：MediaPaths（URL↔路径/目录规划）+ ThumbnailService
 │  │                                #   （缓存键含质量，只读不写 meta）+ CoverService（封面生成 +
 │  │                                #   `_aya_thumb` 协议键唯一写入方）
-│  │                                # M4 再落 ContentQuery（旧 WP_Query 原型）、MenuService（旧
-│  │                                #   WP_Menu 蓝本）、BreadcrumbService、PaginationService；
-│  │                                #   Discussion/ 域在此扩展（Tweet 已取消）
+│  │                                # M4 再落 ContentQuery（旧 WP_Query 原型）、
+│  │                                #   NavigationModule + PrimaryMenu（0.28.0：设置驱动自增
+│  │                                #   菜单 primary/secondary 两组，替代旧 WP_Menu 蓝本的
+│  │                                #   MenuService——无头后端弃用 WP 菜单系统后不保留）、
+│  │                                #   BreadcrumbService、PaginationService；Discussion/ 域
+│  │                                #   在此扩展（Tweet 已取消）
 │  ├─ Modules/                      # ✅ 0.9.0：MediaModule——image-processor 包适配器（接管媒体库、
 │  │                                #   惰性 Imagine 闭包注入、格式支持检查统一化）+「Image processor」
 │  │                                #   设置页（aiya_core_image，13 字段；0.9.1 定名）；后续包适配器
@@ -243,7 +246,7 @@ aiya-core/
 
 - `Api/Contract/`：`PostSummary`（id/url/title/type/dates+ISO/excerpt/preview/thumbnail/views/likes/评论数/分类标签/作者摘要）、`PostDetail`（增 content HTML、prev/next、gallery）、`TermDto`（补齐旧版 parent/children 未 DTO 化的不对称）、`AuthorDto`、`ThumbnailDto`、`MenuTree`/`MenuItem`（label/url/target/object/type/children/active）、`Pagination`（standard + simple 两形态）、`Breadcrumb`（`{label,url}[]`）+ 契约版本常量；
 - `Presenter/`：WP 对象 → DTO 映射；`the_content` 过滤器在此执行（content HTML 是契约数据）；修复旧 `get_post_views/likes` 缺 property_exists、`WP_Term::get_term()` 布尔优先级两类旧 bug（新实现不引入同类路径）；
-- `Domain/Content/`：`ContentQuery`（封装旧 WP_Query 的预设查询集合）、`MenuService`（结构 `wp_cache` 缓存 + 每请求激活态注入 + `wp_update_nav_menu` 清缓存，沿用旧蓝本）、`BreadcrumbService`、`PaginationService`；
+- `Domain/Content/`：`ContentQuery`（封装旧 WP_Query 的预设查询集合）、`NavigationModule` + `PrimaryMenu`（0.28.0：导航设置页 Primary menu / Secondary menu 两组 repeater 自增行 → `Contract\MenuItem`，路由 `/menus/primary` 与 `/menus/secondary` 的 `location` 镜像组键；替代曾按旧蓝本落地的 `MenuService`——2026-09-09 拍板弃用 WP 菜单系统后删除）、`BreadcrumbService`、`PaginationService`；
 - `Modules/` 适配器：image 包的「Image processor」页已落地；opencc-convert 适配器在此追加（独立功能页）；
 - 验收：读服务产出 DTO 的形状有单测锁定；Astro 侧可直接按 Contract 生成 TS 类型（M5 才生成）。
 
