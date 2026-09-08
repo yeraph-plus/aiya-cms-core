@@ -41,7 +41,7 @@
 3. **第三批 `Domain/Content/` 自动别名**（别名部分 ✅ 0.6.0）：
    - ✅ `packages/slug-toolkit` 包：`PinyinConverter`（overtrue/pinyin 基础调用，无策略）+ `IdSlugEncoder`（**继承**旧 `inc/lib/XDeode.php` 的 `XDE_code` 冻结算法，输出与旧站逐字节一致），根 composer require `overtrue/pinyin ^6.0` 随包进入
    - ✅ `Domain/Content/SlugModule`：`slug_post_mode`（off/pinyin/id_av/id_bv）+ `slug_post_types`（默认 post）+ `slug_term_pinyin`（默认开）+ `slug_id_prefix`；拼音模式填空 slug（检查原始 `$postarr['post_name']`——核心在过滤器之前已预填编码 slug）并自做 `wp_unique_post_slug`；ID 模式经 `wp_unique_post_slug` 强制 + `wp_insert_post` 创建后补写（创建时 post_id 尚不存在）；术语拼音走 `wp_insert_term_data`/`wp_update_term_data`（检查原始 `$args['slug']`）
-   - ⏳ 中文排版/HTML 清理/自动标签/重置日期：等 M2 的 metabox + `action_checkbox` 字段，批量刷新工具改为 wp-cli command
+   - ⏳ 中文排版/HTML 清理/自动标签/重置日期：前置已解除（M2 的 metabox + `action_checkbox` 已随 0.7.0 落地），批量刷新工具改为 wp-cli command，待排期（审计 2026-09-08：这是 basic-optimize 迁移中最后一个有归宿未排期的项）
 4. **M4/M5 设计输入**（不迁代码）：搜索限流/标题搜索/meta 搜索 → `ContentQuery` 搜索参数与 API 限流；SEO meta → `PostDetail`/`PageMeta` DTO；robots.txt 与 sitemap 的最终归属（Astro 生成、WP 提供数据）在 M5 一并定。
 
 ## 依赖账本

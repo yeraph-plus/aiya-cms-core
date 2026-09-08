@@ -60,6 +60,8 @@ final class RestController implements Module
 
             (new CounterController(new CounterService(), new RateLimiter()))->registerRoutes();
 
+            (new CommentsController(new RateLimiter()))->registerRoutes();
+
             (new ContentController(
                 new ContentQuery(),
                 $postPresenter,

@@ -109,7 +109,7 @@ aiya-core/
 │  │                                #   `_aya_thumb` 协议键唯一写入方）
 │  │                                # M4 再落 ContentQuery（旧 WP_Query 原型）、MenuService（旧
 │  │                                #   WP_Menu 蓝本）、BreadcrumbService、PaginationService；
-│  │                                #   Issue/ Tweet/ 域在此扩展
+│  │                                #   Discussion/ 域在此扩展（Tweet 已取消）
 │  ├─ Modules/                      # ✅ 0.9.0：MediaModule——image-processor 包适配器（接管媒体库、
 │  │                                #   惰性 Imagine 闭包注入、格式支持检查统一化）+「Image processor」
 │  │                                #   设置页（aiya_core_image，13 字段；0.9.1 定名）；后续包适配器
@@ -168,8 +168,8 @@ aiya-core/
 
 迁移批次（按旧 plugins/ 耦合度探查结论，随落地更新）：
 
-1. **第一批**：`opencc-convert`（tracer 包已建，Converter + locale 策略映射，待接入适配器）、`multi-domain`；`internal-pic-bed` 已改为 core 内页面（0.9.0 `Admin/PicBedPage`），不再做包
-2. **第二批**：`image-manager` ✅ 0.9.0 → `aiya/image-processor` 包 + `Modules/MediaModule` 适配器；`classic-editor-modify`（替换 `aya_plugin_opt` 设置层）
+1. **第一批**：`opencc-convert`（tracer 包已建，Converter + locale 策略映射，待接入适配器）；`multi-domain` ❌ 弃用（2026-09-08 拍板：前后端分离后无用）；`internal-pic-bed` 已改为 core 内页面（0.9.0 `Admin/PicBedPage`），不再做包
+2. **第二批**：`image-manager` ✅ 0.9.0 → `aiya/image-processor` 包 + `Modules/MediaModule` 适配器；`classic-editor-modify` ❌ 弃用（2026-09-08 拍板）
 3. **basic-optimize** 组件不改造成包，直接变成 core 的 Domain/Infrastructure 模块（安全/SMTP/SEO/头像各归其位）
 4. **最后**：`sponsor-order-compat`、`patch-flow-hub-post` 重写；`gdluxx-dl` 空目录弃
 
@@ -220,7 +220,7 @@ aiya-core/
 
 ### M4 数据契约与内容读取层（契约优先，前移）
 
-**契约权威与批次计划（2026-09-06 定）**：DTO 清单以前端契约 `aiya-astro-bulid/src/lib/aiya/contracts.ts`（v1，camelCase + `{data, meta}` 信封）为对照基准，落地语义见 [AIYA-astro DATA-MAP.md](../../../../aiya-astro-bulid/docs/DATA-MAP.md)；批次顺序 A0 契约对齐 ✅（0.13.0：后端信封/camelCase + 前端认证接线完成）→ B1 站点骨架+文章读取层 ✅（0.18.0：ContentQuery/MenuService/PostPresenter + /site /menus/primary /terms /posts /posts/{id}，DTO 与前端契约对齐）→ B5 公开作者页 ✅（0.19.0：GET /profiles/{slug}，favorites/membership 协议键兼容读，无 email/登录名泄漏）。**站长拍板暂缓**：Mod/Game 新域、Discussion/旧 Tweet 域、`/home` 聚合（依赖前两者）。用户域批次（0.12.0）已完成。
+**契约权威与批次计划（2026-09-06 定，2026-09-08 修订）**：DTO 清单以前端契约 `aiya-astro-bulid/src/lib/aiya/contracts.ts`（v1，camelCase + `{data, meta}` 信封）为对照基准，落地语义见 [AIYA-astro DATA-MAP.md](../../../../aiya-astro-bulid/docs/DATA-MAP.md)；批次顺序 A0 契约对齐 ✅（0.13.0：后端信封/camelCase + 前端认证接线完成）→ B1 站点骨架+文章读取层 ✅（0.18.0：ContentQuery/MenuService/PostPresenter + /site /menus/primary /terms /posts /posts/{id}，DTO 与前端契约对齐）→ B5 公开作者页 ✅（0.19.0：GET /profiles/{slug}，favorites/membership 协议键兼容读，无 email/登录名泄漏）——**M4 原生批次至此全部完成**。**2026-09-08 站长拍板**：旧 Tweet 域**取消**（不迁移、不做兼容，旧数据当死数据）；Discussion 域**重启**——以旧 Issue 原型重建为线程形轻社区（见下方 B2 小节，同日二次拍板）；Topic 域取消——「专题」重定义为**分类聚合模板**（无独立域/端点；标签聚合不沿用，计划改标签云页）；资源域数据源拍板为 **resource CPT**（先行重设计该类型 metabox，B3 才开放；重设计范围含 OpenList 嵌入块迁移——配置沿 postmeta 组键协议 `aya_box_oplist_client`、不建表，作用面 post→resource，详见 MIGRATION.md）；`/home` 聚合（B4）回归条件随之只剩 B3。前端契约修订（contracts.ts 移除 Topic/Discussion、`/topics` 改分类聚合、`/community` 退役、新增标签云页）随 B3 前端批执行。用户域批次（0.12.0）已完成。
 
 原 M4 清单（保留作 DTO 语义蓝本），DTO 清单直接翻译旧 `inc/core` 的 `*_In_While` 属性表（见工作区 AGENTS.md 的结构说明），并剥离其展示逻辑（K 格式化、timeago、本地化兜底文案、分页 CSS class、菜单 HTML 构造器）：
 
@@ -241,10 +241,54 @@ aiya-core/
 - **错误形状**：WP 标准 `{code,message,data:{status}}`，业务码 `aiya_*`；成功载荷纯数据（旧版面向展示的 message/redirect 字段不进契约）；
 - 验证：单测 66/144 全绿；wp-cli + curl 运行时全链路实测（注册→登录→me→资料→赞助 role 语义→头像（协议键形状/128+64 文件/?v= 版本）→改密吊销→找回邮件捕获→validate→reset→新密码登录→登出吊销→key 复用 400→注册关闭 403→未授权 401/409/429 分支），测试数据已清理。
 
+### B2 轻社区 Discussion —— 已拍板重启（2026-09-08 二次拍板，基于旧 Issue 原型，未排批）
+
+Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建表线程引擎为蓝本重建（语义参考，实现不搬运）：
+
+- **数据模型**（**2026-09-08 拍板：线程与回复均不使用 WP post/comments 数据模型，纯自定义表**——无 permalink、不经 `/wp/v2` 暴露、后台无原生编辑屏，读写全部走 `aiya/core/v1` 专用端点；表名换新，由 SchemaVersionRunner 建表——其首个真实消费者）：线程表（id / post_id 反向绑定可空（绑定目标仍是 WP post）/ user_id / type / status / title / content / comment_count + last_comment 冗余统计 / created_at / updated_at）+ 回复表（id / thread_id / user_id / status / content / created_at / updated_at）；回复**平铺无嵌套**（旧原型无 parent_id）；冗余统计由同步函数维护（旧 `aya_issue_sync_comment_stats` 语义）；
+- **工作流**：type 白名单（旧值 issue/discussion/question/feedback，改名随契约定稿）+ status 白名单（旧值 open/closed/progress/accepted/resolved/pending，轻社区可裁剪）；closed/accepted 状态锁回复（旧 can_reply 语义）；
+- **post_id 反向绑定 = 工单/文章讨论**：绑定时校验目标存在；改绑级联同步回复行的 post_id（旧语义）；`issue/by-post` 等价端点支撑「某文章/资源下的讨论列表」；作用面可参照 Engagement 的 `aiya_core_{feature}_post_types` 过滤器模式按类型开放；
+- **契约对齐（少量拓展点）**：作者摘要复用 B1 `Author` DTO；列表复用 `Pagination` + 信封（meta.pagination）；正文对齐 PostDetail 的 content{format:'html'} 形状；metrics.replies 用冗余计数，likes 若支持需给 CounterService 扩非 post 键源（真实拓展工作量，v1 可缓）；can_edit/can_delete/can_reply 授权位是否入契约待定（旧版在载荷里返回）；
+- **边界**：文章评论仍归 `/wp/v2/comments`（M5 加固层），Discussion 归轻社区线程与按绑定工单，两者不混用；回复通知（旧 func-notify 语义）留给 Domain/Notification 切片；
+- **已定（2026-09-08）**：旧 `wp_aya_issues` / `wp_aya_issue_comments` 存量不迁移、不做兼容读取（测试环境从未运行旧主题，无此表）——新表全新 ID 空间，同 Tweet 按死数据处理；
+- **开放点**：type/status 改名定稿；前端路由沿用 `/community/{id}` 还是更名；likes 是否 v1 支持；后台治理入口（无原生编辑屏，需独立 admin 列表页或前台治理，随 B2 或其后切片定）。
+
+### 通知域（Domain/Notification）—— 方案已拍板（2026-09-08，未排批）
+
+替代旧 `inc/func-notify.php` 的设置表单公告（每请求内存重建、无持久实体、scope 过滤、时间仅为展示字符串）：
+
+- **数据模型**（自建表，SchemaVersionRunner 建表）：`id` / `type`（v1 仅 `announcement`）/ `user_id`（0 = 广播行，>0 = 定向行，为互动通知预留）/ `role_level`（最低可见级别，白名单 guest < subscriber < sponsor < author < administrator，沿 UserPresenter 语义）/ `title` / `body` / `created_at`；**不预建** actor_id/object_id——互动通知（评论回复/关注）落地时由迁移加列；
+- **读取**：`GET /notifications`（Bearer 会话可选——登录按角色过滤广播行并收入定向行，游客仅 guest 级广播行）；已读态在客户端：Astro 本地存最后查看时间（按浏览器、批级新旧、无逐行已读；将来要精确未读数再加服务端 last_read）；
+- **后台**：简单管理页（发新通知 + 列表 + 删除，`manage_options` + nonce），保留期天数同页可配；
+- **清理**：WP-Cron 每日调度删除过期行（默认 30 天）；低流量站点 cron 由访问驱动的延迟对清理任务无害，停用随生命周期钩位清理；
+- 旧 `site_custom_notify_list` / `site_custom_consent_list` 选项不入协议，随旧设置退役（consent 弹窗归前端自有实现）。
+
+### 赞助域（Domain/Sponsorship）—— 方案框架已拍板（2026-09-08，未排批）
+
+总原则：**保持行为但重构设计**。旧结构 = `inc/lib/Afdian_API.php` + `inc/lib/Epay_Core.php`（三方客户端）、`inc/func-payment.php`（爱发电 webhook + 方案卡片 + 兑换码）、`plugins/sponsor-order-compat`（易支付收银台 + 回调）、`inc/func-user.php` 的订单表与叠加到期计算。
+
+必须保留的行为面（重构验收基准）：
+
+- **订单表兼容（拍板）**：`wp_aya_sponsor_orders` 沿用为唯一订单事实源——列只加不改义（user_id / order_id unique / start_time / duration_days / source / status / created_at），到期模型保持「按 start_time 升序折叠 paid 订单、重算后写 `sponsor_expiration` 协议键」；`wp_aya_convert_codes` 建议沿表兼容，以免作废存量未用兑换码；
+- 爱发电 webhook：`custom_order_id` 解码用户绑定、`afd_` 订单号前缀、月数×31 天、order_id 去重、恒 200 应答；
+- 爱发电订单号当兑换码：在线查单 → 激活（已激活订单拒绝）；
+- 易支付：方案卡（alipay/wxpay/usdt × 商品）→ 收银台提交 → 签名验证回调 → 防串单（param 用户 vs 订单号内嵌用户段）→ `epc_` 订单；
+- 兑换码：原子核销（条件 UPDATE 防并发）、激活失败回滚；
+- 会员门禁链路：`sponsor_expiration` + `aya_force_cancel_sponsor` + `aya_trigger_count_sponsor`（协议键）→ `aya_is_sponsor` 语义 → UserPresenter role（B5 已消费）。
+
+重构方向（行为保持前提下的修正，非行为变更）：
+
+- 爱发电 webhook **补签名验证**（旧实现跳过认证直接解析 JSON）；
+- 易支付天数不再按金额反查商品（同价商品冲突、网关折价即激活错值），改由签名参数携带商品标识；
+- 方案/商品改为域内结构化数据，由域自有设置页承载（旧 access 设置页不迁移——拍板），展示形状出契约 DTO、前端渲染（旧行为把颜色/文案拼进后端数据）；
+- 订单/激活收敛为 Domain 服务（表读写 + 到期折叠 + 协议键同步的唯一写入方），REST 端点（方案列表/兑换/订单记录）随批设计；
+- 旧 React 群岛（subscribe/activate/dashboard）由 Astro 组件重建。
+
 ### M5 版本化 REST ＋ Astro SSR
 
 - `Api/Rest/`：命名空间 `aiya/core/v1`；控制器只调用 M4 的读服务与 Presenter；**认证/用户域骨架已随 M4 用户域批次落地（0.12.0：RestController 模块、Bearer 认证、auth/users 路由、限流）**，本里程碑追加内容资源：内容列表/详情、terms、导航菜单、面包屑/分页（嵌入响应元数据）、站点设置白名单、媒体引用；**评论走 `/wp/v2/comments` 原生路由（保留开放）＋加固层**（限流、垃圾规则、`rest_pre_insert_comment` 钩子——`preprocess_comment` 在 REST 写入路径不触发），Astro 侧评论系统建立其上；
-- 公开读 + 应用密码写；CORS 允许 Astro 来源白名单；ETag / Cache-Control；
+- 公开读 + 应用密码写；CORS：WP 核心 `rest_send_cors_headers` 现状为回显任意请求 Origin 且 `Allow-Credentials: true`（`wp-includes/rest-api.php`），浏览器直连端点（互动计数、将来评论）因此已跨域可用、无需自写——M5 将其**收紧为 Astro 来源白名单**，与评论加固层同批落地；ETag / Cache-Control；
+- **模板零件**（2026-09-08 拍板计划迁移）：旧经典编辑器短代码输入器重设计——后台保留录入 UI（录入规范化零件数据），API 对短代码类内容输出规范化零件结构（不渲染 HTML），Astro 侧建立逐零件解析渲染；零件契约形状随首个真实零件出现时定；
 - 产出面向前端的类型契约（OpenAPI 或从 Contract 生成 TS 类型脚本）；
 - Astro 侧在 `aiya-astro-bulid/` 初始化：SSR 模式（node adapter，保 SEO），`src/lib/aiya/`（类型化 API client，镜像 Contract、缓存）、`src/pages|components|layouts`；
 - 验收：Astro SSR 拉通首屏真实数据，直接命中 WP 域名时由 `aiya-headless` 空壳主题兜底，旧主题可整体退役。
