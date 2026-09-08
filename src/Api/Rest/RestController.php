@@ -9,9 +9,11 @@ use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\ProfilePresenter;
 use Aiya\Core\Api\Presenter\SitePresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
+use Aiya\Core\Api\Presenter\DiscussionPresenter;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\MenuService;
+use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Engagement\CounterService;
 use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
@@ -81,6 +83,9 @@ final class RestController implements Module
             (new SponsorshipController($membership, $orders, new RedeemCodeService($orders), new RateLimiter()))->registerRoutes();
 
             (new GatewayController($orders))->registerRoutes();
+
+            $threads = new DiscussionService();
+            (new DiscussionController($threads, new DiscussionPresenter(), new RateLimiter()))->registerRoutes();
         });
     }
 }

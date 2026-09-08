@@ -6,6 +6,7 @@ namespace Aiya\Core;
 
 use Aiya\Core\Admin\CoverMetabox;
 use Aiya\Core\Admin\ConvertCodesPage;
+use Aiya\Core\Admin\DiscussionModerationPage;
 use Aiya\Core\Admin\MetaboxAdmin;
 use Aiya\Core\Admin\NotificationPage;
 use Aiya\Core\Admin\PicBedPage;
@@ -17,6 +18,7 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentTypeModule;
 use Aiya\Core\Domain\Content\ContentTypeRegistry;
 use Aiya\Core\Domain\Content\SeoBoxModule;
+use Aiya\Core\Domain\Discussion\DiscussionModule;
 use Aiya\Core\Domain\Content\SlugModule;
 use Aiya\Core\Domain\Content\TermExtrasModule;
 use Aiya\Core\Domain\Identity\AvatarModule;
@@ -80,6 +82,8 @@ final class Plugin
 
         $this->addModule(new SponsorshipModule($this->settings));
         $this->addModule(new ConvertCodesPage(new RedeemCodeService(new OrderService(new MembershipService()))));
+        $this->addModule(new DiscussionModule());
+        $this->addModule(new DiscussionModerationPage());
 
         $media = new MediaModule($this->settings);
         $this->addModule($media);

@@ -99,6 +99,9 @@ aiya-core/
 │  │                                #   PasswordResetService（WP 原生 reset key + 前台自报域名拼接
 │  │                                #   `/reset-password?login=&key=`，来源归一化仅 scheme+host+port，
 │  │                                #   `aiya_core_password_reset_allowed_hosts` 过滤器可加白名单）
+│  │  ├─ Discussion/                  # ✅ 0.26.0：ThreadType/ThreadStatus（词表 + 状态机）
+│  │                                #   + DiscussionService（wp_aiya_discussions/_replies
+│  │                                #   自建表唯一写入方，平铺回复 + postRef 绑定工单）
 │  │  ├─ Notification/              # ✅ 0.23.0：RoleLevel（guest<subscriber<sponsor<author<
 │  │                                #   administrator 阶梯）+ NotificationService（自建表
 │  │                                #   wp_aiya_notifications，广播/定向行，唯一写入方）+
@@ -140,7 +143,8 @@ aiya-core/
 │  │  └─ Storage/                   # ✅ PostMetaStore / TermMetaStore / UserMetaStore
 │  ├─ Infrastructure/
 │  │  └─ Headless/                  # ✅ 0.3.0：HeadlessModule——无头化功能裁剪（区块编辑器/站点编辑器/
-│  │                                #   外观与定制器/区块小工具/字体库与全局样式/区块样板/Pingback
+│  │                                #   定制器（外观菜单保留：主题切换/菜单管理，壳主题切换
+│  │                                #   需要）/区块小工具/字体库与全局样式/区块样板/Pingback
 │  │                                #   与Trackback/前台头部冗余/Emoji/oEmbed/XML-RPC）；评论默认
 │  │                                #   保留（WP 为评论存储+审核面，Astro 经 REST 读写），kill switch
 │  │                                #   仅作整体关闭逃生口；开关存储在 aiya_core_headless，总开关
@@ -254,9 +258,9 @@ aiya-core/
 - **错误形状**：WP 标准 `{code,message,data:{status}}`，业务码 `aiya_*`；成功载荷纯数据（旧版面向展示的 message/redirect 字段不进契约）；
 - 验证：单测 66/144 全绿；wp-cli + curl 运行时全链路实测（注册→登录→me→资料→赞助 role 语义→头像（协议键形状/128+64 文件/?v= 版本）→改密吊销→找回邮件捕获→validate→reset→新密码登录→登出吊销→key 复用 400→注册关闭 403→未授权 401/409/429 分支），测试数据已清理。
 
-### B2 轻社区 Discussion —— 契约已定稿（2026-09-09，实现批待排）
+### B2 轻社区 Discussion —— ✅ 已完成（0.26.0）
 
-Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建表线程引擎为蓝本重建（语义参考，实现不搬运）：
+Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建表线程引擎为蓝本重建（语义参考，实现不搬运）。契约于 2026-09-09 定稿，同批全量落地：
 
 - **数据模型**（**2026-09-08 拍板：线程与回复均不使用 WP post/comments 数据模型，纯自定义表**——无 permalink、不经 `/wp/v2` 暴露、后台无原生编辑屏，读写全部走 `aiya/core/v1` 专用端点；表名换新，由 SchemaVersionRunner 建表）：线程表（id / user_id / type / status / title / content / post_id 反向绑定可空（绑定目标仍是 WP post）/ reply_count + last_reply_* 冗余统计 / created_at / updated_at）+ 回复表（id / thread_id / user_id / content / created_at / updated_at）；回复**平铺无嵌套**（旧原型无 parent_id）；冗余统计由同步函数维护（旧 `aya_issue_sync_comment_stats` 语义）；
 - **type 白名单（2026-09-09 定稿）**：`discussion` / `question` / `feedback` 三值——去掉旧 issue 值，工单语义由 postRef 绑定独立承载，与内容性质标签解耦；
@@ -269,7 +273,8 @@ Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建�
 - **后台治理页**：AIYA Core 子菜单列表页（改状态/删除），随实现批落地；
 - **边界**：文章评论仍归 `/wp/v2/comments`（M5 加固层），Discussion 归轻社区线程与按绑定工单，两者不混用；回复通知留给 Domain/Notification 切片（定向行）；
 - **已定（2026-09-08）**：旧 `wp_aya_issues` / `wp_aya_issue_comments` 存量不迁移、不做兼容读取（测试环境从未运行旧主题，无此表）——新表全新 ID 空间，同 Tweet 按死数据处理；
-- **Profile.activities 回归**：B5 的 Profile.activities 恒空数组状态由 B2 填充（该用户最近发布的讨论列表项）。
+- **Profile.activities 回归**：B5 的 Profile.activities 恒空数组状态由 B2 填充（该用户最近发布的讨论列表项）；
+- **落地清单（0.26.0）**：`Domain/Discussion/`（ThreadType/ThreadStatus 纯词表类 + DiscussionService 唯一写入方——CRUD、reply_count 冗余统计同步、open→answered 自动流转（仅 open 且非楼主回复）、仅 closed 锁回复 409、授权 = 作者本人或 `edit_pages`、绑定校验限 publish 的 post/resource）+ `Api/Contract/`（Discussion/DiscussionReply/PostRef/DiscussionDetail，camelCase 锁形单测）+ `DiscussionPresenter`（postRef 复用 PublicTypes 前端路由形状）+ `DiscussionController` 七端点（信封 + meta.pagination + 限流 5/h 发帖、30/10min 回复）+ `Admin/DiscussionModerationPage`（过滤/改状态/删除）；表 `wp_aiya_discussions` + `wp_aiya_discussion_replies` 由 0.26.0 迁移建表；运行时全链路实测（发帖绑定/游客列表/状态机四态流转/锁回复 409/非作者 403/游客 401/删除授权与级联/治理页渲染），测试数据已清理。
 
 ### 通知域（Domain/Notification）—— ✅ 已完成（0.23.0）
 
