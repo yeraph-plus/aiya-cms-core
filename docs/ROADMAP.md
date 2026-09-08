@@ -99,6 +99,10 @@ aiya-core/
 │  │                                #   PasswordResetService（WP 原生 reset key + 前台自报域名拼接
 │  │                                #   `/reset-password?login=&key=`，来源归一化仅 scheme+host+port，
 │  │                                #   `aiya_core_password_reset_allowed_hosts` 过滤器可加白名单）
+│  │  ├─ Notification/              # ✅ 0.23.0：RoleLevel（guest<subscriber<sponsor<author<
+│  │                                #   administrator 阶梯）+ NotificationService（自建表
+│  │                                #   wp_aiya_notifications，广播/定向行，唯一写入方）+
+│  │                                #   NotificationModule（0.23.0 迁移建表 + 每日清理 cron）
 │  │  └─ Content/                   # ✅ 0.6.0：SlugModule——自动别名（pinyin / id_av / id_bv，
 │  │                                #   术语 pinyin），原语来自 slug-toolkit 包
 │  │                                # ✅ 0.7.0：ContentTypeModule + PostType/TaxonomyDefinition +
@@ -256,7 +260,7 @@ Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建�
 - **已定（2026-09-08）**：旧 `wp_aya_issues` / `wp_aya_issue_comments` 存量不迁移、不做兼容读取（测试环境从未运行旧主题，无此表）——新表全新 ID 空间，同 Tweet 按死数据处理；
 - **开放点**：type/status 改名定稿；前端路由沿用 `/community/{id}` 还是更名；likes 是否 v1 支持；后台治理入口（无原生编辑屏，需独立 admin 列表页或前台治理，随 B2 或其后切片定）。
 
-### 通知域（Domain/Notification）—— 方案已拍板（2026-09-08，未排批）
+### 通知域（Domain/Notification）—— ✅ 已完成（0.23.0）
 
 替代旧 `inc/func-notify.php` 的设置表单公告（每请求内存重建、无持久实体、scope 过滤、时间仅为展示字符串）：
 
@@ -264,7 +268,8 @@ Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建�
 - **读取**：`GET /notifications`（Bearer 会话可选——登录按角色过滤广播行并收入定向行，游客仅 guest 级广播行）；已读态在客户端：Astro 本地存最后查看时间（按浏览器、批级新旧、无逐行已读；将来要精确未读数再加服务端 last_read）；
 - **后台**：简单管理页（发新通知 + 列表 + 删除，`manage_options` + nonce），保留期天数同页可配；
 - **清理**：WP-Cron 每日调度删除过期行（默认 30 天）；低流量站点 cron 由访问驱动的延迟对清理任务无害，停用随生命周期钩位清理；
-- 旧 `site_custom_notify_list` / `site_custom_consent_list` 选项不入协议，随旧设置退役（consent 弹窗归前端自有实现）。
+- 旧 `site_custom_notify_list` / `site_custom_consent_list` 选项不入协议，随旧设置退役（consent 弹窗归前端自有实现）；
+- 落地清单：`Domain/Notification/`（RoleLevel 阶梯 + NotificationService 唯一写入方 + NotificationModule 迁移/调度接线）+ `Api/Contract/Notification` + `Api/Rest/NotificationController`（`GET /notifications`，信封包裹）+ `Admin/NotificationPage`（AIYA Core 子菜单页：发布/列表/删除 + 保留期，admin_post 逐动作 nonce）；表 `wp_aiya_notifications` 由 0.23.0 迁移建表（SchemaVersionRunner 首个真实消费者）；单测 + 运行时验证（游客/订阅者/赞助者三级可见性、定向行、prune、保留期往返、管理页渲染），运行时发现的游客 `OR user_id = 0` 退化 bug 已修复；
 
 ### 赞助域（Domain/Sponsorship）—— 方案框架已拍板（2026-09-08，未排批）
 

@@ -6,6 +6,7 @@ namespace Aiya\Core;
 
 use Aiya\Core\Admin\CoverMetabox;
 use Aiya\Core\Admin\MetaboxAdmin;
+use Aiya\Core\Admin\NotificationPage;
 use Aiya\Core\Admin\PicBedPage;
 use Aiya\Core\Admin\SendMailPage;
 use Aiya\Core\Admin\SettingsAdmin;
@@ -18,6 +19,7 @@ use Aiya\Core\Domain\Content\SeoBoxModule;
 use Aiya\Core\Domain\Content\SlugModule;
 use Aiya\Core\Domain\Content\TermExtrasModule;
 use Aiya\Core\Domain\Identity\AvatarModule;
+use Aiya\Core\Domain\Notification\NotificationModule;
 use Aiya\Core\Infrastructure\Headless\HeadlessModule;
 use Aiya\Core\Infrastructure\Security\SecurityModule;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
@@ -67,6 +69,9 @@ final class Plugin
         $this->addModule(new MetaboxAdmin($this->metadata));
         $this->addModule(new SeoBoxModule($this->metadata));
         $this->addModule(new TermExtrasModule($this->metadata));
+
+        $this->addModule(new NotificationModule());
+        $this->addModule(new NotificationPage());
 
         $media = new MediaModule($this->settings);
         $this->addModule($media);

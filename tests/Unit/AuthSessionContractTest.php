@@ -36,7 +36,9 @@ final class AuthSessionContractTest extends TestCase
         self::assertSame('12.abcdef0123456789', $shape['token']);
         self::assertSame('Bearer', $shape['tokenType']);
         self::assertSame($now + 600, $shape['expiresAt']);
-        self::assertSame(600, $shape['expiresIn']);
+        // expiresIn derives from time() inside toArray(); allow one tick.
+        self::assertGreaterThanOrEqual(599, $shape['expiresIn']);
+        self::assertLessThanOrEqual(600, $shape['expiresIn']);
         self::assertSame('站长', $shape['user']['nickname']);
         self::assertSame('owner@example.com', $shape['user']['email']);
     }

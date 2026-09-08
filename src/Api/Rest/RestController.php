@@ -18,6 +18,7 @@ use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
 use Aiya\Core\Domain\Identity\TokenStore;
 use Aiya\Core\Domain\Media\MediaPaths;
+use Aiya\Core\Domain\Notification\NotificationService;
 
 /**
  * Module owning the versioned headless API (`aiya/core/v1`): bearer-token
@@ -69,6 +70,8 @@ final class RestController implements Module
                 $menus,
                 new ProfilePresenter($postPresenter)
             ))->registerRoutes();
+
+            (new NotificationController(new NotificationService(), $presenter))->registerRoutes();
         });
     }
 }
