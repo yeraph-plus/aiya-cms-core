@@ -254,17 +254,22 @@ aiya-core/
 - **错误形状**：WP 标准 `{code,message,data:{status}}`，业务码 `aiya_*`；成功载荷纯数据（旧版面向展示的 message/redirect 字段不进契约）；
 - 验证：单测 66/144 全绿；wp-cli + curl 运行时全链路实测（注册→登录→me→资料→赞助 role 语义→头像（协议键形状/128+64 文件/?v= 版本）→改密吊销→找回邮件捕获→validate→reset→新密码登录→登出吊销→key 复用 400→注册关闭 403→未授权 401/409/429 分支），测试数据已清理。
 
-### B2 轻社区 Discussion —— 已拍板重启（2026-09-08 二次拍板，基于旧 Issue 原型，未排批）
+### B2 轻社区 Discussion —— 契约已定稿（2026-09-09，实现批待排）
 
 Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建表线程引擎为蓝本重建（语义参考，实现不搬运）：
 
-- **数据模型**（**2026-09-08 拍板：线程与回复均不使用 WP post/comments 数据模型，纯自定义表**——无 permalink、不经 `/wp/v2` 暴露、后台无原生编辑屏，读写全部走 `aiya/core/v1` 专用端点；表名换新，由 SchemaVersionRunner 建表——其首个真实消费者）：线程表（id / post_id 反向绑定可空（绑定目标仍是 WP post）/ user_id / type / status / title / content / comment_count + last_comment 冗余统计 / created_at / updated_at）+ 回复表（id / thread_id / user_id / status / content / created_at / updated_at）；回复**平铺无嵌套**（旧原型无 parent_id）；冗余统计由同步函数维护（旧 `aya_issue_sync_comment_stats` 语义）；
-- **工作流**：type 白名单（旧值 issue/discussion/question/feedback，改名随契约定稿）+ status 白名单（旧值 open/closed/progress/accepted/resolved/pending，轻社区可裁剪）；closed/accepted 状态锁回复（旧 can_reply 语义）；
-- **post_id 反向绑定 = 工单/文章讨论**：绑定时校验目标存在；改绑级联同步回复行的 post_id（旧语义）；`issue/by-post` 等价端点支撑「某文章/资源下的讨论列表」；作用面可参照 Engagement 的 `aiya_core_{feature}_post_types` 过滤器模式按类型开放；
-- **契约对齐（少量拓展点）**：作者摘要复用 B1 `Author` DTO；列表复用 `Pagination` + 信封（meta.pagination）；正文对齐 PostDetail 的 content{format:'html'} 形状；metrics.replies 用冗余计数，likes 若支持需给 CounterService 扩非 post 键源（真实拓展工作量，v1 可缓）；can_edit/can_delete/can_reply 授权位是否入契约待定（旧版在载荷里返回）；
-- **边界**：文章评论仍归 `/wp/v2/comments`（M5 加固层），Discussion 归轻社区线程与按绑定工单，两者不混用；回复通知（旧 func-notify 语义）留给 Domain/Notification 切片；
+- **数据模型**（**2026-09-08 拍板：线程与回复均不使用 WP post/comments 数据模型，纯自定义表**——无 permalink、不经 `/wp/v2` 暴露、后台无原生编辑屏，读写全部走 `aiya/core/v1` 专用端点；表名换新，由 SchemaVersionRunner 建表）：线程表（id / user_id / type / status / title / content / post_id 反向绑定可空（绑定目标仍是 WP post）/ reply_count + last_reply_* 冗余统计 / created_at / updated_at）+ 回复表（id / thread_id / user_id / content / created_at / updated_at）；回复**平铺无嵌套**（旧原型无 parent_id）；冗余统计由同步函数维护（旧 `aya_issue_sync_comment_stats` 语义）；
+- **type 白名单（2026-09-09 定稿）**：`discussion` / `question` / `feedback` 三值——去掉旧 issue 值，工单语义由 postRef 绑定独立承载，与内容性质标签解耦；
+- **status 工作流（2026-09-09 定稿）**：`open` / `answered` / `resolved` / `closed` 四值。流转：发帖即 open；他人回复后自动置 answered；楼主或管理员可手动置 resolved / closed / 重开 open；**仅 closed 锁回复**（409）；
+- **社区点赞取消（2026-09-09 拍板）**：讨论与回复**永久不做点赞**（非暂缓——CounterService 无需扩非 post 键源），reply 计数是唯一的互动指标；文章/资源正文点赞照旧（Engagement 域）；
+- **前端路由（2026-09-09 定稿）**：沿用 `/community/`、`/community/{id}`，契约 url 字段由后端拼此形状；
+- **post_id 反向绑定 = 工单/文章讨论**：绑定时校验目标存在；默认作用面 post + resource（沿 Engagement 的 `aiya_core_{feature}_post_types` 过滤器模式可扩），page 不挂；列表 `?post=` 过滤支撑「某文章/资源下的讨论」；改绑级联同步冗余列（旧语义）；
+- **契约形状（定稿）**：列表项 `Discussion` = { id, url(/community/{id}), title, type, status, author: Author(B1), postRef: {id,type,title,url}|null, replies: int(冗余计数), lastReplyAt: ISO|null, publishedAt, canEdit/canDelete/canReply: bool }；详情 `DiscussionDetail` = + content{format:'html'} + replies: Reply[]（首页 50，平铺）；`Reply` = { id, author, content{format:'html'}, publishedAt, canDelete: bool }；授权位由服务端按 viewer（作者本人或 `edit_pages` 管理员）推导，游客恒 false；
+- **端点组（`aiya/core/v1`，信封）**：`GET /discussions?type=&status=&post=&user=&sort=last_activity|newest&page=&perPage=`（公开读，meta.pagination）、`GET /discussions/{id}`（详情 + replies 首页）、`GET /discussions/{id}/replies?page=`（翻页）、`POST /discussions`（Bearer：title/type/content/postId?，限流 5/h）、`POST /discussions/{id}/replies`（Bearer，限流 30/10min，closed → 409）、`PATCH /discussions/{id}`（作者/管理员：title/content/type/status）、`DELETE /discussions/{id}`、`DELETE /discussions/{id}/replies/{replyId}`（作者/管理员；删线程级联删回复）；
+- **后台治理页**：AIYA Core 子菜单列表页（改状态/删除），随实现批落地；
+- **边界**：文章评论仍归 `/wp/v2/comments`（M5 加固层），Discussion 归轻社区线程与按绑定工单，两者不混用；回复通知留给 Domain/Notification 切片（定向行）；
 - **已定（2026-09-08）**：旧 `wp_aya_issues` / `wp_aya_issue_comments` 存量不迁移、不做兼容读取（测试环境从未运行旧主题，无此表）——新表全新 ID 空间，同 Tweet 按死数据处理；
-- **开放点**：type/status 改名定稿；前端路由沿用 `/community/{id}` 还是更名；likes 是否 v1 支持；后台治理入口（无原生编辑屏，需独立 admin 列表页或前台治理，随 B2 或其后切片定）。
+- **Profile.activities 回归**：B5 的 Profile.activities 恒空数组状态由 B2 填充（该用户最近发布的讨论列表项）。
 
 ### 通知域（Domain/Notification）—— ✅ 已完成（0.23.0）
 
