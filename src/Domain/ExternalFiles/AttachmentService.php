@@ -65,13 +65,67 @@ final class AttachmentService
             return $result; // box present but no surfacing mode configured
         }
 
-        $client = ($this->clientFactory)();
-        $entries = $this->fetch($client, $resourceId, $method, $config);
-        if ($entries === null) {
-            return $result; // fetch failed — an empty list beats an error page
+        $settings = OplistSettings::read();
+        $cacheMinutes = $settings['listCacheMinutes'];
+        $forceRefresh = filter_var((string) ($config['refresh'] ?? ''), FILTER_VALIDATE_BOOLEAN);
+        // The cache key folds every config field that shapes the listing, so
+        // editing the box naturally starts a new cache generation without an
+        // invalidation hook. Links are stored in full and trimmed per viewer
+        // afterwards — one cached copy serves every permission level.
+        $configKey = md5((string) json_encode([
+            $method,
+            $config['path'] ?? '',
+            $config['password'] ?? '',
+            $config['parent'] ?? '',
+            $config['keywords'] ?? '',
+            $config['per_page'] ?? 0,
+        ]));
+        $cacheKey = "list_{$resourceId}_{$configKey}";
+
+        $items = null;
+        if (!$forceRefresh && $cacheMinutes > 0) {
+            /** @var list<array{name:string,size:int,type:string,modified:string|null,url:string|null,ready:bool}>|false $cached */
+            $cached = wp_cache_get($cacheKey, OplistSettings::CACHE_GROUP);
+            $items = is_array($cached) ? $cached : null;
         }
 
-        $settings = OplistSettings::read();
+        if ($items === null) {
+            $client = ($this->clientFactory)();
+            $entries = $this->fetch($client, $resourceId, $method, $config);
+            if ($entries === null) {
+                return $result; // fetch failed — an empty list beats an error page
+            }
+
+            $items = $this->assemble($client, $settings, $config, $entries, true);
+            if ($cacheMinutes > 0 && $items !== []) {
+                wp_cache_set($cacheKey, $items, OplistSettings::CACHE_GROUP, $cacheMinutes * MINUTE_IN_SECONDS);
+            }
+        }
+
+        if (!$canSeeLinks) {
+            foreach ($items as &$item) {
+                $item['url'] = null;
+            }
+            unset($item);
+        }
+
+        $result['items'] = $items;
+
+        return $result;
+    }
+
+    /**
+     * Maps raw platform entries onto contract items, building download
+     * links when $withLinks asks for them (the cached copy is always built
+     * with links; the per-viewer trim happens after a cache read).
+     *
+     * @param list<array<string, mixed>> $entries
+     * @param array<string, mixed> $settings
+     * @param array<string, mixed> $config
+     * @return list<array{name:string,size:int,type:string,modified:string|null,url:string|null,ready:bool}>
+     */
+    private function assemble(OpenListClient $client, array $settings, array $config, array $entries, bool $withLinks): array
+    {
         $icons = (bool) $settings['icons'];
         $items = [];
         foreach ($entries as $entry) {
@@ -85,14 +139,12 @@ final class AttachmentService
                 'size' => (int) ($entry['size'] ?? 0),
                 'type' => FileIcons::forEntry($name, (bool) ($entry['is_dir'] ?? false), $icons),
                 'modified' => $this->iso($entry['modified'] ?? null),
-                'url' => $canSeeLinks ? $this->link($client, $settings, $config, $entry) : null,
+                'url' => $withLinks ? $this->link($client, $settings, $config, $entry) : null,
                 'ready' => true,
             ];
         }
 
-        $result['items'] = $items;
-
-        return $result;
+        return $items;
     }
 
     /**

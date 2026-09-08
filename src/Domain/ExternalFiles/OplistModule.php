@@ -24,7 +24,7 @@ use WP_Error;
  */
 final class OplistModule implements Module
 {
-    private const TOKEN_TRANSIENT = 'aiya_oplist_token';
+    public const CACHE_GROUP = 'aiya_core_oplist';
 
     public function __construct(private Registry $settings, private MetadataRegistry $metadata)
     {
@@ -71,10 +71,20 @@ final class OplistModule implements Module
                     'id' => 'oplist_token_hours',
                     'type' => 'number',
                     'label' => __('Token cache (hours)', 'aiya-core'),
-                    'description' => __('0 refetches the token on every request.', 'aiya-core'),
+                    'description' => __('0 refetches the token on every request. Uses the object cache, so a Redis/memcached drop-in makes it persist.', 'aiya-core'),
                     'default' => 24,
                     'min' => 0,
                     'max' => 720,
+                    'step' => 1,
+                ],
+                [
+                    'id' => 'oplist_list_cache_minutes',
+                    'type' => 'number',
+                    'label' => __('Attachment list cache (minutes)', 'aiya-core'),
+                    'description' => __('How long an attachment listing is served from the object cache before OpenList is asked again; 0 disables caching. The box\u0027s force-refresh switch always bypasses it.', 'aiya-core'),
+                    'default' => 5,
+                    'min' => 0,
+                    'max' => 1440,
                     'step' => 1,
                 ],
                 [
@@ -204,8 +214,13 @@ final class OplistModule implements Module
         $token = '';
         $hours = $settings['tokenHours'];
 
+        // Object cache on purpose (2026-09-09): with a Redis/memcached
+        // drop-in the token persists across requests; without one it lives
+        // for the request only and every request re-logins — that trade is
+        // accepted in exchange for not pinning credentials in the options
+        // table.
         if ($hours > 0) {
-            $cached = get_transient(self::TOKEN_TRANSIENT);
+            $cached = wp_cache_get('token', 'aiya_core_oplist');
             $token = is_string($cached) ? $cached : '';
         }
 
@@ -219,7 +234,7 @@ final class OplistModule implements Module
                 do_action('aiya_core_oplist_error', 0, $token);
                 $token = '';
             } elseif ($hours > 0) {
-                set_transient(self::TOKEN_TRANSIENT, $token, $hours * HOUR_IN_SECONDS);
+                wp_cache_set('token', $token, 'aiya_core_oplist', $hours * HOUR_IN_SECONDS);
             }
         }
 

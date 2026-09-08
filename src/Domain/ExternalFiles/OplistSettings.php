@@ -11,9 +11,10 @@ final class OplistSettings
 {
     public const PAGE_SLUG = 'oplist';
     public const OPTION_NAME = 'aiya_core_oplist';
+    public const CACHE_GROUP = 'aiya_core_oplist';
 
     /**
-     * @return array{server:string,user:string,password:string,tokenHours:int,linkType:string,icons:bool,fileDesc:string}
+     * @return array{server:string,user:string,password:string,tokenHours:int,linkType:string,icons:bool,fileDesc:string,listCacheMinutes:int}
      */
     public static function read(): array
     {
@@ -28,6 +29,7 @@ final class OplistSettings
             'linkType' => in_array($linkType, ['d', 'p', 'r', 'f'], true) ? $linkType : 'f',
             'icons' => (bool) ($settings['oplist_icons'] ?? true),
             'fileDesc' => (string) ($settings['oplist_file_desc'] ?? ''),
+            'listCacheMinutes' => max(0, (int) ($settings['oplist_list_cache_minutes'] ?? 5)),
         ];
     }
 }
