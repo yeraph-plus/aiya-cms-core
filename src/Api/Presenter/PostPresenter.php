@@ -12,6 +12,7 @@ use Aiya\Core\Api\Contract\PostMetrics;
 use Aiya\Core\Api\Contract\PostSummary;
 use Aiya\Core\Api\Contract\Seo;
 use Aiya\Core\Api\Contract\Term;
+use Aiya\Core\Domain\Content\PublicType;
 use Aiya\Core\Domain\Content\ReadingTime;
 use Aiya\Core\Domain\Media\MediaPaths;
 use WP_Post;
@@ -30,13 +31,13 @@ final class PostPresenter
     {
     }
 
-    public function summary(WP_Post $post): PostSummary
+    public function summary(WP_Post $post, PublicType $type): PostSummary
     {
         return new PostSummary(
             (int) $post->ID,
             (string) $post->post_name,
-            sprintf('/posts/%d/', (int) $post->ID),
-            'post',
+            $type->url((int) $post->ID),
+            $type->name,
             (string) get_the_title($post),
             $this->excerpt($post),
             $this->isoDate($post, 'date'),
@@ -44,8 +45,8 @@ final class PostPresenter
             ReadingTime::estimate($this->rendered($post)),
             $this->thumbnail($post),
             $this->author((int) $post->post_author),
-            $this->terms($post, 'category'),
-            $this->terms($post, 'post_tag'),
+            $this->typedTerms($post, $type, 'category'),
+            $this->typedTerms($post, $type, 'tag'),
             $this->metrics((int) $post->ID)
         );
     }
@@ -53,9 +54,9 @@ final class PostPresenter
     /**
      * @param array{previous: WP_Post|null, next: WP_Post|null} $neighbors
      */
-    public function detail(WP_Post $post, array $neighbors): PostDetail
+    public function detail(WP_Post $post, array $neighbors, PublicType $type): PostDetail
     {
-        $summary = $this->summary($post);
+        $summary = $this->summary($post, $type);
         $content = $this->rendered($post);
         $seo = get_post_meta((int) $post->ID, 'aya_box_post_seo', true);
         $seoDescription = is_array($seo) && is_string($seo['seo_desc'] ?? null) && trim((string) $seo['seo_desc']) !== ''
@@ -69,19 +70,24 @@ final class PostPresenter
             new Seo($summary->title, $seoDescription, false),
             [new Breadcrumb($summary->title, null)],
             isset($neighbors['previous']) && $neighbors['previous'] instanceof WP_Post
-                ? $this->summary($neighbors['previous'])
+                ? $this->summary($neighbors['previous'], $type)
                 : null,
             isset($neighbors['next']) && $neighbors['next'] instanceof WP_Post
-                ? $this->summary($neighbors['next'])
+                ? $this->summary($neighbors['next'], $type)
                 : null
         );
     }
 
     /** @return array<int, array<string, mixed>> */
-    public function presentTerms(string $taxonomy): array
+    public function presentTerms(PublicType $type, string $contractTaxonomy): array
     {
+        $wpTaxonomy = $type->wpCategoryTaxonomy($contractTaxonomy);
+        if ($wpTaxonomy === null) {
+            return [];
+        }
+
         $terms = get_terms([
-            'taxonomy' => $this->publicTaxonomy($taxonomy),
+            'taxonomy' => $wpTaxonomy,
             'hide_empty' => false,
         ]);
         if (!is_array($terms)) {
@@ -91,7 +97,7 @@ final class PostPresenter
         $out = [];
         foreach ($terms as $term) {
             if ($term instanceof WP_Term) {
-                $out[] = $this->term($term, $this->publicTaxonomy($taxonomy))->toArray();
+                $out[] = $this->term($term, $contractTaxonomy)->toArray();
             }
         }
 
@@ -104,7 +110,7 @@ final class PostPresenter
         $text = trim(wp_strip_all_tags($raw));
         // The auto-generated excerpt ends with the "[…]" marker; the front
         // end owns continuation affordances, so it comes off.
-        $text = (string) preg_replace('/\[(\x{2026}|\.\.\.)\]\s*$/u', '', $text);
+        $text = (string) preg_replace('/\[(\x{2026}|\.\.\.|&hellip;)\]\s*$/u', '', $text);
 
         return trim($text);
     }
@@ -170,19 +176,27 @@ final class PostPresenter
         );
     }
 
-    /** @return list<Term> */
-    private function terms(WP_Post $post, string $taxonomy): array
+    /**
+     * The type's WP terms of one contract vocabulary, presented with the
+     * contract taxonomy name (resource_category answers as "category").
+     *
+     * @return list<Term>
+     */
+    private function typedTerms(WP_Post $post, PublicType $type, string $contractTaxonomy): array
     {
-        $rows = wp_get_post_terms((int) $post->ID, $taxonomy);
-        if (!is_array($rows)) {
-            return [];
-        }
-
-        $contractTaxonomy = $this->publicTaxonomy($taxonomy);
         $out = [];
-        foreach ($rows as $row) {
-            if ($row instanceof WP_Term) {
-                $out[] = $this->term($row, $contractTaxonomy);
+        foreach ($type->taxonomies as [$wpTaxonomy, $contract]) {
+            if ($contract !== $contractTaxonomy) {
+                continue;
+            }
+            $rows = wp_get_post_terms((int) $post->ID, $wpTaxonomy);
+            if (!is_array($rows)) {
+                continue;
+            }
+            foreach ($rows as $row) {
+                if ($row instanceof WP_Term) {
+                    $out[] = $this->term($row, $contractTaxonomy);
+                }
             }
         }
 
@@ -200,11 +214,6 @@ final class PostPresenter
             $term->parent > 0 ? (int) $term->parent : null,
             (int) $term->count
         );
-    }
-
-    private function publicTaxonomy(string $taxonomy): string
-    {
-        return $taxonomy === 'post_tag' ? 'tag' : $taxonomy;
     }
 
     private function metrics(int $postId): PostMetrics

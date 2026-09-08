@@ -9,6 +9,7 @@ use Aiya\Core\Api\Contract\Membership;
 use Aiya\Core\Api\Contract\Profile;
 use Aiya\Core\Api\Contract\ProfileStats;
 use Aiya\Core\Api\Contract\PostSummary;
+use Aiya\Core\Domain\Content\PublicTypes;
 use WP_Post;
 use WP_Query;
 use WP_User;
@@ -89,7 +90,8 @@ final class ProfilePresenter
         $out = [];
         foreach (is_array($query->posts) ? $query->posts : [] as $post) {
             if ($post instanceof WP_Post) {
-                $out[] = $this->posts->summary($post);
+                $postType = PublicTypes::get('post');
+                $out[] = $this->posts->summary($post, $postType ?? PublicTypes::all()['post']);
             }
             if (count($out) === self::FAVORITES_LIMIT) {
                 break;

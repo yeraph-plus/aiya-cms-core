@@ -8,27 +8,25 @@ use WP_Post;
 use WP_Query;
 
 /**
- * Read-side queries over public posts for the headless API. Wraps
- * WP_Query presets and returns raw WP_Post rows plus totals — mapping
- * into contract DTOs belongs to the presenter layer. Only `publish`
- * status is ever visible; password-protected posts are excluded because
- * they are not public content.
+ * Read-side queries over public content for the headless API. Wraps
+ * WP_Query presets parameterized by PublicType and returns raw WP_Post
+ * rows plus totals — mapping into contract DTOs belongs to the presenter
+ * layer. Only `publish` status is ever visible; password-protected posts
+ * are excluded because they are not public content.
  */
 final class ContentQuery
 {
-    private const ALLOWED_TYPES = ['post'];
-
     /**
-     * Paginated public post list. Query parameters arrive already
+     * Paginated public list of one type. Query parameters arrive already
      * validated by the REST layer; unknown category slugs simply match
      * nothing (an empty list, not an error).
      *
      * @return array{items: list<WP_Post>, total: int}
      */
-    public function list(int $page, int $perPage, string $q, string $category, string $sort): array
+    public function list(PublicType $type, int $page, int $perPage, string $q, string $category, string $sort): array
     {
         $args = [
-            'post_type' => self::ALLOWED_TYPES,
+            'post_type' => $type->postTypes,
             'post_status' => 'publish',
             'has_password' => false,
             'posts_per_page' => min(100, max(1, $perPage)),
@@ -43,7 +41,15 @@ final class ContentQuery
             $args['s'] = $q;
         }
         if ($category !== '') {
-            $args['category_name'] = $category;
+            $categoryTaxonomy = $type->wpCategoryTaxonomy('category');
+            if ($categoryTaxonomy !== null) {
+                $args['tax_query'] = [[
+                    'taxonomy' => $categoryTaxonomy,
+                    'field' => 'slug',
+                    'terms' => $category,
+                ],
+                ];
+            }
         }
 
         $query = new WP_Query($args);
@@ -67,11 +73,13 @@ final class ContentQuery
         return ['items' => $items, 'total' => $total];
     }
 
-    /** A single public post by id; null when missing or not public. */
-    public function byId(int $id): ?WP_Post
+    /** A single public post of the type; null when missing or not public. */
+    public function byId(int $id, PublicType $type): ?WP_Post
     {
         $post = get_post($id);
-        if (!$post instanceof WP_Post || $post->post_type !== 'post' || $post->post_status !== 'publish') {
+        if (!$post instanceof WP_Post
+            || !in_array($post->post_type, $type->postTypes, true)
+            || $post->post_status !== 'publish') {
             return null;
         }
         if ((string) $post->post_password !== '') {
@@ -83,16 +91,17 @@ final class ContentQuery
 
     /**
      * Adjacent public posts under the list ordering (date + id, same
-     * direction). Two small bounded queries per call; `before`/`after`
-     * are inclusive so same-second publications resolve by id — matching
-     * the contract's sort guarantees.
+     * direction), scoped to the type's WP post types. Two small bounded
+     * queries per call; `before`/`after` are inclusive so same-second
+     * publications resolve by id — matching the contract's sort
+     * guarantees.
      *
      * @return array{previous: WP_Post|null, next: WP_Post|null}
      */
-    public function neighbors(WP_Post $post): array
+    public function neighbors(WP_Post $post, PublicType $type): array
     {
         $base = [
-            'post_type' => self::ALLOWED_TYPES,
+            'post_type' => $type->postTypes,
             'post_status' => 'publish',
             'has_password' => false,
             'ignore_sticky_posts' => true,
