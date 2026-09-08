@@ -29,7 +29,7 @@ final class SeoBoxModule implements Module
         $this->metadata->addPostBox([
             'id' => 'post_seo',
             'title' => __('SEO fields', 'aiya-core'),
-            'screens' => ['post', 'page'],
+            'screens' => ['post', 'page', 'resource'],
             'context' => 'normal',
             'priority' => 'low',
             'fields' => [

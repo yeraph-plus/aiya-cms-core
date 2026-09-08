@@ -15,6 +15,7 @@ use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\MenuService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Engagement\CounterService;
+use Aiya\Core\Domain\ExternalFiles\AttachmentService;
 use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
@@ -33,7 +34,7 @@ use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
  */
 final class RestController implements Module
 {
-    public function __construct(private AvatarModule $avatars)
+    public function __construct(private AvatarModule $avatars, private ?AttachmentService $attachments = null)
     {
     }
 
@@ -86,6 +87,10 @@ final class RestController implements Module
 
             $threads = new DiscussionService();
             (new DiscussionController($threads, new DiscussionPresenter(), new RateLimiter()))->registerRoutes();
+
+            if ($this->attachments !== null) {
+                (new ResourceAttachmentsController($this->attachments))->registerRoutes();
+            }
         });
     }
 }

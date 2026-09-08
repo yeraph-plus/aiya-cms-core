@@ -19,6 +19,7 @@ use Aiya\Core\Domain\Content\ContentTypeModule;
 use Aiya\Core\Domain\Content\ContentTypeRegistry;
 use Aiya\Core\Domain\Content\SeoBoxModule;
 use Aiya\Core\Domain\Discussion\DiscussionModule;
+use Aiya\Core\Domain\ExternalFiles\OplistModule;
 use Aiya\Core\Domain\Content\SlugModule;
 use Aiya\Core\Domain\Content\TermExtrasModule;
 use Aiya\Core\Domain\Identity\AvatarModule;
@@ -90,8 +91,10 @@ final class Plugin
         $this->addModule(new CoverMetabox($media->covers()));
         $this->addModule(new PicBedPage($media->uploadProcessor(), $media->paths()));
 
+        $oplist = new OplistModule($this->settings, $this->metadata);
+        $this->addModule($oplist);
         $this->addModule(new SchemaVersionRunner());
-        $this->addModule(new RestController($avatar));
+        $this->addModule(new RestController($avatar, $oplist->attachments()));
 
         add_action('plugins_loaded', function (): void {
             load_plugin_textdomain('aiya-core', false, dirname(plugin_basename(AIYA_CORE_FILE)) . '/languages');

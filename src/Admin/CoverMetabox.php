@@ -35,7 +35,7 @@ final class CoverMetabox implements Module
 
     public function addMetaBox(): void
     {
-        foreach ((array) apply_filters('aiya_core_cover_post_types', ['post']) as $postType) {
+        foreach ((array) apply_filters('aiya_core_cover_post_types', ['post', 'resource']) as $postType) {
             add_meta_box(
                 'aiya-core-cover',
                 __('Post cover', 'aiya-core'),

@@ -287,6 +287,17 @@ Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建�
 - 旧 `site_custom_notify_list` / `site_custom_consent_list` 选项不入协议，随旧设置退役（consent 弹窗归前端自有实现）；
 - 落地清单：`Domain/Notification/`（RoleLevel 阶梯 + NotificationService 唯一写入方 + NotificationModule 迁移/调度接线）+ `Api/Contract/Notification` + `Api/Rest/NotificationController`（`GET /notifications`，信封包裹）+ `Admin/NotificationPage`（AIYA Core 子菜单页：发布/列表/删除 + 保留期，admin_post 逐动作 nonce）；表 `wp_aiya_notifications` 由 0.23.0 迁移建表（SchemaVersionRunner 首个真实消费者）；单测 + 运行时验证（游客/订阅者/赞助者三级可见性、定向行、prune、保留期往返、管理页渲染），运行时发现的游客 `OR user_id = 0` 退化 bug 已修复；
 
+### 资源编辑面与附件域（Domain/ExternalFiles + resource metabox）—— ✅ 已完成（0.27.0）
+
+B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍板：门禁整套重写，代理端点本批全含）：
+
+- **`oplist_client` box**：沿旧版 9 字段语义 1:1（sponsor_can/fs_method/path/desc/parent/keywords/per_page/password/refresh），screens 从 post 移到 **resource**（协议组键 `aya_box_oplist_client` 不变）；`password` 保持明文可读（代理请求需重读，不可写后即焚）；旧 `[oplist_cli]` 短代码写入层与每次查看扣触发计数不迁移（短代码归模板零件、新门禁无额度语义）；
+- **`Domain/ExternalFiles/`**：`OpenListClient`（WP-free，transport 注入；只移植 login + fs 四读方法 list/get/dirs/search，写操作不搬；错误分级 aiya_oplist_unavailable/auth/denied/not_found）+ `FileIcons`（扩展名→图标类别映射）+ `OplistSettings` + `OplistModule`（域设置页 `aiya_core_oplist`：服务器凭据/Token 缓存时长/链接模式 d·p·r·f/图标开关/默认描述；token transient 缓存 + 失败走 `aiya_core_oplist_error` 钩子）+ `AttachmentService`（box 配置读取 + 门禁矩阵 + link 构造，搜索模式逐项 fs_get 补详情、丢弃已消失项）；
+- **门禁（2026-09-09 重写定稿）**：文件列表元数据对**所有人（含游客）公开**；下载链接按 viewer 裁剪——`sponsor_can` 关 = 登录即给，开 = 仅赞助者（`MembershipService::isSponsor`，管理员旁路天然可见）；旧版「登录才可见列表 + 扣计数」废除；
+- **端点**：`GET /resources/{id}/attachments`（公开读，信封）→ `{gated, canSeeLinks, items:[{name,size,type,modified,url|null,ready}]}`——url 为 null 即无下载权；列表即实时（ready 恒 true，拉取失败静默为空列表，错误走日志钩子）；
+- **resource 编辑屏补全**：`post_seo` box screens + resource（B3 ResourceDetail.seo 数据源）、封面 metabox 默认类型 + resource（`_aya_thumb` 链路）；
+- 验证：单测 115/269（客户端路由/错误分级/登录解析、图标映射、门禁矩阵纯函数）；运行时实测（协议键读写、三视角门禁矩阵 guest/subscriber→null、sponsor→link、链接构造含 sign、端点 404/未配置空列表路径、box 注册 resource 屏），测试数据已清理。
+
 ### 赞助域（Domain/Sponsorship）—— ✅ 已完成（0.24.0 核心 + 0.25.0 网关切片）
 
 总原则：**保持行为但重构设计**。旧结构 = `inc/lib/Afdian_API.php` + `inc/lib/Epay_Core.php`（三方客户端）、`inc/func-payment.php`（爱发电 webhook + 方案卡片 + 兑换码）、`plugins/sponsor-order-compat`（易支付收银台 + 回调）、`inc/func-user.php` 的订单表与叠加到期计算。
