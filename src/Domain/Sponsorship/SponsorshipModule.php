@@ -80,6 +80,24 @@ final class SponsorshipModule implements Module
                     'default' => '',
                 ],
                 [
+                    'id' => 'afdian_plan_type',
+                    'type' => 'radio',
+                    'label' => __('Order page type', 'aiya-core'),
+                    'description' => __('Custom-amount jumps to your creator page; preset jumps straight to the configured plan.', 'aiya-core'),
+                    'default' => 'optional',
+                    'options' => [
+                        'optional' => __('Custom amount', 'aiya-core'),
+                        'preset' => __('Preset plan', 'aiya-core'),
+                    ],
+                ],
+                [
+                    'id' => 'afdian_preset_plan_url',
+                    'type' => 'url',
+                    'label' => __('Preset plan URL', 'aiya-core'),
+                    'description' => __('The afdian.com/order/create?plan_id=… address of the preset plan; its plan_id is reused.', 'aiya-core'),
+                    'default' => '',
+                ],
+                [
                     'id' => 'afdian_savelog',
                     'type' => 'switch',
                     'label' => __('Webhook log', 'aiya-core'),
@@ -114,6 +132,13 @@ final class SponsorshipModule implements Module
                     'id' => 'epay_gateway',
                     'type' => 'url',
                     'label' => __('Gateway submit URL', 'aiya-core'),
+                    'default' => '',
+                ],
+                [
+                    'id' => 'epay_return_url',
+                    'type' => 'url',
+                    'label' => __('Front-end return URL', 'aiya-core'),
+                    'description' => __('Where the browser lands after paying; the headless front end owns this page.', 'aiya-core'),
                     'default' => '',
                 ],
                 [

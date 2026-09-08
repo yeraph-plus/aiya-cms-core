@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Infrastructure\Security;
 
 use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Api\Rest\GatewayController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Registry;
 
@@ -184,13 +185,32 @@ final class SecurityModule implements Module
             return $endpoints;
         }
 
-        $namespace = '/' . Contract::API_NAMESPACE;
+        // Gateway callbacks are platform-to-server pushes (always anonymous,
+        // authenticated by their own signature checks), so they stay on the
+        // public surface next to the versioned contract.
+        $allowed = [
+            '/' . Contract::API_NAMESPACE,
+            '/' . GatewayController::GATEWAY_NAMESPACE,
+        ];
+
         foreach (array_keys($endpoints) as $route) {
             if ($route === '/') {
                 // Keep the index; its namespace list shrinks with the routes.
                 continue;
             }
-            if (!is_string($route) || !str_starts_with($route, $namespace)) {
+            if (!is_string($route)) {
+                unset($endpoints[$route]);
+                continue;
+            }
+
+            $allowedRoute = false;
+            foreach ($allowed as $prefix) {
+                if (str_starts_with($route, $prefix)) {
+                    $allowedRoute = true;
+                    break;
+                }
+            }
+            if (!$allowedRoute) {
                 unset($endpoints[$route]);
             }
         }

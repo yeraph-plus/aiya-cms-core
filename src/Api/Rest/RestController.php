@@ -79,6 +79,8 @@ final class RestController implements Module
             $membership = new MembershipService();
             $orders = new OrderService($membership);
             (new SponsorshipController($membership, $orders, new RedeemCodeService($orders), new RateLimiter()))->registerRoutes();
+
+            (new GatewayController($orders))->registerRoutes();
         });
     }
 }

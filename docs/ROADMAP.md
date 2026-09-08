@@ -277,15 +277,23 @@ Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建�
 - 旧 `site_custom_notify_list` / `site_custom_consent_list` 选项不入协议，随旧设置退役（consent 弹窗归前端自有实现）；
 - 落地清单：`Domain/Notification/`（RoleLevel 阶梯 + NotificationService 唯一写入方 + NotificationModule 迁移/调度接线）+ `Api/Contract/Notification` + `Api/Rest/NotificationController`（`GET /notifications`，信封包裹）+ `Admin/NotificationPage`（AIYA Core 子菜单页：发布/列表/删除 + 保留期，admin_post 逐动作 nonce）；表 `wp_aiya_notifications` 由 0.23.0 迁移建表（SchemaVersionRunner 首个真实消费者）；单测 + 运行时验证（游客/订阅者/赞助者三级可见性、定向行、prune、保留期往返、管理页渲染），运行时发现的游客 `OR user_id = 0` 退化 bug 已修复；
 
-### 赞助域（Domain/Sponsorship）—— 核心切片 ✅ 已完成（0.24.0）；网关接入切片未排批
+### 赞助域（Domain/Sponsorship）—— ✅ 已完成（0.24.0 核心 + 0.25.0 网关切片）
 
 总原则：**保持行为但重构设计**。旧结构 = `inc/lib/Afdian_API.php` + `inc/lib/Epay_Core.php`（三方客户端）、`inc/func-payment.php`（爱发电 webhook + 方案卡片 + 兑换码）、`plugins/sponsor-order-compat`（易支付收银台 + 回调）、`inc/func-user.php` 的订单表与叠加到期计算。
 
 ✅ 核心切片落地清单（0.24.0）：
 
-- `Domain/Sponsorship/`：`ExpirationFold`（叠加到期折叠纯函数，单测锁旧版语义）、`MembershipService`（协议键读取 + `isSponsor` 含编辑权限旁路 + 触发计数；localNow 与旧 `current_time('timestamp')` 数值等价）、`OrderService`（订单表唯一事实源读写、order_id 幂等、每次变更重折叠并写 `sponsor_expiration`——该协议键唯一写入方）、`RedeemCodeService`（原子核销 + 激活失败回滚 + 批量生成）；`SponsorshipModule`（0.24.0 迁移建两表——存量安装 dbDelta 找到旧表为 no-op，列只加不改义——+ 域自有设置页：爱发电/易支付凭据与开关、方案 repeater）；`Admin/ConvertCodesPage`（兑换码生成/列表/清空）；REST `GET /sponsorship/plans`（公开，方案 + 渠道开关）、`POST /sponsorship/redeem`（Bearer + 限流）、`GET /sponsorship/membership`（Bearer，active/leftDays/totalDays/triggerCount/orders）；`UserPresenter::role` 的赞助判定改为复用 `MembershipService`（语义单源化）；运行时验证：兑换→叠加→幂等→取消重折叠→role 语义→401→管理页渲染全链路，测试数据已清理。
+- `Domain/Sponsorship/`：`ExpirationFold`（叠加到期折叠纯函数，单测锁旧版语义）、`MembershipService`（协议键读取 + `isSponsor` 含编辑权限旁路 + 触发计数；localNow 与旧 `current_time('timestamp')` 数值等价）、`OrderService`（订单表唯一事实源读写、order_id 幂等、每次变更重折叠并写 `sponsor_expiration`——该协议键唯一写入方）、`RedeemCodeService`（原子核销 + 激活失败回滚 + 批量生成）；`SponsorshipModule`（0.24.0 迁移建两表——存量安装 dbDelta 找到旧表为 no-op，列只加不改义——+ 域自有设置页：爱发电/易支付凭据与开关、方案 repeater）；`Admin/ConvertCodesPage`（兑换码生成/列表/删除）；REST `GET /sponsorship/plans`（公开，方案 + 渠道开关）、`POST /sponsorship/redeem`（Bearer + 限流）、`GET /sponsorship/membership`（Bearer，active/leftDays/totalDays/triggerCount/orders）；`UserPresenter::role` 的赞助判定改为复用 `MembershipService`（语义单源化）；运行时验证：兑换→叠加→幂等→取消重折叠→role 语义→401→管理页渲染全链路，测试数据已清理。
 
-必须保留的行为面（网关切片的验收基准）：
+✅ 网关切片落地清单（0.25.0）：
+
+- `AfdianClient` / `EpayClient`（WP-free 纯签名/验签/编码类，传输以闭包注入 `wp_remote_post`）；用户绑定复用 `slug-toolkit` 的 `IdSlugEncoder`（8 位 XDE 冻结算法，与旧 `aya_token_encode($id, 8)` 逐字节一致——旧支付链接挂起的 `custom_order_id` 切换后仍可解码）；`WebhookLogger`（`wp-content/aiya-core-logs/`，设置开关控制）；
+- `Api/Rest/GatewayController`：命名空间 `aiya/sponsorship/v1`（第三方回调不进版本化契约，经 SecurityModule 公开面白名单放行——回调恒为匿名平台推送）。**爱发电 webhook**：`POST /afdian/callback` 补签名验证（`md5(token+params+ts)`，篡改 403——旧版裸解析 JSON 的缺陷修正）+ `trade_success` 状态检查 + `custom_order_id` 解码绑定 + `afd_` 订单幂等 + 月数×31 天 + 验签后恒 200；**易支付回调**：`GET /epay/callback` 签名验证（沿旧 SDK 算法含 '0' 排除语义，篡改 400）+ `param` 解码 `userBinding|planKey` 定用户与天数（**金额反查商品已废除**）+ `epc_` 订单幂等；
+- REST 扩充：`POST /sponsorship/orders`（Bearer，{planKey, channel: alipay|wxpay|usdt} → 签名收银台 submitUrl，含 notify_url/return_url——渠道未启用/方案不存在 4xx）、`GET /sponsorship/afdian/order-url`（Bearer，自选金额/预设方案两型，带当前用户 `custom_order_id` 与 remark）、redeem 端点加**爱发电订单号分支**（纯数字 → 在线查单激活，source=afdian，保持旧 ping/去重/查单语义）；`plans` 端点 channels 增加 `afdianHomeUrl`；
+- 设置页新增：`afdian_plan_type`（自选金额/预设方案）、`afdian_preset_plan_url`、`epay_return_url`（支付后回跳前端页，归前端路由）；
+- 单测：AfdianClient 签名往返/篡改拒绝/绑定往返/transport 注入，EpayClient 签名可验/篡改拒绝/旧 SDK '0' 排除语义锁定；运行时：自签 webhook 激活（3 月=93 天）→ 重放幂等 → 篡改 403；易支付合法签名激活（方案 30 天）→ 重放幂等 → 篡改 400；收银台 submitUrl/渠道开关/afdian order-url/数字兑换错误路径全链路，测试数据已清理。
+
+网关切片验收基准（已全部达成）：
 
 - **订单表兼容（拍板）**：`wp_aya_sponsor_orders` 沿用为唯一订单事实源——列只加不改义（user_id / order_id unique / start_time / duration_days / source / status / created_at），到期模型保持「按 start_time 升序折叠 paid 订单、重算后写 `sponsor_expiration` 协议键」；`wp_aya_convert_codes` 建议沿表兼容，以免作废存量未用兑换码；
 - 爱发电 webhook：`custom_order_id` 解码用户绑定、`afd_` 订单号前缀、月数×31 天、order_id 去重、恒 200 应答；
@@ -294,14 +302,14 @@ Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建�
 - 兑换码：原子核销（条件 UPDATE 防并发）、激活失败回滚；
 - 会员门禁链路：`sponsor_expiration` + `aya_force_cancel_sponsor` + `aya_trigger_count_sponsor`（协议键）→ `aya_is_sponsor` 语义 → UserPresenter role（B5 已消费）。
 
-重构方向（行为保持前提下的修正，非行为变更；网关切片执行）：
+重构方向（行为保持前提下的修正）——✅ 全部达成（0.24.0/0.25.0）：
 
-- 爱发电 webhook **补签名验证**（旧实现跳过认证直接解析 JSON）；webhook 路由移出 `aiya/core/v1` 契约命名空间（第三方回调不进版本化契约）；
-- 易支付天数不再按金额反查商品（同价商品冲突、网关折价即激活错值），改由签名参数携带方案 key（设置页 repeater 的稳定标识）；
-- ~~方案/商品改为域内结构化数据~~ ✅ 0.24.0（设置页 repeater + `/sponsorship/plans` DTO）；前端渲染展示文案；
-- ~~订单/激活收敛为 Domain 服务~~ ✅ 0.24.0（OrderService/RedeemCodeService 为表与协议键唯一写入方）；
-- 爱发电订单号当兑换码（在线查单激活）随爱发电切片入 `POST /sponsorship/redeem`（source=afdian 分支）；
-- 旧 React 群岛（subscribe/activate/dashboard）由 Astro 组件重建，消费 plans/redeem/membership 端点。
+- ✅ 爱发电 webhook 补签名验证（篡改 403）+ `trade_success` 状态检查；webhook 路由移出 `aiya/core/v1` 契约命名空间（`aiya/sponsorship/v1`，经 SecurityModule 公开面白名单放行）；
+- ✅ 易支付天数改由签名参数携带方案 key（`param` = userBinding|planKey），金额反查废除；
+- ✅ 方案/商品域内结构化数据（设置页 repeater + `/sponsorship/plans` DTO）；前端渲染展示文案；
+- ✅ 订单/激活收敛为 Domain 服务（OrderService/RedeemCodeService 为表与协议键唯一写入方）；
+- ✅ 爱发电订单号当兑换码入 `POST /sponsorship/redeem`（纯数字 → 在线查单激活，source=afdian）；
+- ⏳ 旧 React 群岛（subscribe/activate/dashboard）由 Astro 组件重建（前端批次），消费 plans/orders/redeem/membership/order-url 端点。
 
 ### M5 版本化 REST ＋ Astro SSR
 
