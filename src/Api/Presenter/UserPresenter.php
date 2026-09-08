@@ -6,6 +6,7 @@ namespace Aiya\Core\Api\Presenter;
 
 use Aiya\Core\Api\Contract\AvatarImage;
 use Aiya\Core\Api\Contract\UserProfile;
+use Aiya\Core\Domain\Sponsorship\MembershipService;
 use WP_User;
 
 /**
@@ -18,6 +19,10 @@ use WP_User;
  */
 final class UserPresenter
 {
+    public function __construct(private MembershipService $membership = new MembershipService())
+    {
+    }
+
     public function present(WP_User $user): UserProfile
     {
         return new UserProfile(
@@ -42,19 +47,11 @@ final class UserPresenter
         if (user_can($user, 'publish_posts')) {
             return 'author';
         }
-        if ($this->isSponsor((int) $user->ID)) {
+        if ($this->membership->isSponsor((int) $user->ID)) {
             return 'sponsor';
         }
 
         return 'subscriber';
-    }
-
-    private function isSponsor(int $userId): bool
-    {
-        $expiration = (int) get_user_meta($userId, 'sponsor_expiration', true);
-        $forceCancel = (string) get_user_meta($userId, 'aya_force_cancel_sponsor', true);
-
-        return $expiration > time() && $forceCancel !== '1';
     }
 
     private function avatar(int $userId): AvatarImage

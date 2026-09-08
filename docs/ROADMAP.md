@@ -103,6 +103,12 @@ aiya-core/
 │  │                                #   administrator 阶梯）+ NotificationService（自建表
 │  │                                #   wp_aiya_notifications，广播/定向行，唯一写入方）+
 │  │                                #   NotificationModule（0.23.0 迁移建表 + 每日清理 cron）
+│  │  ├─ Sponsorship/                # ✅ 0.24.0 核心切片：ExpirationFold（叠加折叠纯函数）+
+│  │                                #   MembershipService（协议键读取/触发计数）+ OrderService
+│  │                                #   （wp_aya_sponsor_orders 唯一事实源 + sponsor_expiration
+│  │                                #   唯一写入方）+ RedeemCodeService（原子核销/回滚）+
+│  │                                #   SponsorshipModule（0.24.0 兼容建表 + 域设置页）；
+│  │                                #   爱发电/易支付网关切片待排
 │  │  └─ Content/                   # ✅ 0.6.0：SlugModule——自动别名（pinyin / id_av / id_bv，
 │  │                                #   术语 pinyin），原语来自 slug-toolkit 包
 │  │                                # ✅ 0.7.0：ContentTypeModule + PostType/TaxonomyDefinition +
@@ -271,11 +277,15 @@ Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建�
 - 旧 `site_custom_notify_list` / `site_custom_consent_list` 选项不入协议，随旧设置退役（consent 弹窗归前端自有实现）；
 - 落地清单：`Domain/Notification/`（RoleLevel 阶梯 + NotificationService 唯一写入方 + NotificationModule 迁移/调度接线）+ `Api/Contract/Notification` + `Api/Rest/NotificationController`（`GET /notifications`，信封包裹）+ `Admin/NotificationPage`（AIYA Core 子菜单页：发布/列表/删除 + 保留期，admin_post 逐动作 nonce）；表 `wp_aiya_notifications` 由 0.23.0 迁移建表（SchemaVersionRunner 首个真实消费者）；单测 + 运行时验证（游客/订阅者/赞助者三级可见性、定向行、prune、保留期往返、管理页渲染），运行时发现的游客 `OR user_id = 0` 退化 bug 已修复；
 
-### 赞助域（Domain/Sponsorship）—— 方案框架已拍板（2026-09-08，未排批）
+### 赞助域（Domain/Sponsorship）—— 核心切片 ✅ 已完成（0.24.0）；网关接入切片未排批
 
 总原则：**保持行为但重构设计**。旧结构 = `inc/lib/Afdian_API.php` + `inc/lib/Epay_Core.php`（三方客户端）、`inc/func-payment.php`（爱发电 webhook + 方案卡片 + 兑换码）、`plugins/sponsor-order-compat`（易支付收银台 + 回调）、`inc/func-user.php` 的订单表与叠加到期计算。
 
-必须保留的行为面（重构验收基准）：
+✅ 核心切片落地清单（0.24.0）：
+
+- `Domain/Sponsorship/`：`ExpirationFold`（叠加到期折叠纯函数，单测锁旧版语义）、`MembershipService`（协议键读取 + `isSponsor` 含编辑权限旁路 + 触发计数；localNow 与旧 `current_time('timestamp')` 数值等价）、`OrderService`（订单表唯一事实源读写、order_id 幂等、每次变更重折叠并写 `sponsor_expiration`——该协议键唯一写入方）、`RedeemCodeService`（原子核销 + 激活失败回滚 + 批量生成）；`SponsorshipModule`（0.24.0 迁移建两表——存量安装 dbDelta 找到旧表为 no-op，列只加不改义——+ 域自有设置页：爱发电/易支付凭据与开关、方案 repeater）；`Admin/ConvertCodesPage`（兑换码生成/列表/清空）；REST `GET /sponsorship/plans`（公开，方案 + 渠道开关）、`POST /sponsorship/redeem`（Bearer + 限流）、`GET /sponsorship/membership`（Bearer，active/leftDays/totalDays/triggerCount/orders）；`UserPresenter::role` 的赞助判定改为复用 `MembershipService`（语义单源化）；运行时验证：兑换→叠加→幂等→取消重折叠→role 语义→401→管理页渲染全链路，测试数据已清理。
+
+必须保留的行为面（网关切片的验收基准）：
 
 - **订单表兼容（拍板）**：`wp_aya_sponsor_orders` 沿用为唯一订单事实源——列只加不改义（user_id / order_id unique / start_time / duration_days / source / status / created_at），到期模型保持「按 start_time 升序折叠 paid 订单、重算后写 `sponsor_expiration` 协议键」；`wp_aya_convert_codes` 建议沿表兼容，以免作废存量未用兑换码；
 - 爱发电 webhook：`custom_order_id` 解码用户绑定、`afd_` 订单号前缀、月数×31 天、order_id 去重、恒 200 应答；
@@ -284,13 +294,14 @@ Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建�
 - 兑换码：原子核销（条件 UPDATE 防并发）、激活失败回滚；
 - 会员门禁链路：`sponsor_expiration` + `aya_force_cancel_sponsor` + `aya_trigger_count_sponsor`（协议键）→ `aya_is_sponsor` 语义 → UserPresenter role（B5 已消费）。
 
-重构方向（行为保持前提下的修正，非行为变更）：
+重构方向（行为保持前提下的修正，非行为变更；网关切片执行）：
 
-- 爱发电 webhook **补签名验证**（旧实现跳过认证直接解析 JSON）；
-- 易支付天数不再按金额反查商品（同价商品冲突、网关折价即激活错值），改由签名参数携带商品标识；
-- 方案/商品改为域内结构化数据，由域自有设置页承载（旧 access 设置页不迁移——拍板），展示形状出契约 DTO、前端渲染（旧行为把颜色/文案拼进后端数据）；
-- 订单/激活收敛为 Domain 服务（表读写 + 到期折叠 + 协议键同步的唯一写入方），REST 端点（方案列表/兑换/订单记录）随批设计；
-- 旧 React 群岛（subscribe/activate/dashboard）由 Astro 组件重建。
+- 爱发电 webhook **补签名验证**（旧实现跳过认证直接解析 JSON）；webhook 路由移出 `aiya/core/v1` 契约命名空间（第三方回调不进版本化契约）；
+- 易支付天数不再按金额反查商品（同价商品冲突、网关折价即激活错值），改由签名参数携带方案 key（设置页 repeater 的稳定标识）；
+- ~~方案/商品改为域内结构化数据~~ ✅ 0.24.0（设置页 repeater + `/sponsorship/plans` DTO）；前端渲染展示文案；
+- ~~订单/激活收敛为 Domain 服务~~ ✅ 0.24.0（OrderService/RedeemCodeService 为表与协议键唯一写入方）；
+- 爱发电订单号当兑换码（在线查单激活）随爱发电切片入 `POST /sponsorship/redeem`（source=afdian 分支）；
+- 旧 React 群岛（subscribe/activate/dashboard）由 Astro 组件重建，消费 plans/redeem/membership 端点。
 
 ### M5 版本化 REST ＋ Astro SSR
 

@@ -19,6 +19,9 @@ use Aiya\Core\Domain\Identity\PasswordResetService;
 use Aiya\Core\Domain\Identity\TokenStore;
 use Aiya\Core\Domain\Media\MediaPaths;
 use Aiya\Core\Domain\Notification\NotificationService;
+use Aiya\Core\Domain\Sponsorship\MembershipService;
+use Aiya\Core\Domain\Sponsorship\OrderService;
+use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
 
 /**
  * Module owning the versioned headless API (`aiya/core/v1`): bearer-token
@@ -72,6 +75,10 @@ final class RestController implements Module
             ))->registerRoutes();
 
             (new NotificationController(new NotificationService(), $presenter))->registerRoutes();
+
+            $membership = new MembershipService();
+            $orders = new OrderService($membership);
+            (new SponsorshipController($membership, $orders, new RedeemCodeService($orders), new RateLimiter()))->registerRoutes();
         });
     }
 }

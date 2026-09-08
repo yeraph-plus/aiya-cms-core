@@ -1,0 +1,214 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Aiya\Core\Admin;
+
+use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
+
+/**
+ * Redemption-code manager (submenu of the AIYA Core menu): batch-generate
+ * codes, browse and delete them. The legacy page's behavior is preserved
+ * (generate with quantity/days/prefix, truncate everything behind a
+ * confirm) on the same legacy-compatible table.
+ */
+final class ConvertCodesPage implements Module
+{
+    private const PARENT_SLUG = 'aiya-core-sample';
+    private const MENU_SLUG = 'aiya-core-convert-codes';
+    private const ACTION_GENERATE = 'aiya_core_codes_generate';
+    private const ACTION_DELETE_ALL = 'aiya_core_codes_delete_all';
+    private const PER_PAGE = 20;
+
+    public function __construct(private RedeemCodeService $codes)
+    {
+    }
+
+    public function register(): void
+    {
+        add_action('admin_menu', [$this, 'menu'], 20);
+        add_action('admin_post_' . self::ACTION_GENERATE, [$this, 'handleGenerate']);
+        add_action('admin_post_' . self::ACTION_DELETE_ALL, [$this, 'handleDeleteAll']);
+    }
+
+    public function menu(): void
+    {
+        add_submenu_page(
+            self::PARENT_SLUG,
+            __('Redemption codes', 'aiya-core'),
+            __('Redemption codes', 'aiya-core'),
+            'manage_options',
+            self::MENU_SLUG,
+            [$this, 'render']
+        );
+    }
+
+    public function render(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You are not allowed to manage redemption codes.', 'aiya-core'));
+        }
+
+        $paged = max(1, absint((string) ($_GET['paged'] ?? '1')));
+        $result = $this->codes->page($paged, self::PER_PAGE);
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Redemption codes', 'aiya-core'); ?></h1>
+            <p class="description"><?php esc_html_e('Membership periods users can redeem themselves on the front end. Codes are single-use; redeeming records an order and extends the membership.', 'aiya-core'); ?></p>
+            <?php $this->notice(); ?>
+
+            <div class="card" style="max-width:100%; margin-top:16px;">
+                <h2 class="title"><?php esc_html_e('Generate codes', 'aiya-core'); ?></h2>
+                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                    <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_GENERATE); ?>">
+                    <?php wp_nonce_field(self::ACTION_GENERATE); ?>
+                    <table class="form-table" role="presentation"><tbody>
+                        <tr>
+                            <th scope="row"><label for="aiya-codes-quantity"><?php esc_html_e('Quantity', 'aiya-core'); ?></label></th>
+                            <td><input type="number" class="small-text" id="aiya-codes-quantity" name="quantity" min="1" max="100" value="1"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="aiya-codes-days"><?php esc_html_e('Days', 'aiya-core'); ?></label></th>
+                            <td><input type="number" class="small-text" id="aiya-codes-days" name="days" min="1" value="7"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="aiya-codes-prefix"><?php esc_html_e('Prefix', 'aiya-core'); ?></label></th>
+                            <td>
+                                <input type="text" class="regular-text" id="aiya-codes-prefix" name="prefix" placeholder="PREFIX-">
+                                <p class="description"><?php esc_html_e('Optional; a trailing dash is added automatically.', 'aiya-core'); ?></p>
+                            </td>
+                        </tr>
+                    </tbody></table>
+                    <?php submit_button(__('Generate', 'aiya-core'), 'primary', 'submit', false); ?>
+                </form>
+            </div>
+
+            <h2 class="title" style="margin-top:24px;">
+                <?php
+                printf(
+                    /* translators: %s: number of stored codes. */
+                    esc_html__('Stored codes (%s)', 'aiya-core'),
+                    esc_html((string) $result['total'])
+                );
+                ?>
+                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:inline; margin-left:12px;"
+                    onsubmit="return confirm('<?php esc_attr_e('Delete ALL codes? This cannot be undone.', 'aiya-core'); ?>');">
+                    <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_DELETE_ALL); ?>">
+                    <?php wp_nonce_field(self::ACTION_DELETE_ALL); ?>
+                    <button type="submit" class="button button-link-delete"><?php esc_html_e('Delete all', 'aiya-core'); ?></button>
+                </form>
+            </h2>
+            <table class="wp-list-table widefat fixed striped table-view-list">
+                <thead>
+                    <tr>
+                        <th style="width:56px;">ID</th>
+                        <th><?php esc_html_e('Code', 'aiya-core'); ?></th>
+                        <th style="width:90px;"><?php esc_html_e('Days', 'aiya-core'); ?></th>
+                        <th style="width:110px;"><?php esc_html_e('Status', 'aiya-core'); ?></th>
+                        <th style="width:110px;"><?php esc_html_e('Redeemed by', 'aiya-core'); ?></th>
+                        <th style="width:150px;"><?php esc_html_e('Redeemed at', 'aiya-core'); ?></th>
+                        <th style="width:150px;"><?php esc_html_e('Created', 'aiya-core'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($result['items'] === []) : ?>
+                        <tr><td colspan="7"><?php esc_html_e('No codes stored.', 'aiya-core'); ?></td></tr>
+                    <?php else : ?>
+                        <?php foreach ($result['items'] as $row) : ?>
+                            <tr>
+                                <td><?php echo esc_html((string) $row->id); ?></td>
+                                <td><code><?php echo esc_html((string) $row->code); ?></code></td>
+                                <td><?php echo esc_html((string) $row->duration); ?></td>
+                                <td><?php echo esc_html(((int) $row->status) === 1 ? __('Redeemed', 'aiya-core') : __('Unused', 'aiya-core')); ?></td>
+                                <td>
+                                    <?php
+                                    $userId = (int) $row->user_id;
+                                    echo esc_html($userId > 0 ? (string) get_the_author_meta('display_name', $userId) : '—');
+                                    ?>
+                                </td>
+                                <td><?php echo esc_html($row->used_to !== null ? (string) $row->used_to : '—'); ?></td>
+                                <td><?php echo esc_html((string) $row->created_at); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+
+            <?php
+            if ($result['pages'] > 1) {
+                echo '<div class="tablenav bottom"><div class="tablenav-pages">';
+                echo wp_kses_post(
+                    (string) paginate_links([
+                        'base' => add_query_arg('paged', '%#%'),
+                        'format' => '',
+                        'current' => $paged,
+                        'total' => $result['pages'],
+                        'prev_text' => '&laquo;',
+                        'next_text' => '&raquo;',
+                    ])
+                );
+                echo '</div></div>';
+            }
+            ?>
+        </div>
+        <?php
+    }
+
+    public function handleGenerate(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You are not allowed to manage redemption codes.', 'aiya-core'));
+        }
+        check_admin_referer(self::ACTION_GENERATE);
+
+        $quantity = absint((string) ($_POST['quantity'] ?? '0'));
+        $days = absint((string) ($_POST['days'] ?? '0'));
+        $prefix = sanitize_text_field(wp_unslash((string) ($_POST['prefix'] ?? '')));
+
+        if ($quantity < 1 || $days < 1) {
+            $this->redirectBack(['aiya_note' => 'failed']);
+        }
+
+        $stored = $this->codes->generate($quantity, $days, $prefix);
+        $this->redirectBack(['aiya_note' => $stored > 0 ? 'generated' : 'failed']);
+    }
+
+    public function handleDeleteAll(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You are not allowed to manage redemption codes.', 'aiya-core'));
+        }
+        check_admin_referer(self::ACTION_DELETE_ALL);
+
+        $this->codes->deleteAll();
+        $this->redirectBack(['aiya_note' => 'cleared']);
+    }
+
+    private function notice(): void
+    {
+        $note = sanitize_key((string) ($_GET['aiya_note'] ?? ''));
+        $messages = [
+            'generated' => __('Codes generated.', 'aiya-core'),
+            'cleared' => __('All codes deleted.', 'aiya-core'),
+            'failed' => __('The operation failed — check the values and try again.', 'aiya-core'),
+        ];
+
+        if (!isset($messages[$note])) {
+            return;
+        }
+
+        printf(
+            '<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
+            $note === 'failed' ? 'error' : 'success',
+            esc_html($messages[$note])
+        );
+    }
+
+    /** @param array<string, string> $args */
+    private function redirectBack(array $args): never
+    {
+        wp_safe_redirect(add_query_arg($args, admin_url('admin.php?page=' . self::MENU_SLUG)));
+        exit;
+    }
+}
