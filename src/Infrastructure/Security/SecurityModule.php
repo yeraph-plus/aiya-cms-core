@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Infrastructure\Security;
 
+use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Registry;
 
@@ -51,6 +52,8 @@ final class SecurityModule implements Module
         add_action('login_init', [$this, 'gateLoginPage']);
         add_filter('authenticate', [$this, 'forceEmailLogin'], 20, 3);
         add_filter('rest_endpoints', [$this, 'filterUserEndpoints']);
+        add_filter('rest_endpoints', [$this, 'lockPublicSurface'], 100);
+        add_filter('rest_index', [$this, 'filterIndexNamespaces'], 100);
         add_filter('wp_sitemaps_add_provider', [$this, 'filterSitemapProviders'], 10, 2);
     }
 
@@ -75,6 +78,14 @@ final class SecurityModule implements Module
                     'label' => __('REST user enumeration', 'aiya-core'),
                     'checkbox_label' => __('Remove the /wp/v2/users endpoints for anonymous visitors', 'aiya-core'),
                     'description' => __('Author data reaches the front end through the post DTOs. Admin screens that read /wp/v2/users (media library author filter) degrade; turn off if that matters.', 'aiya-core'),
+                    'default' => true,
+                ],
+                [
+                    'id' => 'lock_rest_surface',
+                    'type' => 'switch',
+                    'label' => __('Public REST surface', 'aiya-core'),
+                    'checkbox_label' => __('Expose only aiya/core/v1 routes to visitors — the whole /wp/v2 API answers 404 for anyone without a backend session', 'aiya-core'),
+                    'description' => __('The headless contract API stays open. Backend users (administrator, editor, author cookie sessions or equivalent application passwords) keep the full WP REST API for admin screens.', 'aiya-core'),
                     'default' => true,
                 ],
                 [
@@ -151,6 +162,61 @@ final class SecurityModule implements Module
         unset($endpoints['/wp/v2/users'], $endpoints['/wp/v2/users/(?P<id>[\d]+)']);
 
         return $endpoints;
+    }
+
+    /**
+     * Contract-only public surface: every route outside aiya/core/v1 is
+     * stripped for visitors without a backend session, so the original
+     * WP REST API cannot leak raw post structures around the headless
+     * contract. Backend sessions (cookie or application password) keep
+     * the full API for admin screens; front-end bearer visitors are
+     * subscriber-level and do not.
+     *
+     * @param array<string, mixed> $endpoints
+     * @return array<string, mixed>
+     */
+    public function lockPublicSurface(array $endpoints): array
+    {
+        if (!$this->enabled('lock_rest_surface')) {
+            return $endpoints;
+        }
+        if (current_user_can('edit_posts')) {
+            return $endpoints;
+        }
+
+        $namespace = '/' . Contract::API_NAMESPACE;
+        foreach (array_keys($endpoints) as $route) {
+            if ($route === '/') {
+                // Keep the index; its namespace list shrinks with the routes.
+                continue;
+            }
+            if (!is_string($route) || !str_starts_with($route, $namespace)) {
+                unset($endpoints[$route]);
+            }
+        }
+
+        return $endpoints;
+    }
+
+    /**
+     * Aligns the REST index with the locked surface: the namespace list
+     * is populated at registration time, before endpoint filters run, so
+     * it needs its own trim.
+     */
+    public function filterIndexNamespaces(mixed $response, mixed $request = null): mixed
+    {
+        if (!$response instanceof \WP_REST_Response || !$this->enabled('lock_rest_surface') || current_user_can('edit_posts')) {
+            return $response;
+        }
+
+        $data = $response->get_data();
+        $data['namespaces'] = array_values(array_filter(
+            (array) ($data['namespaces'] ?? []),
+            static fn ($ns): bool => is_string($ns) && str_starts_with($ns, Contract::API_NAMESPACE)
+        ));
+        $response->set_data($data);
+
+        return $response;
     }
 
     /**
