@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Contract;
 
 /**
- * Site identity for the front-end shell. `language` is the WP locale
- * (e.g. zh_CN), `timezone` the IANA identifier configured in Settings.
+ * Site identity and shell configuration for the front end. `language` is
+ * the WP locale (e.g. zh_CN), `timezone` the IANA identifier configured
+ * in Settings; `defaults` and `footer` come from the Frontend settings
+ * page.
  */
 final class Site
 {
@@ -16,6 +18,8 @@ final class Site
         public readonly string $language,
         public readonly string $timezone,
         public readonly ?Image $logo,
+        public readonly SiteDefaults $defaults,
+        public readonly SiteFooter $footer,
     ) {
     }
 
@@ -28,6 +32,8 @@ final class Site
             'language' => $this->language,
             'timezone' => $this->timezone,
             'logo' => $this->logo?->toArray(),
+            'defaults' => $this->defaults->toArray(),
+            'footer' => $this->footer->toArray(),
         ];
     }
 }

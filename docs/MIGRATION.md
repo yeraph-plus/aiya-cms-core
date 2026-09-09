@@ -55,6 +55,7 @@ Directories are created when their first working tracer slice is implemented; em
 |---|---|
 | `framework-setup.php` | Replace with plugin runtime and explicit modules |
 | option page and fields | Migrate through Settings schema |
+| `inc/settings/opt-basic.php` (site preferences) | ✅ 0.29.0: rebuilt as `Domain/Content/FrontendModule` + `GET /site` — logo (media field replaces the customizer logo, which the headless strip made unreachable), default color mode, default cover, ICP / public-security filing + footer note feed `defaults`/`footer`; logo caption toggle, list layout and cookie consent are front-end-owned; the global comment kill switch is abolished (comments are permanent, `/wp/v2/comments` retired unconditionally) |
 | post/term meta | Rebuild under Metadata using storage adapters |
 | user meta | Add under Metadata |
 | `plugin/register-theme-post-type.php` | Rebuild as code-first post-type registrar with headless defaults (`show_in_rest`); the sticky-in-archive `the_posts` hack retires with the front end |

@@ -13,10 +13,11 @@ use Aiya\Core\Settings\Registry;
  * block patterns, pingbacks/trackbacks, XML-RPC, emoji, oEmbed discovery)
  * and cleans the remaining front-end head output.
  *
- * Comments are deliberately NOT stripped by default: WordPress keeps acting
- * as the comment store and moderation surface while the Astro front end
- * talks to the comments REST routes. disable_comments exists only as a
- * kill switch for setups that truly want no comment system at all.
+ * Comment storage and moderation stay in WordPress (the classic
+ * moderation screen remains the admin tool); the Astro front end talks
+ * to aiya/core/v1/content/{id}/comments, so the native /wp/v2/comments
+ * route is retired unconditionally — for every user, master switch
+ * included. Comment REST belongs to the versioned contract.
  * Pingbacks and trackbacks are protocol-level spam vectors and stay
  * disabled by default regardless.
  *
@@ -27,8 +28,9 @@ use Aiya\Core\Settings\Registry;
  * escape hatch instead of a hard-wired state.
  *
  * The toggles live in the aiya_core_headless option and default to "strip"
- * (comments: keep) so a fresh activation is headless by design; flipping
- * headless_mode off restores stock WordPress behaviour without code changes.
+ * so a fresh activation is headless by design; flipping headless_mode off
+ * restores stock WordPress behaviour without code changes (except the
+ * retired comment REST route, which never comes back).
  */
 final class HeadlessModule implements Module
 {
@@ -112,14 +114,6 @@ final class HeadlessModule implements Module
                     'type' => 'heading',
                     'label' => __('Front end and protocols', 'aiya-core'),
                     'level' => '2',
-                ],
-                [
-                    'id' => 'disable_comments',
-                    'type' => 'switch',
-                    'label' => __('Comments (kill switch)', 'aiya-core'),
-                    'checkbox_label' => __('Disable the comment system entirely: store, moderation screen and REST routes', 'aiya-core'),
-                    'description' => __('Leave off by default: WordPress stays the comment store and moderation surface for the Astro front end.', 'aiya-core'),
-                    'default' => false,
                 ],
                 [
                     'id' => 'disable_pings',
@@ -222,10 +216,6 @@ final class HeadlessModule implements Module
             $this->stripPings();
         }
 
-        if ($this->enabled('disable_comments')) {
-            $this->stripComments();
-        }
-
         if ($this->enabled('disable_xmlrpc')) {
             add_filter('xmlrpc_enabled', '__return_false');
             add_filter('xmlrpc_methods', '__return_empty_array');
@@ -246,8 +236,8 @@ final class HeadlessModule implements Module
     }
 
     /**
-     * Protocol-level ping disablement. Runs by default and is independent of
-     * the comment kill switch.
+     * Protocol-level ping disablement; unrelated to the comment surface,
+     * which keeps its store, moderation screen and contract route.
      */
     private function stripPings(): void
     {
@@ -264,20 +254,6 @@ final class HeadlessModule implements Module
         });
         remove_action('do_pings', 'do_all_pings', 10);
         remove_action('publish_post', '_publish_post_hook', 5);
-    }
-
-    /**
-     * Full comment kill switch: store, moderation screen and REST routes.
-     * Off by default — see the class docblock.
-     */
-    private function stripComments(): void
-    {
-        add_filter('comments_open', '__return_false');
-        add_filter('option_default_comment_status', static fn (): string => 'closed');
-
-        foreach (get_post_types(['public' => true]) as $post_type) {
-            remove_post_type_support($post_type, 'comments');
-        }
     }
 
     private function stripEmoji(): void
@@ -363,10 +339,6 @@ final class HeadlessModule implements Module
             remove_submenu_page('themes.php', 'site-editor.php');
         }
 
-        if ($this->enabled('disable_comments')) {
-            remove_menu_page('edit-comments.php');
-        }
-
         if ($this->enabled('disable_fonts_global_styles')) {
             remove_submenu_page('themes.php', 'font-library.php');
         }
@@ -424,17 +396,18 @@ final class HeadlessModule implements Module
     }
 
     /**
-     * Unregisters REST routes that only exist for the stripped surfaces.
+     * Unregisters REST routes retired for a headless site. /wp/v2/comments
+     * goes unconditionally: comment reads and writes belong to the
+     * versioned contract route (aiya/core/v1/content/{id}/comments), and
+     * the toggles never re-enable the native one. The rest follows the
+     * stripped surfaces.
      *
      * @param array<string, mixed> $endpoints
      * @return array<string, mixed>
      */
     public function filterRestEndpoints(array $endpoints): array
     {
-        $wpV2 = [];
-        if ($this->enabled('disable_comments')) {
-            $wpV2[] = 'comments';
-        }
+        $wpV2 = ['comments'];
         if ($this->enabled('disable_fonts_global_styles')) {
             $wpV2[] = 'font-families';
             $wpV2[] = 'font-collections';
@@ -445,16 +418,9 @@ final class HeadlessModule implements Module
             $wpV2[] = 'block-patterns/categories';
         }
 
-        $alternatives = [];
-        if ($wpV2 !== []) {
-            $alternatives[] = '^/wp/v2/(' . implode('|', $wpV2) . ')(?:/|$)';
-        }
+        $alternatives = ['^/wp/v2/(' . implode('|', $wpV2) . ')(?:/|$)'];
         if ($this->enabled('disable_oembed')) {
             $alternatives[] = '^/oembed/1\\.0/';
-        }
-
-        if ($alternatives === []) {
-            return $endpoints;
         }
 
         $expression = '#(' . implode('|', $alternatives) . ')#';

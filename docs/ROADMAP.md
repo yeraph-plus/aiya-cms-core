@@ -124,7 +124,9 @@ aiya-core/
 │  │                                #   NavigationModule + PrimaryMenu（0.28.0：设置驱动自增
 │  │                                #   菜单 primary/secondary 两组，替代旧 WP_Menu 蓝本的
 │  │                                #   MenuService——无头后端弃用 WP 菜单系统后不保留）、
-│  │                                #   BreadcrumbService、PaginationService；Discussion/ 域
+│  │                                #   FrontendModule（0.29.0：前台壳配置设置页，GET /site 的
+│  │                                #   logo/defaults/footer 数据源）、BreadcrumbService、
+│  │                                #   PaginationService；Discussion/ 域
 │  │                                #   在此扩展（Tweet 已取消）
 │  ├─ Modules/                      # ✅ 0.9.0：MediaModule——image-processor 包适配器（接管媒体库、
 │  │                                #   惰性 Imagine 闭包注入、格式支持检查统一化）+「Image processor」
@@ -148,11 +150,12 @@ aiya-core/
 │  │  └─ Headless/                  # ✅ 0.3.0：HeadlessModule——无头化功能裁剪（区块编辑器/站点编辑器/
 │  │                                #   定制器（外观菜单保留：主题切换/菜单管理，壳主题切换
 │  │                                #   需要）/区块小工具/字体库与全局样式/区块样板/Pingback
-│  │                                #   与Trackback/前台头部冗余/Emoji/oEmbed/XML-RPC）；评论默认
-│  │                                #   保留（WP 为评论存储+审核面，Astro 经 REST 读写），kill switch
-│  │                                #   仅作整体关闭逃生口；开关存储在 aiya_core_headless，总开关
-│  │                                #   off = 恢复原生行为；已对照 WP 7.1 源码逐钩子验证，普通插件
-│  │                                #   即可实现全部裁剪，无需 MU
+│  │                                #   与Trackback/前台头部冗余/Emoji/oEmbed/XML-RPC）；评论存储
+│  │                                #   与审核面保留（WP 后台治理，Astro 经 aiya 路由读写），
+│  │                                #   /wp/v2/comments 无条件退役（0.29.0：不分匿名/登录态、
+│  │                                #   不受总开关约束，kill switch 随之删除）；其余开关存储在
+│  │                                #   aiya_core_headless，总开关 off = 恢复原生行为；已对照
+│  │                                #   WP 7.1 源码逐钩子验证，普通插件即可实现全部裁剪，无需 MU
 │  │  └─ Security/                   # ✅ 0.4.0：SecurityModule——REST users/sitemap users 移除、
 │  │                                #   强制邮箱登录、后台角色门禁、登录页参数门禁、URI 探测拦截；
 │  │                                #   用户名防护组按决定取消；AIYA Core > Security hardening
@@ -246,7 +249,7 @@ aiya-core/
 
 - `Api/Contract/`：`PostSummary`（id/url/title/type/dates+ISO/excerpt/preview/thumbnail/views/likes/评论数/分类标签/作者摘要）、`PostDetail`（增 content HTML、prev/next、gallery）、`TermDto`（补齐旧版 parent/children 未 DTO 化的不对称）、`AuthorDto`、`ThumbnailDto`、`MenuTree`/`MenuItem`（label/url/target/object/type/children/active）、`Pagination`（standard + simple 两形态）、`Breadcrumb`（`{label,url}[]`）+ 契约版本常量；
 - `Presenter/`：WP 对象 → DTO 映射；`the_content` 过滤器在此执行（content HTML 是契约数据）；修复旧 `get_post_views/likes` 缺 property_exists、`WP_Term::get_term()` 布尔优先级两类旧 bug（新实现不引入同类路径）；
-- `Domain/Content/`：`ContentQuery`（封装旧 WP_Query 的预设查询集合）、`NavigationModule` + `PrimaryMenu`（0.28.0：导航设置页 Primary menu / Secondary menu 两组 repeater 自增行 → `Contract\MenuItem`，路由 `/menus/primary` 与 `/menus/secondary` 的 `location` 镜像组键；替代曾按旧蓝本落地的 `MenuService`——2026-09-09 拍板弃用 WP 菜单系统后删除）、`BreadcrumbService`、`PaginationService`；
+- `Domain/Content/`：`ContentQuery`（封装旧 WP_Query 的预设查询集合）、`NavigationModule` + `PrimaryMenu`（0.28.0：导航设置页 Primary menu / Secondary menu 两组 repeater 自增行 → `Contract\MenuItem`，路由 `/menus/primary` 与 `/menus/secondary` 的 `location` 镜像组键；替代曾按旧蓝本落地的 `MenuService`——2026-09-09 拍板弃用 WP 菜单系统后删除）、`FrontendModule`（0.29.0：前台壳配置设置页，`GET /site` 的 logo/defaults/footer 数据源）、`BreadcrumbService`、`PaginationService`；
 - `Modules/` 适配器：image 包的「Image processor」页已落地；opencc-convert 适配器在此追加（独立功能页）；
 - 验收：读服务产出 DTO 的形状有单测锁定；Astro 侧可直接按 Contract 生成 TS 类型（M5 才生成）。
 
@@ -260,6 +263,15 @@ aiya-core/
 - **路由**（`aiya/core/v1`）：`POST /auth/register`（表单沿旧版：昵称+邮箱+密码+确认；**登录名由后台生成 UUID**（`wp_generate_uuid4`），前端只交昵称；`users_can_register` 关闭时 403；成功即签发长会话）、`POST /auth/login`（**仅邮箱登录**，`wp_authenticate_email_password`，错误不区分邮箱/密码）、`POST /auth/logout`、`POST /auth/password-reset-request`（`domain` 参数=前台自报来源，链接 `{domain}/reset-password?login=&key=`，来源只保留 scheme+host+port、可经 `aiya_core_password_reset_allowed_hosts` 过滤器加白名单，非法来源回退 site_url；响应不区分邮箱存在与否）、`POST /auth/password-reset/validate`、`POST /auth/password-reset`（复用 WP 原生 `get_password_reset_key`/`check_password_reset_key`/`reset_password`，key 一次性、24h 有效）、`GET /users/me`、`POST|PATCH|PUT /users/me/profile`（nickname/description/url/email/locale，locale 白名单 zh_CN/zh_TW/zh_HK/en_US 沿旧版）、`POST /users/me/avatar`（multipart `avatar` 字段，复用 `AvatarModule::storeUploadedAvatar`）、`DELETE /users/me/avatar`、`POST /users/me/password`（需当前密码，改后所有会话失效）；
 - **错误形状**：WP 标准 `{code,message,data:{status}}`，业务码 `aiya_*`；成功载荷纯数据（旧版面向展示的 message/redirect 字段不进契约）；
 - 验证：单测 66/144 全绿；wp-cli + curl 运行时全链路实测（注册→登录→me→资料→赞助 role 语义→头像（协议键形状/128+64 文件/?v= 版本）→改密吊销→找回邮件捕获→validate→reset→新密码登录→登出吊销→key 复用 400→注册关闭 403→未授权 401/409/429 分支），测试数据已清理。
+
+### 前台壳配置与评论路由退役 —— ✅ 已完成（0.29.0）
+
+「设置→前台组件」映射补全（此前 /site 只有站点身份五件套、/menus 是唯一的设置驱动端点）+ 评论对外面收敛为纯 aiya 路由（拍板：已无任何 /wp 路由依赖计划）：
+
+- ✅ **Frontend 设置页**（`Domain/Content/FrontendModule`，option `aiya_core_frontend`，父菜单 aiya-core-sample）：品牌 logo（media 存附件 ID——customizer `custom_logo` 降级为兜底，修复 `disable_appearance` 拆掉 customizer 后 Site.logo 永远填不上的缺陷）、外观默认值（`default_color_mode` system/dark/light 沿旧 opt-basic 语义、`default_thumb` 站点级兜底封面）、合规页脚（`icp_beian` / `mps_beian` / `mps_code` 公安查询链接用纯数字段 / `footer_note`，旧 opt-basic 合规语义照搬键意）；
+- ✅ **`GET /site` 扩展**（向后兼容加字段）：`defaults: {colorMode, thumb}` + `footer: {icp, mps, mpsCode, note}`；新契约 `SiteDefaults` / `SiteFooter`（零 WP 依赖 + 锁形单测）；`SitePresenter` 组装（附件 ID → full 尺寸 Image，alt 取附件题名缺省站点名；colorMode 白名单校验）；front-station `contracts.ts` siteSchema + mock 同步（页面消费随前端接线批）；未配置时输出兜底值（logo null、system、全空串），每页 SSR 的 /site 新增成本仅 2 次 attachment 查询，不加缓存层（HTTP 缓存头留 M5）；
+- ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
+- 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
 ### 用户关系表（收藏/关注/令牌）—— ✅ 已完成（0.28.0）
 
@@ -285,7 +297,7 @@ Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建�
 - **契约形状（定稿）**：列表项 `Discussion` = { id, url(/community/{id}), title, type, status, author: Author(B1), postRef: {id,type,title,url}|null, replies: int(冗余计数), lastReplyAt: ISO|null, publishedAt, canEdit/canDelete/canReply: bool }；详情 `DiscussionDetail` = + content{format:'html'} + replies: Reply[]（首页 50，平铺）；`Reply` = { id, author, content{format:'html'}, publishedAt, canDelete: bool }；授权位由服务端按 viewer（作者本人或 `edit_pages` 管理员）推导，游客恒 false；
 - **端点组（`aiya/core/v1`，信封）**：`GET /discussions?type=&status=&post=&user=&sort=last_activity|newest&page=&perPage=`（公开读，meta.pagination）、`GET /discussions/{id}`（详情 + replies 首页）、`GET /discussions/{id}/replies?page=`（翻页）、`POST /discussions`（Bearer：title/type/content/postId?，限流 5/h）、`POST /discussions/{id}/replies`（Bearer，限流 30/10min，closed → 409）、`PATCH /discussions/{id}`（作者/管理员：title/content/type/status）、`DELETE /discussions/{id}`、`DELETE /discussions/{id}/replies/{replyId}`（作者/管理员；删线程级联删回复）；
 - **后台治理页**：AIYA Core 子菜单列表页（改状态/删除），随实现批落地；
-- **边界**：文章评论仍归 `/wp/v2/comments`（M5 加固层），Discussion 归轻社区线程与按绑定工单，两者不混用；回复通知留给 Domain/Notification 切片（定向行）；
+- **边界**：文章评论归 `aiya/core/v1/content/{id}/comments`（原生 `/wp/v2/comments` 已于 0.29.0 无条件退役），Discussion 归轻社区线程与按绑定工单，两者不混用；回复通知留给 Domain/Notification 切片（定向行）；
 - **已定（2026-09-08）**：旧 `wp_aya_issues` / `wp_aya_issue_comments` 存量不迁移、不做兼容读取（测试环境从未运行旧主题，无此表）——新表全新 ID 空间，同 Tweet 按死数据处理；
 - **Profile.activities 回归**：B5 的 Profile.activities 恒空数组状态由 B2 填充（该用户最近发布的讨论列表项）；
 - **落地清单（0.26.0）**：`Domain/Discussion/`（ThreadType/ThreadStatus 纯词表类 + DiscussionService 唯一写入方——CRUD、reply_count 冗余统计同步、open→answered 自动流转（仅 open 且非楼主回复）、仅 closed 锁回复 409、授权 = 作者本人或 `edit_pages`、绑定校验限 publish 的 post/resource）+ `Api/Contract/`（Discussion/DiscussionReply/PostRef/DiscussionDetail，camelCase 锁形单测）+ `DiscussionPresenter`（postRef 复用 PublicTypes 前端路由形状）+ `DiscussionController` 七端点（信封 + meta.pagination + 限流 5/h 发帖、30/10min 回复）+ `Admin/DiscussionModerationPage`（过滤/改状态/删除）；表 `wp_aiya_discussions` + `wp_aiya_discussion_replies` 由 0.26.0 迁移建表；运行时全链路实测（发帖绑定/游客列表/状态机四态流转/锁回复 409/非作者 403/游客 401/删除授权与级联/治理页渲染），测试数据已清理。

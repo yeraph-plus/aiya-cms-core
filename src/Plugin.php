@@ -17,6 +17,7 @@ use Aiya\Core\Api\Rest\RestController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentTypeModule;
 use Aiya\Core\Domain\Content\ContentTypeRegistry;
+use Aiya\Core\Domain\Content\FrontendModule;
 use Aiya\Core\Domain\Content\NavigationModule;
 use Aiya\Core\Domain\Content\SeoBoxModule;
 use Aiya\Core\Domain\Discussion\DiscussionModule;
@@ -77,6 +78,7 @@ final class Plugin
         $this->addModule(new SlugModule($this->settings));
         $this->addModule(new ContentTypeModule($this->contentTypes));
         $this->addModule(new NavigationModule($this->settings));
+        $this->addModule(new FrontendModule($this->settings));
         $this->addModule(new MetaboxAdmin($this->metadata));
         $this->addModule(new SeoBoxModule($this->metadata));
         $this->addModule(new TermExtrasModule($this->metadata));

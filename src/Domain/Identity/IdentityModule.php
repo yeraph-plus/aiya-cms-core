@@ -96,7 +96,7 @@ final class IdentityModule implements Module
         // migration runner hold the version back so the next request retries.
         foreach ([$favorites, $follows, $tokens] as $table) {
             if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
-                throw new RuntimeException(sprintf('Table %s was not created.', $table));
+                throw new \RuntimeException(sprintf('Table %s was not created.', $table));
             }
         }
     }
