@@ -46,6 +46,8 @@ final class RestController implements Module
     public function register(): void
     {
         Envelope::register();
+        (new CorsHeaders(fn (): array => array_values(array_map('strval', (array) aiya_core_opt('security', 'rest_allowed_origins', [])))))->register();
+        (new HttpCache())->register();
 
         $tokens = new TokenStore();
         $authentication = new TokenAuthentication($tokens);

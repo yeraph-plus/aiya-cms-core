@@ -93,6 +93,20 @@ Unit features that used to live in the legacy theme's `plugins/` directory becom
 - **Tolerated silence** (declared, not accidental): logout token
   revocation, webhook debug log writes, best-effort avatar file cleanup.
 
+## HTTP surface policy (CORS and caching)
+
+- **CORS**: WordPress core's permissive origin echo is removed; contract
+  routes emit CORS headers only for origins on the Security settings
+  allowlist (`rest_allowed_origins` / `aiya_core_rest_allowed_origins`
+  filter). No credentials — the bearer token travels in the Authorization
+  header. The core removal must re-hook on `rest_api_init` at priority 20
+  because core re-adds its filter there at 10 on every request.
+- **Caching**: tiered on the contract namespace only — shell reads
+  max-age=300, lists 60, other public GETs revalidate-only, session reads
+  and all writes no-store. ETags hash the envelope's `data` portion only;
+  `requestId` is per-request and never part of the hash. The front end is
+  the cache consumer (honoring headers lands with the Astro wiring batch).
+
 ## Direction of dependencies
 
 - Admin code may depend on Settings schema.

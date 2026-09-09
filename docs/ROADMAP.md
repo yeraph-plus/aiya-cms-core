@@ -273,6 +273,13 @@ aiya-core/
 - ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
 - 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
+### M5 上线件：CORS 收紧 + HTTP 缓存 + 契约类型同步 —— ✅ 已完成（0.33.0）
+
+- **CORS 白名单**（`Api/Rest/CorsHeaders`）：移除 core 的 `rest_send_cors_headers`（其无条件回显任意 Origin 且 `Allow-Credentials: true`；注意 core 在每次 `rest_api_init` 优先级 10 重新挂载，移除须挂同 hook 优先级 20），改为 Security 设置页 `rest_allowed_origins` 白名单（+ `aiya_core_rest_allowed_origins` 过滤器）——默认空 = 零 CORS 头，命中白名单才回显 Origin（GET/POST/OPTIONS、Authorization+Content-Type、Max-Age 600、无 credentials）。非白名单 origin 下 core server 类仍会输出 Expose-Headers/Allow-Headers 元数据头，但无 Allow-Origin 即无任何跨域授权。范围仅契约命名空间；
+- **HTTP 缓存分层**（`Api/Rest/HttpCache`，rest_pre_serve_request 优先级 20）：仅 200 的契约 GET——shell（/site、/menus/*、/terms）`public, max-age=300`；列表（/posts|/pages|/resources）`public, max-age=60`；其余公开 GET（详情/社区/profiles）`public, max-age=0, must-revalidate`；/users/*、/notifications `private, no-store`；非 GET 一律 `no-store`。`ETag = sha1(data 部分 JSON)` 截 32——requestId 保持随机不进哈希；If-None-Match 命中 → `status_header(304)` 空体返回。前端消费侧随 Astro 接线批；
+- **契约快照同步**：wp-cli `wp aiya contracts snapshot [--out=]` 反射 Api/Contract 全部 DTO（构造器 promoted 属性名/类型/可空；PostDetail/DiscussionDetail 为 array_merge 扁平线形，手工声明 WIRE_SHAPES——Discussion 的 replies 键被线形数组覆盖），输出排序稳定 JSON；front-station 提交 `contracts.snapshot.json` 并在 vitest 中逐 DTO 比对 zod schema（字段集/可空性/数组对象结构，双向覆盖）。首跑即抓出 7 处真实漂移并全部修复（authSession 剔除 tokenType/expiresIn、discussionDetail 改 thread 组合形（replies 键被线形数组覆盖）、membership 映射 membershipBadge、postMetrics/seo/siteDefaults/siteFooter 提为独立导出 schema）；
+- 验收：CORS 三态（未配置无头/命中回显/预检 200）、缓存五档头与 304、快照生成 + `npm test` 106 全绿；后端 119/283、phpstan、phpcs 全绿。
+
 ### 图片处理器：卡片缩略图管线 —— ✅ 已完成（0.32.0）
 
 2026-09-11 站长拍板的图片语义定稿：`_thumb` = 卡片缩略图缓存（640×360 常量写在 CardThumbnailService 顶部，不在正文页复用故单一尺寸）；特色图保持 thumbnail 链第一优先（设计保留），同时作为独立字段输出、用途归前端判断；水印只在上传管线：

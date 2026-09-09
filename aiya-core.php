@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AIYA Core
  * Description: Headless-first administration and content framework for AIYA CMS.
- * Version: 0.32.2
+ * Version: 0.33.0
  * Requires at least: 6.4
  * Requires PHP: 8.2
  * Author: Yeraph Studio
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AIYA_CORE_VERSION', '0.32.2');
+define('AIYA_CORE_VERSION', '0.33.0');
 define('AIYA_CORE_FILE', __FILE__);
 define('AIYA_CORE_PATH', plugin_dir_path(__FILE__));
 define('AIYA_CORE_URL', plugin_dir_url(__FILE__));
@@ -76,5 +76,7 @@ function aiya_core_opt(string $page, string $id, mixed $fallback = null): mixed
 
 register_activation_hook(__FILE__, [aiya_core(), 'activate']);
 register_deactivation_hook(__FILE__, [aiya_core(), 'deactivate']);
+
+Aiya\Core\Command\ContractsSnapshot::register();
 
 aiya_core()->boot();

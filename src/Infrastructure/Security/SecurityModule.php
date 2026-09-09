@@ -111,6 +111,13 @@ final class SecurityModule implements Module
                     'default' => [],
                 ],
                 [
+                    'id' => 'rest_allowed_origins',
+                    'type' => 'array',
+                    'label' => __('REST cross-origin origins', 'aiya-core'),
+                    'description' => __('Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here.', 'aiya-core'),
+                    'default' => [],
+                ],
+                [
                     'id' => 'admin_backend_min_role',
                     'type' => 'select',
                     'label' => __('Admin back end minimum role', 'aiya-core'),
