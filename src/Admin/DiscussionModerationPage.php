@@ -55,9 +55,9 @@ final class DiscussionModerationPage implements Module
             wp_die(esc_html__('You are not allowed to moderate the community.', 'aiya-core'));
         }
 
-        $type = sanitize_key((string) ($_GET['type'] ?? ''));
-        $status = sanitize_key((string) ($_GET['status'] ?? ''));
-        $paged = max(1, absint((string) ($_GET['paged'] ?? '1')));
+        $type = sanitize_key((string) ($_GET['type'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only list filter; writes go through nonced admin_post handlers
+        $status = sanitize_key((string) ($_GET['status'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only list filter
+        $paged = max(1, absint((string) ($_GET['paged'] ?? '1'))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination
         $result = $this->threads->list($type, $status, 0, 0, 'last_activity', $paged, self::PER_PAGE);
         ?>
         <div class="wrap">
@@ -185,6 +185,7 @@ final class DiscussionModerationPage implements Module
 
     private function notice(): void
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
         $note = sanitize_key((string) ($_GET['aiya_note'] ?? ''));
         $messages = [
             'saved' => __('Status updated.', 'aiya-core'),

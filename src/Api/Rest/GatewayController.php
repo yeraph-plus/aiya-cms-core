@@ -118,13 +118,13 @@ final class GatewayController
         $query = $request->get_query_params();
 
         if ($settings['epaySavelog']) {
-            WebhookLogger::write('Epay callback received:', (string) json_encode($query));
+            WebhookLogger::write('Epay callback received:', (string) wp_json_encode($query));
         }
 
         $client = $this->epayClient($settings);
         if ($client === null || !$client->verifyCallback($query)) {
             if ($settings['epaySavelog']) {
-                WebhookLogger::write('Epay signature check failed.', (string) json_encode($query));
+                WebhookLogger::write('Epay signature check failed.', (string) wp_json_encode($query));
             }
 
             return new WP_REST_Response('fail', 400);

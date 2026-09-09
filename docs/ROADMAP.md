@@ -280,7 +280,7 @@ aiya-core/
 - **实现**：`Plugin` 域开关常量（`SPONSORSHIP_ENABLED` / `EXTERNAL_FILES_ENABLED`，均 false）——条件注册 SponsorshipModule（设置页 + 迁移注册）、ConvertCodesPage、OplistModule（设置页 + resource 编辑屏 oplist_client box）；RestController 增 `sponsorshipEnabled` 构造参，停用时不注册 plans/orders/redeem/membership/afdian order-url 与 aiya/sponsorship/v1 双回调；附件控制器沿可空参不注册；
 - **保留原样**：代码、`wp_aya_sponsor_orders` / `wp_aya_convert_codes` 表、协议键（`sponsor_expiration` / `aya_force_cancel_sponsor` / `aya_box_oplist_client`）、已注册迁移（版本已过、表已存在，重启用时跳过旧迁移不影响）；UserPresenter/ProfilePresenter 的 sponsor 语义直读协议键，停用后随到期自然降级；resource CPT 本体照常（属基础内容形态）；恢复 = 翻两个常量为 true；
 - **验证**：插件启动无 fatal；plans / 爱发电回调 / 易支付回调 / attachments 四停用面 404，site / menus / posts / notifications / discussions 全 200；单测 119/283 全绿、phpstan 零错；
-- **phpcs 基线漂移记录**：当前容器内 vendor WPCS 对既有域文件报 18E/21W（固定表插值、WP-free 类 json_encode、治理页 nonce 误报等有意模式；HEAD 与工作区总数一致，本批零新增）——系依赖版本漂移所致的基线问题，整改（定向 phpcs:ignore 注释）列为独立后续项，不阻塞内容形态批次。
+- **phpcs 基线漂移整改（同批完成）**：当前容器内 vendor WPCS 对既有域文件报 18E/21W（固定表插值、WP-free 类 json_encode、治理页只读 $_GET 等有意模式；HEAD 与工作区总数一致，0.29.1 业务改动零新增）——系依赖版本漂移所致的基线问题。已逐处核实后整改：真修 5 处（网关日志与附件缓存键改 wp_json_encode、translators 注释、wp_parse_url、AfdianClient 伪代码注释改写），定向豁免 34 处（已 prepare 的变量查询、白名单 IN 片段多行语句、WP-free 客户端的签名/传输 json、只读展示参数、WebhookLogger 尽力而为写日志）；sniff 代码经 -s 实测校准（$_GET 归 NonceVerification.Recommended、插值归 InterpolatedNotPrepared）；phpcs 与 phpstan/@phpstan-ignore 双注释共存时 phpcs 注释置行尾、phpstan 注释紧贴代码行。三件套归零（phpcs exit 0 / 119 tests / phpstan 0）。
 
 ### 用户关系表（收藏/关注/令牌）—— ✅ 已完成（0.28.0）
 

@@ -50,6 +50,7 @@ final class ConvertCodesPage implements Module
             wp_die(esc_html__('You are not allowed to manage redemption codes.', 'aiya-core'));
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination; writes go through nonced admin_post handlers
         $paged = max(1, absint((string) ($_GET['paged'] ?? '1')));
         $result = $this->codes->page($paged, self::PER_PAGE);
         ?>
@@ -187,6 +188,7 @@ final class ConvertCodesPage implements Module
 
     private function notice(): void
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
         $note = sanitize_key((string) ($_GET['aiya_note'] ?? ''));
         $messages = [
             'generated' => __('Codes generated.', 'aiya-core'),

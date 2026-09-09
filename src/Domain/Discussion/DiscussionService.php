@@ -116,8 +116,8 @@ final class DiscussionService
         $countSql = "SELECT COUNT(id) FROM $table WHERE $whereSql";
         $total = (int) (count($params) > 0
             // @phpstan-ignore argument.type (whitelist interpolation)
-            ? $wpdb->get_var($wpdb->prepare($countSql, $params))
-            : $wpdb->get_var($countSql));
+            ? $wpdb->get_var($wpdb->prepare($countSql, $params)) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see note above
+            : $wpdb->get_var($countSql)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see note above
 
         $rows = [];
         if ($total > 0) {
@@ -126,7 +126,7 @@ final class DiscussionService
             /** @var list<object{id:int,user_id:int,type:string,status:string,title:string,post_id:int,reply_count:int,last_reply_user_id:int,last_reply_at:string|null,created_at:string}>|null $rows */
             $rows = $wpdb->get_results(
                 // @phpstan-ignore argument.type (whitelist interpolation)
-                $wpdb->prepare($listSql, array_merge($params, [$perPage, ($paged - 1) * $perPage]))
+                $wpdb->prepare($listSql, array_merge($params, [$perPage, ($paged - 1) * $perPage])) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- whitelist-built SQL, see note above
             );
         }
 

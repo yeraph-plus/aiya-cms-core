@@ -57,7 +57,7 @@ final class FavoriteService
         /** @var \wpdb $wpdb */
         $sql = $wpdb->prepare('DELETE FROM %i WHERE user_id = %d AND post_id = %d', $this->table(), $userId, $postId);
         if (is_string($sql)) {
-            $wpdb->query($sql);
+            $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
         }
     }
 
@@ -96,7 +96,7 @@ final class FavoriteService
 
         $total = (int) $wpdb->get_var(
             // @phpstan-ignore argument.type (fixed table interpolation)
-            $wpdb->prepare("SELECT COUNT(f.id) $join", $userId)
+            $wpdb->prepare("SELECT COUNT(f.id) $join", $userId) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- fixed table interpolation; the placeholders live in $join
         );
         $rows = [];
         if ($total > 0) {
@@ -104,7 +104,7 @@ final class FavoriteService
             /** @var list<array{post_id: string|int}>|null $rows */
             $rows = $wpdb->get_results(
                 // @phpstan-ignore argument.type (fixed table interpolation)
-                $wpdb->prepare($listSql, $userId, $perPage, ($paged - 1) * $perPage),
+                $wpdb->prepare($listSql, $userId, $perPage, ($paged - 1) * $perPage), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed table interpolation, see note above
                 ARRAY_A
             );
         }

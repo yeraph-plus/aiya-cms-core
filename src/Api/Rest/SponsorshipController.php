@@ -239,11 +239,12 @@ final class SponsorshipController
         $binding = (new AfdianClient($settings['afdianUserId'], $settings['afdianToken']))->bindUser((int) get_current_user_id());
         $siteName = (string) get_bloginfo('name');
         $userName = get_the_author_meta('display_name', (int) get_current_user_id());
+        /* translators: %1$s: site name, %2$s: user display name. */
         $remark = rawurlencode(sprintf(__('A sponsorship order from "%1$s" user %2$s~', 'aiya-core'), $siteName, $userName));
 
         $planId = '';
         if ($settings['afdianPlanType'] === 'preset' && $settings['afdianPresetPlanUrl'] !== '') {
-            parse_str((string) parse_url($settings['afdianPresetPlanUrl'], PHP_URL_QUERY), $query);
+            parse_str((string) wp_parse_url($settings['afdianPresetPlanUrl'], PHP_URL_QUERY), $query);
             $rawPlanId = $query['plan_id'] ?? '';
             $planId = is_string($rawPlanId) ? $rawPlanId : '';
         }

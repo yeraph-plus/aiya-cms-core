@@ -22,7 +22,7 @@ final class AfdianClient
     public function __construct(
         private string $userId,
         private string $token,
-        private mixed $transport = null, // fn(string $url, string $jsonBody): string|null
+        private mixed $transport = null, // transport closure: takes (url, jsonBody), returns the response body or null
     ) {
         $this->binding = new IdSlugEncoder(8);
     }
@@ -58,6 +58,7 @@ final class AfdianClient
             return false;
         }
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- signature bytes must stay identical to the platform-side md5 over the same JSON
         $expected = md5("{$this->token}params" . json_encode($data) . "ts{$ts}");
 
         return hash_equals($expected, $sign);
@@ -97,8 +98,10 @@ final class AfdianClient
             return null;
         }
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- signature bytes must stay identical to the platform-side md5 over the same JSON
         $paramsJson = json_encode($params);
         $ts = time();
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- WP-free client: the transport closure speaks raw JSON
         $payload = json_encode([
             'user_id' => $this->userId,
             'params' => $paramsJson,

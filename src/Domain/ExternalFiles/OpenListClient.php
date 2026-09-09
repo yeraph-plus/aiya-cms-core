@@ -46,6 +46,7 @@ final class OpenListClient
      */
     public function login(string $username, string $password, ?string $otpCode = null): string|WP_Error
     {
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- WP-free client: the transport closure speaks raw JSON
         $response = ($this->transport)('POST', $this->server . '/api/auth/login', (string) json_encode([
             'username' => $username,
             'password' => $password,
@@ -71,7 +72,7 @@ final class OpenListClient
             return new WP_Error('aiya_oplist_error', __('Unsupported OpenList operation.', 'aiya-core'));
         }
 
-        $response = ($this->transport)('POST', $this->server . $endpoint, (string) json_encode($payload), $this->token);
+        $response = ($this->transport)('POST', $this->server . $endpoint, (string) json_encode($payload), $this->token); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- WP-free client: the transport closure speaks raw JSON
         if (!is_array($response)) {
             return new WP_Error('aiya_oplist_unavailable', __('The file service is unreachable.', 'aiya-core'), ['status' => 502]);
         }

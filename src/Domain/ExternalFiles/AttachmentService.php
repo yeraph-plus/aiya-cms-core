@@ -72,7 +72,7 @@ final class AttachmentService
         // editing the box naturally starts a new cache generation without an
         // invalidation hook. Links are stored in full and trimmed per viewer
         // afterwards — one cached copy serves every permission level.
-        $configKey = md5((string) json_encode([
+        $configKey = md5((string) wp_json_encode([
             $method,
             $config['path'] ?? '',
             $config['password'] ?? '',

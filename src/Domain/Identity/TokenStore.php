@@ -78,7 +78,7 @@ final class TokenStore
             self::MAX_TOKENS_PER_USER
         );
         if (is_string($trimSql)) {
-            $wpdb->query($trimSql);
+            $wpdb->query($trimSql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
         }
 
         return new AuthToken($plain, $expiresAt);
@@ -116,7 +116,7 @@ final class TokenStore
         /** @var \wpdb $wpdb */
         $sql = $wpdb->prepare('DELETE FROM %i WHERE token_hash = %s', $this->table(), $this->hash($token));
         if (is_string($sql)) {
-            $wpdb->query($sql);
+            $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
         }
     }
 
@@ -131,7 +131,7 @@ final class TokenStore
         /** @var \wpdb $wpdb */
         $sql = $wpdb->prepare('DELETE FROM %i WHERE user_id = %d', $this->table(), $userId);
         if (is_string($sql)) {
-            $wpdb->query($sql);
+            $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
         }
     }
 
@@ -142,7 +142,7 @@ final class TokenStore
         /** @var \wpdb $wpdb */
         $sql = $wpdb->prepare('DELETE FROM %i WHERE expires_at < %d', $wpdb->prefix . 'aiya_auth_tokens', time());
         if (is_string($sql)) {
-            $wpdb->query($sql);
+            $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
         }
     }
 

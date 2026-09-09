@@ -62,6 +62,7 @@ final class NotificationPage implements Module
             wp_die(esc_html__('You are not allowed to manage notifications.', 'aiya-core'));
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination; writes go through nonced admin_post handlers
         $paged = max(1, absint((string) ($_GET['paged'] ?? '1')));
         $result = $this->notifications->adminPage($paged, self::PER_PAGE);
         ?>
@@ -244,6 +245,7 @@ final class NotificationPage implements Module
     /** Flashes the outcome of an admin_post round trip. */
     private function notice(): void
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
         $note = sanitize_key((string) ($_GET['aiya_note'] ?? ''));
         if ($note === '') {
             return;

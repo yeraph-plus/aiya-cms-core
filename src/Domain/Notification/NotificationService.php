@@ -116,6 +116,9 @@ final class NotificationService
         $limit = max(1, $limit);
 
         if ($viewerId > 0) {
+            // phpcs:disable WordPress.DB.PreparedSQL -- the IN fragment is a whitelist
+            // literal (IN_CLAUSES_BY_RANK): it cannot travel through prepare, and
+            // the multi-line string cannot carry a per-line ignore.
             /** @var list<object{id:int,type:string,user_id:int,role_level:string,title:string,body:string,created_at:string}>|null $rows */
             $rows = $wpdb->get_results($wpdb->prepare(
                 "SELECT id, type, user_id, role_level, title, body, created_at
@@ -127,7 +130,9 @@ final class NotificationService
                 $viewerId,
                 $limit
             ));
+            // phpcs:enable
         } else {
+            // phpcs:disable WordPress.DB.PreparedSQL -- whitelist IN fragment, as above
             /** @var list<object{id:int,type:string,user_id:int,role_level:string,title:string,body:string,created_at:string}>|null $rows */
             $rows = $wpdb->get_results($wpdb->prepare(
                 "SELECT id, type, user_id, role_level, title, body, created_at
@@ -138,6 +143,7 @@ final class NotificationService
                 $table,
                 $limit
             ));
+            // phpcs:enable
         }
 
         return is_array($rows) ? $rows : [];
@@ -157,6 +163,7 @@ final class NotificationService
         global $wpdb;
         /** @var \wpdb $wpdb */
         $table = $this->table();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed table property interpolation
         $total = (int) $wpdb->get_var("SELECT COUNT(id) FROM $table");
 
         $rows = [];
@@ -212,7 +219,7 @@ final class NotificationService
             return 0;
         }
 
-        $deleted = $wpdb->query($sql);
+        $deleted = $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
 
         return is_int($deleted) ? $deleted : 0;
     }

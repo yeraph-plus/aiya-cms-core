@@ -64,7 +64,7 @@ final class RedeemCodeService
             $code
         );
         if (is_string($claimSql)) {
-            $claimed = (int) $wpdb->query($claimSql);
+            $claimed = (int) $wpdb->query($claimSql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
         }
 
         if ($claimed !== 1) {
@@ -135,6 +135,7 @@ final class RedeemCodeService
         global $wpdb;
         /** @var \wpdb $wpdb */
         $table = $this->table();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed table property interpolation
         $total = (int) $wpdb->get_var("SELECT COUNT(id) FROM $table");
 
         $items = [];
@@ -162,7 +163,7 @@ final class RedeemCodeService
         /** @var \wpdb $wpdb */
         $sql = $wpdb->prepare('DELETE FROM %i', $this->table());
         if (is_string($sql)) {
-            $wpdb->query($sql);
+            $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
         }
     }
 

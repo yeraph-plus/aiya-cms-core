@@ -28,6 +28,10 @@ final class WebhookLogger
         $salted = substr(md5($today . wp_salt()), 0, 6);
         $file = "{$dir}/webhook-{$today}-{$salted}.log";
 
+        // Best-effort by design (see class docblock): WP_Filesystem is not
+        // initialised in REST callback context and a logging failure must
+        // never break payment processing.
+        // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
         @file_put_contents(
             $file,
             gmdate('[Y-m-d H:i:s]') . ' ' . $label . PHP_EOL . $payload . PHP_EOL . PHP_EOL,
