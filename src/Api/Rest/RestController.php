@@ -35,8 +35,11 @@ use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
  */
 final class RestController implements Module
 {
-    public function __construct(private AvatarModule $avatars, private ?AttachmentService $attachments = null)
-    {
+    public function __construct(
+        private AvatarModule $avatars,
+        private ?AttachmentService $attachments = null,
+        private bool $sponsorshipEnabled = true,
+    ) {
     }
 
     public function register(): void
@@ -80,11 +83,14 @@ final class RestController implements Module
 
             (new NotificationController(new NotificationService(), $presenter))->registerRoutes();
 
-            $membership = new MembershipService();
-            $orders = new OrderService($membership);
-            (new SponsorshipController($membership, $orders, new RedeemCodeService($orders), new RateLimiter()))->registerRoutes();
+            // Parked via the Plugin domain flags (2026-09-10 business routing).
+            if ($this->sponsorshipEnabled) {
+                $membership = new MembershipService();
+                $orders = new OrderService($membership);
+                (new SponsorshipController($membership, $orders, new RedeemCodeService($orders), new RateLimiter()))->registerRoutes();
 
-            (new GatewayController($orders))->registerRoutes();
+                (new GatewayController($orders))->registerRoutes();
+            }
 
             $threads = new DiscussionService();
             (new DiscussionController($threads, new DiscussionPresenter(), new RateLimiter()))->registerRoutes();

@@ -273,6 +273,15 @@ aiya-core/
 - ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
 - 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
+### 业务路线调整 —— 会员域与外部文件域临时停用（0.29.1）
+
+**2026-09-10 站长拍板**：B3 资源读取层与 Astro 前端接线挂起，先行推进 WP 基础内容形态到 1.0；会员域（Sponsorship）与外部文件域（ExternalFiles/OpenList）**临时停用**——业务路线暂停，非弃用（区别于 Tweet/multi-domain 的取消）：
+
+- **实现**：`Plugin` 域开关常量（`SPONSORSHIP_ENABLED` / `EXTERNAL_FILES_ENABLED`，均 false）——条件注册 SponsorshipModule（设置页 + 迁移注册）、ConvertCodesPage、OplistModule（设置页 + resource 编辑屏 oplist_client box）；RestController 增 `sponsorshipEnabled` 构造参，停用时不注册 plans/orders/redeem/membership/afdian order-url 与 aiya/sponsorship/v1 双回调；附件控制器沿可空参不注册；
+- **保留原样**：代码、`wp_aya_sponsor_orders` / `wp_aya_convert_codes` 表、协议键（`sponsor_expiration` / `aya_force_cancel_sponsor` / `aya_box_oplist_client`）、已注册迁移（版本已过、表已存在，重启用时跳过旧迁移不影响）；UserPresenter/ProfilePresenter 的 sponsor 语义直读协议键，停用后随到期自然降级；resource CPT 本体照常（属基础内容形态）；恢复 = 翻两个常量为 true；
+- **验证**：插件启动无 fatal；plans / 爱发电回调 / 易支付回调 / attachments 四停用面 404，site / menus / posts / notifications / discussions 全 200；单测 119/283 全绿、phpstan 零错；
+- **phpcs 基线漂移记录**：当前容器内 vendor WPCS 对既有域文件报 18E/21W（固定表插值、WP-free 类 json_encode、治理页 nonce 误报等有意模式；HEAD 与工作区总数一致，本批零新增）——系依赖版本漂移所致的基线问题，整改（定向 phpcs:ignore 注释）列为独立后续项，不阻塞内容形态批次。
+
 ### 用户关系表（收藏/关注/令牌）—— ✅ 已完成（0.28.0）
 
 目标用户量按万级规划，usermeta 使用收敛为「协议标量键 + 低频写」；数组型 per-user 值一律改关联表（站长拍板：不需要兼容旧数据）：
@@ -313,7 +322,7 @@ Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建�
 - 旧 `site_custom_notify_list` / `site_custom_consent_list` 选项不入协议，随旧设置退役（consent 弹窗归前端自有实现）；
 - 落地清单：`Domain/Notification/`（RoleLevel 阶梯 + NotificationService 唯一写入方 + NotificationModule 迁移/调度接线）+ `Api/Contract/Notification` + `Api/Rest/NotificationController`（`GET /notifications`，信封包裹）+ `Admin/NotificationPage`（AIYA Core 子菜单页：发布/列表/删除 + 保留期，admin_post 逐动作 nonce）；表 `wp_aiya_notifications` 由 0.23.0 迁移建表（SchemaVersionRunner 首个真实消费者）；单测 + 运行时验证（游客/订阅者/赞助者三级可见性、定向行、prune、保留期往返、管理页渲染），运行时发现的游客 `OR user_id = 0` 退化 bug 已修复；
 
-### 资源编辑面与附件域（Domain/ExternalFiles + resource metabox）—— ✅ 已完成（0.27.0）
+### 资源编辑面与附件域（Domain/ExternalFiles + resource metabox）—— ✅ 已完成（0.27.0）；⏸ 0.29.1 起临时停用
 
 B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍板：门禁整套重写，代理端点本批全含）：
 
@@ -324,7 +333,7 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **resource 编辑屏补全**：`post_seo` box screens + resource（B3 ResourceDetail.seo 数据源）、封面 metabox 默认类型 + resource（`_aya_thumb` 链路）；
 - 验证：单测 115/269（客户端路由/错误分级/登录解析、图标映射、门禁矩阵纯函数）；运行时实测（协议键读写、三视角门禁矩阵 guest/subscriber→null、sponsor→link、链接构造含 sign、端点 404/未配置空列表路径、box 注册 resource 屏），测试数据已清理。
 
-### 赞助域（Domain/Sponsorship）—— ✅ 已完成（0.24.0 核心 + 0.25.0 网关切片）
+### 赞助域（Domain/Sponsorship）—— ✅ 已完成（0.24.0 核心 + 0.25.0 网关切片）；⏸ 0.29.1 起临时停用
 
 总原则：**保持行为但重构设计**。旧结构 = `inc/lib/Afdian_API.php` + `inc/lib/Epay_Core.php`（三方客户端）、`inc/func-payment.php`（爱发电 webhook + 方案卡片 + 兑换码）、`plugins/sponsor-order-compat`（易支付收银台 + 回调）、`inc/func-user.php` 的订单表与叠加到期计算。
 

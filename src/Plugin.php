@@ -49,6 +49,17 @@ final class Plugin
     /** @var array<class-string<Module>, Module> */
     private array $modules = [];
 
+    /**
+     * Business routing (2026-09-10): the sponsorship and external-files
+     * domains are parked while core content shapes drive toward 1.0.
+     * Their code, tables and protocol keys stay intact — flipping a flag
+     * back to true restores the settings pages, the resource box and the
+     * REST routes; while parked those surfaces answer 404 and the
+     * presenters fall back to the raw protocol keys they already read.
+     */
+    private const SPONSORSHIP_ENABLED = false;
+    private const EXTERNAL_FILES_ENABLED = false;
+
     private function __construct()
     {
         $this->settings = new Registry();
@@ -87,8 +98,11 @@ final class Plugin
         $this->addModule(new IdentityModule());
         $this->addModule(new NotificationPage());
 
-        $this->addModule(new SponsorshipModule($this->settings));
-        $this->addModule(new ConvertCodesPage(new RedeemCodeService(new OrderService(new MembershipService()))));
+        // @phpstan-ignore if.alwaysFalse (business flag; parked, may flip back on)
+        if (self::SPONSORSHIP_ENABLED) {
+            $this->addModule(new SponsorshipModule($this->settings));
+            $this->addModule(new ConvertCodesPage(new RedeemCodeService(new OrderService(new MembershipService()))));
+        }
         $this->addModule(new DiscussionModule());
         $this->addModule(new DiscussionModerationPage());
 
@@ -97,10 +111,15 @@ final class Plugin
         $this->addModule(new CoverMetabox($media->covers()));
         $this->addModule(new PicBedPage($media->uploadProcessor(), $media->paths()));
 
-        $oplist = new OplistModule($this->settings, $this->metadata);
-        $this->addModule($oplist);
+        $attachments = null;
+        // @phpstan-ignore if.alwaysFalse (business flag; parked, may flip back on)
+        if (self::EXTERNAL_FILES_ENABLED) {
+            $oplist = new OplistModule($this->settings, $this->metadata);
+            $this->addModule($oplist);
+            $attachments = $oplist->attachments();
+        }
         $this->addModule(new SchemaVersionRunner());
-        $this->addModule(new RestController($avatar, $oplist->attachments()));
+        $this->addModule(new RestController($avatar, $attachments, self::SPONSORSHIP_ENABLED));
 
         add_action('plugins_loaded', function (): void {
             load_plugin_textdomain('aiya-core', false, dirname(plugin_basename(AIYA_CORE_FILE)) . '/languages');
