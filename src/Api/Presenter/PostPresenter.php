@@ -22,7 +22,7 @@ use WP_Term;
  * Maps posts to the content contract. This is the only place the content
  * domain touches WP_Post/WP_Term; `the_content` runs here because the
  * filtered HTML is contract data. Legacy protocol keys (`view_count`,
- * `like_count`, `_aya_thumb`) are read only inside this compatibility
+ * `like_count`, `_thumb`) are read only inside this compatibility
  * layer and never leak as names.
  */
 final class PostPresenter
@@ -58,7 +58,7 @@ final class PostPresenter
     {
         $summary = $this->summary($post, $type);
         $content = $this->rendered($post);
-        $seo = get_post_meta((int) $post->ID, 'aya_box_post_seo', true);
+        $seo = get_post_meta((int) $post->ID, 'aiya_core_post_seo', true);
         $seoDescription = is_array($seo) && is_string($seo['seo_desc'] ?? null) && trim((string) $seo['seo_desc']) !== ''
             ? (string) $seo['seo_desc']
             : $summary->excerpt;
@@ -130,7 +130,7 @@ final class PostPresenter
 
     /**
      * Featured image wins; without one the generated-cover protocol key
-     * (`_aya_thumb`, stored as content-relative path or full URL) is the
+     * (`_thumb`, stored as content-relative path or full URL) is the
      * fallback; nothing public means null.
      */
     private function thumbnail(WP_Post $post): ?Image
@@ -146,7 +146,7 @@ final class PostPresenter
             }
         }
 
-        $cover = get_post_meta((int) $post->ID, '_aya_thumb', true);
+        $cover = get_post_meta((int) $post->ID, '_thumb', true);
         if (is_string($cover) && $cover !== '') {
             // Only a value that resolves back into the content dir reaches
             // the API; a hand-edited meta value never passes through raw.

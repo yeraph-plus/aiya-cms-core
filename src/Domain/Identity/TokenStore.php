@@ -52,10 +52,10 @@ final class TokenStore
             [
                 'token_hash' => $this->hash($plain),
                 'user_id' => $userId,
-                'expires_at' => $expiresAt,
+                'expires_at' => gmdate('Y-m-d H:i:s', $expiresAt),
                 'created_at' => current_time('mysql', true),
             ],
-            ['%s', '%d', '%d', '%s']
+            ['%s', '%d', '%s', '%s']
         );
 
         if ($inserted === false) {
@@ -64,15 +64,16 @@ final class TokenStore
 
         // Keep at most MAX tokens per user (drop the oldest), and sweep the
         // user's expired rows while we are touching them anyway.
+        $now = gmdate('Y-m-d H:i:s');
         $trimSql = $wpdb->prepare(
-            'DELETE FROM %i WHERE user_id = %d AND (expires_at < %d OR id NOT IN (
+            'DELETE FROM %i WHERE user_id = %d AND (expires_at < %s OR id NOT IN (
                 SELECT id FROM (
                     SELECT id FROM %i WHERE user_id = %d ORDER BY id DESC LIMIT %d
                 ) AS keep_rows
             ))',
             $this->table(),
             $userId,
-            time(),
+            $now,
             $this->table(),
             $userId,
             self::MAX_TOKENS_PER_USER
@@ -95,10 +96,10 @@ final class TokenStore
         global $wpdb;
         /** @var \wpdb $wpdb */
         $found = $wpdb->get_var($wpdb->prepare(
-            'SELECT user_id FROM %i WHERE token_hash = %s AND expires_at > %d LIMIT 1',
+            'SELECT user_id FROM %i WHERE token_hash = %s AND expires_at > %s LIMIT 1',
             $this->table(),
             $this->hash($token),
-            time()
+            gmdate('Y-m-d H:i:s')
         ));
 
         return $found !== null ? (int) $found : 0;
@@ -149,7 +150,7 @@ final class TokenStore
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $sql = $wpdb->prepare('DELETE FROM %i WHERE expires_at < %d', $wpdb->prefix . 'aiya_auth_tokens', time());
+        $sql = $wpdb->prepare('DELETE FROM %i WHERE expires_at < %s', $wpdb->prefix . 'aiya_auth_tokens', gmdate('Y-m-d H:i:s'));
         if (is_string($sql)) {
             $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
         }

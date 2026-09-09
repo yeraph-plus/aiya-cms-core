@@ -84,7 +84,7 @@ final class NotificationService
             [
                 'type' => $type,
                 'user_id' => $userId,
-                'role_level' => $roleLevel,
+                'min_role' => $roleLevel,
                 'title' => mb_substr($title, 0, self::TITLE_LENGTH),
                 'body' => wp_kses_post($body),
                 'created_at' => current_time('mysql', true),
@@ -105,7 +105,7 @@ final class NotificationService
      * pass rank 0 and user id 0; the targeted clause is dropped for them
      * (viewer id 0 would otherwise re-match every broadcast row).
      *
-     * @return list<object{id:int,type:string,user_id:int,role_level:string,title:string,body:string,created_at:string}>
+     * @return list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>
      */
     public function visible(int $viewerRank, int $viewerId, int $limit = 50): array
     {
@@ -119,11 +119,11 @@ final class NotificationService
             // phpcs:disable WordPress.DB.PreparedSQL -- the IN fragment is a whitelist
             // literal (IN_CLAUSES_BY_RANK): it cannot travel through prepare, and
             // the multi-line string cannot carry a per-line ignore.
-            /** @var list<object{id:int,type:string,user_id:int,role_level:string,title:string,body:string,created_at:string}>|null $rows */
+            /** @var list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>|null $rows */
             $rows = $wpdb->get_results($wpdb->prepare(
-                "SELECT id, type, user_id, role_level, title, body, created_at
+                "SELECT id, type, user_id, min_role, title, body, created_at
                  FROM %i
-                 WHERE (user_id = 0 AND role_level IN ($levels)) OR (user_id = %d)
+                 WHERE (user_id = 0 AND min_role IN ($levels)) OR (user_id = %d)
                  ORDER BY created_at DESC, id DESC
                  LIMIT %d",
                 $table,
@@ -133,11 +133,11 @@ final class NotificationService
             // phpcs:enable
         } else {
             // phpcs:disable WordPress.DB.PreparedSQL -- whitelist IN fragment, as above
-            /** @var list<object{id:int,type:string,user_id:int,role_level:string,title:string,body:string,created_at:string}>|null $rows */
+            /** @var list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>|null $rows */
             $rows = $wpdb->get_results($wpdb->prepare(
-                "SELECT id, type, user_id, role_level, title, body, created_at
+                "SELECT id, type, user_id, min_role, title, body, created_at
                  FROM %i
-                 WHERE user_id = 0 AND role_level IN ($levels)
+                 WHERE user_id = 0 AND min_role IN ($levels)
                  ORDER BY created_at DESC, id DESC
                  LIMIT %d",
                 $table,
@@ -153,7 +153,7 @@ final class NotificationService
      * Paged listing for the admin screen, newest first, no visibility
      * filtering.
      *
-     * @return array{items: list<object{id:int,type:string,user_id:int,role_level:string,title:string,body:string,created_at:string}>, total: int, pages: int}
+     * @return array{items: list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>, total: int, pages: int}
      */
     public function adminPage(int $paged, int $perPage): array
     {
@@ -168,9 +168,9 @@ final class NotificationService
 
         $rows = [];
         if ($total > 0) {
-            /** @var list<object{id:int,type:string,user_id:int,role_level:string,title:string,body:string,created_at:string}>|null $rows */
+            /** @var list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>|null $rows */
             $rows = $wpdb->get_results($wpdb->prepare(
-                'SELECT id, type, user_id, role_level, title, body, created_at
+                'SELECT id, type, user_id, min_role, title, body, created_at
                  FROM %i
                  ORDER BY created_at DESC, id DESC
                  LIMIT %d OFFSET %d',
@@ -240,7 +240,7 @@ final class NotificationService
         );
     }
 
-    /** Creates the store table; the 0.23.0 schema migration callback. */
+    /** Creates the store table; the base step of the schema migration callback. */
     public static function installTable(): void
     {
         global $wpdb;
@@ -255,7 +255,7 @@ final class NotificationService
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 type VARCHAR(32) NOT NULL DEFAULT 'announcement',
                 user_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
-                role_level VARCHAR(20) NOT NULL DEFAULT 'guest',
+                min_role VARCHAR(20) NOT NULL DEFAULT 'guest',
                 title VARCHAR(191) NOT NULL,
                 body TEXT NOT NULL,
                 created_at DATETIME NOT NULL,
@@ -264,6 +264,48 @@ final class NotificationService
                 KEY created_at (created_at)
             ) $charset;"
         );
+    }
+
+    /** Base install plus the 0.31.0 role-column rename. */
+    public static function migrate(): void
+    {
+        self::installTable();
+        self::renameRoleLevel();
+    }
+
+    /**
+     * 0.31.0: role_level became min_role — the column holds the lowest
+     * role a row is visible to, and the old name read either way. Fresh
+     * installs already create min_role and skip this.
+     */
+    private static function renameRoleLevel(): void
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $table = $wpdb->prefix . 'aiya_notifications';
+        $column = $wpdb->get_var($wpdb->prepare(
+            'SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = %s',
+            $table,
+            'role_level'
+        ));
+        if ($column === null) {
+            return;
+        }
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- fixed table interpolation, prepared below.
+        $sql = $wpdb->prepare('ALTER TABLE %i CHANGE COLUMN role_level min_role VARCHAR(20) NOT NULL DEFAULT %s', $table, 'guest');
+        if (is_string($sql)) {
+            $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+        }
+
+        $renamed = $wpdb->get_var($wpdb->prepare(
+            'SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = %s',
+            $table,
+            'min_role'
+        ));
+        if ($renamed !== 'min_role') {
+            throw new \RuntimeException(sprintf('The %s.role_level column could not be renamed to min_role.', $table));
+        }
     }
 
     private function table(): string

@@ -13,7 +13,7 @@ use WP_Error;
 /**
  * OpenList integration adapter (legacy `inc/func-openlist.php` + global
  * options): owns the domain settings page, the `oplist_client` post box on
- * the resource screen (protocol group key `aya_box_oplist_client` — same
+ * the resource screen (protocol group key `aiya_core_oplist_client` — same
  * key, moved scope post → resource per the 2026-09-08 decision), and the
  * authenticated client factory with the transient token cache.
  *
@@ -220,7 +220,7 @@ final class OplistModule implements Module
         // accepted in exchange for not pinning credentials in the options
         // table.
         if ($hours > 0) {
-            $cached = wp_cache_get('token', 'aiya_core_oplist');
+            $cached = wp_cache_get('oplist_server_token', 'aiya_core_oplist');
             $token = is_string($cached) ? $cached : '';
         }
 
@@ -234,7 +234,7 @@ final class OplistModule implements Module
                 do_action('aiya_core_oplist_error', 0, $token);
                 $token = '';
             } elseif ($hours > 0) {
-                wp_cache_set('token', $token, 'aiya_core_oplist', $hours * HOUR_IN_SECONDS);
+                wp_cache_set('oplist_server_token', $token, 'aiya_core_oplist', $hours * HOUR_IN_SECONDS);
             }
         }
 

@@ -10,7 +10,7 @@ use Aiya\Core\Metadata\Registry;
 /**
  * The SEO field group — the first real consumer of the metadata registry,
  * rebuilt from the legacy basic-optimize post_seo box. Values live under
- * the persistent aya_box_post_seo protocol key and are projected into the
+ * the persistent aiya_core_post_seo protocol key and are projected into the
  * headless API in M5.
  */
 final class SeoBoxModule implements Module

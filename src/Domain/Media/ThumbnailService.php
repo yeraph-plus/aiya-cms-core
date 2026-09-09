@@ -15,8 +15,8 @@ use Imagine\Image\ImagineInterface;
  * local paths or content URLs.
  *
  * This service is read-only from the content store's perspective: it never
- * touches post meta. Writing _aya_thumb is the cover pipeline's job; the
- * consult order (featured image → _aya_thumb → first content image) is the
+ * touches post meta. Writing _thumb is the cover pipeline's job; the
+ * consult order (featured image → _thumb → first content image) is the
  * API layer's policy, not this service's.
  *
  * The cache key includes the quality setting, so a saved quality change

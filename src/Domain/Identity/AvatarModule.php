@@ -23,9 +23,9 @@ use Throwable;
  * The user meta key `basic_user_avatar` is a persistent data protocol
  * carried over from the legacy theme (workspace AGENTS.md). Three shapes
  * stay readable:
- * - file avatars (current): `['full' => 'avatars/{user}/128.jpg', 'v' => int]`
+ * - file avatars (current): `['full' => 'thumbnail/avatars/{user}/128.jpg'], 'v' => int]`
  *   with pre-generated 128px and 64px square crops under
- *   wp-content/avatars/{user_id}/ — outside the media library and uploads,
+ *   wp-content/thumbnail/avatars/{user_id}/ — outside the media library and uploads,
  *   assembled to static URLs with no PHP hit per render;
  * - `['id' => attachmentId, 'full' => url]` (media-library era);
  * - `['full' => url]` (legacy absolute URL).
@@ -272,7 +272,7 @@ final class AvatarModule implements Module
         $version = $this->fileAvatarVersion($user->ID);
         $previewUrl = null;
         if ($version > 0) {
-            $previewUrl = content_url('/avatars/' . $user->ID . '/' . self::LARGE_SIZE . '.jpg?v=' . $version);
+            $previewUrl = content_url('/thumbnail/avatars/' . $user->ID . '/' . self::LARGE_SIZE . '.jpg?v=' . $version);
         } else {
             $meta = get_user_meta($user->ID, self::META_KEY, true);
             if (is_array($meta) && isset($meta['full']) && is_string($meta['full']) && $meta['full'] !== '') {
@@ -392,7 +392,7 @@ final class AvatarModule implements Module
         }
 
         wp_send_json_success([
-            'url' => content_url('/avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg?v=' . $this->fileAvatarVersion($userId)),
+            'url' => content_url('/thumbnail/avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg?v=' . $this->fileAvatarVersion($userId)),
             'nonce' => wp_create_nonce('aiya_core_avatar_' . $userId),
         ]);
     }
@@ -450,7 +450,7 @@ final class AvatarModule implements Module
         }
 
         update_user_meta($userId, self::META_KEY, [
-            'full' => 'avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg',
+            'full' => 'thumbnail/avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg',
             'v' => time(),
         ]);
     }
@@ -462,7 +462,7 @@ final class AvatarModule implements Module
             return;
         }
 
-        $dir = WP_CONTENT_DIR . '/avatars/' . $userId;
+        $dir = WP_CONTENT_DIR . '/thumbnail/avatars/' . $userId;
         if (is_dir($dir)) {
             $iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
@@ -533,7 +533,7 @@ final class AvatarModule implements Module
 
     private function avatarsDir(int $userId): string
     {
-        $dir = WP_CONTENT_DIR . '/avatars/' . $userId;
+        $dir = WP_CONTENT_DIR . '/thumbnail/avatars/' . $userId;
         if (!is_dir($dir)) {
             wp_mkdir_p($dir);
         }

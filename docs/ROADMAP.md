@@ -273,6 +273,18 @@ aiya-core/
 - ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
 - 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
+### 持久化命名整改 —— ✅ 已完成（0.31.0）
+
+命名审计的拍板落地（2026-09-11 站长逐项拍板：rating_score/rating_count 与 like_count/view_count 保持原状继续使用；wp-content/thumbnail/ 目录名不动）：
+
+- **`_aya_thumb` → `_thumb`**：自动生成值非旧主题遗产，CoverService 写入方 + PostPresenter/CoverMetabox 读取方全量更名，旧键成死数据不做兼容读；
+- **metabox 组键 `aya_box_{id}` → `aiya_core_{id}`**：PostBox 组键模式与 post_seo/oplist_client 两处字面量更名，区别旧版避免搜索混淆；旧键死数据；
+- **头像目录并入 thumbnail 树**：`wp-content/avatars/{user_id}/` → `wp-content/thumbnail/avatars/{user_id}/`（avatarsDir + content_url ×2 + `basic_user_avatar` 值形状 full 路径），旧路径与旧值形状不再兼容；
+- **`aiya_auth_tokens.expires_at` INT → DATETIME**（0.31.0 迁移：ADD COLUMN + FROM_UNIXTIME 回填 + DROP + CHANGE，列类型自检失败 runner 保持版本重试），TokenStore 读写全部换 GMT DATETIME（issue/resolve/裁剪/全局清理）；
+- **`aiya_notifications.role_level` → `min_role`**（0.31.0 迁移 CHANGE COLUMN + 列自检），NotificationService/NotificationPage 全量更名——「最低可见角色」语义归一；
+- **oplist 对象缓存裸键 `token` → `oplist_server_token`**（纯代码，随缓存自然过期）；
+- 实测：迁移自动推进 0.30.0→0.31.0、expires_at=datetime 与 min_role 列就位、DATETIME 列上令牌签发/解析、头像落新树且 meta 值形状更新、通知创建与游客拉取；单测 119/283、phpstan、phpcs 全绿。测试数据已清理。
+
 ### 安全审计与报错整改 —— ✅ 已完成（0.30.0）
 
 三线审计（安全/错误一致性/命名）后的整改批；命名整批留待下一轮：

@@ -17,7 +17,7 @@ use WP_Error;
  * Generated-cover pipeline. Produces a photo-mode cover from the featured
  * image or the first local content image (falling back to pattern mode),
  * draws the title, stores the result under wp-content/thumbnail/cover/ and
- * persists the legacy `_aya_thumb` protocol key (content-relative path,
+ * persists the legacy `_thumb` protocol key (content-relative path,
  * full URL as fallback) — the one writer of that key, replacing the legacy
  * read-time writes with an explicit editor-side action.
  */
@@ -29,7 +29,7 @@ final class CoverService
     private const MAX_CHARS = 15;
     private const LINE_SPACING = 12;
     private const OVERLAY_OPACITY = 30;
-    private const THUMB_PROTOCOL_KEY = '_aya_thumb';
+    private const THUMB_PROTOCOL_KEY = '_thumb';
 
     /**
      * @param Closure(): array{format: string, quality: int} $savePolicy

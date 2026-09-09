@@ -15,12 +15,12 @@ use Aiya\Core\Contracts\Module;
 final class NotificationModule implements Module
 {
     public const CRON_HOOK = 'aiya_core_notifications_cleanup';
-    private const MIGRATION_VERSION = '0.23.0';
+    private const MIGRATION_VERSION = '0.31.0';
 
     public function register(): void
     {
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
-            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [NotificationService::class, 'installTable']];
+            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [NotificationService::class, 'migrate']];
 
             return $migrations;
         });

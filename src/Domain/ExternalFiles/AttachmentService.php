@@ -52,7 +52,7 @@ final class AttachmentService
             return new WP_Error('aiya_not_found', __('Resource not found.', 'aiya-core'), ['status' => 404]);
         }
 
-        $config = get_post_meta($resourceId, 'aya_box_oplist_client', true);
+        $config = get_post_meta($resourceId, 'aiya_core_oplist_client', true);
         $config = is_array($config) ? $config : [];
         $method = (string) ($config['fs_method'] ?? 'off');
         $sponsorOnly = filter_var((string) ($config['sponsor_can'] ?? ''), FILTER_VALIDATE_BOOLEAN);

@@ -15,7 +15,7 @@ use WP_Post;
  * screen in the Admin layer. Generation itself lives in CoverService.
  *
  * The generated file is persisted under wp-content/thumbnail/cover/ and the
- * `_aya_thumb` protocol key is written by the service — replacing the
+ * `_thumb` protocol key is written by the service — replacing the
  * legacy frontend-time writes with an explicit editor action.
  */
 final class CoverMetabox implements Module
@@ -145,12 +145,12 @@ final class CoverMetabox implements Module
     }
 
     /**
-     * Reads the `_aya_thumb` protocol key; the stored shape is either a
+     * Reads the `_thumb` protocol key; the stored shape is either a
      * content-relative path or a full URL, both documented and supported.
      */
     private function storedCoverUrl(int $postId): string
     {
-        $value = get_post_meta($postId, '_aya_thumb', true);
+        $value = get_post_meta($postId, '_thumb', true);
         if (!is_string($value) || $value === '') {
             return '';
         }
