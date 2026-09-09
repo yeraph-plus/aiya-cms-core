@@ -273,6 +273,15 @@ aiya-core/
 - ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
 - 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
+### 安全审计与报错整改 —— ✅ 已完成（0.30.0）
+
+三线审计（安全/错误一致性/命名）后的整改批；命名整批留待下一轮：
+
+- **安全**：密码重置链接域白名单默认收紧——站点自身 host 恒可用，其它前端 host 需在 Security 设置页 `password_reset_allowed_hosts`（新增 array 字段）或既有过滤器显式配置，伪造域名永收不到含 key 的活链接（实测异域回退 home_url）；`MediaPaths` 内容目录检查加 realpath 归一化（`../` 与符号链接逃逸失效）+ `relativePath` 拒绝 `..` 段；`_aya_thumb` meta 只有能解析回 content 目录的值才进 API，手改值不再原样透传；改绑邮箱要求 `currentPassword` 再认证（403 `aiya_reauth_required`），被盗会话无法静默接管邮箱走重置流；uninstall 补全——删插件自建六表 + `aiya_core_%` usermeta 残留 + transient + cron 事件（保留 wp_aya_* 旧业务表与用户内容）；
+- **报错**：`sessionResponse` 捕获 TokenStore 异常转信封 500（登录/注册/重置不再可能裸 500）；改密与重置路径把 revokeAll 前置并检查返回值（吊销失败则不改动密码，旧令牌绝不越迁）；Domain/REST 层 37 处 WP_Error 补 status（400 输入/409 冲突/404 缺失/502 上游，`aiya_not_found` 归一 404）；网关回调订单写入失败改回 fail 触发平台重试（exists() 幂等兜底）；兑换码回滚失败与治理页失败原因落 error_log；FavoriteService::remove 返回 bool、删除端点失败可见；
+- **约定成文**：ARCHITECTURE.md 新增「Error handling conventions」——REST 层 WP_Error + status 映射表、Domain 层异常/WP_Error 边界、后台 flash+日志、声明式容忍清单（登出吊销/webhook 日志/头像清理）；
+- 实测：重置域白名单三态、绑定不存在 post 400（原 500）、改绑邮箱 403/带密码 200、改密 200 且旧 token 即刻 401；单测 119/283、phpstan、phpcs 全绿。
+
 ### 业务路线调整 —— 会员域与外部文件域临时停用（0.29.1）
 
 **2026-09-10 站长拍板**：B3 资源读取层与 Astro 前端接线挂起，先行推进 WP 基础内容形态到 1.0；会员域（Sponsorship）与外部文件域（ExternalFiles/OpenList）**临时停用**——业务路线暂停，非弃用（区别于 Tweet/multi-domain 的取消）：

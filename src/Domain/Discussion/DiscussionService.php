@@ -33,17 +33,17 @@ final class DiscussionService
     public function create(int $userId, string $title, string $type, string $content, int $postId = 0): int|WP_Error
     {
         if ($userId <= 0 || get_userdata($userId) === false) {
-            return new WP_Error('aiya_invalid_user', __('The thread author does not exist.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_user', __('The thread author does not exist.', 'aiya-core'), ['status' => 400]);
         }
         $title = trim($title);
         if ($title === '') {
-            return new WP_Error('aiya_invalid_param', __('The thread title is required.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_param', __('The thread title is required.', 'aiya-core'), ['status' => 400]);
         }
         if (!ThreadType::isValid($type)) {
-            return new WP_Error('aiya_invalid_param', __('Unknown thread type.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_param', __('Unknown thread type.', 'aiya-core'), ['status' => 400]);
         }
         if (trim(wp_strip_all_tags($content)) === '') {
-            return new WP_Error('aiya_invalid_param', __('The thread body is required.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_param', __('The thread body is required.', 'aiya-core'), ['status' => 400]);
         }
         $postId = $this->validateBinding($postId);
         if (is_wp_error($postId)) {
@@ -229,10 +229,10 @@ final class DiscussionService
             return new WP_Error('aiya_thread_locked', __('This thread is closed to new replies.', 'aiya-core'), ['status' => 409]);
         }
         if ($userId <= 0 || get_userdata($userId) === false) {
-            return new WP_Error('aiya_invalid_user', __('The replying user does not exist.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_user', __('The replying user does not exist.', 'aiya-core'), ['status' => 400]);
         }
         if (trim(wp_strip_all_tags($content)) === '') {
-            return new WP_Error('aiya_invalid_param', __('The reply body is required.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_param', __('The reply body is required.', 'aiya-core'), ['status' => 400]);
         }
 
         global $wpdb;
@@ -284,28 +284,28 @@ final class DiscussionService
         if (array_key_exists('title', $fields)) {
             $title = trim((string) $fields['title']);
             if ($title === '') {
-                return new WP_Error('aiya_invalid_param', __('The thread title is required.', 'aiya-core'));
+                return new WP_Error('aiya_invalid_param', __('The thread title is required.', 'aiya-core'), ['status' => 400]);
             }
             $data['title'] = mb_substr($title, 0, self::TITLE_LENGTH);
         }
         if (array_key_exists('content', $fields)) {
             $content = (string) $fields['content'];
             if (trim(wp_strip_all_tags($content)) === '') {
-                return new WP_Error('aiya_invalid_param', __('The thread body is required.', 'aiya-core'));
+                return new WP_Error('aiya_invalid_param', __('The thread body is required.', 'aiya-core'), ['status' => 400]);
             }
             $data['content'] = wp_kses_post($content);
         }
         if (array_key_exists('type', $fields)) {
             $type = (string) $fields['type'];
             if (!ThreadType::isValid($type)) {
-                return new WP_Error('aiya_invalid_param', __('Unknown thread type.', 'aiya-core'));
+                return new WP_Error('aiya_invalid_param', __('Unknown thread type.', 'aiya-core'), ['status' => 400]);
             }
             $data['type'] = $type;
         }
         if (array_key_exists('status', $fields)) {
             $status = (string) $fields['status'];
             if (!ThreadStatus::isValid($status)) {
-                return new WP_Error('aiya_invalid_param', __('Unknown thread status.', 'aiya-core'));
+                return new WP_Error('aiya_invalid_param', __('Unknown thread status.', 'aiya-core'), ['status' => 400]);
             }
             $data['status'] = $status;
         }
@@ -419,7 +419,7 @@ final class DiscussionService
 
         $post = get_post($postId);
         if ($post === null || !in_array($post->post_type, self::BINDABLE_TYPES, true) || $post->post_status !== 'publish') {
-            return new WP_Error('aiya_invalid_param', __('The bound content does not exist or cannot carry discussions.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_param', __('The bound content does not exist or cannot carry discussions.', 'aiya-core'), ['status' => 400]);
         }
 
         return $postId;

@@ -70,6 +70,29 @@ Domain/Content/ read services (ContentQuery, MenuService,
 
 Unit features that used to live in the legacy theme's `plugins/` directory become independent composer packages: `aiya/<slug>`, `type: library`, PSR-4 `Aiya\Infra\<Name>\`. Packages MUST NOT depend on aiya-core, call WordPress functions, or register hooks; a core-side adapter module under `src/Modules/` instantiates the package service, registers its settings into the shared add-ons page, and wires it into the module system. The dependency arrow is one-directional: core -> package.
 
+## Error handling conventions
+
+- **REST layer** (`Api/Rest/`): every failure is a `WP_Error` with an
+  `aiya_*` code and an explicit `['status' => …]`; the envelope turns it
+  into the JSON error shape. Status mapping: 400 client input, 401
+  unauthenticated, 403 forbidden, 404 missing, 409 conflict, 500 plugin/db
+  failure, 502 upstream unavailable. An uncaught `RuntimeException` from
+  the domain would escape as a bare 500, so REST callbacks catch
+  exceptions at the boundary and convert them (see
+  `AuthController::sessionResponse`).
+- **Domain layer**: returns `WP_Error` for caller-actionable failures;
+  throws `RuntimeException` only when continuing is meaningless (e.g. a
+  token write failed). Metrics and denormalized counters may degrade
+  silently; anything that breaks a business or security invariant must be
+  reportable (return values, logs) — e.g. `TokenStore::revokeAll()`
+  returns `bool`, gateway callbacks answer "fail" so the platform retries.
+- **Admin pages**: capability check + `wp_die`, nonce via
+  `check_admin_referer`, outcome via flash redirect; a domain `WP_Error`
+  is logged (`error_log` with the `aiya-core` prefix) before collapsing
+  into the generic flash so operators can diagnose.
+- **Tolerated silence** (declared, not accidental): logout token
+  revocation, webhook debug log writes, best-effort avatar file cleanup.
+
 ## Direction of dependencies
 
 - Admin code may depend on Settings schema.

@@ -51,14 +51,17 @@ final class FavoriteService
             : true;
     }
 
-    public function remove(int $userId, int $postId): void
+    /** Removes a favorite; false only on a DB failure (absent rows are a no-op success). */
+    public function remove(int $userId, int $postId): bool
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
         $sql = $wpdb->prepare('DELETE FROM %i WHERE user_id = %d AND post_id = %d', $this->table(), $userId, $postId);
         if (is_string($sql)) {
-            $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+            return $wpdb->query($sql) !== false; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
         }
+
+        return false;
     }
 
     public function has(int $userId, int $postId): bool
@@ -134,7 +137,7 @@ final class FavoriteService
         $post = $postId > 0 ? get_post($postId) : null;
 
         if ($post === null || $post->post_type !== 'post' || $post->post_status !== 'publish') {
-            return new WP_Error('aiya_invalid_param', __('Only published posts can be favorited.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_param', __('Only published posts can be favorited.', 'aiya-core'), ['status' => 400]);
         }
 
         return $postId;

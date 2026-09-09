@@ -105,11 +105,11 @@ final class TokenStore
     }
 
     /** Removes one presented token (logout). */
-    public function revoke(string $token): void
+    public function revoke(string $token): bool
     {
         $userId = $this->parseUserId($token);
         if ($userId === 0) {
-            return;
+            return false;
         }
 
         global $wpdb;
@@ -118,13 +118,20 @@ final class TokenStore
         if (is_string($sql)) {
             $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
         }
+        // Only a hard DB failure reports false; "no such row" is a fine
+        // logout outcome.
+        return is_string($sql);
     }
 
-    /** Invalidates every token of a user (password change / reset). */
-    public function revokeAll(int $userId): void
+    /**
+     * Invalidates every token of a user (password change / reset).
+     * False means the sweep could not run — callers that rely on the
+     * security property (old sessions must die) must surface it.
+     */
+    public function revokeAll(int $userId): bool
     {
         if ($userId <= 0) {
-            return;
+            return false;
         }
 
         global $wpdb;
@@ -133,6 +140,8 @@ final class TokenStore
         if (is_string($sql)) {
             $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
         }
+
+        return is_string($sql);
     }
 
     /** Deletes every expired row globally; the daily cron entry point. */

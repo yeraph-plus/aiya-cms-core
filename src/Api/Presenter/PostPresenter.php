@@ -148,8 +148,10 @@ final class PostPresenter
 
         $cover = get_post_meta((int) $post->ID, '_aya_thumb', true);
         if (is_string($cover) && $cover !== '') {
+            // Only a value that resolves back into the content dir reaches
+            // the API; a hand-edited meta value never passes through raw.
             $local = $this->paths->urlToLocal($cover);
-            $url = $local !== null ? $this->paths->localToUrl($local) : $cover;
+            $url = $local !== null ? $this->paths->localToUrl($local) : null;
             if (is_string($url) && $url !== '') {
                 return new Image($url, (string) get_the_title($post), null, null);
             }

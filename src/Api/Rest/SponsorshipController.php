@@ -123,22 +123,22 @@ final class SponsorshipController
         $client = $this->afdianClient($settings);
 
         if ($client === null || !$client->ping()) {
-            return new WP_Error('aiya_afdian_unavailable', __('The Afdian API is unavailable, contact the site owner.', 'aiya-core'));
+            return new WP_Error('aiya_afdian_unavailable', __('The Afdian API is unavailable, contact the site owner.', 'aiya-core'), ['status' => 502]);
         }
 
         if ($this->orders->exists('afd_' . $tradeNo)) {
-            return new WP_Error('aiya_code_used', __('This order was already activated.', 'aiya-core'));
+            return new WP_Error('aiya_code_used', __('This order was already activated.', 'aiya-core'), ['status' => 409]);
         }
 
         $order = $client->queryOrder($tradeNo);
         if ($order === null) {
-            return new WP_Error('aiya_code_invalid', __('No such order found — check the trade number or contact the site owner.', 'aiya-core'));
+            return new WP_Error('aiya_code_invalid', __('No such order found — check the trade number or contact the site owner.', 'aiya-core'), ['status' => 400]);
         }
 
         $days = ((int) ($order['month'] ?? 0)) * 31;
         $result = $this->orders->add($userId, 'afd_' . $tradeNo, $days, OrderService::STATUS_PAID, 'afdian');
         if (is_wp_error($result)) {
-            return new WP_Error('aiya_code_activation_failed', __('Activation failed — you may already hold an overlapping period, or the order was already recorded.', 'aiya-core'));
+            return new WP_Error('aiya_code_activation_failed', __('Activation failed — you may already hold an overlapping period, or the order was already recorded.', 'aiya-core'), ['status' => 500]);
         }
 
         return new WP_REST_Response([
@@ -192,10 +192,10 @@ final class SponsorshipController
         $plan = SponsorshipSettings::planByKey($settings['plans'], $planKey);
 
         if (!$settings['epayEnable']) {
-            return new WP_Error('aiya_channel_unavailable', __('The Epay channel is not available.', 'aiya-core'));
+            return new WP_Error('aiya_channel_unavailable', __('The Epay channel is not available.', 'aiya-core'), ['status' => 502]);
         }
         if (!$this->epayChannelEnabled($settings, $channel)) {
-            return new WP_Error('aiya_channel_unavailable', __('The requested payment channel is not available.', 'aiya-core'));
+            return new WP_Error('aiya_channel_unavailable', __('The requested payment channel is not available.', 'aiya-core'), ['status' => 502]);
         }
         if ($plan === null) {
             return new WP_Error('aiya_not_found', __('Unknown purchase plan.', 'aiya-core'), ['status' => 404]);
@@ -203,7 +203,7 @@ final class SponsorshipController
 
         $client = new EpayClient($settings['epayPid'], $settings['epayKey'], $settings['epayGateway']);
         if (!$client->configured()) {
-            return new WP_Error('aiya_channel_unavailable', __('The Epay channel is not configured.', 'aiya-core'));
+            return new WP_Error('aiya_channel_unavailable', __('The Epay channel is not configured.', 'aiya-core'), ['status' => 502]);
         }
 
         $userId = (int) get_current_user_id();
@@ -233,7 +233,7 @@ final class SponsorshipController
     {
         $settings = SponsorshipSettings::read();
         if (!$settings['afdianEnable']) {
-            return new WP_Error('aiya_channel_unavailable', __('The Afdian channel is not available.', 'aiya-core'));
+            return new WP_Error('aiya_channel_unavailable', __('The Afdian channel is not available.', 'aiya-core'), ['status' => 502]);
         }
 
         $binding = (new AfdianClient($settings['afdianUserId'], $settings['afdianToken']))->bindUser((int) get_current_user_id());

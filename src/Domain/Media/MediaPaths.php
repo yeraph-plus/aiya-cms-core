@@ -81,8 +81,11 @@ final class MediaPaths
         }
 
         $relative = substr($file, strlen($dir) + 1);
+        if ($relative === '' || in_array('..', explode('/', $relative), true)) {
+            return null;
+        }
 
-        return $relative !== '' ? $relative : null;
+        return $relative;
     }
 
     /** Directory for generated thumbnails, created on demand. */
@@ -111,8 +114,9 @@ final class MediaPaths
 
     private function ensureDir(string $dir): string
     {
-        if (!is_dir($dir)) {
-            wp_mkdir_p($dir);
+        if (!is_dir($dir) && !wp_mkdir_p($dir)) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+            error_log('[aiya-core] Could not create media directory: ' . $dir);
         }
 
         return $dir;
@@ -120,10 +124,14 @@ final class MediaPaths
 
     private function existingInsideContent(string $absolutePath): ?string
     {
-        if (!str_starts_with($absolutePath, $this->contentDir() . '/') || !is_file($absolutePath)) {
+        // realpath collapses `..` segments and symlink escapes before the
+        // prefix check; a naive starts-with would let /wp-content/../x pass.
+        $contentDir = realpath($this->contentDir());
+        $real = realpath($absolutePath);
+        if ($contentDir === false || $real === false || !str_starts_with($real, $contentDir . '/') || !is_file($real)) {
             return null;
         }
 
-        return $absolutePath;
+        return $real;
     }
 }

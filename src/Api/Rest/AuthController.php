@@ -10,6 +10,7 @@ use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
 use Aiya\Core\Domain\Identity\TokenStore;
+use RuntimeException;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -253,8 +254,13 @@ final class AuthController
             return new WP_Error('aiya_invalid_password', implode(' ', $violations), ['status' => 400]);
         }
 
+        // Sweep the sessions before the password moves: a failed sweep
+        // aborts the reset while the old password still applies.
+        if (!$this->tokens->revokeAll((int) $payload->ID)) {
+            return new WP_Error('aiya_server_error', __('Existing sessions could not be invalidated; the password was left unchanged.', 'aiya-core'), ['status' => 500]);
+        }
+
         reset_password($payload, $password);
-        $this->tokens->revokeAll((int) $payload->ID);
 
         return new WP_REST_Response(['done' => true]);
     }
@@ -291,7 +297,14 @@ final class AuthController
             return new WP_Error('aiya_user_missing', __('The account could not be loaded.', 'aiya-core'), ['status' => 500]);
         }
 
-        $token = $this->tokens->issue($userId, $remember);
+        try {
+            $token = $this->tokens->issue($userId, $remember);
+        } catch (RuntimeException) {
+            // Token persistence failed; answer with an envelope instead of
+            // letting the exception escape the REST callback.
+            return new WP_Error('aiya_server_error', __('The session could not be started.', 'aiya-core'), ['status' => 500]);
+        }
+
         $session = new AuthSession($token->token, $token->expiresAt, $this->presenter->present($user));
 
         return new WP_REST_Response($session->toArray());

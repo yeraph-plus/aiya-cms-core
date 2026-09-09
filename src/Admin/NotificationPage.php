@@ -210,6 +210,10 @@ final class NotificationPage implements Module
 
         $created = $this->notifications->create($title, $body, $level);
         $note = is_wp_error($created) ? 'failed' : 'created';
+        if (is_wp_error($created)) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+            error_log('[aiya-core] Notification create failed: ' . $created->get_error_message());
+        }
 
         $this->redirectBack(['aiya_note' => $note]);
     }

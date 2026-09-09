@@ -104,6 +104,13 @@ final class SecurityModule implements Module
                     'default' => true,
                 ],
                 [
+                    'id' => 'password_reset_allowed_hosts',
+                    'type' => 'array',
+                    'label' => __('Password-reset link hosts', 'aiya-core'),
+                    'description' => __('Host names the reset link may point at besides this site (the front-end host, comma-separated). Requests naming any other host fall back to this site, so a forged domain can never receive a live reset link.', 'aiya-core'),
+                    'default' => [],
+                ],
+                [
                     'id' => 'admin_backend_min_role',
                     'type' => 'select',
                     'label' => __('Admin back end minimum role', 'aiya-core'),

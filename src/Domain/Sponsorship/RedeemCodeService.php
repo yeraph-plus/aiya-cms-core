@@ -31,10 +31,10 @@ final class RedeemCodeService
     {
         $code = trim($code);
         if ($code === '' || strlen($code) > 64) {
-            return new WP_Error('aiya_code_invalid', __('Invalid redemption code.', 'aiya-core'));
+            return new WP_Error('aiya_code_invalid', __('Invalid redemption code.', 'aiya-core'), ['status' => 400]);
         }
         if ($userId <= 0 || get_userdata($userId) === false) {
-            return new WP_Error('aiya_invalid_user', __('The redeeming user does not exist.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_user', __('The redeeming user does not exist.', 'aiya-core'), ['status' => 400]);
         }
 
         global $wpdb;
@@ -48,10 +48,10 @@ final class RedeemCodeService
         ));
 
         if ($row === null) {
-            return new WP_Error('aiya_code_invalid', __('Invalid redemption code.', 'aiya-core'));
+            return new WP_Error('aiya_code_invalid', __('Invalid redemption code.', 'aiya-core'), ['status' => 400]);
         }
         if ((int) $row->status === 1 || $row->user_id !== null) {
-            return new WP_Error('aiya_code_used', __('This code has already been redeemed.', 'aiya-core'));
+            return new WP_Error('aiya_code_used', __('This code has already been redeemed.', 'aiya-core'), ['status' => 409]);
         }
 
         $claimed = 0;
@@ -68,17 +68,22 @@ final class RedeemCodeService
         }
 
         if ($claimed !== 1) {
-            return new WP_Error('aiya_code_used', __('This code has already been redeemed.', 'aiya-core'));
+            return new WP_Error('aiya_code_used', __('This code has already been redeemed.', 'aiya-core'), ['status' => 409]);
         }
 
         $days = max(1, (int) $row->duration);
         $activated = $this->orders->add($userId, (string) $row->code, $days, OrderService::STATUS_PAID, 'code');
 
         if (is_wp_error($activated)) {
-            // Give the code back — nothing was consumed.
-            $wpdb->update($table, ['status' => 0, 'user_id' => null, 'used_to' => null], ['code' => $code], ['%d', '%s', '%s'], ['%s']);
+            // Give the code back — nothing was consumed. A failed rollback
+            // burns the code silently, so make it visible in the logs.
+            $restored = $wpdb->update($table, ['status' => 0, 'user_id' => null, 'used_to' => null], ['code' => $code], ['%d', '%s', '%s'], ['%s']);
+            if ($restored === false) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+                error_log('[aiya-core] Redeem rollback failed for code ' . $code . ' — the code is now unusable without manual repair.');
+            }
 
-            return new WP_Error('aiya_code_activation_failed', __('Activation failed — you may already hold an overlapping period, or the order was already recorded.', 'aiya-core'));
+            return new WP_Error('aiya_code_activation_failed', __('Activation failed — you may already hold an overlapping period, or the order was already recorded.', 'aiya-core'), ['status' => 500]);
         }
 
         return ['days' => $days, 'expiresAt' => $this->orders->syncExpiration($userId)];

@@ -70,7 +70,7 @@ final class UserController
 
         register_rest_route(Contract::API_NAMESPACE, '/users/me/favorites/(?P<postId>\d+)', [
             'methods' => WP_REST_Server::DELETABLE,
-            'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->removeFavorite($request),
+            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->removeFavorite($request),
             'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
             'args' => ['postId' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
         ]);
@@ -79,13 +79,14 @@ final class UserController
             'methods' => WP_REST_Server::EDITABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->updateProfile($request),
             'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
-            'args' => [
-                'nickname' => ['type' => 'string', 'required' => false],
-                'description' => ['type' => 'string', 'required' => false],
-                'url' => ['type' => 'string', 'required' => false],
-                'email' => ['type' => 'string', 'required' => false, 'format' => 'email'],
-                'locale' => ['type' => 'string', 'required' => false],
-            ],
+			'args' => [
+				'nickname' => ['type' => 'string', 'required' => false],
+				'description' => ['type' => 'string', 'required' => false],
+				'url' => ['type' => 'string', 'required' => false],
+				'email' => ['type' => 'string', 'required' => false, 'format' => 'email'],
+				'locale' => ['type' => 'string', 'required' => false],
+				'currentPassword' => ['type' => 'string', 'required' => false],
+			],
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/users/me/avatar', [
@@ -159,9 +160,11 @@ final class UserController
         return new WP_REST_Response(['favorited' => true]);
     }
 
-    private function removeFavorite(WP_REST_Request $request): WP_REST_Response
+    private function removeFavorite(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
-        $this->favorites->remove((int) $this->currentUser()->ID, (int) $request->get_param('postId'));
+        if (!$this->favorites->remove((int) $this->currentUser()->ID, (int) $request->get_param('postId'))) {
+            return new WP_Error('aiya_server_error', __('The favorite could not be removed.', 'aiya-core'), ['status' => 500]);
+        }
 
         return new WP_REST_Response(['favorited' => false]);
     }
@@ -195,6 +198,7 @@ final class UserController
         }
 
         $email = $request->get_param('email');
+        $emailChanged = false;
         if ($email !== null) {
             $email = sanitize_email((string) $email);
             if (!is_email($email)) {
@@ -203,6 +207,7 @@ final class UserController
                 $errors[] = __('This email address is already registered.', 'aiya-core');
             } else {
                 $userdata['user_email'] = $email;
+                $emailChanged = $email !== $user->user_email;
             }
         }
 
@@ -218,6 +223,15 @@ final class UserController
 
         if ($errors !== []) {
             return new WP_Error('aiya_validation_failed', implode(' ', $errors), ['status' => 400]);
+        }
+
+        // A stolen session must not be able to silently take over the
+        // mailbox (and through it the reset flow); re-authenticate.
+        if ($emailChanged) {
+            $current = (string) $request->get_param('currentPassword');
+            if ($current === '' || !wp_check_password($current, (string) $user->user_pass, (int) $user->ID)) {
+                return new WP_Error('aiya_reauth_required', __('Changing the email address requires the current password.', 'aiya-core'), ['status' => 403]);
+            }
         }
 
         if (count($userdata) > 1 && is_wp_error(wp_update_user($userdata))) {
@@ -267,9 +281,14 @@ final class UserController
             return new WP_Error('aiya_invalid_password', implode(' ', $violations), ['status' => 400]);
         }
 
+        // Sweep the sessions before the password moves: if the sweep fails,
+        // abort while the old password still applies. Old tokens must not
+        // outlive the change.
+        if (!$this->tokens->revokeAll((int) $user->ID)) {
+            return new WP_Error('aiya_server_error', __('Existing sessions could not be invalidated; the password was left unchanged.', 'aiya-core'), ['status' => 500]);
+        }
+
         wp_set_password($password, (int) $user->ID);
-        // Every session dies with the old password, this one included.
-        $this->tokens->revokeAll((int) $user->ID);
         wp_clear_auth_cookie();
 
         return new WP_REST_Response(['done' => true]);

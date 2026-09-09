@@ -168,6 +168,10 @@ final class DiscussionModerationPage implements Module
         $status = sanitize_key((string) ($_POST['status'] ?? ''));
 
         $updated = $this->threads->update($threadId, (int) get_current_user_id(), ['status' => $status]);
+        if (is_wp_error($updated)) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+            error_log('[aiya-core] Moderation status change failed: ' . $updated->get_error_message());
+        }
         $this->redirectBack(['aiya_note' => is_wp_error($updated) ? 'failed' : 'saved']);
     }
 
@@ -180,6 +184,10 @@ final class DiscussionModerationPage implements Module
         check_admin_referer(self::ACTION_DELETE . '_' . $threadId);
 
         $deleted = $this->threads->delete($threadId, (int) get_current_user_id());
+        if (is_wp_error($deleted)) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+            error_log('[aiya-core] Moderation delete failed: ' . $deleted->get_error_message());
+        }
         $this->redirectBack(['aiya_note' => is_wp_error($deleted) ? 'failed' : 'deleted']);
     }
 

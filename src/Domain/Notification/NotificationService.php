@@ -65,16 +65,16 @@ final class NotificationService
     ): int|WP_Error {
         $title = trim($title);
         if ($title === '') {
-            return new WP_Error('aiya_invalid_param', __('Notification title is required.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_param', __('Notification title is required.', 'aiya-core'), ['status' => 400]);
         }
         if (!RoleLevel::isValid($roleLevel)) {
-            return new WP_Error('aiya_invalid_param', __('Unknown notification role level.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_param', __('Unknown notification role level.', 'aiya-core'), ['status' => 400]);
         }
         if (!in_array($type, self::TYPES, true)) {
-            return new WP_Error('aiya_invalid_param', __('Unknown notification type.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_param', __('Unknown notification type.', 'aiya-core'), ['status' => 400]);
         }
         if ($userId < 0) {
-            return new WP_Error('aiya_invalid_param', __('Invalid notification recipient.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_param', __('Invalid notification recipient.', 'aiya-core'), ['status' => 400]);
         }
 
         global $wpdb;

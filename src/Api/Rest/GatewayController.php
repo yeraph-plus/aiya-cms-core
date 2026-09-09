@@ -104,6 +104,12 @@ final class GatewayController
             WebhookLogger::write("The order:{$orderId} user id:{$userId} {$outcome}.", '');
         }
 
+        if (is_wp_error($result)) {
+            // Tell the gateway the push failed so it retries; the exists()
+            // guard above keeps retries idempotent.
+            return new WP_REST_Response(['ec' => 500, 'em' => 'activation failed'], 500);
+        }
+
         return new WP_REST_Response(['ec' => 200, 'em' => 'done'], 200);
     }
 
@@ -164,6 +170,11 @@ final class GatewayController
         if ($settings['epaySavelog']) {
             $outcome = is_wp_error($result) ? 'activation failed' : 'activation completed';
             WebhookLogger::write("The order:{$orderId} user id:{$userId} {$outcome}.", '');
+        }
+
+        if (is_wp_error($result)) {
+            // Non-"success" makes the gateway resend; exists() keeps that idempotent.
+            return new WP_REST_Response('fail', 400);
         }
 
         return new WP_REST_Response('success', 200);

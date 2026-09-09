@@ -33,16 +33,16 @@ final class OrderService
     public function add(int $userId, string $orderId, int $durationDays, string $status = self::STATUS_PAID, string $source = ''): bool|WP_Error
     {
         if ($userId <= 0 || get_userdata($userId) === false) {
-            return new WP_Error('aiya_invalid_user', __('The order user does not exist.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_user', __('The order user does not exist.', 'aiya-core'), ['status' => 400]);
         }
         if ($durationDays <= 0) {
-            return new WP_Error('aiya_invalid_duration', __('The order duration must be positive.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_duration', __('The order duration must be positive.', 'aiya-core'), ['status' => 400]);
         }
         if (!in_array($status, self::STATUSES, true)) {
-            return new WP_Error('aiya_invalid_status', __('Unknown order status.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_status', __('Unknown order status.', 'aiya-core'), ['status' => 400]);
         }
         if ($orderId === '') {
-            return new WP_Error('aiya_invalid_order', __('The order id is required.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_order', __('The order id is required.', 'aiya-core'), ['status' => 400]);
         }
 
         global $wpdb;
@@ -67,7 +67,7 @@ final class OrderService
 
         if ($inserted === false) {
             if (str_contains((string) $wpdb->last_error, 'Duplicate')) {
-                return new WP_Error('aiya_duplicate_order', __('This order was already recorded.', 'aiya-core'));
+                return new WP_Error('aiya_duplicate_order', __('This order was already recorded.', 'aiya-core'), ['status' => 409]);
             }
 
             return new WP_Error('aiya_db_error', __('The order could not be stored.', 'aiya-core'));
@@ -97,7 +97,7 @@ final class OrderService
     public function updateStatus(string $orderId, string $status): bool|WP_Error
     {
         if (!in_array($status, self::STATUSES, true)) {
-            return new WP_Error('aiya_invalid_status', __('Unknown order status.', 'aiya-core'));
+            return new WP_Error('aiya_invalid_status', __('Unknown order status.', 'aiya-core'), ['status' => 400]);
         }
 
         global $wpdb;
@@ -105,7 +105,7 @@ final class OrderService
         $table = $this->table();
         $userId = $wpdb->get_var($wpdb->prepare('SELECT user_id FROM %i WHERE order_id = %s', $table, $orderId));
         if ($userId === null) {
-            return new WP_Error('aiya_not_found', __('Order not found.', 'aiya-core'));
+            return new WP_Error('aiya_not_found', __('Order not found.', 'aiya-core'), ['status' => 404]);
         }
 
         $updated = $wpdb->update($table, ['status' => $status], ['order_id' => $orderId], ['%s'], ['%s']);

@@ -15,9 +15,10 @@ use WP_User;
  * stays on the front end instead of wp-login.php.
  *
  * A malformed or unapproved origin falls back to the site URL rather than
- * failing — the mail must always contain a working link. Hosts can be
- * pinned down with the `aiya_core_password_reset_allowed_hosts` filter
- * (non-empty list = allowlist).
+ * failing — the mail must always contain a working link. The site's own
+ * host is the only default target; extra front-end hosts are configured
+ * on the Security settings page or pinned down with the
+ * `aiya_core_password_reset_allowed_hosts` filter.
  */
 final class PasswordResetService
 {
@@ -86,16 +87,34 @@ final class PasswordResetService
         );
     }
 
+    /**
+     * The site's own host is always acceptable. Any other front-end host
+     * must be configured on the Security settings page or through the
+     * `aiya_core_password_reset_allowed_hosts` filter — an anonymous
+     * client never gets to point a live reset link at an arbitrary host.
+     */
     private function originAllowed(string $origin): bool
     {
-        $allowed = (array) apply_filters('aiya_core_password_reset_allowed_hosts', []);
-        if ($allowed === []) {
+        $host = wp_parse_url($origin, PHP_URL_HOST);
+        if (!is_string($host) || $host === '') {
+            return false;
+        }
+
+        $homeHost = wp_parse_url((string) home_url(), PHP_URL_HOST);
+        if (is_string($homeHost) && strcasecmp($host, $homeHost) === 0) {
             return true;
         }
 
-        $host = wp_parse_url($origin, PHP_URL_HOST);
+        $configured = (array) aiya_core_opt('security', 'password_reset_allowed_hosts', []);
+        $allowed = array_map(
+            'strtolower',
+            array_merge(
+                array_map('strval', $configured),
+                array_map('strval', (array) apply_filters('aiya_core_password_reset_allowed_hosts', []))
+            )
+        );
 
-        return is_string($host) && in_array(strtolower($host), array_map('strtolower', $allowed), true);
+        return in_array(strtolower($host), $allowed, true);
     }
 
     /**
