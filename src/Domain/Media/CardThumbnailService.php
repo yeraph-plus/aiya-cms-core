@@ -71,22 +71,28 @@ final class CardThumbnailService
 
     /**
      * Thumbnail source for a post: the featured image first, then the
-     * first image embedded in the content; null when neither exists.
+     * first image embedded in the content. Local images only (media
+     * library and the built-in pic-bed pool) — external image-host URLs
+     * are out of scope and resolve to null on both the read and the cron
+     * side.
      */
     public function sourceUrl(\WP_Post $post): ?string
     {
         $thumbId = (int) get_post_thumbnail_id($post);
         if ($thumbId > 0) {
             $url = wp_get_attachment_url($thumbId);
-            if (is_string($url) && $url !== '') {
+            if (is_string($url) && $url !== '' && $this->paths->urlToLocal($url) !== null) {
                 return $url;
             }
         }
 
         $content = (string) get_post_field('post_content', $post->ID);
         $first = (new FirstImageMatcher())->first($content);
+        if (is_string($first) && $first !== '' && $this->paths->urlToLocal($first) !== null) {
+            return $first;
+        }
 
-        return is_string($first) && $first !== '' ? $first : null;
+        return null;
     }
 
     /**
