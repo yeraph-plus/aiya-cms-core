@@ -119,7 +119,7 @@ final class Plugin
             $attachments = $oplist->attachments();
         }
         $this->addModule(new SchemaVersionRunner());
-        $this->addModule(new RestController($avatar, $attachments, self::SPONSORSHIP_ENABLED));
+        $this->addModule(new RestController($avatar, $attachments, $media->cards(), self::SPONSORSHIP_ENABLED));
 
         add_action('plugins_loaded', function (): void {
             load_plugin_textdomain('aiya-core', false, dirname(plugin_basename(AIYA_CORE_FILE)) . '/languages');

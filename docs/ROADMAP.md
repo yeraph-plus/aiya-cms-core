@@ -273,6 +273,16 @@ aiya-core/
 - ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
 - 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
+### 图片处理器：卡片缩略图管线 —— ✅ 已完成（0.32.0）
+
+2026-09-11 站长拍板的图片语义定稿：`_thumb` = 卡片缩略图缓存（640×360 常量写在 CardThumbnailService 顶部，不在正文页复用故单一尺寸）；特色图保持 thumbnail 链第一优先（设计保留），同时作为独立字段输出、用途归前端判断；水印只在上传管线：
+
+- **`Domain/Media/CardThumbnailService`（新）**：读/写同一逻辑——`resolveFor`（不生成）：`_thumb` 合成图 → 实时源（特色图→正文首图，cron 未覆盖前直接给源 URL）→ Frontend 设置默认图占位 → null；`generateFor`（cron 半边）：本地源 → CoverGenerator photo 模式**空标题**（= 背景 + cover-crop + 30% 遮罩，任意比例自适应）→ 落盘 `thumbnail/cover/` + 回写 `_thumb`；`pendingIds` 批量队列（post/page/resource 中无 `_thumb` 的公开文，新文优先，批 10 篇）；
+- **异步化**：MediaModule 注册 `aiya_core_thumbnails_generate`（自定义五分钟档，`aiya_core_scheduled_events` 纳管停用清理），列表页零内联生成、杜绝首页大量图超时；
+- **尺寸统一**：CoverService 编辑器封面 800×450 → 640×360（同一常量），与自动缩略图同尺寸；
+- **契约**：`PostDetail` 新增 `hero: ?Image`（特色图 full 原图，标题大幅背景用，用途归前端），PostSummary 不变；front-station zod 同步；
+- 实测：cron 批次生成合成图并回写 `_thumb`、REST thumbnail/hero 双字段输出、无图文章落默认占位、有图未跑 cron 时实时源回退、cron 后切换为合成图；单测 119/283、phpstan、phpcs 全绿。测试数据已清理。
+
 ### 持久化命名整改 —— ✅ 已完成（0.31.0）
 
 命名审计的拍板落地（2026-09-11 站长逐项拍板：rating_score/rating_count 与 like_count/view_count 保持原状继续使用；wp-content/thumbnail/ 目录名不动）：

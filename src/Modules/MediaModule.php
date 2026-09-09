@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Modules;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Media\CoverService;
 use Aiya\Core\Domain\Media\MediaPaths;
 use Aiya\Core\Domain\Media\ThumbnailService;
@@ -41,10 +42,12 @@ final class MediaModule implements Module
 {
     public const PAGE_SLUG = 'image';
     public const OPTION_NAME = 'aiya_core_image';
+    public const CARD_CRON_HOOK = 'aiya_core_thumbnails_generate';
 
     private MediaPaths|null $paths = null;
     private ThumbnailService|null $thumbnails = null;
     private CoverService|null $covers = null;
+    private CardThumbnailService|null $cards = null;
 
     public function __construct(private Registry $settings)
     {
@@ -54,6 +57,36 @@ final class MediaModule implements Module
     {
         add_action('aiya_core_register', [$this, 'settings'], 10, 0);
         add_filter('wp_handle_upload', [$this, 'handleUpload'], 20, 2);
+
+        // Card composites generate off-thread: a small batch per run, so a
+        // fresh listing never times out on inline image work. Until the
+        // composite exists, the API serves the live source URL.
+        // phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval -- five-minute batches on purpose: fresh listings must be covered quickly
+        add_filter('cron_schedules', static function (array $schedules): array {
+            $schedules['aiya_core_five_minutes'] = [
+                'interval' => 5 * MINUTE_IN_SECONDS,
+                'display' => __('Every five minutes', 'aiya-core'),
+            ];
+
+            return $schedules;
+        });
+        add_action('init', function (): void {
+            if (!wp_next_scheduled(self::CARD_CRON_HOOK)) {
+                // phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval -- small batches on purpose: fresh listings must be covered quickly
+                wp_schedule_event(time() + MINUTE_IN_SECONDS, 'aiya_core_five_minutes', self::CARD_CRON_HOOK);
+            }
+        }, 5);
+        add_action(self::CARD_CRON_HOOK, function (): void {
+            $cards = $this->cards();
+            foreach ($cards->pendingIds() as $postId) {
+                $cards->generateFor($postId);
+            }
+        });
+        add_filter('aiya_core_scheduled_events', function (array $hooks): array {
+            $hooks[] = self::CARD_CRON_HOOK;
+
+            return $hooks;
+        });
     }
 
     public function settings(): void
@@ -220,6 +253,21 @@ final class MediaModule implements Module
             },
             function (): string {
                 return $this->fontFile();
+            }
+        );
+    }
+
+    /** The async card-thumbnail pipeline shared by the API read side and the cron worker. */
+    public function cards(): CardThumbnailService
+    {
+        return $this->cards ??= new CardThumbnailService(
+            $this->imagine(),
+            $this->paths(),
+            function (): array {
+                return [
+                    'format' => (string) aiya_core_opt(self::PAGE_SLUG, 'image_save_format', 'jpg'),
+                    'quality' => (int) aiya_core_opt(self::PAGE_SLUG, 'image_quality', 96),
+                ];
             }
         );
     }

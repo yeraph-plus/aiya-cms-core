@@ -14,6 +14,7 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\PrimaryMenu;
 use Aiya\Core\Domain\Discussion\DiscussionService;
+use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Engagement\CounterService;
 use Aiya\Core\Domain\ExternalFiles\AttachmentService;
 use Aiya\Core\Domain\Identity\AvatarModule;
@@ -21,7 +22,6 @@ use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
 use Aiya\Core\Domain\Identity\TokenStore;
-use Aiya\Core\Domain\Media\MediaPaths;
 use Aiya\Core\Domain\Notification\NotificationService;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use Aiya\Core\Domain\Sponsorship\OrderService;
@@ -37,7 +37,8 @@ final class RestController implements Module
 {
     public function __construct(
         private AvatarModule $avatars,
-        private ?AttachmentService $attachments = null,
+        private ?AttachmentService $attachments,
+        private CardThumbnailService $cards,
         private bool $sponsorshipEnabled = true,
     ) {
     }
@@ -55,7 +56,7 @@ final class RestController implements Module
         add_action('rest_api_init', function () use ($tokens, $authentication, $menus): void {
             $presenter = new UserPresenter();
             $policy = new PasswordPolicy();
-            $postPresenter = new PostPresenter(new MediaPaths());
+            $postPresenter = new PostPresenter($this->cards);
 
             (new AuthController(
                 $tokens,

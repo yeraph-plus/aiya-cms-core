@@ -17,19 +17,17 @@ use WP_Error;
  * Generated-cover pipeline. Produces a photo-mode cover from the featured
  * image or the first local content image (falling back to pattern mode),
  * draws the title, stores the result under wp-content/thumbnail/cover/ and
- * persists the legacy `_thumb` protocol key (content-relative path,
- * full URL as fallback) — the one writer of that key, replacing the legacy
- * read-time writes with an explicit editor-side action.
+ * persists the `_thumb` card key (content-relative path, full URL as
+ * fallback) — one of that key's writers, next to the cron card pipeline.
+ * The editor cover shares the card canvas size (640x360): the card image
+ * is never reused inside the article body, so one fixed size serves all.
  */
 final class CoverService
 {
-    private const WIDTH = 800;
-    private const HEIGHT = 450;
     private const FONT_SIZE = 54;
     private const MAX_CHARS = 15;
     private const LINE_SPACING = 12;
     private const OVERLAY_OPACITY = 30;
-    private const THUMB_PROTOCOL_KEY = '_thumb';
 
     /**
      * @param Closure(): array{format: string, quality: int} $savePolicy
@@ -78,8 +76,8 @@ final class CoverService
 
         $spec = CoverSpec::fromArray([
             'model' => $model,
-            'width' => self::WIDTH,
-            'height' => self::HEIGHT,
+            'width' => CardThumbnailService::WIDTH,
+            'height' => CardThumbnailService::HEIGHT,
             'background_image' => $background ?? '',
             'background_color' => $backgroundColor,
             'font_file' => ($this->fontFile)(),
@@ -103,10 +101,10 @@ final class CoverService
             return new WP_Error('aiya_core_cover_url_failed', __('The cover URL could not be resolved.', 'aiya-core'));
         }
 
-        // Protocol key: content-relative path preferred, full URL as the
+        // Card key: content-relative path preferred, full URL as the
         // documented fallback shape.
         $relative = $this->paths->relativePath($local);
-        update_post_meta($postId, self::THUMB_PROTOCOL_KEY, wp_slash($relative !== null ? $relative : $url));
+        update_post_meta($postId, CardThumbnailService::THUMB_KEY, wp_slash($relative !== null ? $relative : $url));
 
         return ['path' => $local, 'url' => $url];
     }

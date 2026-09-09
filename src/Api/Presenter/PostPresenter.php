@@ -14,7 +14,7 @@ use Aiya\Core\Api\Contract\Seo;
 use Aiya\Core\Api\Contract\Term;
 use Aiya\Core\Domain\Content\PublicType;
 use Aiya\Core\Domain\Content\ReadingTime;
-use Aiya\Core\Domain\Media\MediaPaths;
+use Aiya\Core\Domain\Media\CardThumbnailService;
 use WP_Post;
 use WP_Term;
 
@@ -22,12 +22,13 @@ use WP_Term;
  * Maps posts to the content contract. This is the only place the content
  * domain touches WP_Post/WP_Term; `the_content` runs here because the
  * filtered HTML is contract data. Legacy protocol keys (`view_count`,
- * `like_count`, `_thumb`) are read only inside this compatibility
- * layer and never leak as names.
+ * `like_count`) are read only inside this compatibility layer and never
+ * leak as names; the card thumbnail (`_thumb`) resolves through the media
+ * domain's card pipeline.
  */
 final class PostPresenter
 {
-    public function __construct(private MediaPaths $paths)
+    public function __construct(private readonly CardThumbnailService $cards)
     {
     }
 
@@ -69,6 +70,7 @@ final class PostPresenter
             [],
             new Seo($summary->title, $seoDescription, false),
             [new Breadcrumb($summary->title, null)],
+            $this->hero($post),
             isset($neighbors['previous']) && $neighbors['previous'] instanceof WP_Post
                 ? $this->summary($neighbors['previous'], $type)
                 : null,
@@ -129,35 +131,38 @@ final class PostPresenter
     }
 
     /**
-     * Featured image wins; without one the generated-cover protocol key
-     * (`_thumb`, stored as content-relative path or full URL) is the
-     * fallback; nothing public means null.
+     * Card thumbnail via the media domain's pipeline: the persisted
+     * `_thumb` composite, else the live source (featured image or first
+     * content image — the cron worker replaces it with the composite),
+     * else the configured default placeholder.
      */
     private function thumbnail(WP_Post $post): ?Image
     {
+        return $this->cards->resolveFor($post);
+    }
+
+    /**
+     * The featured image at full size — the detail page's title
+     * background. The card thumbnail pipeline consumes the same source
+     * for its 640x360 composite; this exposes it untouched.
+     */
+    private function hero(WP_Post $post): ?Image
+    {
         $thumbId = (int) get_post_thumbnail_id((int) $post->ID);
-        if ($thumbId > 0) {
-            $src = wp_get_attachment_image_src($thumbId, 'large');
-            if (is_array($src) && is_string($src[0]) && $src[0] !== '') {
-                $width = (int) $src[1];
-                $height = (int) $src[2];
-                $alt = (string) get_post_meta($thumbId, '_wp_attachment_image_alt', true);
-                return new Image($src[0], $alt, $width > 0 ? $width : null, $height > 0 ? $height : null);
-            }
+        if ($thumbId <= 0) {
+            return null;
         }
 
-        $cover = get_post_meta((int) $post->ID, '_thumb', true);
-        if (is_string($cover) && $cover !== '') {
-            // Only a value that resolves back into the content dir reaches
-            // the API; a hand-edited meta value never passes through raw.
-            $local = $this->paths->urlToLocal($cover);
-            $url = $local !== null ? $this->paths->localToUrl($local) : null;
-            if (is_string($url) && $url !== '') {
-                return new Image($url, (string) get_the_title($post), null, null);
-            }
+        $src = wp_get_attachment_image_src($thumbId, 'full');
+        if (!is_array($src) || !is_string($src[0]) || $src[0] === '') {
+            return null;
         }
 
-        return null;
+        $width = (int) $src[1];
+        $height = (int) $src[2];
+        $alt = (string) get_post_meta($thumbId, '_wp_attachment_image_alt', true);
+
+        return new Image($src[0], $alt, $width > 0 ? $width : null, $height > 0 ? $height : null);
     }
 
     private function author(int $userId): Author
