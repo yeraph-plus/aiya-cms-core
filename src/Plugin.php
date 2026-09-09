@@ -24,6 +24,7 @@ use Aiya\Core\Domain\ExternalFiles\OplistModule;
 use Aiya\Core\Domain\Content\SlugModule;
 use Aiya\Core\Domain\Content\TermExtrasModule;
 use Aiya\Core\Domain\Identity\AvatarModule;
+use Aiya\Core\Domain\Identity\IdentityModule;
 use Aiya\Core\Domain\Notification\NotificationModule;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use Aiya\Core\Domain\Sponsorship\OrderService;
@@ -81,6 +82,7 @@ final class Plugin
         $this->addModule(new TermExtrasModule($this->metadata));
 
         $this->addModule(new NotificationModule());
+        $this->addModule(new IdentityModule());
         $this->addModule(new NotificationPage());
 
         $this->addModule(new SponsorshipModule($this->settings));

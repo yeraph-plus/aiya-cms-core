@@ -10,8 +10,8 @@ use Aiya\Core\Api\Contract\Profile;
 use Aiya\Core\Api\Contract\ProfileStats;
 use Aiya\Core\Api\Contract\PostSummary;
 use Aiya\Core\Domain\Content\PublicTypes;
+use Aiya\Core\Domain\Identity\FavoriteService;
 use WP_Post;
-use WP_Query;
 use WP_User;
 
 /**
@@ -19,14 +19,14 @@ use WP_User;
  * place the profile route touches WP_User; email and login name never
  * enter the projection. Sponsor validity reads the persistent protocol
  * meta (`sponsor_expiration` + `aya_force_cancel_sponsor`); favorites
- * read `favorite_posts` and resolve published posts only, in the saved
- * order.
+ * read the `aiya_user_favorites` relation table (0.28.0) and resolve
+ * published posts only, newest favorite first.
  */
 final class ProfilePresenter
 {
     private const FAVORITES_LIMIT = 12;
 
-    public function __construct(private PostPresenter $posts)
+    public function __construct(private PostPresenter $posts, private ?FavoriteService $favorites = null)
     {
     }
 
@@ -62,43 +62,29 @@ final class ProfilePresenter
     }
 
     /**
-     * Published, non-protected posts among the saved favorites. The list
-     * keeps the saved order capped at FAVORITES_LIMIT while `count`
-     * reports the true number of published favorites (found rows are
-     * exact whenever the page returned any row).
+     * Published favorites from the relation table, newest first, capped at
+     * FAVORITES_LIMIT while `count` is the exact published-favorite total.
      *
      * @return array{count: int, posts: list<PostSummary>}
      */
     private function publishedFavorites(int $userId): array
     {
-        $raw = get_user_meta($userId, 'favorite_posts', true);
-        $ids = is_array($raw) ? array_values(array_filter(array_map('absint', $raw))) : [];
-        if ($ids === []) {
+        $service = $this->favorites ?? new FavoriteService();
+        $result = $service->published($userId, 1, self::FAVORITES_LIMIT);
+        if ($result['ids'] === []) {
             return ['count' => 0, 'posts' => []];
         }
 
-        $query = new WP_Query([
-            'post_type' => 'post',
-            'post_status' => 'publish',
-            'has_password' => false,
-            'ignore_sticky_posts' => true,
-            'post__in' => $ids,
-            'orderby' => 'post__in',
-            'posts_per_page' => min(count($ids), 100),
-        ]);
-
+        $postType = PublicTypes::get('post') ?? PublicTypes::all()['post'];
         $out = [];
-        foreach (is_array($query->posts) ? $query->posts : [] as $post) {
+        foreach ($result['ids'] as $postId) {
+            $post = get_post($postId);
             if ($post instanceof WP_Post) {
-                $postType = PublicTypes::get('post');
-                $out[] = $this->posts->summary($post, $postType ?? PublicTypes::all()['post']);
-            }
-            if (count($out) === self::FAVORITES_LIMIT) {
-                break;
+                $out[] = $this->posts->summary($post, $postType);
             }
         }
 
-        return ['count' => max(count($out), (int) $query->found_posts), 'posts' => $out];
+        return ['count' => $result['total'], 'posts' => $out];
     }
 
     private function avatar(WP_User $user): ?Image

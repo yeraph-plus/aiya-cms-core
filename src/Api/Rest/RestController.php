@@ -17,6 +17,7 @@ use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Engagement\CounterService;
 use Aiya\Core\Domain\ExternalFiles\AttachmentService;
 use Aiya\Core\Domain\Identity\AvatarModule;
+use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
 use Aiya\Core\Domain\Identity\TokenStore;
@@ -62,7 +63,8 @@ final class RestController implements Module
                 $presenter
             ))->registerRoutes();
 
-            (new UserController($presenter, $this->avatars, $tokens, $policy))->registerRoutes();
+            $favorites = new FavoriteService();
+            (new UserController($presenter, $this->avatars, $tokens, $policy, $postPresenter, $favorites, new RateLimiter()))->registerRoutes();
 
             (new CounterController(new CounterService(), new RateLimiter()))->registerRoutes();
 
@@ -73,7 +75,7 @@ final class RestController implements Module
                 $postPresenter,
                 new SitePresenter(),
                 $menus,
-                new ProfilePresenter($postPresenter)
+                new ProfilePresenter($postPresenter, $favorites)
             ))->registerRoutes();
 
             (new NotificationController(new NotificationService(), $presenter))->registerRoutes();

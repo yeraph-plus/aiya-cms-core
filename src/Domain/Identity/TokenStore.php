@@ -7,21 +7,28 @@ namespace Aiya\Core\Domain\Identity;
 use RuntimeException;
 
 /**
- * Opaque bearer tokens for the headless API, stored per user as HMAC
- * hashes in user meta (never plaintext). The plain token carries the user
- * id as its first segment (`{userId}.{secret}`) so presenting it resolves
- * with a single meta read; only the HMAC of the secret part is stored.
+ * Opaque bearer tokens for the headless API, stored as HMAC hashes in the
+ * dedicated `aiya_auth_tokens` table (never plaintext). The plain token
+ * carries the user id as its first segment (`{userId}.{secret}`) so a
+ * malformed presentation short-circuits before the lookup; the stored
+ * hash resolves through a unique-index point query.
  *
- * Several devices may hold valid tokens at once; expired entries are
- * pruned on write and a cap bounds the list. Changing the password
- * revokes everything (see revokeAll()).
+ * Several devices may hold valid tokens at once; the per-user cap is
+ * enforced by trimming the oldest rows after every insert, and expired
+ * rows are pruned lazily per user on issue plus globally by the daily
+ * IdentityModule cron. Changing the password revokes everything (see
+ * revokeAll()).
+ *
+ * This replaces the legacy usermeta array store (2026-09-09 plan): the
+ * array shape lost tokens under concurrent logins (unsynchronized
+ * read-append-write) and rewrote the meta row on every login. Tokens
+ * issued before 0.28.0 are not migrated — holders simply sign in again.
  *
  * TTLs mirror the classic WordPress cookie lifetimes: 14 days when the
  * client asks to be remembered, 2 days otherwise.
  */
 final class TokenStore
 {
-    private const META_KEY = 'aiya_core_auth_tokens';
     private const MAX_TOKENS_PER_USER = 10;
     public const SHORT_TTL = 2 * DAY_IN_SECONDS;
     public const LONG_TTL = 14 * DAY_IN_SECONDS;
@@ -38,14 +45,41 @@ final class TokenStore
         $plain = $userId . '.' . wp_generate_password(64, false, false);
         $expiresAt = time() + ($remember ? self::LONG_TTL : self::SHORT_TTL);
 
-        $stored = $this->storedTokens($userId);
-        $stored[] = [
-            'hash' => $this->hash($plain),
-            'created' => time(),
-            'expires' => $expiresAt,
-        ];
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $inserted = $wpdb->insert(
+            $this->table(),
+            [
+                'token_hash' => $this->hash($plain),
+                'user_id' => $userId,
+                'expires_at' => $expiresAt,
+                'created_at' => current_time('mysql', true),
+            ],
+            ['%s', '%d', '%d', '%s']
+        );
 
-        update_user_meta($userId, self::META_KEY, array_slice($stored, -self::MAX_TOKENS_PER_USER));
+        if ($inserted === false) {
+            throw new RuntimeException(__('The session token could not be stored.', 'aiya-core'));
+        }
+
+        // Keep at most MAX tokens per user (drop the oldest), and sweep the
+        // user's expired rows while we are touching them anyway.
+        $trimSql = $wpdb->prepare(
+            'DELETE FROM %i WHERE user_id = %d AND (expires_at < %d OR id NOT IN (
+                SELECT id FROM (
+                    SELECT id FROM %i WHERE user_id = %d ORDER BY id DESC LIMIT %d
+                ) AS keep_rows
+            ))',
+            $this->table(),
+            $userId,
+            time(),
+            $this->table(),
+            $userId,
+            self::MAX_TOKENS_PER_USER
+        );
+        if (is_string($trimSql)) {
+            $wpdb->query($trimSql);
+        }
 
         return new AuthToken($plain, $expiresAt);
     }
@@ -58,19 +92,16 @@ final class TokenStore
             return 0;
         }
 
-        $hash = $this->hash($token);
-        foreach ($this->storedTokens($userId) as $entry) {
-            if (is_string($entry['hash'] ?? null) && hash_equals($entry['hash'], $hash)) {
-                $expires = (int) ($entry['expires'] ?? 0);
-                if ($expires > 0 && $expires < time()) {
-                    return 0;
-                }
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $found = $wpdb->get_var($wpdb->prepare(
+            'SELECT user_id FROM %i WHERE token_hash = %s AND expires_at > %d LIMIT 1',
+            $this->table(),
+            $this->hash($token),
+            time()
+        ));
 
-                return $userId;
-            }
-        }
-
-        return 0;
+        return $found !== null ? (int) $found : 0;
     }
 
     /** Removes one presented token (logout). */
@@ -81,22 +112,37 @@ final class TokenStore
             return;
         }
 
-        $hash = $this->hash($token);
-        $entries = $this->storedTokens($userId);
-        $kept = array_values(array_filter(
-            $entries,
-            static fn (array $entry): bool => !is_string($entry['hash'] ?? null) || !hash_equals($entry['hash'], $hash)
-        ));
-        if (count($kept) !== count($entries)) {
-            update_user_meta($userId, self::META_KEY, $kept);
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $sql = $wpdb->prepare('DELETE FROM %i WHERE token_hash = %s', $this->table(), $this->hash($token));
+        if (is_string($sql)) {
+            $wpdb->query($sql);
         }
     }
 
     /** Invalidates every token of a user (password change / reset). */
     public function revokeAll(int $userId): void
     {
-        if ($userId > 0) {
-            delete_user_meta($userId, self::META_KEY);
+        if ($userId <= 0) {
+            return;
+        }
+
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $sql = $wpdb->prepare('DELETE FROM %i WHERE user_id = %d', $this->table(), $userId);
+        if (is_string($sql)) {
+            $wpdb->query($sql);
+        }
+    }
+
+    /** Deletes every expired row globally; the daily cron entry point. */
+    public static function pruneExpired(): void
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $sql = $wpdb->prepare('DELETE FROM %i WHERE expires_at < %d', $wpdb->prefix . 'aiya_auth_tokens', time());
+        if (is_string($sql)) {
+            $wpdb->query($sql);
         }
     }
 
@@ -113,20 +159,11 @@ final class TokenStore
         return $userId > 0 ? $userId : 0;
     }
 
-    /**
-     * @return list<array<string, mixed>>
-     */
-    private function storedTokens(int $userId): array
+    private function table(): string
     {
-        $meta = get_user_meta($userId, self::META_KEY, true);
-        if (!is_array($meta)) {
-            return [];
-        }
-
-        return array_values(array_filter(
-            $meta,
-            static fn (mixed $entry): bool => is_array($entry) && isset($entry['hash'])
-        ));
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        return $wpdb->prefix . 'aiya_auth_tokens';
     }
 
     private function hash(string $token): string

@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Api\Contract\Pagination;
+use Aiya\Core\Api\Contract\PostSummary;
+use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
+use Aiya\Core\Domain\Content\PublicTypes;
+use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\TokenStore;
 use Aiya\Core\Domain\Identity\AvatarModule;
@@ -18,8 +23,9 @@ use WP_User;
 
 /**
  * Self-service routes for the authenticated user (`aiya/core/v1/users/me`):
- * profile read/update, local avatar upload/removal, password change.
- * Every route requires a session (bearer token or cookie).
+ * profile read/update, favorites (relation table, 0.28.0), local avatar
+ * upload/removal, password change. Every route requires a session (bearer
+ * token or cookie).
  */
 final class UserController
 {
@@ -31,6 +37,9 @@ final class UserController
         private AvatarModule $avatars,
         private TokenStore $tokens,
         private PasswordPolicy $policy,
+        private PostPresenter $postPresenter,
+        private FavoriteService $favorites,
+        private RateLimiter $rateLimiter,
     ) {
     }
 
@@ -40,6 +49,30 @@ final class UserController
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (): WP_REST_Response => $this->me(),
             'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/users/me/favorites', [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->listFavorites($request),
+            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'args' => [
+                'page' => ['type' => 'integer', 'default' => 1, 'minimum' => 1],
+                'perPage' => ['type' => 'integer', 'default' => 12, 'minimum' => 1, 'maximum' => 100],
+            ],
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/users/me/favorites', [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->addFavorite($request),
+            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'args' => ['postId' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/users/me/favorites/(?P<postId>\d+)', [
+            'methods' => WP_REST_Server::DELETABLE,
+            'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->removeFavorite($request),
+            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'args' => ['postId' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/users/me/profile', [
@@ -82,6 +115,55 @@ final class UserController
     private function me(): WP_REST_Response
     {
         return new WP_REST_Response($this->presenter->present($this->currentUser())->toArray());
+    }
+
+    /** The viewer's published favorites, newest first. */
+    private function listFavorites(WP_REST_Request $request): WP_REST_Response
+    {
+        $userId = (int) $this->currentUser()->ID;
+        $page = (int) $request->get_param('page');
+        $perPage = (int) $request->get_param('perPage');
+        $result = $this->favorites->published($userId, $page, $perPage);
+
+        $postType = PublicTypes::get('post') ?? PublicTypes::all()['post'];
+        $items = [];
+        foreach ($result['ids'] as $postId) {
+            $post = get_post($postId);
+            if ($post !== null) {
+                $items[] = $this->postPresenter->summary($post, $postType)->toArray();
+            }
+        }
+
+        return new WP_REST_Response([
+            'data' => $items,
+            'meta' => [
+                'apiVersion' => Contract::VERSION,
+                'requestId' => Envelope::meta()['requestId'],
+                'pagination' => Pagination::fromCounts($page, $perPage, $result['total'])->toArray(),
+            ],
+        ]);
+    }
+
+    private function addFavorite(WP_REST_Request $request): WP_Error|WP_REST_Response
+    {
+        $userId = (int) $this->currentUser()->ID;
+        if (!$this->rateLimiter->hit('favorites_write', 30, 600)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        }
+
+        $added = $this->favorites->add($userId, (int) $request->get_param('postId'));
+        if (is_wp_error($added)) {
+            return $added;
+        }
+
+        return new WP_REST_Response(['favorited' => true]);
+    }
+
+    private function removeFavorite(WP_REST_Request $request): WP_REST_Response
+    {
+        $this->favorites->remove((int) $this->currentUser()->ID, (int) $request->get_param('postId'));
+
+        return new WP_REST_Response(['favorited' => false]);
     }
 
     private function updateProfile(WP_REST_Request $request): WP_Error|WP_REST_Response
