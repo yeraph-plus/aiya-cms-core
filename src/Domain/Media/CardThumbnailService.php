@@ -4,29 +4,27 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Media;
 
-use Aiya\Infra\ImageProcessor\Assets;
-use Aiya\Infra\ImageProcessor\CoverGenerator;
-use Aiya\Infra\ImageProcessor\CoverSpec;
 use Aiya\Infra\ImageProcessor\FirstImageMatcher;
 use Aiya\Infra\ImageProcessor\SaveOptions;
+use Aiya\Infra\ImageProcessor\ThumbnailGenerator;
 use Aiya\Core\Api\Contract\Image;
 use Closure;
 use Imagine\Image\ImagineInterface;
 
 /**
  * The card-thumbnail pipeline (2026-09-11 design): every public post gets
- * one 640x360 composite — background + cover-cropped source + dark mask —
- * stored under the `_thumb` meta key so reads never re-derive from the
- * content. Sources, in order: the generated cover (editor or cron), the
- * featured image, the first content image, the Frontend settings'
- * default-cover placeholder. Reads and writes share this one logic; the
- * cron worker provides the async half (see MediaModule), so listing
- * requests serve the live source URL until the composite exists instead
- * of generating inline.
+ * one 640x360 card stored under the `_thumb` meta key so reads never
+ * re-derive from the content. Sources, in order: the generated cover
+ * (editor or cron), the featured image, the first content image, the
+ * Frontend settings' default-cover placeholder. Reads and writes share
+ * this one logic; the cron worker provides the async half (see
+ * MediaModule), so listing requests serve the live source URL until the
+ * composite exists instead of generating inline.
  *
- * The generation itself reuses the cover generator without a title: the
- * empty title short-circuits text drawing, leaving background, mask and
- * the center-cropped source — which absorbs any aspect ratio.
+ * The composite reuses the package's thumbnail generator — the legacy
+ * recipe: plain cover-crop for near-ratio sources, and for far-ratio ones
+ * a blurred cover-crop background with a white wash plus the contain-fit
+ * foreground centered on top.
  */
 final class CardThumbnailService
 {
@@ -120,17 +118,8 @@ final class CardThumbnailService
             ? strtolower((string) $policy['format'])
             : 'jpg';
 
-        $spec = CoverSpec::fromArray([
-            'model' => 'photo',
-            'width' => self::WIDTH,
-            'height' => self::HEIGHT,
-            'background_image' => $local,
-            'overlay_opacity' => 30,
-            'pattern_material_dir' => Assets::patternDir(),
-        ]);
-
         $dest = $this->paths->coverDir() . '/' . wp_date('YmdHis') . '_' . wp_rand(1000, 9999) . '.' . $format;
-        $generated = (new CoverGenerator($this->imagine))->generate($spec, $dest, SaveOptions::for($format, (int) $policy['quality']));
+        $generated = (new ThumbnailGenerator($this->imagine))->generate($local, $dest, self::WIDTH, self::HEIGHT, SaveOptions::for($format, (int) $policy['quality']));
         if (!is_string($generated)) {
             return false;
         }

@@ -277,11 +277,11 @@ aiya-core/
 
 2026-09-11 站长拍板的图片语义定稿：`_thumb` = 卡片缩略图缓存（640×360 常量写在 CardThumbnailService 顶部，不在正文页复用故单一尺寸）；特色图保持 thumbnail 链第一优先（设计保留），同时作为独立字段输出、用途归前端判断；水印只在上传管线：
 
-- **`Domain/Media/CardThumbnailService`（新）**：读/写同一逻辑——`resolveFor`（不生成）：`_thumb` 合成图 → 实时源（特色图→正文首图，cron 未覆盖前直接给源 URL）→ Frontend 设置默认图占位 → null；`generateFor`（cron 半边）：本地源 → CoverGenerator photo 模式**空标题**（= 背景 + cover-crop + 30% 遮罩，任意比例自适应）→ 落盘 `thumbnail/cover/` + 回写 `_thumb`；`pendingIds` 批量队列（post/page/resource 中无 `_thumb` 的公开文，新文优先，批 10 篇）；
+- **`Domain/Media/CardThumbnailService`（新）**：读/写同一逻辑——`resolveFor`（不生成）：`_thumb` 合成图 → 实时源（特色图→正文首图，cron 未覆盖前直接给源 URL）→ Frontend 设置默认图占位 → null；`generateFor`（cron 半边）：本地源 → 包内 ThumbnailGenerator——忠实沿用旧版 image-manager 配方：比例接近时单层 cover-crop 居中裁切；比例差过大（log 差 ≥ 0.35）时双层渲染（背景 cover-crop 满画布 + 高斯模糊 16 + 白色 55/100 遮罩，前景 contain 等比缩放居中叠加）→ 落盘 `thumbnail/cover/` + 回写 `_thumb`；`pendingIds` 批量队列（post/page/resource 中无 `_thumb` 的公开文，新文优先，批 10 篇）；
 - **异步化**：MediaModule 注册 `aiya_core_thumbnails_generate`（自定义五分钟档，`aiya_core_scheduled_events` 纳管停用清理），列表页零内联生成、杜绝首页大量图超时；
 - **尺寸统一**：CoverService 编辑器封面 800×450 → 640×360（同一常量），与自动缩略图同尺寸；
-- **契约**：`PostDetail` 新增 `hero: ?Image`（特色图 full 原图，标题大幅背景用，用途归前端），PostSummary 不变；front-station zod 同步；
-- 实测：cron 批次生成合成图并回写 `_thumb`、REST thumbnail/hero 双字段输出、无图文章落默认占位、有图未跑 cron 时实时源回退、cron 后切换为合成图；单测 119/283、phpstan、phpcs 全绿。测试数据已清理。
+- **契约**：`PostDetail` 新增 `hero: ?Image`（特色图 full 原图，标题大幅背景用，用途归前端），PostSummary 不变；front-station zod 同步；（0.32.1 修正：初版误接 CoverGenerator 空标题合成，恢复旧版 ThumbnailGenerator 模糊双层配方——0.9.0 时已 1:1 移植）；
+- 实测：cron 批次生成合成图并回写 `_thumb`（含 1:1 源触发模糊合成分支）、REST thumbnail/hero 双字段输出、无图文章落默认占位、有图未跑 cron 时实时源回退、cron 后切换为合成图；单测 119/283、phpstan、phpcs 全绿。测试数据已清理。
 
 ### 持久化命名整改 —— ✅ 已完成（0.31.0）
 
