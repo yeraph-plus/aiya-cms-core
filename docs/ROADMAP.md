@@ -261,15 +261,16 @@ aiya-core/
 - **错误形状**：WP 标准 `{code,message,data:{status}}`，业务码 `aiya_*`；成功载荷纯数据（旧版面向展示的 message/redirect 字段不进契约）；
 - 验证：单测 66/144 全绿；wp-cli + curl 运行时全链路实测（注册→登录→me→资料→赞助 role 语义→头像（协议键形状/128+64 文件/?v= 版本）→改密吊销→找回邮件捕获→validate→reset→新密码登录→登出吊销→key 复用 400→注册关闭 403→未授权 401/409/429 分支），测试数据已清理。
 
-### 用户关系表（收藏/关注/令牌）—— 计划已定（2026-09-09，0.28.0 待实现）
+### 用户关系表（收藏/关注/令牌）—— ✅ 已完成（0.28.0）
 
 目标用户量按万级规划，usermeta 使用收敛为「协议标量键 + 低频写」；数组型 per-user 值一律改关联表（站长拍板：不需要兼容旧数据）：
 
-- **`aiya_user_favorites`**（user_id + post_id 唯一、post_id 反查索引、created_at）：`FavoriteService`（add/remove/list 仅 publish 分页/countForPost 反查）+ `POST|DELETE /users/me/favorites` 写端点（旧主题有收藏功能，新 API 首次落写方）；`ProfilePresenter` favorites 改读表（契约形状不变）；
-- **`aiya_user_follows`**（follower_id + followed_id 唯一、followed_id 反查索引、created_at）：关注能力的数据槽位，端点随前端关注功能批设计；
-- **`aiya_auth_tokens`**（token_hash 唯一键 / user_id / expires_at / created_at）：TokenStore 重写为表读写——修复现 usermeta 数组方案的两个真实缺陷：并发登录的读改写丢失更新（issue() 无锁 append），以及万级用户每次登录的 meta 行写放大；换表后每请求鉴权为 token_hash 索引点查；
-- **协议变更**：`favorite_posts` 降级为死数据（不迁移不读取，见 AGENTS.md 协议表注记）；`aya_trigger_count_sponsor` 在 0.27.0 门禁重写后已无调用方（仅剩兼容读取，零增量写）；
-- **留任 usermeta**（万级下正确）：`sponsor_expiration` / `aya_force_cancel_sponsor` / `basic_user_avatar`（协议键、标量、低频写）、`description`（WP 原生）、资料页字段组 UserMetaStore（限标量字段）。
+- ✅ **`aiya_user_favorites`**（user_id + post_id 唯一、post_id 反查索引、created_at）：`FavoriteService`（add 幂等 / remove / has / published 仅 publish 分页（JOIN posts）/ countForPost 反查）+ `POST|DELETE /users/me/favorites` + `GET /users/me/favorites`（PostSummary 分页）写读端点；`ProfilePresenter` favorites 改读表（契约形状不变，最新收藏在前）；
+- ✅ **`aiya_user_follows`**（follower_id + followed_id 唯一、followed_id 反查索引、created_at）：关注能力数据槽位就绪，端点随前端关注功能批设计；
+- ✅ **`aiya_auth_tokens`**（id 主键 / token_hash 唯一 / user_id / expires_at / created_at）：TokenStore 重写为表读写（API 四方法签名不变）——修复并发登录丢令牌缺陷；上限 10 枚插入时裁剪最旧 + 过期行惰性清扫；每日 cron 全局清理（`aiya_core_auth_tokens_cleanup`，随 IdentityModule 生命周期）；迁移带表存在自检（dbDelta 静默失败时 runner 保持版本不推进、下次重试）；
+- ✅ **协议变更**：`favorite_posts` 降级为死数据（不迁移不读取）；旧令牌不迁移（持有者重新登录即可）；
+- ✅ **留任 usermeta**：`sponsor_expiration` / `aya_force_cancel_sponsor` / `basic_user_avatar`（协议键标量低频写）、`description`（WP 原生）、资料页字段组 UserMetaStore（限标量）；
+- 验证：单测 117/273 全绿；运行时实测（迁移建三表、收藏增删查幂等与反查计数、令牌签发/解析/吊销/上限裁剪/过期清理、usermeta 零写入、HTTP 端点全链路），测试数据已清理。
 
 ### B2 轻社区 Discussion —— ✅ 已完成（0.26.0）
 
