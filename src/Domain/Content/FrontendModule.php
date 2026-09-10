@@ -9,10 +9,10 @@ use Aiya\Core\Settings\Registry;
 
 /**
  * Owns the front-end shell configuration served through GET
- * /aiya/core/v1/site: the branding logo (the customizer logo stays as a
- * legacy fallback), presentation defaults (initial color mode and the
- * site-wide fallback cover) and the compliance footer strings. Media
- * fields store attachment IDs; SitePresenter resolves them to URLs.
+ * /aiya/core/v1/site: presentation defaults (initial color mode, the
+ * site-wide fallback cover, the header banner switch + image) and the
+ * compliance footer strings. Media fields store attachment IDs;
+ * SitePresenter resolves them to URLs.
  */
 final class FrontendModule implements Module
 {
@@ -54,11 +54,11 @@ final class FrontendModule implements Module
                     'level' => '2',
                 ],
                 [
-                    'id' => 'logo',
-                    'type' => 'media',
-                    'label' => __('Site logo', 'aiya-core'),
-                    'description' => __('Shown in the front-end header. Stores an attachment ID; the customizer logo is only a fallback.', 'aiya-core'),
-                    'default' => 0,
+                    'id' => 'color_primary',
+                    'type' => 'color',
+                    'label' => __('Brand color', 'aiya-core'),
+                    'description' => __('Buttons, links and active states across the front end derive from this color.', 'aiya-core'),
+                    'default' => '#e94f69',
                 ],
                 [
                     'id' => 'heading_appearance',
@@ -83,6 +83,26 @@ final class FrontendModule implements Module
                     'type' => 'media',
                     'label' => __('Default cover image', 'aiya-core'),
                     'description' => __('Fallback cover for posts without a featured image or a generated one.', 'aiya-core'),
+                    'default' => 0,
+                ],
+                [
+                    'id' => 'heading_banner',
+                    'type' => 'heading',
+                    'label' => __('Header banner', 'aiya-core'),
+                    'level' => '2',
+                ],
+                [
+                    'id' => 'banner_enabled',
+                    'type' => 'switch',
+                    'label' => __('Show the header banner', 'aiya-core'),
+                    'description' => __('Turns the compact top bar into a tall header backed by the banner image.', 'aiya-core'),
+                    'default' => false,
+                ],
+                [
+                    'id' => 'banner_image',
+                    'type' => 'media',
+                    'label' => __('Banner image', 'aiya-core'),
+                    'description' => __('Wide image shown behind the top navigation while the banner is on.', 'aiya-core'),
                     'default' => 0,
                 ],
                 [

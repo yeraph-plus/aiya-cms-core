@@ -156,6 +156,11 @@ final class ContractsSnapshot
 
         $name = $type->getName();
 
-        return $type->isBuiltin() ? $name : substr($name, (int) strrpos('\\' . $name, '\\') + 1);
+        $pos = strrpos($name, '\\');
+        if ($pos === false) {
+            return $name;
+        }
+
+        return substr($name, $pos + 1);
     }
 }
