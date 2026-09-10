@@ -273,6 +273,14 @@ aiya-core/
 - ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
 - 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
+### 评论加固 —— ✅ 已完成（0.34.1）
+
+M5 收尾项。原生防线经 `wp_new_comment` 已全部生效（重复/泛洪/禁词名单/链接数审核 `comment_max_links`/审核决策/老评论者白名单/`comment_registration`/`require_name_email`），本批补齐路由层缺口：
+
+- **honeypot**：POST 契约新增 `website` 参数——前端评论岛须渲染一个隐藏输入（人类不填），任何值 → 400 `aiya_honeypot`；
+- **泛洪映射**：native `comment_flood`（同作者 `comment_flood_threshold` 秒内连发）从误映射的 409 改为 429 `aiya_comment_flood`；重复保持 409；
+- 实测四条防线：首评 held、同文 409、快速连发 429、蜜罐 400。
+
 ### 模板零件框架（编辑器侧）—— ✅ 已完成（0.34.0）
 
 旧 Thickbox 短代码输入器的重构替换（2026-09-11 拍板：**只迁框架，不迁 12 个旧短代码组件**——旧组件是服务端 Tailwind HTML 渲染，与新「零件结构化、Astro 渲染」语义不合，目录默认为空）：
@@ -420,7 +428,7 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 
 ### M5 版本化 REST ＋ Astro SSR
 
-- `Api/Rest/`：命名空间 `aiya/core/v1`；控制器只调用 M4 的读服务与 Presenter；**认证/用户域骨架已随 M4 用户域批次落地（0.12.0：RestController 模块、Bearer 认证、auth/users 路由、限流）**，本里程碑追加内容资源：内容列表/详情、terms、导航菜单、面包屑/分页（嵌入响应元数据）、站点设置白名单、媒体引用；**评论走 `/wp/v2/comments` 原生路由（保留开放）＋加固层**（限流、垃圾规则、`rest_pre_insert_comment` 钩子——`preprocess_comment` 在 REST 写入路径不触发），Astro 侧评论系统建立其上；
+- `Api/Rest/`：命名空间 `aiya/core/v1`；控制器只调用 M4 的读服务与 Presenter；**认证/用户域骨架已随 M4 用户域批次落地（0.12.0：RestController 模块、Bearer 认证、auth/users 路由、限流）**，本里程碑追加内容资源：内容列表/详情、terms、导航菜单、面包屑/分页（嵌入响应元数据）、站点设置白名单、媒体引用；**评论已落 `aiya/core/v1/content/{id}/comments`（0.20.0 改道，`wp_new_comment` 经典管线全触发——`preprocess_comment`/duplicate/flood/禁词名单/审核决策均有效，`rest_pre_insert_comment` 顾虑随改道消失）＋加固层 ✅（0.34.1：API 限流 5/10min、honeypot 隐藏字段 `website`（前端评论岛建设时需渲染该隐藏输入）、泛洪映射 429、重复 409、WP 讨论设置（comment_registration/require_name_email/comment_max_links/审核与老评论者白名单）全部原生生效），Astro 侧评论系统建立其上；
 - 公开读 + 应用密码写；CORS：WP 核心 `rest_send_cors_headers` 现状为回显任意请求 Origin 且 `Allow-Credentials: true`（`wp-includes/rest-api.php`），浏览器直连端点（互动计数、将来评论）因此已跨域可用、无需自写——M5 将其**收紧为 Astro 来源白名单**，与评论加固层同批落地；ETag / Cache-Control；
 - **模板零件**（2026-09-08 拍板计划迁移）：旧经典编辑器短代码输入器重设计——后台保留录入 UI（录入规范化零件数据），API 对短代码类内容输出规范化零件结构（不渲染 HTML），Astro 侧建立逐零件解析渲染；零件契约形状随首个真实零件出现时定；
 - 产出面向前端的类型契约（OpenAPI 或从 Contract 生成 TS 类型脚本）；

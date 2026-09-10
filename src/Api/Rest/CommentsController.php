@@ -60,6 +60,8 @@ final class CommentsController
                 'authorEmail' => ['type' => 'string', 'required' => false, 'format' => 'email'],
                 'body' => ['type' => 'string', 'required' => true],
                 'parentId' => ['type' => 'integer', 'required' => false, 'minimum' => 1],
+                /** Honeypot: the front end renders a hidden input humans never fill. */
+                'website' => ['type' => 'string', 'required' => false, 'maxLength' => 200],
             ],
         ]);
     }
@@ -110,6 +112,12 @@ final class CommentsController
     {
         if (!$this->rateLimiter->hit('comment', self::HITS, self::WINDOW)) {
             return new WP_Error('aiya_rate_limited', __('Too many requests, please retry later.', 'aiya-core'), ['status' => 429]);
+        }
+
+        // Honeypot: the front end renders a hidden "website" input that a
+        // human never fills; any value marks the submit as bot traffic.
+        if (trim((string) $request->get_param('website')) !== '') {
+            return new WP_Error('aiya_honeypot', __('The comment could not be posted.', 'aiya-core'), ['status' => 400]);
         }
 
         $postId = (int) $request->get_param('id');
@@ -192,11 +200,17 @@ final class CommentsController
         ], true);
 
         if (is_wp_error($commentId)) {
-            $code = $commentId->get_error_code() === 'comment_duplicate'
-                ? 'aiya_duplicate_comment'
-                : 'aiya_comment_rejected';
+            $code = $commentId->get_error_code();
+            if ($code === 'comment_duplicate') {
+                return new WP_Error('aiya_duplicate_comment', __('The comment could not be posted.', 'aiya-core'), ['status' => 409]);
+            }
+            if ($code === 'comment_flood') {
+                // Native flood control (comment_flood_threshold seconds
+                // between comments by the same author).
+                return new WP_Error('aiya_comment_flood', __('You are commenting too quickly. Slow down.', 'aiya-core'), ['status' => 429]);
+            }
 
-            return new WP_Error($code, __('The comment could not be posted.', 'aiya-core'), ['status' => 409]);
+            return new WP_Error('aiya_comment_rejected', __('The comment could not be posted.', 'aiya-core'), ['status' => 409]);
         }
         if (!is_int($commentId) || $commentId <= 0) {
             return new WP_Error('aiya_comment_rejected', __('The comment could not be posted.', 'aiya-core'), ['status' => 500]);
