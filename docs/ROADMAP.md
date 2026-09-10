@@ -273,6 +273,10 @@ aiya-core/
 - ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
 - 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
+### 评论改登录-only —— ✅ 已完成（0.34.2）
+
+2026-09-11 拍板简化：评论**仅限登录用户**，账户墙即反垃圾层——0.34.1 的 honeypot 字段与匿名身份（authorName/authorEmail）校验路径整体移除，`comment_registration`/`require_name_email` 设置不再消费。POST 契约收缩为 `{body, parentId?}`；匿名 401 `aiya_login_required`，作者身份取会话 display_name/email；原生管线（重复/泛洪 429/禁词/审核决策）保留。实测：匿名 401、订阅者首评 200 held。
+
 ### 评论加固 —— ✅ 已完成（0.34.1）
 
 M5 收尾项。原生防线经 `wp_new_comment` 已全部生效（重复/泛洪/禁词名单/链接数审核 `comment_max_links`/审核决策/老评论者白名单/`comment_registration`/`require_name_email`），本批补齐路由层缺口：

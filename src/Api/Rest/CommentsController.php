@@ -18,11 +18,12 @@ use WP_User;
 /**
  * Comment read/write for the headless front end
  * (`aiya/core/v1/content/{id}/comments`), covering every public
- * commentable type (post, page, resource). Writes go through
- * wp_new_comment, so the classic pipeline applies: preprocess_comment,
- * flood throttle, duplicate check and the moderation decision. Only
- * approved comments are ever listed; held ones answer with their queue
- * status instead of a silent 404-style drop.
+ * commentable type (post, page, resource). Writes are login-only (the
+ * session is the whole identity) and go through wp_new_comment, so the
+ * classic pipeline applies: flood throttle, duplicate check, the
+ * disallowed list and the moderation decision. Only approved comments
+ * are ever listed; held ones answer with their queue status instead of
+ * a silent 404-style drop.
  */
 final class CommentsController
 {
@@ -56,12 +57,8 @@ final class CommentsController
             'permission_callback' => '__return_true',
             'args' => [
                 'id' => ['type' => 'integer', 'required' => true, 'minimum' => 1],
-                'authorName' => ['type' => 'string', 'required' => false, 'maxLength' => 245],
-                'authorEmail' => ['type' => 'string', 'required' => false, 'format' => 'email'],
                 'body' => ['type' => 'string', 'required' => true],
                 'parentId' => ['type' => 'integer', 'required' => false, 'minimum' => 1],
-                /** Honeypot: the front end renders a hidden input humans never fill. */
-                'website' => ['type' => 'string', 'required' => false, 'maxLength' => 200],
             ],
         ]);
     }
@@ -114,12 +111,6 @@ final class CommentsController
             return new WP_Error('aiya_rate_limited', __('Too many requests, please retry later.', 'aiya-core'), ['status' => 429]);
         }
 
-        // Honeypot: the front end renders a hidden "website" input that a
-        // human never fills; any value marks the submit as bot traffic.
-        if (trim((string) $request->get_param('website')) !== '') {
-            return new WP_Error('aiya_honeypot', __('The comment could not be posted.', 'aiya-core'), ['status' => 400]);
-        }
-
         $postId = (int) $request->get_param('id');
         $post = $this->publicPost($postId);
         if ($post === null) {
@@ -155,36 +146,16 @@ final class CommentsController
         // The contract body is plain text, so storage is plain text too.
         $body = wp_strip_all_tags($body);
 
+        // Login-only commenting (2026-09-11 decision): the session is the
+        // whole identity, so no anonymous name/email handling and no
+        // honeypot — the account wall is the anti-spam measure.
         $user = wp_get_current_user();
-        $loggedIn = $user instanceof WP_User && $user->ID > 0;
-
-        $authorName = '';
-        $authorEmail = '';
-        if ($loggedIn) {
-            $authorName = (string) $user->display_name;
-            $authorEmail = (string) $user->user_email;
-        } else {
-            if ((bool) get_option('comment_registration')) {
-                return new WP_Error('aiya_login_required', __('Please log in to comment.', 'aiya-core'), ['status' => 401]);
-            }
-
-            $authorName = trim(sanitize_text_field((string) $request->get_param('authorName')));
-            $authorEmail = sanitize_email((string) $request->get_param('authorEmail'));
-
-            $requiresIdentity = (bool) get_option('require_name_email');
-            if ($authorName === '' || !is_email($authorEmail)) {
-                if ($requiresIdentity) {
-                    return new WP_Error(
-                        'aiya_invalid_param',
-                        __('Please provide your name and a valid email address.', 'aiya-core'),
-                        ['status' => 400]
-                    );
-                }
-                if ($authorEmail !== '' && !is_email($authorEmail)) {
-                    return new WP_Error('aiya_invalid_param', __('Please provide a valid email address.', 'aiya-core'), ['status' => 400]);
-                }
-            }
+        if (!$user instanceof WP_User || $user->ID === 0) {
+            return new WP_Error('aiya_login_required', __('Please log in to comment.', 'aiya-core'), ['status' => 401]);
         }
+
+        $authorName = (string) $user->display_name;
+        $authorEmail = (string) $user->user_email;
 
         $commentId = wp_new_comment([
             'comment_post_ID' => $postId,
@@ -193,7 +164,7 @@ final class CommentsController
             'comment_author_email' => $authorEmail,
             'comment_author_url' => '',
             'comment_content' => $body,
-            'user_id' => $loggedIn ? (int) $user->ID : 0,
+            'user_id' => (int) $user->ID,
             'comment_author_IP' => (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
             'comment_agent' => (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''),
             'comment_date' => current_time('mysql'),
