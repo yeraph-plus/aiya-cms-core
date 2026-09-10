@@ -16,25 +16,24 @@ use Aiya\Core\Settings\Registry;
  * Comment storage and moderation stay in WordPress (the classic
  * moderation screen remains the admin tool); the Astro front end talks
  * to aiya/core/v1/content/{id}/comments, so the native /wp/v2/comments
- * route is retired unconditionally — for every user, master switch
- * included. Comment REST belongs to the versioned contract.
- * Pingbacks and trackbacks are protocol-level spam vectors and stay
- * disabled by default regardless.
+ * route is retired unconditionally — for every user and every toggle
+ * state. Comment REST belongs to the versioned contract. Pingbacks and
+ * trackbacks are protocol-level spam vectors and stay disabled by
+ * default regardless.
  *
  * Everything here works from a normal active plugin: core loads plugins
  * before admin_menu / init / rest_endpoints, and every guard below is a
  * runtime filter or a hook owned by admin requests. No MU plugin is
- * required, and staying a normal plugin keeps the master switch as a real
- * escape hatch instead of a hard-wired state.
+ * required, and each toggle stays an independent runtime switch.
  *
- * The toggles live in the aiya_core_headless option and default to "strip"
- * so a fresh activation is headless by design; flipping headless_mode off
- * restores stock WordPress behaviour without code changes (except the
- * retired comment REST route, which never comes back).
+ * The toggles live in the aiya_core_optimization option and default to
+ * "strip" so a fresh activation is headless by design; turning an
+ * individual toggle off restores that one surface without code changes
+ * (except the retired comment REST route, which never comes back).
  */
 final class HeadlessModule implements Module
 {
-    private const PAGE_SLUG = 'headless';
+    private const PAGE_SLUG = 'optimization';
 
     public function __construct(private Registry $settings)
     {
@@ -50,18 +49,13 @@ final class HeadlessModule implements Module
     }
 
     /**
-     * @return bool True when a feature toggle is enabled; toggles default to
-     *              enabled through the field defaults, so an unsaved option
-     *              still yields a stripped site.
+     * @return bool True when the feature toggle is enabled; toggles default
+     *              to enabled through the field defaults, so an unsaved
+     *              option still yields a stripped site.
      */
     private function enabled(string $field): bool
     {
-        return $this->masterOn() && (bool) aiya_core_opt(self::PAGE_SLUG, $field, true);
-    }
-
-    private function masterOn(): bool
-    {
-        return (bool) aiya_core_opt(self::PAGE_SLUG, 'headless_mode', true);
+        return (bool) aiya_core_opt(self::PAGE_SLUG, $field, true);
     }
 
     public function settings(): void
@@ -71,28 +65,18 @@ final class HeadlessModule implements Module
             'title' => __('Optimization', 'aiya-core'),
             'menu_title' => __('Optimization', 'aiya-core'),
             'parent' => 'aiya-core-frontend',
-            'option_name' => 'aiya_core_headless',
+            'option_name' => 'aiya_core_optimization',
             'fields' => [
-                [
-                    'id' => 'headless_mode',
-                    'type' => 'switch',
-                    'label' => __('Master switch', 'aiya-core'),
-                    'checkbox_label' => __('Strip headless-irrelevant WordPress features', 'aiya-core'),
-                    'description' => __('Turn off to restore stock WordPress behaviour without code changes.', 'aiya-core'),
-                    'default' => true,
-                ],
                 [
                     'id' => 'note_scope',
                     'type' => 'note',
-                    'variant' => 'warning',
-                    'label' => __('These toggles only apply while the master switch is on.', 'aiya-core'),
-                    'description' => __('Stripping is enforced at runtime; REST reads for content stay available for the Astro front end.', 'aiya-core'),
+                    'label' => __('Stripping is enforced at runtime; REST reads for content stay available for the Astro front end.', 'aiya-core'),
                     'default' => null,
                 ],
                 [
-                    'id' => 'heading_editor',
+                    'id' => 'heading_features',
                     'type' => 'heading',
-                    'label' => __('Editor surfaces', 'aiya-core'),
+                    'label' => __('Disabled features', 'aiya-core'),
                     'level' => '2',
                 ],
                 [
@@ -110,10 +94,26 @@ final class HeadlessModule implements Module
                     'default' => true,
                 ],
                 [
-                    'id' => 'heading_front_protocol',
-                    'type' => 'heading',
-                    'label' => __('Front end and protocols', 'aiya-core'),
-                    'level' => '2',
+                    'id' => 'disable_appearance',
+                    'type' => 'switch',
+                    'label' => __('Customizer and site editor', 'aiya-core'),
+                    'checkbox_label' => __('Remove the customizer and site editor screens and block direct access', 'aiya-core'),
+                    'description' => __('The themes screen and menu management stay available so the shell theme can be switched.', 'aiya-core'),
+                    'default' => true,
+                ],
+                [
+                    'id' => 'disable_fonts_global_styles',
+                    'type' => 'switch',
+                    'label' => __('Font library and global styles', 'aiya-core'),
+                    'checkbox_label' => __('Remove the font library screen and the font/global-style REST routes', 'aiya-core'),
+                    'default' => true,
+                ],
+                [
+                    'id' => 'disable_block_patterns',
+                    'type' => 'switch',
+                    'label' => __('Block patterns and block directory', 'aiya-core'),
+                    'checkbox_label' => __('Drop core block patterns, remote patterns and their REST routes', 'aiya-core'),
+                    'default' => true,
                 ],
                 [
                     'id' => 'disable_pings',
@@ -150,34 +150,6 @@ final class HeadlessModule implements Module
                     'checkbox_label' => __('Strip generator, RSD, shortlink, REST hints and block CSS from front-end output', 'aiya-core'),
                     'default' => true,
                 ],
-                [
-                    'id' => 'heading_admin_surfaces',
-                    'type' => 'heading',
-                    'label' => __('Admin screens and block services', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'disable_appearance',
-                    'type' => 'switch',
-                    'label' => __('Customizer and site editor', 'aiya-core'),
-                    'checkbox_label' => __('Remove the customizer and site editor screens and block direct access', 'aiya-core'),
-                    'description' => __('The themes screen and menu management stay available so the shell theme can be switched.', 'aiya-core'),
-                    'default' => true,
-                ],
-                [
-                    'id' => 'disable_fonts_global_styles',
-                    'type' => 'switch',
-                    'label' => __('Font library and global styles', 'aiya-core'),
-                    'checkbox_label' => __('Remove the font library screen and the font/global-style REST routes', 'aiya-core'),
-                    'default' => true,
-                ],
-                [
-                    'id' => 'disable_block_patterns',
-                    'type' => 'switch',
-                    'label' => __('Block patterns and block directory', 'aiya-core'),
-                    'checkbox_label' => __('Drop core block patterns, remote patterns and their REST routes', 'aiya-core'),
-                    'default' => true,
-                ],
             ],
         ]);
     }
@@ -188,10 +160,6 @@ final class HeadlessModule implements Module
      */
     public function apply(): void
     {
-        if (!$this->masterOn()) {
-            return;
-        }
-
         if ($this->enabled('disable_block_editor')) {
             add_filter('use_block_editor_for_post', '__return_false');
             add_filter('use_block_editor_for_post_type', '__return_false');

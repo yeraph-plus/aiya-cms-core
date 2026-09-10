@@ -153,8 +153,10 @@ aiya-core/
 │  │                                #   与Trackback/前台头部冗余/Emoji/oEmbed/XML-RPC）；评论存储
 │  │                                #   与审核面保留（WP 后台治理，Astro 经 aiya 路由读写），
 │  │                                #   /wp/v2/comments 无条件退役（0.29.0：不分匿名/登录态、
-│  │                                #   不受总开关约束，kill switch 随之删除）；其余开关存储在
-│  │                                #   aiya_core_headless，总开关 off = 恢复原生行为；已对照
+│  │                                #   不受开关约束，kill switch 随之删除）；开关存储在
+│  │                                #   aiya_core_optimization（0.39.0 起改名并移除总开关，
+│  │                                #   旧 aiya_core_headless 经 SchemaVersionRunner 迁移，
+│  │                                #   各开关逐项独立生效）；已对照
 │  │                                #   WP 7.1 源码逐钩子验证，普通插件即可实现全部裁剪，无需 MU
 │  │  └─ Security/                   # ✅ 0.4.0：SecurityModule——REST users/sitemap users 移除、
 │  │                                #   强制邮箱登录、后台角色门禁、登录页参数门禁、URI 探测拦截；
@@ -270,7 +272,7 @@ aiya-core/
 
 - ✅ **Frontend 设置页**（`Domain/Content/FrontendModule`，option `aiya_core_frontend`，父菜单 aiya-core-sample）：品牌 logo（media 存附件 ID——customizer `custom_logo` 降级为兜底，修复 `disable_appearance` 拆掉 customizer 后 Site.logo 永远填不上的缺陷）、外观默认值（`default_color_mode` system/dark/light 沿旧 opt-basic 语义、`default_thumb` 站点级兜底封面）、合规页脚（`icp_beian` / `mps_beian` / `mps_code` 公安查询链接用纯数字段 / `footer_note`，旧 opt-basic 合规语义照搬键意）；
 - ✅ **`GET /site` 扩展**（向后兼容加字段）：`defaults: {colorMode, thumb}` + `footer: {icp, mps, mpsCode, note}`；新契约 `SiteDefaults` / `SiteFooter`（零 WP 依赖 + 锁形单测）；`SitePresenter` 组装（附件 ID → full 尺寸 Image，alt 取附件题名缺省站点名；colorMode 白名单校验）；front-station `contracts.ts` siteSchema + mock 同步（页面消费随前端接线批）；未配置时输出兜底值（logo null、system、全空串），每页 SSR 的 /site 新增成本仅 2 次 attachment 查询，不加缓存层（HTTP 缓存头留 M5）；
-- ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
+- ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受任何开关控制）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
 - 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
 ### 契约减负：Profile.banner 砍除 —— ✅ 已完成（0.35.1）
@@ -498,6 +500,53 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - 契约：`SiteDefaults` 扩展 `theme: SiteTheme`（`{primary: string}`，六位 hex、大写归一）；`/site` 的 `defaults.theme.primary` 驱动前端品牌色板；
 - 设置：Frontend 页新增 Branding 区 `color_primary` 取色器（框架原生 `color` 类型 + wp-color-picker，非 hex 输入按默认 `#e94f69` 回退）；
 - 前端（front-station）：AppShell head 内联 `:root:root{--primary;--primary-foreground}` 覆盖 tokens（SSR 直出零 FOUC；对比度 YIQ 自动选白/深墨；ClientRouter 换页随 head 持久；prerender 后烘入静态页）。zod `siteThemeSchema` 正则校验同步、快照测试 manifest 注册 `SiteTheme`。
+
+### Optimization 页重排与总开关移除 —— ✅ 已完成（0.39.0）
+
+- 页面 slug：`aiya-core-headless` → `aiya-core-optimization`；选项存储 `aiya_core_headless` → `aiya_core_optimization`，经 SchemaVersionRunner 0.39.0 迁移（拷贝旧值、剔除 `headless_mode` 与历史 `"0"` 残键、删除旧 option；`AIYA_CORE_VERSION` 常量此前停在 0.36.4 与插件头 0.38.0 脱节，本批对齐）；
+- 总开关（`headless_mode`）整套移除：十项裁剪开关逐项独立生效，关闭任一项只恢复该表面（`/wp/v2/comments` 退役不受影响，本就无开关）；
+- 分组重排：原「Editor surfaces / Front end and protocols / Admin screens and block services」三组合并为「Disabled features（功能禁用）」一组；AvatarModule、SlugModule 各自挂「Avatar settings（头像设置）」「Slug generation（别名生成）」组标题（原先散落在最后一组标题之下）；TypographyModule 组移至页尾（`aiya_core_register` 优先级 10 → 12）；
+- 控件：`avatar_cdn_mirror` 与 `slug_post_mode` 由 select 改 radio（页面上仅有的两个 select，选项平铺一目了然）；
+- 测试：新增 HeadlessSettingsMigrationTest（全套 137 tests / 310 assertions）；zh_CN PO 同步增删条目并重编译 MO。
+
+### Security 页 REST 开关聚合与三组重排 —— ✅ 已完成（0.40.0）
+
+2026-09-11 拍板：前端只走 aiya/core/v1，原生 /wp/v2 已无公开消费方，两个细粒度开关没有继续拆分的意义：
+
+- **开关聚合**：`guard_rest_users`（/wp/v2/users 匿名剥离）+ `lock_rest_surface`（仅契约路由公开）合并为 `lock_wp_v2` 一项——开启时整个 /wp/v2 对无 `edit_posts` 会话的访客 404（`filterUserEndpoints` 删除，`lockPublicSurface` 接管唯一开关）；副产物修复：后台会话取回 /wp/v2/users，旧媒体库作者筛选降级问题消除；`filterIndexNamespaces` 的命名空间裁剪保留 gateway 前缀（路由公开则索引应列出）。存量 `aiya_core_security` option 未曾保存（纯默认值运行），干净换名无迁移；
+- **分组重排**：页面按「REST 路由控制（REST route control：lock_wp_v2、hide_sitemap_users、rest_allowed_origins）/ 登录限制（Login restrictions：force_email_login、password_reset_allowed_hosts、login_param_gate_enable、login_param_gate_value）/ 后台防护（Admin protection：admin_backend_min_role、request_uri_guard）」三组呈现，REST 相关设置全部前置；
+- 验证：匿名 HTTP 实测 /wp-json/wp/v2/posts 与 /wp-json/wp/v2/users 均 404、/wp-json/aiya/core/v1/site 200、REST index namespaces 仅剩 `aiya/core/v1`；admin 会话下 /wp/v2 全量可用（wp-cli 双态模拟）；zh_CN PO 增删条目并重编译 MO。
+
+### ThemeSupport 域：主题支持收归插件 —— ✅ 已完成（0.41.0）
+
+2026-09-11 拍板：壳主题回到字面零引导，`add_theme_support` 声明由 aiya-core 持有（可行性先行研究：WP 7.1 的 `$_wp_theme_features` 为纯全局读写，全部消费点（metabox 双重检查/媒体弹窗/body class）都在 init 之后执行，插件在 after_setup_theme 声明完全有效）：
+
+- **新域 `Domain/ThemeSupport/ThemeSupportModule`**，挂 `after_setup_theme` 优先级 20（晚于任何主题自身注册，无参声明把主题的窄化列表扩展为全类型）：
+  - `post-thumbnails`：特色图 metabox 与媒体弹窗是编辑面而非主题特性；无参声明（检查层全放行），真实白名单是各类型自己的 `thumbnail` supports（post/page 内置自带、resource CPT 显式声明）；REST `featured_media` 与 `featured` 契约字段本就不读该全局，零影响；
+  - `image_default_link_type` 钉死 'none'（`pre_option_` 过滤器，不落库）：旧主题同块遗留策略的移植——内容图片不得链接到 WP 渲染的附件页（Astro 无此路由），新装/重置选项表行为一致；
+- **旧主题清单逐项判定**（framework-required register-theme-support，after_setup_theme 块）：`automatic-feed-links`/`title-tag` 只渲染 wp_head（壳兜底页自写 `<title>`、不该长 feed links，不声明才正确）；`menus` 不需要（导航是设置驱动，插件零 nav_menu 调用，设置页文案明说替代 WP 菜单系统）；`post-formats` 唯一消费方 Tweet 域已取消（死数据，声明反而在经典编辑器冒出 Format 噪音）；`html5` 作用于主题渲染的核心标记（搜索/评论表单/画廊），前台归 Astro；`custom-logo`/`custom-background` 是定制器特性，定制器已被 HeadlessModule 拆除；同块的 `add_rewrite_tag('%page_type%')` 属旧路由随旧 REST 退役；
+- **壳主题** functions.php 删除唯一钩子，回归纯头文件（style.css + 头守卫 + 兜底 index.php）；
+- 测试：新增 ThemeSupportModuleTest 3 用例（钩子挂载、无参声明语义、option 钉死），bootstrap 垫片补 `add_theme_support`（全套 140 tests / 314 assertions）；phpstan 全绿。
+
+### 顶栏 banner 契约与 Frontend 设置 —— ✅ 已完成（0.42.0）
+
+- **契约**：`Site` 新增 `banner: ?Image`（favicon 之后，快照同步）——Frontend 页 `banner_enabled` 开且 `banner_image` 附件可用时输出完整 Image DTO，否则 null（`SitePresenter::banner()` 读 `aiya_core_opt('frontend', ...)`，`attachmentImage` 复用）；
+- **设置**：Frontend 页「Presentation defaults」后新增 Header banner 组两项：`banner_enabled`（框架 `switch` 类型）+ `banner_image`（media）；关闭即无 banner；
+- **前端（front-station）桌面顶栏重构**：去白底与边框线（静止全透明，滚动后 `data-stuck` 换 82% 背景 + backdrop-blur 毛玻璃，document 级 scroll 委托 + astro:after-swap 重查）；贴左 = 折叠按钮 + 半透明圆角搜索框（内嵌放大镜，`bg-background/60` + blur）；贴右 = 暗色切换 + 用户簇；顶栏恒定紧凑高度（2026-09-11 拍板：banner 不参与顶栏高度）；
+- **banner 主体层**：有 banner 时内容列顶部（header 之下、main 之前）渲染 h-40 图片条，随页面自然滚动，与顶栏零重叠；
+- **暗色模式全链路**：tokens.css 全部语义色改 var 间接（`:root` 亮 + `.dark` 暗双板，`@theme inline` 映射；侧栏硬编码 hover 色一并 token 化；暗色板为临时中性方案，待暗色设计规格后细化）；BaseHead 预涂装内联脚本按 localStorage → `html[data-color-mode-default]`（site `defaults.colorMode`）→ 系统偏好解析，`data-astro-rerun` 随 ClientRouter 换页重跑；顶栏月亮/太阳图标经 `dark:` 变体纯 CSS 显隐，切换写同一 localStorage 键；
+- **通知铃铛（登录后簇）**：铃铛（details 面板 + 未读点）+ 纯头像 dropdown（原昵称 summary 简化，昵称留面板头）；新增同源代理 `GET /api/notifications/`（cookie bearer 转发 `/notifications`，游客空表、上游错误透传状态码）；已读态按契约归前端——localStorage last-seen 与 items 最新 `createdAt` 字典序比较，面板打开即落盘清点；日期经 `data-locale-tag`（toBcp47）本地化；
+- 测试：SiteContractTest 补 banner 双态断言（全套 140 tests / 316 assertions）；前端 siteSchema.banner + mock/fallback `banner: null` + 四字典补 4 键（vitest 138、astro check 0 错误、live 冒烟含 banner 明暗双态与滚动吸顶实测）。
+
+### 自兼容清理：未上线拍板 —— ✅ 已完成（0.43.0）
+
+2026-09-11 拍板：新版 core 从未上线运行，自迭代产生的字段转换与自兼容层全部清除，过时行按死数据处理：
+
+- **迁移瘦身**：HeadlessModule 的 0.39.0 `aiya_core_headless→aiya_core_optimization` option 迁移删除（本站已迁移完毕，全新库无旧键）；IdentityModule 的 `normalizeTokenExpiry`（int→DATETIME）与 NotificationService 的 `renameRoleLevel`（role_level→min_role）两处 0.31.0 列转换删除——均为 dev 期表结构演化的自兼容，现库已终态；迁移回调直指建表（installTables/installTable），迁移面只剩幂等建表；
+- **全新安装建表缺口修复**：`activate()` 原本记录当前版本号导致 runner 跳过全部迁移、全新安装不建任何表——改为记录 `0.0.0`，首次引导经 runner 执行全部建表迁移后推进到当前版本；
+- **Avatar 形状收敛**：`basic_user_avatar` 只认现行 `thumbnail/avatars/` 文件形状（新增 FILE_PATH_PREFIX 前缀守卫），媒体库 era（`['id'=>…]`）与旧 `avatars/` 路径/绝对 URL 形状按 2026-09-11 拍板成死数据不再读取，携带者回退 Gravatar 镜像（本站 user 1 旧路径行实测回退正确）；
+- 协议语义保留不动：CounterService 对旧主题 like/view 计数值的读写兼容属原始迁移契约；
+- 测试：HeadlessSettingsMigrationTest 随迁移代码删除（全套 136 tests / 309 assertions）；phpstan 全绿。
 
 ## 五、执行纪律
 

@@ -13,9 +13,12 @@ use Aiya\Core\Settings\Registry;
  * Security hardening for the headless backend, ported from the still-valid
  * surface of the legacy basic-security component.
  *
- * Scope (batch 1 of docs/optimize-migration-assessment.md):
- *  - deny anonymous enumeration of users over REST (/wp/v2/users) — author
- *    data reaches the front end through the M4 AuthorDto instead;
+ * Scope (batch 1 of docs/optimize-migration-assessment.md, REST surface
+ * reworked in 0.40.0):
+ *  - serve the versioned contract routes only: the whole native /wp/v2 API
+ *    answers 404 to anyone without a backend session (the front end talks
+ *    to aiya/core/v1 exclusively, so /wp/v2 has no public consumer left —
+ *    user enumeration goes with it);
  *  - drop the users provider from WP sitemaps;
  *  - force email-address logins for wp-admin;
  *  - optional role gate for the admin back end;
@@ -52,7 +55,6 @@ final class SecurityModule implements Module
         add_action('admin_init', [$this, 'guardBackend']);
         add_action('login_init', [$this, 'gateLoginPage']);
         add_filter('authenticate', [$this, 'forceEmailLogin'], 20, 3);
-        add_filter('rest_endpoints', [$this, 'filterUserEndpoints']);
         add_filter('rest_endpoints', [$this, 'lockPublicSurface'], 100);
         add_filter('rest_index', [$this, 'filterIndexNamespaces'], 100);
         add_filter('wp_sitemaps_add_provider', [$this, 'filterSitemapProviders'], 10, 2);
@@ -74,19 +76,17 @@ final class SecurityModule implements Module
             'option_name' => 'aiya_core_security',
             'fields' => [
                 [
-                    'id' => 'guard_rest_users',
-                    'type' => 'switch',
-                    'label' => __('REST user enumeration', 'aiya-core'),
-                    'checkbox_label' => __('Remove the /wp/v2/users endpoints for anonymous visitors', 'aiya-core'),
-                    'description' => __('Author data reaches the front end through the post DTOs. Admin screens that read /wp/v2/users (media library author filter) degrade; turn off if that matters.', 'aiya-core'),
-                    'default' => true,
+                    'id' => 'heading_rest',
+                    'type' => 'heading',
+                    'label' => __('REST route control', 'aiya-core'),
+                    'level' => '2',
                 ],
                 [
-                    'id' => 'lock_rest_surface',
+                    'id' => 'lock_wp_v2',
                     'type' => 'switch',
-                    'label' => __('Public REST surface', 'aiya-core'),
-                    'checkbox_label' => __('Expose only aiya/core/v1 routes to visitors — the whole /wp/v2 API answers 404 for anyone without a backend session', 'aiya-core'),
-                    'description' => __('The headless contract API stays open. Backend users (administrator, editor, author cookie sessions or equivalent application passwords) keep the full WP REST API for admin screens.', 'aiya-core'),
+                    'label' => __('Native /wp/v2 REST API', 'aiya-core'),
+                    'checkbox_label' => __('Answer 404 for the whole /wp/v2 API — only the aiya contract routes stay public', 'aiya-core'),
+                    'description' => __('The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Backend sessions (administrator, editor, author) keep the full /wp/v2 for admin screens such as the media picker.', 'aiya-core'),
                     'default' => true,
                 ],
                 [
@@ -95,6 +95,19 @@ final class SecurityModule implements Module
                     'label' => __('Sitemap user list', 'aiya-core'),
                     'checkbox_label' => __('Drop the users provider from WP sitemaps', 'aiya-core'),
                     'default' => true,
+                ],
+                [
+                    'id' => 'rest_allowed_origins',
+                    'type' => 'array',
+                    'label' => __('REST cross-origin origins', 'aiya-core'),
+                    'description' => __('Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here.', 'aiya-core'),
+                    'default' => [],
+                ],
+                [
+                    'id' => 'heading_login',
+                    'type' => 'heading',
+                    'label' => __('Login restrictions', 'aiya-core'),
+                    'level' => '2',
                 ],
                 [
                     'id' => 'force_email_login',
@@ -109,28 +122,6 @@ final class SecurityModule implements Module
                     'label' => __('Password-reset link hosts', 'aiya-core'),
                     'description' => __('Host names the reset link may point at besides this site (the front-end host, comma-separated). Requests naming any other host fall back to this site, so a forged domain can never receive a live reset link.', 'aiya-core'),
                     'default' => [],
-                ],
-                [
-                    'id' => 'rest_allowed_origins',
-                    'type' => 'array',
-                    'label' => __('REST cross-origin origins', 'aiya-core'),
-                    'description' => __('Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here.', 'aiya-core'),
-                    'default' => [],
-                ],
-                [
-                    'id' => 'admin_backend_min_role',
-                    'type' => 'select',
-                    'label' => __('Admin back end minimum role', 'aiya-core'),
-                    'description' => __('Users below the selected role are redirected away from wp-admin. Off by default.', 'aiya-core'),
-                    'default' => 'off',
-                    'options' => [
-                        'off' => __('Off', 'aiya-core'),
-                        'subscriber' => __('Subscriber and above', 'aiya-core'),
-                        'contributor' => __('Contributor and above', 'aiya-core'),
-                        'author' => __('Author and above', 'aiya-core'),
-                        'editor' => __('Editor and above', 'aiya-core'),
-                        'administrator' => __('Administrator only', 'aiya-core'),
-                    ],
                 ],
                 [
                     'id' => 'login_param_gate_enable',
@@ -149,6 +140,27 @@ final class SecurityModule implements Module
                     'attributes' => ['autocomplete' => 'off'],
                 ],
                 [
+                    'id' => 'heading_admin',
+                    'type' => 'heading',
+                    'label' => __('Admin protection', 'aiya-core'),
+                    'level' => '2',
+                ],
+                [
+                    'id' => 'admin_backend_min_role',
+                    'type' => 'select',
+                    'label' => __('Admin back end minimum role', 'aiya-core'),
+                    'description' => __('Users below the selected role are redirected away from wp-admin. Off by default.', 'aiya-core'),
+                    'default' => 'off',
+                    'options' => [
+                        'off' => __('Off', 'aiya-core'),
+                        'subscriber' => __('Subscriber and above', 'aiya-core'),
+                        'contributor' => __('Contributor and above', 'aiya-core'),
+                        'author' => __('Author and above', 'aiya-core'),
+                        'editor' => __('Editor and above', 'aiya-core'),
+                        'administrator' => __('Administrator only', 'aiya-core'),
+                    ],
+                ],
+                [
                     'id' => 'request_uri_guard',
                     'type' => 'switch',
                     'label' => __('Request URI guard', 'aiya-core'),
@@ -160,39 +172,20 @@ final class SecurityModule implements Module
     }
 
     /**
-     * Denies anonymous user enumeration over REST by removing the users
-     * collection and single-user routes. Application-password sub-routes
-     * stay registered (permission-gated) so authenticated writes in M5 keep
-     * working.
-     *
-     * @param array<string, mixed> $endpoints
-     * @return array<string, mixed>
-     */
-    public function filterUserEndpoints(array $endpoints): array
-    {
-        if (!$this->enabled('guard_rest_users')) {
-            return $endpoints;
-        }
-
-        unset($endpoints['/wp/v2/users'], $endpoints['/wp/v2/users/(?P<id>[\d]+)']);
-
-        return $endpoints;
-    }
-
-    /**
-     * Contract-only public surface: every route outside aiya/core/v1 is
-     * stripped for visitors without a backend session, so the original
-     * WP REST API cannot leak raw post structures around the headless
-     * contract. Backend sessions (cookie or application password) keep
-     * the full API for admin screens; front-end bearer visitors are
-     * subscriber-level and do not.
+     * Contract-only public surface (0.40.0: the /wp/v2/users toggle and the
+     * former public-surface toggle merged into one — the front end talks to
+     * aiya/core/v1 exclusively, so the whole native /wp/v2 API is stripped
+     * for visitors and user enumeration goes with it). Backend sessions
+     * (cookie or application password with edit_posts) keep the full API
+     * for admin screens; front-end bearer visitors are subscriber-level
+     * and do not.
      *
      * @param array<string, mixed> $endpoints
      * @return array<string, mixed>
      */
     public function lockPublicSurface(array $endpoints): array
     {
-        if (!$this->enabled('lock_rest_surface')) {
+        if (!$this->enabled('lock_wp_v2')) {
             return $endpoints;
         }
         if (current_user_can('edit_posts')) {
@@ -235,18 +228,20 @@ final class SecurityModule implements Module
     /**
      * Aligns the REST index with the locked surface: the namespace list
      * is populated at registration time, before endpoint filters run, so
-     * it needs its own trim.
+     * it needs its own trim. Contract and gateway namespaces stay listed —
+     * their routes stay registered on the public surface.
      */
     public function filterIndexNamespaces(mixed $response, mixed $request = null): mixed
     {
-        if (!$response instanceof \WP_REST_Response || !$this->enabled('lock_rest_surface') || current_user_can('edit_posts')) {
+        if (!$response instanceof \WP_REST_Response || !$this->enabled('lock_wp_v2') || current_user_can('edit_posts')) {
             return $response;
         }
 
         $data = $response->get_data();
         $data['namespaces'] = array_values(array_filter(
             (array) ($data['namespaces'] ?? []),
-            static fn ($ns): bool => is_string($ns) && str_starts_with($ns, Contract::API_NAMESPACE)
+            static fn ($ns): bool => is_string($ns)
+                && (str_starts_with($ns, Contract::API_NAMESPACE) || str_starts_with($ns, GatewayController::GATEWAY_NAMESPACE))
         ));
         $response->set_data($data);
 

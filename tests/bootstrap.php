@@ -257,6 +257,14 @@ if (!function_exists('get_terms')) {
 
 $GLOBALS['__aiya_test_options'] = [];
 $GLOBALS['__aiya_test_filters'] = [];
+$GLOBALS['__aiya_test_theme_features'] = [];
+
+if (!function_exists('add_theme_support')) {
+    function add_theme_support(string $feature, mixed ...$args): void
+    {
+        $GLOBALS['__aiya_test_theme_features'][$feature] = $args === [] ? true : $args;
+    }
+}
 
 if (!function_exists('get_option')) {
     function get_option(string $name, mixed $default = false): mixed

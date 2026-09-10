@@ -21,7 +21,7 @@ final class IdentityModule implements Module
     public function register(): void
     {
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
-            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'migrate']];
+            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'installTables']];
 
             return $migrations;
         });
@@ -99,55 +99,5 @@ final class IdentityModule implements Module
                 throw new \RuntimeException(sprintf('Table %s was not created.', $table));
             }
         }
-    }
-
-    /** Base install plus the 0.31.0 expiry-column normalization. */
-    public static function migrate(): void
-    {
-        self::installTables();
-        self::normalizeTokenExpiry();
-    }
-
-    /**
-     * 0.31.0: expires_at moved from unix seconds to DATETIME so both time
-     * columns share one semantics. Existing int values convert through
-     * FROM_UNIXTIME; fresh installs already create DATETIME and skip this.
-     */
-    private static function normalizeTokenExpiry(): void
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $table = $wpdb->prefix . 'aiya_auth_tokens';
-        if (self::columnType($table, 'expires_at') !== 'int') {
-            return;
-        }
-
-        $run = static function (?string $sql) use ($wpdb): void {
-            if ($sql !== null) {
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is produced by wpdb::prepare() at the call sites below.
-                $wpdb->query($sql);
-            }
-        };
-        $run($wpdb->prepare('ALTER TABLE %i ADD COLUMN expires_dt DATETIME NULL AFTER user_id', $table));
-        $run($wpdb->prepare('UPDATE %i SET expires_dt = FROM_UNIXTIME(expires_at)', $table));
-        $run($wpdb->prepare('ALTER TABLE %i DROP COLUMN expires_at', $table));
-        $run($wpdb->prepare('ALTER TABLE %i CHANGE COLUMN expires_dt expires_at DATETIME NOT NULL', $table));
-
-        if (self::columnType($table, 'expires_at') !== 'datetime') {
-            throw new \RuntimeException(sprintf('The %s.expires_at column could not be converted to DATETIME.', $table));
-        }
-    }
-
-    private static function columnType(string $table, string $column): ?string
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $type = $wpdb->get_var($wpdb->prepare(
-            'SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = %s',
-            $table,
-            $column
-        ));
-
-        return is_string($type) ? $type : null;
     }
 }

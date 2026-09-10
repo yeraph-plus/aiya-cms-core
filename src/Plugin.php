@@ -34,6 +34,7 @@ use Aiya\Core\Domain\Sponsorship\MembershipService;
 use Aiya\Core\Domain\Sponsorship\OrderService;
 use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
 use Aiya\Core\Domain\Sponsorship\SponsorshipModule;
+use Aiya\Core\Domain\ThemeSupport\ThemeSupportModule;
 use Aiya\Core\Infrastructure\Headless\HeadlessModule;
 use Aiya\Core\Infrastructure\Security\SecurityModule;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
@@ -91,6 +92,7 @@ final class Plugin
         $this->addModule($avatar);
         $this->addModule(new SendMailPage());
         $this->addModule(new SlugModule($this->settings));
+        $this->addModule(new ThemeSupportModule());
         $this->addModule(new ContentTypeModule($this->contentTypes));
         $this->addModule(new NavigationModule($this->settings));
         $this->addModule(new PartModule(new PartRegistry()));
@@ -154,14 +156,14 @@ final class Plugin
     }
 
     /**
-     * Runs on plugin activation. Field defaults are applied lazily at read
-     * time, so activation only records the installed schema version.
+     * Runs on plugin activation. Recording the zero version makes the
+     * SchemaVersionRunner execute every registered install migration on the
+     * first boot (tables are created only there), while upgrades keep their
+     * stored version and skip straight to any pending steps.
      */
     public function activate(): void
     {
-        if (get_option('aiya_core_schema_version') === false) {
-            add_option('aiya_core_schema_version', AIYA_CORE_VERSION, '', false);
-        }
+        update_option(SchemaVersionRunner::OPTION_NAME, '0.0.0', false);
     }
 
     /**

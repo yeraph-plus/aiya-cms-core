@@ -21,14 +21,14 @@ use Throwable;
  * site-wide default avatar URL.
  *
  * The user meta key `basic_user_avatar` is a persistent data protocol
- * carried over from the legacy theme (workspace AGENTS.md). Three shapes
- * stay readable:
- * - file avatars (current): `['full' => 'thumbnail/avatars/{user}/128.jpg'], 'v' => int]`
- *   with pre-generated 128px and 64px square crops under
- *   wp-content/thumbnail/avatars/{user_id}/ — outside the media library and uploads,
- *   assembled to static URLs with no PHP hit per render;
- * - `['id' => attachmentId, 'full' => url]` (media-library era);
- * - `['full' => url]` (legacy absolute URL).
+ * carried over from the legacy theme (workspace AGENTS.md). One shape is
+ * readable — the file avatar: `['full' => 'thumbnail/avatars/{user}/128.jpg',
+ * 'v' => int]` with pre-generated 128px and 64px square crops under
+ * wp-content/thumbnail/avatars/{user_id}/ — outside the media library and
+ * uploads, assembled to static URLs with no PHP hit per render. The
+ * media-library and legacy-URL shapes are dead data since the 2026-09-11
+ * decision and no longer read; users carrying one fall through to the
+ * Gravatar mirror like any user without a local avatar.
  *
  * Uploads are processed straight from the PHP temp file through the
  * image-processor package (center crop + scale) so the original image is
@@ -38,6 +38,9 @@ use Throwable;
 final class AvatarModule implements Module
 {
     private const META_KEY = 'basic_user_avatar';
+
+    /** The only accepted meta path prefix (rows from earlier shapes are dead data). */
+    private const FILE_PATH_PREFIX = 'thumbnail/avatars/';
 
     /** Pre-generated square sizes; requests at or below 64 serve the small one. */
     private const FILE_SIZES = [128, 64];
@@ -89,10 +92,15 @@ final class AvatarModule implements Module
      */
     public function settings(): void
     {
-        $this->settings->addFields('headless', [
+        $this->settings->addFields('optimization', [
+            [
+                'id' => 'heading_avatar',
+                'type' => 'heading',
+                'label' => __('Avatar settings', 'aiya-core'),
+            ],
             [
                 'id' => 'avatar_cdn_mirror',
-                'type' => 'select',
+                'type' => 'radio',
                 'label' => __('Gravatar mirror', 'aiya-core'),
                 'description' => __('Rewrites gravatar.com hosts to a reachable mirror. Local avatars always win. Loli and v2ex are defunct and not offered.', 'aiya-core'),
                 'default' => 'qiniu',
@@ -151,7 +159,7 @@ final class AvatarModule implements Module
      */
     public function mirrorGravatar(mixed $url, mixed $idOrEmail, array $args): mixed
     {
-        $mirror = (string) aiya_core_opt('headless', 'avatar_cdn_mirror', 'qiniu');
+        $mirror = (string) aiya_core_opt('optimization', 'avatar_cdn_mirror', 'qiniu');
         if (!isset(self::MIRROR_HOSTS[$mirror]) || !is_string($url) || $url === '') {
             return $url;
         }
@@ -191,7 +199,7 @@ final class AvatarModule implements Module
 
     private function defaultAvatarUrl(): ?string
     {
-        $url = trim((string) aiya_core_opt('headless', 'avatar_default_url', ''));
+        $url = trim((string) aiya_core_opt('optimization', 'avatar_default_url', ''));
 
         return $url !== '' ? $url : null;
     }
@@ -220,8 +228,8 @@ final class AvatarModule implements Module
     }
 
     /**
-     * Resolves the local avatar URL in all three protocol shapes. Legacy
-     * entries carry no size variants or version, so they return as stored.
+     * Resolves the local avatar URL from the file-shape meta. Size picks the
+     * pre-generated square; the version query busts caches after a re-upload.
      */
     private function localAvatarUrl(int $userId, int $size): ?string
     {
@@ -229,20 +237,10 @@ final class AvatarModule implements Module
         if (!is_array($meta)) {
             return null;
         }
-        if (isset($meta['id']) && absint($meta['id']) > 0) {
-            $url = wp_get_attachment_url(absint($meta['id']));
-
-            return is_string($url) && $url !== '' ? $url : null;
-        }
 
         $full = isset($meta['full']) && is_string($meta['full']) ? $meta['full'] : '';
-        if ($full === '') {
+        if ($full === '' || !str_starts_with($full, self::FILE_PATH_PREFIX)) {
             return null;
-        }
-
-        // Legacy absolute URL: no pre-generated variants exist.
-        if (str_contains($full, '://')) {
-            return $full;
         }
 
         // File avatar: swap the size file under the user's avatar directory.
@@ -270,17 +268,9 @@ final class AvatarModule implements Module
     public function renderProfileField(\WP_User $user): void
     {
         $version = $this->fileAvatarVersion($user->ID);
-        $previewUrl = null;
-        if ($version > 0) {
-            $previewUrl = content_url('/thumbnail/avatars/' . $user->ID . '/' . self::LARGE_SIZE . '.jpg?v=' . $version);
-        } else {
-            $meta = get_user_meta($user->ID, self::META_KEY, true);
-            if (is_array($meta) && isset($meta['full']) && is_string($meta['full']) && $meta['full'] !== '') {
-                $previewUrl = str_contains($meta['full'], '://')
-                    ? $meta['full']
-                    : (string) content_url('/' . ltrim($meta['full'], '/'));
-            }
-        }
+        $previewUrl = $version > 0
+            ? content_url('/thumbnail/avatars/' . $user->ID . '/' . self::LARGE_SIZE . '.jpg?v=' . $version)
+            : null;
 
         $nonce = wp_create_nonce('aiya_core_avatar_' . $user->ID);
         ?>

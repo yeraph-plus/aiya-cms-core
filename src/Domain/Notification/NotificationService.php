@@ -266,48 +266,6 @@ final class NotificationService
         );
     }
 
-    /** Base install plus the 0.31.0 role-column rename. */
-    public static function migrate(): void
-    {
-        self::installTable();
-        self::renameRoleLevel();
-    }
-
-    /**
-     * 0.31.0: role_level became min_role — the column holds the lowest
-     * role a row is visible to, and the old name read either way. Fresh
-     * installs already create min_role and skip this.
-     */
-    private static function renameRoleLevel(): void
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $table = $wpdb->prefix . 'aiya_notifications';
-        $column = $wpdb->get_var($wpdb->prepare(
-            'SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = %s',
-            $table,
-            'role_level'
-        ));
-        if ($column === null) {
-            return;
-        }
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- fixed table interpolation, prepared below.
-        $sql = $wpdb->prepare('ALTER TABLE %i CHANGE COLUMN role_level min_role VARCHAR(20) NOT NULL DEFAULT %s', $table, 'guest');
-        if (is_string($sql)) {
-            $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
-        }
-
-        $renamed = $wpdb->get_var($wpdb->prepare(
-            'SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = %s',
-            $table,
-            'min_role'
-        ));
-        if ($renamed !== 'min_role') {
-            throw new \RuntimeException(sprintf('The %s.role_level column could not be renamed to min_role.', $table));
-        }
-    }
-
     private function table(): string
     {
         global $wpdb;

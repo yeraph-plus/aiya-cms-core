@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.37.0\n"
+"Project-Id-Version: AIYA Core 0.40.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-10T20:29:23+00:00\n"
+"POT-Creation-Date: 2026-09-10T22:16:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -183,7 +183,7 @@ msgstr ""
 
 #: src/Admin/CoverMetabox.php:112
 #: src/Admin/SendMailPage.php:158
-#: src/Domain/Identity/AvatarModule.php:323
+#: src/Domain/Identity/AvatarModule.php:328
 msgid "Request failed."
 msgstr ""
 
@@ -272,23 +272,24 @@ msgid "The operation failed."
 msgstr ""
 
 #: src/Admin/FieldRenderer.php:96
+#: src/Admin/SettingsAdmin.php:79
 msgid "Select media"
 msgstr ""
 
 #: src/Admin/FieldRenderer.php:97
-#: src/Admin/FieldRenderer.php:140
+#: src/Admin/FieldRenderer.php:149
 msgid "Remove"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:110
+#: src/Admin/FieldRenderer.php:119
 msgid "A value is stored; leave blank to keep it"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:112
+#: src/Admin/FieldRenderer.php:121
 msgid "Clear the stored value"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:131
+#: src/Admin/FieldRenderer.php:140
 msgid "Add item"
 msgstr ""
 
@@ -466,7 +467,7 @@ msgid "Insufficient permissions."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:188
-#: src/Domain/Identity/AvatarModule.php:385
+#: src/Domain/Identity/AvatarModule.php:390
 msgid "No file was uploaded."
 msgstr ""
 
@@ -475,7 +476,7 @@ msgid "Invalid upload."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:194
-#: src/Domain/Identity/AvatarModule.php:508
+#: src/Domain/Identity/AvatarModule.php:513
 msgid "The upload failed with a file error."
 msgstr ""
 
@@ -721,39 +722,39 @@ msgstr ""
 msgid "Email sent to %s."
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:85
+#: src/Admin/SettingsAdmin.php:88
 msgid "Unknown settings page."
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:88
+#: src/Admin/SettingsAdmin.php:91
 msgid "You are not allowed to update these settings."
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:158
+#: src/Admin/SettingsAdmin.php:161
 msgid "You are not allowed to view these settings."
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:166
+#: src/Admin/SettingsAdmin.php:169
 msgid "Settings saved."
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:168
+#: src/Admin/SettingsAdmin.php:171
 msgid "Settings reset."
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:171
+#: src/Admin/SettingsAdmin.php:174
 msgid "Unable to save settings."
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:177
+#: src/Admin/SettingsAdmin.php:180
 msgid "Save changes"
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:178
+#: src/Admin/SettingsAdmin.php:181
 msgid "Reset all settings on this page?"
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:178
+#: src/Admin/SettingsAdmin.php:181
 msgid "Reset"
 msgstr ""
 
@@ -1003,11 +1004,11 @@ msgid "Branding"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:59
-msgid "Site logo"
+msgid "Brand color"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:60
-msgid "Shown in the front-end header. Stores an attachment ID; the customizer logo is only a fallback."
+msgid "Buttons, links and active states across the front end derive from this color."
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:66
@@ -1149,54 +1150,55 @@ msgid "Meta description projected into the headless API."
 msgstr ""
 
 #: src/Domain/Content/SlugModule.php:60
-msgid "Post slug generation"
-msgstr ""
-
-#: src/Domain/Content/SlugModule.php:61
-msgid "Pinyin fills empty slugs from the title; the ID modes force an ID-based slug on every save."
-msgstr ""
-
-#: src/Domain/Content/SlugModule.php:64
-#: src/Domain/ExternalFiles/OplistModule.php:143
-#: src/Domain/Identity/AvatarModule.php:100
-#: src/Infrastructure/Security/SecurityModule.php:127
-msgid "Off"
+msgid "Slug generation"
 msgstr ""
 
 #: src/Domain/Content/SlugModule.php:65
-msgid "Pinyin from title"
+msgid "Post slug generation"
 msgstr ""
 
 #: src/Domain/Content/SlugModule.php:66
+msgid "Pinyin fills empty slugs from the title; the ID modes force an ID-based slug on every save."
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:69
+#: src/Domain/Content/SlugModule.php:89
+#: src/Domain/ExternalFiles/OplistModule.php:143
+#: src/Domain/Identity/AvatarModule.php:105
+#: src/Infrastructure/Security/SecurityModule.php:155
+msgid "Off"
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:70
+msgid "Pinyin from title"
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:71
 msgid "ID, zero padded (AV style)"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:67
+#: src/Domain/Content/SlugModule.php:72
 msgid "ID, XDE encoded (BV style)"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:73
-msgid "Slug post types"
-msgstr ""
-
-#: src/Domain/Content/SlugModule.php:74
-msgid "Comma-separated post type names the slug modes apply to."
-msgstr ""
-
-#: src/Domain/Content/SlugModule.php:80
-msgid "Term slugs from pinyin"
-msgstr ""
-
-#: src/Domain/Content/SlugModule.php:81
-msgid "Generate pinyin slugs for terms with empty slugs"
-msgstr ""
-
-#: src/Domain/Content/SlugModule.php:87
+#: src/Domain/Content/SlugModule.php:78
 msgid "ID slug prefix"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:88
-msgid "Prepended to generated ID slugs; non-URL characters are stripped."
+#: src/Domain/Content/SlugModule.php:79
+msgid "Prepended to ID-based post slugs in both ID modes; non-URL characters are stripped."
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:85
+msgid "Taxonomy slug pinyin"
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:86
+msgid "For every taxonomy: an empty term slug is filled with pinyin converted from the term name."
+msgstr ""
+
+#: src/Domain/Content/SlugModule.php:90
+msgid "Pinyin from the term name"
 msgstr ""
 
 #: src/Domain/Content/TermExtrasModule.php:45
@@ -1217,6 +1219,82 @@ msgstr ""
 
 #: src/Domain/Content/TermExtrasModule.php:60
 msgid "Upload or pick an image from the media library; it serves as the cover of the term archive page."
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:46
+msgid "Typography tools"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:54
+msgid "Refresh the publish date to now"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:60
+msgid "Match existing tags against the content"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:66
+msgid "Clean up legacy HTML (div/center/span, overlapping tags)"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:72
+msgid "Run the Chinese typesetting pass"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:82
+msgid "Chinese typesetting"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:87
+msgid "Enabled typesetting correctors"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:88
+msgid "Applied to the title and the content on the Chinese typesetting pass."
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:91
+msgid "Insert spaces between CJK and Latin/digits"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:92
+msgid "Remove spaces around fullwidth punctuation"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:93
+msgid "Fullwidth letters, digits and symbols to halfwidth"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:94
+msgid "Fix incorrect punctuation"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:95
+msgid "Correct proper-noun casing"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:96
+msgid "Strip class attributes"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:97
+msgid "Strip id attributes"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:98
+msgid "Strip style attributes"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:99
+msgid "Remove empty paragraph tags"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:100
+msgid "Remove all empty tags"
+msgstr ""
+
+#: src/Domain/Content/TypographyModule.php:101
+msgid "Remove paragraph indentation"
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:36
@@ -1482,87 +1560,91 @@ msgid "Skip the OpenList cache on every listing request."
 msgstr ""
 
 #: src/Domain/Identity/AvatarModule.php:96
-msgid "Gravatar mirror"
-msgstr ""
-
-#: src/Domain/Identity/AvatarModule.php:97
-msgid "Rewrites gravatar.com hosts to a reachable mirror. Local avatars always win. Loli and v2ex are defunct and not offered."
+msgid "Avatar settings"
 msgstr ""
 
 #: src/Domain/Identity/AvatarModule.php:101
-msgid "Qiniu (dn-qiniu-avatar.qbox.me)"
+msgid "Gravatar mirror"
 msgstr ""
 
 #: src/Domain/Identity/AvatarModule.php:102
+msgid "Rewrites gravatar.com hosts to a reachable mirror. Local avatars always win. Loli and v2ex are defunct and not offered."
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:106
+msgid "Qiniu (dn-qiniu-avatar.qbox.me)"
+msgstr ""
+
+#: src/Domain/Identity/AvatarModule.php:107
 msgid "WeAvatar (weavatar.com)"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:108
+#: src/Domain/Identity/AvatarModule.php:113
 msgid "Default avatar URL"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:109
+#: src/Domain/Identity/AvatarModule.php:114
 msgid "Used whenever a user has neither a local avatar nor a gravatar. Overrides the Discussion settings choice while non-empty."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:180
+#: src/Domain/Identity/AvatarModule.php:185
 msgid "Custom default"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:288
+#: src/Domain/Identity/AvatarModule.php:293
 msgid "Local avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:295
+#: src/Domain/Identity/AvatarModule.php:300
 msgid "Upload avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:296
+#: src/Domain/Identity/AvatarModule.php:301
 msgid "Remove local avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:298
+#: src/Domain/Identity/AvatarModule.php:303
 msgid "JPEG, PNG, WebP or GIF up to 4 MB. The image is center-cropped and stored as 128px and 64px copies; the uploaded original is not kept."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:317
+#: src/Domain/Identity/AvatarModule.php:322
 msgid "Operation failed."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:333
+#: src/Domain/Identity/AvatarModule.php:338
 msgid "Choose an image first."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:346
+#: src/Domain/Identity/AvatarModule.php:351
 msgid "Avatar updated."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:353
+#: src/Domain/Identity/AvatarModule.php:358
 msgid "Remove the local avatar?"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:378
-#: src/Domain/Identity/AvatarModule.php:405
+#: src/Domain/Identity/AvatarModule.php:383
+#: src/Domain/Identity/AvatarModule.php:410
 msgid "You are not allowed to edit this user."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:438
+#: src/Domain/Identity/AvatarModule.php:443
 msgid "No avatar image was provided."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:448
+#: src/Domain/Identity/AvatarModule.php:453
 msgid "The avatar could not be processed."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:505
+#: src/Domain/Identity/AvatarModule.php:510
 msgid "Invalid avatar upload."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:511
+#: src/Domain/Identity/AvatarModule.php:516
 msgid "The avatar image is too large (4 MB maximum)."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:530
+#: src/Domain/Identity/AvatarModule.php:535
 msgid "Only JPEG, PNG, WebP and GIF images can be used as an avatar."
 msgstr ""
 
@@ -1888,152 +1970,120 @@ msgid "Optimization"
 msgstr ""
 
 #: src/Infrastructure/Headless/HeadlessModule.php:79
-msgid "Master switch"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:80
-msgid "Strip headless-irrelevant WordPress features"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:81
-msgid "Turn off to restore stock WordPress behaviour without code changes."
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:88
-msgid "These toggles only apply while the master switch is on."
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:89
 msgid "Stripping is enforced at runtime; REST reads for content stay available for the Astro front end."
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:95
-msgid "Editor surfaces"
+#: src/Infrastructure/Headless/HeadlessModule.php:85
+msgid "Disabled features"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:101
+#: src/Infrastructure/Headless/HeadlessModule.php:91
 msgid "Block editor (Gutenberg)"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:102
+#: src/Infrastructure/Headless/HeadlessModule.php:92
 msgid "Force the classic editor for every post type"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:108
+#: src/Infrastructure/Headless/HeadlessModule.php:98
 msgid "Block widgets"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:109
+#: src/Infrastructure/Headless/HeadlessModule.php:99
 msgid "Revert the widgets screen to the classic interface"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:115
-msgid "Front end and protocols"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:121
-msgid "Pingbacks and trackbacks"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:122
-msgid "Disable the pingback/trackback protocols entirely"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:128
-msgid "Emoji"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:129
-msgid "Remove the emoji detection script and staticization filters"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:135
-msgid "oEmbed discovery"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:136
-msgid "Remove discovery links, the embed route and auto-embeds"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:142
-msgid "XML-RPC"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:143
-msgid "Disable the XML-RPC server entirely"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:149
-msgid "Front-end head cleanup"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:150
-msgid "Strip generator, RSD, shortlink, REST hints and block CSS from front-end output"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:156
-msgid "Admin screens and block services"
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:162
+#: src/Infrastructure/Headless/HeadlessModule.php:105
 msgid "Customizer and site editor"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:163
+#: src/Infrastructure/Headless/HeadlessModule.php:106
 msgid "Remove the customizer and site editor screens and block direct access"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:164
+#: src/Infrastructure/Headless/HeadlessModule.php:107
 msgid "The themes screen and menu management stay available so the shell theme can be switched."
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:170
+#: src/Infrastructure/Headless/HeadlessModule.php:113
 msgid "Font library and global styles"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:171
+#: src/Infrastructure/Headless/HeadlessModule.php:114
 msgid "Remove the font library screen and the font/global-style REST routes"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:177
+#: src/Infrastructure/Headless/HeadlessModule.php:120
 msgid "Block patterns and block directory"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:178
+#: src/Infrastructure/Headless/HeadlessModule.php:121
 msgid "Drop core block patterns, remote patterns and their REST routes"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:391
+#: src/Infrastructure/Headless/HeadlessModule.php:127
+msgid "Pingbacks and trackbacks"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:128
+msgid "Disable the pingback/trackback protocols entirely"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:134
+msgid "Emoji"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:135
+msgid "Remove the emoji detection script and staticization filters"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:141
+msgid "oEmbed discovery"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:142
+msgid "Remove discovery links, the embed route and auto-embeds"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:148
+msgid "XML-RPC"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:149
+msgid "Disable the XML-RPC server entirely"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:155
+msgid "Front-end head cleanup"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:156
+msgid "Strip generator, RSD, shortlink, REST hints and block CSS from front-end output"
+msgstr ""
+
+#: src/Infrastructure/Headless/HeadlessModule.php:383
 msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA Core > Optimization."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:71
-#: src/Infrastructure/Security/SecurityModule.php:72
+#: src/Infrastructure/Security/SecurityModule.php:73
+#: src/Infrastructure/Security/SecurityModule.php:74
 msgid "Security hardening"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:79
-msgid "REST user enumeration"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:80
-msgid "Remove the /wp/v2/users endpoints for anonymous visitors"
-msgstr ""
-
 #: src/Infrastructure/Security/SecurityModule.php:81
-msgid "Author data reaches the front end through the post DTOs. Admin screens that read /wp/v2/users (media library author filter) degrade; turn off if that matters."
+msgid "REST route control"
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:87
-msgid "Public REST surface"
+msgid "Native /wp/v2 REST API"
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:88
-msgid "Expose only aiya/core/v1 routes to visitors — the whole /wp/v2 API answers 404 for anyone without a backend session"
+msgid "Answer 404 for the whole /wp/v2 API — only the aiya contract routes stay public"
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:89
-msgid "The headless contract API stays open. Backend users (administrator, editor, author cookie sessions or equivalent application passwords) keep the full WP REST API for admin screens."
+msgid "The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Backend sessions (administrator, editor, author) keep the full /wp/v2 for admin screens such as the media picker."
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:95
@@ -2045,90 +2095,98 @@ msgid "Drop the users provider from WP sitemaps"
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:102
-msgid "Email-address logins"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:103
-msgid "Only accept email addresses as the login field"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:109
-msgid "Password-reset link hosts"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:110
-msgid "Host names the reset link may point at besides this site (the front-end host, comma-separated). Requests naming any other host fall back to this site, so a forged domain can never receive a live reset link."
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:116
 msgid "REST cross-origin origins"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:117
+#: src/Infrastructure/Security/SecurityModule.php:103
 msgid "Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here."
 msgstr ""
 
+#: src/Infrastructure/Security/SecurityModule.php:109
+msgid "Login restrictions"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:115
+msgid "Email-address logins"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:116
+msgid "Only accept email addresses as the login field"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:122
+msgid "Password-reset link hosts"
+msgstr ""
+
 #: src/Infrastructure/Security/SecurityModule.php:123
-msgid "Admin back end minimum role"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:124
-msgid "Users below the selected role are redirected away from wp-admin. Off by default."
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:128
-msgid "Subscriber and above"
+msgid "Host names the reset link may point at besides this site (the front-end host, comma-separated). Requests naming any other host fall back to this site, so a forged domain can never receive a live reset link."
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:129
-msgid "Contributor and above"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:130
-msgid "Author and above"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:131
-msgid "Editor and above"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:132
-msgid "Administrator only"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:138
 msgid "Login page parameter gate"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:139
+#: src/Infrastructure/Security/SecurityModule.php:130
 msgid "wp-login.php only loads with the secret parameter below"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:140
+#: src/Infrastructure/Security/SecurityModule.php:131
 msgid "Obscurity, not authentication: keep the value long and treat it as a compliment to credentials, never a replacement."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:146
+#: src/Infrastructure/Security/SecurityModule.php:137
 msgid "Login gate parameter value"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:147
+#: src/Infrastructure/Security/SecurityModule.php:138
 msgid "Reach the login screen via /wp-login.php?auth=<value>; the pass persists for 10 minutes as a cookie and covers the full flow including password reset. Leave empty to disable the gate regardless of the switch above."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:154
+#: src/Infrastructure/Security/SecurityModule.php:145
+msgid "Admin protection"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:151
+msgid "Admin back end minimum role"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:152
+msgid "Users below the selected role are redirected away from wp-admin. Off by default."
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:156
+msgid "Subscriber and above"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:157
+msgid "Contributor and above"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:158
+msgid "Author and above"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:159
+msgid "Editor and above"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:160
+msgid "Administrator only"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:166
 msgid "Request URI guard"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:155
+#: src/Infrastructure/Security/SecurityModule.php:167
 msgid "Reject logged-out requests with oversized or probe-shaped URIs (414)"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:283
+#: src/Infrastructure/Security/SecurityModule.php:278
 msgid "Please log in with your email address."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:345
+#: src/Infrastructure/Security/SecurityModule.php:340
 msgid "Not found."
 msgstr ""
 
@@ -2301,34 +2359,34 @@ msgstr ""
 msgid "A value is required."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:119
+#: src/Settings/ValueNormalizer.php:126
 msgid "Enter a valid number."
 msgstr ""
 
 #. translators: %s: minimum allowed value.
-#: src/Settings/ValueNormalizer.php:126
+#: src/Settings/ValueNormalizer.php:133
 #, php-format
 msgid "The minimum value is %s."
 msgstr ""
 
 #. translators: %s: maximum allowed value.
-#: src/Settings/ValueNormalizer.php:130
+#: src/Settings/ValueNormalizer.php:137
 #, php-format
 msgid "The maximum value is %s."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:138
+#: src/Settings/ValueNormalizer.php:145
 msgid "Enter a valid email address."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:144
+#: src/Settings/ValueNormalizer.php:151
 msgid "Enter a valid URL."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:154
+#: src/Settings/ValueNormalizer.php:161
 msgid "Select a valid media attachment."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:170
+#: src/Settings/ValueNormalizer.php:177
 msgid "Select a valid option."
 msgstr ""

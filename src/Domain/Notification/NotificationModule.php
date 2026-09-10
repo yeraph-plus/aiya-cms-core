@@ -20,7 +20,7 @@ final class NotificationModule implements Module
     public function register(): void
     {
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
-            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [NotificationService::class, 'migrate']];
+            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [NotificationService::class, 'installTable']];
 
             return $migrations;
         });
