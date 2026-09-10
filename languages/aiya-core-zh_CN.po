@@ -1,870 +1,857 @@
-# Copyright (C) 2026 Yeraph Studio
-# This file is distributed under the GPL-3.0-or-later.
+# AIYA Core 简体中文翻译。
+# 基于 languages/aiya-core.pot 生成。
 msgid ""
 msgstr ""
 "Project-Id-Version: AIYA Core 0.36.2\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Report-Msgid-Bugs-To: \n"
+"Language-Team: Chinese (Simplified)\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-10T19:50:25+00:00\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: aiya-core\n"
+"PO-Revision-Date: 2026-09-11 04:30+0800\n"
+"X-Generator: aiya-core i18n build\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"\n"
 
-#. Plugin Name of the plugin
 #: aiya-core.php:3
 #: src/Domain/Content/FrontendModule.php:38
 msgid "AIYA Core"
-msgstr ""
+msgstr "AIYA Core"
 
-#. Description of the plugin
 #: aiya-core.php:4
 msgid "Headless-first administration and content framework for AIYA CMS."
-msgstr ""
+msgstr "面向 AIYA CMS 的无头优先管理与内容框架。"
 
-#. Author of the plugin
 #: aiya-core.php:8
 msgid "Yeraph Studio"
-msgstr ""
+msgstr "Yeraph Studio"
 
 #: src/Admin/ConvertCodesPage.php:39
 #: src/Admin/ConvertCodesPage.php:40
 #: src/Admin/ConvertCodesPage.php:58
 msgid "Redemption codes"
-msgstr ""
+msgstr "兑换码"
 
 #: src/Admin/ConvertCodesPage.php:50
 #: src/Admin/ConvertCodesPage.php:162
 #: src/Admin/ConvertCodesPage.php:181
 msgid "You are not allowed to manage redemption codes."
-msgstr ""
+msgstr "您无权管理兑换码。"
 
 #: src/Admin/ConvertCodesPage.php:59
 msgid "Membership periods users can redeem themselves on the front end. Codes are single-use; redeeming records an order and extends the membership."
-msgstr ""
+msgstr "供用户在前台自助兑换的会员时长。兑换码一次性使用；兑换会记录订单并延长会员期。"
 
 #: src/Admin/ConvertCodesPage.php:63
 msgid "Generate codes"
-msgstr ""
+msgstr "生成兑换码"
 
 #: src/Admin/ConvertCodesPage.php:69
 msgid "Quantity"
-msgstr ""
+msgstr "数量"
 
 #: src/Admin/ConvertCodesPage.php:73
 #: src/Admin/ConvertCodesPage.php:108
 #: src/Domain/Sponsorship/SponsorshipModule.php:205
 msgid "Days"
-msgstr ""
+msgstr "天数"
 
 #: src/Admin/ConvertCodesPage.php:77
 msgid "Prefix"
-msgstr ""
+msgstr "前缀"
 
 #: src/Admin/ConvertCodesPage.php:80
 msgid "Optional; a trailing dash is added automatically."
-msgstr ""
+msgstr "可选；会自动追加一个连字符。"
 
 #: src/Admin/ConvertCodesPage.php:84
 msgid "Generate"
-msgstr ""
+msgstr "生成"
 
-#. translators: %s: number of stored codes.
 #: src/Admin/ConvertCodesPage.php:92
-#, php-format
 msgid "Stored codes (%s)"
-msgstr ""
+msgstr "已存兑换码（%s）"
 
 #: src/Admin/ConvertCodesPage.php:97
 msgid "Delete ALL codes? This cannot be undone."
-msgstr ""
+msgstr "确定删除全部兑换码？此操作不可撤销。"
 
 #: src/Admin/ConvertCodesPage.php:100
 msgid "Delete all"
-msgstr ""
+msgstr "全部删除"
 
 #: src/Admin/ConvertCodesPage.php:107
 msgid "Code"
-msgstr ""
+msgstr "兑换码"
 
 #: src/Admin/ConvertCodesPage.php:109
 #: src/Admin/DiscussionModerationPage.php:91
 msgid "Status"
-msgstr ""
+msgstr "状态"
 
 #: src/Admin/ConvertCodesPage.php:110
 msgid "Redeemed by"
-msgstr ""
+msgstr "兑换者"
 
 #: src/Admin/ConvertCodesPage.php:111
 msgid "Redeemed at"
-msgstr ""
+msgstr "兑换时间"
 
 #: src/Admin/ConvertCodesPage.php:112
 #: src/Admin/DiscussionModerationPage.php:94
 #: src/Admin/NotificationPage.php:144
 msgid "Created"
-msgstr ""
+msgstr "创建时间"
 
 #: src/Admin/ConvertCodesPage.php:117
 msgid "No codes stored."
-msgstr ""
+msgstr "尚无兑换码。"
 
 #: src/Admin/ConvertCodesPage.php:124
 msgid "Redeemed"
-msgstr ""
+msgstr "已兑换"
 
 #: src/Admin/ConvertCodesPage.php:124
 msgid "Unused"
-msgstr ""
+msgstr "未使用"
 
 #: src/Admin/ConvertCodesPage.php:194
 msgid "Codes generated."
-msgstr ""
+msgstr "兑换码已生成。"
 
 #: src/Admin/ConvertCodesPage.php:195
 msgid "All codes deleted."
-msgstr ""
+msgstr "兑换码已全部删除。"
 
 #: src/Admin/ConvertCodesPage.php:196
 #: src/Admin/NotificationPage.php:262
 msgid "The operation failed — check the values and try again."
-msgstr ""
+msgstr "操作失败——请检查输入后重试。"
 
 #: src/Admin/CoverMetabox.php:41
 msgid "Post cover"
-msgstr ""
+msgstr "文章封面"
 
 #: src/Admin/CoverMetabox.php:61
 msgid "Current generated cover."
-msgstr ""
+msgstr "当前已生成的封面。"
 
 #: src/Admin/CoverMetabox.php:65
 msgid "Cover model"
-msgstr ""
+msgstr "封面模式"
 
 #: src/Admin/CoverMetabox.php:67
 msgid "Photo background"
-msgstr ""
+msgstr "图片背景"
 
 #: src/Admin/CoverMetabox.php:68
 msgid "Pattern"
-msgstr ""
+msgstr "花纹"
 
 #: src/Admin/CoverMetabox.php:72
 #: src/Admin/DiscussionModerationPage.php:89
 #: src/Admin/NotificationPage.php:81
 #: src/Admin/NotificationPage.php:140
 msgid "Title"
-msgstr ""
+msgstr "标题"
 
 #: src/Admin/CoverMetabox.php:76
 msgid "Background color"
-msgstr ""
+msgstr "背景颜色"
 
 #: src/Admin/CoverMetabox.php:80
 msgid "Title color"
-msgstr ""
+msgstr "标题颜色"
 
 #: src/Admin/CoverMetabox.php:84
 msgid "Generate cover"
-msgstr ""
+msgstr "生成封面"
 
 #: src/Admin/CoverMetabox.php:93
 msgid "Generating…"
-msgstr ""
+msgstr "正在生成…"
 
 #: src/Admin/CoverMetabox.php:104
 msgid "Generation failed."
-msgstr ""
+msgstr "生成失败。"
 
 #: src/Admin/CoverMetabox.php:112
 #: src/Admin/SendMailPage.php:158
 #: src/Domain/Identity/AvatarModule.php:323
 msgid "Request failed."
-msgstr ""
+msgstr "请求失败。"
 
 #: src/Admin/CoverMetabox.php:126
 msgid "You are not allowed to edit this post."
-msgstr ""
+msgstr "您无权编辑这篇文章。"
 
 #: src/Admin/CoverMetabox.php:143
 msgid "Cover generated."
-msgstr ""
+msgstr "封面已生成。"
 
 #: src/Admin/DiscussionModerationPage.php:44
 #: src/Admin/DiscussionModerationPage.php:45
 #: src/Admin/DiscussionModerationPage.php:64
 msgid "Community"
-msgstr ""
+msgstr "社区"
 
 #: src/Admin/DiscussionModerationPage.php:55
 #: src/Admin/DiscussionModerationPage.php:163
 #: src/Admin/DiscussionModerationPage.php:182
 msgid "You are not allowed to moderate the community."
-msgstr ""
+msgstr "您无权管理社区。"
 
 #: src/Admin/DiscussionModerationPage.php:65
 msgid "Discussion threads live outside the post model; this screen is the admin surface for the headless community."
-msgstr ""
+msgstr "讨论线程独立于文章模型；此页面是无头社区的后台管理入口。"
 
 #: src/Admin/DiscussionModerationPage.php:71
 msgid "All types"
-msgstr ""
+msgstr "全部类型"
 
 #: src/Admin/DiscussionModerationPage.php:77
 msgid "All statuses"
-msgstr ""
+msgstr "全部状态"
 
 #: src/Admin/DiscussionModerationPage.php:82
 msgid "Filter"
-msgstr ""
+msgstr "筛选"
 
 #: src/Admin/DiscussionModerationPage.php:90
 msgid "Type"
-msgstr ""
+msgstr "类型"
 
 #: src/Admin/DiscussionModerationPage.php:92
 msgid "Replies"
-msgstr ""
+msgstr "回复"
 
 #: src/Admin/DiscussionModerationPage.php:93
 #: src/Admin/NotificationPage.php:288
 #: src/Domain/Content/ContentTypeModule.php:55
 msgid "Author"
-msgstr ""
+msgstr "作者"
 
 #: src/Admin/DiscussionModerationPage.php:95
 #: src/Admin/NotificationPage.php:145
 msgid "Actions"
-msgstr ""
+msgstr "操作"
 
 #: src/Admin/DiscussionModerationPage.php:100
 msgid "No threads found."
-msgstr ""
+msgstr "未找到讨论线程。"
 
 #: src/Admin/DiscussionModerationPage.php:121
 msgid "Set"
-msgstr ""
+msgstr "设置"
 
 #: src/Admin/DiscussionModerationPage.php:130
 msgid "Delete this thread and all its replies?"
-msgstr ""
+msgstr "删除该线程及其全部回复？"
 
 #: src/Admin/DiscussionModerationPage.php:131
 #: src/Admin/NotificationPage.php:171
 msgid "Delete"
-msgstr ""
+msgstr "删除"
 
 #: src/Admin/DiscussionModerationPage.php:199
 msgid "Status updated."
-msgstr ""
+msgstr "状态已更新。"
 
 #: src/Admin/DiscussionModerationPage.php:200
 msgid "Thread deleted."
-msgstr ""
+msgstr "线程已删除。"
 
 #: src/Admin/DiscussionModerationPage.php:201
 msgid "The operation failed."
-msgstr ""
+msgstr "操作失败。"
 
 #: src/Admin/FieldRenderer.php:96
 msgid "Select media"
-msgstr ""
+msgstr "选择媒体"
 
 #: src/Admin/FieldRenderer.php:97
 #: src/Admin/FieldRenderer.php:140
 msgid "Remove"
-msgstr ""
+msgstr "移除"
 
 #: src/Admin/FieldRenderer.php:110
 msgid "A value is stored; leave blank to keep it"
-msgstr ""
+msgstr "已存有值；留空即保持不变"
 
 #: src/Admin/FieldRenderer.php:112
 msgid "Clear the stored value"
-msgstr ""
+msgstr "清除已存值"
 
 #: src/Admin/FieldRenderer.php:131
 msgid "Add item"
-msgstr ""
+msgstr "添加条目"
 
 #: src/Admin/MetaboxAdmin.php:267
 msgid "Additional fields"
-msgstr ""
+msgstr "附加字段"
 
 #: src/Admin/NotificationPage.php:51
 #: src/Admin/NotificationPage.php:52
 #: src/Admin/NotificationPage.php:70
 msgid "Notifications"
-msgstr ""
+msgstr "通知"
 
 #: src/Admin/NotificationPage.php:62
 #: src/Admin/NotificationPage.php:203
 #: src/Admin/NotificationPage.php:225
 #: src/Admin/NotificationPage.php:236
 msgid "You are not allowed to manage notifications."
-msgstr ""
+msgstr "您无权管理通知。"
 
 #: src/Admin/NotificationPage.php:71
 msgid "Site-wide announcements for the headless front end. Rows expire automatically after the retention period; the front end tracks read state itself."
-msgstr ""
+msgstr "面向无头前端的整站公告。过期通知按保留期自动清理；已读状态由前端自行记录。"
 
 #: src/Admin/NotificationPage.php:75
 msgid "Publish announcement"
-msgstr ""
+msgstr "发布公告"
 
 #: src/Admin/NotificationPage.php:85
 msgid "Minimum visible role"
-msgstr ""
+msgstr "最低可见角色"
 
 #: src/Admin/NotificationPage.php:92
 msgid "Viewers below this role will not see the announcement. Sponsor also requires a valid sponsorship."
-msgstr ""
+msgstr "低于该角色的访客看不到此公告。「赞助者」级别还要求有效的赞助身份。"
 
 #: src/Admin/NotificationPage.php:96
 #: src/Admin/NotificationPage.php:141
 msgid "Body"
-msgstr ""
+msgstr "正文"
 
 #: src/Admin/NotificationPage.php:100
 msgid "Publish"
-msgstr ""
+msgstr "发布"
 
 #: src/Admin/NotificationPage.php:105
 msgid "Retention"
-msgstr ""
+msgstr "保留期"
 
 #: src/Admin/NotificationPage.php:111
 msgid "Keep rows for (days)"
-msgstr ""
+msgstr "保留天数"
 
-#. translators: %s: date and time of the next cleanup run.
 #: src/Admin/NotificationPage.php:121
-#, php-format
 msgid "A daily cleanup removes older rows; next run %s."
-msgstr ""
+msgstr "每日清理会删除超期通知；下次运行：%s。"
 
 #: src/Admin/NotificationPage.php:124
 msgid "A daily cleanup removes older rows; the schedule is set up on the next page load."
-msgstr ""
+msgstr "每日清理会删除超期通知；计划将在下次页面加载时建立。"
 
 #: src/Admin/NotificationPage.php:131
 msgid "Save retention"
-msgstr ""
+msgstr "保存保留期"
 
 #: src/Admin/NotificationPage.php:135
 msgid "Stored notifications"
-msgstr ""
+msgstr "已存通知"
 
 #: src/Admin/NotificationPage.php:142
 msgid "Minimum role"
-msgstr ""
+msgstr "最低角色"
 
 #: src/Admin/NotificationPage.php:143
 msgid "Scope"
-msgstr ""
+msgstr "范围"
 
 #: src/Admin/NotificationPage.php:150
 msgid "No notifications stored."
-msgstr ""
+msgstr "尚无通知。"
 
 #: src/Admin/NotificationPage.php:159
 msgid "Broadcast"
-msgstr ""
+msgstr "广播"
 
 #: src/Admin/NotificationPage.php:170
 msgid "Delete this notification?"
-msgstr ""
+msgstr "删除这条通知？"
 
 #: src/Admin/NotificationPage.php:259
 msgid "Notification published."
-msgstr ""
+msgstr "通知已发布。"
 
 #: src/Admin/NotificationPage.php:260
 msgid "Notification deleted."
-msgstr ""
+msgstr "通知已删除。"
 
 #: src/Admin/NotificationPage.php:261
 msgid "Retention saved."
-msgstr ""
+msgstr "保留期已保存。"
 
 #: src/Admin/NotificationPage.php:286
 msgid "Subscriber"
-msgstr ""
+msgstr "订阅者"
 
 #: src/Admin/NotificationPage.php:287
 msgid "Sponsor"
-msgstr ""
+msgstr "赞助者"
 
 #: src/Admin/NotificationPage.php:289
 msgid "Administrator"
-msgstr ""
+msgstr "管理员"
 
 #: src/Admin/NotificationPage.php:290
 msgid "Guest"
-msgstr ""
+msgstr "访客"
 
 #: src/Admin/PicBedPage.php:61
 #: src/Admin/PicBedPage.php:62
 #: src/Admin/PicBedPage.php:76
 msgid "Pic bed"
-msgstr ""
+msgstr "图床"
 
 #: src/Admin/PicBedPage.php:78
 msgid "Upload images to wp-content/upload-pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk."
-msgstr ""
+msgstr "将图片上传到 wp-content/upload-pics，不占用媒体库与 uploads 目录：无附件 ID、不生成 WP 缩略图。每张图都会经过图像处理器处理一次，落盘的即是处理后的文件。"
 
 #: src/Admin/PicBedPage.php:81
 msgid "Upload"
-msgstr ""
+msgstr "上传"
 
 #: src/Admin/PicBedPage.php:86
 #: src/Admin/PicBedPage.php:161
 msgid "Upload image"
-msgstr ""
+msgstr "上传图片"
 
-#. translators: %d: maximum upload size in megabytes.
 #: src/Admin/PicBedPage.php:91
-#, php-format
 msgid "JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB."
-msgstr ""
+msgstr "支持 JPEG、PNG、BMP、GIF、WebP 与 AVIF，最大 %d MB。"
 
 #: src/Admin/PicBedPage.php:104
 msgid "Dimensions"
-msgstr ""
+msgstr "尺寸"
 
 #: src/Admin/PicBedPage.php:106
 #: src/Admin/PicBedPage.php:295
 #: src/Admin/SampleSettings.php:171
 #: src/Domain/Content/NavigationModule.php:80
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: src/Admin/PicBedPage.php:108
 #: src/Admin/PicBedPage.php:296
 msgid "Relative path"
-msgstr ""
+msgstr "相对路径"
 
 #: src/Admin/PicBedPage.php:116
 msgid "Uploaded images"
-msgstr ""
+msgstr "已上传图片"
 
 #: src/Admin/PicBedPage.php:131
 msgid "Uploading…"
-msgstr ""
+msgstr "正在上传…"
 
 #: src/Admin/PicBedPage.php:150
 msgid "Upload failed."
-msgstr ""
+msgstr "上传失败。"
 
 #: src/Admin/PicBedPage.php:182
 msgid "Insufficient permissions."
-msgstr ""
+msgstr "权限不足。"
 
 #: src/Admin/PicBedPage.php:188
 #: src/Domain/Identity/AvatarModule.php:385
 msgid "No file was uploaded."
-msgstr ""
+msgstr "未接收到文件。"
 
 #: src/Admin/PicBedPage.php:191
 msgid "Invalid upload."
-msgstr ""
+msgstr "无效的上传。"
 
 #: src/Admin/PicBedPage.php:194
 #: src/Domain/Identity/AvatarModule.php:508
 msgid "The upload failed with a file error."
-msgstr ""
+msgstr "上传因文件错误失败。"
 
 #: src/Admin/PicBedPage.php:199
 msgid "The file is too large."
-msgstr ""
+msgstr "文件过大。"
 
 #: src/Admin/PicBedPage.php:206
 msgid "This file type is not supported."
-msgstr ""
+msgstr "不支持此文件类型。"
 
 #: src/Admin/PicBedPage.php:211
 msgid "The file could not be written."
-msgstr ""
+msgstr "文件无法写入。"
 
 #: src/Admin/PicBedPage.php:217
 msgid "Image processing failed."
-msgstr ""
+msgstr "图像处理失败。"
 
 #: src/Admin/PicBedPage.php:224
 msgid "The image URL could not be resolved."
-msgstr ""
+msgstr "无法解析图片 URL。"
 
 #: src/Admin/PicBedPage.php:270
 #: src/Admin/PicBedPage.php:285
 msgid "No uploads yet."
-msgstr ""
+msgstr "还没有上传记录。"
 
 #: src/Admin/PicBedPage.php:294
 msgid "Preview"
-msgstr ""
+msgstr "预览"
 
 #: src/Admin/SampleSettings.php:31
 #: src/Admin/SampleSettings.php:32
 msgid "Sample"
-msgstr ""
+msgstr "Sample"
 
 #: src/Admin/SampleSettings.php:40
 msgid "Site title"
-msgstr ""
+msgstr "站点标题"
 
 #: src/Admin/SampleSettings.php:41
 msgid "A required text field."
-msgstr ""
+msgstr "必填的文本字段。"
 
 #: src/Admin/SampleSettings.php:49
 msgid "Site description"
-msgstr ""
+msgstr "站点描述"
 
 #: src/Admin/SampleSettings.php:50
 msgid "Plain multiline text is sanitized before storage."
-msgstr ""
+msgstr "多行纯文本，存储前会做净化处理。"
 
 #: src/Admin/SampleSettings.php:56
 msgid "Cache lifetime"
-msgstr ""
+msgstr "缓存时长"
 
 #: src/Admin/SampleSettings.php:57
 msgid "Optional numeric field with minimum, maximum and step constraints."
-msgstr ""
+msgstr "可选数字字段，支持最小值、最大值与步长约束。"
 
 #: src/Admin/SampleSettings.php:66
 msgid "Contact email"
-msgstr ""
+msgstr "联系邮箱"
 
 #: src/Admin/SampleSettings.php:72
 msgid "Public URL"
-msgstr ""
+msgstr "公开 URL"
 
 #: src/Admin/SampleSettings.php:73
 msgid "Useful for testing URL validation."
-msgstr ""
+msgstr "用于测试 URL 校验。"
 
 #: src/Admin/SampleSettings.php:80
 msgid "Sample API key"
-msgstr ""
+msgstr "示例 API 密钥"
 
 #: src/Admin/SampleSettings.php:81
 msgid "Write-only field: a saved value is never rendered back into the page."
-msgstr ""
+msgstr "只写字段：保存后的值不会回显到页面。"
 
 #: src/Admin/SampleSettings.php:87
 msgid "Feature flag"
-msgstr ""
+msgstr "功能开关"
 
 #: src/Admin/SampleSettings.php:88
 msgid "Enable the sample feature"
-msgstr ""
+msgstr "启用示例功能"
 
 #: src/Admin/SampleSettings.php:94
 msgid "Debug mode"
-msgstr ""
+msgstr "调试模式"
 
 #: src/Admin/SampleSettings.php:95
 msgid "Enable debug mode"
-msgstr ""
+msgstr "启用调试模式"
 
 #: src/Admin/SampleSettings.php:101
 msgid "Content mode"
-msgstr ""
+msgstr "内容模式"
 
 #: src/Admin/SampleSettings.php:104
 msgid "Classic"
-msgstr ""
+msgstr "经典"
 
 #: src/Admin/SampleSettings.php:105
 msgid "Hybrid"
-msgstr ""
+msgstr "混合"
 
 #: src/Admin/SampleSettings.php:106
 msgid "Headless"
-msgstr ""
+msgstr "无头"
 
 #: src/Admin/SampleSettings.php:112
 msgid "Default locale"
-msgstr ""
+msgstr "默认语言"
 
 #: src/Admin/SampleSettings.php:115
 msgid "Simplified Chinese"
-msgstr ""
+msgstr "简体中文"
 
 #: src/Admin/SampleSettings.php:116
 msgid "Traditional Chinese"
-msgstr ""
+msgstr "繁体中文"
 
 #: src/Admin/SampleSettings.php:117
 msgid "English"
-msgstr ""
+msgstr "英语"
 
 #: src/Admin/SampleSettings.php:123
 msgid "Accent color"
-msgstr ""
+msgstr "强调色"
 
 #: src/Admin/SampleSettings.php:129
 msgid "Logo"
-msgstr ""
+msgstr "Logo"
 
 #: src/Admin/SampleSettings.php:130
 msgid "The field stores a WordPress attachment ID rather than a URL."
-msgstr ""
+msgstr "该字段保存的是 WordPress 附件 ID 而非 URL。"
 
 #: src/Admin/SampleSettings.php:136
 msgid "Allowed hosts"
-msgstr ""
+msgstr "允许的主机"
 
 #: src/Admin/SampleSettings.php:137
 msgid "Enter comma-separated values."
-msgstr ""
+msgstr "输入以逗号分隔的值。"
 
 #: src/Admin/SampleSettings.php:143
 msgid "JSON configuration"
-msgstr ""
+msgstr "JSON 配置"
 
 #: src/Admin/SampleSettings.php:144
 msgid "Uses the Code Editor bundled with WordPress."
-msgstr ""
+msgstr "使用 WordPress 内置的代码编辑器。"
 
 #: src/Admin/SampleSettings.php:151
 msgid "Classic editor content"
-msgstr ""
+msgstr "经典编辑器内容"
 
 #: src/Admin/SampleSettings.php:152
 msgid "Uses wp_editor and TinyMCE; Gutenberg and React are not required."
-msgstr ""
+msgstr "使用 wp_editor 与 TinyMCE；无需 Gutenberg 与 React。"
 
 #: src/Admin/SampleSettings.php:158
 msgid "Navigation links"
-msgstr ""
+msgstr "导航链接"
 
 #: src/Admin/SampleSettings.php:159
 msgid "Backbone manages item creation; jQuery UI provides drag sorting."
-msgstr ""
+msgstr "条目创建由 Backbone 管理；拖拽排序由 jQuery UI 提供。"
 
 #: src/Admin/SampleSettings.php:165
 #: src/Domain/Content/NavigationModule.php:74
 msgid "Label"
-msgstr ""
+msgstr "标签"
 
 #: src/Admin/SampleSettings.php:177
 msgid "Priority"
-msgstr ""
+msgstr "优先级"
 
 #: src/Admin/SampleSettings.php:185
 msgid "Enabled"
-msgstr ""
+msgstr "启用"
 
 #: src/Admin/SendMailPage.php:44
 #: src/Admin/SendMailPage.php:45
 #: src/Admin/SendMailPage.php:67
 msgid "Send Mail"
-msgstr ""
+msgstr "发送邮件"
 
 #: src/Admin/SendMailPage.php:68
 msgid "Compose an HTML email and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport."
-msgstr ""
+msgstr "撰写 HTML 邮件并即时发送。投递经由 wp_mail，由站点所用的 SMTP 插件负责传输。"
 
 #: src/Admin/SendMailPage.php:72
 msgid "Recipient"
-msgstr ""
+msgstr "收件人"
 
 #: src/Admin/SendMailPage.php:75
 msgid "Any email address works, registered or not. Typing a username or name suggests site users."
-msgstr ""
+msgstr "支持任意邮箱（无论是否注册）。输入用户名或昵称可联想站点用户。"
 
 #: src/Admin/SendMailPage.php:80
 msgid "Subject"
-msgstr ""
+msgstr "主题"
 
 #: src/Admin/SendMailPage.php:84
 msgid "Message"
-msgstr ""
+msgstr "正文"
 
 #: src/Admin/SendMailPage.php:90
 #: src/Admin/SendMailPage.php:160
 msgid "Send email"
-msgstr ""
+msgstr "发送邮件"
 
 #: src/Admin/SendMailPage.php:137
 msgid "Sending…"
-msgstr ""
+msgstr "正在发送…"
 
 #: src/Admin/SendMailPage.php:146
 #: src/Admin/SendMailPage.php:258
 msgid "The email could not be sent."
-msgstr ""
+msgstr "邮件发送失败。"
 
 #: src/Admin/SendMailPage.php:176
 #: src/Admin/SendMailPage.php:206
 msgid "You are not allowed to send mail to users."
-msgstr ""
+msgstr "您无权向用户发送邮件。"
 
 #: src/Admin/SendMailPage.php:182
 msgid "Enter a valid recipient email address."
-msgstr ""
+msgstr "请输入有效的收件人邮箱地址。"
 
 #: src/Admin/SendMailPage.php:188
 msgid "A subject and a message body are required."
-msgstr ""
+msgstr "主题与正文不能为空。"
 
-#. translators: %s: recipient email address.
 #: src/Admin/SendMailPage.php:198
-#, php-format
 msgid "Email sent to %s."
-msgstr ""
+msgstr "邮件已发送至 %s。"
 
 #: src/Admin/SettingsAdmin.php:85
 msgid "Unknown settings page."
-msgstr ""
+msgstr "未知设置页。"
 
 #: src/Admin/SettingsAdmin.php:88
 msgid "You are not allowed to update these settings."
-msgstr ""
+msgstr "您无权更新这些设置。"
 
 #: src/Admin/SettingsAdmin.php:158
 msgid "You are not allowed to view these settings."
-msgstr ""
+msgstr "您无权查看这些设置。"
 
 #: src/Admin/SettingsAdmin.php:166
 msgid "Settings saved."
-msgstr ""
+msgstr "设置已保存。"
 
 #: src/Admin/SettingsAdmin.php:168
 msgid "Settings reset."
-msgstr ""
+msgstr "设置已重置。"
 
 #: src/Admin/SettingsAdmin.php:171
 msgid "Unable to save settings."
-msgstr ""
+msgstr "无法保存设置。"
 
 #: src/Admin/SettingsAdmin.php:177
 msgid "Save changes"
-msgstr ""
+msgstr "保存更改"
 
 #: src/Admin/SettingsAdmin.php:178
 msgid "Reset all settings on this page?"
-msgstr ""
+msgstr "重置本页所有设置？"
 
 #: src/Admin/SettingsAdmin.php:178
 msgid "Reset"
-msgstr ""
+msgstr "重置"
 
 #: src/Api/Rest/AuthController.php:52
 msgid "You are already logged in."
-msgstr ""
+msgstr "您已登录。"
 
 #: src/Api/Rest/AuthController.php:124
 msgid "Registration is currently disabled."
-msgstr ""
+msgstr "注册当前已关闭。"
 
 #: src/Api/Rest/AuthController.php:135
 #: src/Api/Rest/UserController.php:289
 msgid "The nickname must be 1-50 characters."
-msgstr ""
+msgstr "昵称长度需为 1-50 个字符。"
 
 #: src/Api/Rest/AuthController.php:138
 #: src/Api/Rest/AuthController.php:219
 #: src/Api/Rest/UserController.php:312
 msgid "The email address is not valid."
-msgstr ""
+msgstr "邮箱地址无效。"
 
 #: src/Api/Rest/AuthController.php:141
 #: src/Api/Rest/UserController.php:314
 msgid "This email address is already registered."
-msgstr ""
+msgstr "该邮箱地址已被注册。"
 
 #: src/Api/Rest/AuthController.php:156
 #: src/Api/Rest/AuthController.php:161
 msgid "The account could not be created, please retry."
-msgstr ""
+msgstr "账户创建失败，请重试。"
 
 #: src/Api/Rest/AuthController.php:183
 msgid "Please provide the email address and the password."
-msgstr ""
+msgstr "请填写邮箱地址与密码。"
 
 #: src/Api/Rest/AuthController.php:191
 msgid "The email address or the password is incorrect."
-msgstr ""
+msgstr "邮箱地址或密码不正确。"
 
 #: src/Api/Rest/AuthController.php:260
 #: src/Api/Rest/UserController.php:395
 msgid "Existing sessions could not be invalidated; the password was left unchanged."
-msgstr ""
+msgstr "未能使现有会话失效；密码未做修改。"
 
 #: src/Api/Rest/AuthController.php:278
 msgid "The reset link is missing required parameters."
-msgstr ""
+msgstr "重置链接缺少必要参数。"
 
 #: src/Api/Rest/AuthController.php:285
 msgid "This password reset link is invalid or has expired."
-msgstr ""
+msgstr "此密码重置链接无效或已过期。"
 
 #: src/Api/Rest/AuthController.php:297
 msgid "The account could not be loaded."
-msgstr ""
+msgstr "无法加载该账户。"
 
 #: src/Api/Rest/AuthController.php:305
 msgid "The session could not be started."
-msgstr ""
+msgstr "无法建立会话。"
 
 #: src/Api/Rest/AuthController.php:319
 #: src/Api/Rest/DiscussionController.php:300
 #: src/Api/Rest/SponsorshipController.php:297
 #: src/Api/Rest/UserController.php:425
 msgid "Authentication required."
-msgstr ""
+msgstr "需要登录。"
 
 #: src/Api/Rest/AuthController.php:324
 #: src/Api/Rest/CommentsController.php:111
 #: src/Api/Rest/UserController.php:249
 msgid "Too many requests, please retry later."
-msgstr ""
+msgstr "请求过于频繁，请稍后再试。"
 
 #: src/Api/Rest/CommentsController.php:120
 msgid "Comments are closed for this content."
-msgstr ""
+msgstr "该内容的评论已关闭。"
 
-#. translators: %d: maximum comment length.
 #: src/Api/Rest/CommentsController.php:129
-#, php-format
 msgid "The comment must be 1-%d characters long."
-msgstr ""
+msgstr "评论长度需为 1-%d 个字符。"
 
 #: src/Api/Rest/CommentsController.php:142
 msgid "The commented reply does not exist."
-msgstr ""
+msgstr "所回复的评论不存在。"
 
 #: src/Api/Rest/CommentsController.php:154
 msgid "Please log in to comment."
-msgstr ""
+msgstr "请登录后评论。"
 
 #: src/Api/Rest/CommentsController.php:176
 #: src/Api/Rest/CommentsController.php:184
 #: src/Api/Rest/CommentsController.php:187
 msgid "The comment could not be posted."
-msgstr ""
+msgstr "评论发布失败。"
 
 #: src/Api/Rest/CommentsController.php:181
 msgid "You are commenting too quickly. Slow down."
-msgstr ""
+msgstr "评论过于频繁，请稍缓。"
 
 #: src/Api/Rest/CommentsController.php:240
 #: src/Api/Rest/ContentController.php:165
 #: src/Api/Rest/ContentController.php:170
 msgid "Content not found."
-msgstr ""
+msgstr "内容不存在。"
 
 #: src/Api/Rest/ContentController.php:182
 msgid "Profile not found."
-msgstr ""
+msgstr "未找到该用户主页。"
 
 #: src/Api/Rest/CounterController.php:50
 #: src/Api/Rest/CounterController.php:65
@@ -874,1453 +861,1437 @@ msgstr ""
 #: src/Api/Rest/SponsorshipController.php:96
 #: src/Api/Rest/UserController.php:195
 msgid "Too many requests, try again later."
-msgstr ""
+msgstr "请求过于频繁，请稍后再试。"
 
 #: src/Api/Rest/DiscussionController.php:172
 msgid "The thread could not be read back."
-msgstr ""
+msgstr "无法读回该线程。"
 
 #: src/Api/Rest/DiscussionController.php:239
 msgid "The reply could not be read back."
-msgstr ""
+msgstr "无法读回该回复。"
 
 #: src/Api/Rest/DiscussionController.php:305
 #: src/Domain/Discussion/DiscussionService.php:226
 #: src/Domain/Discussion/DiscussionService.php:277
 #: src/Domain/Discussion/DiscussionService.php:333
 msgid "Thread not found."
-msgstr ""
+msgstr "线程不存在。"
 
 #: src/Api/Rest/SponsorshipController.php:126
 msgid "The Afdian API is unavailable, contact the site owner."
-msgstr ""
+msgstr "爱发电 API 不可用，请联系站长。"
 
 #: src/Api/Rest/SponsorshipController.php:130
 msgid "This order was already activated."
-msgstr ""
+msgstr "该订单已激活过。"
 
 #: src/Api/Rest/SponsorshipController.php:135
 msgid "No such order found — check the trade number or contact the site owner."
-msgstr ""
+msgstr "未找到对应订单——请核对交易号或联系站长。"
 
 #: src/Api/Rest/SponsorshipController.php:141
 #: src/Domain/Sponsorship/RedeemCodeService.php:86
 msgid "Activation failed — you may already hold an overlapping period, or the order was already recorded."
-msgstr ""
+msgstr "激活失败——您可能已有重叠的会员期，或该订单已被记录。"
 
 #: src/Api/Rest/SponsorshipController.php:195
 msgid "The Epay channel is not available."
-msgstr ""
+msgstr "易支付渠道不可用。"
 
 #: src/Api/Rest/SponsorshipController.php:198
 msgid "The requested payment channel is not available."
-msgstr ""
+msgstr "所请求的支付渠道不可用。"
 
 #: src/Api/Rest/SponsorshipController.php:201
 msgid "Unknown purchase plan."
-msgstr ""
+msgstr "未知购买方案。"
 
 #: src/Api/Rest/SponsorshipController.php:206
 msgid "The Epay channel is not configured."
-msgstr ""
+msgstr "易支付渠道未配置。"
 
 #: src/Api/Rest/SponsorshipController.php:236
 msgid "The Afdian channel is not available."
-msgstr ""
+msgstr "爱发电渠道不可用。"
 
-#. translators: %1$s: site name, %2$s: user display name.
 #: src/Api/Rest/SponsorshipController.php:243
-#, php-format
 msgid "A sponsorship order from \"%1$s\" user %2$s~"
-msgstr ""
+msgstr "来自“%1$s”用户 %2$s 的赞助订单~"
 
 #: src/Api/Rest/UserController.php:209
 msgid "The favorite could not be removed."
-msgstr ""
+msgstr "取消收藏失败。"
 
 #: src/Api/Rest/UserController.php:265
 msgid "The follow could not be removed."
-msgstr ""
+msgstr "取消关注失败。"
 
 #: src/Api/Rest/UserController.php:325
 msgid "The locale is not supported."
-msgstr ""
+msgstr "不支持该语言。"
 
 #: src/Api/Rest/UserController.php:340
 msgid "Changing the email address requires the current password."
-msgstr ""
+msgstr "修改邮箱地址需要输入当前密码。"
 
 #: src/Api/Rest/UserController.php:345
 msgid "The profile could not be saved."
-msgstr ""
+msgstr "资料保存失败。"
 
 #: src/Api/Rest/UserController.php:357
 msgid "No avatar image was uploaded."
-msgstr ""
+msgstr "未上传头像图片。"
 
 #: src/Api/Rest/UserController.php:382
 msgid "The current password is incorrect."
-msgstr ""
+msgstr "当前密码不正确。"
 
 #: src/Domain/Content/ContentTypeModule.php:30
 msgid "Page categories"
-msgstr ""
+msgstr "页面分类"
 
 #: src/Domain/Content/ContentTypeModule.php:42
 msgid "Resource"
-msgstr ""
+msgstr "资源"
 
 #: src/Domain/Content/ContentTypeModule.php:48
 msgid "Resource categories"
-msgstr ""
+msgstr "资源分类"
 
 #: src/Domain/Content/ContentTypeModule.php:53
 msgid "Original work"
-msgstr ""
+msgstr "原作"
 
 #: src/Domain/Content/ContentTypeModule.php:54
 msgid "Characters"
-msgstr ""
+msgstr "角色"
 
 #: src/Domain/Content/ContentTypeModule.php:56
 msgid "Content description"
-msgstr ""
+msgstr "内容描述"
 
 #: src/Domain/Content/ContentTypeModule.php:57
 msgid "Other"
-msgstr ""
+msgstr "其他"
 
 #: src/Domain/Content/FrontendModule.php:37
 msgid "Frontend"
-msgstr ""
+msgstr "前台设置"
 
 #: src/Domain/Content/FrontendModule.php:47
 msgid "These fields feed the front-end shell through GET /aiya/core/v1/site; leave a footer string empty to keep it out of the footer."
-msgstr ""
+msgstr "这些字段通过 GET /aiya/core/v1/site 提供给前台外壳；页脚字符串留空即不在页脚显示。"
 
 #: src/Domain/Content/FrontendModule.php:53
 msgid "Branding"
-msgstr ""
+msgstr "品牌"
 
 #: src/Domain/Content/FrontendModule.php:59
 msgid "Site logo"
-msgstr ""
+msgstr "站点 Logo"
 
 #: src/Domain/Content/FrontendModule.php:60
 msgid "Shown in the front-end header. Stores an attachment ID; the customizer logo is only a fallback."
-msgstr ""
+msgstr "显示于前台页头。保存的是附件 ID；定制器 Logo 仅作兜底。"
 
 #: src/Domain/Content/FrontendModule.php:66
 msgid "Presentation defaults"
-msgstr ""
+msgstr "外观默认值"
 
 #: src/Domain/Content/FrontendModule.php:72
 msgid "Default color mode"
-msgstr ""
+msgstr "默认配色模式"
 
 #: src/Domain/Content/FrontendModule.php:73
 msgid "Color scheme a first-time visitor starts with."
-msgstr ""
+msgstr "首次访客进入时使用的配色方案。"
 
 #: src/Domain/Content/FrontendModule.php:76
 msgid "Follow the system"
-msgstr ""
+msgstr "跟随系统"
 
 #: src/Domain/Content/FrontendModule.php:77
 msgid "Dark"
-msgstr ""
+msgstr "深色"
 
 #: src/Domain/Content/FrontendModule.php:78
 msgid "Light"
-msgstr ""
+msgstr "浅色"
 
 #: src/Domain/Content/FrontendModule.php:84
 msgid "Default cover image"
-msgstr ""
+msgstr "默认封面图"
 
 #: src/Domain/Content/FrontendModule.php:85
 msgid "Fallback cover for posts without a featured image or a generated one."
-msgstr ""
+msgstr "文章既无特色图也无生成封面时的兜底封面。"
 
 #: src/Domain/Content/FrontendModule.php:91
 msgid "Compliance footer"
-msgstr ""
+msgstr "合规页脚"
 
 #: src/Domain/Content/FrontendModule.php:97
 msgid "ICP filing"
-msgstr ""
+msgstr "ICP 备案"
 
 #: src/Domain/Content/FrontendModule.php:98
 msgid "ICP filing number shown in the footer, e.g. 京ICP备2026000001号."
-msgstr ""
+msgstr "显示在页脚的 ICP 备案号，例如 京ICP备2026000001号。"
 
 #: src/Domain/Content/FrontendModule.php:104
 msgid "Public security filing"
-msgstr ""
+msgstr "公安备案"
 
 #: src/Domain/Content/FrontendModule.php:105
 msgid "Public security network filing number, e.g. 京公网安备11010000000001号."
-msgstr ""
+msgstr "公安联网备案号，例如 京公网安备11010000000001号。"
 
 #: src/Domain/Content/FrontendModule.php:111
 msgid "Public security filing code"
-msgstr ""
+msgstr "公安备案编号（纯数字）"
 
 #: src/Domain/Content/FrontendModule.php:112
 msgid "Digits only; the front end links the filing number to the police search page."
-msgstr ""
+msgstr "仅填数字；前端会据此将备案号链接到公安查询页。"
 
 #: src/Domain/Content/FrontendModule.php:118
 msgid "Footer note"
-msgstr ""
+msgstr "页脚备注"
 
 #: src/Domain/Content/FrontendModule.php:119
 msgid "Free-form footer text such as copyright or site statements."
-msgstr ""
+msgstr "页脚自由文本，如版权信息或站点声明。"
 
 #: src/Domain/Content/NavigationModule.php:35
 #: src/Domain/Content/NavigationModule.php:36
 msgid "Navigation"
-msgstr ""
+msgstr "导航"
 
 #: src/Domain/Content/NavigationModule.php:44
 msgid "These lists replace the WordPress menu system: the front end reads them through GET /aiya/core/v1/menus/primary and /menus/secondary, rows in listed order."
-msgstr ""
+msgstr "这些列表取代 WordPress 菜单系统：前端通过 GET /aiya/core/v1/menus/primary 与 /menus/secondary 按列表顺序读取。"
 
 #: src/Domain/Content/NavigationModule.php:50
 msgid "Primary menu"
-msgstr ""
+msgstr "主菜单"
 
 #: src/Domain/Content/NavigationModule.php:51
 msgid "The main navigation of the front-end shell (site header). Internal targets are front-end paths (/posts/), external ones absolute https URLs."
-msgstr ""
+msgstr "前台外壳的主导航（页头）。站内目标填前台路径（/posts/），外部目标填完整的 https URL。"
 
 #: src/Domain/Content/NavigationModule.php:58
 msgid "Secondary menu"
-msgstr ""
+msgstr "次菜单"
 
 #: src/Domain/Content/NavigationModule.php:59
 msgid "The auxiliary navigation of the front-end shell (footer, legal links). Same rules as the primary menu."
-msgstr ""
+msgstr "前台外壳的辅助导航（页脚、法务链接）。规则同主菜单。"
 
 #: src/Domain/Content/NavigationModule.php:81
 msgid "Front-end path (/posts/) or external URL; empty falls back to the home path."
-msgstr ""
+msgstr "前台路径（/posts/）或外部 URL；留空回退到首页路径。"
 
 #: src/Domain/Content/NavigationModule.php:86
 msgid "Open in"
-msgstr ""
+msgstr "打开方式"
 
 #: src/Domain/Content/NavigationModule.php:89
 msgid "Same window"
-msgstr ""
+msgstr "当前窗口"
 
 #: src/Domain/Content/NavigationModule.php:90
 msgid "New window"
-msgstr ""
+msgstr "新窗口"
 
 #: src/Domain/Content/SeoBoxModule.php:31
 msgid "SEO fields"
-msgstr ""
+msgstr "SEO 字段"
 
 #: src/Domain/Content/SeoBoxModule.php:39
 #: src/Domain/Content/TermExtrasModule.php:52
 msgid "SEO keywords"
-msgstr ""
+msgstr "SEO 关键词"
 
 #: src/Domain/Content/SeoBoxModule.php:40
 msgid "Comma-separated keywords projected into the headless API."
-msgstr ""
+msgstr "以逗号分隔的关键词，输出到无头 API。"
 
 #: src/Domain/Content/SeoBoxModule.php:46
 msgid "SEO description"
-msgstr ""
+msgstr "SEO 描述"
 
 #: src/Domain/Content/SeoBoxModule.php:47
 msgid "Meta description projected into the headless API."
-msgstr ""
+msgstr "输出到无头 API 的 meta 描述。"
 
 #: src/Domain/Content/SlugModule.php:60
 msgid "Post slug generation"
-msgstr ""
+msgstr "文章别名生成"
 
 #: src/Domain/Content/SlugModule.php:61
 msgid "Pinyin fills empty slugs from the title; the ID modes force an ID-based slug on every save."
-msgstr ""
+msgstr "拼音模式仅为空别名按标题补全；ID 模式在每次保存时强制使用基于 ID 的别名。"
 
 #: src/Domain/Content/SlugModule.php:64
 #: src/Domain/ExternalFiles/OplistModule.php:143
 #: src/Domain/Identity/AvatarModule.php:100
 #: src/Infrastructure/Security/SecurityModule.php:127
 msgid "Off"
-msgstr ""
+msgstr "关闭"
 
 #: src/Domain/Content/SlugModule.php:65
 msgid "Pinyin from title"
-msgstr ""
+msgstr "标题拼音"
 
 #: src/Domain/Content/SlugModule.php:66
 msgid "ID, zero padded (AV style)"
-msgstr ""
+msgstr "ID 补零（AV 风格）"
 
 #: src/Domain/Content/SlugModule.php:67
 msgid "ID, XDE encoded (BV style)"
-msgstr ""
+msgstr "ID XDE 编码（BV 风格）"
 
 #: src/Domain/Content/SlugModule.php:73
 msgid "Slug post types"
-msgstr ""
+msgstr "作用的文章类型"
 
 #: src/Domain/Content/SlugModule.php:74
 msgid "Comma-separated post type names the slug modes apply to."
-msgstr ""
+msgstr "以逗号分隔的文章类型，别名模式仅对这些类型生效。"
 
 #: src/Domain/Content/SlugModule.php:80
 msgid "Term slugs from pinyin"
-msgstr ""
+msgstr "术语别名拼音"
 
 #: src/Domain/Content/SlugModule.php:81
 msgid "Generate pinyin slugs for terms with empty slugs"
-msgstr ""
+msgstr "为别名为空的术语生成拼音别名"
 
 #: src/Domain/Content/SlugModule.php:87
 msgid "ID slug prefix"
-msgstr ""
+msgstr "ID 别名前缀"
 
 #: src/Domain/Content/SlugModule.php:88
 msgid "Prepended to generated ID slugs; non-URL characters are stripped."
-msgstr ""
+msgstr "添加到生成的 ID 别名之前；非 URL 字符会被剔除。"
 
 #: src/Domain/Content/TermExtrasModule.php:45
 msgid "Term SEO and cover"
-msgstr ""
+msgstr "术语 SEO 与封面"
 
 #: src/Domain/Content/TermExtrasModule.php:47
 msgid "Used by the headless front end for this term's archive page."
-msgstr ""
+msgstr "无头前端在此术语的归档页使用这些信息。"
 
 #: src/Domain/Content/TermExtrasModule.php:53
 msgid "Comma-separated keywords for the term archive page."
-msgstr ""
+msgstr "术语归档页的关键词，以逗号分隔。"
 
 #: src/Domain/Content/TermExtrasModule.php:59
 msgid "Cover image"
-msgstr ""
+msgstr "封面图"
 
 #: src/Domain/Content/TermExtrasModule.php:60
 msgid "Upload or pick an image from the media library; it serves as the cover of the term archive page."
-msgstr ""
+msgstr "上传或从媒体库选择图片，作为术语归档页的封面。"
 
 #: src/Domain/Discussion/DiscussionService.php:36
 msgid "The thread author does not exist."
-msgstr ""
+msgstr "线程作者不存在。"
 
 #: src/Domain/Discussion/DiscussionService.php:40
 #: src/Domain/Discussion/DiscussionService.php:287
 msgid "The thread title is required."
-msgstr ""
+msgstr "线程标题不能为空。"
 
 #: src/Domain/Discussion/DiscussionService.php:43
 #: src/Domain/Discussion/DiscussionService.php:301
 msgid "Unknown thread type."
-msgstr ""
+msgstr "未知线程类型。"
 
 #: src/Domain/Discussion/DiscussionService.php:46
 #: src/Domain/Discussion/DiscussionService.php:294
 msgid "The thread body is required."
-msgstr ""
+msgstr "线程正文不能为空。"
 
 #: src/Domain/Discussion/DiscussionService.php:72
 msgid "The thread could not be stored."
-msgstr ""
+msgstr "线程保存失败。"
 
 #: src/Domain/Discussion/DiscussionService.php:229
 msgid "This thread is closed to new replies."
-msgstr ""
+msgstr "该线程已关闭回复。"
 
 #: src/Domain/Discussion/DiscussionService.php:232
 msgid "The replying user does not exist."
-msgstr ""
+msgstr "回复用户不存在。"
 
 #: src/Domain/Discussion/DiscussionService.php:235
 msgid "The reply body is required."
-msgstr ""
+msgstr "回复内容不能为空。"
 
 #: src/Domain/Discussion/DiscussionService.php:254
 msgid "The reply could not be stored."
-msgstr ""
+msgstr "回复保存失败。"
 
 #: src/Domain/Discussion/DiscussionService.php:280
 msgid "You are not allowed to edit this thread."
-msgstr ""
+msgstr "您无权编辑该线程。"
 
 #: src/Domain/Discussion/DiscussionService.php:308
 msgid "Unknown thread status."
-msgstr ""
+msgstr "未知线程状态。"
 
 #: src/Domain/Discussion/DiscussionService.php:322
 msgid "The thread could not be updated."
-msgstr ""
+msgstr "线程更新失败。"
 
 #: src/Domain/Discussion/DiscussionService.php:336
 msgid "You are not allowed to delete this thread."
-msgstr ""
+msgstr "您无权删除该线程。"
 
 #: src/Domain/Discussion/DiscussionService.php:343
 msgid "The thread replies could not be deleted."
-msgstr ""
+msgstr "线程回复删除失败。"
 
 #: src/Domain/Discussion/DiscussionService.php:347
 msgid "The thread could not be deleted."
-msgstr ""
+msgstr "线程删除失败。"
 
 #: src/Domain/Discussion/DiscussionService.php:358
 msgid "Reply not found."
-msgstr ""
+msgstr "回复不存在。"
 
 #: src/Domain/Discussion/DiscussionService.php:361
 msgid "You are not allowed to delete this reply."
-msgstr ""
+msgstr "您无权删除该回复。"
 
 #: src/Domain/Discussion/DiscussionService.php:368
 msgid "The reply could not be deleted."
-msgstr ""
+msgstr "回复删除失败。"
 
 #: src/Domain/Discussion/DiscussionService.php:422
 msgid "The bound content does not exist or cannot carry discussions."
-msgstr ""
+msgstr "绑定的内容不存在或不能承载讨论。"
 
 #: src/Domain/Engagement/CounterService.php:217
 msgid "The content does not exist."
-msgstr ""
+msgstr "内容不存在。"
 
 #: src/Domain/Engagement/CounterService.php:220
 msgid "This content does not carry counters."
-msgstr ""
+msgstr "该内容不支持计数。"
 
 #: src/Domain/ExternalFiles/AttachmentService.php:52
 msgid "Resource not found."
-msgstr ""
+msgstr "资源不存在。"
 
 #: src/Domain/ExternalFiles/AttachmentService.php:177
 msgid "Unsupported mode."
-msgstr ""
+msgstr "不支持的模式。"
 
 #: src/Domain/ExternalFiles/OpenListClient.php:72
 msgid "Unsupported OpenList operation."
-msgstr ""
+msgstr "不支持的 OpenList 操作。"
 
 #: src/Domain/ExternalFiles/OpenListClient.php:77
 #: src/Domain/ExternalFiles/OpenListClient.php:106
 msgid "The file service is unreachable."
-msgstr ""
+msgstr "文件服务不可达。"
 
 #: src/Domain/ExternalFiles/OpenListClient.php:82
 msgid "The file service returned an invalid response."
-msgstr ""
+msgstr "文件服务返回了无效响应。"
 
 #: src/Domain/ExternalFiles/OplistModule.php:45
 #: src/Domain/ExternalFiles/OplistModule.php:46
 msgid "OpenList"
-msgstr ""
+msgstr "OpenList"
 
 #: src/Domain/ExternalFiles/OplistModule.php:53
 msgid "Server URL"
-msgstr ""
+msgstr "服务器地址"
 
 #: src/Domain/ExternalFiles/OplistModule.php:54
 msgid "Base address of the OpenList instance that hosts resource attachments."
-msgstr ""
+msgstr "承载资源附件的 OpenList 实例基础地址。"
 
 #: src/Domain/ExternalFiles/OplistModule.php:60
 msgid "API username"
-msgstr ""
+msgstr "API 用户名"
 
 #: src/Domain/ExternalFiles/OplistModule.php:66
 msgid "API password"
-msgstr ""
+msgstr "API 密码"
 
 #: src/Domain/ExternalFiles/OplistModule.php:67
 msgid "Used to fetch fresh bearer tokens; stored server-side and never exposed."
-msgstr ""
+msgstr "用于获取新的 Bearer 令牌；仅存于服务端，绝不外泄。"
 
 #: src/Domain/ExternalFiles/OplistModule.php:73
 msgid "Token cache (hours)"
-msgstr ""
+msgstr "令牌缓存（小时）"
 
 #: src/Domain/ExternalFiles/OplistModule.php:74
 msgid "0 refetches the token on every request. Uses the object cache, so a Redis/memcached drop-in makes it persist."
-msgstr ""
+msgstr "0 表示每次请求都重新获取令牌。使用对象缓存，装上 Redis/memcached drop-in 即可持久化。"
 
 #: src/Domain/ExternalFiles/OplistModule.php:83
 msgid "Attachment list cache (minutes)"
-msgstr ""
+msgstr "附件列表缓存（分钟）"
 
 #: src/Domain/ExternalFiles/OplistModule.php:84
-msgid "How long an attachment listing is served from the object cache before OpenList is asked again; 0 disables caching. The box\\u0027s force-refresh switch always bypasses it."
-msgstr ""
+msgid "How long an attachment listing is served from the object cache before OpenList is asked again; 0 disables caching. The box's force-refresh switch always bypasses it."
+msgstr "附件列表在对象缓存中的保留时长，超时才会重新请求 OpenList；0 为禁用缓存。编辑框中的「强制刷新」开关始终绕过缓存。"
 
 #: src/Domain/ExternalFiles/OplistModule.php:93
 msgid "Download link mode"
-msgstr ""
+msgstr "下载链接模式"
 
 #: src/Domain/ExternalFiles/OplistModule.php:96
 msgid "Plain path"
-msgstr ""
+msgstr "纯路径"
 
 #: src/Domain/ExternalFiles/OplistModule.php:97
 msgid "Direct (/d/)"
-msgstr ""
+msgstr "直连（/d/）"
 
 #: src/Domain/ExternalFiles/OplistModule.php:98
 msgid "Proxied (/p/)"
-msgstr ""
+msgstr "代理（/p/）"
 
 #: src/Domain/ExternalFiles/OplistModule.php:99
 msgid "raw_url from the API"
-msgstr ""
+msgstr "API 的 raw_url"
 
 #: src/Domain/ExternalFiles/OplistModule.php:105
 msgid "File type icons"
-msgstr ""
+msgstr "文件类型图标"
 
 #: src/Domain/ExternalFiles/OplistModule.php:106
 msgid "Classify attachments by extension for the front end."
-msgstr ""
+msgstr "按扩展名为前端分类附件。"
 
 #: src/Domain/ExternalFiles/OplistModule.php:112
 msgid "Default panel description"
-msgstr ""
+msgstr "默认面板描述"
 
 #: src/Domain/ExternalFiles/OplistModule.php:113
 msgid "Shown when a resource does not describe its attachments."
-msgstr ""
+msgstr "资源未描述附件时显示。"
 
 #: src/Domain/ExternalFiles/OplistModule.php:125
 msgid "OpenList attachments"
-msgstr ""
+msgstr "OpenList 附件"
 
 #: src/Domain/ExternalFiles/OplistModule.php:133
 msgid "Sponsor-only downloads"
-msgstr ""
+msgstr "仅赞助者可下载"
 
 #: src/Domain/ExternalFiles/OplistModule.php:134
 msgid "On: only sponsors see download links (listing stays public). Off: any signed-in user sees them."
-msgstr ""
+msgstr "开启：仅赞助者可见下载链接（列表仍公开）。关闭：任何登录用户均可见。"
 
 #: src/Domain/ExternalFiles/OplistModule.php:140
 msgid "Surfacing mode"
-msgstr ""
+msgstr "呈现模式"
 
 #: src/Domain/ExternalFiles/OplistModule.php:144
 msgid "List a directory"
-msgstr ""
+msgstr "列出目录"
 
 #: src/Domain/ExternalFiles/OplistModule.php:145
 msgid "Single file or directory"
-msgstr ""
+msgstr "单文件或目录"
 
 #: src/Domain/ExternalFiles/OplistModule.php:146
 msgid "Directory tree"
-msgstr ""
+msgstr "目录树"
 
 #: src/Domain/ExternalFiles/OplistModule.php:147
 msgid "Search"
-msgstr ""
+msgstr "搜索"
 
 #: src/Domain/ExternalFiles/OplistModule.php:153
 msgid "Path"
-msgstr ""
+msgstr "路径"
 
 #: src/Domain/ExternalFiles/OplistModule.php:159
 msgid "Panel description"
-msgstr ""
+msgstr "面板描述"
 
 #: src/Domain/ExternalFiles/OplistModule.php:165
 msgid "Search root"
-msgstr ""
+msgstr "搜索根目录"
 
 #: src/Domain/ExternalFiles/OplistModule.php:166
 #: src/Domain/ExternalFiles/OplistModule.php:173
 msgid "Search mode only."
-msgstr ""
+msgstr "仅搜索模式使用。"
 
 #: src/Domain/ExternalFiles/OplistModule.php:172
 msgid "Search keywords"
-msgstr ""
+msgstr "搜索关键词"
 
 #: src/Domain/ExternalFiles/OplistModule.php:179
 msgid "Per page"
-msgstr ""
+msgstr "每页数量"
 
 #: src/Domain/ExternalFiles/OplistModule.php:180
 msgid "0 lists everything."
-msgstr ""
+msgstr "0 表示列出全部。"
 
 #: src/Domain/ExternalFiles/OplistModule.php:188
 msgid "OpenList path password"
-msgstr ""
+msgstr "OpenList 路径密码"
 
 #: src/Domain/ExternalFiles/OplistModule.php:189
 msgid "The password of the configured path on the OpenList side, if any."
-msgstr ""
+msgstr "所配置路径在 OpenList 侧的密码（如有）。"
 
 #: src/Domain/ExternalFiles/OplistModule.php:195
 msgid "Force refresh"
-msgstr ""
+msgstr "强制刷新"
 
 #: src/Domain/ExternalFiles/OplistModule.php:196
 msgid "Skip the OpenList cache on every listing request."
-msgstr ""
+msgstr "每次列表请求都跳过 OpenList 缓存。"
 
 #: src/Domain/Identity/AvatarModule.php:96
 msgid "Gravatar mirror"
-msgstr ""
+msgstr "Gravatar 镜像"
 
 #: src/Domain/Identity/AvatarModule.php:97
 msgid "Rewrites gravatar.com hosts to a reachable mirror. Local avatars always win. Loli and v2ex are defunct and not offered."
-msgstr ""
+msgstr "将 gravatar.com 域名改写到可访问的镜像。本地头像始终优先。Loli 与 v2ex 已失效，不再提供。"
 
 #: src/Domain/Identity/AvatarModule.php:101
 msgid "Qiniu (dn-qiniu-avatar.qbox.me)"
-msgstr ""
+msgstr "七牛（dn-qiniu-avatar.qbox.me）"
 
 #: src/Domain/Identity/AvatarModule.php:102
 msgid "WeAvatar (weavatar.com)"
-msgstr ""
+msgstr "WeAvatar（weavatar.com）"
 
 #: src/Domain/Identity/AvatarModule.php:108
 msgid "Default avatar URL"
-msgstr ""
+msgstr "默认头像 URL"
 
 #: src/Domain/Identity/AvatarModule.php:109
 msgid "Used whenever a user has neither a local avatar nor a gravatar. Overrides the Discussion settings choice while non-empty."
-msgstr ""
+msgstr "用户既无本地头像也无 Gravatar 时使用。非空时覆盖讨论设置中的选择。"
 
 #: src/Domain/Identity/AvatarModule.php:180
 msgid "Custom default"
-msgstr ""
+msgstr "自定义默认"
 
 #: src/Domain/Identity/AvatarModule.php:288
 msgid "Local avatar"
-msgstr ""
+msgstr "本地头像"
 
 #: src/Domain/Identity/AvatarModule.php:295
 msgid "Upload avatar"
-msgstr ""
+msgstr "上传头像"
 
 #: src/Domain/Identity/AvatarModule.php:296
 msgid "Remove local avatar"
-msgstr ""
+msgstr "移除本地头像"
 
 #: src/Domain/Identity/AvatarModule.php:298
 msgid "JPEG, PNG, WebP or GIF up to 4 MB. The image is center-cropped and stored as 128px and 64px copies; the uploaded original is not kept."
-msgstr ""
+msgstr "支持 JPEG、PNG、WebP 或 GIF，最大 4 MB。图片会居中裁剪并保存 128px 与 64px 两份；不上传原始文件。"
 
 #: src/Domain/Identity/AvatarModule.php:317
 msgid "Operation failed."
-msgstr ""
+msgstr "操作失败。"
 
 #: src/Domain/Identity/AvatarModule.php:333
 msgid "Choose an image first."
-msgstr ""
+msgstr "请先选择一张图片。"
 
 #: src/Domain/Identity/AvatarModule.php:346
 msgid "Avatar updated."
-msgstr ""
+msgstr "头像已更新。"
 
 #: src/Domain/Identity/AvatarModule.php:353
 msgid "Remove the local avatar?"
-msgstr ""
+msgstr "移除本地头像？"
 
 #: src/Domain/Identity/AvatarModule.php:378
 #: src/Domain/Identity/AvatarModule.php:405
 msgid "You are not allowed to edit this user."
-msgstr ""
+msgstr "您无权编辑该用户。"
 
 #: src/Domain/Identity/AvatarModule.php:438
 msgid "No avatar image was provided."
-msgstr ""
+msgstr "未提供头像图片。"
 
 #: src/Domain/Identity/AvatarModule.php:448
 msgid "The avatar could not be processed."
-msgstr ""
+msgstr "头像处理失败。"
 
 #: src/Domain/Identity/AvatarModule.php:505
 msgid "Invalid avatar upload."
-msgstr ""
+msgstr "无效的头像上传。"
 
 #: src/Domain/Identity/AvatarModule.php:511
 msgid "The avatar image is too large (4 MB maximum)."
-msgstr ""
+msgstr "头像图片过大（最大 4 MB）。"
 
 #: src/Domain/Identity/AvatarModule.php:530
 msgid "Only JPEG, PNG, WebP and GIF images can be used as an avatar."
-msgstr ""
+msgstr "头像仅支持 JPEG、PNG、WebP 与 GIF 图片。"
 
 #: src/Domain/Identity/FavoriteService.php:50
 msgid "The favorite could not be stored."
-msgstr ""
+msgstr "收藏保存失败。"
 
 #: src/Domain/Identity/FavoriteService.php:140
 msgid "Only published posts can be favorited."
-msgstr ""
+msgstr "仅已发布的文章可以收藏。"
 
 #: src/Domain/Identity/FollowService.php:26
 msgid "Invalid follow target."
-msgstr ""
+msgstr "无效的关注目标。"
 
 #: src/Domain/Identity/FollowService.php:29
 msgid "You cannot follow yourself."
-msgstr ""
+msgstr "不能关注自己。"
 
 #: src/Domain/Identity/FollowService.php:32
 msgid "The user to follow does not exist."
-msgstr ""
+msgstr "要关注的用户不存在。"
 
 #: src/Domain/Identity/FollowService.php:50
 msgid "The follow could not be stored."
-msgstr ""
+msgstr "关注保存失败。"
 
-#. translators: %d: minimum password length.
 #: src/Domain/Identity/PasswordPolicy.php:26
-#, php-format
 msgid "Password must be at least %d characters long."
-msgstr ""
+msgstr "密码长度至少 %d 个字符。"
 
 #: src/Domain/Identity/PasswordPolicy.php:32
 msgid "Password must contain both letters and digits."
-msgstr ""
+msgstr "密码必须同时包含字母与数字。"
 
 #: src/Domain/Identity/PasswordPolicy.php:36
 msgid "The two passwords do not match."
-msgstr ""
+msgstr "两次输入的密码不一致。"
 
-#. translators: %s: site name.
 #: src/Domain/Identity/PasswordResetService.php:45
-#, php-format
 msgid "[%s] Password reset"
-msgstr ""
+msgstr "【%s】密码重置"
 
-#. translators: %s: site name.
 #: src/Domain/Identity/PasswordResetService.php:51
-#, php-format
 msgid "Someone requested a password reset for your account at %s."
-msgstr ""
+msgstr "有人为你在 %s 的账户请求了密码重置。"
 
-#. translators: %s: login email address.
 #: src/Domain/Identity/PasswordResetService.php:56
-#, php-format
 msgid "Login email: %s"
-msgstr ""
+msgstr "登录邮箱：%s"
 
 #: src/Domain/Identity/PasswordResetService.php:59
 msgid "If this was not you, ignore this email and your password will stay unchanged."
-msgstr ""
+msgstr "如果这不是您的操作，请忽略本邮件，密码将保持不变。"
 
-#. translators: %d: number of hours the reset link stays valid.
 #: src/Domain/Identity/PasswordResetService.php:62
-#, php-format
 msgid "Open the link below within %d hours to choose a new password:"
-msgstr ""
+msgstr "请在 %d 小时内打开以下链接设置新密码："
 
 #: src/Domain/Identity/PasswordResetService.php:68
 msgid "The password reset email could not be sent."
-msgstr ""
+msgstr "密码重置邮件发送失败。"
 
 #: src/Domain/Identity/TokenStore.php:42
 msgid "No user to issue a token for."
-msgstr ""
+msgstr "没有可签发令牌的用户。"
 
 #: src/Domain/Identity/TokenStore.php:62
 msgid "The session token could not be stored."
-msgstr ""
+msgstr "会话令牌保存失败。"
 
 #: src/Domain/Media/CoverService.php:62
 msgid "The post does not exist."
-msgstr ""
+msgstr "文章不存在。"
 
 #: src/Domain/Media/CoverService.php:96
 msgid "Cover generation failed."
-msgstr ""
+msgstr "封面生成失败。"
 
 #: src/Domain/Media/CoverService.php:101
 msgid "The cover URL could not be resolved."
-msgstr ""
+msgstr "无法解析封面 URL。"
 
 #: src/Domain/Notification/NotificationService.php:68
 msgid "Notification title is required."
-msgstr ""
+msgstr "通知标题不能为空。"
 
 #: src/Domain/Notification/NotificationService.php:71
 msgid "Unknown notification role level."
-msgstr ""
+msgstr "未知的通知角色级别。"
 
 #: src/Domain/Notification/NotificationService.php:74
 msgid "Unknown notification type."
-msgstr ""
+msgstr "未知的通知类型。"
 
 #: src/Domain/Notification/NotificationService.php:77
 msgid "Invalid notification recipient."
-msgstr ""
+msgstr "无效的通知接收者。"
 
 #: src/Domain/Notification/NotificationService.php:96
 msgid "The notification could not be stored."
-msgstr ""
+msgstr "通知保存失败。"
 
 #: src/Domain/Parts/PartModule.php:66
 #: src/Domain/Parts/PartModule.php:92
 #: src/Domain/Parts/PartModule.php:112
 msgid "Template parts"
-msgstr ""
+msgstr "模板零件"
 
 #: src/Domain/Parts/PartModule.php:99
 msgid "Markup preview"
-msgstr ""
+msgstr "标记预览"
 
 #: src/Domain/Parts/PartModule.php:105
 msgid "Insert"
-msgstr ""
+msgstr "插入"
 
 #: src/Domain/Parts/PartModule.php:106
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 #: src/Domain/Parts/PartModule.php:113
 msgid "No template parts are registered yet."
-msgstr ""
+msgstr "尚未注册任何模板零件。"
 
 #: src/Domain/Sponsorship/OrderService.php:36
 msgid "The order user does not exist."
-msgstr ""
+msgstr "订单用户不存在。"
 
 #: src/Domain/Sponsorship/OrderService.php:39
 msgid "The order duration must be positive."
-msgstr ""
+msgstr "订单时长必须为正数。"
 
 #: src/Domain/Sponsorship/OrderService.php:42
 #: src/Domain/Sponsorship/OrderService.php:100
 msgid "Unknown order status."
-msgstr ""
+msgstr "未知订单状态。"
 
 #: src/Domain/Sponsorship/OrderService.php:45
 msgid "The order id is required."
-msgstr ""
+msgstr "订单号不能为空。"
 
 #: src/Domain/Sponsorship/OrderService.php:70
 msgid "This order was already recorded."
-msgstr ""
+msgstr "该订单已被记录。"
 
 #: src/Domain/Sponsorship/OrderService.php:73
 msgid "The order could not be stored."
-msgstr ""
+msgstr "订单保存失败。"
 
 #: src/Domain/Sponsorship/OrderService.php:108
 msgid "Order not found."
-msgstr ""
+msgstr "订单不存在。"
 
 #: src/Domain/Sponsorship/OrderService.php:113
 msgid "The order status could not be updated."
-msgstr ""
+msgstr "订单状态更新失败。"
 
 #: src/Domain/Sponsorship/RedeemCodeService.php:34
 #: src/Domain/Sponsorship/RedeemCodeService.php:51
 msgid "Invalid redemption code."
-msgstr ""
+msgstr "无效的兑换码。"
 
 #: src/Domain/Sponsorship/RedeemCodeService.php:37
 msgid "The redeeming user does not exist."
-msgstr ""
+msgstr "兑换用户不存在。"
 
 #: src/Domain/Sponsorship/RedeemCodeService.php:54
 #: src/Domain/Sponsorship/RedeemCodeService.php:71
 msgid "This code has already been redeemed."
-msgstr ""
+msgstr "该兑换码已被使用。"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:45
 #: src/Domain/Sponsorship/SponsorshipModule.php:46
 msgid "Sponsorship"
-msgstr ""
+msgstr "赞助"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:53
 msgid "Afdian (webhook integration)"
-msgstr ""
+msgstr "爱发电（Webhook 集成）"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:59
 msgid "Afdian integration"
-msgstr ""
+msgstr "爱发电集成"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:65
 msgid "Afdian user id"
-msgstr ""
+msgstr "爱发电用户 ID"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:71
 msgid "Afdian API token"
-msgstr ""
+msgstr "爱发电 API 令牌"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:72
 msgid "Used for the API queries and the webhook signature check; stored once and never shown again."
-msgstr ""
+msgstr "用于 API 查询与 Webhook 签名校验；仅保存一次，之后不再显示。"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:78
 msgid "Creator page slug"
-msgstr ""
+msgstr "创作者主页后缀"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:79
 msgid "The afdian.com/a/{slug} address shown to visitors."
-msgstr ""
+msgstr "展示给访客的 afdian.com/a/{slug} 地址。"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:85
 msgid "Order page type"
-msgstr ""
+msgstr "订单页类型"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:86
 msgid "Custom-amount jumps to your creator page; preset jumps straight to the configured plan."
-msgstr ""
+msgstr "自定义金额跳转创作者主页；预设方案直接跳到已配置的方案页。"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:89
 msgid "Custom amount"
-msgstr ""
+msgstr "自定义金额"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:90
 msgid "Preset plan"
-msgstr ""
+msgstr "预设方案"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:96
 msgid "Preset plan URL"
-msgstr ""
+msgstr "预设方案 URL"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:97
 msgid "The afdian.com/order/create?plan_id=… address of the preset plan; its plan_id is reused."
-msgstr ""
+msgstr "预设方案的 afdian.com/order/create?plan_id=… 地址；将复用其中的 plan_id。"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:103
 msgid "Webhook log"
-msgstr ""
+msgstr "Webhook 日志"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:104
 msgid "Append raw webhook payloads to webhook_logs for debugging."
-msgstr ""
+msgstr "将原始 Webhook 载荷追加到 webhook_logs 以便调试。"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:110
 msgid "Epay gateway (cashier integration)"
-msgstr ""
+msgstr "易支付网关（收银台集成）"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:116
 msgid "Epay integration"
-msgstr ""
+msgstr "易支付集成"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:122
 msgid "Merchant id (pid)"
-msgstr ""
+msgstr "商户 ID（pid）"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:128
 msgid "Merchant key"
-msgstr ""
+msgstr "商户密钥"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:134
 msgid "Gateway submit URL"
-msgstr ""
+msgstr "网关提交地址"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:140
 msgid "Front-end return URL"
-msgstr ""
+msgstr "前台回跳地址"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:141
 msgid "Where the browser lands after paying; the headless front end owns this page."
-msgstr ""
+msgstr "支付完成后浏览器落地的页面；由无头前端提供。"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:147
 msgid "Alipay channel"
-msgstr ""
+msgstr "支付宝渠道"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:153
 msgid "WeChat Pay channel"
-msgstr ""
+msgstr "微信支付渠道"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:159
 msgid "USDT (TRC20) channel"
-msgstr ""
+msgstr "USDT（TRC20）渠道"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:165
 msgid "Callback log"
-msgstr ""
+msgstr "回调日志"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:166
 msgid "Append raw gateway callbacks to webhook_logs for debugging."
-msgstr ""
+msgstr "将原始网关回调追加到 webhook_logs 以便调试。"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:172
 msgid "Purchase plans"
-msgstr ""
+msgstr "购买方案"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:178
 msgid "Plans"
-msgstr ""
+msgstr "方案"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:179
 msgid "Each plan is one purchasable membership period; the key is the stable identifier the front end and gateway callbacks refer to."
-msgstr ""
+msgstr "每个方案对应一个可购买的会员时长；key 是前端与网关回调引用的稳定标识。"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:185
 msgid "Key"
-msgstr ""
+msgstr "键名"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:191
 msgid "Name"
-msgstr ""
+msgstr "名称"
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:197
 msgid "Price"
-msgstr ""
+msgstr "价格"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:71
 #: src/Infrastructure/Headless/HeadlessModule.php:72
 msgid "Optimization"
-msgstr ""
+msgstr "优化"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:79
 msgid "Master switch"
-msgstr ""
+msgstr "总开关"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:80
 msgid "Strip headless-irrelevant WordPress features"
-msgstr ""
+msgstr "裁剪与无头无关的 WordPress 功能"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:81
 msgid "Turn off to restore stock WordPress behaviour without code changes."
-msgstr ""
+msgstr "关闭即可在不改代码的情况下恢复 WordPress 原生行为。"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:88
 msgid "These toggles only apply while the master switch is on."
-msgstr ""
+msgstr "以下开关仅在总开关开启时生效。"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:89
 msgid "Stripping is enforced at runtime; REST reads for content stay available for the Astro front end."
-msgstr ""
+msgstr "裁剪在运行时强制执行；内容相关的 REST 读取仍对 Astro 前端可用。"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:95
 msgid "Editor surfaces"
-msgstr ""
+msgstr "编辑器界面"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:101
 msgid "Block editor (Gutenberg)"
-msgstr ""
+msgstr "区块编辑器（Gutenberg）"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:102
 msgid "Force the classic editor for every post type"
-msgstr ""
+msgstr "为所有文章类型强制使用经典编辑器"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:108
 msgid "Block widgets"
-msgstr ""
+msgstr "区块小工具"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:109
 msgid "Revert the widgets screen to the classic interface"
-msgstr ""
+msgstr "将小工具屏幕恢复为经典界面"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:115
 msgid "Front end and protocols"
-msgstr ""
+msgstr "前台与协议"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:121
 msgid "Pingbacks and trackbacks"
-msgstr ""
+msgstr "Pingback 与 Trackback"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:122
 msgid "Disable the pingback/trackback protocols entirely"
-msgstr ""
+msgstr "彻底禁用 pingback/trackback 协议"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:128
 msgid "Emoji"
-msgstr ""
+msgstr "Emoji"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:129
 msgid "Remove the emoji detection script and staticization filters"
-msgstr ""
+msgstr "移除 Emoji 检测脚本与静态化过滤器"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:135
 msgid "oEmbed discovery"
-msgstr ""
+msgstr "oEmbed 探测"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:136
 msgid "Remove discovery links, the embed route and auto-embeds"
-msgstr ""
+msgstr "移除探测链接、embed 路由与自动嵌入"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:142
 msgid "XML-RPC"
-msgstr ""
+msgstr "XML-RPC"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:143
 msgid "Disable the XML-RPC server entirely"
-msgstr ""
+msgstr "彻底禁用 XML-RPC 服务器"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:149
 msgid "Front-end head cleanup"
-msgstr ""
+msgstr "前台 head 清理"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:150
 msgid "Strip generator, RSD, shortlink, REST hints and block CSS from front-end output"
-msgstr ""
+msgstr "从前台输出中移除 generator、RSD、短链接、REST 提示与区块 CSS"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:156
 msgid "Admin screens and block services"
-msgstr ""
+msgstr "后台屏幕与区块服务"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:162
 msgid "Customizer and site editor"
-msgstr ""
+msgstr "定制器与站点编辑器"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:163
 msgid "Remove the customizer and site editor screens and block direct access"
-msgstr ""
+msgstr "移除定制器与站点编辑器入口并阻止直接访问"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:164
 msgid "The themes screen and menu management stay available so the shell theme can be switched."
-msgstr ""
+msgstr "主题屏幕与菜单管理保持可用，以便切换壳主题。"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:170
 msgid "Font library and global styles"
-msgstr ""
+msgstr "字体库与全局样式"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:171
 msgid "Remove the font library screen and the font/global-style REST routes"
-msgstr ""
+msgstr "移除字体库屏幕与字体/全局样式 REST 路由"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:177
 msgid "Block patterns and block directory"
-msgstr ""
+msgstr "区块样板与区块目录"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:178
 msgid "Drop core block patterns, remote patterns and their REST routes"
-msgstr ""
+msgstr "移除核心区块样板、远程样板及其 REST 路由"
 
 #: src/Infrastructure/Headless/HeadlessModule.php:391
 msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA Core > Optimization."
-msgstr ""
+msgstr "该屏幕因站点以无头模式运行而禁用。请前往 AIYA Core > Optimization 管理。"
 
 #: src/Infrastructure/Security/SecurityModule.php:71
 #: src/Infrastructure/Security/SecurityModule.php:72
 msgid "Security hardening"
-msgstr ""
+msgstr "安全加固"
 
 #: src/Infrastructure/Security/SecurityModule.php:79
 msgid "REST user enumeration"
-msgstr ""
+msgstr "REST 用户枚举"
 
 #: src/Infrastructure/Security/SecurityModule.php:80
 msgid "Remove the /wp/v2/users endpoints for anonymous visitors"
-msgstr ""
+msgstr "对匿名访客移除 /wp/v2/users 端点"
 
 #: src/Infrastructure/Security/SecurityModule.php:81
 msgid "Author data reaches the front end through the post DTOs. Admin screens that read /wp/v2/users (media library author filter) degrade; turn off if that matters."
-msgstr ""
+msgstr "作者数据经由文章 DTO 提供给前端。读取 /wp/v2/users 的后台屏幕（媒体库作者筛选）会降级；如有影响可关闭。"
 
 #: src/Infrastructure/Security/SecurityModule.php:87
 msgid "Public REST surface"
-msgstr ""
+msgstr "公开 REST 面"
 
 #: src/Infrastructure/Security/SecurityModule.php:88
 msgid "Expose only aiya/core/v1 routes to visitors — the whole /wp/v2 API answers 404 for anyone without a backend session"
-msgstr ""
+msgstr "访客仅可见 aiya/core/v1 路由——没有后台会话的任何人访问 /wp/v2 都会得到 404"
 
 #: src/Infrastructure/Security/SecurityModule.php:89
 msgid "The headless contract API stays open. Backend users (administrator, editor, author cookie sessions or equivalent application passwords) keep the full WP REST API for admin screens."
-msgstr ""
+msgstr "无头契约 API 保持开放。后台用户（管理员/编辑/作者的 cookie 会话或等效应用密码）仍可使用完整 WP REST API。"
 
 #: src/Infrastructure/Security/SecurityModule.php:95
 msgid "Sitemap user list"
-msgstr ""
+msgstr "站点地图用户列表"
 
 #: src/Infrastructure/Security/SecurityModule.php:96
 msgid "Drop the users provider from WP sitemaps"
-msgstr ""
+msgstr "从 WP 站点地图中移除用户提供器"
 
 #: src/Infrastructure/Security/SecurityModule.php:102
 msgid "Email-address logins"
-msgstr ""
+msgstr "邮箱登录"
 
 #: src/Infrastructure/Security/SecurityModule.php:103
 msgid "Only accept email addresses as the login field"
-msgstr ""
+msgstr "登录字段仅接受邮箱地址"
 
 #: src/Infrastructure/Security/SecurityModule.php:109
 msgid "Password-reset link hosts"
-msgstr ""
+msgstr "密码重置链接主机"
 
 #: src/Infrastructure/Security/SecurityModule.php:110
 msgid "Host names the reset link may point at besides this site (the front-end host, comma-separated). Requests naming any other host fall back to this site, so a forged domain can never receive a live reset link."
-msgstr ""
+msgstr "除本站外，重置链接可指向的主机名（即前端主机，逗号分隔）。请求中指向其他主机的链接一律回退到本站，伪造域名永远收不到有效的重置链接。"
 
 #: src/Infrastructure/Security/SecurityModule.php:116
 msgid "REST cross-origin origins"
-msgstr ""
+msgstr "REST 跨域来源"
 
 #: src/Infrastructure/Security/SecurityModule.php:117
 msgid "Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here."
-msgstr ""
+msgstr "允许从浏览器调用本 API 的完整前端来源（协议://主机[:端口]），逗号分隔。留空则完全不输出 CORS 头——同源部署无需配置。"
 
 #: src/Infrastructure/Security/SecurityModule.php:123
 msgid "Admin back end minimum role"
-msgstr ""
+msgstr "后台最低角色"
 
 #: src/Infrastructure/Security/SecurityModule.php:124
 msgid "Users below the selected role are redirected away from wp-admin. Off by default."
-msgstr ""
+msgstr "低于所选角色的用户将被重定向离开 wp-admin。默认关闭。"
 
 #: src/Infrastructure/Security/SecurityModule.php:128
 msgid "Subscriber and above"
-msgstr ""
+msgstr "订阅者及以上"
 
 #: src/Infrastructure/Security/SecurityModule.php:129
 msgid "Contributor and above"
-msgstr ""
+msgstr "投稿者及以上"
 
 #: src/Infrastructure/Security/SecurityModule.php:130
 msgid "Author and above"
-msgstr ""
+msgstr "作者及以上"
 
 #: src/Infrastructure/Security/SecurityModule.php:131
 msgid "Editor and above"
-msgstr ""
+msgstr "编辑及以上"
 
 #: src/Infrastructure/Security/SecurityModule.php:132
 msgid "Administrator only"
-msgstr ""
+msgstr "仅管理员"
 
 #: src/Infrastructure/Security/SecurityModule.php:138
 msgid "Login page parameter gate"
-msgstr ""
+msgstr "登录页参数门禁"
 
 #: src/Infrastructure/Security/SecurityModule.php:139
 msgid "wp-login.php only loads with the secret parameter below"
-msgstr ""
+msgstr "wp-login.php 仅在携带下方密钥参数时加载"
 
 #: src/Infrastructure/Security/SecurityModule.php:140
 msgid "Obscurity, not authentication: keep the value long and treat it as a compliment to credentials, never a replacement."
-msgstr ""
+msgstr "这只是隐蔽手段而非认证：值请尽量长，且仅作为凭据的补充，绝不能替代凭据。"
 
 #: src/Infrastructure/Security/SecurityModule.php:146
 msgid "Login gate parameter value"
-msgstr ""
+msgstr "登录门禁参数值"
 
 #: src/Infrastructure/Security/SecurityModule.php:147
 msgid "Reach the login screen via /wp-login.php?auth=<value>; the pass persists for 10 minutes as a cookie and covers the full flow including password reset. Leave empty to disable the gate regardless of the switch above."
-msgstr ""
+msgstr "通过 /wp-login.php?auth=<值> 访问登录页；通行状态以 cookie 保持 10 分钟，覆盖包含密码重置的完整流程。留空则无论上方开关如何都禁用门禁。"
 
 #: src/Infrastructure/Security/SecurityModule.php:154
 msgid "Request URI guard"
-msgstr ""
+msgstr "请求 URI 守卫"
 
 #: src/Infrastructure/Security/SecurityModule.php:155
 msgid "Reject logged-out requests with oversized or probe-shaped URIs (414)"
-msgstr ""
+msgstr "拒绝未登录状态下 URI 过长或形如探测的请求（414）"
 
 #: src/Infrastructure/Security/SecurityModule.php:283
 msgid "Please log in with your email address."
-msgstr ""
+msgstr "请使用邮箱地址登录。"
 
 #: src/Infrastructure/Security/SecurityModule.php:345
 msgid "Not found."
-msgstr ""
+msgstr "未找到。"
 
 #: src/Modules/MediaModule.php:68
 msgid "Every five minutes"
-msgstr ""
+msgstr "每 5 分钟"
 
 #: src/Modules/MediaModule.php:96
 msgid "Image processor"
-msgstr ""
+msgstr "图像处理器"
 
 #: src/Modules/MediaModule.php:97
 #: src/Modules/MediaModule.php:166
 msgid "Image"
-msgstr ""
+msgstr "图像"
 
 #: src/Modules/MediaModule.php:104
 msgid "Image processing"
-msgstr ""
+msgstr "图像处理"
 
 #: src/Modules/MediaModule.php:110
 msgid "Media library takeover"
-msgstr ""
+msgstr "媒体库接管"
 
 #: src/Modules/MediaModule.php:111
 msgid "Run uploads through the image processor: scale, watermark, format conversion"
-msgstr ""
+msgstr "上传时经过图像处理器：缩放、水印、格式转换"
 
 #: src/Modules/MediaModule.php:112
 msgid "WebP/AVIF saving requires the libwebp/libavif PHP libraries; unsupported targets fall back to the source format."
-msgstr ""
+msgstr "保存 WebP/AVIF 需要 PHP 的 libwebp/libavif 库；不支持的目标格式会回退为源格式。"
 
 #: src/Modules/MediaModule.php:118
 msgid "Save format"
-msgstr ""
+msgstr "保存格式"
 
 #: src/Modules/MediaModule.php:121
 msgid "Keep source format"
-msgstr ""
+msgstr "保持源格式"
 
 #: src/Modules/MediaModule.php:122
 msgid "JPG"
-msgstr ""
+msgstr "JPG"
 
 #: src/Modules/MediaModule.php:123
 msgid "WebP"
-msgstr ""
+msgstr "WebP"
 
 #: src/Modules/MediaModule.php:124
 msgid "AVIF"
-msgstr ""
+msgstr "AVIF"
 
 #: src/Modules/MediaModule.php:130
 msgid "Max image width"
-msgstr ""
+msgstr "最大图片宽度"
 
 #: src/Modules/MediaModule.php:131
 msgid "Uploads wider than this are scaled down; 0 disables the limit."
-msgstr ""
+msgstr "超过此宽度的上传会被缩小；0 表示不限制。"
 
 #: src/Modules/MediaModule.php:139
 msgid "Image quality"
-msgstr ""
+msgstr "图像质量"
 
 #: src/Modules/MediaModule.php:140
 msgid "Save quality from 0 to 100; PNG maps it to the compression level."
-msgstr ""
+msgstr "保存质量 0-100；PNG 会将其映射为压缩级别。"
 
 #: src/Modules/MediaModule.php:149
 msgid "Font file"
-msgstr ""
+msgstr "字体文件"
 
 #: src/Modules/MediaModule.php:150
 msgid "Content URL, content-relative path or absolute path for cover titles and text watermarks. Leave empty to use the bundled font."
-msgstr ""
+msgstr "封面标题与文字水印使用的字体：内容 URL、相对路径或绝对路径。留空使用内置字体。"
 
 #: src/Modules/MediaModule.php:156
 msgid "Watermark"
-msgstr ""
+msgstr "水印"
 
 #: src/Modules/MediaModule.php:162
 msgid "Watermark mode"
-msgstr ""
+msgstr "水印模式"
 
 #: src/Modules/MediaModule.php:165
 msgid "Disabled"
-msgstr ""
+msgstr "禁用"
 
 #: src/Modules/MediaModule.php:167
 msgid "Text"
-msgstr ""
+msgstr "文字"
 
 #: src/Modules/MediaModule.php:173
 msgid "Watermark position"
-msgstr ""
+msgstr "水印位置"
 
 #: src/Modules/MediaModule.php:176
 msgid "Center"
-msgstr ""
+msgstr "居中"
 
 #: src/Modules/MediaModule.php:177
 msgid "Center left"
-msgstr ""
+msgstr "中部居左"
 
 #: src/Modules/MediaModule.php:178
 msgid "Center right"
-msgstr ""
+msgstr "中部居右"
 
 #: src/Modules/MediaModule.php:179
 msgid "Center top"
-msgstr ""
+msgstr "顶部居中"
 
 #: src/Modules/MediaModule.php:180
 msgid "Center bottom"
-msgstr ""
+msgstr "底部居中"
 
 #: src/Modules/MediaModule.php:181
 msgid "Top right"
-msgstr ""
+msgstr "右上"
 
 #: src/Modules/MediaModule.php:182
 msgid "Top left"
-msgstr ""
+msgstr "左上"
 
 #: src/Modules/MediaModule.php:183
 msgid "Top center"
-msgstr ""
+msgstr "顶部居中"
 
 #: src/Modules/MediaModule.php:184
 msgid "Bottom right"
-msgstr ""
+msgstr "右下"
 
 #: src/Modules/MediaModule.php:185
 msgid "Bottom left"
-msgstr ""
+msgstr "左下"
 
 #: src/Modules/MediaModule.php:186
 msgid "Bottom center"
-msgstr ""
+msgstr "底部居中"
 
 #: src/Modules/MediaModule.php:192
 msgid "Watermark image"
-msgstr ""
+msgstr "水印图片"
 
 #: src/Modules/MediaModule.php:193
 msgid "Media library attachment used in image mode; its own alpha is kept as-is."
-msgstr ""
+msgstr "图片模式使用的媒体库附件；保留其自身透明度。"
 
 #: src/Modules/MediaModule.php:199
 msgid "Watermark text"
-msgstr ""
+msgstr "水印文字"
 
 #: src/Modules/MediaModule.php:205
 msgid "Watermark font size"
-msgstr ""
+msgstr "水印字号"
 
 #: src/Modules/MediaModule.php:213
 msgid "Watermark opacity (text)"
-msgstr ""
+msgstr "水印不透明度（文字）"
 
 #: src/Modules/MediaModule.php:214
 msgid "0 = fully transparent, 100 = fully opaque; applies to the text watermark only."
-msgstr ""
+msgstr "0 = 全透明，100 = 不透明；仅对文字水印生效。"
 
 #: src/Modules/MediaModule.php:308
 msgid "Image processing failed; the upload was cancelled."
-msgstr ""
+msgstr "图像处理失败，上传已取消。"
 
 #: src/Settings/ValueNormalizer.php:45
 msgid "A value is required."
-msgstr ""
+msgstr "此项必填。"
 
 #: src/Settings/ValueNormalizer.php:119
 msgid "Enter a valid number."
-msgstr ""
+msgstr "请输入有效数字。"
 
-#. translators: %s: minimum allowed value.
 #: src/Settings/ValueNormalizer.php:126
-#, php-format
 msgid "The minimum value is %s."
-msgstr ""
+msgstr "最小值为 %s。"
 
-#. translators: %s: maximum allowed value.
 #: src/Settings/ValueNormalizer.php:130
-#, php-format
 msgid "The maximum value is %s."
-msgstr ""
+msgstr "最大值为 %s。"
 
 #: src/Settings/ValueNormalizer.php:138
 msgid "Enter a valid email address."
-msgstr ""
+msgstr "请输入有效的邮箱地址。"
 
 #: src/Settings/ValueNormalizer.php:144
 msgid "Enter a valid URL."
-msgstr ""
+msgstr "请输入有效的 URL。"
 
 #: src/Settings/ValueNormalizer.php:154
 msgid "Select a valid media attachment."
-msgstr ""
+msgstr "请选择有效的媒体附件。"
 
 #: src/Settings/ValueNormalizer.php:170
 msgid "Select a valid option."
-msgstr ""
+msgstr "请选择有效选项。"

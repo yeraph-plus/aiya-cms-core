@@ -125,7 +125,15 @@ final class Plugin
         $this->addModule(new RestController($avatar, $attachments, $media->cards(), self::SPONSORSHIP_ENABLED));
 
         add_action('plugins_loaded', function (): void {
-            load_plugin_textdomain('aiya-core', false, dirname(plugin_basename(AIYA_CORE_FILE)) . '/languages');
+            // WP 7.1's load_plugin_textdomain no longer falls back to the
+            // plugin-local languages dir, so the own .mo is loaded directly
+            // and the core call stays as a compatibility net.
+            $mofile = AIYA_CORE_PATH . 'languages/aiya-core-' . determine_locale() . '.mo';
+            if (file_exists($mofile)) {
+                load_textdomain('aiya-core', $mofile);
+            } else {
+                load_plugin_textdomain('aiya-core', false, dirname(plugin_basename(AIYA_CORE_FILE)) . '/languages');
+            }
         }, 5);
 
         add_action('init', function (): void {

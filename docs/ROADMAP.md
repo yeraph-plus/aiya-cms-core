@@ -285,6 +285,12 @@ aiya-core/
 - **零件语义定稿**（拍板：**不做结构化解析批**）——后台把注册的零件渲染为**自定义 HTML 标签**（PartType 增可选 render 钩子，PartModule 在 init 11 把带渲染器的零件注册为真短代码），content HTML 携带自定义标签，**前端自行解析标签挂载岛屿**。实测：过滤器注册带渲染器的零件 → shortcode 注册 → do_shortcode 输出 `<aiya-notice level="warning">…</aiya-notice>`；目录默认空，渲染器随零件定义批出现；
 - **featured 字段**：`PostDetail.hero` 更名 `featured`（特色图 full 原图直出，用途归前端；契约/WIRE_SHAPES/zod/infra 夹具/帖子页消费全同步）；壳主题 aiya-headless 激活 `add_theme_support('post-thumbnails')`（特色图是编辑面而非主题特性），resource CPT supports 原本已含 thumbnail。Profile.banner 维持保留 null（按用户概念无 WP 原生来源）。实测 featured 输出特色图 URL、无 hero 残留。
 
+### 后台 i18n 简体中文 —— ✅ 已完成（0.36.3）
+
+- POT 重建（548 条，覆盖至 0.36.2 全部源串），全量翻译 547 条生成 `languages/aiya-core-zh_CN.po`，容器内 `wp i18n make-mo` 编译 `.mo`（.mo 属构建产物不入库，按需由 .po 重编译）；样板/POT 入库；
+- **装载修复**：WP 7.1 的 `load_plugin_textdomain` 不再回退插件本地 languages 目录——Plugin.php 改为优先直载 `AIYA_CORE_PATH/languages/aiya-core-{locale}.mo`（`determine_locale` 解析），core 调用保留为兼容网；
+- 实测：站点语言 zh_CN 下后台字符串输出中文（模板零件/安全加固/设置已保存）；单测 127/299、phpstan、phpcs 全绿。
+
 ### 后台菜单重组 —— ✅ 已完成（0.36.2）
 
 Frontend 设置页升为插件根菜单（菜单名 AIYA Core，前台设置即首项）；全部生产页 parent 换绑 `aiya-core-frontend`；Headless optimization 菜单名简化为 **Optimization**；Sample 拆为独立一级菜单（标题 Sample，仅 `WP_DEBUG` 开启时注册——生产环境不加载），位置 100 沉底。实测注册序：frontend(根) → Optimization → Security → Navigation → Image，WP_DEBUG=false 下 sample 不出现。
