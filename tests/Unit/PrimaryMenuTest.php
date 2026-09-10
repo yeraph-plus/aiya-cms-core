@@ -99,6 +99,25 @@ final class PrimaryMenuTest extends TestCase
         self::assertSame([], (new PrimaryMenu())->group('tertiary'));
     }
 
+    public function testPrimaryRowsProjectOptionalIconAndSecondaryNeverDoes(): void
+    {
+        $this->setGroupItems('primary', [
+            ['label' => 'Home', 'url' => '/', 'target' => 'self', 'icon' => 'home'],
+            ['label' => 'Posts', 'url' => '/posts/', 'target' => 'self'],
+        ]);
+        $this->setGroupItems('secondary', [
+            ['label' => 'About', 'url' => '/about', 'target' => 'self', 'icon' => 'ignored'],
+        ]);
+
+        $menus = new PrimaryMenu();
+
+        $primary = $menus->group(PrimaryMenu::GROUP_PRIMARY);
+        self::assertSame('home', $primary[0]->icon);
+        self::assertNull($primary[1]->icon);
+
+        self::assertNull($menus->group(PrimaryMenu::GROUP_SECONDARY)[0]->icon);
+    }
+
     /** @param list<mixed> $items */
     private function setGroupItems(string $group, array $items): void
     {

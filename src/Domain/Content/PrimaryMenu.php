@@ -11,7 +11,8 @@ use Aiya\Core\Api\Contract\MenuItem;
  * groups — primary and secondary — read their own repeater field and
  * share one row shape. No WP nav-menu dependency: the option rows are the
  * whole truth, the 1-based row position doubles as the contract id, and a
- * missing label drops the row.
+ * missing label drops the row. Primary rows may carry an optional Lucide
+ * icon name; secondary rows (footer menu) never project one.
  */
 final class PrimaryMenu
 {
@@ -34,6 +35,7 @@ final class PrimaryMenu
             return [];
         }
 
+        $withIcon = $key === self::GROUP_PRIMARY;
         $settings = (array) get_option(NavigationModule::OPTION_NAME, []);
         $items = [];
 
@@ -45,11 +47,13 @@ final class PrimaryMenu
             if ($label === '') {
                 continue;
             }
+            $icon = $withIcon ? sanitize_text_field((string) ($row['icon'] ?? '')) : '';
             $items[] = new MenuItem(
                 count($items) + 1,
                 $label,
                 $this->normalizeUrl((string) ($row['url'] ?? '')),
                 ($row['target'] ?? '') === 'blank' ? 'blank' : 'self',
+                $icon !== '' ? $icon : null,
                 []
             );
         }

@@ -289,6 +289,7 @@ aiya-core/
 
 - POT 重建（548 条，覆盖至 0.36.2 全部源串），全量翻译 547 条生成 `languages/aiya-core-zh_CN.po`，容器内 `wp i18n make-mo` 编译 `.mo`（.mo 属构建产物不入库，按需由 .po 重编译）；样板/POT 入库；
 - **装载修复**：WP 7.1 的 `load_plugin_textdomain` 不再回退插件本地 languages 目录——Plugin.php 改为优先直载 `AIYA_CORE_PATH/languages/aiya-core-{locale}.mo`（`determine_locale` 解析），core 调用保留为兼容网；
+- **标签时序修复**：ContentTypeModule 的 CPT/分类法 label 原在插件文件加载期（翻译装载前）经 `__()` 固化为英文——定义整体延迟到 init 优先级 4（翻译后、registerContentTypes 的 5 之前）。实测 Resource→资源、Page categories→页面分类、resource_original→原作；
 - 实测：站点语言 zh_CN 下后台字符串输出中文（模板零件/安全加固/设置已保存）；单测 127/299、phpstan、phpcs 全绿。
 
 ### 后台菜单重组 —— ✅ 已完成（0.36.2）
@@ -474,6 +475,13 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - 产出面向前端的类型契约（OpenAPI 或从 Contract 生成 TS 类型脚本）；
 - Astro 侧在 `aiya-astro-bulid/` 初始化：SSR 模式（node adapter，保 SEO），`src/lib/aiya/`（类型化 API client，镜像 Contract、缓存）、`src/pages|components|layouts`；
 - 验收：Astro SSR 拉通首屏真实数据，直接命中 WP 域名时由 `aiya-headless` 空壳主题兜底，旧主题可整体退役。
+
+### 菜单图标字段 —— ✅ 已完成（0.37.0）
+
+- `NavigationModule`：primary repeater 新增可选 `icon` 行字段（Lucide 图标名，纯文本）；secondary（页脚菜单）不含该字段；
+- 契约：`MenuItem.icon`（`?string`，空值投影为 null）随 `/menus/primary` 透出，secondary 恒 null——前端侧栏渲染设置值优先、按 URL 形状回退（front-station `DesktopSidebar`）；
+- 测试：`PrimaryMenuTest` 补 primary 图标投影 / secondary 恒 null 用例（127/127）；
+- 前端对接（front-station）：secondary 组渲染为页脚导航，Footer 同时输出 `site.footer` 备案两链接与 note；PostCard 无缩略图回退 `site.defaults.thumb`。
 
 ## 五、执行纪律
 

@@ -9,7 +9,9 @@ namespace Aiya\Core\Api\Contract;
  * front-end paths (`/posts/`), external ones absolute http(s) URLs — the
  * union mirrors the front end's menuItemSchema. Rows come from the
  * Navigation settings page; `target` is the row's open-in choice and
- * `children` stays empty for the flat settings-driven list.
+ * `children` stays empty for the flat settings-driven list. `icon` carries
+ * the optional Lucide icon name set in the primary repeater (null when
+ * unset — the front end then picks an icon from the row's URL shape).
  */
 final class MenuItem
 {
@@ -18,6 +20,7 @@ final class MenuItem
         public readonly string $label,
         public readonly string $url,
         public readonly string $target,
+        public readonly ?string $icon,
         /** @var list<self> */
         public readonly array $children,
     ) {
@@ -31,6 +34,7 @@ final class MenuItem
             'label' => $this->label,
             'url' => $this->url,
             'target' => $this->target,
+            'icon' => $this->icon,
             'children' => array_map(static fn (self $item): array => $item->toArray(), $this->children),
         ];
     }

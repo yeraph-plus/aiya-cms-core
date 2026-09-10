@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.36.2\n"
+"Project-Id-Version: AIYA Core 0.37.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-10T19:50:25+00:00\n"
+"POT-Creation-Date: 2026-09-10T20:17:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -440,7 +440,7 @@ msgstr ""
 #: src/Admin/PicBedPage.php:106
 #: src/Admin/PicBedPage.php:295
 #: src/Admin/SampleSettings.php:171
-#: src/Domain/Content/NavigationModule.php:80
+#: src/Domain/Content/NavigationModule.php:86
 msgid "URL"
 msgstr ""
 
@@ -650,7 +650,7 @@ msgid "Backbone manages item creation; jQuery UI provides drag sorting."
 msgstr ""
 
 #: src/Admin/SampleSettings.php:165
-#: src/Domain/Content/NavigationModule.php:74
+#: src/Domain/Content/NavigationModule.php:80
 msgid "Label"
 msgstr ""
 
@@ -1103,19 +1103,27 @@ msgstr ""
 msgid "The auxiliary navigation of the front-end shell (footer, legal links). Same rules as the primary menu."
 msgstr ""
 
-#: src/Domain/Content/NavigationModule.php:81
+#: src/Domain/Content/NavigationModule.php:87
 msgid "Front-end path (/posts/) or external URL; empty falls back to the home path."
 msgstr ""
 
-#: src/Domain/Content/NavigationModule.php:86
+#: src/Domain/Content/NavigationModule.php:94
+msgid "Icon"
+msgstr ""
+
+#: src/Domain/Content/NavigationModule.php:95
+msgid "Optional Lucide icon name for the sidebar (e.g. \"home\", \"image\", \"file-text\")."
+msgstr ""
+
+#: src/Domain/Content/NavigationModule.php:101
 msgid "Open in"
 msgstr ""
 
-#: src/Domain/Content/NavigationModule.php:89
+#: src/Domain/Content/NavigationModule.php:104
 msgid "Same window"
 msgstr ""
 
-#: src/Domain/Content/NavigationModule.php:90
+#: src/Domain/Content/NavigationModule.php:105
 msgid "New window"
 msgstr ""
 

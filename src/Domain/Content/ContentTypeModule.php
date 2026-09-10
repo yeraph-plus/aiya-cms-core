@@ -25,47 +25,52 @@ final class ContentTypeModule implements Module
 
     public function register(): void
     {
-        $this->registry->addTaxonomy([
-            'slug' => 'page_category',
-            'label' => __('Page categories', 'aiya-core'),
-            'post_types' => ['page'],
-            'hierarchical' => true,
-        ]);
-
-        // Resource library: one standard category plus five flat tag
-        // taxonomies (original work, characters, author, content description,
-        // other) — all REST surface for the headless front end. Comments are
-        // explicitly on: resources are the comment-backed surface of the
-        // headless setup alongside posts.
-        $this->registry->addPostType([
-            'slug' => 'resource',
-            'label' => __('Resource', 'aiya-core'),
-            'icon' => 'dashicons-admin-links',
-            'supports' => ['title', 'editor', 'author', 'thumbnail', 'excerpt', 'custom-fields', 'comments'],
-        ]);
-        $this->registry->addTaxonomy([
-            'slug' => 'resource_category',
-            'label' => __('Resource categories', 'aiya-core'),
-            'post_types' => ['resource'],
-            'hierarchical' => true,
-        ]);
-        foreach ([
-            'resource_original' => __('Original work', 'aiya-core'),
-            'resource_character' => __('Characters', 'aiya-core'),
-            'resource_author' => __('Author', 'aiya-core'),
-            'resource_content' => __('Content description', 'aiya-core'),
-            'resource_other' => __('Other', 'aiya-core'),
-        ] as $tagSlug => $tagLabel) {
+        // Definitions populate on init (priority 4), after the text domain
+        // has loaded: the labels run through __() and must translate.
+        // registerContentTypes follows at priority 5.
+        add_action('init', function (): void {
             $this->registry->addTaxonomy([
-                'slug' => $tagSlug,
-                'label' => $tagLabel,
-                'post_types' => ['resource'],
-                'hierarchical' => false,
-                // Five tag columns would crowd the list table; the standard
-                // category stays as the single admin column.
-                'show_admin_column' => false,
+                'slug' => 'page_category',
+                'label' => __('Page categories', 'aiya-core'),
+                'post_types' => ['page'],
+                'hierarchical' => true,
             ]);
-        }
+
+            // Resource library: one standard category plus five flat tag
+            // taxonomies (original work, characters, author, content description,
+            // other) — all REST surface for the headless front end. Comments are
+            // explicitly on: resources are the comment-backed surface of the
+            // headless setup alongside posts.
+            $this->registry->addPostType([
+                'slug' => 'resource',
+                'label' => __('Resource', 'aiya-core'),
+                'icon' => 'dashicons-admin-links',
+                'supports' => ['title', 'editor', 'author', 'thumbnail', 'excerpt', 'custom-fields', 'comments'],
+            ]);
+            $this->registry->addTaxonomy([
+                'slug' => 'resource_category',
+                'label' => __('Resource categories', 'aiya-core'),
+                'post_types' => ['resource'],
+                'hierarchical' => true,
+            ]);
+            foreach ([
+                'resource_original' => __('Original work', 'aiya-core'),
+                'resource_character' => __('Characters', 'aiya-core'),
+                'resource_author' => __('Author', 'aiya-core'),
+                'resource_content' => __('Content description', 'aiya-core'),
+                'resource_other' => __('Other', 'aiya-core'),
+            ] as $tagSlug => $tagLabel) {
+                $this->registry->addTaxonomy([
+                    'slug' => $tagSlug,
+                    'label' => $tagLabel,
+                    'post_types' => ['resource'],
+                    'hierarchical' => false,
+                    // Five tag columns would crowd the list table; the standard
+                    // category stays as the single admin column.
+                    'show_admin_column' => false,
+                ]);
+            }
+        }, 4);
 
         add_action('init', [$this, 'registerContentTypes'], 5);
     }

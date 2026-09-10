@@ -50,7 +50,7 @@ final class NavigationModule implements Module
                     'label' => __('Primary menu', 'aiya-core'),
                     'description' => __('The main navigation of the front-end shell (site header). Internal targets are front-end paths (/posts/), external ones absolute https URLs.', 'aiya-core'),
                     'default' => [],
-                    'children' => $this->itemChildren(),
+                    'children' => $this->itemChildren(true),
                 ],
                 [
                     'id' => 'secondary_items',
@@ -64,10 +64,16 @@ final class NavigationModule implements Module
         ]);
     }
 
-    /** @return list<array<string, mixed>> */
-    private function itemChildren(): array
+    /**
+     * Row fields for one repeater. Primary rows additionally carry an
+     * optional `icon` (a Lucide name the front-end sidebar renders); when
+     * empty the front end picks an icon from the row's URL shape.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function itemChildren(bool $withIcon = false): array
     {
-        return [
+        $children = [
             [
                 'id' => 'label',
                 'type' => 'text',
@@ -80,16 +86,26 @@ final class NavigationModule implements Module
                 'label' => __('URL', 'aiya-core'),
                 'description' => __('Front-end path (/posts/) or external URL; empty falls back to the home path.', 'aiya-core'),
             ],
-            [
-                'id' => 'target',
-                'type' => 'select',
-                'label' => __('Open in', 'aiya-core'),
-                'default' => 'self',
-                'options' => [
-                    'self' => __('Same window', 'aiya-core'),
-                    'blank' => __('New window', 'aiya-core'),
-                ],
+        ];
+        if ($withIcon) {
+            $children[] = [
+                'id' => 'icon',
+                'type' => 'text',
+                'label' => __('Icon', 'aiya-core'),
+                'description' => __('Optional Lucide icon name for the sidebar (e.g. "home", "image", "file-text").', 'aiya-core'),
+            ];
+        }
+        $children[] = [
+            'id' => 'target',
+            'type' => 'select',
+            'label' => __('Open in', 'aiya-core'),
+            'default' => 'self',
+            'options' => [
+                'self' => __('Same window', 'aiya-core'),
+                'blank' => __('New window', 'aiya-core'),
             ],
         ];
+
+        return $children;
     }
 }
