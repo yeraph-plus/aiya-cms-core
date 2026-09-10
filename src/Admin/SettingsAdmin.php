@@ -74,7 +74,10 @@ final class SettingsAdmin implements Module
             AIYA_CORE_VERSION,
             true
         );
-        wp_add_inline_script('aiya-core-admin', 'window.aiyaCoreAdmin=' . wp_json_encode(['codeEditors' => $codeSettings]) . ';', 'before');
+        wp_add_inline_script('aiya-core-admin', 'window.aiyaCoreAdmin=' . wp_json_encode([
+            'codeEditors' => $codeSettings,
+            'mediaTitle' => __('Select media', 'aiya-core'),
+        ]) . ';', 'before');
     }
 
     public function save(): void

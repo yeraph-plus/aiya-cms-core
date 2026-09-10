@@ -9,7 +9,10 @@
         select(event) {
             event.preventDefault();
             if (!this.frame) {
-                this.frame = wp.media({ title: 'Select media', multiple: false });
+                this.frame = wp.media({
+                    title: (window.aiyaCoreAdmin && window.aiyaCoreAdmin.mediaTitle) || 'Select media',
+                    multiple: false,
+                });
                 this.listenTo(this.frame, 'select', this.applySelection);
             }
             this.frame.open();

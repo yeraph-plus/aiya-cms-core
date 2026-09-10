@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-10T20:17:35+00:00\n"
+"POT-Creation-Date: 2026-09-10T20:29:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -233,7 +233,7 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:93
 #: src/Admin/NotificationPage.php:288
-#: src/Domain/Content/ContentTypeModule.php:55
+#: src/Domain/Content/ContentTypeModule.php:59
 msgid "Author"
 msgstr ""
 
@@ -962,31 +962,31 @@ msgstr ""
 msgid "The current password is incorrect."
 msgstr ""
 
-#: src/Domain/Content/ContentTypeModule.php:30
+#: src/Domain/Content/ContentTypeModule.php:34
 msgid "Page categories"
 msgstr ""
 
-#: src/Domain/Content/ContentTypeModule.php:42
+#: src/Domain/Content/ContentTypeModule.php:46
 msgid "Resource"
 msgstr ""
 
-#: src/Domain/Content/ContentTypeModule.php:48
+#: src/Domain/Content/ContentTypeModule.php:52
 msgid "Resource categories"
 msgstr ""
 
-#: src/Domain/Content/ContentTypeModule.php:53
+#: src/Domain/Content/ContentTypeModule.php:57
 msgid "Original work"
 msgstr ""
 
-#: src/Domain/Content/ContentTypeModule.php:54
+#: src/Domain/Content/ContentTypeModule.php:58
 msgid "Characters"
 msgstr ""
 
-#: src/Domain/Content/ContentTypeModule.php:56
+#: src/Domain/Content/ContentTypeModule.php:60
 msgid "Content description"
 msgstr ""
 
-#: src/Domain/Content/ContentTypeModule.php:57
+#: src/Domain/Content/ContentTypeModule.php:61
 msgid "Other"
 msgstr ""
 

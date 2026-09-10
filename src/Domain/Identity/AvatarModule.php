@@ -84,7 +84,7 @@ final class AvatarModule implements Module
     }
 
     /**
-     * Appends this module's fields to the Headless optimization page.
+     * Appends this module's fields to the Optimization page.
      * Priority 11 keeps it behind HeadlessModule's page registration (10).
      */
     public function settings(): void
