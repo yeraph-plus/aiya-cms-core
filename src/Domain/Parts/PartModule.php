@@ -27,6 +27,29 @@ final class PartModule implements Module
         add_action('media_buttons', [$this, 'toolbarButton'], 20);
         add_action('admin_footer', [$this, 'dialogMarkup']);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
+        add_action('init', [$this, 'registerRenderers'], 11);
+    }
+
+    /**
+     * Parts that declare a renderer become real shortcodes: the stored
+     * `[tag]` markup renders into the part's custom HTML tag during
+     * `the_content`, and the front end parses those tags into islands.
+     * Runs at init 11, after the settings registry (init 0) has populated
+     * the catalog with filter registrations.
+     */
+    public function registerRenderers(): void
+    {
+        foreach ($this->registry->all() as $part) {
+            if ($part->render === null || $part->tag === '' || shortcode_exists($part->tag)) {
+                continue;
+            }
+
+            add_shortcode($part->tag, static function (array $atts, string|null $content, string $tag) use ($part): string {
+                $attrs = \shortcode_atts($part->attributeDefaults(), $atts, $tag);
+
+                return ($part->render)($attrs, $content ?? '');
+            });
+        }
     }
 
     /** The classic "Add media" toolbar position, as the legacy inserter kept. */

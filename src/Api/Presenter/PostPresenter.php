@@ -69,7 +69,7 @@ final class PostPresenter
             $content,
             new Seo($summary->title, $seoDescription, false),
             [new Breadcrumb($summary->title, null)],
-            $this->hero($post),
+            $this->featured($post),
             isset($neighbors['previous']) && $neighbors['previous'] instanceof WP_Post
                 ? $this->summary($neighbors['previous'], $type)
                 : null,
@@ -145,7 +145,7 @@ final class PostPresenter
      * background. The card thumbnail pipeline consumes the same source
      * for its 640x360 composite; this exposes it untouched.
      */
-    private function hero(WP_Post $post): ?Image
+    private function featured(WP_Post $post): ?Image
     {
         $thumbId = (int) get_post_thumbnail_id((int) $post->ID);
         if ($thumbId <= 0) {
@@ -164,7 +164,8 @@ final class PostPresenter
         return new Image($src[0], $alt, $width > 0 ? $width : null, $height > 0 ? $height : null);
     }
 
-    private function author(int $userId): Author
+    /** Author projection by user id; unknown users degrade to an empty author. */
+    public function author(int $userId): Author
     {
         $user = get_userdata($userId);
         if (!$user) {

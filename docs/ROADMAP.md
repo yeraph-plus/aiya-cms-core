@@ -273,6 +273,14 @@ aiya-core/
 - ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
 - 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
+### Follow 端点 + 零件渲染语义定稿 + featured 字段 —— ✅ 已完成（0.35.0）
+
+锁定前三项收尾（2026-09-11 拍板）：
+
+- **Follow 端点**（`Domain/Identity/FollowService` + UserController 五路由，表 0.28.0 就绪）：`GET /users/me/following`（我关注的人，Author 数组分页）、`GET /users/me/followers`（我的粉丝）、`POST|DELETE|GET /users/me/following/{userId}`（关注/取关/是否关注）；自关 400、目标不存在 404、写路径限流 30/600；列名走 `%i` 占位符零插值。实测六态全中（自关 400/关注/isFollowing/列表含作者投影/followers 匿名 401/unfollow）；
+- **零件语义定稿**（拍板：**不做结构化解析批**）——后台把注册的零件渲染为**自定义 HTML 标签**（PartType 增可选 render 钩子，PartModule 在 init 11 把带渲染器的零件注册为真短代码），content HTML 携带自定义标签，**前端自行解析标签挂载岛屿**。实测：过滤器注册带渲染器的零件 → shortcode 注册 → do_shortcode 输出 `<aiya-notice level="warning">…</aiya-notice>`；目录默认空，渲染器随零件定义批出现；
+- **featured 字段**：`PostDetail.hero` 更名 `featured`（特色图 full 原图直出，用途归前端；契约/WIRE_SHAPES/zod/infra 夹具/帖子页消费全同步）；壳主题 aiya-headless 激活 `add_theme_support('post-thumbnails')`（特色图是编辑面而非主题特性），resource CPT supports 原本已含 thumbnail。Profile.banner 维持保留 null（按用户概念无 WP 原生来源）。实测 featured 输出特色图 URL、无 hero 残留。
+
 ### 评论改登录-only —— ✅ 已完成（0.34.2）
 
 2026-09-11 拍板简化：评论**仅限登录用户**，账户墙即反垃圾层——0.34.1 的 honeypot 字段与匿名身份（authorName/authorEmail）校验路径整体移除，`comment_registration`/`require_name_email` 设置不再消费。POST 契约收缩为 `{body, parentId?}`；匿名 401 `aiya_login_required`，作者身份取会话 display_name/email；原生管线（重复/泛洪 429/禁词/审核决策）保留。实测：匿名 401、订阅者首评 200 held。

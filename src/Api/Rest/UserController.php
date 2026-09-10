@@ -11,6 +11,7 @@ use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Domain\Content\PublicTypes;
 use Aiya\Core\Domain\Identity\FavoriteService;
+use Aiya\Core\Domain\Identity\FollowService;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\TokenStore;
 use Aiya\Core\Domain\Identity\AvatarModule;
@@ -39,6 +40,7 @@ final class UserController
         private PasswordPolicy $policy,
         private PostPresenter $postPresenter,
         private FavoriteService $favorites,
+        private FollowService $follows,
         private RateLimiter $rateLimiter,
     ) {
     }
@@ -73,6 +75,47 @@ final class UserController
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->removeFavorite($request),
             'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
             'args' => ['postId' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/users/me/following', [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->listFollowing($request),
+            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'args' => [
+                'page' => ['type' => 'integer', 'default' => 1, 'minimum' => 1],
+                'perPage' => ['type' => 'integer', 'default' => 12, 'minimum' => 1, 'maximum' => 100],
+            ],
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/users/me/followers', [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->listFollowers($request),
+            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'args' => [
+                'page' => ['type' => 'integer', 'default' => 1, 'minimum' => 1],
+                'perPage' => ['type' => 'integer', 'default' => 12, 'minimum' => 1, 'maximum' => 100],
+            ],
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/users/me/following/(?P<userId>\d+)', [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->followUser($request),
+            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'args' => ['userId' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/users/me/following/(?P<userId>\d+)', [
+            'methods' => WP_REST_Server::DELETABLE,
+            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->unfollowUser($request),
+            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'args' => ['userId' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/users/me/following/(?P<userId>\d+)', [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->isFollowingUser($request),
+            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'args' => ['userId' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/users/me/profile', [
@@ -167,6 +210,70 @@ final class UserController
         }
 
         return new WP_REST_Response(['favorited' => false]);
+    }
+
+    private function listFollowing(WP_REST_Request $request): WP_REST_Response
+    {
+        return $this->followList('followingIds', (int) $request->get_param('page'), (int) $request->get_param('perPage'));
+    }
+
+    private function listFollowers(WP_REST_Request $request): WP_REST_Response
+    {
+        return $this->followList('followerIds', (int) $request->get_param('page'), (int) $request->get_param('perPage'));
+    }
+
+    /** @param 'followingIds'|'followerIds' $method */
+    private function followList(string $method, int $page, int $perPage): WP_REST_Response
+    {
+        $userId = (int) $this->currentUser()->ID;
+        $result = $this->follows->{$method}($userId, $page, $perPage);
+
+        $items = [];
+        foreach ($result['ids'] as $id) {
+            $items[] = $this->postPresenter->author($id)->toArray();
+        }
+
+        return new WP_REST_Response([
+            'data' => $items,
+            'meta' => [
+                'apiVersion' => Contract::VERSION,
+                'requestId' => Envelope::meta()['requestId'],
+                'pagination' => Pagination::fromCounts($page, $perPage, $result['total'])->toArray(),
+            ],
+        ]);
+    }
+
+    private function followUser(WP_REST_Request $request): WP_Error|WP_REST_Response
+    {
+        if (!$this->rateLimiter->hit('follow', 30, 600)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, please retry later.', 'aiya-core'), ['status' => 429]);
+        }
+
+        $me = (int) $this->currentUser()->ID;
+        $result = $this->follows->follow($me, (int) $request->get_param('userId'));
+        if (is_wp_error($result)) {
+            return $result;
+        }
+
+        return new WP_REST_Response(['following' => true]);
+    }
+
+    private function unfollowUser(WP_REST_Request $request): WP_Error|WP_REST_Response
+    {
+        $me = (int) $this->currentUser()->ID;
+        if (!$this->follows->unfollow($me, (int) $request->get_param('userId'))) {
+            return new WP_Error('aiya_server_error', __('The follow could not be removed.', 'aiya-core'), ['status' => 500]);
+        }
+
+        return new WP_REST_Response(['following' => false]);
+    }
+
+    private function isFollowingUser(WP_REST_Request $request): WP_REST_Response
+    {
+        $me = (int) $this->currentUser()->ID;
+        $following = $this->follows->isFollowing($me, (int) $request->get_param('userId'));
+
+        return new WP_REST_Response(['following' => $following]);
     }
 
     private function updateProfile(WP_REST_Request $request): WP_Error|WP_REST_Response
