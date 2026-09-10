@@ -30,7 +30,7 @@ use Aiya\Infra\SlugToolkit\PinyinConverter;
  */
 final class SlugModule implements Module
 {
-    private const PAGE_SLUG = 'headless';
+    private const PAGE_SLUG = 'optimization';
     private const MAX_PINYIN_LENGTH = 60;
 
     private ?PinyinConverter $pinyin = null;
@@ -55,8 +55,13 @@ final class SlugModule implements Module
     {
         $this->settings->addFields(self::PAGE_SLUG, [
             [
+                'id' => 'heading_slug',
+                'type' => 'heading',
+                'label' => __('Slug generation', 'aiya-core'),
+            ],
+            [
                 'id' => 'slug_post_mode',
-                'type' => 'select',
+                'type' => 'radio',
                 'label' => __('Post slug generation', 'aiya-core'),
                 'description' => __('Pinyin fills empty slugs from the title; the ID modes force an ID-based slug on every save.', 'aiya-core'),
                 'default' => 'off',
@@ -68,25 +73,22 @@ final class SlugModule implements Module
                 ],
             ],
             [
-                'id' => 'slug_post_types',
-                'type' => 'array',
-                'label' => __('Slug post types', 'aiya-core'),
-                'description' => __('Comma-separated post type names the slug modes apply to.', 'aiya-core'),
-                'default' => ['post'],
-            ],
-            [
-                'id' => 'slug_term_pinyin',
-                'type' => 'switch',
-                'label' => __('Term slugs from pinyin', 'aiya-core'),
-                'checkbox_label' => __('Generate pinyin slugs for terms with empty slugs', 'aiya-core'),
-                'default' => true,
-            ],
-            [
                 'id' => 'slug_id_prefix',
                 'type' => 'text',
                 'label' => __('ID slug prefix', 'aiya-core'),
-                'description' => __('Prepended to generated ID slugs; non-URL characters are stripped.', 'aiya-core'),
+                'description' => __('Prepended to ID-based post slugs in both ID modes; non-URL characters are stripped.', 'aiya-core'),
                 'default' => '',
+            ],
+            [
+                'id' => 'slug_term_pinyin',
+                'type' => 'radio',
+                'label' => __('Taxonomy slug pinyin', 'aiya-core'),
+                'description' => __('For every taxonomy: an empty term slug is filled with pinyin converted from the term name.', 'aiya-core'),
+                'default' => 'name',
+                'options' => [
+                    'off' => __('Off', 'aiya-core'),
+                    'name' => __('Pinyin from the term name', 'aiya-core'),
+                ],
             ],
         ]);
     }
@@ -107,7 +109,7 @@ final class SlugModule implements Module
         if ((string) aiya_core_opt(self::PAGE_SLUG, 'slug_post_mode', 'off') !== 'pinyin') {
             return $data;
         }
-        if (!in_array((string) ($data['post_type'] ?? ''), $this->postTypes(), true)) {
+        if (!$this->isSupportedContent((string) ($data['post_type'] ?? ''))) {
             return $data;
         }
         if (($data['post_status'] ?? '') === 'auto-draft' || ($postarr['post_name'] ?? '') !== '' || ($data['post_title'] ?? '') === '') {
@@ -137,7 +139,7 @@ final class SlugModule implements Module
         if ($this->deduplicatingIdSlug || $postId <= 0 || !in_array((string) aiya_core_opt(self::PAGE_SLUG, 'slug_post_mode', 'off'), ['id_av', 'id_bv'], true)) {
             return $slug;
         }
-        if (!in_array($postType, $this->postTypes(), true)) {
+        if (!$this->isSupportedContent($postType)) {
             return $slug;
         }
 
@@ -166,7 +168,7 @@ final class SlugModule implements Module
         if (!in_array((string) aiya_core_opt(self::PAGE_SLUG, 'slug_post_mode', 'off'), ['id_av', 'id_bv'], true)) {
             return;
         }
-        if (!in_array($post->post_type, $this->postTypes(), true) || $post->post_status === 'auto-draft') {
+        if (!$this->isSupportedContent($post->post_type) || $post->post_status === 'auto-draft') {
             return;
         }
 
@@ -205,7 +207,7 @@ final class SlugModule implements Module
      */
     private function fillTermSlug(array $data, string $taxonomy, array $args, int $termId = 0): array
     {
-        if (!(bool) aiya_core_opt(self::PAGE_SLUG, 'slug_term_pinyin', true)) {
+        if ((string) aiya_core_opt(self::PAGE_SLUG, 'slug_term_pinyin', 'name') !== 'name') {
             return $data;
         }
         // Check the original args: core may already have derived a non-empty
@@ -228,15 +230,10 @@ final class SlugModule implements Module
         return $data;
     }
 
-    /** @return list<string> */
-    private function postTypes(): array
+    /** Slug modes apply to every public content type (post, page, resource). */
+    private function isSupportedContent(string $postType): bool
     {
-        $types = aiya_core_opt(self::PAGE_SLUG, 'slug_post_types', ['post']);
-        if (!is_array($types)) {
-            return [];
-        }
-
-        return array_values(array_filter(array_map('strval', $types), static fn (string $type): bool => $type !== ''));
+        return PublicTypes::get($postType) !== null;
     }
 
     private function idCandidate(int $postId): string

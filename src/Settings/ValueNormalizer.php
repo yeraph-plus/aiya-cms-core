@@ -52,6 +52,13 @@ final class ValueNormalizer
     private function field(Field $field, mixed $value, bool $present): mixed
     {
         $type = $field->type();
+        if ($type === 'multicheck') {
+            // 未勾选任何项时浏览器不发送该键：视为清空而非回退默认值。
+            $selected = is_array($value) ? array_values(array_filter(array_map('strval', $value), static fn ($item): bool => $item !== '')) : [];
+            $valid = array_map('strval', array_keys($field->options()));
+
+            return array_values(array_intersect($selected, $valid));
+        }
         if (in_array($type, ['checkbox', 'switch'], true)) {
             return $present && filter_var($value, FILTER_VALIDATE_BOOLEAN);
         }

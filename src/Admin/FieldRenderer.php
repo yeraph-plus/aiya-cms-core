@@ -97,6 +97,15 @@ final class FieldRenderer
             echo '<button type="button" class="button-link button-link-delete aiya-core-media-remove">' . esc_html__('Remove', 'aiya-core') . '</button></div>';
             return;
         }
+        if ($type === 'multicheck') {
+            $selected = is_array($value) ? array_map('strval', $value) : [];
+            echo '<div class="aiya-core-multicheck">';
+            foreach ($this->resolveOptions($field) as $optionValue => $label) {
+                echo '<label class="aiya-core-multicheck-item"><input type="checkbox" name="' . esc_attr($name) . '[]" value="' . esc_attr((string) $optionValue) . '" ' . checked(in_array((string) $optionValue, $selected, true), true, false) . '> ' . esc_html((string) $label) . '</label>';
+            }
+            echo '</div>';
+            return;
+        }
         if ($type === 'repeater') {
             $this->repeater($field, array_values(is_array($value) ? $value : []), $name, $id);
             return;

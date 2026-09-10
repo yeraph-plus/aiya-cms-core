@@ -83,10 +83,23 @@ final class TypographyModule implements Module
             ],
             [
                 'id' => 'typography_methods',
-                'type' => 'array',
+                'type' => 'multicheck',
                 'label' => __('Enabled typesetting correctors', 'aiya-core'),
-                'description' => __('Comma-separated correctors for the Chinese typesetting pass: insertSpace, removeSpace, full2Half, fixPunctuation, properNoun, removeClass, removeId, removeStyle, removeEmptyParagraph, removeEmptyTag, removeIndent. Unknown names are ignored.', 'aiya-core'),
+                'description' => __('Applied to the title and the content on the Chinese typesetting pass.', 'aiya-core'),
                 'default' => ['insertSpace', 'removeSpace', 'full2Half'],
+                'options' => [
+                    'insertSpace' => __('Insert spaces between CJK and Latin/digits', 'aiya-core'),
+                    'removeSpace' => __('Remove spaces around fullwidth punctuation', 'aiya-core'),
+                    'full2Half' => __('Fullwidth letters, digits and symbols to halfwidth', 'aiya-core'),
+                    'fixPunctuation' => __('Fix incorrect punctuation', 'aiya-core'),
+                    'properNoun' => __('Correct proper-noun casing', 'aiya-core'),
+                    'removeClass' => __('Strip class attributes', 'aiya-core'),
+                    'removeId' => __('Strip id attributes', 'aiya-core'),
+                    'removeStyle' => __('Strip style attributes', 'aiya-core'),
+                    'removeEmptyParagraph' => __('Remove empty paragraph tags', 'aiya-core'),
+                    'removeEmptyTag' => __('Remove all empty tags', 'aiya-core'),
+                    'removeIndent' => __('Remove paragraph indentation', 'aiya-core'),
+                ],
             ],
         ]);
     }
