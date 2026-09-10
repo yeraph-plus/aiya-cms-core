@@ -285,6 +285,10 @@ aiya-core/
 - **零件语义定稿**（拍板：**不做结构化解析批**）——后台把注册的零件渲染为**自定义 HTML 标签**（PartType 增可选 render 钩子，PartModule 在 init 11 把带渲染器的零件注册为真短代码），content HTML 携带自定义标签，**前端自行解析标签挂载岛屿**。实测：过滤器注册带渲染器的零件 → shortcode 注册 → do_shortcode 输出 `<aiya-notice level="warning">…</aiya-notice>`；目录默认空，渲染器随零件定义批出现；
 - **featured 字段**：`PostDetail.hero` 更名 `featured`（特色图 full 原图直出，用途归前端；契约/WIRE_SHAPES/zod/infra 夹具/帖子页消费全同步）；壳主题 aiya-headless 激活 `add_theme_support('post-thumbnails')`（特色图是编辑面而非主题特性），resource CPT supports 原本已含 thumbnail。Profile.banner 维持保留 null（按用户概念无 WP 原生来源）。实测 featured 输出特色图 URL、无 hero 残留。
 
+### /site 补 favicon 与 registrationOpen —— ✅ 已完成（0.36.1）
+
+锁定后首个加法演进实例（合规示范）：`Site` 契约新增 `favicon: ?Image`（镜像 WP 设置→常规的站点图标，`site_icon` 附件经 Presenter 解析）与 `registrationOpen: bool`（镜像 WP 成员资格设置 `users_can_register`——前端据此决定是否显示注册入口；当前 WP 默认关闭=false，站长在设置→常规开启即变 true）。v1 基线断言通过（加法合规），前端 zod/mock/client 夹具同步，双侧测试全绿。
+
 ### 契约 v1 锁定 —— ✅ 已完成（0.36.0）
 
 2026-09-11 站长确认锁定。**v1 契约面**：37 条活动路由（认证 6 / 用户域 12 含 follow / 内容壳 4 / 内容读取 6 / 评论 2 / 计数 3 / 社区 5 / 通知 1——哦按实际计数）与 25 个 Api/Contract DTO。冻结政策三句：

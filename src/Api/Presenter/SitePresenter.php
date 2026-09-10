@@ -27,6 +27,8 @@ final class SitePresenter
             (string) get_locale(),
             wp_timezone()->getName(),
             $this->logo(),
+            $this->attachmentImage((int) get_option('site_icon')),
+            (bool) get_option('users_can_register'),
             new SiteDefaults(
                 $this->colorMode(),
                 $this->attachmentImage((int) aiya_core_opt('frontend', 'default_thumb', 0))

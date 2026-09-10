@@ -20,6 +20,8 @@ final class SiteContractTest extends TestCase
             'zh_CN',
             'Asia/Shanghai',
             new Image('https://cdn.example.test/logo.png', 'AIYA', 256, 256),
+            new Image('https://cdn.example.test/favicon.png', 'AIYA', 64, 64),
+            true,
             new SiteDefaults('dark', null),
             new SiteFooter('京ICP备2026000001号-1', '京公网安备11010000000001号', '11010000000001', '© 2026 AIYA'),
         );
@@ -34,6 +36,11 @@ final class SiteContractTest extends TestCase
             ['url' => 'https://cdn.example.test/logo.png', 'alt' => 'AIYA', 'width' => 256, 'height' => 256],
             $shape['logo']
         );
+        self::assertSame(
+            ['url' => 'https://cdn.example.test/favicon.png', 'alt' => 'AIYA', 'width' => 64, 'height' => 64],
+            $shape['favicon']
+        );
+        self::assertTrue($shape['registrationOpen']);
         self::assertSame(['colorMode' => 'dark', 'thumb' => null], $shape['defaults']);
         self::assertSame([
             'icp' => '京ICP备2026000001号-1',
@@ -51,6 +58,8 @@ final class SiteContractTest extends TestCase
             'zh_CN',
             'UTC',
             null,
+            null,
+            false,
             new SiteDefaults('system', null),
             new SiteFooter('', '', '', ''),
         );
@@ -58,6 +67,8 @@ final class SiteContractTest extends TestCase
         $shape = $site->toArray();
 
         self::assertNull($shape['logo']);
+        self::assertNull($shape['favicon']);
+        self::assertFalse($shape['registrationOpen']);
         self::assertSame(['colorMode' => 'system', 'thumb' => null], $shape['defaults']);
         self::assertSame(['icp' => '', 'mps' => '', 'mpsCode' => '', 'note' => ''], $shape['footer']);
     }

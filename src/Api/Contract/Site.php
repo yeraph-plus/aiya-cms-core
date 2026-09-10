@@ -7,8 +7,9 @@ namespace Aiya\Core\Api\Contract;
 /**
  * Site identity and shell configuration for the front end. `language` is
  * the WP locale (e.g. zh_CN), `timezone` the IANA identifier configured
- * in Settings; `defaults` and `footer` come from the Frontend settings
- * page.
+ * in Settings; `favicon` mirrors the WP site icon, `registrationOpen`
+ * mirrors the WP membership setting (users_can_register), and `defaults`
+ * / `footer` come from the Frontend settings page.
  */
 final class Site
 {
@@ -18,6 +19,8 @@ final class Site
         public readonly string $language,
         public readonly string $timezone,
         public readonly ?Image $logo,
+        public readonly ?Image $favicon,
+        public readonly bool $registrationOpen,
         public readonly SiteDefaults $defaults,
         public readonly SiteFooter $footer,
     ) {
@@ -32,6 +35,8 @@ final class Site
             'language' => $this->language,
             'timezone' => $this->timezone,
             'logo' => $this->logo?->toArray(),
+            'favicon' => $this->favicon?->toArray(),
+            'registrationOpen' => $this->registrationOpen,
             'defaults' => $this->defaults->toArray(),
             'footer' => $this->footer->toArray(),
         ];
