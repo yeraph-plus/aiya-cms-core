@@ -81,7 +81,7 @@ Directories are created when their first working tracer slice is implemented; em
 | theme registration and templates | Remain in legacy theme, then retire |
 | widget framework | Retire with legacy front end |
 
-Field-group consumers in the legacy theme (for parity tracking): `oplist_client` post box (OpenList client fields, protocol key `aya_box_oplist_client`), `post_seo` post box (basic-optimize, protocol key `aya_box_post_seo`), `post_automatic` post box (action checkboxes consumed by basic-automatic), `tips` term fields (per-field term meta keys).
+Field-group consumers in the legacy theme (for parity tracking): `oplist_client` post box (OpenList client fields, protocol key `aya_box_oplist_client`), `post_seo` post box (basic-optimize, protocol key `aya_box_post_seo`), `post_automatic` post box (action checkboxes consumed by basic-automatic; ✅ 0.37.0 rebuilt as `Domain/Content/TypographyModule` + `packages/typesetting` — refresh date, tag matching, HTML cleanup, Chinese typesetting pass on the post screen; the pinyin/XDE slug half shipped with SlugModule 0.6.0), `tips` term fields (per-field term meta keys).
 
 ## Delivery sequence
 

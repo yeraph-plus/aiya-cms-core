@@ -6,7 +6,8 @@
     "require": {
         "php": ">=8.2",
         "aiya/slug-toolkit": "@dev",
-        "aiya/image-processor": "@dev"
+        "aiya/image-processor": "@dev",
+        "aiya/typesetting": "@dev"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",

@@ -285,6 +285,15 @@ aiya-core/
 - **零件语义定稿**（拍板：**不做结构化解析批**）——后台把注册的零件渲染为**自定义 HTML 标签**（PartType 增可选 render 钩子，PartModule 在 init 11 把带渲染器的零件注册为真短代码），content HTML 携带自定义标签，**前端自行解析标签挂载岛屿**。实测：过滤器注册带渲染器的零件 → shortcode 注册 → do_shortcode 输出 `<aiya-notice level="warning">…</aiya-notice>`；目录默认空，渲染器随零件定义批出现；
 - **featured 字段**：`PostDetail.hero` 更名 `featured`（特色图 full 原图直出，用途归前端；契约/WIRE_SHAPES/zod/infra 夹具/帖子页消费全同步）；壳主题 aiya-headless 激活 `add_theme_support('post-thumbnails')`（特色图是编辑面而非主题特性），resource CPT supports 原本已含 thumbnail。Profile.banner 维持保留 null（按用户概念无 WP 原生来源）。实测 featured 输出特色图 URL、无 hero 残留。
 
+### 排版工具（post_automatic 重建）—— ✅ 已完成（0.37.0）
+
+旧版 basic-optimize "数据更新" box 的重建（2026-09-11 拍板重新实现）：
+
+- **`packages/typesetting/`（新包，aiya/typesetting，MIT 归因）**：jxlwqq/chinese-typesetting 原样移植（仅改命名空间 `Aiya\Infra\Typesetting` 与词典路径），含 477KB 专有名词词典；正确方法白名单 `ChineseTypesetting::METHODS`（11 种）；
+- **`Domain/Content/ContentFormatter`**：格式清理（全角空格/&nbsp; 移除、div/center→p、strong/b 重叠清理、span/section 剥离——旧版 light_insert_data_re_* 四步的 null 安全重写）+ 标签匹配（strpos 旧语义）纯函数；
+- **`Domain/Content/TypographyModule`**：post 编辑屏 `typography` box 四个 action_checkbox（重置发布日期/自动检索标签/格式清理/中文排版纠正），busy 闸门阻断 save_post 重入；中文排版纠正方法子集在 Optimization 页 `typography_methods`（array 字段，缺省 insertSpace/removeSpace/full2Half，白名单求交）；旧版别名拼音生成不在本批（0.6.0 SlugModule 已覆盖）；
+- 实测：格式清理（div/span/strong 全处理）、insertSpace 生效、标签检索附加、日期刷新；单测 137/310、phpstan、phpcs 全绿。
+
 ### 后台 i18n 简体中文 —— ✅ 已完成（0.36.3）
 
 - POT 重建（548 条，覆盖至 0.36.2 全部源串），全量翻译 547 条生成 `languages/aiya-core-zh_CN.po`，容器内 `wp i18n make-mo` 编译 `.mo`（.mo 属构建产物不入库，按需由 .po 重编译）；样板/POT 入库；
@@ -480,8 +489,15 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 
 - `NavigationModule`：primary repeater 新增可选 `icon` 行字段（Lucide 图标名，纯文本）；secondary（页脚菜单）不含该字段；
 - 契约：`MenuItem.icon`（`?string`，空值投影为 null）随 `/menus/primary` 透出，secondary 恒 null——前端侧栏渲染设置值优先、按 URL 形状回退（front-station `DesktopSidebar`）；
+- `Site` 移除 `logo` 字段（0.36.x 引入的品牌 logo 与 Frontend 设置页 logo 字段一并下线）：品牌图统一走 WP 站点图标（`favicon`）；
 - 测试：`PrimaryMenuTest` 补 primary 图标投影 / secondary 恒 null 用例（127/127）；
 - 前端对接（front-station）：secondary 组渲染为页脚导航，Footer 同时输出 `site.footer` 备案两链接与 note；PostCard 无缩略图回退 `site.defaults.thumb`。
+
+### 主题色字段 —— ✅ 已完成（0.38.0）
+
+- 契约：`SiteDefaults` 扩展 `theme: SiteTheme`（`{primary: string}`，六位 hex、大写归一）；`/site` 的 `defaults.theme.primary` 驱动前端品牌色板；
+- 设置：Frontend 页新增 Branding 区 `color_primary` 取色器（框架原生 `color` 类型 + wp-color-picker，非 hex 输入按默认 `#e94f69` 回退）；
+- 前端（front-station）：AppShell head 内联 `:root:root{--primary;--primary-foreground}` 覆盖 tokens（SSR 直出零 FOUC；对比度 YIQ 自动选白/深墨；ClientRouter 换页随 head 持久；prerender 后烘入静态页）。zod `siteThemeSchema` 正则校验同步、快照测试 manifest 注册 `SiteTheme`。
 
 ## 五、执行纪律
 

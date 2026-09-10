@@ -1,0 +1,15 @@
+{
+    "name": "aiya/typesetting",
+    "description": "Chinese typesetting correctors for AIYA CMS (WordPress-free). Ported from jxlwqq/chinese-typesetting (MIT).",
+    "type": "library",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "php": ">=8.2",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aiya\Infra\Typesetting\\": "src/"
+        }
+    }
+}

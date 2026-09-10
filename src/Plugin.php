@@ -18,6 +18,7 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentTypeModule;
 use Aiya\Core\Domain\Content\ContentTypeRegistry;
 use Aiya\Core\Domain\Content\FrontendModule;
+use Aiya\Core\Domain\Content\TypographyModule;
 use Aiya\Core\Domain\Content\NavigationModule;
 use Aiya\Core\Domain\Content\SeoBoxModule;
 use Aiya\Core\Domain\Discussion\DiscussionModule;
@@ -95,6 +96,7 @@ final class Plugin
         $this->addModule(new PartModule(new PartRegistry()));
         $this->addModule(new MetaboxAdmin($this->metadata));
         $this->addModule(new SeoBoxModule($this->metadata));
+        $this->addModule(new TypographyModule($this->settings, $this->metadata));
         $this->addModule(new TermExtrasModule($this->metadata));
 
         $this->addModule(new NotificationModule());
