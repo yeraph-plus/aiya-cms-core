@@ -93,6 +93,17 @@ Unit features that used to live in the legacy theme's `plugins/` directory becom
 - **Tolerated silence** (declared, not accidental): logout token
   revocation, webhook debug log writes, best-effort avatar file cleanup.
 
+## Contract v1 freeze
+
+The `aiya/core/v1` wire shapes are frozen as of 0.36.0 (snapshot
+baseline: `front-station/src/lib/aiya/contracts.snapshot.v1.json`).
+Only additive evolution is allowed — new fields, new endpoints, filling
+reserved fields. Breaking changes require a new namespace or an
+explicit contract-version policy. Enforcement: the front-end vitest
+suite asserts the living snapshot against the v1 baseline. Update
+endpoints deliberately accept the WP `EDITABLE` verb set
+(POST/PUT/PATCH) — core convention, not accidental redundancy.
+
 ## HTTP surface policy (CORS and caching)
 
 - **CORS**: WordPress core's permissive origin echo is removed; contract
