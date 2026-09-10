@@ -1,0 +1,79 @@
+/* Template-part inserter dialog (wpdialogs shell; internals only). */
+
+.aiya-parts-dialog .aiya-parts-layout {
+    display: flex;
+    gap: 16px;
+    min-height: 320px;
+}
+
+.aiya-parts-dialog .aiya-parts-nav {
+    width: 200px;
+    flex-shrink: 0;
+    border-right: 1px solid #dcdcde;
+    padding-right: 12px;
+}
+
+.aiya-parts-dialog .aiya-parts-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.aiya-parts-dialog .aiya-parts-nav li {
+    padding: 6px 10px;
+    margin-bottom: 2px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.aiya-parts-dialog .aiya-parts-nav li:hover {
+    background: #f0f0f1;
+}
+
+.aiya-parts-dialog .aiya-parts-nav li.is-selected {
+    background: #2271b1;
+    color: #fff;
+}
+
+.aiya-parts-dialog .aiya-parts-nav li.aiya-parts-empty {
+    cursor: default;
+    color: #646970;
+}
+
+.aiya-parts-dialog .aiya-parts-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.aiya-parts-dialog .aiya-parts-field {
+    margin-bottom: 14px;
+}
+
+.aiya-parts-dialog .aiya-parts-field > label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.aiya-parts-dialog .aiya-parts-field textarea,
+.aiya-parts-dialog .aiya-parts-field select {
+    width: 100%;
+}
+
+.aiya-parts-dialog .aiya-parts-field .description {
+    display: block;
+    margin-top: 4px;
+}
+
+.aiya-parts-dialog .aiya-parts-preview-wrap {
+    margin-top: 16px;
+}
+
+.aiya-parts-dialog .aiya-parts-actions {
+    margin-top: 12px;
+    text-align: right;
+}
+
+.aiya-parts-dialog .aiya-parts-actions .button {
+    margin-left: 8px;
+}

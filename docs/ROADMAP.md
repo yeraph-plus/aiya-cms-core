@@ -273,6 +273,15 @@ aiya-core/
 - ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
 - 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
+### 模板零件框架（编辑器侧）—— ✅ 已完成（0.34.0）
+
+旧 Thickbox 短代码输入器的重构替换（2026-09-11 拍板：**只迁框架，不迁 12 个旧短代码组件**——旧组件是服务端 Tailwind HTML 渲染，与新「零件结构化、Astro 渲染」语义不合，目录默认为空）：
+
+- **`Domain/Parts/`**：`PartType`（tag/label/note/template/fields 声明；`build()` 从原始值组装零件标记——属性对空值省略、checkbox 归一 true/false、属性值 HTML 属性级转义而 content 逐字、自闭合模板忽略 content、未声明键永不进入标记；7 个单测锁形）+ `PartRegistry`（目录默认空，`aiya_core_register_parts` 过滤器注册，重复 tag 抛异常）；
+- **`PartModule`（编辑器侧）**：`media_buttons` 钩子原位输出「Template parts」按钮（经典编辑器工具栏原位置）；post.php/post-new.php 的 admin_footer 输出弹窗骨架 + bootstrap JSON（全量零件定义）；`wpdialogs`（core 链接弹窗同款 jQuery UI Dialog 封装，符合管理界面技术白名单）打开弹窗——左列零件、右侧 JS 按 fields schema 渲染控件（text/textarea/select/checkbox）+ 实时标记预览；插入走 `window.send_to_editor`（TinyMCE 与 QuickTags 双通道，与旧实现同通道）；资产 `assets/js|css/parts-dialog.*`；
+- **API 解析输出另批**：`the_content` 后的短代码 → 结构化零件解析器（PartParser/PartPresenter，content + parts[] 契约）为独立批次，落地前短代码在 content HTML 中原样存在；
+- 实测：默认目录 0、过滤器注册后 build 输出形状正确（`[alert name="Hi"]Body text[/alert]`）、编辑器按钮渲染；单测 126/292、phpstan、phpcs 全绿。
+
 ### 契约减负：PostDetail.gallery 砍除 —— ✅ 已完成（0.33.1）
 
 2026-09-11 拍板：gallery 字段非旧主题遗产（旧 DTO 原型无此字段，系 B1 预留槽位），恒空数组无消费方，且正文图已由 content HTML 承载——直接砍除（PostDetail 契约/Presenter/WIRE_SHAPES/前端 zod/infra 测试夹具），将来需要文章相册交互时加字段属向后兼容。快照重生成，双侧测试全绿。

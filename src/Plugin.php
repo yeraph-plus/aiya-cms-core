@@ -27,6 +27,8 @@ use Aiya\Core\Domain\Content\TermExtrasModule;
 use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Domain\Identity\IdentityModule;
 use Aiya\Core\Domain\Notification\NotificationModule;
+use Aiya\Core\Domain\Parts\PartModule;
+use Aiya\Core\Domain\Parts\PartRegistry;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use Aiya\Core\Domain\Sponsorship\OrderService;
 use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
@@ -89,6 +91,7 @@ final class Plugin
         $this->addModule(new SlugModule($this->settings));
         $this->addModule(new ContentTypeModule($this->contentTypes));
         $this->addModule(new NavigationModule($this->settings));
+        $this->addModule(new PartModule(new PartRegistry()));
         $this->addModule(new FrontendModule($this->settings));
         $this->addModule(new MetaboxAdmin($this->metadata));
         $this->addModule(new SeoBoxModule($this->metadata));
