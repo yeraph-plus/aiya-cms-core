@@ -9,19 +9,16 @@ namespace Aiya\Core\Api\Contract;
  * content HTML (contract data, sanitized again by the front end), the
  * featured image at full size (`hero` — the front end owns what it is
  * used for, e.g. the title background), the SEO projection, and
- * adjacency. `gallery` stays empty until the media batch defines its
- * source.
+ * adjacency.
  */
 final class PostDetail
 {
     /**
-     * @param list<Image> $gallery
      * @param list<Breadcrumb> $breadcrumbs
      */
     public function __construct(
         public readonly PostSummary $summary,
         public readonly string $contentHtml,
-        public readonly array $gallery,
         public readonly Seo $seo,
         public readonly array $breadcrumbs,
         public readonly ?Image $hero,
@@ -35,7 +32,6 @@ final class PostDetail
     {
         return array_merge($this->summary->toArray(), [
             'content' => ['format' => 'html', 'html' => $this->contentHtml],
-            'gallery' => array_map(static fn (Image $image): array => $image->toArray(), $this->gallery),
             'hero' => $this->hero?->toArray(),
             'seo' => $this->seo->toArray(),
             'breadcrumbs' => array_map(static fn (Breadcrumb $breadcrumb): array => $breadcrumb->toArray(), $this->breadcrumbs),

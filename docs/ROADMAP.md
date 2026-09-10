@@ -273,6 +273,10 @@ aiya-core/
 - ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
 - 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
+### 契约减负：PostDetail.gallery 砍除 —— ✅ 已完成（0.33.1）
+
+2026-09-11 拍板：gallery 字段非旧主题遗产（旧 DTO 原型无此字段，系 B1 预留槽位），恒空数组无消费方，且正文图已由 content HTML 承载——直接砍除（PostDetail 契约/Presenter/WIRE_SHAPES/前端 zod/infra 测试夹具），将来需要文章相册交互时加字段属向后兼容。快照重生成，双侧测试全绿。
+
 ### M5 上线件：CORS 收紧 + HTTP 缓存 + 契约类型同步 —— ✅ 已完成（0.33.0）
 
 - **CORS 白名单**（`Api/Rest/CorsHeaders`）：移除 core 的 `rest_send_cors_headers`（其无条件回显任意 Origin 且 `Allow-Credentials: true`；注意 core 在每次 `rest_api_init` 优先级 10 重新挂载，移除须挂同 hook 优先级 20），改为 Security 设置页 `rest_allowed_origins` 白名单（+ `aiya_core_rest_allowed_origins` 过滤器）——默认空 = 零 CORS 头，命中白名单才回显 Origin（GET/POST/OPTIONS、Authorization+Content-Type、Max-Age 600、无 credentials）。非白名单 origin 下 core server 类仍会输出 Expose-Headers/Allow-Headers 元数据头，但无 Allow-Origin 即无任何跨域授权。范围仅契约命名空间；

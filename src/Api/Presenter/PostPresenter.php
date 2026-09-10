@@ -67,7 +67,6 @@ final class PostPresenter
         return new PostDetail(
             $summary,
             $content,
-            [],
             new Seo($summary->title, $seoDescription, false),
             [new Breadcrumb($summary->title, null)],
             $this->hero($post),

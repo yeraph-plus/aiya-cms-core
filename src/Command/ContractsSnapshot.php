@@ -57,7 +57,6 @@ final class ContractsSnapshot
             ['name' => 'tags', 'type' => 'array', 'nullable' => false],
             ['name' => 'metrics', 'type' => 'PostMetrics', 'nullable' => false],
             ['name' => 'content', 'type' => 'object', 'nullable' => false],
-            ['name' => 'gallery', 'type' => 'array', 'nullable' => false],
             ['name' => 'hero', 'type' => 'Image', 'nullable' => true],
             ['name' => 'seo', 'type' => 'Seo', 'nullable' => false],
             ['name' => 'breadcrumbs', 'type' => 'array', 'nullable' => false],
