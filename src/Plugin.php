@@ -83,6 +83,7 @@ final class Plugin
     {
         $this->addModule(new SettingsAdmin($this->settings));
         $this->addModule(new SampleSettings($this->settings));
+        $this->addModule(new FrontendModule($this->settings));
         $this->addModule(new HeadlessModule($this->settings));
         $this->addModule(new SecurityModule($this->settings));
         $avatar = new AvatarModule($this->settings);
@@ -92,7 +93,6 @@ final class Plugin
         $this->addModule(new ContentTypeModule($this->contentTypes));
         $this->addModule(new NavigationModule($this->settings));
         $this->addModule(new PartModule(new PartRegistry()));
-        $this->addModule(new FrontendModule($this->settings));
         $this->addModule(new MetaboxAdmin($this->metadata));
         $this->addModule(new SeoBoxModule($this->metadata));
         $this->addModule(new TermExtrasModule($this->metadata));

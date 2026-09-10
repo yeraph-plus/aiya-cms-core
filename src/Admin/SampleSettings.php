@@ -20,12 +20,18 @@ final class SampleSettings implements Module
 
     public function settings(): void
     {
+        // Developer-only sandbox: loads when WP_DEBUG is on and lives in
+        // its own top-level menu, detached from the production pages.
+        if (!(defined('WP_DEBUG') && WP_DEBUG)) {
+            return;
+        }
+
         $this->registry->addPage([
             'slug' => 'sample',
-            'title' => __('AIYA Core Sample', 'aiya-core'),
-            'menu_title' => __('AIYA Core', 'aiya-core'),
+            'title' => __('Sample', 'aiya-core'),
+            'menu_title' => __('Sample', 'aiya-core'),
             'icon' => 'dashicons-admin-generic',
-            'position' => 81,
+            'position' => 100,
             'option_name' => 'aiya_core_sample',
             'fields' => [
                 [

@@ -21,7 +21,7 @@ use Aiya\Core\Domain\Notification\RoleLevel;
  */
 final class NotificationPage implements Module
 {
-    private const PARENT_SLUG = 'aiya-core-sample';
+    private const PARENT_SLUG = 'aiya-core-frontend';
     private const MENU_SLUG = 'aiya-core-notifications';
     private const PER_PAGE = 20;
 

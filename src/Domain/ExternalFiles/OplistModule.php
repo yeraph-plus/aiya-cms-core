@@ -44,7 +44,7 @@ final class OplistModule implements Module
             'slug' => OplistSettings::PAGE_SLUG,
             'title' => __('OpenList', 'aiya-core'),
             'menu_title' => __('OpenList', 'aiya-core'),
-            'parent' => 'aiya-core-sample',
+            'parent' => 'aiya-core-frontend',
             'option_name' => OplistSettings::OPTION_NAME,
             'fields' => [
                 [

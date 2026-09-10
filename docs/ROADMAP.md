@@ -285,6 +285,10 @@ aiya-core/
 - **零件语义定稿**（拍板：**不做结构化解析批**）——后台把注册的零件渲染为**自定义 HTML 标签**（PartType 增可选 render 钩子，PartModule 在 init 11 把带渲染器的零件注册为真短代码），content HTML 携带自定义标签，**前端自行解析标签挂载岛屿**。实测：过滤器注册带渲染器的零件 → shortcode 注册 → do_shortcode 输出 `<aiya-notice level="warning">…</aiya-notice>`；目录默认空，渲染器随零件定义批出现；
 - **featured 字段**：`PostDetail.hero` 更名 `featured`（特色图 full 原图直出，用途归前端；契约/WIRE_SHAPES/zod/infra 夹具/帖子页消费全同步）；壳主题 aiya-headless 激活 `add_theme_support('post-thumbnails')`（特色图是编辑面而非主题特性），resource CPT supports 原本已含 thumbnail。Profile.banner 维持保留 null（按用户概念无 WP 原生来源）。实测 featured 输出特色图 URL、无 hero 残留。
 
+### 后台菜单重组 —— ✅ 已完成（0.36.2）
+
+Frontend 设置页升为插件根菜单（菜单名 AIYA Core，前台设置即首项）；全部生产页 parent 换绑 `aiya-core-frontend`；Headless optimization 菜单名简化为 **Optimization**；Sample 拆为独立一级菜单（标题 Sample，仅 `WP_DEBUG` 开启时注册——生产环境不加载），位置 100 沉底。实测注册序：frontend(根) → Optimization → Security → Navigation → Image，WP_DEBUG=false 下 sample 不出现。
+
 ### /site 补 favicon 与 registrationOpen —— ✅ 已完成（0.36.1）
 
 锁定后首个加法演进实例（合规示范）：`Site` 契约新增 `favicon: ?Image`（镜像 WP 设置→常规的站点图标，`site_icon` 附件经 Presenter 解析）与 `registrationOpen: bool`（镜像 WP 成员资格设置 `users_can_register`——前端据此决定是否显示注册入口；当前 WP 默认关闭=false，站长在设置→常规开启即变 true）。v1 基线断言通过（加法合规），前端 zod/mock/client 夹具同步，双侧测试全绿。

@@ -34,7 +34,7 @@ final class NavigationModule implements Module
             'slug' => 'navigation',
             'title' => __('Navigation', 'aiya-core'),
             'menu_title' => __('Navigation', 'aiya-core'),
-            'parent' => 'aiya-core-sample',
+            'parent' => 'aiya-core-frontend',
             'option_name' => self::OPTION_NAME,
             'fields' => [
                 [

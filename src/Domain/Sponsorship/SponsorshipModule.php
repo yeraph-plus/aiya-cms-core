@@ -44,7 +44,7 @@ final class SponsorshipModule implements Module
             'slug' => self::PAGE_SLUG,
             'title' => __('Sponsorship', 'aiya-core'),
             'menu_title' => __('Sponsorship', 'aiya-core'),
-            'parent' => 'aiya-core-sample',
+            'parent' => 'aiya-core-frontend',
             'option_name' => self::OPTION_NAME,
             'fields' => [
                 [

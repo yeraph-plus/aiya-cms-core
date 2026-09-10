@@ -15,7 +15,7 @@ use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
  */
 final class ConvertCodesPage implements Module
 {
-    private const PARENT_SLUG = 'aiya-core-sample';
+    private const PARENT_SLUG = 'aiya-core-frontend';
     private const MENU_SLUG = 'aiya-core-convert-codes';
     private const ACTION_GENERATE = 'aiya_core_codes_generate';
     private const ACTION_DELETE_ALL = 'aiya_core_codes_delete_all';

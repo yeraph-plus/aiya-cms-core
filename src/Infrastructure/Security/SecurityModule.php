@@ -70,7 +70,7 @@ final class SecurityModule implements Module
             'slug' => self::PAGE_SLUG,
             'title' => __('Security hardening', 'aiya-core'),
             'menu_title' => __('Security hardening', 'aiya-core'),
-            'parent' => 'aiya-core-sample',
+            'parent' => 'aiya-core-frontend',
             'option_name' => 'aiya_core_security',
             'fields' => [
                 [

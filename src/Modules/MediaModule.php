@@ -95,7 +95,7 @@ final class MediaModule implements Module
             'slug' => self::PAGE_SLUG,
             'title' => __('Image processor', 'aiya-core'),
             'menu_title' => __('Image', 'aiya-core'),
-            'parent' => 'aiya-core-sample',
+            'parent' => 'aiya-core-frontend',
             'option_name' => self::OPTION_NAME,
             'fields' => [
                 [

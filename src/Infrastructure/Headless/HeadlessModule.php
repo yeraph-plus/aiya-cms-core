@@ -68,9 +68,9 @@ final class HeadlessModule implements Module
     {
         $this->settings->addPage([
             'slug' => self::PAGE_SLUG,
-            'title' => __('Headless optimization', 'aiya-core'),
-            'menu_title' => __('Headless optimization', 'aiya-core'),
-            'parent' => 'aiya-core-sample',
+            'title' => __('Optimization', 'aiya-core'),
+            'menu_title' => __('Optimization', 'aiya-core'),
+            'parent' => 'aiya-core-frontend',
             'option_name' => 'aiya_core_headless',
             'fields' => [
                 [
@@ -388,7 +388,7 @@ final class HeadlessModule implements Module
 
         if (in_array($pagenow, $denied, true)) {
             wp_die(
-                esc_html__('This screen is disabled because the site runs headless. Manage the setting under AIYA Core > Headless optimization.', 'aiya-core'),
+                esc_html__('This screen is disabled because the site runs headless. Manage the setting under AIYA Core > Optimization.', 'aiya-core'),
                 '',
                 ['response' => 403]
             );

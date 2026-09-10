@@ -17,7 +17,7 @@ use Aiya\Core\Domain\Discussion\ThreadType;
  */
 final class DiscussionModerationPage implements Module
 {
-    private const PARENT_SLUG = 'aiya-core-sample';
+    private const PARENT_SLUG = 'aiya-core-frontend';
     private const MENU_SLUG = 'aiya-core-discussions';
     private const ACTION_STATUS = 'aiya_core_discussion_status';
     private const ACTION_DELETE = 'aiya_core_discussion_delete';
