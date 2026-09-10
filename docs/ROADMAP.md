@@ -273,6 +273,10 @@ aiya-core/
 - ✅ **评论路由退役**：Headless kill switch（`disable_comments`）整套移除——其 stripComments 的 comments_open 强关 / post type support 移除本会打断 aiya 评论端点的 `wp_new_comment` 管线（CommentsController 自检 comments_open），属负资产；`/wp/v2/comments` 改为 `filterRestEndpoints()` **无条件剥离**（不分匿名/登录态、不受 headless_mode 总开关约束）；评论存储 + 后台治理屏（edit-comments.php）保留；与 `lockPublicSurface`（0.22.0，管非契约命名空间对访客关闭）互补；
 - 验证：单测 119/283 全绿；运行时实测（/site 新字段全通路含附件解析与中文页脚、`/wp/v2/comments` 匿名与 author bearer 双态 404 而控制组 `/wp/v2/users/me` 200、aiya 评论路由 GET/POST 200 + `comments_open` 未被过滤）；phpstan 抓出并修复 IdentityModule 表自检 `RuntimeException` 缺全局前导反斜杠（命名空间下解析为不存在类，自检触发即 fatal）。
 
+### 契约减负：Profile.banner 砍除 —— ✅ 已完成（0.35.1）
+
+2026-09-11 拍板：banner 是「个人主页横幅」概念，WP 原生无此数据源（用户只有头像），前端连 profile 页都未建——恒 null 无消费方，直接砍除（Profile 契约/Presenter/前端 zod/快照），将来做个人主页横幅时加字段属向后兼容。
+
 ### Follow 端点 + 零件渲染语义定稿 + featured 字段 —— ✅ 已完成（0.35.0）
 
 锁定前三项收尾（2026-09-11 拍板）：

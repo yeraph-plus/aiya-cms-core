@@ -7,9 +7,8 @@ namespace Aiya\Core\Api\Contract;
 /**
  * Public author profile (`/profiles/{slug}`): the front-end-facing view
  * of an account without email or login name. `slug` is the WP nicename
- * (a UUID for accounts created headlessly). `banner` has no source yet
- * and is always null until the media batch defines one; `activities`
- * stays empty until the Discussion batch lands.
+ * (a UUID for accounts created headlessly). `activities` stays empty
+ * until the discussion activity feed lands.
  */
 final class Profile
 {
@@ -22,7 +21,6 @@ final class Profile
         public readonly string $slug,
         public readonly string $name,
         public readonly ?Image $avatar,
-        public readonly ?Image $banner,
         public readonly string $bio,
         public readonly string $joinedAt,
         public readonly ProfileStats $stats,
@@ -40,7 +38,6 @@ final class Profile
             'slug' => $this->slug,
             'name' => $this->name,
             'avatar' => $this->avatar?->toArray(),
-            'banner' => $this->banner?->toArray(),
             'bio' => $this->bio,
             'joinedAt' => $this->joinedAt,
             'stats' => $this->stats->toArray(),

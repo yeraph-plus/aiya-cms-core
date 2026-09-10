@@ -42,7 +42,6 @@ final class ProfilePresenter
             (string) $user->user_nicename,
             (string) $user->display_name,
             $this->avatar($user),
-            null,
             (string) get_user_meta((int) $user->ID, 'description', true),
             $this->joinedAt($user),
             new ProfileStats(
