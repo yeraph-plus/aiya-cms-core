@@ -5,23 +5,30 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Sponsorship;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Settings\Registry;
 
 /**
- * Wires the sponsorship domain into the runtime: the legacy-compatible
- * tables (order source of truth + redemption codes) through the schema
- * migration runner, and the domain's own settings page (the legacy shared
- * "access" page is not migrated — 2026-09-08 decision).
- *
- * Gateway credentials live here as plain settings; the Afdian and Epay
- * integrations read them through the option name below and land in their
- * own slices.
+ * Wires the membership domain into the runtime (0.50.0 tier rewrite):
+ * the entitlement queue table plus the payment-log columns through the
+ * schema migration runner, the legacy protocol-meta retirement, the
+ * daily cycle-grant cron, and the domain's settings page under the
+ * membership menu (Epay credentials + the tier repeater; the Afdian
+ * integration is parked — SDK retained, nothing wired). The payment log
+ * lives on `wp_aiya_payment_orders` (renamed from the legacy
+ * `aya_sponsor_orders` name in 0.56.0 — the site never launched, so the
+ * rename is a fresh-install DDL name change, not a data migration).
  */
 final class SponsorshipModule implements Module
 {
     public const PAGE_SLUG = 'sponsorship';
     public const OPTION_NAME = 'aiya_core_sponsorship';
+    public const PAYMENTS_PAGE_SLUG = 'sponsorship-payments';
+    public const PAYMENTS_OPTION_NAME = 'aiya_core_sponsorship_payments';
+    public const CRON_HOOK = 'aiya_core_membership_grants';
     private const MIGRATION_VERSION = '0.24.0';
+    private const QUEUE_MIGRATION_VERSION = '0.50.0';
+    private const CODES_MIGRATION_VERSION = '0.54.0';
 
     public function __construct(private Registry $settings)
     {
@@ -33,77 +40,107 @@ final class SponsorshipModule implements Module
 
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
             $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'installTables']];
+            $migrations[] = ['version' => self::QUEUE_MIGRATION_VERSION, 'callback' => [self::class, 'upgradeToTierModel']];
+            $migrations[] = ['version' => self::CODES_MIGRATION_VERSION, 'callback' => [self::class, 'upgradeCodesToMembership']];
 
             return $migrations;
+        });
+
+        add_action('init', function (): void {
+            if (!wp_next_scheduled(self::CRON_HOOK)) {
+                wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', self::CRON_HOOK);
+            }
+        }, 5);
+
+        add_action(self::CRON_HOOK, static function (): void {
+            (new EntitlementService(new LedgerService()))->advance();
+        });
+
+        add_filter('aiya_core_scheduled_events', function (array $hooks): array {
+            $hooks[] = self::CRON_HOOK;
+
+            return $hooks;
         });
     }
 
     public function settings(): void
     {
+        // The membership settings page: tiers + daily check-in in one
+        // place (the credit domain's check-in fields ride here via
+        // Registry::addFields from CreditModule).
         $this->settings->addPage([
             'slug' => self::PAGE_SLUG,
-            'title' => __('Sponsorship', 'aiya-core'),
-            'menu_title' => __('Sponsorship', 'aiya-core'),
-            'parent' => 'aiya-core-frontend',
+            'title' => __('Membership', 'aiya-core'),
+            'menu_title' => __('Membership', 'aiya-core'),
+            'parent' => 'aiya-core-membership',
             'option_name' => self::OPTION_NAME,
             'fields' => [
                 [
-                    'id' => 'heading_afdian',
+                    'id' => 'heading_tiers',
                     'type' => 'heading',
-                    'label' => __('Afdian (webhook integration)', 'aiya-core'),
+                    'label' => __('Tiers', 'aiya-core'),
                     'level' => '2',
                 ],
                 [
-                    'id' => 'afdian_enable',
-                    'type' => 'switch',
-                    'label' => __('Afdian integration', 'aiya-core'),
-                    'default' => false,
-                ],
-                [
-                    'id' => 'afdian_user_id',
-                    'type' => 'text',
-                    'label' => __('Afdian user id', 'aiya-core'),
-                    'default' => '',
-                ],
-                [
-                    'id' => 'afdian_token',
-                    'type' => 'password',
-                    'label' => __('Afdian API token', 'aiya-core'),
-                    'description' => __('Used for the API queries and the webhook signature check; stored once and never shown again.', 'aiya-core'),
-                    'default' => '',
-                ],
-                [
-                    'id' => 'afdian_home_slug',
-                    'type' => 'text',
-                    'label' => __('Creator page slug', 'aiya-core'),
-                    'description' => __('The afdian.com/a/{slug} address shown to visitors.', 'aiya-core'),
-                    'default' => '',
-                ],
-                [
-                    'id' => 'afdian_plan_type',
-                    'type' => 'radio',
-                    'label' => __('Order page type', 'aiya-core'),
-                    'description' => __('Custom-amount jumps to your creator page; preset jumps straight to the configured plan.', 'aiya-core'),
-                    'default' => 'optional',
-                    'options' => [
-                        'optional' => __('Custom amount', 'aiya-core'),
-                        'preset' => __('Preset plan', 'aiya-core'),
+                    'id' => 'tiers',
+                    'type' => 'repeater',
+                    'label' => __('Tier list', 'aiya-core'),
+                    'description' => __('Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones.', 'aiya-core'),
+                    'default' => [],
+                    'children' => [
+                        [
+                            'id' => 'key',
+                            'type' => 'text',
+                            'label' => __('Key', 'aiya-core'),
+                            'required' => true,
+                        ],
+                        [
+                            'id' => 'name',
+                            'type' => 'text',
+                            'label' => __('Name', 'aiya-core'),
+                            'required' => true,
+                        ],
+                        [
+                            'id' => 'price',
+                            'type' => 'number',
+                            'label' => __('Price (per cycle)', 'aiya-core'),
+                            'default' => 0,
+                            'min' => 0,
+                            'step' => 0.01,
+                        ],
+                        [
+                            'id' => 'cycle_days',
+                            'type' => 'number',
+                            'label' => __('Cycle length (days)', 'aiya-core'),
+                            'description' => __('30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch.', 'aiya-core'),
+                            'default' => 30,
+                            'min' => 1,
+                            'step' => 1,
+                            'required' => true,
+                        ],
+                        [
+                            'id' => 'credits_per_cycle',
+                            'type' => 'number',
+                            'label' => __('Credits per cycle', 'aiya-core'),
+                            'description' => __('Credit bucket granted at each cycle start.', 'aiya-core'),
+                            'default' => 0,
+                            'min' => 0,
+                            'step' => 1,
+                        ],
                     ],
                 ],
-                [
-                    'id' => 'afdian_preset_plan_url',
-                    'type' => 'url',
-                    'label' => __('Preset plan URL', 'aiya-core'),
-                    'description' => __('The afdian.com/order/create?plan_id=… address of the preset plan; its plan_id is reused.', 'aiya-core'),
-                    'default' => '',
-                ],
-                [
-                    'id' => 'afdian_savelog',
-                    'type' => 'switch',
-                    'label' => __('Webhook log', 'aiya-core'),
-                    'description' => __('Append raw webhook payloads to webhook_logs for debugging.', 'aiya-core'),
-                    'default' => false,
-                ],
+            ],
+        ]);
+
+        // The cashier owns its own page so future gateways and channel
+        // settings extend here without crowding the tier screen.
+        $this->settings->addPage([
+            'slug' => self::PAYMENTS_PAGE_SLUG,
+            'title' => __('Payments', 'aiya-core'),
+            'menu_title' => __('Payments', 'aiya-core'),
+            'parent' => 'aiya-core-membership',
+            'option_name' => self::PAYMENTS_OPTION_NAME,
+            'fields' => [
                 [
                     'id' => 'heading_epay',
                     'type' => 'heading',
@@ -135,29 +172,23 @@ final class SponsorshipModule implements Module
                     'default' => '',
                 ],
                 [
+                    'id' => 'epay_methods',
+                    'type' => 'multicheck',
+                    'label' => __('Payment channels', 'aiya-core'),
+                    'description' => __('Channels offered on the cashier; unchecked ones are refused at order creation.', 'aiya-core'),
+                    'default' => [],
+                    'options' => [
+                        'alipay' => __('Alipay', 'aiya-core'),
+                        'wxpay' => __('WeChat Pay', 'aiya-core'),
+                        'usdt' => __('USDT (TRC20)', 'aiya-core'),
+                    ],
+                ],
+                [
                     'id' => 'epay_return_url',
                     'type' => 'url',
                     'label' => __('Front-end return URL', 'aiya-core'),
                     'description' => __('Where the browser lands after paying; the headless front end owns this page.', 'aiya-core'),
                     'default' => '',
-                ],
-                [
-                    'id' => 'epay_method_alipay',
-                    'type' => 'switch',
-                    'label' => __('Alipay channel', 'aiya-core'),
-                    'default' => false,
-                ],
-                [
-                    'id' => 'epay_method_wxpay',
-                    'type' => 'switch',
-                    'label' => __('WeChat Pay channel', 'aiya-core'),
-                    'default' => false,
-                ],
-                [
-                    'id' => 'epay_method_usdt',
-                    'type' => 'switch',
-                    'label' => __('USDT (TRC20) channel', 'aiya-core'),
-                    'default' => false,
                 ],
                 [
                     'id' => 'epay_savelog',
@@ -166,57 +197,15 @@ final class SponsorshipModule implements Module
                     'description' => __('Append raw gateway callbacks to webhook_logs for debugging.', 'aiya-core'),
                     'default' => false,
                 ],
-                [
-                    'id' => 'heading_plans',
-                    'type' => 'heading',
-                    'label' => __('Purchase plans', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'plans',
-                    'type' => 'repeater',
-                    'label' => __('Plans', 'aiya-core'),
-                    'description' => __('Each plan is one purchasable membership period; the key is the stable identifier the front end and gateway callbacks refer to.', 'aiya-core'),
-                    'default' => [],
-                    'children' => [
-                        [
-                            'id' => 'key',
-                            'type' => 'text',
-                            'label' => __('Key', 'aiya-core'),
-                            'required' => true,
-                        ],
-                        [
-                            'id' => 'name',
-                            'type' => 'text',
-                            'label' => __('Name', 'aiya-core'),
-                            'required' => true,
-                        ],
-                        [
-                            'id' => 'price',
-                            'type' => 'number',
-                            'label' => __('Price', 'aiya-core'),
-                            'default' => 0,
-                            'min' => 0,
-                            'step' => 0.01,
-                        ],
-                        [
-                            'id' => 'days',
-                            'type' => 'number',
-                            'label' => __('Days', 'aiya-core'),
-                            'default' => 30,
-                            'min' => 1,
-                            'step' => 1,
-                            'required' => true,
-                        ],
-                    ],
-                ],
             ],
         ]);
     }
 
     /**
-     * Creates both tables when missing; on legacy installs dbDelta finds
-     * the existing schemas (columns may only be added, never redefined).
+     * Creates the plugin-owned tables when missing (fresh installs;
+     * existing ones find their schemas and skip). The
+     * `aya_convert_codes` table is NOT part of the clean model — the
+     * 0.54.0 step below creates `aiya_redeem_codes` and drops it.
      */
     public static function installTables(): void
     {
@@ -226,7 +215,7 @@ final class SponsorshipModule implements Module
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-        $orders = $wpdb->prefix . 'aya_sponsor_orders';
+        $orders = $wpdb->prefix . 'aiya_payment_orders';
         dbDelta(
             "CREATE TABLE $orders (
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -234,6 +223,44 @@ final class SponsorshipModule implements Module
                 order_id VARCHAR(64) NOT NULL,
                 start_time INT UNSIGNED NOT NULL,
                 duration_days INT UNSIGNED NOT NULL,
+                amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+                tier_key VARCHAR(32) NOT NULL DEFAULT '',
+                source VARCHAR(32) DEFAULT '',
+                status VARCHAR(16) DEFAULT 'paid',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY  (id),
+                UNIQUE KEY order_id (order_id),
+                KEY user_id (user_id)
+            ) $charset;"
+        );
+    }
+
+    /**
+     * The 0.50.0 tier-model step: the entitlement queue table, the
+     * payment-log columns on the orders table, and the retirement of the
+     * legacy membership protocol meta (unlaunched site — rows die, the
+     * queue derives everything).
+     */
+    public static function upgradeToTierModel(): void
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $charset = $wpdb->get_charset_collate();
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+        EntitlementService::installTable();
+
+        $orders = $wpdb->prefix . 'aiya_payment_orders';
+        dbDelta(
+            "CREATE TABLE $orders (
+                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                user_id BIGINT UNSIGNED NOT NULL,
+                order_id VARCHAR(64) NOT NULL,
+                start_time INT UNSIGNED NOT NULL,
+                duration_days INT UNSIGNED NOT NULL,
+                amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+                tier_key VARCHAR(32) NOT NULL DEFAULT '',
                 source VARCHAR(32) DEFAULT '',
                 status VARCHAR(16) DEFAULT 'paid',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -243,6 +270,29 @@ final class SponsorshipModule implements Module
             ) $charset;"
         );
 
+        // The three legacy membership protocol keys die here (unlaunched
+        // site — rows delete, the queue derives everything). The
+        // expiry-scan marker `aiya_core_sponsor_state_noticed` is NOT in
+        // this list: NotificationActions still uses it as its live dedupe.
+        foreach (['sponsor_expiration', 'aya_force_cancel_sponsor', 'aya_trigger_count_sponsor'] as $key) {
+            $wpdb->delete($wpdb->usermeta, ['meta_key' => $key], ['%s']);
+        }
+    }
+
+    /**
+     * The 0.54.0 redemption-codes step: membership codes move onto the
+     * plugin-owned `aiya_redeem_codes` table; the legacy
+     * `aya_convert_codes` table is dropped outright (never launched —
+     * no rows worth carrying, and its credit semantics died with the
+     * 0.51.0 ledger rework).
+     */
+    public static function upgradeCodesToMembership(): void
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
         RedeemCodeService::installTable();
+        $legacy = $wpdb->prefix . 'aya_convert_codes';
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-shot DDL dropping the retired legacy table
+        $wpdb->query("DROP TABLE IF EXISTS `$legacy`");
     }
 }

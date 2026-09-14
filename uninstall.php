@@ -12,9 +12,11 @@
  * aiya_core_* transients/cron events.
  *
  * Deliberately KEPT: user content (media library, the avatar files under
- * wp-content/avatars/, the cover/pic-bed trees) and the legacy business
- * tables wp_aya_sponsor_orders / wp_aya_convert_codes — those predate the
- * plugin and hold order history that outlives it.
+ * wp-content/thumbnail/avatars/, the cover/pic-bed trees). The payment
+ * log moved to the plugin-owned aiya_payment_orders table (0.56.0) and
+ * is dropped with the rest; the codes table moved to aiya_redeem_codes
+ * in 0.54.0 (the superseded wp_aya_convert_codes is dropped by the
+ * migration, with a fallback here for never-migrated installs).
  *
  * @package AIYA_Core
  */
@@ -45,16 +47,31 @@ $delete_site_options = static function () use ($wpdb, $optionLike, $run): void {
 $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_site_options): void {
     $delete_site_options();
 
-    // Plugin-owned tables. The legacy wp_aya_* order/code tables stay.
+    // Plugin-owned tables. The 0.56.0 rename moved the payment log onto
+    // the plugin-owned prefix (aiya_payment_orders); the superseded
+    // wp_aya_convert_codes dies here too (its 0.54.0 migration normally
+    // drops it — this covers never-migrated installs).
     foreach ([
         $wpdb->prefix . 'aiya_user_favorites',
         $wpdb->prefix . 'aiya_user_follows',
         $wpdb->prefix . 'aiya_auth_tokens',
         $wpdb->prefix . 'aiya_notifications',
+        $wpdb->prefix . 'aiya_credit_entries',
+        $wpdb->prefix . 'aiya_memberships',
+        $wpdb->prefix . 'aiya_redeem_codes',
+        $wpdb->prefix . 'aiya_payment_orders',
+        $wpdb->prefix . 'aya_convert_codes',
         $wpdb->prefix . 'aiya_discussions',
         $wpdb->prefix . 'aiya_discussion_replies',
+        $wpdb->prefix . 'aiya_discussion_boards',
     ] as $table) {
         $run($wpdb->prepare('DROP TABLE IF EXISTS %i', $table));
+    }
+
+    // Retired membership protocol meta (0.50.0 tier rewrite) — plugin-era
+    // keys with no other writer, so uninstall removes the residue too.
+    foreach (['sponsor_expiration', 'aya_force_cancel_sponsor', 'aya_trigger_count_sponsor', 'aiya_core_sponsor_state_noticed'] as $metaKey) {
+        $run($wpdb->prepare('DELETE FROM %i WHERE meta_key = %s', $wpdb->usermeta, $metaKey));
     }
 
     // User-meta residue written by the plugin itself (e.g. the pre-0.28.0
@@ -67,7 +84,11 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
     $run($wpdb->prepare('DELETE FROM %i WHERE option_name LIKE %s OR option_name LIKE %s', $wpdb->options, $transientLike, $timeoutLike));
 
     wp_clear_scheduled_hook('aiya_core_notifications_cleanup');
+    wp_clear_scheduled_hook('aiya_core_credits_cleanup');
+    wp_clear_scheduled_hook('aiya_core_membership_grants');
     wp_clear_scheduled_hook('aiya_core_auth_tokens_cleanup');
+    wp_clear_scheduled_hook('aiya_core_thumbnails_generate');
+    wp_clear_scheduled_hook('aiya_core_sponsor_expiry_scan');
     wp_cache_flush();
 };
 
