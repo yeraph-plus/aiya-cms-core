@@ -15,7 +15,7 @@ use WP_REST_Server;
 /**
  * Public attachment list of one resource (`GET /resources/{id}/attachments`).
  * Listing metadata is served to everyone; download links appear only for
- * viewers the resource's sponsor gate allows. Upstream failures map to
+ * signed-in viewers (guests receive `url` null). Upstream failures map to
  * stable aiya_oplist_* error codes.
  */
 final class ResourceAttachmentsController
@@ -54,8 +54,6 @@ final class ResourceAttachmentsController
         }
 
         return new WP_REST_Response([
-            'gated' => $result['gated'],
-            'canSeeLinks' => $result['canSeeLinks'],
             'items' => $items,
         ]);
     }

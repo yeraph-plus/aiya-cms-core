@@ -112,6 +112,16 @@ final class MediaPaths
         return $this->contentDir() . '/upload-pics';
     }
 
+    /**
+     * Per-user namespace under the pic-bed pool for front-end community
+     * uploads, kept separate from the operator-curated root so moderation
+     * and cleanup can target one author's files.
+     */
+    public function userPicBedDir(int $userId): string
+    {
+        return $this->ensureDir($this->contentDir() . '/upload-pics/u/' . $userId . '/' . wp_date('Y/m'));
+    }
+
     private function ensureDir(string $dir): string
     {
         if (!is_dir($dir) && !wp_mkdir_p($dir)) {

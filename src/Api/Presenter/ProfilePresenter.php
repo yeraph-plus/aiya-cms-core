@@ -8,17 +8,19 @@ use Aiya\Core\Api\Contract\Image;
 use Aiya\Core\Api\Contract\Membership;
 use Aiya\Core\Api\Contract\Profile;
 use Aiya\Core\Api\Contract\ProfileStats;
+use Aiya\Core\Domain\Identity\FollowService;
 use Aiya\Core\Api\Contract\PostSummary;
 use Aiya\Core\Domain\Content\PublicTypes;
 use Aiya\Core\Domain\Identity\FavoriteService;
+use Aiya\Core\Domain\Sponsorship\MembershipService;
 use WP_Post;
 use WP_User;
 
 /**
  * Maps a user account to the public profile contract. This is the only
  * place the profile route touches WP_User; email and login name never
- * enter the projection. Sponsor validity reads the persistent protocol
- * meta (`sponsor_expiration` + `aya_force_cancel_sponsor`); favorites
+ * enter the projection. Sponsor validity derives from the membership
+ * entitlement queue (MembershipService, 0.50.0 tier model); favorites
  * read the `aiya_user_favorites` relation table (0.28.0) and resolve
  * published posts only, newest favorite first.
  */
@@ -26,33 +28,41 @@ final class ProfilePresenter
 {
     private const FAVORITES_LIMIT = 12;
 
-    public function __construct(private PostPresenter $posts, private ?FavoriteService $favorites = null)
-    {
+    public function __construct(
+        private PostPresenter $posts,
+        private ?FavoriteService $favorites = null,
+        private ?UserPresenter $users = null,
+        private ?FollowService $follows = null,
+        private ?MembershipService $membership = null,
+    ) {
     }
 
     public function present(WP_User $user): Profile
     {
         $favorites = $this->publishedFavorites((int) $user->ID);
-		$expiration = (int) get_user_meta((int) $user->ID, 'sponsor_expiration', true);
-        $forceCancel = (string) get_user_meta((int) $user->ID, 'aya_force_cancel_sponsor', true) === '1';
-        $active = $expiration > time() && !$forceCancel;
+        $expiresAt = $this->membership !== null
+            ? $this->membership->expiresAt((int) $user->ID)
+            : (new MembershipService())->expiresAt((int) $user->ID);
+        $active = $expiresAt > time();
 
         return new Profile(
             (int) $user->ID,
             (string) $user->user_nicename,
             (string) $user->display_name,
+            $this->users ? $this->users->role($user) : 'subscriber',
             $this->avatar($user),
             (string) get_user_meta((int) $user->ID, 'description', true),
             $this->joinedAt($user),
             new ProfileStats(
                 0,
                 $favorites['count'],
-                (int) count_user_posts((int) $user->ID, 'post', true)
+                (int) count_user_posts((int) $user->ID, 'post', true),
+                $this->follows?->countFollowers((int) $user->ID) ?? 0
             ),
             new Membership(
                 '',
                 $active ? 'active' : 'inactive',
-                $active ? (string) wp_date('c', $expiration) : null,
+                $active ? (string) wp_date('c', $expiresAt) : null,
                 []
             ),
             [],

@@ -7,12 +7,14 @@ namespace Aiya\Core;
 use Aiya\Core\Admin\CoverMetabox;
 use Aiya\Core\Admin\ConvertCodesPage;
 use Aiya\Core\Admin\DiscussionModerationPage;
+use Aiya\Core\Admin\CreditsPage;
 use Aiya\Core\Admin\MetaboxAdmin;
 use Aiya\Core\Admin\NotificationPage;
 use Aiya\Core\Admin\PicBedPage;
+use Aiya\Core\Admin\PostTypeSwitchBulkAction;
 use Aiya\Core\Admin\SendMailPage;
 use Aiya\Core\Admin\SettingsAdmin;
-use Aiya\Core\Admin\SampleSettings;
+use Aiya\Core\Admin\TermMoveBulkAction;
 use Aiya\Core\Api\Rest\RestController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentTypeModule;
@@ -20,18 +22,23 @@ use Aiya\Core\Domain\Content\ContentTypeRegistry;
 use Aiya\Core\Domain\Content\FrontendModule;
 use Aiya\Core\Domain\Content\TypographyModule;
 use Aiya\Core\Domain\Content\NavigationModule;
+use Aiya\Core\Domain\Content\PostTypeSwitcher;
 use Aiya\Core\Domain\Content\SeoBoxModule;
 use Aiya\Core\Domain\Discussion\DiscussionModule;
+use Aiya\Core\Domain\DevTools\DevToolsModule;
 use Aiya\Core\Domain\ExternalFiles\OplistModule;
 use Aiya\Core\Domain\Content\SlugModule;
 use Aiya\Core\Domain\Content\TermExtrasModule;
+use Aiya\Core\Domain\Content\TermTaxonomyMover;
+use Aiya\Core\Domain\Credit\CreditModule;
+use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Domain\Identity\IdentityModule;
+use Aiya\Core\Domain\Notification\NotificationActions;
 use Aiya\Core\Domain\Notification\NotificationModule;
 use Aiya\Core\Domain\Parts\PartModule;
 use Aiya\Core\Domain\Parts\PartRegistry;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
-use Aiya\Core\Domain\Sponsorship\OrderService;
+use Aiya\Core\Domain\Sponsorship\EntitlementService;
 use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
 use Aiya\Core\Domain\Sponsorship\SponsorshipModule;
 use Aiya\Core\Domain\ThemeSupport\ThemeSupportModule;
@@ -54,15 +61,15 @@ final class Plugin
     private array $modules = [];
 
     /**
-     * Business routing (2026-09-10): the sponsorship and external-files
-     * domains are parked while core content shapes drive toward 1.0.
-     * Their code, tables and protocol keys stay intact — flipping a flag
-     * back to true restores the settings pages, the resource box and the
-     * REST routes; while parked those surfaces answer 404 and the
-     * presenters fall back to the raw protocol keys they already read.
+     * Business routing: the sponsorship domain returned with the 0.50.0
+     * tier rewrite (membership menus, Epay cashier, entitlement queue).
+     * External files stay parked — flipping EXTERNAL_FILES_ENABLED back
+     * to true restores the OpenList settings page, the resource box and
+     * the attachments route.
      */
-    private const SPONSORSHIP_ENABLED = false;
-    private const EXTERNAL_FILES_ENABLED = false;
+    private const EXTERNAL_FILES_ENABLED = true;
+    /** One-shot rewrite flush marker set by activate() (autoload off). */
+    private const FLUSH_REWRITE_FLAG = 'aiya_core_flush_rewrite';
 
     private function __construct()
     {
@@ -83,8 +90,9 @@ final class Plugin
      */
     public function register(): void
     {
+        add_action('init', [$this, 'flushRewritesOnce'], 99);
         $this->addModule(new SettingsAdmin($this->settings));
-        $this->addModule(new SampleSettings($this->settings));
+        $this->addModule(new DevToolsModule($this->settings));
         $this->addModule(new FrontendModule($this->settings));
         $this->addModule(new HeadlessModule($this->settings));
         $this->addModule(new SecurityModule($this->settings));
@@ -94,6 +102,8 @@ final class Plugin
         $this->addModule(new SlugModule($this->settings));
         $this->addModule(new ThemeSupportModule());
         $this->addModule(new ContentTypeModule($this->contentTypes));
+        $this->addModule(new PostTypeSwitchBulkAction(new PostTypeSwitcher()));
+        $this->addModule(new TermMoveBulkAction(new TermTaxonomyMover()));
         $this->addModule(new NavigationModule($this->settings));
         $this->addModule(new PartModule(new PartRegistry()));
         $this->addModule(new MetaboxAdmin($this->metadata));
@@ -102,14 +112,14 @@ final class Plugin
         $this->addModule(new TermExtrasModule($this->metadata));
 
         $this->addModule(new NotificationModule());
+        $this->addModule(new NotificationActions());
+        $this->addModule(new CreditModule($this->settings));
+        $this->addModule(new CreditsPage());
+        $this->addModule(new ConvertCodesPage(new RedeemCodeService(new EntitlementService(new LedgerService()))));
         $this->addModule(new IdentityModule());
         $this->addModule(new NotificationPage());
 
-        // @phpstan-ignore if.alwaysFalse (business flag; parked, may flip back on)
-        if (self::SPONSORSHIP_ENABLED) {
-            $this->addModule(new SponsorshipModule($this->settings));
-            $this->addModule(new ConvertCodesPage(new RedeemCodeService(new OrderService(new MembershipService()))));
-        }
+        $this->addModule(new SponsorshipModule($this->settings));
         $this->addModule(new DiscussionModule());
         $this->addModule(new DiscussionModerationPage());
 
@@ -119,14 +129,16 @@ final class Plugin
         $this->addModule(new PicBedPage($media->uploadProcessor(), $media->paths()));
 
         $attachments = null;
-        // @phpstan-ignore if.alwaysFalse (business flag; parked, may flip back on)
+        // Business routing flag — OpenList is back on; the null branch
+        // stays for the next parked domain that wants the same slot.
+        // @phpstan-ignore if.alwaysTrue
         if (self::EXTERNAL_FILES_ENABLED) {
             $oplist = new OplistModule($this->settings, $this->metadata);
             $this->addModule($oplist);
             $attachments = $oplist->attachments();
         }
         $this->addModule(new SchemaVersionRunner());
-        $this->addModule(new RestController($avatar, $attachments, $media->cards(), self::SPONSORSHIP_ENABLED));
+        $this->addModule(new RestController($avatar, $attachments, $media->cards(), $media->uploadProcessor(), $media->paths()));
 
         add_action('plugins_loaded', function (): void {
             // WP 7.1's load_plugin_textdomain no longer falls back to the
@@ -160,10 +172,32 @@ final class Plugin
      * SchemaVersionRunner execute every registered install migration on the
      * first boot (tables are created only there), while upgrades keep their
      * stored version and skip straight to any pending steps.
+     *
+     * The headless contract (and every public URL) needs non-plain
+     * permalinks — a fresh install defaults to plain, where /wp-json/ only
+     * answers through rest_route redirects. A structure is therefore
+     * defaulted when empty (never overwritten), and one full rewrite flush
+     * is deferred to the next boot, after every post type and taxonomy has
+     * registered.
      */
     public function activate(): void
     {
         update_option(SchemaVersionRunner::OPTION_NAME, '0.0.0', false);
+
+        if (get_option('permalink_structure') === '') {
+            update_option('permalink_structure', '/%postname%/');
+        }
+        update_option(self::FLUSH_REWRITE_FLAG, 1, false);
+    }
+
+    /** Consumes the activation flag: one full rewrite flush on the next boot. */
+    public function flushRewritesOnce(): void
+    {
+        if (!get_option(self::FLUSH_REWRITE_FLAG)) {
+            return;
+        }
+        delete_option(self::FLUSH_REWRITE_FLAG);
+        flush_rewrite_rules();
     }
 
     /**

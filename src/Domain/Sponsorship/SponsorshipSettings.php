@@ -5,51 +5,69 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Sponsorship;
 
 /**
- * Normalized reader for the domain's settings option. Both the REST
- * controllers and the admin surfaces consume this single shape; gateway
- * credentials never leave the server.
+ * Normalized reader for the membership domain's two settings options: the
+ * tier list on the sponsorship page and the cashier credentials/channels
+ * on the dedicated payments page (0.50.x split, ready for future gateway
+ * additions). Consumers get one merged shape; gateway credentials never
+ * leave the server. The Afdian integration is parked (SDK class retained,
+ * no settings, no routes) — Epay is the only wired gateway.
  */
 final class SponsorshipSettings
 {
     /**
-     * @return array{afdianEnable:bool,afdianUserId:string,afdianToken:string,afdianHomeSlug:string,afdianPlanType:string,afdianPresetPlanUrl:string,afdianSavelog:bool,epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayAlipay:bool,epayWxpay:bool,epayUsdt:bool,epayReturnUrl:string,epaySavelog:bool,plans:list<array{key:string,name:string,price:float,days:int}>}
+     * @return array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,epayReturnUrl:string,epaySavelog:bool,tiers:list<array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}>}
      */
     public static function read(): array
     {
-        $settings = (array) get_option(SponsorshipModule::OPTION_NAME, []);
+        $tiers = (array) get_option(SponsorshipModule::OPTION_NAME, []);
+        $payments = (array) get_option(SponsorshipModule::PAYMENTS_OPTION_NAME, []);
 
         return [
-            'afdianEnable' => (bool) ($settings['afdian_enable'] ?? false),
-            'afdianUserId' => (string) ($settings['afdian_user_id'] ?? ''),
-            'afdianToken' => (string) ($settings['afdian_token'] ?? ''),
-            'afdianHomeSlug' => (string) ($settings['afdian_home_slug'] ?? ''),
-            'afdianPlanType' => ($settings['afdian_plan_type'] ?? 'optional') === 'preset' ? 'preset' : 'optional',
-            'afdianPresetPlanUrl' => (string) ($settings['afdian_preset_plan_url'] ?? ''),
-            'afdianSavelog' => (bool) ($settings['afdian_savelog'] ?? false),
-            'epayEnable' => (bool) ($settings['epay_enable'] ?? false),
-            'epayPid' => (string) ($settings['epay_pid'] ?? ''),
-            'epayKey' => (string) ($settings['epay_key'] ?? ''),
-            'epayGateway' => (string) ($settings['epay_gateway'] ?? ''),
-            'epayAlipay' => (bool) ($settings['epay_method_alipay'] ?? false),
-            'epayWxpay' => (bool) ($settings['epay_method_wxpay'] ?? false),
-            'epayUsdt' => (bool) ($settings['epay_method_usdt'] ?? false),
-            'epayReturnUrl' => (string) ($settings['epay_return_url'] ?? ''),
-            'epaySavelog' => (bool) ($settings['epay_savelog'] ?? false),
-            'plans' => self::plans($settings),
+            'epayEnable' => (bool) ($payments['epay_enable'] ?? false),
+            'epayPid' => (string) ($payments['epay_pid'] ?? ''),
+            'epayKey' => (string) ($payments['epay_key'] ?? ''),
+            'epayGateway' => (string) ($payments['epay_gateway'] ?? ''),
+            'epayMethods' => self::methods($payments),
+            'epayReturnUrl' => (string) ($payments['epay_return_url'] ?? ''),
+            'epaySavelog' => (bool) ($payments['epay_savelog'] ?? false),
+            'tiers' => self::tiers($tiers),
         ];
     }
 
     /**
-     * Normalized plan rows; the key is the stable cross-reference identifier
-     * gateway callbacks resolve days from.
+     * The enabled cashier channels, normalized against the wire
+     * vocabulary. Values outside the whitelist are dropped.
+     *
+     * @param array<string, mixed> $payments
+     * @return list<string>
+     */
+    public static function methods(array $payments): array
+    {
+        $allowed = ['alipay', 'wxpay', 'usdt'];
+        $methods = [];
+        foreach ((array) ($payments['epay_methods'] ?? []) as $method) {
+            $method = (string) $method;
+            if (in_array($method, $allowed, true) && !in_array($method, $methods, true)) {
+                $methods[] = $method;
+            }
+        }
+
+        return $methods;
+    }
+
+    /**
+     * Normalized tier rows; the key is the stable cross-reference
+     * identifier gateway callbacks resolve the purchase from. Tier
+     * config is snapshotted into the entitlement at purchase time, so
+     * later edits never rewrite existing queues.
      *
      * @param array<string, mixed> $settings
-     * @return list<array{key:string,name:string,price:float,days:int}>
+     * @return list<array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}>
      */
-    public static function plans(array $settings): array
+    public static function tiers(array $settings): array
     {
-        $plans = [];
-        foreach ((array) ($settings['plans'] ?? []) as $row) {
+        $tiers = [];
+        foreach ((array) ($settings['tiers'] ?? []) as $row) {
             if (!is_array($row)) {
                 continue;
             }
@@ -57,26 +75,27 @@ final class SponsorshipSettings
             if ($key === '') {
                 continue;
             }
-            $plans[] = [
+            $tiers[] = [
                 'key' => $key,
                 'name' => (string) ($row['name'] ?? ''),
                 'price' => (float) ($row['price'] ?? 0),
-                'days' => max(1, (int) ($row['days'] ?? 1)),
+                'cycleDays' => max(1, (int) ($row['cycle_days'] ?? 30)),
+                'creditsPerCycle' => max(0, (int) ($row['credits_per_cycle'] ?? 0)),
             ];
         }
 
-        return $plans;
+        return $tiers;
     }
 
     /**
-     * @param list<array{key:string,name:string,price:float,days:int}> $plans
-     * @return array{key:string,name:string,price:float,days:int}|null
+     * @param list<array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}> $tiers
+     * @return array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}|null
      */
-    public static function planByKey(array $plans, string $key): ?array
+    public static function tierByKey(array $tiers, string $key): ?array
     {
-        foreach ($plans as $plan) {
-            if ($plan['key'] === $key) {
-                return $plan;
+        foreach ($tiers as $tier) {
+            if ($tier['key'] === $key) {
+                return $tier;
             }
         }
 

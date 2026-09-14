@@ -20,6 +20,8 @@ final class Profile
         public readonly int $id,
         public readonly string $slug,
         public readonly string $name,
+        /** Legacy front-end role vocabulary (administrator/author/sponsor/subscriber). */
+        public readonly string $role,
         public readonly ?Image $avatar,
         public readonly string $bio,
         public readonly string $joinedAt,
@@ -37,6 +39,7 @@ final class Profile
             'id' => $this->id,
             'slug' => $this->slug,
             'name' => $this->name,
+            'role' => $this->role,
             'avatar' => $this->avatar?->toArray(),
             'bio' => $this->bio,
             'joinedAt' => $this->joinedAt,

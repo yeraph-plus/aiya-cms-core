@@ -49,7 +49,11 @@ final class NavigationModule implements Module
                     'type' => 'repeater',
                     'label' => __('Primary menu', 'aiya-core'),
                     'description' => __('The main navigation of the front-end shell (site header). Internal targets are front-end paths (/posts/), external ones absolute https URLs.', 'aiya-core'),
-                    'default' => [],
+                    'default' => [
+                        ['label' => 'Resources', 'url' => '/resources/', 'icon' => 'image', 'target' => 'self'],
+                        ['label' => 'Posts', 'url' => '/posts/', 'icon' => 'file-text', 'target' => 'self'],
+                        ['label' => 'Community', 'url' => '/community/', 'icon' => 'message-circle', 'target' => 'self'],
+                    ],
                     'children' => $this->itemChildren(true),
                 ],
                 [
@@ -83,6 +87,7 @@ final class NavigationModule implements Module
             [
                 'id' => 'url',
                 'type' => 'url',
+                'allow_path' => true,
                 'label' => __('URL', 'aiya-core'),
                 'description' => __('Front-end path (/posts/) or external URL; empty falls back to the home path.', 'aiya-core'),
             ],

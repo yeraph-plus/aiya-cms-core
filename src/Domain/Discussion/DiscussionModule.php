@@ -7,16 +7,20 @@ namespace Aiya\Core\Domain\Discussion;
 use Aiya\Core\Contracts\Module;
 
 /**
- * Registers the discussion tables through the schema migration runner.
+ * Registers the discussion tables through the schema migration runner:
+ * the 0.26.0 base tables, and the 0.45.0 boards swap (the fixed type
+ * column becomes a customizable board classification).
  */
 final class DiscussionModule implements Module
 {
     private const MIGRATION_VERSION = '0.26.0';
+    private const BOARDS_MIGRATION_VERSION = '0.45.0';
 
     public function register(): void
     {
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
             $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [DiscussionService::class, 'installTables']];
+            $migrations[] = ['version' => self::BOARDS_MIGRATION_VERSION, 'callback' => [DiscussionService::class, 'migrateToBoards']];
 
             return $migrations;
         });

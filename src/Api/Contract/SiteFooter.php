@@ -5,29 +5,27 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Contract;
 
 /**
- * Compliance strings for the front-end footer: ICP filing, public-security
- * filing (plus its digits-only code for the police search link) and a
- * free-form note. Empty strings mean "do not render"; link targets are a
- * front-end concern.
+ * Compliance links (a repeater on the Frontend settings page, one row per
+ * filing) plus the footer hitokoto switch — display copy for hitokoto and
+ * the fixed copyright line belong to the front end.
  */
 final class SiteFooter
 {
+    /**
+     * @param list<BeianLink> $links
+     */
     public function __construct(
-        public readonly string $icp,
-        public readonly string $mps,
-        public readonly string $mpsCode,
-        public readonly string $note,
+        public readonly array $links,
+        public readonly bool $hitokoto,
     ) {
     }
 
-    /** @return array{icp: string, mps: string, mpsCode: string, note: string} */
+    /** @return array{links: list<array<string, mixed>>, hitokoto: bool} */
     public function toArray(): array
     {
         return [
-            'icp' => $this->icp,
-            'mps' => $this->mps,
-            'mpsCode' => $this->mpsCode,
-            'note' => $this->note,
+            'links' => array_map(static fn (BeianLink $link): array => $link->toArray(), $this->links),
+            'hitokoto' => $this->hitokoto,
         ];
     }
 }

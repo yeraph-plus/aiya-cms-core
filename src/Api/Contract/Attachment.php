@@ -6,8 +6,8 @@ namespace Aiya\Core\Api\Contract;
 
 /**
  * One OpenList attachment entry on a resource. The listing metadata is
- * public; `url` is null whenever the viewer may not download (guests on a
- * gated resource, or non-sponsors when the sponsor gate is on).
+ * public; `url` is null whenever the viewer may not download (currently:
+ * guests — paid access moves to the credit ledger, not this shape).
  */
 final class Attachment
 {

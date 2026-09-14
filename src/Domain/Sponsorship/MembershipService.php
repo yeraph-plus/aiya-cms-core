@@ -5,41 +5,49 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Sponsorship;
 
 /**
- * Membership reads on the persistent protocol meta (`sponsor_expiration`,
- * `aya_force_cancel_sponsor`, `aya_trigger_count_sponsor` — workspace
- * AGENTS.md). The protocol key is written exclusively by OrderService after
- * every order mutation; this service is the read side plus the gated-resource
- * trigger counter.
+ * Membership reads on the entitlement queue (`{prefix}aiya_memberships`,
+ * the 0.50.0 tier model). The legacy `sponsor_expiration` /
+ * `aya_force_cancel_sponsor` / `aya_trigger_count_sponsor` protocol meta
+ * are retired: validity derives from the holder's active queue rows and
+ * forced cancel flips those rows, so nothing lives in user meta any more.
  *
- * `isSponsor()` keeps the legacy `aya_is_sponsor()` semantics exactly,
- * including the editor-capability bypass.
+ * `isSponsor()` keeps the editorial bypass of the legacy
+ * `aya_is_sponsor()`: editors and above always qualify.
  */
 final class MembershipService
 {
-    public const EXPIRATION_KEY = 'sponsor_expiration';
-    public const FORCE_CANCEL_KEY = 'aya_force_cancel_sponsor';
-    public const TRIGGER_COUNT_KEY = 'aya_trigger_count_sponsor';
-
-    public function expiration(int $userId): int
+    public function __construct(private EntitlementService $entitlements = new EntitlementService())
     {
-        return (int) get_user_meta($userId, self::EXPIRATION_KEY, true);
     }
 
-    public function forceCancelled(int $userId): bool
+    /** An active queue row whose window still covers now. */
+    public function isActive(int $userId): bool
     {
-        return (string) get_user_meta($userId, self::FORCE_CANCEL_KEY, true) === '1';
+        if ($userId <= 0) {
+            return false;
+        }
+
+        return $this->entitlements->window($userId)['expiresAt'] > time();
     }
 
-    public function triggerCount(int $userId): int
+    /** Queue end as a unix timestamp, 0 when the holder has no membership. */
+    public function expiresAt(int $userId): int
     {
-        return (int) get_user_meta($userId, self::TRIGGER_COUNT_KEY, true);
+        return $this->entitlements->window($userId)['expiresAt'];
     }
 
-    /** One gated-resource use; consumed per view of sponsor-only material. */
-    public function incrementTriggerCount(int $userId): void
+    /** Whole days left on an active membership, 0 when expired. */
+    public function leftDays(int $userId): int
     {
-        $count = $this->triggerCount($userId);
-        update_user_meta($userId, self::TRIGGER_COUNT_KEY, $count + 1);
+        $left = $this->expiresAt($userId) - time();
+
+        return $left > 0 ? (int) ceil($left / DAY_IN_SECONDS) : 0;
+    }
+
+    /** Forced cancel: flips every queue row to `cancelled` (idempotent). */
+    public function cancel(int $userId): void
+    {
+        $this->entitlements->cancelAll($userId);
     }
 
     /** Legacy `aya_is_sponsor()`: editors and above always qualify. */
@@ -52,25 +60,43 @@ final class MembershipService
             return true;
         }
 
-        return $this->expiration($userId) > $this->localNow() && !$this->forceCancelled($userId);
-    }
-
-    /** Whole days left on an active membership, 0 when expired. */
-    public function leftDays(int $userId): int
-    {
-        $left = $this->expiration($userId) - $this->localNow();
-
-        return $left > 0 ? (int) ceil($left / DAY_IN_SECONDS) : 0;
+        return $this->isActive($userId);
     }
 
     /**
-     * Local-clock unix timestamp — the numeric twin of the legacy
-     * current_time('timestamp') calls, which the stored protocol values were
-     * written with; switching to plain UTC time() would misread every
-     * existing expiration by the site's UTC offset.
+     * The holder's currently covering tier — the active queue row whose
+     * window ends last (the row that keeps the membership alive). Null
+     * when inactive; editors get null too (their bypass is a staff
+     * privilege, not a purchased tier). Future benefit logic keys off
+     * this instead of walking the queue itself.
+     *
+     * @return array{tierKey:string, tierName:string, expiresAt:int}|null
      */
-    private function localNow(): int
+    public function currentTier(int $userId): ?array
     {
-        return time() + wp_timezone()->getOffset(new \DateTimeImmutable('now'));
+        if ($userId <= 0) {
+            return null;
+        }
+
+        $covering = null;
+        $now = time();
+        foreach ($this->entitlements->queueFor($userId) as $row) {
+            if ($row['status'] !== EntitlementService::STATUS_ACTIVE) {
+                continue;
+            }
+            $endsAt = (int) get_date_from_gmt($row['ends_at'], 'U');
+            if ($endsAt <= $now) {
+                continue;
+            }
+            if ($covering === null || $endsAt > $covering['expiresAt']) {
+                $covering = [
+                    'tierKey' => $row['tier_key'],
+                    'tierName' => $row['tier_name'],
+                    'expiresAt' => $endsAt,
+                ];
+            }
+        }
+
+        return $covering;
     }
 }

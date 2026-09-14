@@ -104,14 +104,27 @@ final class ValueNormalizer
         };
     }
 
-    /** @return array<string, string> */
+    /** Accepts either a "key: value" textarea string (one pair per line) or a key => value array.
+     *
+     * @return array<string, string>
+     */
     private function keyValue(mixed $value): array
     {
+        if (is_string($value)) {
+            $value = explode("\n", $value);
+        }
         if (!is_array($value)) {
             return [];
         }
         $result = [];
         foreach ($value as $key => $item) {
+            if (is_int($key)) {
+                $pair = explode(':', (string) $item, 2);
+                if (count($pair) !== 2) {
+                    continue;
+                }
+                [$key, $item] = $pair;
+            }
             $key = sanitize_key((string) $key);
             if ($key !== '') {
                 $result[$key] = sanitize_text_field((string) $item);

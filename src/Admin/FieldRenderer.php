@@ -16,7 +16,8 @@ final class FieldRenderer
         echo '<table class="form-table" role="presentation"><tbody>';
         foreach ($fields as $field) {
             if (!$field->isPersistable()) {
-                echo '<tr class="aiya-core-nondata"><td colspan="2">';
+                $rowClass = $field->type() === 'heading' ? 'aiya-core-row--heading' : 'aiya-core-row--note';
+                echo '<tr class="aiya-core-nondata ' . esc_attr($rowClass) . '"><td colspan="2">';
                 $this->renderPresentation($field);
                 echo '</td></tr>';
                 continue;
@@ -29,6 +30,12 @@ final class FieldRenderer
     private function row(Field $field, mixed $value): void
     {
         $id = 'aiya-core-' . $field->id();
+        if ($field->type() === 'hidden') {
+            echo '<tr class="aiya-core-field aiya-core-field--hidden"><td colspan="2">';
+            $this->control($field, $value, 'values[' . $field->id() . ']', $id);
+            echo '</td></tr>';
+            return;
+        }
         echo '<tr class="aiya-core-field aiya-core-field--' . esc_attr($field->type()) . '">';
         echo '<th scope="row"><label for="' . esc_attr($id) . '">' . esc_html($field->label()) . '</label></th><td>';
         $this->control($field, $value, 'values[' . $field->id() . ']', $id);
@@ -92,9 +99,11 @@ final class FieldRenderer
             $attachmentId = is_numeric($value) ? absint($value) : 0;
             echo '<div class="aiya-core-media">';
             echo '<input type="hidden" class="aiya-core-media-value" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '" value="' . esc_attr((string) $attachmentId) . '">';
-            echo '<div class="aiya-core-media-preview">' . ($attachmentId ? wp_get_attachment_image($attachmentId, 'thumbnail') : '') . '</div>';
-            echo '<button type="button" class="button aiya-core-media-select">' . esc_html__('Select media', 'aiya-core') . '</button> ';
-            echo '<button type="button" class="button-link button-link-delete aiya-core-media-remove">' . esc_html__('Remove', 'aiya-core') . '</button></div>';
+            echo '<div class="aiya-core-media-preview">' . ($attachmentId ? wp_get_attachment_image($attachmentId, 'medium') : '') . '</div>';
+            echo '<div class="aiya-core-media-actions">';
+            echo '<button type="button" class="button aiya-core-media-select">' . esc_html__('Select media', 'aiya-core') . '</button>';
+            echo '<button type="button" class="button aiya-core-media-remove">' . esc_html__('Remove', 'aiya-core') . '</button>';
+            echo '</div></div>';
             return;
         }
         if ($type === 'multicheck') {
@@ -110,6 +119,16 @@ final class FieldRenderer
             $this->repeater($field, array_values(is_array($value) ? $value : []), $name, $id);
             return;
         }
+        if ($type === 'key_value') {
+            $pairs = is_array($value) ? $value : [];
+            $lines = '';
+            foreach ($pairs as $key => $item) {
+                $lines .= $key . ': ' . (string) $item . "\n";
+            }
+            echo '<textarea class="large-text code" rows="4" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '" placeholder="' . esc_attr(__('cache_ttl: 3600', 'aiya-core')) . '">' . esc_textarea($lines) . '</textarea>';
+            return;
+        }
+
         if ($type === 'array') {
             $value = is_array($value) ? implode(', ', array_map('strval', $value)) : (string) $value;
         }
@@ -124,6 +143,11 @@ final class FieldRenderer
         }
 
         $htmlType = in_array($type, ['email', 'url', 'number', 'hidden'], true) ? $type : 'text';
+        if ($type === 'url' && (bool) $field->setting('allow_path', false)) {
+            // type="url" native validation rejects site-relative paths like
+            // /posts/, which the navigation menus legitimately hold.
+            $htmlType = 'text';
+        }
         $classes = $type === 'color' ? 'regular-text aiya-core-color' : 'regular-text';
         $attributes = $this->attributes($field);
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every attribute name and value is escaped inside attributes().

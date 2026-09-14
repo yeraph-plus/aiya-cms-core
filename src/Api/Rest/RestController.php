@@ -13,8 +13,11 @@ use Aiya\Core\Api\Presenter\DiscussionPresenter;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\PrimaryMenu;
+use Aiya\Core\Domain\Content\RelatedPostsQuery;
+use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Media\CardThumbnailService;
+use Aiya\Core\Domain\Media\MediaPaths;
 use Aiya\Core\Domain\Engagement\CounterService;
 use Aiya\Core\Domain\ExternalFiles\AttachmentService;
 use Aiya\Core\Domain\Identity\AvatarModule;
@@ -24,9 +27,11 @@ use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
 use Aiya\Core\Domain\Identity\TokenStore;
 use Aiya\Core\Domain\Notification\NotificationService;
+use Aiya\Core\Domain\Sponsorship\EntitlementService;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use Aiya\Core\Domain\Sponsorship\OrderService;
 use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
+use Closure;
 
 /**
  * Module owning the versioned headless API (`aiya/core/v1`): bearer-token
@@ -40,7 +45,8 @@ final class RestController implements Module
         private AvatarModule $avatars,
         private ?AttachmentService $attachments,
         private CardThumbnailService $cards,
-        private bool $sponsorshipEnabled = true,
+        private Closure $processUpload,
+        private MediaPaths $paths,
     ) {
     }
 
@@ -77,24 +83,31 @@ final class RestController implements Module
 
             (new CommentsController(new RateLimiter()))->registerRoutes();
 
+            (new UploadsController($this->processUpload, $this->paths, new RateLimiter()))->registerRoutes();
+
             (new ContentController(
                 new ContentQuery(),
+                new RelatedPostsQuery(),
                 $postPresenter,
                 new SitePresenter(),
                 $menus,
-                new ProfilePresenter($postPresenter, $favorites)
+                new ProfilePresenter($postPresenter, $favorites, $presenter, new FollowService()),
+                new RateLimiter()
             ))->registerRoutes();
 
             (new NotificationController(new NotificationService(), $presenter))->registerRoutes();
 
-            // Parked via the Plugin domain flags (2026-09-10 business routing).
-            if ($this->sponsorshipEnabled) {
-                $membership = new MembershipService();
-                $orders = new OrderService($membership);
-                (new SponsorshipController($membership, $orders, new RedeemCodeService($orders), new RateLimiter()))->registerRoutes();
+            $ledger = new LedgerService();
+            $entitlements = new EntitlementService($ledger);
+            (new CreditController($ledger, new RedeemCodeService($entitlements), new RateLimiter()))->registerRoutes();
 
-                (new GatewayController($orders))->registerRoutes();
-            }
+            // The membership domain is live again since the 0.50.0 tier
+            // rewrite; Admin surfaces live under the membership menu.
+            $membership = new MembershipService();
+            $entitlements = new EntitlementService($ledger);
+            (new SponsorshipController($membership, $entitlements, $ledger, new RateLimiter()))->registerRoutes();
+
+            (new GatewayController(new OrderService(), $entitlements))->registerRoutes();
 
             $threads = new DiscussionService();
             (new DiscussionController($threads, new DiscussionPresenter(), new RateLimiter()))->registerRoutes();

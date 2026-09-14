@@ -49,7 +49,10 @@ final class HttpCache
         // Strip the leading slash, the namespace and its trailing slash:
         // '/aiya/core/v1/site' becomes 'site'.
         $route = substr($request->get_route(), strlen(Contract::API_NAMESPACE) + 2);
-        if (preg_match('#^(users|notifications)(/|$)#', $route) === 1) {
+        // Bearer-scoped reads are per-viewer by definition (balances,
+        // ledgers, the membership queue) — never a shared-cache candidate.
+        if (preg_match('#^(users|notifications|credits)(/|$)#', $route) === 1
+            || $route === 'sponsorship/membership') {
             $server->send_header('Cache-Control', 'private, no-store');
 
             return $served;
@@ -68,6 +71,15 @@ final class HttpCache
             return $served;
         }
 
+        // Viewer-specific content (private posts of the session user,
+        // locked shapes, permission flags) must never ride a shared
+        // cache — detect the badge keys anywhere in the payload.
+        if ($this->payloadIsViewerSpecific($data['data'])) {
+            $server->send_header('Cache-Control', 'private, no-store');
+
+            return $served;
+        }
+
         $etag = '"' . substr(sha1((string) wp_json_encode($data['data'])), 0, 32) . '"';
         $server->send_header('ETag', $etag);
         $server->send_header('Cache-Control', $maxAge > 0 ? "public, max-age={$maxAge}" : 'public, max-age=0, must-revalidate');
@@ -80,5 +92,31 @@ final class HttpCache
         }
 
         return $served;
+    }
+
+    /**
+     * A `private` badge means the row exists for this viewer only; a
+     * `password` badge means the body shape depends on the visitor's
+     * postpass cookie. Both responses are viewer-specific by
+     * definition. Bounded walk over the envelope payload.
+     */
+    private function payloadIsViewerSpecific(mixed $payload, int $depth = 0): bool
+    {
+        if ($depth > 6) {
+            return false;
+        }
+        if (is_array($payload)) {
+            foreach ($payload as $key => $value) {
+                if ($key === 'badges' && is_array($value)
+                    && (in_array('private', $value, true) || in_array('password', $value, true))) {
+                    return true;
+                }
+                if ($this->payloadIsViewerSpecific($value, $depth + 1)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

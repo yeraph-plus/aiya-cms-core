@@ -155,6 +155,19 @@ if (!function_exists('wp_parse_url')) {
     }
 }
 
+if (!function_exists('wp_strip_all_tags')) {
+    function wp_strip_all_tags(string $string, bool $remove_breaks = false): string
+    {
+        $string = preg_replace('@<(script|style)[^>]*?>.*?</\1>@si', '', $string) ?? $string;
+        $string = strip_tags($string);
+        if ($remove_breaks) {
+            $string = preg_replace('/[
+	 ]+/', ' ', $string) ?? $string;
+        }
+        return trim($string);
+    }
+}
+
 if (!function_exists('wp_kses_post')) {
     function wp_kses_post(string $content): string
     {

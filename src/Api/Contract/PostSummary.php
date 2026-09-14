@@ -9,12 +9,18 @@ namespace Aiya\Core\Api\Contract;
  * (`/posts/{id}/`), never a WordPress permalink. `type` only carries
  * vocabularies whose listing routes exist; page/tweet/issue join when
  * their batches land.
+ *
+ * `badges` are machine keys describing the item's display state —
+ * `sticky` (leading page one of its list), `password` (locked body,
+ * unlock through POST content/{id}/unlock) and `private` (viewer is
+ * allowed to read it). Copy and styling live on the front end.
  */
 final class PostSummary
 {
     /**
      * @param list<Term> $categories
      * @param list<Term> $tags
+     * @param list<string> $badges
      */
     public function __construct(
         public readonly int $id,
@@ -31,6 +37,7 @@ final class PostSummary
         public readonly array $categories,
         public readonly array $tags,
         public readonly PostMetrics $metrics,
+        public readonly array $badges = [],
     ) {
     }
 
@@ -52,6 +59,7 @@ final class PostSummary
             'categories' => array_map(static fn (Term $term): array => $term->toArray(), $this->categories),
             'tags' => array_map(static fn (Term $term): array => $term->toArray(), $this->tags),
             'metrics' => $this->metrics->toArray(),
+            'badges' => $this->badges,
         ];
     }
 }

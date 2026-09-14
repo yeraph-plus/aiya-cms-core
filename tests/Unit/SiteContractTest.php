@@ -6,7 +6,9 @@ namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Core\Api\Contract\Image;
 use Aiya\Core\Api\Contract\Site;
+use Aiya\Core\Api\Contract\SiteComments;
 use Aiya\Core\Api\Contract\SiteDefaults;
+use Aiya\Core\Api\Contract\BeianLink;
 use Aiya\Core\Api\Contract\SiteFooter;
 use Aiya\Core\Api\Contract\SiteTheme;
 use PHPUnit\Framework\TestCase;
@@ -23,8 +25,9 @@ final class SiteContractTest extends TestCase
             new Image('https://cdn.example.test/favicon.png', 'AIYA', 64, 64),
             new Image('https://cdn.example.test/banner.webp', 'AIYA', 1920, 320),
             true,
-            new SiteDefaults('dark', null, new SiteTheme('#E94F69')),
-            new SiteFooter('京ICP备2026000001号-1', '京公网安备11010000000001号', '11010000000001', '© 2026 AIYA'),
+            new SiteComments(true, 2, true, true, true, 5, false, 20, 'newest', 'asc'),
+            new SiteDefaults('dark', null, null, new SiteTheme('#E94F69')),
+            new SiteFooter([new BeianLink('京ICP备2026000001号-1', 'https://beian.miit.gov.cn/', 'shield', '')], true),
         );
 
         $shape = $site->toArray();
@@ -42,12 +45,24 @@ final class SiteContractTest extends TestCase
             $shape['banner']
         );
         self::assertTrue($shape['registrationOpen']);
-        self::assertSame(['colorMode' => 'dark', 'thumb' => null, 'theme' => ['primary' => '#E94F69']], $shape['defaults']);
         self::assertSame([
-            'icp' => '京ICP备2026000001号-1',
-            'mps' => '京公网安备11010000000001号',
-            'mpsCode' => '11010000000001',
-            'note' => '© 2026 AIYA',
+            'requireNameEmail' => true,
+            'commentMaxLinks' => 2,
+            'moderation' => true,
+            'previouslyApproved' => true,
+            'threadComments' => true,
+            'threadCommentsDepth' => 5,
+            'pageComments' => false,
+            'commentsPerPage' => 20,
+            'defaultCommentsPage' => 'newest',
+            'commentOrder' => 'asc',
+        ], $shape['comments']);
+        self::assertSame(['colorMode' => 'dark', 'thumb' => null, 'emptyImage' => null, 'theme' => ['primary' => '#E94F69']], $shape['defaults']);
+        self::assertSame([
+            'links' => [
+                ['label' => '京ICP备2026000001号-1', 'url' => 'https://beian.miit.gov.cn/', 'icon' => 'shield', 'iconUrl' => ''],
+            ],
+            'hitokoto' => true,
         ], $shape['footer']);
     }
 
@@ -61,8 +76,9 @@ final class SiteContractTest extends TestCase
             null,
             null,
             false,
-            new SiteDefaults('system', null, new SiteTheme('#E94F69')),
-            new SiteFooter('', '', '', ''),
+            new SiteComments(false, 0, false, false, false, 1, false, 20, 'newest', 'asc'),
+            new SiteDefaults('system', null, null, new SiteTheme('#E94F69')),
+            new SiteFooter([], false),
         );
 
         $shape = $site->toArray();
@@ -70,7 +86,7 @@ final class SiteContractTest extends TestCase
         self::assertNull($shape['favicon']);
         self::assertNull($shape['banner']);
         self::assertFalse($shape['registrationOpen']);
-        self::assertSame(['colorMode' => 'system', 'thumb' => null, 'theme' => ['primary' => '#E94F69']], $shape['defaults']);
-        self::assertSame(['icp' => '', 'mps' => '', 'mpsCode' => '', 'note' => ''], $shape['footer']);
+        self::assertSame(['colorMode' => 'system', 'thumb' => null, 'emptyImage' => null, 'theme' => ['primary' => '#E94F69']], $shape['defaults']);
+        self::assertSame(['links' => [], 'hitokoto' => false], $shape['footer']);
     }
 }

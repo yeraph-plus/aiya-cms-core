@@ -32,6 +32,10 @@ final class CardThumbnailService
     public const WIDTH = 640;
     public const HEIGHT = 360;
 
+    /** The detail-page background render of the featured image. */
+    public const FEATURED_WIDTH = 1000;
+    public const FEATURED_HEIGHT = 640;
+
     public const THUMB_KEY = '_thumb';
 
     private const BATCH_SIZE = 10;
@@ -61,12 +65,46 @@ final class CardThumbnailService
             }
         }
 
-        $source = $this->sourceUrl($post);
-        if ($source !== null) {
-            return new Image($source, (string) get_the_title($post), null, null);
+        $thumbId = (int) get_post_thumbnail_id($post);
+        if ($thumbId > 0) {
+            // Featured-image card derivative: generated file-reuse style
+            // on first miss, then a cheap is_file recheck on every read.
+            $derived = $this->ensureDerived($thumbId, self::WIDTH, self::HEIGHT);
+            if ($derived !== null) {
+                return new Image($derived, (string) get_the_title($post), self::WIDTH, self::HEIGHT);
+            }
+            $live = wp_get_attachment_url($thumbId);
+            if (is_string($live) && $live !== '' && $this->paths->urlToLocal($live) !== null) {
+                return new Image($live, (string) get_the_title($post), null, null);
+            }
         }
 
-        return $this->defaultImage();
+        return $this->defaultDerivative() ?? $this->defaultImage();
+    }
+
+    /**
+     * The detail-page background render: the featured image composited
+     * at 1000x640 (same three-layer recipe), falling back to the
+     * attachment's full-size URL when the driver fails.
+     */
+    public function featuredFor(\WP_Post $post): ?Image
+    {
+        $thumbId = (int) get_post_thumbnail_id($post);
+        if ($thumbId <= 0) {
+            return null;
+        }
+
+        $derived = $this->ensureDerived($thumbId, self::FEATURED_WIDTH, self::FEATURED_HEIGHT);
+        if ($derived !== null) {
+            return new Image($derived, (string) get_the_title($post), self::FEATURED_WIDTH, self::FEATURED_HEIGHT);
+        }
+
+        $src = wp_get_attachment_image_src($thumbId, 'full');
+        if (!is_array($src) || !is_string($src[0]) || $src[0] === '') {
+            return null;
+        }
+
+        return new Image($src[0], (string) get_the_title($post), null, null);
     }
 
     /**
@@ -96,14 +134,91 @@ final class CardThumbnailService
     }
 
     /**
+     * Featured-image derivatives for the read side: the card size for
+     * list thumbnails and the 1000x640 render for detail backgrounds.
+     * Deterministic per attachment+size — ThumbnailGenerator reuses an
+     * existing dest file, so repeated calls are free (pure-file logic).
+     * Never touches `_thumb`; the featured attachment stays the source
+     * of record for these files.
+     *
+     * @return list<Image> 640x360 card first, 1000x640 render second.
+     */
+    public function featuredDerivatives(\WP_Post $post): array
+    {
+        $thumbId = (int) get_post_thumbnail_id($post);
+        if ($thumbId <= 0) {
+            return [];
+        }
+
+        $card = $this->ensureDerived($thumbId, self::WIDTH, self::HEIGHT);
+        $render = $this->ensureDerived($thumbId, self::FEATURED_WIDTH, self::FEATURED_HEIGHT);
+
+        $out = [];
+        if ($card !== null) {
+            $out[] = new Image($card, (string) get_the_title($post), self::WIDTH, self::HEIGHT);
+        }
+        if ($render !== null) {
+            $out[] = new Image($render, (string) get_the_title($post), self::FEATURED_WIDTH, self::FEATURED_HEIGHT);
+        }
+
+        return $out;
+    }
+
+    /** The 640x360 card derivative of the default placeholder, if configured. */
+    public function defaultDerivative(): ?Image
+    {
+        $attachmentId = (int) aiya_core_opt('frontend', 'default_thumb', 0);
+        if ($attachmentId <= 0) {
+            return null;
+        }
+
+        $url = $this->ensureDerived($attachmentId, self::WIDTH, self::HEIGHT);
+
+        return $url !== null
+            ? new Image($url, (string) get_the_title($attachmentId), self::WIDTH, self::HEIGHT)
+            : null;
+    }
+
+    /**
+     * Generates (file-reuse semantics) one derived size of an attachment
+     * under thumbnail/{w}x{h}/ and returns its URL, or null when the
+     * source is unusable or the driver fails.
+     */
+    private function ensureDerived(int $attachmentId, int $width, int $height): ?string
+    {
+        $source = get_attached_file($attachmentId);
+        if (!is_string($source) || $source === '' || !is_file($source)) {
+            return null;
+        }
+
+        $policy = ($this->savePolicy)();
+        $format = in_array(strtolower((string) $policy['format']), ['webp', 'avif'], true)
+            ? strtolower((string) $policy['format'])
+            : 'jpg';
+        $dest = $this->paths->thumbnailDir($width, $height) . '/' . $attachmentId . '-' . $width . 'x' . $height . '.' . $format;
+
+        $local = (new ThumbnailGenerator($this->imagine))->generate(
+            $source,
+            $dest,
+            $width,
+            $height,
+            SaveOptions::for($format, (int) $policy['quality'])
+        );
+        if (!is_string($local)) {
+            return null;
+        }
+
+        return $this->paths->localToUrl($local);
+    }
+
+    /**
      * Cron worker: composites the card for one post from its source and
      * persists `_thumb`. False means "nothing to do" (no post, no local
      * source or generation failed); the read side keeps serving the live
      * source or placeholder meanwhile.
      */
     public function generateFor(int $postId): bool
-    {
-        $post = get_post($postId);
+    {        $post = get_post($postId);
         if (!$post instanceof \WP_Post) {
             return false;
         }
@@ -132,6 +247,34 @@ final class CardThumbnailService
 
         $relative = $this->paths->relativePath($generated);
         update_post_meta($postId, self::THUMB_KEY, wp_slash($relative !== null ? $relative : (string) $this->paths->localToUrl($generated)));
+
+        return true;
+    }
+
+    /**
+     * Regenerates the card for one post on demand (save hook, the admin
+     * refresh action): composites fresh from the current source, swaps
+     * `_thumb` to the new file and removes the replaced card — a failed
+     * generation keeps the previous thumbnail untouched.
+     */
+    public function refreshFor(int $postId): bool
+    {
+        $previous = get_post_meta($postId, self::THUMB_KEY, true);
+        $generated = $this->generateFor($postId);
+        if (!$generated) {
+            return false;
+        }
+
+        $fresh = get_post_meta($postId, self::THUMB_KEY, true);
+        if (is_string($previous) && $previous !== '' && $previous !== $fresh) {
+            $previousLocal = $this->paths->urlToLocal($previous);
+            $coverRoot = $this->paths->coverDir();
+            // Only managed card files under the cover tree are removed —
+            // hand-edited or foreign values never lose their files.
+            if ($previousLocal !== null && str_starts_with($previousLocal, $coverRoot . '/')) {
+                wp_delete_file($previousLocal);
+            }
+        }
 
         return true;
     }

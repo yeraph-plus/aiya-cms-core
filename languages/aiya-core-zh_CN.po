@@ -20,8 +20,8 @@ msgstr "兑换码"
 msgid "You are not allowed to manage redemption codes."
 msgstr "您无权管理兑换码。"
 
-msgid "Membership periods users can redeem themselves on the front end. Codes are single-use; redeeming records an order and extends the membership."
-msgstr "供用户在前台自助兑换的会员时长。兑换码一次性使用；兑换会记录订单并延长会员期。"
+msgid "Membership gift codes users redeem themselves on the front end. Codes are single-use; redeeming queues the tier entitlement like a paid order and credits arrive per cycle."
+msgstr "用户在前台自行兑换的会员礼码。每码单次有效；兑换即像正常订单一样把档位排入会员队列，积分随后按周期发放。"
 
 msgid "Generate codes"
 msgstr "生成兑换码"
@@ -29,14 +29,20 @@ msgstr "生成兑换码"
 msgid "Quantity"
 msgstr "数量"
 
-msgid "Days"
-msgstr "天数"
+msgid "Tier"
+msgstr "档位"
 
-msgid "Prefix"
-msgstr "前缀"
+msgid "— define tiers first —"
+msgstr "—— 请先定义档位 ——"
 
-msgid "Optional; a trailing dash is added automatically."
-msgstr "可选；会自动追加一个连字符。"
+msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
+msgstr "此码发放的会员商品；档位配置在兑换时快照。"
+
+msgid "Cycles"
+msgstr "周期数"
+
+msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
+msgstr "此码发放该档位的周期数（积分随后按周期发放）。"
 
 msgid "Generate"
 msgstr "生成"
@@ -125,8 +131,125 @@ msgstr "您无权编辑这篇文章。"
 msgid "Cover generated."
 msgstr "封面已生成。"
 
-msgid "Community"
-msgstr "社区"
+msgid "Membership"
+msgstr "会员"
+
+msgid "Credits"
+msgstr "积分"
+
+msgid "You are not allowed to manage credits."
+msgstr "您无权管理积分。"
+
+msgid "Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice."
+msgstr "成本计量账本：发放生成会过期的桶，消费按最早过期先扣。余额由账本推导，不做二次存储。"
+
+msgid "Daily check-in"
+msgstr "每日签到"
+
+msgid "Check-in"
+msgstr "签到"
+
+msgid "Signed-in users claim a small daily credit grant from the front end."
+msgstr "登录用户可在前台每日领取一小笔积分。"
+
+msgid "Check-in grant"
+msgstr "签到发放额"
+
+msgid "Credits added per check-in; 0 disables granting."
+msgstr "每次签到加入的积分；0 表示不发放。"
+
+msgid "Credit validity (days)"
+msgstr "积分有效期（天）"
+
+msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
+msgstr "签到发放的积分可使用的时长。积分是成本计量，不是存款——每笔发放都会过期。"
+
+msgid "Save settings"
+msgstr "保存设置"
+
+msgid "Manual grant"
+msgstr "手动发放"
+
+msgid "User"
+msgstr "用户"
+
+msgid "Type a username or name…"
+msgstr "输入用户名或昵称…"
+
+msgid "Amount"
+msgstr "数额"
+
+msgid "Validity (days)"
+msgstr "有效期（天）"
+
+msgid "The bucket dies when this expires."
+msgstr "到期后该桶作废。"
+
+msgid "Note"
+msgstr "备注"
+
+msgid "Optional; recorded in the ledger reference."
+msgstr "可选；会记入账本关联号。"
+
+msgid "Grant credits"
+msgstr "发放积分"
+
+msgid "Credit ledger"
+msgstr "积分账本"
+
+msgid "View ledger"
+msgstr "查看流水"
+
+msgid "Pick a user to browse their grants and spends."
+msgstr "选择用户以查看其发放与消费记录。"
+
+msgid "Time"
+msgstr "时间"
+
+msgid "Direction"
+msgstr "方向"
+
+msgid "Source"
+msgstr "来源"
+
+msgid "Reference"
+msgstr "关联号"
+
+msgid "Bucket left"
+msgstr "桶剩余"
+
+msgid "Expires"
+msgstr "过期"
+
+msgid "No ledger entries for this user yet."
+msgstr "该用户暂无账本记录。"
+
+msgid "The credit holder does not exist."
+msgstr "积分账户用户不存在。"
+
+msgid "An admin grant with this exact note already exists for this user."
+msgstr "该用户已存在一条完全相同备注的手动发放。"
+
+msgid "Settings saved."
+msgstr "设置已保存。"
+
+msgid "Credits granted."
+msgstr "积分已发放。"
+
+msgid "The operation failed."
+msgstr "操作失败。"
+
+msgid "Redeem code"
+msgstr "兑换码"
+
+msgid "Admin grant"
+msgstr "手动发放"
+
+msgid "Download"
+msgstr "下载"
+
+msgid "Light Community"
+msgstr "轻社区"
 
 msgid "You are not allowed to moderate the community."
 msgstr "您无权管理社区。"
@@ -134,8 +257,11 @@ msgstr "您无权管理社区。"
 msgid "Discussion threads live outside the post model; this screen is the admin surface for the headless community."
 msgstr "讨论线程独立于文章模型；此页面是无头社区的后台管理入口。"
 
-msgid "All types"
-msgstr "全部类型"
+msgid "Search title or body…"
+msgstr "搜索标题或正文…"
+
+msgid "All boards"
+msgstr "全部板块"
 
 msgid "All statuses"
 msgstr "全部状态"
@@ -143,14 +269,20 @@ msgstr "全部状态"
 msgid "Filter"
 msgstr "筛选"
 
-msgid "Type"
-msgstr "类型"
+msgid "New thread"
+msgstr "新建帖子"
+
+msgid "Excerpt"
+msgstr "正文摘要"
+
+msgid "Author"
+msgstr "作者"
 
 msgid "Replies"
 msgstr "回复"
 
-msgid "Author"
-msgstr "作者"
+msgid "Last activity"
+msgstr "操作时间"
 
 msgid "Actions"
 msgstr "操作"
@@ -158,8 +290,8 @@ msgstr "操作"
 msgid "No threads found."
 msgstr "未找到讨论线程。"
 
-msgid "Set"
-msgstr "设置"
+msgid "Edit"
+msgstr "编辑"
 
 msgid "Delete this thread and all its replies?"
 msgstr "删除该线程及其全部回复？"
@@ -167,20 +299,95 @@ msgstr "删除该线程及其全部回复？"
 msgid "Delete"
 msgstr "删除"
 
+msgid "Board"
+msgstr "板块"
+
+msgid "Body"
+msgstr "正文"
+
+msgid "HTML allowed; at most nine images per body."
+msgstr "支持 HTML；正文最多九张图片。"
+
+msgid "Save"
+msgstr "保存"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Edit thread"
+msgstr "编辑帖子"
+
 msgid "Status updated."
 msgstr "状态已更新。"
 
 msgid "Thread deleted."
 msgstr "线程已删除。"
 
-msgid "The operation failed."
-msgstr "操作失败。"
+msgid "Boards"
+msgstr "板块管理"
+
+msgid "Slug"
+msgstr "别名"
+
+msgid "The slug is fixed once threads reference it."
+msgstr "别名一旦被帖子引用即不可更改。"
+
+msgid "Lowercase letters, digits, dashes or underscores."
+msgstr "仅限小写字母、数字、中划线与下划线。"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Sort order"
+msgstr "排序"
+
+msgid "Save board"
+msgstr "保存板块"
+
+msgid "Add board"
+msgstr "添加板块"
+
+msgid "Cancel editing"
+msgstr "取消编辑"
+
+msgid "Threads"
+msgstr "帖子数"
+
+msgid "No boards yet."
+msgstr "暂无板块。"
+
+msgid "Delete this board? Its threads move to the first remaining board."
+msgstr "删除该板块？其帖子将移动到剩余的第一个板块。"
+
+msgid "You are not allowed to manage the community."
+msgstr "您无权管理该社区。"
+
+msgid "Board created."
+msgstr "板块已创建。"
+
+msgid "Board saved."
+msgstr "板块已保存。"
+
+msgid "Board deleted."
+msgstr "板块已删除。"
+
+msgid "Normal"
+msgstr "正常"
+
+msgid "Closed"
+msgstr "已关闭"
 
 msgid "Select media"
 msgstr "选择媒体"
 
 msgid "Remove"
 msgstr "移除"
+
+msgid "cache_ttl: 3600"
+msgstr "cache_ttl: 3600"
 
 msgid "A value is stored; leave blank to keep it"
 msgstr "已存有值；留空即保持不变"
@@ -212,26 +419,8 @@ msgstr "最低可见角色"
 msgid "Viewers below this role will not see the announcement. Sponsor also requires a valid sponsorship."
 msgstr "低于该角色的访客看不到此公告。「赞助者」级别还要求有效的赞助身份。"
 
-msgid "Body"
-msgstr "正文"
-
 msgid "Publish"
 msgstr "发布"
-
-msgid "Retention"
-msgstr "保留期"
-
-msgid "Keep rows for (days)"
-msgstr "保留天数"
-
-msgid "A daily cleanup removes older rows; next run %s."
-msgstr "每日清理会删除超期通知；下次运行：%s。"
-
-msgid "A daily cleanup removes older rows; the schedule is set up on the next page load."
-msgstr "每日清理会删除超期通知；计划将在下次页面加载时建立。"
-
-msgid "Save retention"
-msgstr "保存保留期"
 
 msgid "Stored notifications"
 msgstr "已存通知"
@@ -256,9 +445,6 @@ msgstr "通知已发布。"
 
 msgid "Notification deleted."
 msgstr "通知已删除。"
-
-msgid "Retention saved."
-msgstr "保留期已保存。"
 
 msgid "Subscriber"
 msgstr "订阅者"
@@ -338,119 +524,41 @@ msgstr "还没有上传记录。"
 msgid "Preview"
 msgstr "预览"
 
-msgid "Sample"
-msgstr "Sample"
+msgid "User %1$s (#%2$d)"
+msgstr "用户 %1$s（#%2$d）"
 
-msgid "Site title"
-msgstr "站点标题"
+msgid "User #%d"
+msgstr "用户 #%d"
 
-msgid "A required text field."
-msgstr "必填的文本字段。"
+msgid "Switch post type…"
+msgstr "切换文章类型…"
 
-msgid "Site description"
-msgstr "站点描述"
+msgid "Posts"
+msgstr "文章"
 
-msgid "Plain multiline text is sanitized before storage."
-msgstr "多行纯文本，存储前会做净化处理。"
+msgid "Pages"
+msgstr "页面"
 
-msgid "Cache lifetime"
-msgstr "缓存时长"
+msgid "Resources"
+msgstr "资源"
 
-msgid "Optional numeric field with minimum, maximum and step constraints."
-msgstr "可选数字字段，支持最小值、最大值与步长约束。"
+msgid "Switch post type"
+msgstr "切换文章类型"
 
-msgid "Contact email"
-msgstr "联系邮箱"
+msgid "Move"
+msgstr "移动"
 
-msgid "Public URL"
-msgstr "公开 URL"
+msgid "Move %d selected item to:"
+msgstr "将选中的 %d 项移动到："
 
-msgid "Useful for testing URL validation."
-msgstr "用于测试 URL 校验。"
+msgid "%d item switched to the new post type."
+msgstr "已切换 %d 项到新文章类型。"
 
-msgid "Sample API key"
-msgstr "示例 API 密钥"
+msgid "%d item skipped (unchanged or not permitted)."
+msgstr "跳过 %d 项（类型未变或无权限）。"
 
-msgid "Write-only field: a saved value is never rendered back into the page."
-msgstr "只写字段：保存后的值不会回显到页面。"
-
-msgid "Feature flag"
-msgstr "功能开关"
-
-msgid "Enable the sample feature"
-msgstr "启用示例功能"
-
-msgid "Debug mode"
-msgstr "调试模式"
-
-msgid "Enable debug mode"
-msgstr "启用调试模式"
-
-msgid "Content mode"
-msgstr "内容模式"
-
-msgid "Classic"
-msgstr "经典"
-
-msgid "Hybrid"
-msgstr "混合"
-
-msgid "Headless"
-msgstr "无头"
-
-msgid "Default locale"
-msgstr "默认语言"
-
-msgid "Simplified Chinese"
-msgstr "简体中文"
-
-msgid "Traditional Chinese"
-msgstr "繁体中文"
-
-msgid "English"
-msgstr "英语"
-
-msgid "Accent color"
-msgstr "强调色"
-
-msgid "Logo"
-msgstr "Logo"
-
-msgid "The field stores a WordPress attachment ID rather than a URL."
-msgstr "该字段保存的是 WordPress 附件 ID 而非 URL。"
-
-msgid "Allowed hosts"
-msgstr "允许的主机"
-
-msgid "Enter comma-separated values."
-msgstr "输入以逗号分隔的值。"
-
-msgid "JSON configuration"
-msgstr "JSON 配置"
-
-msgid "Uses the Code Editor bundled with WordPress."
-msgstr "使用 WordPress 内置的代码编辑器。"
-
-msgid "Classic editor content"
-msgstr "经典编辑器内容"
-
-msgid "Uses wp_editor and TinyMCE; Gutenberg and React are not required."
-msgstr "使用 wp_editor 与 TinyMCE；无需 Gutenberg 与 React。"
-
-msgid "Navigation links"
-msgstr "导航链接"
-
-msgid "Backbone manages item creation; jQuery UI provides drag sorting."
-msgstr "条目创建由 Backbone 管理；拖拽排序由 jQuery UI 提供。"
-
-msgid "Label"
-msgstr "标签"
-
-msgid "Priority"
-msgstr "优先级"
-
-msgid "Enabled"
-msgstr "启用"
+msgid "Nothing was switched."
+msgstr "没有切换任何内容。"
 
 msgid "Send Mail"
 msgstr "发送邮件"
@@ -500,9 +608,6 @@ msgstr "您无权更新这些设置。"
 msgid "You are not allowed to view these settings."
 msgstr "您无权查看这些设置。"
 
-msgid "Settings saved."
-msgstr "设置已保存。"
-
 msgid "Settings reset."
 msgstr "设置已重置。"
 
@@ -517,6 +622,51 @@ msgstr "重置本页所有设置？"
 
 msgid "Reset"
 msgstr "重置"
+
+msgid "Move to another taxonomy…"
+msgstr "移动到其他分类法…"
+
+msgid "Move to another taxonomy"
+msgstr "移动到其他分类法"
+
+msgid "Move %d selected term to:"
+msgstr "将选中的 %d 个术语移动到："
+
+msgid "Post categories"
+msgstr "文章分类"
+
+msgid "Post tags"
+msgstr "文章标签"
+
+msgid "Page categories"
+msgstr "页面分类"
+
+msgid "Resource categories"
+msgstr "资源分类"
+
+msgid "Resource tags — original work"
+msgstr "资源标签（原作）"
+
+msgid "Resource tags — characters"
+msgstr "资源标签（角色）"
+
+msgid "Resource tags — authors"
+msgstr "资源标签（作者）"
+
+msgid "Resource tags — content description"
+msgstr "资源标签（内容描述）"
+
+msgid "Resource tags — other"
+msgstr "资源标签（其他）"
+
+msgid "%d term moved to the new taxonomy."
+msgstr "已移动 %d 个术语到新分类法。"
+
+msgid "%d term skipped (unchanged or not permitted)."
+msgstr "跳过 %d 个术语（未变化或无权限）。"
+
+msgid "Nothing was moved."
+msgstr "没有移动任何内容。"
 
 msgid "You are already logged in."
 msgstr "您已登录。"
@@ -584,11 +734,20 @@ msgstr "评论过于频繁，请稍缓。"
 msgid "Content not found."
 msgstr "内容不存在。"
 
+msgid "Incorrect password."
+msgstr "密码不正确。"
+
 msgid "Profile not found."
 msgstr "未找到该用户主页。"
 
 msgid "Too many requests, try again later."
 msgstr "请求过于频繁，请稍后再试。"
+
+msgid "Check-in is not available."
+msgstr "签到功能未开放。"
+
+msgid "Already checked in today."
+msgstr "今天已签到。"
 
 msgid "The thread could not be read back."
 msgstr "无法读回该线程。"
@@ -596,38 +755,20 @@ msgstr "无法读回该线程。"
 msgid "The reply could not be read back."
 msgstr "无法读回该回复。"
 
+msgid "Unknown board."
+msgstr "板块不存在。"
+
 msgid "Thread not found."
 msgstr "线程不存在。"
 
-msgid "The Afdian API is unavailable, contact the site owner."
-msgstr "爱发电 API 不可用，请联系站长。"
-
-msgid "This order was already activated."
-msgstr "该订单已激活过。"
-
-msgid "No such order found — check the trade number or contact the site owner."
-msgstr "未找到对应订单——请核对交易号或联系站长。"
-
-msgid "Activation failed — you may already hold an overlapping period, or the order was already recorded."
-msgstr "激活失败——您可能已有重叠的会员期，或该订单已被记录。"
-
-msgid "The Epay channel is not available."
-msgstr "易支付渠道不可用。"
+msgid "No payment gateway is available."
+msgstr "没有可用的支付网关。"
 
 msgid "The requested payment channel is not available."
 msgstr "所请求的支付渠道不可用。"
 
-msgid "Unknown purchase plan."
-msgstr "未知购买方案。"
-
-msgid "The Epay channel is not configured."
-msgstr "易支付渠道未配置。"
-
-msgid "The Afdian channel is not available."
-msgstr "爱发电渠道不可用。"
-
-msgid "A sponsorship order from \"%1$s\" user %2$s~"
-msgstr "来自“%1$s”用户 %2$s 的赞助订单~"
+msgid "Unknown membership tier."
+msgstr "会员档位不存在。"
 
 msgid "The favorite could not be removed."
 msgstr "取消收藏失败。"
@@ -650,14 +791,8 @@ msgstr "未上传头像图片。"
 msgid "The current password is incorrect."
 msgstr "当前密码不正确。"
 
-msgid "Page categories"
-msgstr "页面分类"
-
 msgid "Resource"
 msgstr "资源"
-
-msgid "Resource categories"
-msgstr "资源分类"
 
 msgid "Original work"
 msgstr "原作"
@@ -677,17 +812,14 @@ msgstr "前台设置"
 msgid "These fields feed the front-end shell through GET /aiya/core/v1/site; leave a footer string empty to keep it out of the footer."
 msgstr "这些字段通过 GET /aiya/core/v1/site 提供给前台外壳；页脚字符串留空即不在页脚显示。"
 
-msgid "Branding"
-msgstr "品牌"
+msgid "Presentation defaults"
+msgstr "外观默认值"
 
-msgid "Brand color"
-msgstr "品牌色"
+msgid "Theme color"
+msgstr "主题色"
 
 msgid "Buttons, links and active states across the front end derive from this color."
 msgstr "前端的按钮、链接与激活态均取自该颜色。"
-
-msgid "Presentation defaults"
-msgstr "外观默认值"
 
 msgid "Default color mode"
 msgstr "默认配色模式"
@@ -710,32 +842,77 @@ msgstr "默认封面图"
 msgid "Fallback cover for posts without a featured image or a generated one."
 msgstr "文章既无特色图也无生成封面时的兜底封面。"
 
+msgid "Empty state image"
+msgstr "空状态图片"
+
+msgid "Placeholder shown on empty lists and error cards across the front end."
+msgstr "前台空列表与错误卡片上显示的占位图。"
+
+msgid "Header banner"
+msgstr "头部横幅"
+
+msgid "Show the header banner"
+msgstr "显示头部横幅"
+
+msgid "Turns the compact top bar into a tall header backed by the banner image."
+msgstr "将紧凑顶栏变为以横幅图作背景的高头部。"
+
+msgid "Banner image"
+msgstr "横幅图片"
+
+msgid "Wide image shown behind the top navigation while the banner is on."
+msgstr "横幅开启时显示在顶部导航背后的宽幅图片。"
+
 msgid "Compliance footer"
 msgstr "合规页脚"
 
-msgid "ICP filing"
-msgstr "ICP 备案"
+msgid "Footer hitokoto"
+msgstr "页脚一言"
 
-msgid "ICP filing number shown in the footer, e.g. 京ICP备2026000001号."
-msgstr "显示在页脚的 ICP 备案号，例如 京ICP备2026000001号。"
+msgid "Show a random one-liner quote as the footer sign-off."
+msgstr "在页脚落款处显示一条随机一言。"
 
-msgid "Public security filing"
-msgstr "公安备案"
+msgid "Compliance links"
+msgstr "合规备案链接"
 
-msgid "Public security network filing number, e.g. 京公网安备11010000000001号."
-msgstr "公安联网备案号，例如 京公网安备11010000000001号。"
+msgid "One row per filing shown in the footer, e.g. ICP or public security."
+msgstr "页脚展示的备案信息，每行一条，如 ICP 或公安备案。"
 
-msgid "Public security filing code"
-msgstr "公安备案编号（纯数字）"
+msgid "Text"
+msgstr "文字"
 
-msgid "Digits only; the front end links the filing number to the police search page."
-msgstr "仅填数字；前端会据此将备案号链接到公安查询页。"
+msgid "Link"
+msgstr "链接"
 
-msgid "Footer note"
-msgstr "页脚备注"
+msgid "Icon"
+msgstr "图标"
 
-msgid "Free-form footer text such as copyright or site statements."
-msgstr "页脚自由文本，如版权信息或站点声明。"
+msgid "Shield (ICP)"
+msgstr "盾牌（ICP）"
+
+msgid "Police badge"
+msgstr "公安徽标"
+
+msgid "Custom image"
+msgstr "自定义图片"
+
+msgid "Custom icon URL"
+msgstr "自定义图标地址"
+
+msgid "Used when the icon template is set to custom."
+msgstr "图标模板选择自定义时使用。"
+
+msgid "Notification retention (days)"
+msgstr "通知保留期（天）"
+
+msgid "A daily cleanup removes stored notifications older than this many days."
+msgstr "每日清理任务会删除超过该天数的站内通知。"
+
+msgid "Ledger retention (days)"
+msgstr "账本保留期（天）"
+
+msgid "How long closed credit history (spent rows, emptied buckets) is kept before the daily cleanup removes it. Live unexpired buckets are never touched."
+msgstr "已关闭的积分历史（消费流水、已扣空的桶）在每日清理前的保留时长。未过期的有效桶不受影响。"
 
 msgid "Navigation"
 msgstr "导航"
@@ -755,11 +932,11 @@ msgstr "次菜单"
 msgid "The auxiliary navigation of the front-end shell (footer, legal links). Same rules as the primary menu."
 msgstr "前台外壳的辅助导航（页脚、法务链接）。规则同主菜单。"
 
+msgid "Label"
+msgstr "标签"
+
 msgid "Front-end path (/posts/) or external URL; empty falls back to the home path."
 msgstr "前台路径（/posts/）或外部 URL；留空回退到首页路径。"
-
-msgid "Icon"
-msgstr "图标"
 
 msgid "Optional Lucide icon name for the sidebar (e.g. \"home\", \"image\", \"file-text\")."
 msgstr "侧边栏使用的可选 Lucide 图标名（如 \"home\"、\"image\"、\"file-text\"）。"
@@ -896,20 +1073,500 @@ msgstr "移除所有空标签"
 msgid "Remove paragraph indentation"
 msgstr "移除段首缩进"
 
+msgid "The credit amount must be positive."
+msgstr "积分数额必须为正。"
+
+msgid "The credit source is required."
+msgstr "积分来源不能为空。"
+
+msgid "This credit grant was already recorded."
+msgstr "该笔积分发放已记录过。"
+
+msgid "The credit grant could not be stored."
+msgstr "积分发放未能写入。"
+
+msgid "Not enough credits."
+msgstr "积分余额不足。"
+
+msgid "The spend could not be recorded."
+msgstr "积分消费未能写入。"
+
+msgid "This spend was already recorded."
+msgstr "该笔消费已记录过。"
+
+msgid "You are not allowed to manage scheduled events."
+msgstr "您无权管理定时作业。"
+
+msgid "Crons"
+msgstr "定时作业"
+
+msgid "Scheduled events of this site: run one now, remove a stray entry, or schedule a hook that has a live listener."
+msgstr "本站的定时作业：立即执行、清理残留条目，或为仍有监听器的 hook 排程。"
+
+msgid "%d scheduled events point at hooks without any listener anymore."
+msgstr "有 %d 条定时作业指向的 hook 已无任何监听器。"
+
+msgid "Unschedule every orphaned event now?"
+msgstr "现在取消全部孤儿作业的调度？"
+
+msgid "Clean up orphans"
+msgstr "清理孤儿作业"
+
+msgid "Schedule an event"
+msgstr "新建定时作业"
+
+msgid "Hook"
+msgstr "Hook"
+
+msgid "aiya_core_example_hook"
+msgstr "aiya_core_example_hook"
+
+msgid "Only hooks that currently have a listener can be scheduled."
+msgstr "只能调度当前存在监听器的 hook。"
+
+msgid "Recurrence"
+msgstr "频率"
+
+msgid "One-off"
+msgstr "只执行一次"
+
+msgid "Next run"
+msgstr "下次运行"
+
+msgid "Local site time; defaults to one minute from now."
+msgstr "按站点本地时间；默认一分钟后。"
+
+msgid "Schedule event"
+msgstr "排程"
+
+msgid "Scheduled events (%d)"
+msgstr "定时作业（%d）"
+
+msgid "Filter by hook name…"
+msgstr "按 hook 名称筛选…"
+
+msgid "No scheduled events match."
+msgstr "没有匹配的定时作业。"
+
+msgid "Run this hook now?"
+msgstr "立即执行这个 hook？"
+
+msgid "Run now"
+msgstr "立即执行"
+
+msgid "Delete this scheduled event?"
+msgstr "删除这条定时作业？"
+
+msgid "Event scheduled."
+msgstr "定时作业已排程。"
+
+msgid "Hook executed."
+msgstr "Hook 已执行。"
+
+msgid "Scheduled event deleted."
+msgstr "定时作业已删除。"
+
+msgid "The event could not be scheduled."
+msgstr "作业排程失败。"
+
+msgid "The hook name is empty or malformed."
+msgstr "hook 名称为空或格式不合法。"
+
+msgid "That hook has no listener right now — schedule it from code first."
+msgstr "该 hook 目前没有监听器——请先在代码中注册监听。"
+
+msgid "That scheduled event no longer exists."
+msgstr "该定时作业已不存在。"
+
+msgid "Removed %d orphaned events."
+msgstr "已清理 %d 条孤儿作业。"
+
+msgid "Dev Tools"
+msgstr "开发工具"
+
+msgid "Server Status"
+msgstr "系统信息"
+
+msgid "Rewrites"
+msgstr "Rewrites"
+
+msgid "Shortcodes"
+msgstr "短代码"
+
+msgid "Icons"
+msgstr "图标"
+
+msgid "You are not allowed to view the icon list."
+msgstr "您无权查看图标列表。"
+
+msgid "The dashicons stylesheet was not found at %s."
+msgstr "未在 %s 找到 dashicons 样式表。"
+
+msgid "No dashicons were found in the stylesheet."
+msgstr "样式表中没有找到任何 dashicons 图标。"
+
+msgid "Every glyph in the core dashicons font, parsed from %s."
+msgstr "核心 dashicons 字体的全部图标，解析自 %s。"
+
+msgid "You are not allowed to view the rewrite rules."
+msgstr "您无权查看 Rewrite 规则。"
+
+msgid "The cached rewrite rules of this site — what a request path is matched against before any rule regeneration."
+msgstr "本站缓存的 Rewrite 规则——规则重新生成前，请求路径按此匹配。"
+
+msgid "Regenerate all rewrite rules from the current settings?"
+msgstr "按当前设置重新生成全部 Rewrite 规则？"
+
+msgid "Flush rules"
+msgstr "刷新规则"
+
+msgid "Rebuilds the cached rule set from the registered permalinks, post types and taxonomies."
+msgstr "依据已注册的固定链接、内容类型与分类法重建缓存规则集。"
+
+msgid "Rewrite rules (%d)"
+msgstr "Rewrite 规则（%d）"
+
+msgid "Filter by regex or query…"
+msgstr "按正则或查询串筛选…"
+
+msgid "Match regex"
+msgstr "匹配正则"
+
+msgid "Rewrites to query"
+msgstr "重写为目标查询"
+
+msgid "No rewrite rules match."
+msgstr "没有匹配的 Rewrite 规则。"
+
+msgid "Rewrite rules regenerated."
+msgstr "Rewrite 规则已重新生成。"
+
+msgid "You are not allowed to flush the rewrite rules."
+msgstr "您无权刷新 Rewrite 规则。"
+
+msgid "Sample"
+msgstr "Sample"
+
+msgid "Developer sandbox: every persisted field type of the settings framework appears on this page."
+msgstr "开发者沙盒：设置框架的所有持久化字段类型都在本页展示。"
+
+msgid "Text inputs"
+msgstr "文本输入"
+
+msgid "Site title"
+msgstr "站点标题"
+
+msgid "A required text field."
+msgstr "必填的文本字段。"
+
+msgid "Site description"
+msgstr "站点描述"
+
+msgid "Plain multiline text is sanitized before storage."
+msgstr "多行纯文本，存储前会做净化处理。"
+
+msgid "Cache lifetime"
+msgstr "缓存时长"
+
+msgid "Optional numeric field with minimum, maximum and step constraints."
+msgstr "可选数字字段，支持最小值、最大值与步长约束。"
+
+msgid "Contact email"
+msgstr "联系邮箱"
+
+msgid "Public URL"
+msgstr "公开 URL"
+
+msgid "Useful for testing URL validation."
+msgstr "用于测试 URL 校验。"
+
+msgid "Sample API key"
+msgstr "示例 API 密钥"
+
+msgid "Write-only field: a saved value is never rendered back into the page."
+msgstr "只写字段：保存后的值不会回显到页面。"
+
+msgid "Choices"
+msgstr "选项"
+
+msgid "Feature flag"
+msgstr "功能开关"
+
+msgid "Enable the sample feature"
+msgstr "启用示例功能"
+
+msgid "Debug mode"
+msgstr "调试模式"
+
+msgid "Enable debug mode"
+msgstr "启用调试模式"
+
+msgid "Content mode"
+msgstr "内容模式"
+
+msgid "Classic"
+msgstr "经典"
+
+msgid "Hybrid"
+msgstr "混合"
+
+msgid "Headless"
+msgstr "无头"
+
+msgid "Default locale"
+msgstr "默认语言"
+
+msgid "Radio controls render inline with spacing between options."
+msgstr "单选框横向排列，选项之间保留间距。"
+
+msgid "Simplified Chinese"
+msgstr "简体中文"
+
+msgid "Traditional Chinese"
+msgstr "繁体中文"
+
+msgid "English"
+msgstr "英语"
+
+msgid "Enabled modules"
+msgstr "启用模块"
+
+msgid "Multiple checkboxes render inline with spacing between options."
+msgstr "复选框横向排列，选项之间保留间距。"
+
+msgid "SEO"
+msgstr "SEO"
+
+msgid "Cache"
+msgstr "缓存"
+
+msgid "Translation"
+msgstr "翻译"
+
+msgid "CDN"
+msgstr "CDN"
+
+msgid "Media and value lists"
+msgstr "媒体与值列表"
+
+msgid "Stored values only: the password field never echoes back and media fields keep attachment IDs."
+msgstr "仅存储值：密码字段不回显，媒体字段保存附件 ID。"
+
+msgid "Accent color"
+msgstr "强调色"
+
+msgid "Logo"
+msgstr "Logo"
+
+msgid "The field stores a WordPress attachment ID rather than a URL."
+msgstr "该字段保存的是 WordPress 附件 ID 而非 URL。"
+
+msgid "Allowed hosts"
+msgstr "允许的主机"
+
+msgid "Enter comma-separated values."
+msgstr "输入以逗号分隔的值。"
+
+msgid "Custom headers"
+msgstr "自定义请求头"
+
+msgid "One \"key: value\" pair per line; keys are normalized through sanitize_key()."
+msgstr "每行一对「key: value」；键名会经 sanitize_key() 归一化。"
+
+msgid "Editor content"
+msgstr "编辑器内容"
+
+msgid "JSON configuration"
+msgstr "JSON 配置"
+
+msgid "Uses the Code Editor bundled with WordPress."
+msgstr "使用 WordPress 内置的代码编辑器。"
+
+msgid "Classic editor content"
+msgstr "经典编辑器内容"
+
+msgid "Uses wp_editor and TinyMCE; Gutenberg and React are not required."
+msgstr "使用 wp_editor 与 TinyMCE；无需 Gutenberg 与 React。"
+
+msgid "Dynamic rows"
+msgstr "动态行"
+
+msgid "Navigation links"
+msgstr "导航链接"
+
+msgid "Backbone manages item creation; jQuery UI provides drag sorting."
+msgstr "条目创建由 Backbone 管理；拖拽排序由 jQuery UI 提供。"
+
+msgid "Priority"
+msgstr "优先级"
+
+msgid "Enabled"
+msgstr "启用"
+
+msgid "You are not allowed to view the server status."
+msgstr "您无权查看系统信息。"
+
+msgid "Live read-only diagnostics of the host, the runtime and the opcode cache."
+msgstr "主机、运行时与 opcode 缓存的实时只读诊断。"
+
+msgid "Host"
+msgstr "主机"
+
+msgid "Internal IP"
+msgstr "内网 IP"
+
+msgid "Operating system"
+msgstr "操作系统"
+
+msgid "Document root"
+msgstr "文档根目录"
+
+msgid "CPU cores"
+msgstr "CPU 核数"
+
+msgid "Memory"
+msgstr "内存"
+
+msgid "Uptime"
+msgstr "运行时间"
+
+msgid "Idle rate"
+msgstr "空闲率"
+
+msgid "Load average"
+msgstr "系统负载"
+
+msgid "Server"
+msgstr "服务器"
+
+msgid "Web server"
+msgstr "Web 服务器"
+
+msgid "MySQL"
+msgstr "MySQL"
+
+msgid "minimum"
+msgstr "最低要求"
+
+msgid "PHP"
+msgstr "PHP"
+
+msgid "Zend"
+msgstr "Zend"
+
+msgid "WordPress"
+msgstr "WordPress"
+
+msgid "TinyMCE"
+msgstr "TinyMCE"
+
+msgid "Versions"
+msgstr "版本"
+
+msgid "Loaded extensions"
+msgstr "已加载扩展"
+
+msgid "Apache modules"
+msgstr "Apache 模块"
+
+msgid "Opcache"
+msgstr "Opcache"
+
+msgid "Reset the opcode cache now?"
+msgstr "现在重置 opcode 缓存？"
+
+msgid "Reset cache"
+msgstr "重置缓存"
+
+msgid "Memory usage"
+msgstr "内存使用"
+
+msgid "Used %1$s · free %2$s · wasted %3$s"
+msgstr "已用 %1$s · 剩余 %2$s · 浪费 %3$s"
+
+msgid "Hit rate"
+msgstr "命中率"
+
+msgid "%1$s hits · %2$s misses"
+msgstr "命中 %1$s · 未命中 %2$s"
+
+msgid "Cached keys"
+msgstr "缓存 Keys"
+
+msgid "%1$s of %2$s key slots"
+msgstr "已用 %1$s / 共 %2$s 个键位"
+
+msgid "Opcache version"
+msgstr "Opcache 版本"
+
+msgid "Key directives"
+msgstr "关键配置项"
+
+msgid "Opcode cache reset."
+msgstr "Opcode 缓存已重置。"
+
+msgid "You are not allowed to reset the opcode cache."
+msgstr "您无权重置 opcode 缓存。"
+
+msgid "You are not allowed to view the shortcode registry."
+msgstr "您无权查看短代码注册表。"
+
+msgid "Every shortcode registered in this request, with its callback. Content bodies may reference these; rendering stays a front-end concern."
+msgstr "本次请求注册的全部短代码及其回调。正文可以引用它们；渲染归前端。"
+
+msgid "Registered shortcodes (%d)"
+msgstr "已注册短代码（%d）"
+
+msgid "Filter by tag or callback…"
+msgstr "按标签或回调筛选…"
+
+msgid "Tag"
+msgstr "标签"
+
+msgid "Callback"
+msgstr "回调函数"
+
+msgid "No shortcodes match."
+msgstr "没有匹配的短代码。"
+
 msgid "The thread author does not exist."
 msgstr "线程作者不存在。"
-
-msgid "The thread title is required."
-msgstr "线程标题不能为空。"
-
-msgid "Unknown thread type."
-msgstr "未知线程类型。"
 
 msgid "The thread body is required."
 msgstr "线程正文不能为空。"
 
+msgid "A thread can carry at most nine images."
+msgstr "单帖最多携带九张图片。"
+
 msgid "The thread could not be stored."
 msgstr "线程保存失败。"
+
+msgid "The board slug must be lowercase letters, digits, dashes or underscores."
+msgstr "板块别名仅限小写字母、数字、中划线与下划线。"
+
+msgid "The board name is required."
+msgstr "板块名称不能为空。"
+
+msgid "A board with this slug already exists."
+msgstr "同名别名的板块已存在。"
+
+msgid "The board could not be stored."
+msgstr "板块无法写入。"
+
+msgid "Board not found."
+msgstr "板块不存在。"
+
+msgid "The board could not be updated."
+msgstr "板块无法更新。"
+
+msgid "The last board cannot be deleted."
+msgstr "最后一个板块不可删除。"
+
+msgid "The board threads could not be moved."
+msgstr "板块内帖子无法移动。"
+
+msgid "The board could not be deleted."
+msgstr "板块无法删除。"
 
 msgid "This thread is closed to new replies."
 msgstr "该线程已关闭回复。"
@@ -919,6 +1576,9 @@ msgstr "回复用户不存在。"
 
 msgid "The reply body is required."
 msgstr "回复内容不能为空。"
+
+msgid "A reply can carry at most nine images."
+msgstr "单条回复最多携带九张图片。"
 
 msgid "The reply could not be stored."
 msgstr "回复保存失败。"
@@ -943,6 +1603,12 @@ msgstr "线程删除失败。"
 
 msgid "Reply not found."
 msgstr "回复不存在。"
+
+msgid "You are not allowed to edit this reply."
+msgstr "您无权编辑该回复。"
+
+msgid "The reply could not be updated."
+msgstr "回复无法更新。"
 
 msgid "You are not allowed to delete this reply."
 msgstr "您无权删除该回复。"
@@ -1033,12 +1699,6 @@ msgstr "资源未描述附件时显示。"
 
 msgid "OpenList attachments"
 msgstr "OpenList 附件"
-
-msgid "Sponsor-only downloads"
-msgstr "仅赞助者可下载"
-
-msgid "On: only sponsors see download links (listing stays public). Off: any signed-in user sees them."
-msgstr "开启：仅赞助者可见下载链接（列表仍公开）。关闭：任何登录用户均可见。"
 
 msgid "Surfacing mode"
 msgstr "呈现模式"
@@ -1214,6 +1874,36 @@ msgstr "封面生成失败。"
 msgid "The cover URL could not be resolved."
 msgstr "无法解析封面 URL。"
 
+msgid "%1$s replied to your comment."
+msgstr "%1$s 回复了你的评论。"
+
+msgid "%1$s commented on your article \"%2$s\"."
+msgstr "%1$s 评论了你的文章「%2$s」。"
+
+msgid "%1$s published a new article \"%2$s\"."
+msgstr "%1$s 发布了新文章「%2$s」。"
+
+msgid "A post you favorited was updated: \"%1$s\"."
+msgstr "你收藏的文章有更新：「%1$s」。"
+
+msgid "Your account password was reset. If this was not you, please contact the administrator."
+msgstr "你的账号密码已被重置。如果不是本人操作，请联系管理员。"
+
+msgid "%1$s replied to your thread \"%2$s\"."
+msgstr "%1$s 回复了你的帖子「%2$s」。"
+
+msgid "%1$s published a new thread \"%2$s\"."
+msgstr "%1$s 发布了新帖子「%2$s」。"
+
+msgid "%1$s followed you."
+msgstr "%1$s 关注了你。"
+
+msgid "Your membership is active until %s. Thank you for the support!"
+msgstr "你的会员有效期至 %s。感谢支持！"
+
+msgid "Your membership expires on %s. Renew to keep the perks."
+msgstr "你的会员将于 %s 到期。续期以保留权益。"
+
 msgid "Notification title is required."
 msgstr "通知标题不能为空。"
 
@@ -1238,35 +1928,32 @@ msgstr "标记预览"
 msgid "Insert"
 msgstr "插入"
 
-msgid "Cancel"
-msgstr "取消"
-
 msgid "No template parts are registered yet."
 msgstr "尚未注册任何模板零件。"
 
-msgid "The order user does not exist."
-msgstr "订单用户不存在。"
-
-msgid "The order duration must be positive."
-msgstr "订单时长必须为正数。"
-
-msgid "Unknown order status."
-msgstr "未知订单状态。"
+msgid "The membership holder does not exist."
+msgstr "会员归属用户不存在。"
 
 msgid "The order id is required."
 msgstr "订单号不能为空。"
+
+msgid "This order was already activated."
+msgstr "该订单已激活过。"
+
+msgid "The membership could not be stored."
+msgstr "会员记录未能写入。"
+
+msgid "The Epay channel is not available."
+msgstr "易支付渠道不可用。"
+
+msgid "The order user does not exist."
+msgstr "订单用户不存在。"
 
 msgid "This order was already recorded."
 msgstr "该订单已被记录。"
 
 msgid "The order could not be stored."
 msgstr "订单保存失败。"
-
-msgid "Order not found."
-msgstr "订单不存在。"
-
-msgid "The order status could not be updated."
-msgstr "订单状态更新失败。"
 
 msgid "Invalid redemption code."
 msgstr "无效的兑换码。"
@@ -1277,53 +1964,41 @@ msgstr "兑换用户不存在。"
 msgid "This code has already been redeemed."
 msgstr "该兑换码已被使用。"
 
-msgid "Sponsorship"
-msgstr "赞助"
+msgid "The membership activation failed — the code was not consumed, try again."
+msgstr "会员激活失败——兑换码未被消耗，请重试。"
 
-msgid "Afdian (webhook integration)"
-msgstr "爱发电（Webhook 集成）"
+msgid "Membership tiers"
+msgstr "会员档位"
 
-msgid "Afdian integration"
-msgstr "爱发电集成"
+msgid "Tiers"
+msgstr "档位"
 
-msgid "Afdian user id"
-msgstr "爱发电用户 ID"
+msgid "Tier list"
+msgstr "档位列表"
 
-msgid "Afdian API token"
-msgstr "爱发电 API 令牌"
+msgid "Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones."
+msgstr "每个档位是一款可购买的会员商品：购买者支付 单价 × 周期数，积分按周期逐期发放（买 12 个周期也不会一次性发完）。档位配置在购买时快照，之后的修改只影响新购买。"
 
-msgid "Used for the API queries and the webhook signature check; stored once and never shown again."
-msgstr "用于 API 查询与 Webhook 签名校验；仅保存一次，之后不再显示。"
+msgid "Key"
+msgstr "键名"
 
-msgid "Creator page slug"
-msgstr "创作者主页后缀"
+msgid "Price (per cycle)"
+msgstr "单价（每周期）"
 
-msgid "The afdian.com/a/{slug} address shown to visitors."
-msgstr "展示给访客的 afdian.com/a/{slug} 地址。"
+msgid "Cycle length (days)"
+msgstr "周期长度（天）"
 
-msgid "Order page type"
-msgstr "订单页类型"
+msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
+msgstr "约定 30 为月付；设一个长周期（如 300 天）即可让单次购买一次性发放。"
 
-msgid "Custom-amount jumps to your creator page; preset jumps straight to the configured plan."
-msgstr "自定义金额跳转创作者主页；预设方案直接跳到已配置的方案页。"
+msgid "Credits per cycle"
+msgstr "每周期积分"
 
-msgid "Custom amount"
-msgstr "自定义金额"
+msgid "Credit bucket granted at each cycle start."
+msgstr "每个周期开始时发放的积分桶。"
 
-msgid "Preset plan"
-msgstr "预设方案"
-
-msgid "Preset plan URL"
-msgstr "预设方案 URL"
-
-msgid "The afdian.com/order/create?plan_id=… address of the preset plan; its plan_id is reused."
-msgstr "预设方案的 afdian.com/order/create?plan_id=… 地址；将复用其中的 plan_id。"
-
-msgid "Webhook log"
-msgstr "Webhook 日志"
-
-msgid "Append raw webhook payloads to webhook_logs for debugging."
-msgstr "将原始 Webhook 载荷追加到 webhook_logs 以便调试。"
+msgid "Payments"
+msgstr "支付"
 
 msgid "Epay gateway (cashier integration)"
 msgstr "易支付网关（收银台集成）"
@@ -1340,44 +2015,32 @@ msgstr "商户密钥"
 msgid "Gateway submit URL"
 msgstr "网关提交地址"
 
+msgid "Payment channels"
+msgstr "支付渠道"
+
+msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
+msgstr "收银台提供的渠道；未勾选的渠道在下单时会被拒绝。"
+
+msgid "Alipay"
+msgstr "支付宝"
+
+msgid "WeChat Pay"
+msgstr "微信支付"
+
+msgid "USDT (TRC20)"
+msgstr "USDT（TRC20）"
+
 msgid "Front-end return URL"
 msgstr "前台回跳地址"
 
 msgid "Where the browser lands after paying; the headless front end owns this page."
 msgstr "支付完成后浏览器落地的页面；由无头前端提供。"
 
-msgid "Alipay channel"
-msgstr "支付宝渠道"
-
-msgid "WeChat Pay channel"
-msgstr "微信支付渠道"
-
-msgid "USDT (TRC20) channel"
-msgstr "USDT（TRC20）渠道"
-
 msgid "Callback log"
 msgstr "回调日志"
 
 msgid "Append raw gateway callbacks to webhook_logs for debugging."
 msgstr "将原始网关回调追加到 webhook_logs 以便调试。"
-
-msgid "Purchase plans"
-msgstr "购买方案"
-
-msgid "Plans"
-msgstr "方案"
-
-msgid "Each plan is one purchasable membership period; the key is the stable identifier the front end and gateway callbacks refer to."
-msgstr "每个方案对应一个可购买的会员时长；key 是前端与网关回调引用的稳定标识。"
-
-msgid "Key"
-msgstr "键名"
-
-msgid "Name"
-msgstr "名称"
-
-msgid "Price"
-msgstr "价格"
 
 msgid "Optimization"
 msgstr "优化"
@@ -1451,41 +2114,44 @@ msgstr "前台 head 清理"
 msgid "Strip generator, RSD, shortlink, REST hints and block CSS from front-end output"
 msgstr "从前台输出中移除 generator、RSD、短链接、REST 提示与区块 CSS"
 
+msgid "Native /wp/v2 REST API"
+msgstr "WP 原生 REST API（/wp/v2）"
+
+msgid "Answer 404 for the whole /wp/v2 API — only the aiya contract routes stay public"
+msgstr "整个 /wp/v2 API 对无后台会话的访客返回 404——仅保留 aiya 契约路由公开"
+
+msgid "The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Backend sessions (administrator, editor, author) keep the full /wp/v2 for admin screens such as the media picker."
+msgstr "前端只消费 aiya/core/v1，原生 API 已无公开消费方，用户枚举也随之消失。后台会话（管理员、编辑、作者）保留完整 /wp/v2，供媒体选择器等管理界面使用。"
+
+msgid "XML sitemaps"
+msgstr "XML 站点地图"
+
+msgid "Answer 404 for wp-sitemap.xml and drop the robots.txt sitemap line"
+msgstr "wp-sitemap.xml 整体返回 404，robots.txt 不再输出 Sitemap 行"
+
+msgid "Feeds"
+msgstr "Feed 订阅"
+
+msgid "Answer 404 for every RSS/RDF/Atom feed URL"
+msgstr "所有 RSS/RDF/Atom 订阅地址一律返回 404"
+
 msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA Core > Optimization."
 msgstr "该屏幕因站点以无头模式运行而禁用。请前往 AIYA Core > Optimization 管理。"
 
 msgid "Security hardening"
 msgstr "安全加固"
 
-#: src/Infrastructure/Security/SecurityModule.php:81
 msgid "REST route control"
 msgstr "REST 路由控制"
 
-#: src/Infrastructure/Security/SecurityModule.php:87
-msgid "Native /wp/v2 REST API"
-msgstr "WP 原生 REST API（/wp/v2）"
+msgid "REST cross-origin origins"
+msgstr "REST 跨域来源"
 
-#: src/Infrastructure/Security/SecurityModule.php:88
-msgid "Answer 404 for the whole /wp/v2 API — only the aiya contract routes stay public"
-msgstr "整个 /wp/v2 API 对无后台会话的访客返回 404——仅保留 aiya 契约路由公开"
+msgid "Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here."
+msgstr "允许从浏览器调用本 API 的完整前端来源（协议://主机[:端口]），逗号分隔。留空则完全不输出 CORS 头——同源部署无需配置。"
 
-#: src/Infrastructure/Security/SecurityModule.php:89
-msgid "The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Backend sessions (administrator, editor, author) keep the full /wp/v2 for admin screens such as the media picker."
-msgstr "前端只消费 aiya/core/v1，原生 API 已无公开消费方，用户枚举也随之消失。后台会话（管理员、编辑、作者）保留完整 /wp/v2，供媒体选择器等管理界面使用。"
-
-#: src/Infrastructure/Security/SecurityModule.php:109
 msgid "Login restrictions"
 msgstr "登录限制"
-
-#: src/Infrastructure/Security/SecurityModule.php:145
-msgid "Admin protection"
-msgstr "后台防护"
-
-msgid "Sitemap user list"
-msgstr "站点地图用户列表"
-
-msgid "Drop the users provider from WP sitemaps"
-msgstr "从 WP 站点地图中移除用户提供器"
 
 msgid "Email-address logins"
 msgstr "邮箱登录"
@@ -1499,11 +2165,23 @@ msgstr "密码重置链接主机"
 msgid "Host names the reset link may point at besides this site (the front-end host, comma-separated). Requests naming any other host fall back to this site, so a forged domain can never receive a live reset link."
 msgstr "除本站外，重置链接可指向的主机名（即前端主机，逗号分隔）。请求中指向其他主机的链接一律回退到本站，伪造域名永远收不到有效的重置链接。"
 
-msgid "REST cross-origin origins"
-msgstr "REST 跨域来源"
+msgid "Login page parameter gate"
+msgstr "登录页参数门禁"
 
-msgid "Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here."
-msgstr "允许从浏览器调用本 API 的完整前端来源（协议://主机[:端口]），逗号分隔。留空则完全不输出 CORS 头——同源部署无需配置。"
+msgid "wp-login.php only loads with the secret parameter below"
+msgstr "wp-login.php 仅在携带下方密钥参数时加载"
+
+msgid "Obscurity, not authentication: keep the value long and treat it as a compliment to credentials, never a replacement."
+msgstr "这只是隐蔽手段而非认证：值请尽量长，且仅作为凭据的补充，绝不能替代凭据。"
+
+msgid "Login gate parameter value"
+msgstr "登录门禁参数值"
+
+msgid "Reach the login screen via /wp-login.php?auth=<value>; the pass persists for 10 minutes as a cookie and covers the full flow including password reset. Leave empty to disable the gate regardless of the switch above."
+msgstr "通过 /wp-login.php?auth=<值> 访问登录页；通行状态以 cookie 保持 10 分钟，覆盖包含密码重置的完整流程。留空则无论上方开关如何都禁用门禁。"
+
+msgid "Admin protection"
+msgstr "后台防护"
 
 msgid "Admin back end minimum role"
 msgstr "后台最低角色"
@@ -1526,21 +2204,6 @@ msgstr "编辑及以上"
 msgid "Administrator only"
 msgstr "仅管理员"
 
-msgid "Login page parameter gate"
-msgstr "登录页参数门禁"
-
-msgid "wp-login.php only loads with the secret parameter below"
-msgstr "wp-login.php 仅在携带下方密钥参数时加载"
-
-msgid "Obscurity, not authentication: keep the value long and treat it as a compliment to credentials, never a replacement."
-msgstr "这只是隐蔽手段而非认证：值请尽量长，且仅作为凭据的补充，绝不能替代凭据。"
-
-msgid "Login gate parameter value"
-msgstr "登录门禁参数值"
-
-msgid "Reach the login screen via /wp-login.php?auth=<value>; the pass persists for 10 minutes as a cookie and covers the full flow including password reset. Leave empty to disable the gate regardless of the switch above."
-msgstr "通过 /wp-login.php?auth=<值> 访问登录页；通行状态以 cookie 保持 10 分钟，覆盖包含密码重置的完整流程。留空则无论上方开关如何都禁用门禁。"
-
 msgid "Request URI guard"
 msgstr "请求 URI 守卫"
 
@@ -1555,6 +2218,9 @@ msgstr "未找到。"
 
 msgid "Every five minutes"
 msgstr "每 5 分钟"
+
+msgid "Refresh thumbnail"
+msgstr "刷新缩略图"
 
 msgid "Image processor"
 msgstr "图像处理器"
@@ -1615,9 +2281,6 @@ msgstr "水印模式"
 
 msgid "Disabled"
 msgstr "禁用"
-
-msgid "Text"
-msgstr "文字"
 
 msgid "Watermark position"
 msgstr "水印位置"

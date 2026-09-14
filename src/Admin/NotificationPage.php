@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
-use Aiya\Core\Domain\Notification\NotificationModule;
 use Aiya\Core\Domain\Notification\NotificationService;
 use Aiya\Core\Domain\Notification\RoleLevel;
 
 /**
  * Notifications screen (submenu of the AIYA Core menu): publish an
- * announcement, browse and delete stored rows, and set the cron retention.
+ * announcement and browse/delete stored rows. The retention setting lives
+ * on the Frontend page; this screen only describes the daily cleanup.
  * Deliberately plain — the legacy site-notice settings list it replaces was
  * itself nothing more than a hidden-input repeater.
  *
@@ -27,7 +27,6 @@ final class NotificationPage implements Module
 
     private const ACTION_CREATE = 'aiya_core_notification_create';
     private const ACTION_DELETE = 'aiya_core_notification_delete';
-    private const ACTION_SETTINGS = 'aiya_core_notification_settings';
 
     private NotificationService $notifications;
 
@@ -41,7 +40,6 @@ final class NotificationPage implements Module
         add_action('admin_menu', [$this, 'menu'], 20);
         add_action('admin_post_' . self::ACTION_CREATE, [$this, 'handleCreate']);
         add_action('admin_post_' . self::ACTION_DELETE, [$this, 'handleDelete']);
-        add_action('admin_post_' . self::ACTION_SETTINGS, [$this, 'handleSettings']);
     }
 
     public function menu(): void
@@ -98,37 +96,6 @@ final class NotificationPage implements Module
                         </tr>
                     </tbody></table>
                     <?php submit_button(__('Publish', 'aiya-core'), 'primary', 'submit', false); ?>
-                </form>
-            </div>
-
-            <div class="card" style="max-width:100%; margin-top:16px;">
-                <h2 class="title"><?php esc_html_e('Retention', 'aiya-core'); ?></h2>
-                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-                    <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_SETTINGS); ?>">
-                    <?php wp_nonce_field(self::ACTION_SETTINGS); ?>
-                    <table class="form-table" role="presentation"><tbody>
-                        <tr>
-                            <th scope="row"><label for="aiya-notify-retention"><?php esc_html_e('Keep rows for (days)', 'aiya-core'); ?></label></th>
-                            <td>
-                                <input type="number" class="small-text" id="aiya-notify-retention" name="days" min="1" max="3650" value="<?php echo esc_attr((string) $this->notifications->retentionDays()); ?>">
-                                <p class="description">
-                                    <?php
-                                    $next = wp_next_scheduled(NotificationModule::CRON_HOOK);
-                                    echo esc_html(
-                                        $next !== false
-                                            ? sprintf(
-                                                /* translators: %s: date and time of the next cleanup run. */
-                                                __('A daily cleanup removes older rows; next run %s.', 'aiya-core'),
-                                                date_i18n(get_option('date_format') . ' ' . get_option('time_format'), (int) $next)
-                                            )
-                                            : __('A daily cleanup removes older rows; the schedule is set up on the next page load.', 'aiya-core')
-                                    );
-                                    ?>
-                                </p>
-                            </td>
-                        </tr>
-                    </tbody></table>
-                    <?php submit_button(__('Save retention', 'aiya-core'), 'secondary', 'submit', false); ?>
                 </form>
             </div>
 
@@ -230,22 +197,6 @@ final class NotificationPage implements Module
         $this->redirectBack(['aiya_note' => $deleted ? 'deleted' : 'failed']);
     }
 
-    public function handleSettings(): void
-    {
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You are not allowed to manage notifications.', 'aiya-core'));
-        }
-        check_admin_referer(self::ACTION_SETTINGS);
-
-        $days = absint((string) ($_POST['days'] ?? '0'));
-        if ($days < 1) {
-            $this->redirectBack(['aiya_note' => 'failed']);
-        }
-
-        $this->notifications->updateRetention($days);
-        $this->redirectBack(['aiya_note' => 'saved']);
-    }
-
     /** Flashes the outcome of an admin_post round trip. */
     private function notice(): void
     {
@@ -258,7 +209,6 @@ final class NotificationPage implements Module
         $messages = [
             'created' => __('Notification published.', 'aiya-core'),
             'deleted' => __('Notification deleted.', 'aiya-core'),
-            'saved' => __('Retention saved.', 'aiya-core'),
             'failed' => __('The operation failed — check the values and try again.', 'aiya-core'),
         ];
 

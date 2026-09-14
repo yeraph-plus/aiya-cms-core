@@ -14,3 +14,6 @@ Thumbs.db
 
 # Runtime artifacts (never commit local WP data)
 *.log
+
+# Contract snapshot scratch output (sync tool workspace artifact)
+/backend-snap.json

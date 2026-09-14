@@ -26,10 +26,11 @@ final class PostSummaryContractTest extends TestCase
             '2026-09-06T09:00:00+08:00',
             4,
             new Image('https://wp.example/cover.jpg', 'Cover', 1280, 720),
-            new Author(7, '夜行玩家', new Image('https://wp.example/a.jpg', '夜行玩家', null, null)),
+            new Author(7, 'ye-xing-wan-jia', '夜行玩家', new Image('https://wp.example/a.jpg', '夜行玩家', null, null)),
             [new Term(1, 'category', 'notes', '玩家创作', 'desc', null, 5)],
             [new Term(2, 'tag', 'life', '日常', '', null, 2)],
-            new PostMetrics(1200, 38, 6)
+            new PostMetrics(1200, 38, 6, null, null),
+            ['sticky'],
         );
 
         self::assertSame([
@@ -45,12 +46,14 @@ final class PostSummaryContractTest extends TestCase
             'thumbnail' => ['url' => 'https://wp.example/cover.jpg', 'alt' => 'Cover', 'width' => 1280, 'height' => 720],
             'author' => [
                 'id' => 7,
+                'slug' => 'ye-xing-wan-jia',
                 'name' => '夜行玩家',
                 'avatar' => ['url' => 'https://wp.example/a.jpg', 'alt' => '夜行玩家', 'width' => null, 'height' => null],
             ],
             'categories' => [['id' => 1, 'taxonomy' => 'category', 'slug' => 'notes', 'name' => '玩家创作', 'description' => 'desc', 'parentId' => null, 'count' => 5]],
             'tags' => [['id' => 2, 'taxonomy' => 'tag', 'slug' => 'life', 'name' => '日常', 'description' => '', 'parentId' => null, 'count' => 2]],
-            'metrics' => ['views' => 1200, 'likes' => 38, 'comments' => 6],
+            'metrics' => ['views' => 1200, 'likes' => 38, 'comments' => 6, 'ratingScore' => null, 'ratingCount' => null],
+            'badges' => ['sticky'],
         ], $summary->toArray());
     }
 }

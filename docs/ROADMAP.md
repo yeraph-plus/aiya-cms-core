@@ -106,12 +106,25 @@ aiya-core/
 │  │                                #   administrator 阶梯）+ NotificationService（自建表
 │  │                                #   wp_aiya_notifications，广播/定向行，唯一写入方）+
 │  │                                #   NotificationModule（0.23.0 迁移建表 + 每日清理 cron）
-│  │  ├─ Sponsorship/                # ✅ 0.24.0 核心切片：ExpirationFold（叠加折叠纯函数）+
-│  │                                #   MembershipService（协议键读取/触发计数）+ OrderService
-│  │                                #   （wp_aya_sponsor_orders 唯一事实源 + sponsor_expiration
-│  │                                #   唯一写入方）+ RedeemCodeService（原子核销/回滚）+
-│  │                                #   SponsorshipModule（0.24.0 兼容建表 + 域设置页）；
-│  │                                #   爱发电/易支付网关切片待排
+│  │  ├─ Credit/                    # ✅ 0.47.0：CreditAllocator（FIFO 分配纯函数）+
+│  │                                #   LedgerService（wp_aiya_credit_entries 桶+流水
+│  │                                #   单表账本，余额推导不落 meta，(source,ref,user)
+│  │                                #   唯一键幂等，事务 + FOR UPDATE 过期先扣）+
+│  │                                #   CreditModule（0.47.0 迁移建表 + 每日清理 cron）；
+│  │                                #   0.48.0 纯记账收缩（去 download_cost 报价，
+│  │                                #   spend() 由下游自带数额；保留期移前台页）；
+│  │                                #   后台见 Admin/CreditsPage（一级菜单「会员」）；
+│  │                                #   计划见 docs/credits-membership-plan.md（第二期会员
+│  │                                #   tier 周期队列将向此账本发放）
+│  │  ├─ Sponsorship/                # ✅ 0.50.0 tier 重写：MembershipScheduler（周期纯函数）+
+│  │                                #   EntitlementService（wp_aiya_memberships 周期队列，
+│  │                                #   starts_at=max(now,队尾) 顺序生效、发放 CAS 推进、
+│  │                                #   桶过期=周期终点、cancelAll 全行翻转）+
+│  │                                #   MembershipService（读队列，isSponsor 编辑旁路保留）+
+│  │                                #   OrderService（降级纯支付流水）+ RedeemCodeService
+│  │                                #   （0.49.0 起直发积分）+ SponsorshipModule（设置页挂
+│  │                                #   会员入口 + 发放 cron）；易支付接入，爱发电 SDK 留置
+│  │                                #   不接线；sponsor 三协议键退役（见下 Credit/ 注）
 │  │  └─ Content/                   # ✅ 0.6.0：SlugModule——自动别名（pinyin / id_av / id_bv，
 │  │                                #   术语 pinyin），原语来自 slug-toolkit 包
 │  │                                # ✅ 0.7.0：ContentTypeModule + PostType/TaxonomyDefinition +
@@ -532,8 +545,8 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 
 - **契约**：`Site` 新增 `banner: ?Image`（favicon 之后，快照同步）——Frontend 页 `banner_enabled` 开且 `banner_image` 附件可用时输出完整 Image DTO，否则 null（`SitePresenter::banner()` 读 `aiya_core_opt('frontend', ...)`，`attachmentImage` 复用）；
 - **设置**：Frontend 页「Presentation defaults」后新增 Header banner 组两项：`banner_enabled`（框架 `switch` 类型）+ `banner_image`（media）；关闭即无 banner；
-- **前端（front-station）桌面顶栏重构**：去白底与边框线（静止全透明，滚动后 `data-stuck` 换 82% 背景 + backdrop-blur 毛玻璃，document 级 scroll 委托 + astro:after-swap 重查）；贴左 = 折叠按钮 + 半透明圆角搜索框（内嵌放大镜，`bg-background/60` + blur）；贴右 = 暗色切换 + 用户簇；顶栏恒定紧凑高度（2026-09-11 拍板：banner 不参与顶栏高度）；
-- **banner 主体层**：有 banner 时内容列顶部（header 之下、main 之前）渲染 h-40 图片条，随页面自然滚动，与顶栏零重叠；
+- **前端（front-station）桌面顶栏重构**：去白底与边框线、取消置顶（2026-09-11 拍板：顶栏不 sticky，随页面滚走，无滚动毛玻璃态）；贴左 = 折叠按钮 + 半透明灰搜索框（内嵌放大镜，`bg-foreground/10` 无背景也可见、`rounded-md` 与卡片同圆角）；贴右 = 暗色切换 + 用户簇；
+- **banner 衬底**：有 banner 时图片绝对定位垫在透明导航行下方（页顶同高容器，导航叠图上），二者作为一个整体随页面滚走；
 - **暗色模式全链路**：tokens.css 全部语义色改 var 间接（`:root` 亮 + `.dark` 暗双板，`@theme inline` 映射；侧栏硬编码 hover 色一并 token 化；暗色板为临时中性方案，待暗色设计规格后细化）；BaseHead 预涂装内联脚本按 localStorage → `html[data-color-mode-default]`（site `defaults.colorMode`）→ 系统偏好解析，`data-astro-rerun` 随 ClientRouter 换页重跑；顶栏月亮/太阳图标经 `dark:` 变体纯 CSS 显隐，切换写同一 localStorage 键；
 - **通知铃铛（登录后簇）**：铃铛（details 面板 + 未读点）+ 纯头像 dropdown（原昵称 summary 简化，昵称留面板头）；新增同源代理 `GET /api/notifications/`（cookie bearer 转发 `/notifications`，游客空表、上游错误透传状态码）；已读态按契约归前端——localStorage last-seen 与 items 最新 `createdAt` 字典序比较，面板打开即落盘清点；日期经 `data-locale-tag`（toBcp47）本地化；
 - 测试：SiteContractTest 补 banner 双态断言（全套 140 tests / 316 assertions）；前端 siteSchema.banner + mock/fallback `banner: null` + 四字典补 4 键（vitest 138、astro check 0 错误、live 冒烟含 banner 明暗双态与滚动吸顶实测）。
@@ -548,8 +561,153 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - 协议语义保留不动：CounterService 对旧主题 like/view 计数值的读写兼容属原始迁移契约；
 - 测试：HeadlessSettingsMigrationTest 随迁移代码删除（全套 136 tests / 309 assertions）；phpstan 全绿。
 
+### 页脚重构：备案 repeater + 一言开关 —— ✅ 已完成（0.44.0）
+
+- **契约**：`SiteFooter` 重写为 `{links: list<BeianLink>, hitokoto: bool}`（旧 `icp/mps/mpsCode/note` 四字段退役）；新 DTO `BeianLink{label, url, icon, iconUrl}`，icon 三值模板 `shield/police/custom`（快照/锁同步）；
+- **设置**：Frontend 页合规组改为一言 switch + `beian_links` repeater（label/url/icon radio/custom icon_url 四子字段），旧四个独立字段删除；
+- **前端**：Footer 重排——左列链接菜单一行 + 固定版权行 `Copyright © {year} AIYA CMS. All rights reserved.`，右列备案链接一行一个（盾形 lucide 图标 / 公安徽章官方图 / 自定义图）；页脚最后一行为一言随机句（旧主题 hitokoto.json 493 条随包内置，SSR 每次请求随机取一句，作者署名跟随）；
+- **侧栏滚动**：`#global-sidebar` 滚区 `scrollbar-gutter: stable`，全局滚动条细半透明无箭头（Chromium 走 webkit 伪元素、Firefox 走 @supports 门内的标准属性——两套混用会互相失效，已注明）。
+
 ## 五、执行纪律
+
 
 - 每个里程碑完成时更新本文状态（勾掉条目即可），不在两处维护真相；
 - 不为「将来可能用到」预建目录与抽象；切片原则见 MIGRATION.md；
 - 运行时验证一律走 Docker wp-cli（`docker compose run --rm wpcli ...`），PHP 语法检查可用 `php -l` 的容器替代方案。
+
+### 1.0 前收口批次（0.45.0 / 0.46.0）—— ✅ 已完成（2026-09-12/13）
+
+2026-09-12 拍板（社区重定基线 + 徽章/锁定/随机 + 通知动作系统按域内监听器落地）：
+
+- **社区契约重定基线**：`type` 三值（discussion/question/feedback）取消，改自定义**板块**——新表 `aiya_discussion_boards`（slug 唯一/sort），`discussions.board_id` 取代 `type` 列，迁移播种讨论/问答/反馈三板块并按旧值回填；契约 DTO 去掉 `type` 加 `board`/`tags`/`images`（DiscussionReply 同加 images），快照与 front-station zod 同步；`GET /discussions/boards`（带计数）、`?board=slug` 过滤、发帖/编辑以 slug 寻址（未知 400，空缺省第一板块）；后台「板块管理」折叠卡片并入轻社区列表页（增/改/排序/删，删除时帖子移交剩余首板块，末板块拒删）；
+- **状态两态化**：`answered`/`resolved` 与回复驱动的自动流转删除，`ThreadStatus` 收缩为 `open`/`closed`（closed 锁回复 + 灰徽章，正常态无徽章）；存量硬归一为 open；
+- **回复编辑**：`PATCH /discussions/{id}/replies/{rid}`（作者或 edit_pages，路径双 ID 配对校验，kses + ≤9 图），client.ts `updateDiscussionReply`（PATCH 白名单）；
+- **随机排序**：`GET /discussions|posts|pages|resources?sort=rand`（orderby rand；置顶提升在 rand 下跳过）；
+- **通知动作系统**：新 `Domain/Notification/NotificationActions` 监听器模块（域内自持动作）：8 动作 —— 文章被评论 / 评论被回复（核心 `wp_insert_comment`，仅 approved、跳过自己）、社区帖被回复 / 关注者发帖（`aiya_core_thread_replied|published` 自定义钩子）、被关注（`aiya_core_user_followed`，仅新插入）、赞助生效（`aiya_core_membership_synced` + user-meta 到期时间戳去重）、赞助到期前一日（每日扫描 cron `aiya_core_sponsor_expiry_scan`，跳过强制取消）、密码重置（核心 `password_reset`）；0.46.0 迁移给通知表加 `actor_id/object_type/object_id` 三列；
+- **媒体管线增强**：`save_post`（发布态，去重守卫）直连卡片生成——保存即产出 640×360；`refreshFor` 刷新语义（换新 `_thumb` 并删除被替换的 cover 文件，失败保留旧图）；列表行操作「刷新缩略图」（nonce + edit_post）；特色图派生文件（640×360 卡 + 1000×640 详情背景，同三层配方，`thumbnail/{w}x{h}/{attId}-{w}x{h}.{ext}` 确定性命名、文件复用语义不写 `_thumb`）；默认占位图派生卡；
+- **内容读取增强**：`PostSummary.badges`（sticky/password/private 机器键，徽章文案归前端）、`PostDetail.locked` + 空 content（密码门形状）；`POST /content/{id}/unlock`（明文常量时间比对 + 种核心 postpass cookie，10 次/10 分钟限流，任意公开类型）；
+- **`/site.comments`**：WP 讨论设置十项透出（表单校验/审核/嵌套/分页），登录制为结构性常量故 `comment_registration` 不投影；
+- **后台信息架构**：轻社区升一级菜单（资源 7 之下 8；后按拍板移至评论 25 之下 26）、发送邮件移入 AIYA Core 子菜单（资产 hook 后缀随之修正）、通知保留期移至前台页「通知」组（`NotificationService::retentionDays` 改读 `aiya_core_opt('frontend', ...)`，独立 option 删除）、品牌标题组删除与品牌色改名主题色并入外观默认值、用户列表行操作「发送邮件」（携带邮箱预填收件人）、文章列表「刷新缩略图」行操作；
+- **安全与裁剪增补**：`big_image_size_threshold` 关闭（图床管线唯一写入方）；`enable_post_by_email_configuration` 关闭（Writing 分节/白名单/wp-mail 三处同时失效）；`lock_wp_v2` 从 Security 页迁至 Optimization 页并收紧为 `publish_posts`（作者以上），sitemap 总开关与 feed 关闭开关落 Optimization 页（`wp_sitemaps_enabled` 过滤器 + 四个 `do_feed_*` 移除，核心 has_action 守卫 404）；
+- **激活默认固定链接**：`activate()` 空结构时置 `/%postname%/` 并登记一次性重写刷新标记（init 99 消费，CPT 注册完成后整表重建）——空库安装直连 REST 免 301；
+- **开发辅助**：WP_DEBUG 下资源版本附文件 mtime；phpstan bootstrap 补 COOKIEHASH 存根；
+- 测试与门禁：139 tests / 320 assertions、全规则集 phpcs、全 src phpstan 全绿；空库安装实测（临时容器全量迁移链路 + 双固定链接形态 REST 矩阵）。
+
+### 积分域（Domain/Credit）—— ✅ 已完成（0.47.0）
+
+2026-09-13 拍板（会员从"通过门"重构为积分记账，计划全文见 `docs/credits-membership-plan.md`；分两期：积分域先落地，会员域 tier 重构第二期）：
+
+- **数据模型**：`wp_aiya_credit_entries` 单表兼作桶与流水——`in` 行即发放桶（`remaining` 剩余计数 + `expires_at` 过期，全部发放可过期，无永久存款），`out` 行即消费流水；`UNIQUE(source, ref, user_id)` 承载一切幂等（签到 `ref=当日`、兑换码 `ref=码值`、未来会员 `ref=order_id#周期k`），`KEY(user_id, expires_at)` 支撑 FIFO；余额恒由 `SUM(remaining)` 推导，不落 user meta（单一事实源）；时间基准 DATETIME GMT（0.31.0 约定）；
+- **核心服务**：`CreditAllocator` 零 WP 依赖纯分配器（过期先扣 FIFO 行走，`ExpirationFold` 先例）；`LedgerService`——`grant()`（撞唯一键幂等）、`spend()`（事务 + `SELECT … FOR UPDATE` 锁桶、逐桶 `remaining >= take` 条件守卫、out 流水与扣减同事务，不足回滚返回 `aiya_credit_insufficient` 409 携余额）、`entries()`（分页）、`pruneExpired()`（死桶即清、已关历史按保留期）；`CreditModule` 每日清理 cron（`aiya_core_credits_cleanup`）+ 0.47.0 迁移建表；
+- **REST（全加法）**：`GET /credits/balance`（Bearer）、`GET /credits/entries`（Bearer，分页 meta.pagination）、`POST /credits/checkin`（Bearer + 限流，本地日历日 `ref` 撞唯一键，重复 409 `aiya_credit_checkin_done`，开关关闭 403）；契约 DTO `CreditBalance`/`CreditEntry`/`CreditCheckin` 进快照，front-station zod schema + manifest + vitest 同步（107/107）；
+- **「积分」设置页**（`aiya_core_credit`，挂 aiya-core-frontend）：签到开关 / 签到发放额 / 积分有效期天数（签到与未来兑换码桶共用）/ 下载积分单价（为延后的付费领取预留）/ 账本保留期；i18n zh_CN 全量落地；
+- **`sponsor_can` 删除（实施时拍板，不继承）**：OpenList 盒子字段、`AttachmentService` 门禁矩阵与 `MembershipService` 依赖、附件响应 `gated`/`canSeeLinks` 字段一并移除；下载链接回归"登录可见、游客 `url` 裁剪"唯一规则，免费不计量；付费领取端点延后另行设计（`download_cost` 设置已预留）；存量 meta 组内 `sponsor_can` 键成死数据；门禁矩阵单测同步删除；
+- **uninstall**：账本表 drop + 清理 cron 注销；
+- 测试与门禁：147 tests / 328 assertions、phpcs、phpstan 全绿；运行时实测：迁移落地、grant 幂等、FIFO 跨桶扣减（先过期桶扣光再扣后桶）、超额 409、checkin 成功流 + 409 幂等、entries 分页信封与 ISO 转换、cron 排程、prune 冒烟，测试数据已清零。
+
+### 积分后台面与纯记账收缩 —— ✅ 已完成（0.48.0）
+
+2026-09-13 实施时拍板（计划文档 §0 第 9 条）——积分域收缩为纯记账 + 后台入口重排：
+
+- **纯记账**：`download_cost` 设置移除——报价归下游调用方，付费行为（未来的付费下载等）自带数额调 `spend(amount, source, ref)`，积分域只回答成功/失败，避免新增业务产生耦合；
+- **运维归位**：账本保留期移前台页「积分账本」组（`credit_retention`，紧邻通知保留期），`CreditSettings::retentionDays()` 读取（沿 NotificationService 模式）；积分有效期语义收窄为签到专属，字段并入「每日签到」组；原 Registry「积分」设置页废除；
+- **一级菜单「会员」**（`aiya-core-membership`，dashicons-awards，位置 27 轻社区之下）：后续会员域/支付/兑换码做其子页；积分屏为首个子项，改轻社区同款折叠卡片（`Admin/CreditsPage`）——每日签到设置卡（`aiya_core_credit` 三键，admin_post + nonce 保存）、手动发放卡（用户联想搜索沿发送邮件页 AJAX 模式 + 数额/有效期/备注；`source='admin'`，`ref=备注+时间戳随机后缀`，不撞幂等键、次次成功）、积分流水卡（按用户分页：方向着色/来源标签/桶剩余/过期）；用户列表新增「积分」列（实时 SUM，静态缓存去重，链入流水视图）；
+- **i18n**：新字符串 zh_CN 全量落地，废弃字符串随 sync 移除；
+- 测试与门禁：147 tests / 328 assertions、phpcs、phpstan 全绿；运行时实测：页面渲染（卡片/nonce）、设置保存 option 落值、手动发放（账本行 `admin-`/`smoke-` ref + 流水卡显示 + in 方向着色）、用户列 `aiya_credits` 与链入、前台保留期读取，测试数据（账本行/session）已清零。
+
+### 兑换码接回积分域 + 后台微调 —— ✅ 已完成（0.49.0）
+
+2026-09-13 实施时拍板（计划文档 §0 第 10 条）——§3.5 兑换码改造不等第二期，随积分域接回：
+
+- **数据**：`wp_aya_convert_codes` 加列 `credits`/`valid_days`（CreditModule 0.49.0 迁移持有——赞助域停用中原 0.24.0 迁移不会再跑；dbDelta 对存量安装补列、全新安装建全形表；`duration` 列保留为死语义）；`credits=0` 的旧行核销按无效码拒绝；
+- **服务**：`RedeemCodeService` 依赖从 OrderService 换为 LedgerService——核销 = 原子认领（`status=1, user_id, used_to` 条件 UPDATE 唯一胜负）→ `grant()` 建桶（`source='code'`，`ref=码值`，过期 = 兑换 + valid_days），发放失败回滚码为未用（照旧 error_log 诊断）；`generate(quantity, credits, validDays)` **前缀词参数删除**；
+- **REST**：新 `POST /credits/redeem`（Bearer + 限流 10/600s，body `{code}`，响应 CreditGrant 形状 granted/balance/expiresAt）；DTO `CreditCheckin` 更名 `CreditGrant`（签到/兑换共用形状，非 v1 基线成员、快照安全换名），front-station zod/manifest/快照同步（vitest 107/107）；SponsorshipController 摘除兑换路由与方法（本地码归积分域，爱发电订单号激活待第二期另定），连削 limiter/afdianClient 死代码；
+- **后台**：`ConvertCodesPage` 从停用面接回，挂「会员」一级菜单子页（原 aiya-core-frontend 子页），生成表单 quantity/credits/valid_days（前缀输入移除），列表列 Days→Credits/Validity；积分页流水区从折叠卡改页面直排（`ledgerSection`，页面主浏览面，`<details>` 只剩签到/发放两卡）；
+- **i18n**：新字符串 zh_CN 全量落地；
+- 测试与门禁：147 tests / 328 assertions、phpcs、phpstan 全绿；运行时实测：0.49.0 迁移加列、generate 出码、REST 核销（granted 50/balance 50/+30 天）、重复核销 409 `aiya_code_used`、账本 `source=code/ref=码值` 桶、兑换码页与积分页直排流水渲染，测试数据（码/账本行/用户/session）已清零。
+
+### 相关文章端点（WPJAM 算法复刻）—— ✅ 已完成（0.50.0）
+
+2026-09-13 从 WPJAM Basic 迁移调研拍板（五个候选功能第一批）：相关文章按共享术语计数的排序算法值得复刻为 headless 读端点，展示层（the_content 自动附加/缩略图选项/HTML 包装器）与 `[related]` 短代码属旧主题形态，不复刻：
+
+- **算法**（`Domain/Content/RelatedPostsQuery`）：收集原文章**全部契约词法**（category + tag 角色，`PublicType->taxonomies` 驱动）的 `term_taxonomy_id` 去重 → 同 PublicType 内 `publish` + 无密码 + 排除自身 → 单条 SQL 排序：`INNER JOIN term_relationships` 限定 IN 集合、`GROUP BY object_id`、`ORDER BY count(tr.object_id) DESC, ID DESC`（共同术语多者靠前，同分新文优先）——clauses 经 `posts_clauses` 过滤器**随查随挂随拆**（WPJAM 原为全局常挂 + orderby 条件触发），`applyClauses` 为纯静态方法（表名 wpdb 缺失时回退默认前缀，单测可钉 SQL 形状）；IN 列表整数收窄后拼接（prepare 无法构造）；
+- **端点**：`GET /content/{id}/related`（公开读，任意公开类型，origin 走 detail 同款可见性解析）——参数 `number`（默认 5，1–20）、`days`（0 = 不限，最大 365，`post_date_gmt` 窗口）；响应 `PostSummary[]` 裸数组走中央信封，HTTP 缓存落「其他 public GET」档（max-age=0 + must-revalidate + ETag）；无共享术语返回空列表，**无新鲜度兜底**（沿 WPJAM 语义）；
+- **契约**：纯路由加法，零新 DTO，快照不变；与 WPJAM Basic 共存安全——WPJAM 的 `filter_clauses` 认得同一组内部标记（orderby=related + term_taxonomy_ids）会叠加同名 JOIN，但两边限制同一集合、计数平方后单调性不变，排序等价，WPJAM 退役后自然回归单 JOIN；
+- 测试与门禁：4 新单测（SQL 子句形状/已有 GROUP BY 追加/脏 ID 收窄/空集合不动 clauses），phpcs、phpstan（本批文件）全绿；运行时实测（`--skip-plugins` 隔离，真实库）：排序 `[B(2 共享), F(1), C(1)]` 并列 ID 降序正确、days=365 排除 2020 旧文、days=20000 钳 365、number=1/999 钳制、密码文与草稿不出现，测试数据已清零。注：本批运行时验证期间 Sponsorship/会员域第二期在途重构导致插件启动态不稳定，REST 端点层待其恢复后例行冒烟即可。
+
+### 会员域 tier 重写：周期队列 + 赞助域重新启用 —— ✅ 已完成（0.50.0）
+
+2026-09-13 拍板实施（计划文档 `docs/credits-membership-plan.md` §0 第 11 条：干净重写不兼容旧接线；爱发电只留 SDK 不接线）。上批注记的在途重构至此收敛，赞助域 REST 已实测恢复：
+
+- **数据模型**：新队列表 `wp_aiya_memberships`——每购买一行（order_id 唯一幂等锚点、tier_key/tier_name/cycle_days/credits_per_cycle 购买时快照、cycles_total/cycles_granted 推进指针、starts_at/ends_at DATETIME GMT、status active/cancelled），`starts_at = max(now, 队尾 MAX(ends_at))` 保证多周期多档位按购买次序顺序生效；`wp_aya_sponsor_orders` 加 `amount`/`tier_key` 列降级为纯支付流水（start_time/duration_days 成死值，列只加不改义）；**三协议键退役**——`sponsor_expiration`/`aya_force_cancel_sponsor`/`aya_trigger_count_sponsor` 停读写 + 迁移删行（未上线，无兼容义务），工作区 AGENTS.md 协议表同步移除；
+- **核心服务**：`MembershipScheduler`（周期窗口/到期追账零 WP 依赖纯函数，单测锁定：背靠背无重叠、跳过已发/未到期、停机后一次补发全部到期周期）；`EntitlementService`——`activateFromPayment()`（入队 + order_id 幂等 + `aiya_core_membership_activated` 钩子）、`advance()`（发放 cron：每到期周期发一桶 `source='membership'`/`ref=orderId#c{k}`，桶过期 = 本周期终点，账本唯一键 + 计数器 compare-and-swap 双保险）、`queueFor/window/cancelAll`（强制取消 = 全行翻转）；`MembershipService` 重写读队列（isActive/expiresAt/leftDays/cancel，`isSponsor` 编辑旁路语义保留）；`ExpirationFold` 与 `syncExpiration` 随协议键退役删除；
+- **网关**：`GatewayController` 仅易支付——验签（沿 SDK 字节级算法含 '0' 跳过语义）→ `param` 三段式 `userBinding|tierKey|cycles` 定购买（金额反查废除的拍板延续，权利由站点档位配置 × 周期数在签名参数内绑定）→ 记支付 + 入队（各自幂等，重放/半完成重试都安全收敛到 success）；爱发电 webhook 路由与 order-url 端点删除，`AfdianClient` SDK 类保留不接线；
+- **REST**：`GET /sponsorship/plans`（公开：epay 渠道+methods + tier 列表）、`GET /sponsorship/membership`（Bearer：active/expiresAt/nextGrantAt/balance/queue 队列视图，triggerCount/forceCancelled 摘除）、`POST /sponsorship/orders`（Bearer：tierKey+channel+cycles → price×cycles 签名收银台）；契约加法两 DTO（MembershipState/MembershipEntitlement），front-station membershipStateSchema/tierSchema/orderCreateSchema 重造（vitest 111/111）；
+- **设置页**：赞助域设置页挂「会员」一级菜单（「会员档位」页：tier repeater key/名称/单价/周期长度/每周期积分 + 易支付凭据渠道；爱发电字段块移除）——**菜单挂接修复（审查批次）**：SettingsAdmin 菜单注册默认优先级 10 早于定制页的 20，`add_submenu_page('aiya-core-membership', …)` 因父级未建被 WP 静默提升为孤立顶级路由 `/wp-admin/aiya-core-sponsorship`，SettingsAdmin 的 admin_menu 挪到优先级 30（父菜单先行）后归位为正常子页；发放 cron `aiya_core_membership_grants`（每日）；`SPONSORSHIP_ENABLED` 开关摘除、域常开；`NotificationActions` 改线（激活通知挂新钩子一次性、到期前一日扫描改读队尾 MAX(ends_at)）；`uninstall` 补队列表 drop + 发放 cron 注销 + 退役 meta 行清理；
+- **i18n**：新字符串 zh_CN 全量落地；
+- 测试与门禁：154 tests / 342 assertions、phpcs、phpstan 全绿；运行时实测：0.50.0 迁移三件套（队列表/orders 加列/meta 删行）、双购买顺序排队（第二单 starts_at = 第一单队尾）、重复激活 409 `aiya_duplicate_order`、advance 周期发放（桶过期 = 周期终点）与追账幂等、取消即失效、真签名网关回调 200 + 重放 200（幂等）+ 篡改签名 400、membership/plans REST 视图全对，测试数据（队列/账本/订单/用户/session/日志）已清零。
+- **代码审查修复（同批收口）**：① `advance()` 零积分档（creditsPerCycle=0）不再撞 `grant(0)` 拒绝——跳过发放直接推进计数器（原实现永久卡死 + 每日 error_log）；② CAS 改单调式 `cycles_granted < %d`——多周期追账一轮全部收敛（原实现计数器每次 cron 只进一档，桶靠账本去重兜底）；③ advance 无界扫描改 keyset 分页（500/批）；④ HttpCache 会话档补 `credits(/|$)` 与 `sponsorship/membership`——登录态私有读不再落 `public` 缓存档（实测双路由均 `private, no-store`）；⑤ `spend()` 重复 ref 由 `aiya_db_error` 改判 `aiya_credit_duplicate`（并修 wpdb::query 的 flush 清 last_error 陷阱——ROLLBACK 前先捕获）；⑥ 0.50.0 迁移不再删使用中的通知 marker `aiya_core_sponsor_state_noticed`（到期扫描仍在用；uninstall 清理保留）；⑦ `POST /sponsorship/orders` 补限流 10/600s；⑧ front-station client 写白名单摘死路由 `sponsorship/redeem`、补 `credits/(checkin|redeem)`，新增 tiers/createOrder/redeemCode/creditsBalance/creditsEntries/creditsCheckin 方法（vitest 111/111、tsc 除既有 TS5101 干净）；
+- **支付页拆分（0.51.0，站长要求便于后续拓展）**：收银台凭据/渠道/回调日志从「会员档位」页拆出独立设置页「支付」（`sponsorship-payments`，option `aiya_core_sponsorship_payments`，挂会员入口），`SponsorshipSettings::read()` 合并双 option 单形状输出；**渠道三开关改 multicheck 多选**（存字符串数组，ValueNormalizer 白名单归一化）；`channels.methods` wire 形状由对象改列表（新网关加条目不改形状）；`POST /orders` 渠道校验改 `in_array(epayMethods)`（未勾选渠道下单 502 实测）；front-station tiersPayloadSchema 同步（vitest 111/111、tsc 干净）。
+
+### Dev Tools 域（WPJAM 诊断面迁移）—— ✅ 已完成（0.51.0）
+
+2026-09-13 拍板（WPJAM Basic 五项调研的第二批）：debug 专用的 Sample 沙盒页从 Admin/ 迁入新域 `Domain/DevTools`，WPJAM 的四个后台诊断面复刻到同一菜单之下；前端展示类能力（短代码渲染、相关文章的 PHP 端 HTML 附加）不迁移——渲染归 Astro：
+
+- **域与菜单**：`DevToolsModule` 单点 WP_DEBUG 门控（关掉常量即整域消失：菜单、页面、admin_post 处理器全不注册；SamplePage 保留二次防御）——一级菜单「开发工具」（`aiya-core-devtools`，位置 100，原 Sample 槽位），子菜单 系统信息（与父 slug 重合作落地页）· Crons · Rewrites · 短代码 · Sample（经设置管线以 `parent` 挂入，SettingsAdmin 渲染）；`Admin/SampleSettings` 删除，字段定义迁 `DevTools/SamplePage`（26 字段与 `aiya_core_sample` option 原样，无数据迁移）；
+- **系统信息**（`ServerStatusPage`，WPJAM server-status 复刻）：服务器卡（主机/内网 IP/OS/文档根 + /proc 核数/内存/运行时长/空闲率/负载）· 版本卡（Web 服务器/MySQL/PHP/Zend/WP/TinyMCE 对照核心最低要求）· PHP 扩展（+Apache 模块条件显示）· Opcache 卡（内存/命中率/键位三条 CSS meter 条 + 版本 + 关键配置项 + 重置按钮）；**/proc 读取改 is_readable 逐文件守卫**（原版要求 open_basedir 含 /proc 才读，Docker 常态空值下这些行静默消失的缺陷修正）；图表用原生表格 + CSS 条，不引外部图表库（WPJAM 依赖 Morris.js/Raphael CDN）；
+- **定时作业**（`CronsPage`，WPJAM wpjam-crons 复刻）：cron 数组展平列表（时间/相对时长/Hook/频率，hook 子串筛选 + 分页 20），行操作 立即执行（`do_action_ref_array`）/ 删除（`wp_unschedule_event`），孤儿作业警示条（hook 无监听器计数）+ 一键清理，新建表单（hook 须 `has_filter`、频率 单次 + `wp_get_schedules`、站点本地时间 datetime-local）；事件 id 三段式 `ts|key|hook`（**核心用 md5(args) 作重复事件键**——id 解析按不透明字符串处理，动作用前先对活 cron 数组复核）；WPJAM 的 `wpjam_scheduled` 权重作业队列不迁移；
+- **Rewrites**（`RewritesPage`）：缓存规则只读列表（正则/查询两列 + 筛选 + 分页 50）+ 手动刷新规则按钮；WPJAM 的规则裁剪设置不迁移（对应开关已归 Optimization 域所有）；
+- **短代码**（`ShortcodesPage`）：`$GLOBALS['shortcode_tags']` 全量只读列表（标签 + 回调可读标签：函数名/`Class::method`/`Closure`），筛选 + 分页；WPJAM 自带短代码（视频解析器等）不迁移，本站渲染走 Parts 框架；
+- **图标列表**（`IconsPage`，WPJAM 图标列表 wpjam-icons/dashicons 复刻，只读无交互）：解析核心 `wp-includes/css/dashicons.css` 抽 `.dashicons-{name}:before` 图标名（去重保序、剔除 `.dashicons-before` 应用字形工具类；WPJAM 逐行 fgets 同语义改单次正则），349 个图标渲染为原生样式卡片网格（dashicons 字形 + 名称）；拍板收缩为纯清单——无点击/弹窗/筛选，样式表不可读给错误提示而非 fatal，admin.css 增 `.aiya-icons-grid`/`.aiya-icon-card` 两段样式；
+- **样式与测试**：admin.css 增 `.aiya-devtools-bar` meter 条；新单测 10 个（cron 展平/特例 hook 回环/md5 键/畸形 id 拒绝、回调标签四分支、空闲率与百分比钳制）；i18n zh_CN 87 条全量（未翻译 0 条）；phpcs、phpstan、phpunit 164 tests / 385 assertions 全绿；运行时实测：菜单注册与排序、五页 admin 渲染、cron 排程→查找→立即执行→删除链路、孤儿检测与清理、zh_CN 输出（开发工具/系统信息/只执行一次）。
+
+
+### 批量切换文章类型 —— ✅ 已完成（0.52.0）
+
+2026-09-13 拍板（自研功能，替代 WPJAM post-type-switcher 只切单篇且不迁移内容的形态）：文章列表批量操作新增「切换文章类型」，在 post/page/resource 三张列表屏的 bulk action Select 挂 `aiya_switch_type`；应用操作时弹出 jQuery UI 原生对话框（`wp-jquery-ui-dialog` 皮肤，`admin_footer-edit.php` 输出隐藏对话框标记 + `jquery-ui-dialog` 句柄挂内联 JS 拦截列表表单提交）选择目标类型——含选中计数行（JS 侧填数）、排除当前类型的选项、确认后注入隐藏字段随表单 GET 提交，服务端仍是纯批量往返；选中分类/标签后进入的即是同一列表屏，覆盖「从分类法入口批量迁移」的路径：
+
+- **实现（实施中简化拍板）**：只切类型、术语不迁移——`Domain/Content/PostTypeSwitcher` 仅 `wp_update_post` 换 `post_type`，术语落核心默认行为（切入 `post` 时核心盖默认分类 uncategorized；离开的类型其词法关系原样保留为惰性数据，目标类型不建任何术语）；置顶文章离开 `post` 自动 unstick（核心换类型从不释放置顶，但置顶只对 post 有意义）；曾实现的跨类型术语映射迁移（category→category-role、标签→选定词法、slug/name 匹配复用或新建）按拍板整体撤除；
+- **权限**：目标类型 `edit_posts` 一次性校验 + 每行 `edit_post`，不满足计 skipped；同类型跳过；批量 nonce 由核心 edit.php 在 handler 过滤器前统一校验，结果经重定向参数出计数通知（_n 单复数）；
+- **i18n**：8 条 zh_CN 全量（未翻译 0）；phpcs、phpstan、phpunit 164 tests 全绿；运行时实测：post→resource（置顶释放/旧术语保留）、resource→post（默认分类盖入/标签清空——核心默认行为）、同类型 skip、非公开类型 skip、草稿状态保留、过滤器挂载确认。
+
+
+### 批量移动术语到其他分类法 —— ✅ 已完成（0.53.0）
+
+2026-09-13 拍板（0.52.0 切换文章类型的姊妹刀）：九张契约分类法列表屏（edit-tags.php：category / post_tag / page_category / resource_category / 五个资源标签词法）的批量操作新增「移动到其他分类法…」，应用时弹同款 jQuery UI 对话框单选目标（8 个其他契约分类法 radio，含中文可读标签），确认后按 `handle_bulk_actions-edit-{taxonomy}` 过滤器分派——术语屏的批量 nonce（`bulk-tags`）由核心 edit-tags.php 在分派前统一校验，列表表单 POST 提交（`delete_tags[]` 复选框），`Admin/BulkDialogBehavior` 抽为两模块共享的配置驱动弹窗行为（form/checkbox/文案全走 JSON 配置）：
+
+- **服务**（`Domain/Content/TermTaxonomyMover`）：三遍式迁移——①目标词法中按 slug → name 复用现有术语，否则新建（携带名称/slug/描述）；②父级术语同批移动时按映射恢复层级（目标非层级词法则坍缩为顶层）；③`get_objects_in_term` 把源术语的全部对象追加到目标词法（append 不去重已有），随后删除源术语——词表零残留；删除分类时对象被核心自动落到默认分类（`wp_delete_term` 语义），延续「落默认值」拍板；同 slug 跨词法为独立术语行（WP 7.1 已实测非共享）；
+- **权限**：源与目标词法 `manage_terms` 双向校验，非法目标（非契约词法/同词法）整批 skipped；通知走重定向计数（_n 单复数）；
+- **i18n**：15 条 zh_CN 全量（未翻译 0）；phpcs、phpstan、phpunit 166 tests / 394 assertions 全绿；运行时实测：分类→标签（对象跟随、源删除、余项落默认分类）、标签→资源词法、父+子同批移动层级保持、复用已有目标术语、非法目标拒绝、批量/分派过滤器挂载与对话框布线（非契约词法屏静默）。
+
+### 积分账本语义收敛（0.51.0 迁移，随 0.53.0 批次收口）—— ✅ 已完成
+
+站长按业务流程复述对照后的拍板（计划文档 `docs/credits-membership-plan.md` §0 第 12 条 + §0a）；**范围硬边界：只动 `Domain/Credit`，会员域代码零改动**（EntitlementService 签名/标记/防重语义原样，幂等载体在账本层内部切换）：
+
+- **FIFO 修正**：`spend()` 桶序 `ORDER BY expires_at IS NULL ASC, expires_at ASC, id ASC`——永不过期的桶（admin 编程发放允许 null）是最后才烧的储备；旧排序 MariaDB 升序 NULL 在前，实测坐实过反序；
+- **幂等键与去向标记分离（核心刀）**：账本定位为 **API 式预存扣费**（点一次下载扣一次），不是积分商品交易——`UNIQUE(source, ref, user_id)` 把 out 行也当幂等键、同一去向第二次消费 409，等于 schema 替业务拍死按次计费。改为 `dedupe VARCHAR(80) DEFAULT NULL` + `UNIQUE KEY dedupe_key (dedupe, user_id)`：in 行推导 `source:ref` 参与唯一约束（签到/兑换码/会员周期防重语义不变，会员域原签名调用同周期二发 409 实测），out 行 NULL 不去重（MySQL 唯一键语义）= 按次计费天然放行；`spend()` 增可选 `?string $dedupe` 形参（未来一次性领取令牌用，默认不约束）；`ref` 降级纯去向/来源标记；迁移 `upgradeToDedupeKey()`（SchemaVersionRunner 0.51.0，CreditModule 持有）：`SHOW COLUMNS/INDEX` 探测 + `ALTER TABLE` 幂等，实施中修正初版回填先于加列的顺序缺陷；管理页手动发放去时间戳随机后缀（备注即 ref，重复备注 409 带专有 zh 提示）；
+- **清理保留期统一**：过期未耗桶从"次日即删"并入 `credit_retention` 保留期——过期行在窗口内可查（前端可渲染"何时过期作废"），活桶任何分支都不命中；cron docblock 同步；
+- **明确不做**：冲正/退款原语；entries 筛选参数（混合可接受，有需要再补）；下载侧重复点击防抖（归下载调度）；
+- 验收实测五条全过：FIFO（null=10/soon=7）、同 ref 连续两次 spend 均成功、同日式重复 grant 409、显式 dedupe 令牌第二次 409、过期桶保留期内可查；phpunit 166/394、phpstan、phpcs 全绿。
+- **上线前全量审查（未上线干净迭代标准）**：库存清点（两域文件/表 0 行/六个 aiya cron/三 option）与计划全文对照后两处修复——① **回调验签语义收敛**：适配器接口增 `callbackFailed(query): bool`（签名无效 = 400 让平台感知篡改；签名有效但不可激活 = 200 停止重试），清除控制器里"new 裸 EpayClient 再验一遍"的抽象泄漏（原先同一签名验 2–3 遍）；② plans 端点 `channels.epay`/`methods` 统一由适配器回答（enabled = 开关 && 凭据完整，工厂 null 语义自洽）。三态实测：有效+可激活（desc 非 null/failed=false）、有效+不可激活（null/false → 200）、篡改（null/true → 400）。**确认无缺口面**：积分/会员两域所有表 0 行、退役协议键零残留、迁移链 0.24→0.49→0.50→0.51 对空库与现库均幂等、uninstall 覆盖两新表/六 cron（含前批 chron）/退役 meta、契约快照与前端 zod/vitest 一致、HttpCache 会话档覆盖 credits/membership、i18n 零缺失；
+- **支付网关薄适配（同批，四段业务流程拍板第 4 条）**：新 `PaymentGateway` 接口（id/enabled/channels/createPayment/verifyCallback——支付是值描述，网关不解析金额为权益）+ `EpayGateway` 适配器收编全部 Epay 专属逻辑（凭据读取、签名组装、`binding|tierKey|cycles` 三段 param、回调验签解析）；SponsorshipController/GatewayController 只依赖接口（`gateway()` 工厂单点换网关），plans 的 `channels` 改由 `gateway->channels()` 输出；新增网关 = 一个适配器类 + 设置字段，域流程零改动；**会员域权益查询**：`MembershipService::currentTier()` 返回当前覆盖档位（active 行中窗口最晚者，编辑旁路不视为档位），供后期拓展权益逻辑。实测：适配器 createPayment 签名 URL、未勾渠道 502、真签名回调经适配器解析入账（payment + queue 双行、currentTier 返回 gold）、篡改签名 null；HTTP 端到端 200 全链路。
+- **兑换码重写为兑换会员（0.54.0，站长拍板整体重写不继承旧表）**：新表 `wp_aiya_redeem_codes`（tier_key/cycles 语义，DATETIME GMT），旧 `wp_aya_convert_codes` 由 0.54.0 迁移直接 DROP（CreditModule 0.49.0 codes 迁移同步摘除，codes 归属归还赞助域）；核销 = 原子认领 → `activateFromPayment()` 入队（order_id = 码值幂等，与付费订单同路径），积分走常规周期发放绝不预发；重复兑换 409、ghost 档位码 409、激活失败回滚码；`POST /credits/redeem` 路由不变响应换 `MembershipCodeGrant`（tierKey/tierName/cycles），`CreditGrant` 保留给签到；前端 zod/manifest/快照同步（vitest 113/113）；后台表单改 tier 下拉 + 周期数、列表列 Tier/Cycles；uninstall 双 drop 兜底；i18n 7 条 zh_CN 全量。
+- **合并推断补刀（同批）**：站长四段业务流程合并复述对照后——① **兑换码永久值**：`valid_days = 0` = 永不过期（账本 null 到期形态，FIFO 天然最后烧），generate/核销去掉 `max(1,…)` 钳制、后台表单 min=0 + 描述、列表 `0` 渲染「永久」、redeem 响应 `expiresAt` 可 null（wire 空串，CreditEntry.expiresAt 本就可空，契约零变化）；实测永久码核销 `expires_at IS NULL`、限时桶先耗尽、`valid_days>=1` 回归无损；② **账本基础设施定稿 + 外部 API 业务归属（二次拍板：不建 Downloads 域）**：`Domain/Credit` 定稿为记账基础设施（grant/spend/balance/entries 四原语，不知业务语义），付费下载等外部服务编排**归 `Domain/ExternalFiles` 域执行**——下载只是外部 API 能力之一，后期扩展同域生长，不按业务逐个建域；域内分工 = 账本认"扣多少、记什么来源"，外部 API 域定"何时扣、扣完给什么"，防抖在域内（B3 恢复该域时设计）——现有 `spend()` 的 `?string $dedupe` 形参与纯字符串 source 已是全部所需接口，账本侧无新增。
+
+### 后台信息架构微调 + OpenList 域重启用（0.55.0，2026-09-14）—— ✅ 已完成
+
+站长三项拍板：会员档位设置与每日签到设置聚合到一个「会员」页面、剩余查账/发放面统一语义命名「积分账本」、OpenList 设置接回 core 并拉起 OpenList 容器做对接测试：
+
+- **会员设置页聚合**：`SponsorshipModule` 设置页（`aiya-core-sponsorship`，parent 会员菜单）标题改「Membership tiers/会员档位」，承载档位 repeater；`CreditModule` 经 `aiya_core_register` 优先级 11 `addFields('sponsorship', …)` 把每日签到三键（checkin_enable/checkin_credits/credit_validity_days）追加以 `heading_checkin` 分组——注册表实测字段序 heading_tiers→tiers→heading_checkin→三键；`Admin/CreditsPage` 摘除 settingsCard/handleSettings/ACTION_SETTINGS（签到设置不再双入口）；
+- **积分账本更名**：一级菜单 `aiya-core-membership` 由「Membership」改「Credit ledger/积分账本」，页面即账本（手动发放 + 直排流水 + 用户列表余额列），会员档位/支付/兑换码设置全部收拢为其下 settings 子页；
+- **OpenList 重启用**：`Plugin::EXTERNAL_FILES_ENABLED` 翻回 `true`（0.29.1 的临时停用解除）——设置页 `aiya-core-oplist`（8 字段）、resource 编辑屏 `oplist_client` box（metadata 注册表 postBoxes 实测三 box 在位）、`GET /resources/{id}/attachments` 公开端点（游客实测 200 信封空 items）三件套全部恢复；phpstan 对恒真 if 的 `if.alwaysTrue` 以行内 ignore 标注（业务开关保留 null 分支给后续停靠域）；
+- **OpenList 容器**：`docker-compose.yml` 增 `openlist` 服务（`openlistteam/openlist:latest`，端口 5244，`user: "0:0"`——镜像 openlist 用户 1001 无法写卷初始化的 data 目录，属上游已知问题；named volume `openlist_data`）——镜像经 docker.m.daocloud.io 转存拉取（dockerpull.cn 镜像源 blob 损坏 text/html、ghcr.io 直连 denied、Docker Hub 直连超时）；`http://localhost:5244` 实测 200，初始管理员密码在容器日志（`docker logs wp_openlist | grep password`）；
+- **i18n**：修复 OplistModule 一处 `\u0027` 字面量撇号（make-pot 转义残留，导致 POT/PO 一条 msgid 对不上）；POT 786 条重建、未翻译 0、MO 重编译；WP 运行时实测「积分账本/会员档位/每日签到」即时生效；phpunit 166/394、phpstan、phpcs、vitest 158/158 全绿。
+
+### 旧命名清算：支付流水表换名（0.56.0，2026-09-14）—— ✅ 已完成
+
+站长拍板：core 需求闭合后追一遍旧主题 `aya_` 遗产（表/字段/meta/option/方面名），迭代替换；**不做 RENAME 迁移、不删 aiya-legacy-cleanup**——本地是开发库，直接改建表代码：
+
+- **实库盘点结论**：旧主题四组自定义表中三组（`wp_aya_issues`/`wp_aya_issue_comments`、`wp_aya_convert_codes`、`wp_aya_flow_hub_posts`）实库本就不存在或已被 0.54.0 迁移 DROP；meta 层 `aya%` 残留 0（三个退役赞助协议键 0.50.0 已删行、`favorite_posts`/`_aya_thumb`/`aya_box_*` 由 aiya-legacy-cleanup 1.1.0 清完）；option 层旧 `aya_opt_{access|basic|land|notify|oplist}` 五方面与 `site_*`/`stie_afdian_*` 字段键实库 0 行（LegacyOptionReader 无必要）；唯一活着的旧名对象是空表 `wp_aya_sponsor_orders`（0.50.0 已加 amount/tier_key 列降级为纯支付流水）；
+- **表名更换**：支付流水表 `wp_aya_sponsor_orders` → `wp_aiya_payment_orders`——`SponsorshipModule::installTables()` / `upgradeToTierModel()` 两处 DDL、`OrderService::table()`、uninstall 表清单与头注同步改名；**无 RENAME 迁移**（站点未上线无兼容义务），开发库一次性 `RENAME TABLE` 处置；fresh install 走 activate() 记 0.0.0 全链迁移时新名建表 + 0.50.0 的旧 usermeta 删行迁移不受影响；0.54.0 的 DROP `aya_convert_codes` 与 0.50.0 的协议键删行属历史迁移记录，原样保留；
+- **运行时验证**：`OrderService::addPayment/exists/forUser` 对换名后实表写入/查询/去重实测通过（烟雾行已清）；三条 DDL 回调对换名后表幂等重放无破坏；phpcs/phpstan/phpunit 166 tests / 394 assertions 全绿；
+- **收口**：实库中不再存在任何 `aya_` 前缀表；协议 meta 键（`like_count`/`view_count`/`_thumb`/`basic_user_avatar` 等）属现行新协议保留不改；aiya-legacy-cleanup 插件按拍板保留不删。

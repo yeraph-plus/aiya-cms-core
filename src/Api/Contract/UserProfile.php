@@ -11,13 +11,15 @@ namespace Aiya\Core\Api\Contract;
  *
  * `role` carries the legacy front-end level semantics
  * (administrator / author / sponsor / subscriber), where sponsor validity
- * is derived from the persistent `sponsor_expiration` protocol meta.
+ * is derived from the membership entitlement queue (0.50.0 tier model).
  */
 final class UserProfile
 {
     public function __construct(
         public readonly int $id,
         public readonly string $username,
+        /** The public profile route key (user_nicename; system-generated). */
+        public readonly string $slug,
         public readonly string $nickname,
         public readonly string $email,
         public readonly string $url,
@@ -26,6 +28,7 @@ final class UserProfile
         public readonly string $registeredAt,
         public readonly string $role,
         public readonly AvatarImage $avatar,
+        public readonly ?ProfileStats $stats = null,
     ) {
     }
 
@@ -35,6 +38,7 @@ final class UserProfile
         return [
             'id' => $this->id,
             'username' => $this->username,
+            'slug' => $this->slug,
             'nickname' => $this->nickname,
             'email' => $this->email,
             'url' => $this->url,
@@ -43,6 +47,7 @@ final class UserProfile
             'registeredAt' => $this->registeredAt,
             'role' => $this->role,
             'avatar' => $this->avatar->toArray(),
+            'stats' => $this->stats?->toArray(),
         ];
     }
 }

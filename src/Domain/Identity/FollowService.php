@@ -40,6 +40,10 @@ final class FollowService
             ['%d', '%d', '%s']
         );
 
+        if ($inserted !== false) {
+            do_action('aiya_core_user_followed', $followerId, $followedId);
+        }
+
         // Duplicate-key failures are the expected re-follow path.
         return $inserted === false && (int) $wpdb->get_var($wpdb->prepare(
             'SELECT id FROM %i WHERE follower_id = %d AND followed_id = %d',

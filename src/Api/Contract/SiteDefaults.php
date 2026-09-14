@@ -7,7 +7,8 @@ namespace Aiya\Core\Api\Contract;
 /**
  * Front-end presentation defaults from the Frontend settings page: the
  * initial color mode, the site-wide fallback cover used when a post has
- * neither a featured image nor a generated one, and the brand color that
+ * neither a featured image nor a generated one, the empty/error state
+ * placeholder image, and the brand color that
  * drives the front end's palette. `colorMode` is one of system/dark/light.
  */
 final class SiteDefaults
@@ -15,6 +16,7 @@ final class SiteDefaults
     public function __construct(
         public readonly string $colorMode,
         public readonly ?Image $thumb,
+        public readonly ?Image $emptyImage,
         public readonly SiteTheme $theme,
     ) {
     }
@@ -25,6 +27,7 @@ final class SiteDefaults
         return [
             'colorMode' => $this->colorMode,
             'thumb' => $this->thumb?->toArray(),
+            'emptyImage' => $this->emptyImage?->toArray(),
             'theme' => $this->theme->toArray(),
         ];
     }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Contract;
 
 /**
- * Brand color configured on the Frontend settings page. `primary` drives
+ * Theme color configured on the Frontend settings page. `primary` drives
  * the front end's brand palette (buttons, links, active states); the front
  * end derives every other brand tint from it.
  */

@@ -100,7 +100,15 @@ baseline: `front-station/src/lib/aiya/contracts.snapshot.v1.json`).
 Only additive evolution is allowed — new fields, new endpoints, filling
 reserved fields. Breaking changes require a new namespace or an
 explicit contract-version policy. Enforcement: the front-end vitest
-suite asserts the living snapshot against the v1 baseline. Update
+suite asserts the living snapshot against the v1 baseline.
+
+2026-09-13 amendment (pre-launch re-baseline, owner decision): the
+Discussion contract was reshaped in place — the three-value `type`
+became customizable boards (`board` object) and `status` collapsed to
+two values — and `PostSummary` gained `badges` while `PostDetail` gained
+`locked` (password gate). The living snapshot and the front-end zod
+schemas moved together; the v1 baseline file records the frozen 0.36.0
+state for reference. Update
 endpoints deliberately accept the WP `EDITABLE` verb set
 (POST/PUT/PATCH) — core convention, not accidental redundancy.
 

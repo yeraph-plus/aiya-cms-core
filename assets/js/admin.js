@@ -20,8 +20,9 @@
         applySelection() {
             const attachment = this.frame.state().get('selection').first().toJSON();
             this.$('.aiya-core-media-value').val(attachment.id).trigger('change');
+            const preview = attachment.sizes?.medium?.url || attachment.sizes?.full?.url || attachment.url;
             this.$('.aiya-core-media-preview').html(
-                $('<img>', { src: attachment.sizes?.thumbnail?.url || attachment.url, alt: '' })
+                $('<img>', { src: preview, alt: '' })
             );
         },
         remove(event) {

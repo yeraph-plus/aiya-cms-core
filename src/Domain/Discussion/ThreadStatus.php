@@ -5,21 +5,19 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Discussion;
 
 /**
- * Thread status workflow (2026-09-09 contract): a thread opens as `open`,
- * flips to `answered` automatically when someone other than the author
- * replies, and the author or an administrator moves it to `resolved` or
- * `closed` (and back). Only `closed` locks replies — resolved threads
- * still accept follow-ups; a new reply there does not rewind the state.
+ * Thread status (0.45.0 community form): two values only. A thread is
+ * `open` — the normal state, no badge — until the author or an
+ * administrator `closes` it; closed locks replies and shows a badge.
+ * The former issue-style `answered`/`resolved` values and the
+ * reply-driven auto transition were dropped with the boards rework.
  */
 final class ThreadStatus
 {
     public const OPEN = 'open';
-    public const ANSWERED = 'answered';
-    public const RESOLVED = 'resolved';
     public const CLOSED = 'closed';
 
     /** @var list<string> */
-    public const ALL = [self::OPEN, self::ANSWERED, self::RESOLVED, self::CLOSED];
+    public const ALL = [self::OPEN, self::CLOSED];
 
     public static function isValid(string $status): bool
     {
@@ -29,18 +27,5 @@ final class ThreadStatus
     public static function locksReplies(string $status): bool
     {
         return $status === self::CLOSED;
-    }
-
-    /**
-     * The status a thread moves to when a reply lands: only an untouched
-     * `open` thread becomes `answered`; every other state is sticky.
-     */
-    public static function afterReply(string $current, int $replierId, int $threadAuthorId): string
-    {
-        if ($current === self::OPEN && $replierId !== $threadAuthorId) {
-            return self::ANSWERED;
-        }
-
-        return $current;
     }
 }

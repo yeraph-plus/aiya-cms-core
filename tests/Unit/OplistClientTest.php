@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\ExternalFiles\AttachmentService;
 use Aiya\Core\Domain\ExternalFiles\FileIcons;
 use Aiya\Core\Domain\ExternalFiles\OpenListClient;
 use PHPUnit\Framework\TestCase;
@@ -87,20 +86,5 @@ final class FileIconsTest extends TestCase
         self::assertSame('archive', FileIcons::forEntry('pack.7z', false, true));
         self::assertSame('pdf', FileIcons::forEntry('manual.PDF', false, true), 'extension matching is case-insensitive');
         self::assertSame('video', FileIcons::forEntry('clip.mkv', false, true));
-    }
-}
-
-final class AttachmentGateTest extends TestCase
-{
-    public function testGateMatrix(): void
-    {
-        $service = AttachmentService::class;
-        // Sponsor-only: sponsors (and admins via bypass) see links.
-        self::assertTrue($service::canSeeLinks(true, true, true));
-        self::assertFalse($service::canSeeLinks(true, false, true));
-        self::assertFalse($service::canSeeLinks(true, false, false), 'guests never see links');
-        // Open box: any signed-in viewer.
-        self::assertTrue($service::canSeeLinks(false, false, true));
-        self::assertFalse($service::canSeeLinks(false, false, false));
     }
 }

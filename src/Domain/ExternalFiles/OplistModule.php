@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\ExternalFiles;
 
 use Aiya\Core\Contracts\Module;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
 use Aiya\Core\Settings\Registry;
 use WP_Error;
@@ -19,8 +18,9 @@ use WP_Error;
  *
  * Legacy pieces deliberately not ported: the `[oplist_cli]` shortcode
  * meta-persist layer (shortcodes follow the template-parts plan) and the
- * per-view sponsorship trigger counter (the 2026-09-09 gate redesign
- * trimmed links per viewer instead).
+ * sponsor-only download switch (`sponsor_can` — dropped with the
+ * 2026-09-13 credits decision; paid access may re-enter through the
+ * credit ledger as its own design).
  */
 final class OplistModule implements Module
 {
@@ -81,7 +81,7 @@ final class OplistModule implements Module
                     'id' => 'oplist_list_cache_minutes',
                     'type' => 'number',
                     'label' => __('Attachment list cache (minutes)', 'aiya-core'),
-                    'description' => __('How long an attachment listing is served from the object cache before OpenList is asked again; 0 disables caching. The box\u0027s force-refresh switch always bypasses it.', 'aiya-core'),
+                    'description' => __('How long an attachment listing is served from the object cache before OpenList is asked again; 0 disables caching. The box\'s force-refresh switch always bypasses it.', 'aiya-core'),
                     'default' => 5,
                     'min' => 0,
                     'max' => 1440,
@@ -117,7 +117,7 @@ final class OplistModule implements Module
         ]);
     }
 
-    /** The legacy box, verbatim fields, scoped to the resource screen. */
+    /** The legacy box, verbatim fields minus sponsor_can, scoped to the resource screen. */
     private function postBox(): void
     {
         $this->metadata->addPostBox([
@@ -127,13 +127,6 @@ final class OplistModule implements Module
             'context' => 'normal',
             'priority' => 'low',
             'fields' => [
-                [
-                    'id' => 'sponsor_can',
-                    'type' => 'switch',
-                    'label' => __('Sponsor-only downloads', 'aiya-core'),
-                    'description' => __('On: only sponsors see download links (listing stays public). Off: any signed-in user sees them.', 'aiya-core'),
-                    'default' => true,
-                ],
                 [
                     'id' => 'fs_method',
                     'type' => 'select',
@@ -205,7 +198,7 @@ final class OplistModule implements Module
      */
     public function attachments(): AttachmentService
     {
-        return new AttachmentService(fn (): OpenListClient => $this->client(), new MembershipService());
+        return new AttachmentService(fn (): OpenListClient => $this->client());
     }
 
     private function client(): OpenListClient

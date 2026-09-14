@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Infrastructure\Security;
 
-use Aiya\Core\Api\Contract\Contract;
-use Aiya\Core\Api\Rest\GatewayController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Registry;
 
@@ -13,17 +11,14 @@ use Aiya\Core\Settings\Registry;
  * Security hardening for the headless backend, ported from the still-valid
  * surface of the legacy basic-security component.
  *
- * Scope (batch 1 of docs/optimize-migration-assessment.md, REST surface
- * reworked in 0.40.0):
- *  - serve the versioned contract routes only: the whole native /wp/v2 API
- *    answers 404 to anyone without a backend session (the front end talks
- *    to aiya/core/v1 exclusively, so /wp/v2 has no public consumer left —
- *    user enumeration goes with it);
- *  - drop the users provider from WP sitemaps;
+ * Scope (batch 1 of docs/optimize-migration-assessment.md; the native /wp/v2
+ * surface lock and the sitemap toggles moved to HeadlessModule in the
+ * current batch — the API lock now lives with the other headless strips):
  *  - force email-address logins for wp-admin;
  *  - optional role gate for the admin back end;
  *  - optional secret-parameter gate for wp-login.php;
- *  - cheap request-URI sanity guard against probe traffic.
+ *  - cheap request-URI sanity guard against probe traffic;
+ *  - CORS origin allowlist for the contract API (rest_allowed_origins).
  *
  * Username blocklisting (the legacy logged_sanitize_user_* group) was
  * dropped on purpose: the owner decided against it. Every toggle is
@@ -55,9 +50,6 @@ final class SecurityModule implements Module
         add_action('admin_init', [$this, 'guardBackend']);
         add_action('login_init', [$this, 'gateLoginPage']);
         add_filter('authenticate', [$this, 'forceEmailLogin'], 20, 3);
-        add_filter('rest_endpoints', [$this, 'lockPublicSurface'], 100);
-        add_filter('rest_index', [$this, 'filterIndexNamespaces'], 100);
-        add_filter('wp_sitemaps_add_provider', [$this, 'filterSitemapProviders'], 10, 2);
     }
 
     /** @return bool True when a hardening toggle is enabled; defaults keep the passive measures on. */
@@ -80,21 +72,6 @@ final class SecurityModule implements Module
                     'type' => 'heading',
                     'label' => __('REST route control', 'aiya-core'),
                     'level' => '2',
-                ],
-                [
-                    'id' => 'lock_wp_v2',
-                    'type' => 'switch',
-                    'label' => __('Native /wp/v2 REST API', 'aiya-core'),
-                    'checkbox_label' => __('Answer 404 for the whole /wp/v2 API — only the aiya contract routes stay public', 'aiya-core'),
-                    'description' => __('The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Backend sessions (administrator, editor, author) keep the full /wp/v2 for admin screens such as the media picker.', 'aiya-core'),
-                    'default' => true,
-                ],
-                [
-                    'id' => 'hide_sitemap_users',
-                    'type' => 'switch',
-                    'label' => __('Sitemap user list', 'aiya-core'),
-                    'checkbox_label' => __('Drop the users provider from WP sitemaps', 'aiya-core'),
-                    'default' => true,
                 ],
                 [
                     'id' => 'rest_allowed_origins',
@@ -169,97 +146,6 @@ final class SecurityModule implements Module
                 ],
             ],
         ]);
-    }
-
-    /**
-     * Contract-only public surface (0.40.0: the /wp/v2/users toggle and the
-     * former public-surface toggle merged into one — the front end talks to
-     * aiya/core/v1 exclusively, so the whole native /wp/v2 API is stripped
-     * for visitors and user enumeration goes with it). Backend sessions
-     * (cookie or application password with edit_posts) keep the full API
-     * for admin screens; front-end bearer visitors are subscriber-level
-     * and do not.
-     *
-     * @param array<string, mixed> $endpoints
-     * @return array<string, mixed>
-     */
-    public function lockPublicSurface(array $endpoints): array
-    {
-        if (!$this->enabled('lock_wp_v2')) {
-            return $endpoints;
-        }
-        if (current_user_can('edit_posts')) {
-            return $endpoints;
-        }
-
-        // Gateway callbacks are platform-to-server pushes (always anonymous,
-        // authenticated by their own signature checks), so they stay on the
-        // public surface next to the versioned contract.
-        $allowed = [
-            '/' . Contract::API_NAMESPACE,
-            '/' . GatewayController::GATEWAY_NAMESPACE,
-        ];
-
-        foreach (array_keys($endpoints) as $route) {
-            if ($route === '/') {
-                // Keep the index; its namespace list shrinks with the routes.
-                continue;
-            }
-            if (!is_string($route)) {
-                unset($endpoints[$route]);
-                continue;
-            }
-
-            $allowedRoute = false;
-            foreach ($allowed as $prefix) {
-                if (str_starts_with($route, $prefix)) {
-                    $allowedRoute = true;
-                    break;
-                }
-            }
-            if (!$allowedRoute) {
-                unset($endpoints[$route]);
-            }
-        }
-
-        return $endpoints;
-    }
-
-    /**
-     * Aligns the REST index with the locked surface: the namespace list
-     * is populated at registration time, before endpoint filters run, so
-     * it needs its own trim. Contract and gateway namespaces stay listed —
-     * their routes stay registered on the public surface.
-     */
-    public function filterIndexNamespaces(mixed $response, mixed $request = null): mixed
-    {
-        if (!$response instanceof \WP_REST_Response || !$this->enabled('lock_wp_v2') || current_user_can('edit_posts')) {
-            return $response;
-        }
-
-        $data = $response->get_data();
-        $data['namespaces'] = array_values(array_filter(
-            (array) ($data['namespaces'] ?? []),
-            static fn ($ns): bool => is_string($ns)
-                && (str_starts_with($ns, Contract::API_NAMESPACE) || str_starts_with($ns, GatewayController::GATEWAY_NAMESPACE))
-        ));
-        $response->set_data($data);
-
-        return $response;
-    }
-
-    /**
-     * Removes the users provider from WP sitemaps.
-     *
-     * @param mixed $provider
-     */
-    public function filterSitemapProviders(mixed $provider, string $name): mixed
-    {
-        if ($this->enabled('hide_sitemap_users') && $name === 'users') {
-            return false;
-        }
-
-        return $provider;
     }
 
     /**

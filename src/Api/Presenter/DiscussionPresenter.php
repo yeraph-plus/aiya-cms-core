@@ -6,11 +6,13 @@ namespace Aiya\Core\Api\Presenter;
 
 use Aiya\Core\Api\Contract\Author;
 use Aiya\Core\Api\Contract\Discussion;
+use Aiya\Core\Api\Contract\DiscussionBoard;
 use Aiya\Core\Api\Contract\DiscussionDetail;
 use Aiya\Core\Api\Contract\DiscussionReply;
 use Aiya\Core\Api\Contract\Image;
 use Aiya\Core\Api\Contract\PostRef;
 use Aiya\Core\Domain\Content\PublicTypes;
+use Aiya\Core\Domain\Discussion\DiscussionContent;
 use Aiya\Core\Domain\Discussion\ThreadStatus;
 use WP_Post;
 
@@ -23,28 +25,31 @@ use WP_Post;
  */
 final class DiscussionPresenter
 {
-    /** @param object{id:int,user_id:int,type:string,status:string,title:string,post_id:int,reply_count:int,last_reply_user_id:int,last_reply_at:string|null,created_at:string} $row */
+    /** @param object{id:int,user_id:int,board_id:int,board_slug:string|null,board_name:string|null,status:string,title:string,content:string,post_id:int,reply_count:int,last_reply_user_id:int,last_reply_at:string|null,created_at:string} $row */
     public function present(object $row, int $viewerId): Discussion
     {
         return new Discussion(
             (int) $row->id,
             '/community/' . (int) $row->id . '/',
             (string) $row->title,
-            (string) $row->type,
+            $this->board($row),
             (string) $row->status,
             $this->author((int) $row->user_id),
             $this->postRef((int) $row->post_id),
             (int) $row->reply_count,
+            DiscussionContent::tags((string) $row->content),
+            $this->images((string) $row->content),
             $this->iso((string) ($row->last_reply_at ?? '')),
             $this->iso((string) $row->created_at),
             $this->canModerate((int) $row->user_id, $viewerId),
             $this->canModerate((int) $row->user_id, $viewerId),
             $viewerId > 0 && !ThreadStatus::locksReplies((string) $row->status),
+            (string) $row->content,
         );
     }
 
     /**
-     * @param object{id:int,user_id:int,type:string,status:string,title:string,content:string,post_id:int,reply_count:int,last_reply_user_id:int,last_reply_at:string|null,created_at:string,updated_at:string} $row
+     * @param object{id:int,user_id:int,board_id:int,board_slug:string|null,board_name:string|null,status:string,title:string,content:string,post_id:int,reply_count:int,last_reply_user_id:int,last_reply_at:string|null,created_at:string,updated_at:string} $row
      * @param list<DiscussionReply> $replies
      */
     public function detail(object $row, array $replies, int $viewerId): DiscussionDetail
@@ -59,9 +64,31 @@ final class DiscussionPresenter
             (int) $row->id,
             $this->author((int) $row->user_id),
             (string) $row->content,
+            $this->images((string) $row->content),
             $this->iso((string) $row->created_at),
             $this->canModerate((int) $row->user_id, $viewerId),
         );
+    }
+
+    /** @param object{board_id:int,board_slug:string|null,board_name:string|null} $row */
+    private function board(object $row): ?DiscussionBoard
+    {
+        $slug = (string) ($row->board_slug ?? '');
+
+        return $slug === ''
+            ? null
+            : new DiscussionBoard((int) $row->board_id, $slug, (string) ($row->board_name ?? ''));
+    }
+
+    /** @return list<Image> */
+    private function images(string $html): array
+    {
+        $images = [];
+        foreach (DiscussionContent::images($html) as $extracted) {
+            $images[] = new Image($extracted['url'], '', $extracted['width'], $extracted['height']);
+        }
+
+        return $images;
     }
 
     private function postRef(int $postId): ?PostRef
@@ -92,13 +119,14 @@ final class DiscussionPresenter
     {
         $user = get_userdata($userId);
         if (!$user) {
-            return new Author(0, '', null);
+            return new Author(0, '', '', null);
         }
 
         $avatarUrl = get_avatar_url($userId, ['size' => 128]);
 
         return new Author(
             $userId,
+            (string) $user->user_nicename,
             (string) $user->display_name,
             is_string($avatarUrl) && $avatarUrl !== '' ? new Image($avatarUrl, (string) $user->display_name, null, null) : null,
         );

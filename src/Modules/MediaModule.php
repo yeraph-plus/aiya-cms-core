@@ -58,6 +58,10 @@ final class MediaModule implements Module
         add_action('aiya_core_register', [$this, 'settings'], 10, 0);
         add_filter('wp_handle_upload', [$this, 'handleUpload'], 20, 2);
 
+        // This module owns the upload pipeline; core's big-image threshold
+        // would rescale originals behind it (-scaled copies), so it stays off.
+        add_filter('big_image_size_threshold', '__return_false');
+
         // Card composites generate off-thread: a small batch per run, so a
         // fresh listing never times out on inline image work. Until the
         // composite exists, the API serves the live source URL.
@@ -87,6 +91,83 @@ final class MediaModule implements Module
 
             return $hooks;
         });
+        add_action('save_post', [$this, 'syncCardOnSave'], 100, 2);
+        add_filter('post_row_actions', [$this, 'thumbnailRowAction'], 10, 2);
+        add_action('admin_post_aiya_core_card_refresh', [$this, 'handleCardRefresh']);
+    }
+
+    private const CARD_TYPES = ['post', 'page', 'resource'];
+
+    /**
+     * Card generation on publish saves: synchronous, so the composite is
+     * in place the moment the editor hits save — the five-minute cron
+     * stays as the fallback for anything a save path missed.
+     */
+    public function syncCardOnSave(int $postId, \WP_Post $post): void
+    {
+        if (wp_is_post_revision($postId)
+            || wp_is_post_autosave($postId)
+            || $post->post_status !== 'publish'
+            || !in_array($post->post_type, self::CARD_TYPES, true)) {
+            return;
+        }
+
+        static $synced = [];
+        if (isset($synced[$postId])) {
+            return; // meta round-trips re-fire save_post; one composite is enough
+        }
+        $synced[$postId] = true;
+
+        $this->cards()->refreshFor($postId);
+        // Pre-warm the featured derivatives (640 card + 1000 render);
+        // both reuse an existing file, so repeats are a cheap is_file.
+        $featured = $this->cards()->featuredDerivatives($post);
+        $this->cards()->defaultDerivative();
+    }
+
+    /**
+     * Regenerate row action on the post/page/resource list tables. The
+     * handler re-runs the composite on demand (content image changed, the
+     * source was wrong the first time, the card was hand-deleted).
+     *
+     * @param array<string, string> $actions
+     * @return array<string, string>
+     */
+    public function thumbnailRowAction(array $actions, \WP_Post $post): array
+    {
+        if (!in_array($post->post_type, self::CARD_TYPES, true)
+            || $post->post_status !== 'publish'
+            || !current_user_can('edit_post', (int) $post->ID)) {
+            return $actions;
+        }
+
+        $url = wp_nonce_url(
+            admin_url('admin-post.php?action=aiya_core_card_refresh&post_id=' . (int) $post->ID),
+            'aiya_core_card_refresh_' . (int) $post->ID
+        );
+        $actions['aiya-core-card-refresh'] = '<a href="' . esc_url($url) . '">'
+            . esc_html__('Refresh thumbnail', 'aiya-core') . '</a>';
+
+        return $actions;
+    }
+
+    public function handleCardRefresh(): void
+    {
+        $postId = absint((string) ($_GET['post_id'] ?? '0'));
+        if ($postId <= 0 || !current_user_can('edit_post', $postId)) {
+            wp_die(esc_html__('You are not allowed to edit this post.', 'aiya-core'), '', ['response' => 403]);
+        }
+        check_admin_referer('aiya_core_card_refresh_' . $postId);
+
+        $post = get_post($postId);
+        if ($post !== null && in_array($post->post_type, self::CARD_TYPES, true) && $post->post_status === 'publish') {
+            $this->cards()->refreshFor($postId);
+        }
+
+        $referer = wp_get_raw_referer();
+        $target = $referer !== '' && is_string($referer) ? $referer : (string) get_edit_post_link($postId, 'raw');
+        wp_safe_redirect($target !== '' ? $target : admin_url('edit.php'));
+        exit;
     }
 
     public function settings(): void

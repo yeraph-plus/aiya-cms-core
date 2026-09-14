@@ -6,6 +6,9 @@ namespace Aiya\Core\Api\Presenter;
 
 use Aiya\Core\Api\Contract\AvatarImage;
 use Aiya\Core\Api\Contract\UserProfile;
+use Aiya\Core\Api\Contract\ProfileStats;
+use Aiya\Core\Domain\Identity\FavoriteService;
+use Aiya\Core\Domain\Identity\FollowService;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use WP_User;
 
@@ -15,7 +18,7 @@ use WP_User;
  *
  * The role field keeps the legacy front-end levels (administrator /
  * author / sponsor / subscriber); sponsor validity reads the persistent
- * `sponsor_expiration` and `aya_force_cancel_sponsor` protocol meta.
+ * membership entitlement queue (0.50.0 tier model).
  */
 final class UserPresenter
 {
@@ -28,6 +31,7 @@ final class UserPresenter
         return new UserProfile(
             (int) $user->ID,
             (string) $user->user_login,
+            (string) $user->user_nicename,
             (string) $user->display_name,
             (string) $user->user_email,
             (string) $user->user_url,
@@ -35,7 +39,20 @@ final class UserPresenter
             get_user_locale((int) $user->ID),
             $this->registeredAt($user),
             $this->role($user),
-            $this->avatar((int) $user->ID)
+            $this->avatar((int) $user->ID),
+            $this->stats((int) $user->ID)
+        );
+    }
+
+    /** Profile counters for the owner's own view (same semantics as the
+        public profile stats). */
+    private function stats(int $userId): ProfileStats
+    {
+        return new ProfileStats(
+            0,
+            (new FavoriteService())->countForAuthor($userId),
+            (int) count_user_posts($userId, 'post', true),
+            (new FollowService())->countFollowers($userId)
         );
     }
 

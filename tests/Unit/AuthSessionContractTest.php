@@ -20,6 +20,7 @@ final class AuthSessionContractTest extends TestCase
             new UserProfile(
                 12,
                 '9f0e5a1c-6f7a-4d3e-8b2c-1a2b3c4d5e6f',
+                'zhan-zhang',
                 '站长',
                 'owner@example.com',
                 '',
@@ -55,6 +56,7 @@ final class AuthSessionContractTest extends TestCase
     {
         return new UserProfile(
             12,
+            'u',
             'u',
             'n',
             'e@example.com',

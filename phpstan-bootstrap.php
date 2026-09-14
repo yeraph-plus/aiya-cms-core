@@ -23,3 +23,12 @@ if (!defined('COOKIEPATH')) {
 if (!defined('COOKIE_DOMAIN')) {
     define('COOKIE_DOMAIN', 'example.com');
 }
+
+if (!defined('COOKIEHASH')) {
+    define('COOKIEHASH', 'testhash');
+}
+// Core defines WPINC in wp-settings.php; the Dev Tools dashicons sheet
+// reads wp-includes paths through it.
+if (!defined('WPINC')) {
+    define('WPINC', 'wp-includes');
+}

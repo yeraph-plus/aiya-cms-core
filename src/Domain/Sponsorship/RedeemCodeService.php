@@ -7,25 +7,29 @@ namespace Aiya\Core\Domain\Sponsorship;
 use WP_Error;
 
 /**
- * Redemption codes on the legacy `wp_aya_convert_codes` table (kept as-is —
- * regenerating the shape would strand every already-printed code). Redeeming
- * is atomic: a single conditional UPDATE wins the race, and if the membership
- * activation then fails the code is rolled back to unused.
+ * Membership redemption codes on the plugin-owned
+ * `{prefix}aiya_redeem_codes` table (0.54.0 clean rewrite — the legacy
+ * `aya_convert_codes` table is not inherited; the site never launched).
+ * A code carries a tier key and a cycle count; redeeming is atomic (a
+ * single conditional UPDATE wins the race) and queues the tier
+ * entitlement exactly like a paid order — credits then arrive through
+ * the regular cycle grants, never up front. If activation rejects, the
+ * code is rolled back to unused.
  */
 final class RedeemCodeService
 {
     private const MAX_GENERATE = 100;
     private const CODE_LENGTH = 16;
 
-    public function __construct(private OrderService $orders)
+    public function __construct(private EntitlementService $entitlements)
     {
     }
 
     /**
      * Redeems a code for the user: atomic claim, membership activation,
-     * rollback when the activation rejects the order.
+     * rollback when activation rejects the order id.
      *
-     * @return array{days:int, expiresAt:int}|WP_Error
+     * @return array{tierKey:string, tierName:string, cycles:int}|WP_Error
      */
     public function redeem(string $code, int $userId): array|WP_Error
     {
@@ -42,7 +46,7 @@ final class RedeemCodeService
         $table = $this->table();
 
         $row = $wpdb->get_row($wpdb->prepare(
-            'SELECT code, duration, status, user_id FROM %i WHERE code = %s',
+            'SELECT code, tier_key, cycles, status, user_id FROM %i WHERE code = %s',
             $table,
             $code
         ));
@@ -52,6 +56,15 @@ final class RedeemCodeService
         }
         if ((int) $row->status === 1 || $row->user_id !== null) {
             return new WP_Error('aiya_code_used', __('This code has already been redeemed.', 'aiya-core'), ['status' => 409]);
+        }
+
+        $tierKey = (string) $row->tier_key;
+        $cycles = (int) $row->cycles;
+        $tier = SponsorshipSettings::tierByKey(SponsorshipSettings::read()['tiers'], $tierKey);
+        if ($tierKey === '' || $cycles < 1 || $tier === null) {
+            // A code whose tier was deleted after printing cannot resolve
+            // its product any more.
+            return new WP_Error('aiya_code_invalid', __('Invalid redemption code.', 'aiya-core'), ['status' => 400]);
         }
 
         $claimed = 0;
@@ -71,9 +84,7 @@ final class RedeemCodeService
             return new WP_Error('aiya_code_used', __('This code has already been redeemed.', 'aiya-core'), ['status' => 409]);
         }
 
-        $days = max(1, (int) $row->duration);
-        $activated = $this->orders->add($userId, (string) $row->code, $days, OrderService::STATUS_PAID, 'code');
-
+        $activated = $this->entitlements->activateFromPayment($userId, $code, $tier, $cycles);
         if (is_wp_error($activated)) {
             // Give the code back — nothing was consumed. A failed rollback
             // burns the code silently, so make it visible in the logs.
@@ -83,22 +94,26 @@ final class RedeemCodeService
                 error_log('[aiya-core] Redeem rollback failed for code ' . $code . ' — the code is now unusable without manual repair.');
             }
 
-            return new WP_Error('aiya_code_activation_failed', __('Activation failed — you may already hold an overlapping period, or the order was already recorded.', 'aiya-core'), ['status' => 500]);
+            return new WP_Error('aiya_code_activation_failed', __('The membership activation failed — the code was not consumed, try again.', 'aiya-core'), ['status' => 500]);
         }
 
-        return ['days' => $days, 'expiresAt' => $this->orders->syncExpiration($userId)];
+        return [
+            'tierKey' => $tier['key'],
+            'tierName' => $tier['name'],
+            'cycles' => $cycles,
+        ];
     }
 
     /**
      * Batch-generates codes and returns the count actually stored.
      */
-    public function generate(int $quantity, int $days, string $prefix = ''): int
+    public function generate(int $quantity, string $tierKey, int $cycles): int
     {
         $quantity = max(1, min(self::MAX_GENERATE, $quantity));
-        $days = max(1, $days);
-        $prefix = strtoupper(sanitize_text_field($prefix));
-        if ($prefix !== '' && !str_ends_with($prefix, '-')) {
-            $prefix .= '-';
+        $tierKey = sanitize_key($tierKey);
+        $cycles = max(1, $cycles);
+        if ($tierKey === '') {
+            return 0;
         }
 
         global $wpdb;
@@ -107,16 +122,17 @@ final class RedeemCodeService
         $stored = 0;
 
         for ($i = 0; $i < $quantity; $i++) {
-            $code = $prefix . strtoupper(wp_generate_password(self::CODE_LENGTH, false, false));
+            $code = strtoupper(wp_generate_password(self::CODE_LENGTH, false, false));
             $inserted = $wpdb->insert(
                 $table,
                 [
                     'code' => $code,
-                    'duration' => $days,
+                    'tier_key' => $tierKey,
+                    'cycles' => $cycles,
                     'created_at' => current_time('mysql', true),
                     'status' => 0,
                 ],
-                ['%s', '%d', '%s', '%d']
+                ['%s', '%s', '%d', '%s', '%d']
             );
 
             if ($inserted !== false) {
@@ -130,7 +146,7 @@ final class RedeemCodeService
     /**
      * Paged listing for the admin screen, newest first.
      *
-     * @return array{items: list<object{id:string|int,code:string,duration:string|int,status:string|int,user_id:string|int|null,used_to:string|null,created_at:string}>, total:int, pages:int}
+     * @return array{items: list<object{id:string|int,code:string,tier_key:string,cycles:string|int,status:string|int,user_id:string|int|null,used_to:string|null,created_at:string}>, total:int, pages:int}
      */
     public function page(int $paged, int $perPage = 20): array
     {
@@ -145,9 +161,9 @@ final class RedeemCodeService
 
         $items = [];
         if ($total > 0) {
-            /** @var list<object{id:string|int,code:string,duration:string|int,status:string|int,user_id:string|int|null,used_to:string|null,created_at:string}>|null $items */
+            /** @var list<object{id:string|int,code:string,tier_key:string,cycles:string|int,status:string|int,user_id:string|int|null,used_to:string|null,created_at:string}>|null $items */
             $items = $wpdb->get_results($wpdb->prepare(
-                'SELECT id, code, duration, status, user_id, used_to, created_at
+                'SELECT id, code, tier_key, cycles, status, user_id, used_to, created_at
                  FROM %i ORDER BY created_at DESC LIMIT %d OFFSET %d',
                 $table,
                 $perPage,
@@ -172,12 +188,12 @@ final class RedeemCodeService
         }
     }
 
-    /** Creates the legacy-compatible table; the 0.24.0 schema migration. */
+    /** Creates the codes table; the 0.54.0 schema migration. */
     public static function installTable(): void
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $table = $wpdb->prefix . 'aya_convert_codes';
+        $table = $wpdb->prefix . 'aiya_redeem_codes';
         $charset = $wpdb->get_charset_collate();
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -186,13 +202,15 @@ final class RedeemCodeService
             "CREATE TABLE $table (
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 code VARCHAR(64) NOT NULL,
-                used_to VARCHAR(20) DEFAULT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                used_to DATETIME DEFAULT NULL,
+                created_at DATETIME NOT NULL,
                 user_id BIGINT UNSIGNED DEFAULT NULL,
-                duration INT UNSIGNED DEFAULT 30,
-                status BOOLEAN NOT NULL DEFAULT 0,
+                tier_key VARCHAR(32) NOT NULL DEFAULT '',
+                cycles INT UNSIGNED NOT NULL DEFAULT 1,
+                status TINYINT NOT NULL DEFAULT 0,
                 PRIMARY KEY  (id),
-                UNIQUE KEY code (code)
+                UNIQUE KEY code (code),
+                KEY holder (user_id)
             ) $charset;"
         );
     }
@@ -201,6 +219,6 @@ final class RedeemCodeService
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        return $wpdb->prefix . 'aya_convert_codes';
+        return $wpdb->prefix . 'aiya_redeem_codes';
     }
 }

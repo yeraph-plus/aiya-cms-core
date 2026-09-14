@@ -120,12 +120,43 @@ final class FavoriteService
         return ['ids' => $ids, 'total' => $total, 'pages' => (int) ceil($total / $perPage)];
     }
 
+    /** Every user id that favorited a post — the update-notification fan-out list.
+     *
+     * @return list<int>
+     */
+    public function favoritedUserIds(int $postId): array
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $rows = $wpdb->get_col($wpdb->prepare('SELECT user_id FROM %i WHERE post_id = %d', $this->table(), $postId));
+
+        return array_map('intval', is_array($rows) ? $rows : []);
+    }
+
     /** How many users favorited one post — the future article-side counter. */
     public function countForPost(int $postId): int
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
         $found = $wpdb->get_var($wpdb->prepare('SELECT COUNT(id) FROM %i WHERE post_id = %d', $this->table(), $postId));
+
+        return is_numeric($found) ? (int) $found : 0;
+    }
+
+    /** How many favorites the author's published posts received in total. */
+    public function countForAuthor(int $authorId): int
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $found = $wpdb->get_var($wpdb->prepare(
+            'SELECT COUNT(f.id) FROM %i f INNER JOIN %i p ON p.ID = f.post_id'
+            . ' WHERE p.post_author = %d AND p.post_status = %s AND p.post_type = %s',
+            $this->table(),
+            $wpdb->posts,
+            $authorId,
+            'publish',
+            'post'
+        ));
 
         return is_numeric($found) ? (int) $found : 0;
     }

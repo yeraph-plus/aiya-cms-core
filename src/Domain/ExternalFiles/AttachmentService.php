@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\ExternalFiles;
 
-use Aiya\Core\Domain\Sponsorship\MembershipService;
 use WP_Error;
 
 /**
  * Surfaces the OpenList files behind a resource's `oplist_client` box as
- * the attachment list (2026-09-09 gate redesign): the listing metadata is
- * public for everyone including guests, while download links are trimmed
- * per viewer — logged-in users see them when the box's sponsor gate is
- * off, only sponsors (admins via the membership bypass) when it is on.
- * The legacy per-view trigger counter has no place in this model.
+ * the attachment list. The listing metadata is public for everyone
+ * including guests; download links go to signed-in viewers (guests see
+ * `url` null). The legacy sponsor-only tier (`sponsor_can` box switch,
+ * boolean membership gate) was removed with the 2026-09-13 credits
+ * decision — paid access re-enters later through the credit ledger, not
+ * through this service.
  *
  * Everything the platform returns is realtime, so the legacy
  * ready/unavailable concern collapses into "listed means ready".
@@ -26,24 +26,15 @@ final class AttachmentService
     private $clientFactory;
 
     /** @param callable():OpenListClient $clientFactory */
-    public function __construct(callable $clientFactory, private MembershipService $membership)
+    public function __construct(callable $clientFactory)
     {
         $this->clientFactory = $clientFactory;
     }
 
     /**
-     * The gate matrix as a pure decision: sponsor-only boxes reveal links
-     * to sponsors only, otherwise any signed-in viewer.
-     */
-    public static function canSeeLinks(bool $sponsorOnly, bool $isSponsor, bool $loggedIn): bool
-    {
-        return $sponsorOnly ? $isSponsor : $loggedIn;
-    }
-
-    /**
      * The attachment list of one published resource.
      *
-     * @return array{gated:bool, canSeeLinks:bool, items:list<array{name:string,size:int,type:string,modified:string|null,url:string|null,ready:bool}>}|WP_Error
+     * @return array{items:list<array{name:string,size:int,type:string,modified:string|null,url:string|null,ready:bool}>}|WP_Error
      */
     public function forResource(int $resourceId, int $viewerId): array|WP_Error
     {
@@ -55,11 +46,7 @@ final class AttachmentService
         $config = get_post_meta($resourceId, 'aiya_core_oplist_client', true);
         $config = is_array($config) ? $config : [];
         $method = (string) ($config['fs_method'] ?? 'off');
-        $sponsorOnly = filter_var((string) ($config['sponsor_can'] ?? ''), FILTER_VALIDATE_BOOLEAN);
-
-        $loggedIn = $viewerId > 0;
-        $canSeeLinks = self::canSeeLinks($sponsorOnly, $loggedIn && $this->membership->isSponsor($viewerId), $loggedIn);
-        $result = ['gated' => $sponsorOnly, 'canSeeLinks' => $canSeeLinks, 'items' => []];
+        $result = ['items' => []];
 
         if (!in_array($method, self::METHOD_CONFIGURED, true)) {
             return $result; // box present but no surfacing mode configured
@@ -102,7 +89,7 @@ final class AttachmentService
             }
         }
 
-        if (!$canSeeLinks) {
+        if ($viewerId <= 0) {
             foreach ($items as &$item) {
                 $item['url'] = null;
             }

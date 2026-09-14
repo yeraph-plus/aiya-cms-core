@@ -6,12 +6,12 @@ namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
 use WP_Error;
+use WP_User;
 use WP_User_Query;
 
 /**
- * Standalone Send Mail screen (top-level menu, sibling of the pic bed):
- * compose an HTML email with the classic editor and send it immediately
- * over AJAX.
+ * Send Mail screen (submenu of the AIYA Core menu): compose an HTML
+ * email with the classic editor and send it immediately over AJAX.
  *
  * The recipient is a free-text email field — any valid address works,
  * registered or not — with optional typeahead suggestions searching site
@@ -22,6 +22,7 @@ use WP_User_Query;
  */
 final class SendMailPage implements Module
 {
+    private const PARENT_SLUG = 'aiya-core-frontend';
     private const MENU_SLUG = 'aiya-core-send-mail';
     private const AJAX_ACTION = 'aiya_core_send_mail';
     private const AJAX_SEARCH = 'aiya_core_mail_search';
@@ -34,34 +35,60 @@ final class SendMailPage implements Module
     {
         add_action('admin_menu', [$this, 'menu'], 20);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
+        add_filter('user_row_actions', [$this, 'rowAction'], 10, 2);
         add_action('wp_ajax_' . self::AJAX_ACTION, [$this, 'handleSend']);
         add_action('wp_ajax_' . self::AJAX_SEARCH, [$this, 'handleSearch']);
     }
 
     public function menu(): void
     {
-        add_menu_page(
+        add_submenu_page(
+            self::PARENT_SLUG,
             __('Send Mail', 'aiya-core'),
             __('Send Mail', 'aiya-core'),
             'edit_users',
             self::MENU_SLUG,
-            [$this, 'render'],
-            'dashicons-email',
-            83
+            [$this, 'render']
         );
     }
 
     /** Loads the classic editor assets on this screen only. */
     public function assets(string $hook): void
     {
-        if ($hook === 'toplevel_page_' . self::MENU_SLUG) {
+        // A submenu page's hook keeps the slug after the parent prefix.
+        if ($hook === 'aiya-core_page_' . self::MENU_SLUG) {
             wp_enqueue_editor();
         }
+    }
+
+    /**
+     * Adds a Send Mail action to the users list table rows. The link
+     * carries the row user's email so the compose form opens prefilled;
+     * it is only shown to editors who could actually use the screen.
+     *
+     * @param array<string, string> $actions
+     * @return array<string, string>
+     */
+    public function rowAction(array $actions, WP_User $user): array
+    {
+        if (!current_user_can('edit_users') || (string) $user->user_email === '') {
+            return $actions;
+        }
+
+        $url = admin_url('admin.php?page=' . self::MENU_SLUG . '&aiya_mail_to=' . rawurlencode((string) $user->user_email));
+        $actions['aiya-core-send-mail'] = '<a href="' . esc_url($url) . '">' . esc_html__('Send Mail', 'aiya-core') . '</a>';
+
+        return $actions;
     }
 
     public function render(): void
     {
         $nonce = wp_create_nonce(self::NONCE_ACTION);
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only compose prefill; sending stays nonce-guarded.
+        $prefill = sanitize_email(wp_unslash((string) ($_GET['aiya_mail_to'] ?? '')));
+        if (!is_email($prefill)) {
+            $prefill = '';
+        }
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Send Mail', 'aiya-core'); ?></h1>
@@ -71,7 +98,7 @@ final class SendMailPage implements Module
                 <tr>
                     <th scope="row"><label for="aiya-core-mail-recipient"><?php esc_html_e('Recipient', 'aiya-core'); ?></label></th>
                     <td>
-                        <input type="text" class="regular-text" id="aiya-core-mail-recipient" placeholder="user@example.com" autocomplete="off" spellcheck="false">
+                        <input type="text" class="regular-text" id="aiya-core-mail-recipient" value="<?php echo esc_attr($prefill); ?>" placeholder="user@example.com" autocomplete="off" spellcheck="false">
                         <p class="description"><?php esc_html_e('Any email address works, registered or not. Typing a username or name suggests site users.', 'aiya-core'); ?></p>
                         <div id="aiya-core-mail-suggestions"></div>
                     </td>

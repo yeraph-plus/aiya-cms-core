@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Infrastructure\Headless;
 
+use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Api\Rest\GatewayController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Registry;
 
 /**
  * Strips WordPress surfaces that are meaningless for a headless backend
  * (block editor, site editor, customizer, block widgets, font library,
- * block patterns, pingbacks/trackbacks, XML-RPC, emoji, oEmbed discovery)
+ * block patterns, pingbacks/trackbacks, XML-RPC, emoji, oEmbed discovery,
+ * XML sitemaps, feeds, the native /wp/v2 API)
  * and cleans the remaining front-end head output.
  *
  * Comment storage and moderation stay in WordPress (the classic
@@ -19,7 +22,8 @@ use Aiya\Core\Settings\Registry;
  * route is retired unconditionally — for every user and every toggle
  * state. Comment REST belongs to the versioned contract. Pingbacks and
  * trackbacks are protocol-level spam vectors and stay disabled by
- * default regardless.
+ * default regardless. Post-by-email is retired unconditionally too
+ * (nothing posts by mail to a headless backend).
  *
  * Everything here works from a normal active plugin: core loads plugins
  * before admin_menu / init / rest_endpoints, and every guard below is a
@@ -45,6 +49,8 @@ final class HeadlessModule implements Module
         add_action('init', [$this, 'apply'], 5);
         add_action('admin_menu', [$this, 'menus'], 99);
         add_action('admin_init', [$this, 'guardAdminPages']);
+        add_filter('rest_endpoints', [$this, 'lockWpV2'], 100);
+        add_filter('wp_sitemaps_enabled', [$this, 'sitemapsEnabled'], 100);
         add_filter('rest_endpoints', [$this, 'filterRestEndpoints']);
     }
 
@@ -150,6 +156,28 @@ final class HeadlessModule implements Module
                     'checkbox_label' => __('Strip generator, RSD, shortlink, REST hints and block CSS from front-end output', 'aiya-core'),
                     'default' => true,
                 ],
+                [
+                    'id' => 'lock_wp_v2',
+                    'type' => 'switch',
+                    'label' => __('Native /wp/v2 REST API', 'aiya-core'),
+                    'checkbox_label' => __('Answer 404 for the whole /wp/v2 API — only the aiya contract routes stay public', 'aiya-core'),
+                    'description' => __('The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Backend sessions (administrator, editor, author) keep the full /wp/v2 for admin screens such as the media picker.', 'aiya-core'),
+                    'default' => true,
+                ],
+                [
+                    'id' => 'disable_sitemap',
+                    'type' => 'switch',
+                    'label' => __('XML sitemaps', 'aiya-core'),
+                    'checkbox_label' => __('Answer 404 for wp-sitemap.xml and drop the robots.txt sitemap line', 'aiya-core'),
+                    'default' => true,
+                ],
+                [
+                    'id' => 'disable_feeds',
+                    'type' => 'switch',
+                    'label' => __('Feeds', 'aiya-core'),
+                    'checkbox_label' => __('Answer 404 for every RSS/RDF/Atom feed URL', 'aiya-core'),
+                    'default' => true,
+                ],
             ],
         ]);
     }
@@ -160,6 +188,11 @@ final class HeadlessModule implements Module
      */
     public function apply(): void
     {
+        // Not a toggle: one core switch empties the Writing settings section,
+        // drops the mailserver options from the save whitelist and turns
+        // wp-mail.php into a 403, and no headless consumer can opt back in.
+        add_filter('enable_post_by_email_configuration', '__return_false');
+
         if ($this->enabled('disable_block_editor')) {
             add_filter('use_block_editor_for_post', '__return_false');
             add_filter('use_block_editor_for_post_type', '__return_false');
@@ -201,6 +234,66 @@ final class HeadlessModule implements Module
         if ($this->enabled('strip_frontend_head')) {
             $this->stripFrontendHead();
         }
+
+        if ($this->enabled('disable_feeds')) {
+            $this->stripFeeds();
+        }
+    }
+
+    /**
+     * Whole /wp/v2 answers 404 unless the session belongs to an author-
+     * level backend user (cookie or application password with
+     * publish_posts); one capability check, no per-route nuance. The
+     * contract routes stay public next to the gateway pushes, which are
+     * always anonymous and authenticated by their own signatures.
+     *
+     * @param array<string, mixed> $endpoints
+     * @return array<string, mixed>
+     */
+    public function lockWpV2(array $endpoints): array
+    {
+        if (!$this->enabled('lock_wp_v2') || current_user_can('publish_posts')) {
+            return $endpoints;
+        }
+
+        $allowed = [
+            '/' . Contract::API_NAMESPACE,
+            '/' . GatewayController::GATEWAY_NAMESPACE,
+        ];
+
+        foreach (array_keys($endpoints) as $route) {
+            if (!is_string($route)) {
+                unset($endpoints[$route]);
+                continue;
+            }
+            foreach ($allowed as $prefix) {
+                if (str_starts_with($route, $prefix)) {
+                    continue 2;
+                }
+            }
+            unset($endpoints[$route]);
+        }
+
+        return $endpoints;
+    }
+
+    /** Kills the sitemap index, every provider and the robots.txt sitemap line in one switch. */
+    public function sitemapsEnabled(bool $enabled): bool
+    {
+        return $this->enabled('disable_sitemap') ? false : $enabled;
+    }
+
+    /**
+     * Feeds have no consumer on a headless backend: dropping the four
+     * default do_feed_* hooks makes core's own has_action() guard answer
+     * 404 for every RSS/RDF/Atom URL, comment and search feeds included.
+     */
+    private function stripFeeds(): void
+    {
+        remove_action('do_feed_rdf', 'do_feed_rdf', 10);
+        remove_action('do_feed_rss', 'do_feed_rss', 10);
+        remove_action('do_feed_rss2', 'do_feed_rss2', 10);
+        remove_action('do_feed_atom', 'do_feed_atom', 10);
     }
 
     /**

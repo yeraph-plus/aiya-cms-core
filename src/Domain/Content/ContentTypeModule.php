@@ -45,6 +45,7 @@ final class ContentTypeModule implements Module
                 'slug' => 'resource',
                 'label' => __('Resource', 'aiya-core'),
                 'icon' => 'dashicons-admin-links',
+                'menu_position' => 7,
                 'supports' => ['title', 'editor', 'author', 'thumbnail', 'excerpt', 'custom-fields', 'comments'],
             ]);
             $this->registry->addTaxonomy([

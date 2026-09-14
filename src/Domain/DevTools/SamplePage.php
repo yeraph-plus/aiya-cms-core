@@ -2,12 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Admin;
+namespace Aiya\Core\Domain\DevTools;
 
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Registry;
 
-final class SampleSettings implements Module
+/**
+ * Developer sandbox page of the Dev Tools domain: every persisted field
+ * type of the settings framework on one screen, detached from the
+ * production pages. Loads only when WP_DEBUG is on and renders as a
+ * submenu of the Dev Tools menu through the shared settings pipeline.
+ */
+final class SamplePage implements Module
 {
     public function __construct(private Registry $registry)
     {
@@ -20,8 +26,6 @@ final class SampleSettings implements Module
 
     public function settings(): void
     {
-        // Developer-only sandbox: loads when WP_DEBUG is on and lives in
-        // its own top-level menu, detached from the production pages.
         if (!(defined('WP_DEBUG') && WP_DEBUG)) {
             return;
         }
@@ -30,10 +34,20 @@ final class SampleSettings implements Module
             'slug' => 'sample',
             'title' => __('Sample', 'aiya-core'),
             'menu_title' => __('Sample', 'aiya-core'),
-            'icon' => 'dashicons-admin-generic',
-            'position' => 100,
+            'parent' => 'aiya-core-devtools',
             'option_name' => 'aiya_core_sample',
             'fields' => [
+                [
+                    'id' => 'sandbox_note',
+                    'type' => 'note',
+                    'label' => __('Developer sandbox: every persisted field type of the settings framework appears on this page.', 'aiya-core'),
+                    'variant' => 'info',
+                ],
+                [
+                    'id' => 'text_heading',
+                    'type' => 'heading',
+                    'label' => __('Text inputs', 'aiya-core'),
+                ],
                 [
                     'id' => 'site_title',
                     'type' => 'text',
@@ -82,6 +96,16 @@ final class SampleSettings implements Module
                     'default' => '',
                 ],
                 [
+                    'id' => 'tracking_id',
+                    'type' => 'hidden',
+                    'default' => 'sample-hidden',
+                ],
+                [
+                    'id' => 'choices_heading',
+                    'type' => 'heading',
+                    'label' => __('Choices', 'aiya-core'),
+                ],
+                [
                     'id' => 'feature_enabled',
                     'type' => 'checkbox',
                     'label' => __('Feature flag', 'aiya-core'),
@@ -110,12 +134,37 @@ final class SampleSettings implements Module
                     'id' => 'default_locale',
                     'type' => 'radio',
                     'label' => __('Default locale', 'aiya-core'),
+                    'description' => __('Radio controls render inline with spacing between options.', 'aiya-core'),
                     'default' => 'zh_CN',
                     'options' => [
                         'zh_CN' => __('Simplified Chinese', 'aiya-core'),
                         'zh_TW' => __('Traditional Chinese', 'aiya-core'),
                         'en_US' => __('English', 'aiya-core'),
                     ],
+                ],
+                [
+                    'id' => 'sample_features',
+                    'type' => 'multicheck',
+                    'label' => __('Enabled modules', 'aiya-core'),
+                    'description' => __('Multiple checkboxes render inline with spacing between options.', 'aiya-core'),
+                    'default' => ['seo', 'cache'],
+                    'options' => [
+                        'seo' => __('SEO', 'aiya-core'),
+                        'cache' => __('Cache', 'aiya-core'),
+                        'translate' => __('Translation', 'aiya-core'),
+                        'cdn' => __('CDN', 'aiya-core'),
+                    ],
+                ],
+                [
+                    'id' => 'values_heading',
+                    'type' => 'heading',
+                    'label' => __('Media and value lists', 'aiya-core'),
+                ],
+                [
+                    'id' => 'color_warning',
+                    'type' => 'note',
+                    'label' => __('Stored values only: the password field never echoes back and media fields keep attachment IDs.', 'aiya-core'),
+                    'variant' => 'warning',
                 ],
                 [
                     'id' => 'accent_color',
@@ -138,6 +187,18 @@ final class SampleSettings implements Module
                     'default' => [],
                 ],
                 [
+                    'id' => 'http_headers',
+                    'type' => 'key_value',
+                    'label' => __('Custom headers', 'aiya-core'),
+                    'description' => __('One "key: value" pair per line; keys are normalized through sanitize_key().', 'aiya-core'),
+                    'default' => [],
+                ],
+                [
+                    'id' => 'editor_heading',
+                    'type' => 'heading',
+                    'label' => __('Editor content', 'aiya-core'),
+                ],
+                [
                     'id' => 'sample_json',
                     'type' => 'code',
                     'label' => __('JSON configuration', 'aiya-core'),
@@ -151,6 +212,11 @@ final class SampleSettings implements Module
                     'label' => __('Classic editor content', 'aiya-core'),
                     'description' => __('Uses wp_editor and TinyMCE; Gutenberg and React are not required.', 'aiya-core'),
                     'default' => '<p>AIYA Core classic editor sample.</p>',
+                ],
+                [
+                    'id' => 'repeater_heading',
+                    'type' => 'heading',
+                    'label' => __('Dynamic rows', 'aiya-core'),
                 ],
                 [
                     'id' => 'navigation_links',

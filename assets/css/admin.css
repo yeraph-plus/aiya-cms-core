@@ -1,18 +1,206 @@
+/*
+ * Settings framework styles. Baselines follow the WP admin defaults:
+ * .form-table th 14px/600 #1d2327, padding 20px 10px 20px 0, width 200px;
+ * .form-table td 14px, padding 15px 10px, vertical-align middle;
+ * .description 14px #646970, margin 4px 0 0; section h2 1.3em/600.
+ */
+
 .aiya-core-settings .form-table {
     max-width: 960px;
 }
 
-.aiya-core-settings .aiya-core-radio {
-    display: block;
-    margin: 0 0 6px;
+/* Single-line rows: the label keeps the core top alignment but sits 6px
+   lower than core's 20px so its center meets the 40px control center
+   (td top padding 15 + 20 = 35) with or without a description below. */
+.aiya-core-settings .form-table th {
+    padding: 26px 10px 20px 0;
+    vertical-align: top;
+}
+
+/* Compact controls (a 24px checkbox line): center label and control. */
+.aiya-core-settings .aiya-core-field--checkbox > th,
+.aiya-core-settings .aiya-core-field--switch > th {
+    padding: 15px 10px 15px 0;
+    vertical-align: middle;
+}
+
+/* Tall controls ride the core 20px alignment so the label sits on the
+   first line; inline option groups keep it too (description sits below). */
+.aiya-core-settings .aiya-core-field--textarea > th,
+.aiya-core-settings .aiya-core-field--code > th,
+.aiya-core-settings .aiya-core-field--tinymce > th,
+.aiya-core-settings .aiya-core-field--key_value > th,
+.aiya-core-settings .aiya-core-field--repeater > th,
+.aiya-core-settings .aiya-core-field--radio > th,
+.aiya-core-settings .aiya-core-field--multicheck > th {
+    padding: 20px 10px 20px 0;
+    vertical-align: top;
+}
+
+/* Presentation rows: headings line up with the field labels at the table
+   edge; notices span the full table width like .wrap notices. */
+.aiya-core-settings .aiya-core-row--heading > td {
+    padding: 0;
+}
+
+.aiya-core-settings .aiya-core-heading {
+    margin: 24px 0 0;
+}
+
+.aiya-core-settings h3.aiya-core-heading {
+    margin: 16px 0 0;
+}
+
+.aiya-core-settings .aiya-core-row--note > td,
+.aiya-core-settings .aiya-core-field--hidden > td {
+    padding: 0 10px;
+}
+
+/* Collapsible card on custom admin screens (community boards manager). */
+.aiya-core-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    margin: 16px 0 20px;
+}
+
+.aiya-core-card > summary {
+    align-items: center;
+    border-bottom: 1px solid transparent;
+    cursor: pointer;
+    display: flex;
+    font-size: 14px;
+    font-weight: 600;
+    list-style: none;
+    padding: 10px 14px;
+}
+
+.aiya-core-card > summary::-webkit-details-marker,
+.aiya-core-card > summary::marker {
+    display: none;
+    content: "";
+}
+
+.aiya-core-card > summary::before {
+    color: #787c82;
+    content: "\25B8";
+    margin-right: 8px;
+    transition: transform 0.15s ease;
+}
+
+.aiya-core-card[open] > summary {
+    border-bottom-color: #dcdcde;
+}
+
+.aiya-core-card[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+.aiya-core-card__body {
+    padding: 0 14px 14px;
+}
+
+/* Light Community moderation list: aligned filter bar, two-line excerpt,
+   red delete button, dialog form spacing. */
+.aiya-core-filters {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0;
+}
+
+.aiya-core-filters .button {
+    margin-left: 0;
+}
+
+.aiya-core-thread-excerpt {
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    color: #50575e;
+    display: -webkit-box;
+    overflow: hidden;
+}
+
+/* Status badge (Light Community): gray pill for closed threads only. */
+.aiya-core-badge {
+    border-radius: 12px;
+    display: inline-block;
+    font-size: 12px;
+    line-height: 20px;
+    margin-right: 6px;
+    padding: 0 10px;
+    white-space: nowrap;
+}
+
+.aiya-core-badge--closed {
+    background: #f0f0f1;
+    color: #646970;
+}
+
+.button.aiya-core-thread-delete {
+    color: #d63638;
+}
+
+.button.aiya-core-thread-delete:focus,
+.button.aiya-core-thread-delete:hover {
+    color: #8a2424;
+}
+
+#aiya-thread-dialog .form-table th {
+    padding: 8px 10px 8px 0;
+    width: 70px;
+}
+
+#aiya-thread-dialog .form-table td {
+    padding: 8px 0;
+}
+
+#aiya-thread-dialog textarea {
+    min-height: 160px;
+    width: 100%;
+}
+
+/* Radio and multicheck options run inline with a fixed gap between them. */
+.aiya-core-settings .aiya-core-radio,
+.aiya-core-settings .aiya-core-multicheck-item {
+    align-items: center;
+    display: inline-flex;
+    margin: 0 16px 0 0;
+}
+
+.aiya-core-settings .aiya-core-radio input[type="radio"],
+.aiya-core-settings .aiya-core-multicheck-item input[type="checkbox"] {
+    margin-top: 0;
 }
 
 .aiya-core-media-preview img {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
     display: block;
     height: auto;
     margin: 0 0 8px;
-    max-height: 150px;
-    max-width: 150px;
+    max-height: 320px;
+    max-width: 320px;
+    width: auto;
+}
+
+/* Select and remove sit as two equal buttons, vertically centered. */
+.aiya-core-media-actions {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+}
+
+.aiya-core-media-remove {
+    color: #d63638;
+}
+
+.aiya-core-media-remove:hover,
+.aiya-core-media-remove:focus {
+    color: #d63638;
 }
 
 .aiya-core-repeater-item {
@@ -46,3 +234,84 @@
     max-width: 720px;
 }
 
+/* Credits page: direction colors and the user-picker suggestion list. */
+.aiya-core-credit-in {
+    color: #00a32a;
+    font-weight: 600;
+}
+
+.aiya-core-credit-out {
+    color: #d63638;
+    font-weight: 600;
+}
+
+.aiya-credit-user-suggestions {
+    margin-top: 4px;
+}
+
+.aiya-credit-user-suggestions:empty {
+    display: none;
+}
+
+/* Dev Tools meter bars (server status opcache/usage rows): a thin track
+   with a filled span, kept to core admin grays/blues. */
+.aiya-devtools-bar {
+    display: inline-block;
+    vertical-align: middle;
+    width: 220px;
+    max-width: 60%;
+    height: 10px;
+    margin-right: 8px;
+    background: #dcdcde;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.aiya-devtools-bar > span {
+    display: block;
+    height: 100%;
+    background: #2271b1;
+    border-radius: 5px;
+}
+
+/* Tables that sit straight inside a card body (Dev Tools diagnostics):
+   without a top margin the widefat border hugs the summary row and the
+   stack reads as one merged block. */
+.aiya-core-card__body > .wp-list-table {
+    margin-top: 12px;
+}
+
+/* Dev Tools icon list (dashicons grid): static native-styled cards —
+   a read-only reference sheet, so no hover/cursor affordances. */
+.aiya-icons-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    margin-top: 12px;
+}
+
+.aiya-icon-card {
+    display: block;
+    width: 104px;
+    margin: 0 8px 8px 0;
+    padding: 10px 4px 8px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.aiya-icon-card .dashicons {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+}
+
+.aiya-icon-card .aiya-icon-name {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    line-height: 1.3;
+    color: #50575e;
+    overflow-wrap: anywhere;
+}

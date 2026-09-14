@@ -22,8 +22,12 @@ final class SettingsAdmin implements Module
 
     public function register(): void
     {
-        add_action('admin_menu', [$this, 'menus']);
-        add_action('network_admin_menu', [$this, 'networkMenus']);
+        // Priority 30: the bespoke top-level menus this registry hangs
+        // subpages under (e.g. the membership entry) register at 20 —
+        // add_submenu_page against a not-yet-existing parent silently
+        // promotes the child to a top-level orphan route instead.
+        add_action('admin_menu', [$this, 'menus'], 30);
+        add_action('network_admin_menu', [$this, 'networkMenus'], 30);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
         add_action('admin_post_aiya_core_save_settings', [$this, 'save']);
     }
@@ -66,12 +70,13 @@ final class SettingsAdmin implements Module
             $dependencies[] = 'code-editor';
         }
 
-        wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], AIYA_CORE_VERSION);
+        $version = $this->assetVersion('assets/css/admin.css');
+        wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], $version);
         wp_enqueue_script(
             'aiya-core-admin',
             AIYA_CORE_URL . 'assets/js/admin.js',
             array_values(array_unique($dependencies)),
-            AIYA_CORE_VERSION,
+            $this->assetVersion('assets/js/admin.js'),
             true
         );
         wp_add_inline_script('aiya-core-admin', 'window.aiyaCoreAdmin=' . wp_json_encode([
@@ -180,6 +185,17 @@ final class SettingsAdmin implements Module
         echo '<p class="submit"><button class="button button-primary" name="command" value="save">' . esc_html__('Save changes', 'aiya-core') . '</button> ';
         echo '<button class="button" name="command" value="reset" onclick="return window.confirm(' . esc_attr((string) wp_json_encode(__('Reset all settings on this page?', 'aiya-core'))) . ')">' . esc_html__('Reset', 'aiya-core') . '</button></p></form></div>';
         return null;
+    }
+
+    /** Cache-bust asset URLs on debug installs so dev edits show up without a version bump. */
+    private function assetVersion(string $relativePath): string
+    {
+        if (!(defined('WP_DEBUG') && WP_DEBUG)) {
+            return AIYA_CORE_VERSION;
+        }
+        $mtime = filemtime(AIYA_CORE_PATH . $relativePath);
+
+        return AIYA_CORE_VERSION . ($mtime ? '.' . $mtime : '');
     }
 
     private function redirect(Page $page, string $status, string $message = ''): never

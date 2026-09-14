@@ -48,7 +48,8 @@ final class PostPresenter
             $this->author((int) $post->post_author),
             $this->typedTerms($post, $type, 'category'),
             $this->typedTerms($post, $type, 'tag'),
-            $this->metrics((int) $post->ID)
+            $this->metrics((int) $post->ID),
+            $this->badges($post)
         );
     }
 
@@ -58,7 +59,12 @@ final class PostPresenter
     public function detail(WP_Post $post, array $neighbors, PublicType $type): PostDetail
     {
         $summary = $this->summary($post, $type);
-        $content = $this->rendered($post);
+        // post_password_required() answers "this viewer still owes the
+        // password" — true means the body stays behind the gate.
+        $locked = $this->isLocked($post);
+        $content = $locked
+            ? ''
+            : $this->rendered($post);
         $seo = get_post_meta((int) $post->ID, 'aiya_core_post_seo', true);
         $seoDescription = is_array($seo) && is_string($seo['seo_desc'] ?? null) && trim((string) $seo['seo_desc']) !== ''
             ? (string) $seo['seo_desc']
@@ -67,6 +73,7 @@ final class PostPresenter
         return new PostDetail(
             $summary,
             $content,
+            $locked,
             new Seo($summary->title, $seoDescription, false),
             [new Breadcrumb($summary->title, null)],
             $this->featured($post),
@@ -77,6 +84,12 @@ final class PostPresenter
                 ? $this->summary($neighbors['next'], $type)
                 : null
         );
+    }
+
+    /** Whether this post's body is still locked for the current viewer. */
+    public function isLocked(WP_Post $post): bool
+    {
+        return (string) $post->post_password !== '' && post_password_required($post);
     }
 
     /** @return array<int, array<string, mixed>> */
@@ -103,6 +116,30 @@ final class PostPresenter
         }
 
         return $out;
+    }
+
+    /**
+     * Display-state keys of one post: sticky (leading its list), password
+     * (locked body — the detail answers a restricted shape until the
+     * visitor unlocks it), private (this viewer may read it because of
+     * who they are). Pure facts; copy and styling belong to the front end.
+     *
+     * @return list<string>
+     */
+    private function badges(WP_Post $post): array
+    {
+        $badges = [];
+        if (is_sticky((int) $post->ID)) {
+            $badges[] = 'sticky';
+        }
+        if ((string) $post->post_password !== '') {
+            $badges[] = 'password';
+        }
+        if ((string) $post->post_status === 'private') {
+            $badges[] = 'private';
+        }
+
+        return $badges;
     }
 
     private function excerpt(WP_Post $post): string
@@ -141,27 +178,13 @@ final class PostPresenter
     }
 
     /**
-     * The featured image at full size — the detail page's title
-     * background. The card thumbnail pipeline consumes the same source
-     * for its 640x360 composite; this exposes it untouched.
+     * The featured image composited at 1000x640 through the media
+     * pipeline (three-layer render) — the detail page's title
+     * background.
      */
     private function featured(WP_Post $post): ?Image
     {
-        $thumbId = (int) get_post_thumbnail_id((int) $post->ID);
-        if ($thumbId <= 0) {
-            return null;
-        }
-
-        $src = wp_get_attachment_image_src($thumbId, 'full');
-        if (!is_array($src) || !is_string($src[0]) || $src[0] === '') {
-            return null;
-        }
-
-        $width = (int) $src[1];
-        $height = (int) $src[2];
-        $alt = (string) get_post_meta($thumbId, '_wp_attachment_image_alt', true);
-
-        return new Image($src[0], $alt, $width > 0 ? $width : null, $height > 0 ? $height : null);
+        return $this->cards->featuredFor($post);
     }
 
     /** Author projection by user id; unknown users degrade to an empty author. */
@@ -169,13 +192,14 @@ final class PostPresenter
     {
         $user = get_userdata($userId);
         if (!$user) {
-            return new Author(0, '', null);
+            return new Author(0, '', '', null);
         }
 
         $avatarUrl = get_avatar_url($userId, ['size' => 128]);
 
         return new Author(
             $userId,
+            (string) $user->user_nicename,
             (string) $user->display_name,
             is_string($avatarUrl) && $avatarUrl !== ''
                 ? new Image($avatarUrl, (string) $user->display_name, null, null)
@@ -225,10 +249,15 @@ final class PostPresenter
 
     private function metrics(int $postId): PostMetrics
     {
+        $ratingScore = get_post_meta($postId, 'rating_score', true);
+        $ratingCount = get_post_meta($postId, 'rating_count', true);
+
         return new PostMetrics(
             max(0, (int) get_post_meta($postId, 'view_count', true)),
             max(0, (int) get_post_meta($postId, 'like_count', true)),
-            max(0, (int) get_comments_number($postId))
+            max(0, (int) get_comments_number($postId)),
+            $ratingScore === '' ? null : max(0, (int) $ratingScore),
+            $ratingCount === '' ? null : max(0, (int) $ratingCount)
         );
     }
 }

@@ -25,11 +25,14 @@ aiya-core/
 │  │  └─ Security/
 │  ├─ Domain/
 │  │  ├─ Content/
+│  │  ├─ Discussion/
 │  │  ├─ Identity/
 │  │  ├─ Engagement/
-│  │  ├─ Discussion/
-│  │  ├─ Sponsorship/
+│  │  ├─ Media/
 │  │  ├─ Notification/
+│  │  ├─ Parts/
+│  │  ├─ Sponsorship/
+│  │  ├─ ThemeSupport/
 │  │  ├─ ExternalFiles/
 │  │  ├─ Embeds/
 │  │  └─ SiteComposition/

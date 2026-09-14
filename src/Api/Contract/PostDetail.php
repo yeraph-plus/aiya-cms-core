@@ -10,6 +10,10 @@ namespace Aiya\Core\Api\Contract;
  * featured image at full size (`featured` — the front end owns what it
  * used for, e.g. the title background), the SEO projection, and
  * adjacency.
+ *
+ * A password-locked post answers `locked: true` with an empty content
+ * block (the summary's `password` badge explains why); the visitor
+ * unlocks through POST content/{id}/unlock and re-reads.
  */
 final class PostDetail
 {
@@ -19,6 +23,7 @@ final class PostDetail
     public function __construct(
         public readonly PostSummary $summary,
         public readonly string $contentHtml,
+        public readonly bool $locked,
         public readonly Seo $seo,
         public readonly array $breadcrumbs,
         public readonly ?Image $featured,
@@ -32,6 +37,7 @@ final class PostDetail
     {
         return array_merge($this->summary->toArray(), [
             'content' => ['format' => 'html', 'html' => $this->contentHtml],
+            'locked' => $this->locked,
             'featured' => $this->featured?->toArray(),
             'seo' => $this->seo->toArray(),
             'breadcrumbs' => array_map(static fn (Breadcrumb $breadcrumb): array => $breadcrumb->toArray(), $this->breadcrumbs),

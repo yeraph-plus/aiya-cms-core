@@ -1,9 +1,35 @@
 # AIYA Core
 
-Headless-first WordPress plugin foundation for AIYA CMS.
+Headless-first WordPress plugin for AIYA CMS (WP 7.1+ / PHP 8.2+): the
+admin half of a decoupled site — settings, content domains, media
+pipeline, community, notifications and a versioned REST contract
+(`aiya/core/v1`) consumed by the Astro front end. No Gutenberg, no
+React in the admin; native admin styles only.
 
-The initial slice provides an explicit plugin runtime, settings schema, field normalization, option and metadata storage adapters, a traditional WordPress administration page, and Backbone-powered media/repeater fields. It uses WordPress-provided admin styles, jQuery UI, Media and Code Editor assets; it does not use Gutenberg or React.
+## Layout
 
-After activation, open **AIYA Core** in the WordPress administration menu. The bundled sample page exercises scalar fields, validation, write-only secrets, media selection, WordPress Code Editor, TinyMCE and a sortable repeater. Its values are isolated in the `aiya_core_sample` option and can be reset from the page.
+- `src/` — plugin code (runtime, Settings framework, Admin surfaces,
+  Domain modules, Api contract/presenter/rest layers); autoload
+  `Aiya\Core\` plus `Aiya\Infra\` from `packages/`
+- `packages/` — WordPress-free infrastructure packages
+  (`aiya/image-processor`, `aiya/slug-toolkit`, `aiya/typesetting`)
+- `assets/` — admin CSS/JS (Backbone + jQuery UI + code editor)
+- `languages/` — zh_CN translations (`.mo` built, see docs)
+- `tests/Unit/` — PHPUnit suite (WP shim bootstrap, no install needed)
+- `docs/` — ROADMAP (milestone log), ARCHITECTURE (module wiring),
+  MIGRATION (legacy disposition)
 
-See `docs/ARCHITECTURE.md` for registration and `docs/MIGRATION.md` for planned ownership.
+## Development
+
+```bash
+composer install            # deps + phpunit/phpcs/phpstan tooling
+composer test:unit          # PHPUnit (Unit suite)
+composer php:cs             # WordPressCodingStandard pass
+composer php:stan           # PHPStan (level 8, WP stubs)
+npm-less i18n               # see .agents/skills/wp-i18n-zh-cn
+```
+
+After activation the plugin seeds its schema (migration runner records
+from 0.0.0), defaults permalinks to `/%postname%/` when empty and
+schedules its crons. See `docs/ARCHITECTURE.md` for module wiring and
+`AGENTS.md` (workspace root) for the iteration log.

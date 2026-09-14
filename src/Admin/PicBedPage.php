@@ -6,6 +6,7 @@ namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Media\MediaPaths;
+use Aiya\Core\Domain\Media\MimeType;
 use Closure;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
@@ -24,21 +25,14 @@ use SplFileInfo;
  * Each upload is compressed exactly once through the image-processor
  * pipeline (scale/watermark/format), injected as a closure by the media
  * adapter, and the processed file is the only artifact written to disk.
+ * Front-end community uploads share this pipeline through the REST
+ * uploads controller and land in the pool's per-user namespace instead.
  */
 final class PicBedPage implements Module
 {
     private const AJAX_ACTION = 'aiya_core_pic_bed_upload';
     private const NONCE_ACTION = 'aiya_core_pic_bed_upload';
     private const MAX_SIZE_MB = 10;
-
-    private const MIME_EXTENSIONS = [
-        'image/jpeg' => '.jpg',
-        'image/png' => '.png',
-        'image/bmp' => '.bmp',
-        'image/gif' => '.gif',
-        'image/webp' => '.webp',
-        'image/avif' => '.avif',
-    ];
 
     /**
      * @param Closure(string): (string|false) $processUpload Media pipeline.
@@ -70,7 +64,7 @@ final class PicBedPage implements Module
 
     public function render(): void
     {
-        $accept = implode(',', array_keys(self::MIME_EXTENSIONS));
+        $accept = implode(',', array_keys(MimeType::EXTENSIONS));
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Pic bed', 'aiya-core'); ?></h1>
@@ -201,12 +195,13 @@ final class PicBedPage implements Module
 
         // Real MIME check via finfo; the extension is derived from the type,
         // never from the client-supplied filename.
-        $mime = $this->realMime($file['tmp_name']);
-        if ($mime === null || !isset(self::MIME_EXTENSIONS[$mime])) {
+        $mime = MimeType::detect($file['tmp_name']);
+        $extension = $mime === null ? null : (MimeType::EXTENSIONS[$mime] ?? null);
+        if ($extension === null) {
             throw new RuntimeException(__('This file type is not supported.', 'aiya-core'));
         }
 
-        $target = trailingslashit($this->paths->picBedDir()) . wp_date('d') . '-' . time() . '-' . wp_generate_password(8, false) . self::MIME_EXTENSIONS[$mime];
+        $target = trailingslashit($this->paths->picBedDir()) . wp_date('d') . '-' . time() . '-' . wp_generate_password(8, false) . $extension;
         if (!move_uploaded_file($file['tmp_name'], $target)) {
             throw new RuntimeException(__('The file could not be written.', 'aiya-core'));
         }
@@ -239,29 +234,6 @@ final class PicBedPage implements Module
         ];
     }
 
-    private function realMime(string $path): ?string
-    {
-        // PHP 8.1+ returns a Finfo object (not a resource); both are truthy.
-        // finfo_close() is deprecated and a no-op — the handle frees itself.
-        if (function_exists('finfo_open')) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            if ($finfo !== false) {
-                $mime = finfo_file($finfo, $path);
-                if (is_string($mime) && $mime !== '') {
-                    return $mime;
-                }
-            }
-        }
-        if (function_exists('mime_content_type')) {
-            $mime = mime_content_type($path);
-            if (is_string($mime) && $mime !== '') {
-                return $mime;
-            }
-        }
-
-        return null;
-    }
-
     /** Renders every pooled image grouped by month, newest first. */
     private function renderList(): void
     {
@@ -292,6 +264,7 @@ final class PicBedPage implements Module
         // lazy loading defers the previews until they are scrolled into view.
         echo '<table class="widefat striped"><thead><tr>';
         echo '<th style="width:80px;">' . esc_html__('Preview', 'aiya-core') . '</th>';
+        echo '<th style="width:130px;">' . esc_html__('Source', 'aiya-core') . '</th>';
         echo '<th>' . esc_html__('URL', 'aiya-core') . '</th>';
         echo '<th>' . esc_html__('Relative path', 'aiya-core') . '</th>';
         echo '</tr></thead><tbody>';
@@ -303,10 +276,41 @@ final class PicBedPage implements Module
             }
             echo '<tr>';
             echo '<td><img src="' . esc_url($url) . '" alt="" loading="lazy" decoding="async" style="max-width:64px;max-height:48px;width:auto;height:auto;"></td>';
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sourceCell() escapes label and URL internally.
+            echo '<td>' . $this->sourceCell($path) . '</td>';
             echo '<td><code style="word-break:break-all;">' . esc_html($url) . '</code></td>';
             echo '<td><code style="word-break:break-all;">' . esc_html($path) . '</code></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
+    }
+
+    /**
+     * Community uploads live in the pool's per-user namespace
+     * (`upload-pics/u/{id}/…`) and are labeled with a link to the author;
+     * operator rows carry no marker.
+     */
+    private function sourceCell(string $path): string
+    {
+        if (!preg_match('#^upload-pics/u/(\d+)/#', $path, $matches)) {
+            return '—';
+        }
+
+        $userId = (int) $matches[1];
+        $user = get_userdata($userId);
+        $label = $user !== false
+            ? sprintf(
+                /* translators: 1: user display name or login, 2: user ID. */
+                __('User %1$s (#%2$d)', 'aiya-core'),
+                $user->display_name !== '' ? $user->display_name : $user->user_login,
+                $userId
+            )
+            : sprintf(
+                /* translators: %d: user ID. */
+                __('User #%d', 'aiya-core'),
+                $userId
+            );
+
+        return '<a href="' . esc_url(admin_url('user-edit.php?user_id=' . $userId)) . '">' . esc_html($label) . '</a>';
     }
 }
