@@ -2627,3 +2627,21 @@ msgstr "在爱发电创作者后台（开发工具 > WebHook）登记该地址�
 
 msgid "These tiers still have active members and cannot be deleted: %s."
 msgstr "以下档位仍有生效中的会员，无法删除：%s。"
+
+msgid "Everyone"
+msgstr "所有人"
+
+msgid "The post reads like any other published post."
+msgstr "与其他已发布文章一样可读。"
+
+msgid "Logged-in users"
+msgstr "登录用户"
+
+msgid "Guests see neither the post in lists nor its body; any signed-in account qualifies."
+msgstr "访客在列表与正文中都看不到该文章；任何登录账号均可查看。"
+
+msgid "Members only"
+msgstr "仅限会员"
+
+msgid "Only active sponsors (and editors) get past the gate."
+msgstr "仅生效中的赞助者（及编辑）可通过门禁。"

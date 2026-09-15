@@ -54,9 +54,9 @@ final class VisibilityMetabox implements Module
         $level = $this->visibility->level($post);
 
         $options = [
-            PostVisibility::PUBLIC => ['Everyone', 'The post reads like any other published post.'],
-            PostVisibility::LOGIN => ['Logged-in users', 'Guests see neither the post in lists nor its body; any signed-in account qualifies.'],
-            PostVisibility::MEMBER => ['Members only', 'Only active sponsors (and editors) get past the gate.'],
+            PostVisibility::PUBLIC => [__('Everyone', 'aiya-core'), __('The post reads like any other published post.', 'aiya-core')],
+            PostVisibility::LOGIN => [__('Logged-in users', 'aiya-core'), __('Guests see neither the post in lists nor its body; any signed-in account qualifies.', 'aiya-core')],
+            PostVisibility::MEMBER => [__('Members only', 'aiya-core'), __('Only active sponsors (and editors) get past the gate.', 'aiya-core')],
         ];
 
         echo '<div class="aiya-core-fieldgroup">';

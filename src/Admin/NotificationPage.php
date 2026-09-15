@@ -125,7 +125,10 @@ final class NotificationPage implements Module
                                 <td><?php echo esc_html(wp_trim_words(wp_strip_all_tags((string) $row->body), 24)); ?></td>
                                 <td><?php echo esc_html($this->levelLabel((string) $row->min_role)); ?></td>
                                 <td>
-                                    <?php echo esc_html((int) $row->user_id > 0 ? sprintf('User #%d', (int) $row->user_id) : __('Broadcast', 'aiya-core')); ?>
+                                    <?php
+                                    /* translators: %d: user ID. */
+                                    echo esc_html((int) $row->user_id > 0 ? sprintf(__('User #%d', 'aiya-core'), (int) $row->user_id) : __('Broadcast', 'aiya-core'));
+                                    ?>
                                 </td>
                                 <td><?php echo esc_html($this->createdAtLabel((string) $row->created_at)); ?></td>
                                 <td>
