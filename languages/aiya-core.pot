@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.70.0\n"
+"Project-Id-Version: AIYA Core 0.73.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-15T09:05:56+00:00\n"
+"POT-Creation-Date: 2026-09-15T22:28:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -62,7 +62,7 @@ msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:54
 #: src/Admin/ConvertCodesPage.php:182
-#: src/Admin/ConvertCodesPage.php:201
+#: src/Admin/ConvertCodesPage.php:207
 msgid "You are not allowed to manage redemption codes."
 msgstr ""
 
@@ -153,15 +153,15 @@ msgstr ""
 msgid "Unused"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:214
+#: src/Admin/ConvertCodesPage.php:220
 msgid "Codes generated."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:215
+#: src/Admin/ConvertCodesPage.php:221
 msgid "All codes deleted."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:216
+#: src/Admin/ConvertCodesPage.php:222
 #: src/Admin/NotificationPage.php:214
 msgid "The operation failed — check the values and try again."
 msgstr ""
@@ -217,7 +217,7 @@ msgid "Generation failed."
 msgstr ""
 
 #: src/Admin/CoverMetabox.php:112
-#: src/Admin/SendMailPage.php:196
+#: src/Admin/SendMailPage.php:197
 #: src/Domain/Identity/AvatarModule.php:313
 msgid "Request failed."
 msgstr ""
@@ -482,7 +482,7 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:220
 #: src/Admin/PostTypeSwitchBulkAction.php:83
 #: src/Admin/TermMoveBulkAction.php:77
-#: src/Domain/Parts/PartModule.php:123
+#: src/Domain/Parts/PartModule.php:133
 msgid "Cancel"
 msgstr ""
 
@@ -517,6 +517,7 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:384
 #: src/Admin/DiscussionModerationPage.php:407
+#: src/Domain/ExternalFiles/OplistModule.php:228
 #: src/Domain/Sponsorship/SponsorshipModule.php:113
 msgid "Name"
 msgstr ""
@@ -606,7 +607,7 @@ msgstr ""
 msgid "Add item"
 msgstr ""
 
-#: src/Admin/MetaboxAdmin.php:271
+#: src/Admin/MetaboxAdmin.php:279
 msgid "Additional fields"
 msgstr ""
 
@@ -917,64 +918,64 @@ msgstr ""
 
 #: src/Admin/SendMailPage.php:52
 #: src/Admin/SendMailPage.php:53
-#: src/Admin/SendMailPage.php:87
-#: src/Admin/SendMailPage.php:105
+#: src/Admin/SendMailPage.php:88
+#: src/Admin/SendMailPage.php:106
 msgid "Send Mail"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:95
+#: src/Admin/SendMailPage.php:96
 msgid "You are not allowed to send mail."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:106
+#: src/Admin/SendMailPage.php:107
 msgid "Compose an HTML email and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:110
+#: src/Admin/SendMailPage.php:111
 msgid "Recipient"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:113
+#: src/Admin/SendMailPage.php:114
 msgid "Any email address works, registered or not. Typing a username or name suggests site users."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:118
+#: src/Admin/SendMailPage.php:119
 msgid "Subject"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:122
+#: src/Admin/SendMailPage.php:123
 msgid "Message"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:128
-#: src/Admin/SendMailPage.php:198
+#: src/Admin/SendMailPage.php:129
+#: src/Admin/SendMailPage.php:199
 msgid "Send email"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:175
+#: src/Admin/SendMailPage.php:176
 msgid "Sending…"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:184
-#: src/Admin/SendMailPage.php:296
+#: src/Admin/SendMailPage.php:185
+#: src/Admin/SendMailPage.php:297
 msgid "The email could not be sent."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:214
-#: src/Admin/SendMailPage.php:244
+#: src/Admin/SendMailPage.php:215
+#: src/Admin/SendMailPage.php:245
 msgid "You are not allowed to send mail to users."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:220
+#: src/Admin/SendMailPage.php:221
 msgid "Enter a valid recipient email address."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:226
+#: src/Admin/SendMailPage.php:227
 msgid "A subject and a message body are required."
 msgstr ""
 
 #. translators: %s: recipient email address.
-#: src/Admin/SendMailPage.php:236
+#: src/Admin/SendMailPage.php:237
 #, php-format
 msgid "Email sent to %s."
 msgstr ""
@@ -1013,6 +1014,11 @@ msgstr ""
 
 #: src/Admin/SettingsAdmin.php:202
 msgid "Reset"
+msgstr ""
+
+#: src/Admin/SmiliesPicker.php:45
+#: src/Admin/SmiliesPicker.php:64
+msgid "Smilies"
 msgstr ""
 
 #: src/Admin/TermMoveBulkAction.php:50
@@ -1090,6 +1096,10 @@ msgstr[1] ""
 msgid "Nothing was moved."
 msgstr ""
 
+#: src/Admin/VisibilityMetabox.php:42
+msgid "Visibility gate"
+msgstr ""
+
 #: src/Api/Rest/AuthController.php:52
 msgid "You are already logged in."
 msgstr ""
@@ -1104,7 +1114,7 @@ msgid "The nickname must be 1-50 characters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:138
-#: src/Api/Rest/AuthController.php:222
+#: src/Api/Rest/AuthController.php:227
 #: src/Api/Rest/UserController.php:315
 msgid "The email address is not valid."
 msgstr ""
@@ -1119,64 +1129,69 @@ msgstr ""
 msgid "The account could not be created, please retry."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:186
+#: src/Api/Rest/AuthController.php:175
+msgid "The account was created, but the profile could not be saved."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:191
 msgid "Please provide the email address and the password."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:194
+#: src/Api/Rest/AuthController.php:199
 msgid "The email address or the password is incorrect."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:263
-#: src/Api/Rest/UserController.php:402
+#: src/Api/Rest/AuthController.php:268
+#: src/Api/Rest/UserController.php:407
 msgid "Existing sessions could not be invalidated; the password was left unchanged."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:281
+#: src/Api/Rest/AuthController.php:286
 msgid "The reset link is missing required parameters."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:288
+#: src/Api/Rest/AuthController.php:293
 #: src/Api/Rest/CounterController.php:58
 #: src/Api/Rest/CounterController.php:73
 #: src/Api/Rest/CounterController.php:88
 #: src/Api/Rest/CreditController.php:118
 #: src/Api/Rest/CreditController.php:150
 #: src/Api/Rest/CreditController.php:161
-#: src/Api/Rest/DiscussionController.php:204
-#: src/Api/Rest/DiscussionController.php:282
+#: src/Api/Rest/DiscussionController.php:197
+#: src/Api/Rest/DiscussionController.php:258
 #: src/Api/Rest/SponsorshipController.php:157
 #: src/Api/Rest/UserController.php:198
 #: src/Api/Rest/UserController.php:358
 msgid "Too many requests, try again later."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:295
+#: src/Api/Rest/AuthController.php:300
 msgid "This password reset link is invalid or has expired."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:307
+#: src/Api/Rest/AuthController.php:312
 msgid "The account could not be loaded."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:315
+#: src/Api/Rest/AuthController.php:320
 msgid "The session could not be started."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:329
+#: src/Api/Rest/AuthController.php:334
 #: src/Api/Rest/CreditController.php:194
-#: src/Api/Rest/DiscussionController.php:409
-#: src/Api/Rest/SponsorshipController.php:214
+#: src/Api/Rest/DiscussionController.php:385
+#: src/Api/Rest/SponsorshipController.php:219
 #: src/Api/Rest/UploadsController.php:55
-#: src/Api/Rest/UserController.php:432
+#: src/Api/Rest/UserController.php:437
 msgid "Authentication required."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:334
+#: src/Api/Rest/AuthController.php:339
 #: src/Api/Rest/CommentsController.php:115
-#: src/Api/Rest/ContentController.php:223
+#: src/Api/Rest/ContentController.php:228
 #: src/Api/Rest/UploadsController.php:62
 #: src/Api/Rest/UserController.php:252
+#: src/Api/Rest/UserController.php:388
 msgid "Too many requests, please retry later."
 msgstr ""
 
@@ -1209,18 +1224,18 @@ msgid "You are commenting too quickly. Slow down."
 msgstr ""
 
 #: src/Api/Rest/CommentsController.php:249
-#: src/Api/Rest/ContentController.php:200
-#: src/Api/Rest/ContentController.php:205
-#: src/Api/Rest/ContentController.php:236
-#: src/Api/Rest/ContentController.php:284
+#: src/Api/Rest/ContentController.php:203
+#: src/Api/Rest/ContentController.php:208
+#: src/Api/Rest/ContentController.php:243
+#: src/Api/Rest/ContentController.php:279
 msgid "Content not found."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:245
+#: src/Api/Rest/ContentController.php:253
 msgid "Incorrect password."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:304
+#: src/Api/Rest/ContentController.php:299
 msgid "Profile not found."
 msgstr ""
 
@@ -1237,22 +1252,22 @@ msgstr ""
 msgid "The Afdian channel is not available."
 msgstr ""
 
-#: src/Api/Rest/DiscussionController.php:225
+#: src/Api/Rest/DiscussionController.php:218
 msgid "The thread could not be read back."
 msgstr ""
 
-#: src/Api/Rest/DiscussionController.php:292
-#: src/Api/Rest/DiscussionController.php:356
+#: src/Api/Rest/DiscussionController.php:268
+#: src/Api/Rest/DiscussionController.php:332
 msgid "The reply could not be read back."
 msgstr ""
 
-#: src/Api/Rest/DiscussionController.php:397
+#: src/Api/Rest/DiscussionController.php:373
 #: src/Domain/Discussion/DiscussionService.php:48
 #: src/Domain/Discussion/DiscussionService.php:540
 msgid "Unknown board."
 msgstr ""
 
-#: src/Api/Rest/DiscussionController.php:414
+#: src/Api/Rest/DiscussionController.php:390
 #: src/Domain/Discussion/DiscussionService.php:463
 #: src/Domain/Discussion/DiscussionService.php:515
 #: src/Domain/Discussion/DiscussionService.php:572
@@ -1274,6 +1289,10 @@ msgstr ""
 
 #: src/Api/Rest/SponsorshipController.php:174
 msgid "Unknown membership tier."
+msgstr ""
+
+#: src/Api/Rest/SponsorshipController.php:179
+msgid "This membership tier is not available."
 msgstr ""
 
 #: src/Api/Rest/UserController.php:212
@@ -1300,7 +1319,7 @@ msgstr ""
 msgid "No avatar image was uploaded."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:389
+#: src/Api/Rest/UserController.php:394
 msgid "The current password is incorrect."
 msgstr ""
 
@@ -1426,6 +1445,7 @@ msgid "Text"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:138
+#: src/Domain/ExternalFiles/OplistModule.php:234
 msgid "Link"
 msgstr ""
 
@@ -1476,7 +1496,6 @@ msgid "SEO & analytics"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:200
-#: src/Domain/Content/SeoBoxModule.php:39
 msgid "SEO keywords"
 msgstr ""
 
@@ -1485,7 +1504,6 @@ msgid "Comma-separated keywords for the site home page."
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:207
-#: src/Domain/Content/SeoBoxModule.php:46
 msgid "SEO description"
 msgstr ""
 
@@ -1551,18 +1569,6 @@ msgstr ""
 msgid "New window"
 msgstr ""
 
-#: src/Domain/Content/SeoBoxModule.php:31
-msgid "SEO fields"
-msgstr ""
-
-#: src/Domain/Content/SeoBoxModule.php:40
-msgid "Comma-separated keywords projected into the headless API."
-msgstr ""
-
-#: src/Domain/Content/SeoBoxModule.php:47
-msgid "Meta description projected into the headless API."
-msgstr ""
-
 #: src/Domain/Content/SlugModule.php:60
 msgid "Slug generation"
 msgstr ""
@@ -1577,7 +1583,7 @@ msgstr ""
 
 #: src/Domain/Content/SlugModule.php:69
 #: src/Domain/Content/SlugModule.php:89
-#: src/Domain/ExternalFiles/OplistModule.php:136
+#: src/Domain/ExternalFiles/OplistModule.php:140
 #: src/Domain/Identity/AvatarModule.php:108
 #: src/Infrastructure/Security/SecurityModule.php:132
 msgid "Off"
@@ -2554,150 +2560,166 @@ msgstr ""
 msgid "The file service returned an invalid response."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:45
-#: src/Domain/ExternalFiles/OplistModule.php:46
+#: src/Domain/ExternalFiles/OplistModule.php:50
+#: src/Domain/ExternalFiles/OplistModule.php:51
 msgid "OpenList"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:53
+#: src/Domain/ExternalFiles/OplistModule.php:58
 msgid "Server URL"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:54
+#: src/Domain/ExternalFiles/OplistModule.php:59
 msgid "Base address of the OpenList instance that hosts resource attachments."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:60
+#: src/Domain/ExternalFiles/OplistModule.php:65
 msgid "API username"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:66
+#: src/Domain/ExternalFiles/OplistModule.php:71
 msgid "API password"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:67
+#: src/Domain/ExternalFiles/OplistModule.php:72
 msgid "Used to fetch fresh bearer tokens; stored server-side and never exposed."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:73
+#: src/Domain/ExternalFiles/OplistModule.php:78
 msgid "Token cache (hours)"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:74
+#: src/Domain/ExternalFiles/OplistModule.php:79
 msgid "0 refetches the token on every request. Uses the object cache, so a Redis/memcached drop-in makes it persist."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:83
+#: src/Domain/ExternalFiles/OplistModule.php:88
 msgid "Attachment list cache (minutes)"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:84
+#: src/Domain/ExternalFiles/OplistModule.php:89
 msgid "How long an attachment listing is served from the object cache before OpenList is asked again; 0 disables caching. The box's force-refresh switch always bypasses it."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:93
+#: src/Domain/ExternalFiles/OplistModule.php:98
 msgid "Download link mode"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:96
+#: src/Domain/ExternalFiles/OplistModule.php:101
 msgid "Plain path"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:97
+#: src/Domain/ExternalFiles/OplistModule.php:102
 msgid "Direct (/d/)"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:98
+#: src/Domain/ExternalFiles/OplistModule.php:103
 msgid "Proxied (/p/)"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:99
+#: src/Domain/ExternalFiles/OplistModule.php:104
 msgid "raw_url from the API"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:105
+#: src/Domain/ExternalFiles/OplistModule.php:110
 msgid "File type icons"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:106
+#: src/Domain/ExternalFiles/OplistModule.php:111
 msgid "Classify attachments by extension for the front end."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:112
+#: src/Domain/ExternalFiles/OplistModule.php:117
 msgid "Default panel description"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:113
+#: src/Domain/ExternalFiles/OplistModule.php:118
 msgid "Shown when a resource does not describe its attachments."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:125
+#: src/Domain/ExternalFiles/OplistModule.php:129
 msgid "OpenList attachments"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:133
+#: src/Domain/ExternalFiles/OplistModule.php:137
 msgid "Surfacing mode"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:137
+#: src/Domain/ExternalFiles/OplistModule.php:141
 msgid "List a directory"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:138
+#: src/Domain/ExternalFiles/OplistModule.php:142
 msgid "Single file or directory"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:139
+#: src/Domain/ExternalFiles/OplistModule.php:143
 msgid "Directory tree"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:140
+#: src/Domain/ExternalFiles/OplistModule.php:144
 msgid "Search"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:146
+#: src/Domain/ExternalFiles/OplistModule.php:150
 msgid "Path"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:152
+#: src/Domain/ExternalFiles/OplistModule.php:156
 msgid "Panel description"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:158
+#: src/Domain/ExternalFiles/OplistModule.php:162
 msgid "Search root"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:159
-#: src/Domain/ExternalFiles/OplistModule.php:166
+#: src/Domain/ExternalFiles/OplistModule.php:163
+#: src/Domain/ExternalFiles/OplistModule.php:170
 msgid "Search mode only."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:165
+#: src/Domain/ExternalFiles/OplistModule.php:169
 msgid "Search keywords"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:172
+#: src/Domain/ExternalFiles/OplistModule.php:176
 msgid "Per page"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:173
+#: src/Domain/ExternalFiles/OplistModule.php:177
 msgid "0 lists everything."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:181
+#: src/Domain/ExternalFiles/OplistModule.php:185
 msgid "OpenList path password"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:182
+#: src/Domain/ExternalFiles/OplistModule.php:186
 msgid "The password of the configured path on the OpenList side, if any."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:188
+#: src/Domain/ExternalFiles/OplistModule.php:192
 msgid "Force refresh"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:189
+#: src/Domain/ExternalFiles/OplistModule.php:193
 msgid "Skip the OpenList cache on every listing request."
+msgstr ""
+
+#: src/Domain/ExternalFiles/OplistModule.php:213
+msgid "Cloud drive links"
+msgstr ""
+
+#: src/Domain/ExternalFiles/OplistModule.php:221
+msgid "Drive links"
+msgstr ""
+
+#: src/Domain/ExternalFiles/OplistModule.php:222
+msgid "One row per cloud-drive share: a label, the share URL and the extraction code readers must enter."
+msgstr ""
+
+#: src/Domain/ExternalFiles/OplistModule.php:240
+msgid "Extraction code"
 msgstr ""
 
 #: src/Domain/Identity/AvatarModule.php:99
@@ -2793,7 +2815,7 @@ msgstr ""
 msgid "The favorite could not be stored."
 msgstr ""
 
-#: src/Domain/Identity/FavoriteService.php:171
+#: src/Domain/Identity/FavoriteService.php:176
 msgid "Only published posts can be favorited."
 msgstr ""
 
@@ -2859,11 +2881,11 @@ msgstr ""
 msgid "The password reset email could not be sent."
 msgstr ""
 
-#: src/Domain/Identity/TokenStore.php:55
+#: src/Domain/Identity/TokenStore.php:58
 msgid "No user to issue a token for."
 msgstr ""
 
-#: src/Domain/Identity/TokenStore.php:75
+#: src/Domain/Identity/TokenStore.php:78
 msgid "The session token could not be stored."
 msgstr ""
 
@@ -3085,21 +3107,21 @@ msgstr ""
 msgid "A text snippet the reader copies with one click."
 msgstr ""
 
-#: src/Domain/Parts/PartModule.php:83
-#: src/Domain/Parts/PartModule.php:109
-#: src/Domain/Parts/PartModule.php:129
+#: src/Domain/Parts/PartModule.php:90
+#: src/Domain/Parts/PartModule.php:119
+#: src/Domain/Parts/PartModule.php:139
 msgid "Template parts"
 msgstr ""
 
-#: src/Domain/Parts/PartModule.php:116
+#: src/Domain/Parts/PartModule.php:126
 msgid "Markup preview"
 msgstr ""
 
-#: src/Domain/Parts/PartModule.php:122
+#: src/Domain/Parts/PartModule.php:132
 msgid "Insert"
 msgstr ""
 
-#: src/Domain/Parts/PartModule.php:130
+#: src/Domain/Parts/PartModule.php:140
 msgid "No template parts are registered yet."
 msgstr ""
 
@@ -3294,67 +3316,51 @@ msgid "Where the browser lands after paying; the headless front end owns this pa
 msgstr ""
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:209
-msgid "Callback log"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:210
-msgid "Append raw gateway callbacks to webhook_logs for debugging."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:216
 msgid "Afdian (platform push)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:222
+#: src/Domain/Sponsorship/SponsorshipModule.php:215
 msgid "Afdian integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:223
+#: src/Domain/Sponsorship/SponsorshipModule.php:216
 msgid "Activates memberships from Afdian: signed webhook pushes and the order-number self-service check. Bind the Afdian plan below to one local tier."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:229
+#: src/Domain/Sponsorship/SponsorshipModule.php:222
 msgid "Afdian plan ID"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:230
+#: src/Domain/Sponsorship/SponsorshipModule.php:223
 msgid "The plan_id this membership binds to; orders paid for it auto-activate the bound tier. Leave empty to keep Afdian unbound."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:236
+#: src/Domain/Sponsorship/SponsorshipModule.php:229
 msgid "Bound membership tier"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:237
+#: src/Domain/Sponsorship/SponsorshipModule.php:230
 msgid "The tier (from the membership settings page) that the Afdian plan activates."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:250
+#: src/Domain/Sponsorship/SponsorshipModule.php:243
 msgid "Afdian user id"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:256
+#: src/Domain/Sponsorship/SponsorshipModule.php:249
 msgid "Afdian API token"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:263
+#: src/Domain/Sponsorship/SponsorshipModule.php:256
 msgid "Afdian webhook address"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:264
+#: src/Domain/Sponsorship/SponsorshipModule.php:257
 msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:270
-msgid "Afdian callback log"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:271
-msgid "Append raw Afdian pushes to webhook_logs for debugging."
-msgstr ""
-
 #. translators: %s: tier keys that still have active holders.
-#: src/Domain/Sponsorship/SponsorshipModule.php:417
+#: src/Domain/Sponsorship/SponsorshipModule.php:403
 #, php-format
 msgid "These tiers still have active members and cannot be deleted: %s."
 msgstr ""

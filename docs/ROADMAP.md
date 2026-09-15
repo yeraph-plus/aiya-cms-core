@@ -906,3 +906,7 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **postpass 解锁绕 cookie、直返正文**：`POST /content/{id}/unlock` 密码校验通过后不再 `setcookie(wp-postpass)`（headless 拓扑下 cookie 落在 Astro→WP 代理跳、浏览器永远拿不到，功能接线即坏），改为直接返回**解锁后的完整 detail**（`PostPresenter::detailUnlocked` 新方法，visibility 门禁照常独立评估）；语义变化 = 解锁变为一次性（下次冷读仍 locked，需再次提交密码），前端可自行在会话内保留响应正文。前台契约新增 `postUnlockResponseSchema = itemEnvelope(postDetailSchema)` + client.unlockPost；`aiya_wrong_password` 403、限流 10/600s 不变；
 - **WebhookLogger 改调试常量门控**：删除赞助设置页 `epay_savelog`/`afdian_savelog` 两个开关及 `SponsorshipSettings::read()` 映射，`WebhookLogger::write()` 自带闸门——仅在 wp-config 定义 `AIYA_CORE_WEBHOOK_DEBUG === true` 时落盘 `aiya-core-logs/`（支付数据不因设置页开关被遗忘而无限累积）；GatewayController 八处 if 包装随之拆除，回调行为（验签 400/可用性 200、记账先于 tier 解析、激活幂等）不变；
 - 实测：密码文章详情 locked:true → 错误密码 403 → 正确密码 unlock 直返 locked:false + 全文正文；`WebhookLogger::active()` 无常量时 false、write 零落盘；phpunit 226/556、phpstan、phpcs、vitest 167/167、tsc 全绿。版本对齐 0.73.0。
+
+### 中文翻译恢复批（0.73.1，2026-09-16）—— ✅ 已完成
+
+0.72.0 批次事故中丢失的 zh_CN 翻译存量恢复完毕：PO 以 git HEAD 的 0.56 时代版本（786 条已译）为基座，对照最新 POT（863 条）补译 88 条缺失字符串——覆盖 0.57-0.67 各批次遗留（缩略图批量动作、支付查账、图床/发信权限句）、0.70.0 零件词库全量、0.71.0 可见性门禁、0.73.0 Afdian 错误文案与会员设置组、以及审查修复批的新错误串；术语沿既定表（爱发电/图床/模板零件/您无权…/请求过于频繁…），错误文案陈述句。POT 同步重建；MO 编译后实测「快捷列表|可见性门禁|刷新缩略图|支付查账|网盘链接列表|提取码|表情包」全部生效；未翻译 0 条。版本对齐 0.73.1。一次性辅助脚本（guard2.php/lang-diff.py）已删除。

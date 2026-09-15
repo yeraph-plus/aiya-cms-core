@@ -2363,3 +2363,267 @@ msgstr "请选择有效的媒体附件。"
 msgid "Select a valid option."
 msgstr "请选择有效选项。"
 
+
+msgid "Refresh thumbnails"
+msgstr "刷新缩略图"
+
+msgid "%d item refreshed."
+msgstr "已刷新 %d 项。"
+
+msgid "%d item skipped (nothing to refresh or not permitted)."
+msgstr "已跳过 %d 项（无可刷新或不具备权限）。"
+
+msgid "No thumbnails were refreshed."
+msgstr "没有刷新任何缩略图。"
+
+msgid "Payment audit"
+msgstr "支付查账"
+
+msgid "You are not allowed to view payments."
+msgstr "您无权查看支付记录。"
+
+msgid "Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue."
+msgstr "记录中的全部网关入账——仅记资金事实；所购权益见会员队列。"
+
+msgid "All sources"
+msgstr "全部来源"
+
+msgid "Epay"
+msgstr "易支付"
+
+msgid "Afdian"
+msgstr "爱发电"
+
+msgid "Order"
+msgstr "订单"
+
+msgid "No payments recorded yet."
+msgstr "暂无支付记录。"
+
+msgid "You are not allowed to manage the pic bed."
+msgstr "您无权管理图床。"
+
+msgid "The %d oldest file is not listed."
+msgstr "最早的 %d 个文件未列出。"
+
+msgid "You are not allowed to send mail."
+msgstr "您无权发送邮件。"
+
+msgid "Smilies"
+msgstr "表情包"
+
+msgid "Visibility gate"
+msgstr "可见性门禁"
+
+msgid "The account was created, but the profile could not be saved."
+msgstr "账号已创建，但资料保存失败。"
+
+msgid "The Afdian channel is not available."
+msgstr "爱发电渠道当前不可用。"
+
+msgid "This tier is not bound to an Afdian plan."
+msgstr "该档位未绑定爱发电方案。"
+
+msgid "This membership tier is not available."
+msgstr "该会员档位不可用。"
+
+msgid "SEO & analytics"
+msgstr "SEO 与统计"
+
+msgid "Comma-separated keywords for the site home page."
+msgstr "站点首页的关键词，英文逗号分隔。"
+
+msgid "Meta description for the site home page."
+msgstr "站点首页的 meta 描述。"
+
+msgid "Google Analytics ID"
+msgstr "Google Analytics ID"
+
+msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
+msgstr "衡量 ID（如 G-XXXXXXXXXX），前端据此渲染统计脚本；留空则不启用。"
+
+msgid "Free-form text; the front end resolves it into an icon."
+msgstr "自由文本，前台将其解析为图标。"
+
+msgid "Custom appearance"
+msgstr "自定义外观"
+
+msgid "Used by the headless front end wherever this term shows up."
+msgstr "前台在该术语出现的任何位置使用。"
+
+msgid "Cloud drive links"
+msgstr "网盘链接"
+
+msgid "Drive links"
+msgstr "网盘链接列表"
+
+msgid "One row per cloud-drive share: a label, the share URL and the extraction code readers must enter."
+msgstr "每行一条网盘分享：名称、分享链接与读者需输入的提取码。"
+
+msgid "Extraction code"
+msgstr "提取码"
+
+msgid "Quick list"
+msgstr "快捷列表"
+
+msgid "Turns lines of text into a list, one item per line."
+msgstr "将文本按行转换为列表，每行一项。"
+
+msgid "Content"
+msgstr "内容"
+
+msgid "Ordered list"
+msgstr "编号列表"
+
+msgid "Quick list (columns)"
+msgstr "快捷列表（分栏）"
+
+msgid "Alternates lines into a description list: first line the term, second the description, and so on."
+msgstr "将文本按行交替转换为描述列表：奇数行为词条，偶数行为描述。"
+
+msgid "Term width"
+msgstr "词条宽度"
+
+msgid "1/4 width terms"
+msgstr "词条占 1/4 宽"
+
+msgid "1/2 width terms"
+msgstr "词条占 1/2 宽"
+
+msgid "3/4 width terms"
+msgstr "词条占 3/4 宽"
+
+msgid "Collapse panel"
+msgstr "折叠面板"
+
+msgid "A panel readers can expand or collapse."
+msgstr "创建一个可展开或收起的内容面板。"
+
+msgid "Notice card"
+msgstr "提示卡片"
+
+msgid "A highlighted notice with a level and a title."
+msgstr "创建一条带级别与标题的醒目提示。"
+
+msgid "Level"
+msgstr "级别"
+
+msgid "Default"
+msgstr "默认"
+
+msgid "Warning"
+msgstr "警告"
+
+msgid "Info"
+msgstr "信息"
+
+msgid "Success"
+msgstr "成功"
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Button link"
+msgstr "按钮链接"
+
+msgid "A styled link button."
+msgstr "创建一个带样式的链接按钮。"
+
+msgid "Opens"
+msgstr "打开方式"
+
+msgid "Same tab"
+msgstr "当前标签页"
+
+msgid "New tab"
+msgstr "新标签页"
+
+msgid "Style"
+msgstr "样式"
+
+msgid "Primary"
+msgstr "主要"
+
+msgid "Outline"
+msgstr "描边"
+
+msgid "Button label"
+msgstr "按钮文字"
+
+msgid "Quick copy"
+msgstr "一键复制"
+
+msgid "A text snippet the reader copies with one click."
+msgstr "供读者一键复制的文本片段。"
+
+msgid "The Afdian API is unreachable — try again later."
+msgstr "爱发电接口暂时无法访问，请稍后再试。"
+
+msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
+msgstr "爱发电拒绝了请求（时间戳过期），请检查本服务器时钟。"
+
+msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
+msgstr "爱发电拒绝了请求，请检查支付设置页中的爱发电用户 ID 与 API Token。"
+
+msgid "No matching Afdian order — check the order number."
+msgstr "没有匹配的爱发电订单，请核对订单号。"
+
+msgid "This order is not a paid trade."
+msgstr "该订单不是已支付的交易。"
+
+msgid "This order's Afdian plan is not bound to a membership tier."
+msgstr "该订单对应的爱发电方案未绑定会员档位。"
+
+msgid "This order is bound to another account."
+msgstr "该订单已绑定其他账号。"
+
+msgid "The membership activation failed — try again."
+msgstr "会员激活失败，请重试。"
+
+msgid "This order has already been activated."
+msgstr "该订单已经激活过。"
+
+msgid "The membership is being updated — try again."
+msgstr "会员状态正在更新中，请重试。"
+
+msgid "Membership settings"
+msgstr "会员设置"
+
+msgid "Disabled tiers stay out of the purchase list; existing holders keep their membership."
+msgstr "停用的档位不出现在购买列表；已有持有者的会员不受影响。"
+
+msgid "Afdian (platform push)"
+msgstr "爱发电（平台推送）"
+
+msgid "Afdian integration"
+msgstr "爱发电集成"
+
+msgid "Activates memberships from Afdian: signed webhook pushes and the order-number self-service check. Bind the Afdian plan below to one local tier."
+msgstr "通过爱发电激活会员：签名 webhook 推送与订单号自助核验。需将下方的爱发电方案绑定到一个本地档位。"
+
+msgid "Afdian plan ID"
+msgstr "爱发电方案 ID"
+
+msgid "The plan_id this membership binds to; orders paid for it auto-activate the bound tier. Leave empty to keep Afdian unbound."
+msgstr "会员绑定的 plan_id；该方案支付的订单会自动激活绑定的档位。留空则不绑定爱发电。"
+
+msgid "Bound membership tier"
+msgstr "绑定的会员档位"
+
+msgid "The tier (from the membership settings page) that the Afdian plan activates."
+msgstr "爱发电方案所激活的档位（来自会员设置页）。"
+
+msgid "Afdian user id"
+msgstr "爱发电用户 ID"
+
+msgid "Afdian API token"
+msgstr "爱发电 API Token"
+
+msgid "Afdian webhook address"
+msgstr "爱发电 Webhook 地址"
+
+msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
+msgstr "在爱发电创作者后台（开发工具 > WebHook）登记该地址：{site url}/wp-json/aiya/sponsorship/v1/afdian/callback，仅接受 POST。"
+
+msgid "These tiers still have active members and cannot be deleted: %s."
+msgstr "以下档位仍有生效中的会员，无法删除：%s。"
