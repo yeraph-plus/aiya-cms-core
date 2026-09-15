@@ -36,9 +36,30 @@ final class PartModule implements Module
      * `the_content`, and the front end parses those tags into islands.
      * Runs at init 11, after the settings registry (init 0) has populated
      * the catalog with filter registrations.
+     *
+     * The parts domain also owns the shortcode namespace's retirement of
+     * core defaults: the caption/gallery/media shortcodes have no headless
+     * consumer (legacy content carries none after the migration audit),
+     * and `[embed]` cannot be removed with remove_shortcode() —
+     * WP_Embed re-registers it on every the_content pass — so BOTH of its
+     * content channels are unhooked instead: run_shortcode (explicit
+     * `[embed]` markup) and autoembed (bare URL lines, which would fire
+     * server-side oEmbed requests during API rendering).
      */
     public function registerRenderers(): void
     {
+        foreach (['wp_caption', 'caption', 'gallery', 'playlist', 'audio', 'video'] as $retired) {
+            remove_shortcode($retired);
+        }
+        if (isset($GLOBALS['wp_embed']) && $GLOBALS['wp_embed'] instanceof \WP_Embed) {
+            $wp_embed = $GLOBALS['wp_embed'];
+            foreach (['run_shortcode', 'autoembed'] as $method) {
+                remove_filter('the_content', [$wp_embed, $method], 8);
+                remove_filter('widget_text_content', [$wp_embed, $method], 8);
+                remove_filter('widget_block_content', [$wp_embed, $method], 8);
+            }
+        }
+
         foreach ($this->registry->all() as $part) {
             if ($part->render === null || $part->tag === '' || shortcode_exists($part->tag)) {
                 continue;
@@ -57,6 +78,9 @@ final class PartModule implements Module
     {
         $screen = function_exists('get_current_screen') ? get_current_screen() : null;
         if ($screen !== null && $screen->base !== 'post') {
+            return;
+        }
+        if ($this->registry->all() === []) {
             return;
         }
 
@@ -84,6 +108,9 @@ final class PartModule implements Module
                 'template' => $part->template,
                 'fields' => $part->fields,
             ];
+        }
+        if ($parts === []) {
+            return;
         }
 
         ?>
@@ -121,6 +148,9 @@ final class PartModule implements Module
     public function assets(string $hookSuffix): void
     {
         if ($hookSuffix !== 'post.php' && $hookSuffix !== 'post-new.php') {
+            return;
+        }
+        if ($this->registry->all() === []) {
             return;
         }
 

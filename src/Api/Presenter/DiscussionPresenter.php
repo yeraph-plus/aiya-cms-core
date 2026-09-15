@@ -14,6 +14,7 @@ use Aiya\Core\Api\Contract\PostRef;
 use Aiya\Core\Domain\Content\PublicTypes;
 use Aiya\Core\Domain\Discussion\DiscussionContent;
 use Aiya\Core\Domain\Discussion\ThreadStatus;
+use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use WP_Post;
 
 /**
@@ -21,10 +22,16 @@ use WP_Post;
  * derived here from the acting viewer (author or `edit_pages`
  * administrator) so the front end never re-implements the rules; guests
  * read false everywhere. This is the only WP-row touchpoint of the
- * discussion read path.
+ * discussion read path. Smilies tokens convert on the contentHtml
+ * projections only — tags() and images() parse the raw stored HTML, so a
+ * rendered token never leaks into the grid extraction.
  */
 final class DiscussionPresenter
 {
+    public function __construct(private readonly SmiliesRenderer $smilies)
+    {
+    }
+
     /** @param object{id:int,user_id:int,board_id:int,board_slug:string|null,board_name:string|null,status:string,title:string,content:string,post_id:int,reply_count:int,last_reply_user_id:int,last_reply_at:string|null,created_at:string} $row */
     public function present(object $row, int $viewerId): Discussion
     {
@@ -44,7 +51,7 @@ final class DiscussionPresenter
             $this->canModerate((int) $row->user_id, $viewerId),
             $this->canModerate((int) $row->user_id, $viewerId),
             $viewerId > 0 && !ThreadStatus::locksReplies((string) $row->status),
-            (string) $row->content,
+            $this->smilies->render((string) $row->content),
         );
     }
 
@@ -54,7 +61,7 @@ final class DiscussionPresenter
      */
     public function detail(object $row, array $replies, int $viewerId): DiscussionDetail
     {
-        return new DiscussionDetail($this->present($row, $viewerId), (string) $row->content, $replies);
+        return new DiscussionDetail($this->present($row, $viewerId), $this->smilies->render((string) $row->content), $replies);
     }
 
     /** @param object{id:int,user_id:int,content:string,created_at:string} $row */
@@ -63,7 +70,7 @@ final class DiscussionPresenter
         return new DiscussionReply(
             (int) $row->id,
             $this->author((int) $row->user_id),
-            (string) $row->content,
+            $this->smilies->render((string) $row->content),
             $this->images((string) $row->content),
             $this->iso((string) $row->created_at),
             $this->canModerate((int) $row->user_id, $viewerId),

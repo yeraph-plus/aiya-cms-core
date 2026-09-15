@@ -92,8 +92,6 @@ final class MediaModule implements Module
             return $hooks;
         });
         add_action('save_post', [$this, 'syncCardOnSave'], 100, 2);
-        add_filter('post_row_actions', [$this, 'thumbnailRowAction'], 10, 2);
-        add_action('admin_post_aiya_core_card_refresh', [$this, 'handleCardRefresh']);
     }
 
     private const CARD_TYPES = ['post', 'page', 'resource'];
@@ -123,51 +121,6 @@ final class MediaModule implements Module
         // both reuse an existing file, so repeats are a cheap is_file.
         $featured = $this->cards()->featuredDerivatives($post);
         $this->cards()->defaultDerivative();
-    }
-
-    /**
-     * Regenerate row action on the post/page/resource list tables. The
-     * handler re-runs the composite on demand (content image changed, the
-     * source was wrong the first time, the card was hand-deleted).
-     *
-     * @param array<string, string> $actions
-     * @return array<string, string>
-     */
-    public function thumbnailRowAction(array $actions, \WP_Post $post): array
-    {
-        if (!in_array($post->post_type, self::CARD_TYPES, true)
-            || $post->post_status !== 'publish'
-            || !current_user_can('edit_post', (int) $post->ID)) {
-            return $actions;
-        }
-
-        $url = wp_nonce_url(
-            admin_url('admin-post.php?action=aiya_core_card_refresh&post_id=' . (int) $post->ID),
-            'aiya_core_card_refresh_' . (int) $post->ID
-        );
-        $actions['aiya-core-card-refresh'] = '<a href="' . esc_url($url) . '">'
-            . esc_html__('Refresh thumbnail', 'aiya-core') . '</a>';
-
-        return $actions;
-    }
-
-    public function handleCardRefresh(): void
-    {
-        $postId = absint((string) ($_GET['post_id'] ?? '0'));
-        if ($postId <= 0 || !current_user_can('edit_post', $postId)) {
-            wp_die(esc_html__('You are not allowed to edit this post.', 'aiya-core'), '', ['response' => 403]);
-        }
-        check_admin_referer('aiya_core_card_refresh_' . $postId);
-
-        $post = get_post($postId);
-        if ($post !== null && in_array($post->post_type, self::CARD_TYPES, true) && $post->post_status === 'publish') {
-            $this->cards()->refreshFor($postId);
-        }
-
-        $referer = wp_get_raw_referer();
-        $target = $referer !== '' && is_string($referer) ? $referer : (string) get_edit_post_link($postId, 'raw');
-        wp_safe_redirect($target !== '' ? $target : admin_url('edit.php'));
-        exit;
     }
 
     public function settings(): void

@@ -33,7 +33,12 @@ final class SendMailPage implements Module
 
     public function register(): void
     {
-        add_action('admin_menu', [$this, 'menu'], 20);
+        // Priority 35: the parent AIYA Core menu is registered by
+        // SettingsAdmin at 30. add_submenu_page resolves the page hookname
+        // from the parent's registered title at call time — running before
+        // it degrades the hook to admin_page_* and the request-time access
+        // check (which recomputes aiya-core_page_*) denies the screen.
+        add_action('admin_menu', [$this, 'menu'], 35);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
         add_filter('user_row_actions', [$this, 'rowAction'], 10, 2);
         add_action('wp_ajax_' . self::AJAX_ACTION, [$this, 'handleSend']);
@@ -56,9 +61,13 @@ final class SendMailPage implements Module
     public function assets(string $hook): void
     {
         // A submenu page's hook keeps the slug after the parent prefix.
-        if ($hook === 'aiya-core_page_' . self::MENU_SLUG) {
-            wp_enqueue_editor();
+        // The parent hook prefix is the localized menu title — match the
+        // slug suffix so a future title translation cannot silently kill
+        // the editor.
+        if (!str_ends_with($hook, '_page_' . self::MENU_SLUG)) {
+            return;
         }
+        wp_enqueue_editor();
     }
 
     /**
@@ -83,6 +92,9 @@ final class SendMailPage implements Module
 
     public function render(): void
     {
+        if (!current_user_can('edit_users')) {
+            wp_die(esc_html__('You are not allowed to send mail.', 'aiya-core'));
+        }
         $nonce = wp_create_nonce(self::NONCE_ACTION);
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only compose prefill; sending stays nonce-guarded.
         $prefill = sanitize_email(wp_unslash((string) ($_GET['aiya_mail_to'] ?? '')));
@@ -210,7 +222,7 @@ final class SendMailPage implements Module
         }
 
         $subject = sanitize_text_field(wp_unslash((string) ($_POST['subject'] ?? '')));
-        $body = (string) ($_POST['body'] ?? '');
+        $body = (string) wp_unslash((string) ($_POST['body'] ?? ''));
         if ($subject === '' || trim(wp_strip_all_tags($body)) === '') {
             wp_send_json_error(['message' => __('A subject and a message body are required.', 'aiya-core')]);
         }

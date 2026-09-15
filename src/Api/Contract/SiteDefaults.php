@@ -8,8 +8,10 @@ namespace Aiya\Core\Api\Contract;
  * Front-end presentation defaults from the Frontend settings page: the
  * initial color mode, the site-wide fallback cover used when a post has
  * neither a featured image nor a generated one, the empty/error state
- * placeholder image, and the brand color that
- * drives the front end's palette. `colorMode` is one of system/dark/light.
+ * placeholder image, the brand color that drives the front end's
+ * palette, and the site-level SEO/analytics head values (keywords, meta
+ * description, the Google Analytics measurement id — the front end
+ * renders the snippet). Empty strings mean "not configured".
  */
 final class SiteDefaults
 {
@@ -18,10 +20,13 @@ final class SiteDefaults
         public readonly ?Image $thumb,
         public readonly ?Image $emptyImage,
         public readonly SiteTheme $theme,
+        public readonly string $seoKeywords = '',
+        public readonly string $seoDescription = '',
+        public readonly string $gaId = '',
     ) {
     }
 
-    /** @return array{colorMode: string, thumb: array<string, mixed>|null, theme: array{primary: string}} */
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return [
@@ -29,6 +34,9 @@ final class SiteDefaults
             'thumb' => $this->thumb?->toArray(),
             'emptyImage' => $this->emptyImage?->toArray(),
             'theme' => $this->theme->toArray(),
+            'seoKeywords' => $this->seoKeywords,
+            'seoDescription' => $this->seoDescription,
+            'gaId' => $this->gaId,
         ];
     }
 }

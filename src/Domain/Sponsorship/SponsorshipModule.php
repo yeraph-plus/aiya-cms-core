@@ -7,6 +7,7 @@ namespace Aiya\Core\Domain\Sponsorship;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Settings\Registry;
+use WP_Error;
 
 /**
  * Wires the membership domain into the runtime (0.50.0 tier rewrite):
@@ -21,7 +22,7 @@ use Aiya\Core\Settings\Registry;
  */
 final class SponsorshipModule implements Module
 {
-    public const PAGE_SLUG = 'sponsorship';
+    public const PAGE_SLUG = 'membership';
     public const OPTION_NAME = 'aiya_core_sponsorship';
     public const PAYMENTS_PAGE_SLUG = 'sponsorship-payments';
     public const PAYMENTS_OPTION_NAME = 'aiya_core_sponsorship_payments';
@@ -37,6 +38,9 @@ final class SponsorshipModule implements Module
     public function register(): void
     {
         add_action('aiya_core_register', [$this, 'settings'], 10, 0);
+        // Runs after the framework's normalization, before the save lands:
+        // a tier with active holders cannot be deleted.
+        add_filter('aiya_core_settings_validate', [$this, 'guardTierDeletion'], 10, 3);
 
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
             $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'installTables']];
@@ -65,14 +69,16 @@ final class SponsorshipModule implements Module
 
     public function settings(): void
     {
-        // The membership settings page: tiers + daily check-in in one
+        // The membership menu's landing page (no parent = top level): the
+        // settings form IS the first screen — tiers + daily check-in in one
         // place (the credit domain's check-in fields ride here via
         // Registry::addFields from CreditModule).
         $this->settings->addPage([
             'slug' => self::PAGE_SLUG,
-            'title' => __('Membership', 'aiya-core'),
+            'title' => __('Membership settings', 'aiya-core'),
             'menu_title' => __('Membership', 'aiya-core'),
-            'parent' => 'aiya-core-membership',
+            'icon' => 'dashicons-awards',
+            'position' => 27,
             'option_name' => self::OPTION_NAME,
             'fields' => [
                 [
@@ -88,6 +94,13 @@ final class SponsorshipModule implements Module
                     'description' => __('Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones.', 'aiya-core'),
                     'default' => [],
                     'children' => [
+                        [
+                            'id' => 'enabled',
+                            'type' => 'switch',
+                            'label' => __('Enabled', 'aiya-core'),
+                            'description' => __('Disabled tiers stay out of the purchase list; existing holders keep their membership.', 'aiya-core'),
+                            'default' => true,
+                        ],
                         [
                             'id' => 'key',
                             'type' => 'text',
@@ -191,11 +204,58 @@ final class SponsorshipModule implements Module
                     'default' => '',
                 ],
                 [
-                    'id' => 'epay_savelog',
+                    'id' => 'heading_afdian',
+                    'type' => 'heading',
+                    'label' => __('Afdian (platform push)', 'aiya-core'),
+                    'level' => '2',
+                ],
+                [
+                    'id' => 'afdian_enable',
                     'type' => 'switch',
-                    'label' => __('Callback log', 'aiya-core'),
-                    'description' => __('Append raw gateway callbacks to webhook_logs for debugging.', 'aiya-core'),
+                    'label' => __('Afdian integration', 'aiya-core'),
+                    'description' => __('Activates memberships from Afdian: signed webhook pushes and the order-number self-service check. Bind the Afdian plan below to one local tier.', 'aiya-core'),
                     'default' => false,
+                ],
+                [
+                    'id' => 'afdian_plan_id',
+                    'type' => 'text',
+                    'label' => __('Afdian plan ID', 'aiya-core'),
+                    'description' => __('The plan_id this membership binds to; orders paid for it auto-activate the bound tier. Leave empty to keep Afdian unbound.', 'aiya-core'),
+                    'default' => '',
+                ],
+                [
+                    'id' => 'afdian_tier_key',
+                    'type' => 'select',
+                    'label' => __('Bound membership tier', 'aiya-core'),
+                    'description' => __('The tier (from the membership settings page) that the Afdian plan activates.', 'aiya-core'),
+                    'default' => '',
+                    'options_source' => [
+                        'source' => 'option_list',
+                        'option' => 'aiya_core_sponsorship',
+                        'list' => 'tiers',
+                        'value_field' => 'key',
+                        'label_field' => 'name',
+                    ],
+                ],
+                [
+                    'id' => 'afdian_user_id',
+                    'type' => 'text',
+                    'label' => __('Afdian user id', 'aiya-core'),
+                    'default' => '',
+                ],
+                [
+                    'id' => 'afdian_token',
+                    'type' => 'password',
+                    'label' => __('Afdian API token', 'aiya-core'),
+                    'default' => '',
+                ],
+                [
+                    'id' => 'afdian_webhook_note',
+                    'type' => 'note',
+                    'variant' => 'info',
+                    'label' => __('Afdian webhook address', 'aiya-core'),
+                    'description' => __('Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only.', 'aiya-core'),
+                    'default' => null,
                 ],
             ],
         ]);
@@ -294,5 +354,56 @@ final class SponsorshipModule implements Module
         $legacy = $wpdb->prefix . 'aya_convert_codes';
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-shot DDL dropping the retired legacy table
         $wpdb->query("DROP TABLE IF EXISTS `$legacy`");
+    }
+
+    /**
+     * Save-time guard: a tier with active holders cannot be deleted —
+     * the entitlement queue snapshots reference the tier key and the
+     * running grants are live business facts. Removed-but-unused tiers
+     * pass; the veto lists the offending keys on the settings page.
+     *
+     * @param mixed $values normalized settings payload for the page
+     * @param mixed $slug   settings page slug being saved
+     * @param mixed $oldValues the previously stored option values
+     */
+    public function guardTierDeletion(mixed $values, mixed $slug, mixed $oldValues): mixed
+    {
+        if ($slug !== 'membership' || !is_array($values)) {
+            return $values;
+        }
+
+        $newKeys = [];
+        foreach ((array) ($values['tiers'] ?? []) as $row) {
+            if (is_array($row) && ($row['key'] ?? '') !== '') {
+                $newKeys[sanitize_key((string) $row['key'])] = true;
+            }
+        }
+
+        $removed = [];
+        foreach ((array) ($oldValues['tiers'] ?? []) as $row) {
+            $key = sanitize_key((string) ($row['key'] ?? ''));
+            if ($key !== '' && !isset($newKeys[$key])) {
+                $removed[] = $key;
+            }
+        }
+        if ($removed === []) {
+            return $values;
+        }
+
+        $counts = (new EntitlementService())->activeCountByTier($removed);
+        $blocked = array_keys($counts);
+        if ($blocked === []) {
+            return $values;
+        }
+
+        return new WP_Error(
+            'aiya_tier_in_use',
+            sprintf(
+                // translators: %s: tier keys that still have active holders.
+                __('These tiers still have active members and cannot be deleted: %s.', 'aiya-core'),
+                implode('、', $blocked)
+            ),
+            ['status' => 409]
+        );
     }
 }

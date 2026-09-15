@@ -27,8 +27,8 @@ final class PostSummaryContractTest extends TestCase
             4,
             new Image('https://wp.example/cover.jpg', 'Cover', 1280, 720),
             new Author(7, 'ye-xing-wan-jia', '夜行玩家', new Image('https://wp.example/a.jpg', '夜行玩家', null, null)),
-            [new Term(1, 'category', 'notes', '玩家创作', 'desc', null, 5)],
-            [new Term(2, 'tag', 'life', '日常', '', null, 2)],
+            [new Term(1, 'category', 'notes', '玩家创作', 'desc', null, 5, 'category')],
+            [new Term(2, 'tag', 'life', '日常', '', null, 2, 'post_tag')],
             new PostMetrics(1200, 38, 6, null, null),
             ['sticky'],
         );
@@ -50,8 +50,8 @@ final class PostSummaryContractTest extends TestCase
                 'name' => '夜行玩家',
                 'avatar' => ['url' => 'https://wp.example/a.jpg', 'alt' => '夜行玩家', 'width' => null, 'height' => null],
             ],
-            'categories' => [['id' => 1, 'taxonomy' => 'category', 'slug' => 'notes', 'name' => '玩家创作', 'description' => 'desc', 'parentId' => null, 'count' => 5]],
-            'tags' => [['id' => 2, 'taxonomy' => 'tag', 'slug' => 'life', 'name' => '日常', 'description' => '', 'parentId' => null, 'count' => 2]],
+            'categories' => [['id' => 1, 'taxonomy' => 'category', 'slug' => 'notes', 'name' => '玩家创作', 'description' => 'desc', 'parentId' => null, 'count' => 5, 'vocabulary' => 'category', 'icon' => null, 'cover' => null]],
+            'tags' => [['id' => 2, 'taxonomy' => 'tag', 'slug' => 'life', 'name' => '日常', 'description' => '', 'parentId' => null, 'count' => 2, 'vocabulary' => 'post_tag', 'icon' => null, 'cover' => null]],
             'metrics' => ['views' => 1200, 'likes' => 38, 'comments' => 6, 'ratingScore' => null, 'ratingCount' => null],
             'badges' => ['sticky'],
         ], $summary->toArray());

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Parts;
 
 /**
- * The template-part catalog. Deliberately starts empty: the legacy
- * shortcode vocabulary does not carry over (2026-09-11 decision). Parts
- * enter through the `aiya_core_register_parts` filter — future batches
- * register the new vocabulary there. The registry is a plain catalog for
- * the editor dialog; it does not touch the editor, admin screens or the
- * request lifecycle.
+ * The template-part catalog. Core vocabulary (list, col_list, collapse,
+ * alert, button, clip_board) registers through BuiltinParts; the
+ * `aiya_core_register_parts` filter stays open for further parts (set the
+ * key aside before overriding a tag — duplicates throw). The registry is
+ * a plain catalog for the editor dialog; it does not touch the editor,
+ * admin screens or the request lifecycle.
  */
 final class PartRegistry
 {

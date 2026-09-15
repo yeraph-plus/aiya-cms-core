@@ -110,7 +110,7 @@ final class SecurityModule implements Module
                 ],
                 [
                     'id' => 'login_param_gate_value',
-                    'type' => 'text',
+                    'type' => 'password',
                     'label' => __('Login gate parameter value', 'aiya-core'),
                     'description' => __('Reach the login screen via /wp-login.php?auth=<value>; the pass persists for 10 minutes as a cookie and covers the full flow including password reset. Leave empty to disable the gate regardless of the switch above.', 'aiya-core'),
                     'default' => '',

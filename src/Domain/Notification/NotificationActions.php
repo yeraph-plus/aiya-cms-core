@@ -8,6 +8,8 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
+use Aiya\Core\Domain\Smilies\SmiliesRegistry;
+use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use WP_Comment;
 use WP_Post;
@@ -46,17 +48,20 @@ final class NotificationActions implements Module
     private FollowService $follows;
     private FavoriteService $favorites;
     private DiscussionService $threads;
+    private SmiliesRenderer $smilies;
 
     public function __construct(
         ?NotificationService $notifications = null,
         ?FollowService $follows = null,
         ?FavoriteService $favorites = null,
-        ?DiscussionService $threads = null
+        ?DiscussionService $threads = null,
+        ?SmiliesRenderer $smilies = null
     ) {
         $this->notifications = $notifications ?? new NotificationService();
         $this->follows = $follows ?? new FollowService();
         $this->favorites = $favorites ?? new FavoriteService();
         $this->threads = $threads ?? new DiscussionService();
+        $this->smilies = $smilies ?? new SmiliesRenderer(new SmiliesRegistry());
     }
 
     public function register(): void
@@ -101,7 +106,9 @@ final class NotificationActions implements Module
             return;
         }
 
-        $excerpt = wp_trim_words(wp_strip_all_tags((string) $comment->comment_content), 16);
+        // Notification bodies are plain text: smilies tokens come off
+        // before the excerpt, mirroring the post excerpt projection.
+        $excerpt = wp_trim_words(wp_strip_all_tags($this->smilies->strip((string) $comment->comment_content)), 16);
         $parentCommentId = (int) $comment->comment_parent;
 
         if ($parentCommentId > 0) {

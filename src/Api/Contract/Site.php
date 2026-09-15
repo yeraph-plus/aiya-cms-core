@@ -12,7 +12,9 @@ namespace Aiya\Core\Api\Contract;
  * `registrationOpen` mirrors the WP membership setting
  * (users_can_register), `comments` carries the WP discussion settings
  * the comment form needs, and `defaults` / `footer` come from the
- * Frontend settings page.
+ * Frontend settings page. (The smilies pack map moved to its own
+ * `GET /smilies` read in 0.63.0 — hundreds of tokens do not belong in
+ * every shell payload.)
  */
 final class Site
 {

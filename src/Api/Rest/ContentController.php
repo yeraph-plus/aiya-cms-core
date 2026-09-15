@@ -48,7 +48,7 @@ final class ContentController
     {
         register_rest_route(Contract::API_NAMESPACE, '/site', [
             'methods' => WP_REST_Server::READABLE,
-            'callback' => fn (): WP_REST_Response => new WP_REST_Response($this->site->present()->toArray()),
+            'callback' => fn (): WP_REST_Response => new WP_REST_Response($this->site->presentArray()),
             'permission_callback' => '__return_true',
         ]);
 
@@ -60,7 +60,9 @@ final class ContentController
             'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->terms($request),
             'permission_callback' => '__return_true',
             'args' => [
-                'taxonomy' => ['type' => 'string', 'required' => true, 'enum' => ['category', 'tag']],
+                // "all" (default) flattens every vocabulary the type maps
+                // to the contract groups; category/tag keep filtering.
+                'taxonomy' => ['type' => 'string', 'default' => 'all', 'enum' => ['all', 'category', 'tag']],
                 'type' => ['type' => 'string', 'default' => 'post', 'enum' => ['post', 'page', 'resource']],
             ],
         ]);
@@ -129,8 +131,8 @@ final class ContentController
                 'page' => ['type' => 'integer', 'default' => 1, 'minimum' => 1],
                 'perPage' => ['type' => 'integer', 'default' => 12, 'minimum' => 1, 'maximum' => 100],
                 'q' => ['type' => 'string', 'default' => '', 'maxLength' => 100],
-                'category' => ['type' => 'string', 'default' => '', 'maxLength' => 100],
-                'tag' => ['type' => 'string', 'default' => '', 'maxLength' => 100],
+                'category' => ['type' => 'string', 'default' => '', 'maxLength' => 200],
+                'tag' => ['type' => 'string', 'default' => '', 'maxLength' => 200],
                 'author' => ['type' => 'string', 'default' => '', 'maxLength' => 100],
                 'sort' => ['type' => 'string', 'default' => 'newest', 'enum' => ['newest', 'oldest', 'rand']],
             ],
@@ -170,10 +172,13 @@ final class ContentController
             $page,
             $perPage,
             sanitize_text_field((string) $request->get_param('q')),
-            sanitize_title((string) $request->get_param('category')),
+            // Multi-select rides as comma-separated slugs; sanitize_title
+            // would fuse them into one hyphenated slug, so only text-level
+            // cleanup happens here — per-slug sanitization is slugList's job.
+            sanitize_text_field((string) $request->get_param('category')),
             (string) $request->get_param('sort'),
             sanitize_title((string) $request->get_param('author')),
-            sanitize_title((string) $request->get_param('tag'))
+            sanitize_text_field((string) $request->get_param('tag'))
         );
 
         $items = [];
@@ -210,10 +215,12 @@ final class ContentController
 
     /**
      * Password gate for a locked body: verifies against the WP hash and
-     * plants the native post-password cookie, so the very next detail
-     * read answers the full body through core's own machinery. No
-     * credential-level brute force here — the rate limiter is the
-     * attempt budget.
+     * answers the unlocked detail DIRECTLY in the response. The native
+     * postpass cookie is deliberately not used: the browser never talks to
+     * WP (the Astro proxy does), so a cookie planted here can never reach
+     * the visitor — and each unlock POST carries the password again, which
+     * is its own proof. No credential-level brute force here — the rate
+     * limiter is the attempt budget.
      */
     private function unlock(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
@@ -223,42 +230,32 @@ final class ContentController
 
         // Any public type can carry the password gate; the first match wins.
         $post = null;
-        foreach (PublicTypes::all() as $type) {
-            $candidate = $this->query->byId((int) $request->get_param('id'), $type);
+        $type = null;
+        foreach (PublicTypes::all() as $candidateType) {
+            $candidate = $this->query->byId((int) $request->get_param('id'), $candidateType);
             if ($candidate !== null) {
                 $post = $candidate;
+                $type = $candidateType;
                 break;
             }
         }
-        if ($post === null || (string) $post->post_password === '') {
+        if ($post === null || $type === null || (string) $post->post_password === '') {
             return $this->notFound(__('Content not found.', 'aiya-core'));
         }
 
         // post_password stores the plain password (core semantics); the
-        // comparison is constant-time. The native cookie stores a phpass
-        // hash OF that password ($P$B…), and post_password_required()
-        // re-checks it via CheckPassword on every later read.
+        // comparison is constant-time. On success the full detail is
+        // returned in this response — the front end renders it (and may
+        // keep it for the browsing session); the next cold detail read is
+        // locked again until the password is presented once more.
         $password = (string) $request->get_param('password');
         if (!hash_equals((string) $post->post_password, $password)) {
             return new WP_Error('aiya_wrong_password', __('Incorrect password.', 'aiya-core'), ['status' => 403]);
         }
 
-        require_once ABSPATH . 'wp-includes/class-phpass.php';
-        $hasher = new \PasswordHash(8, true);
-        setcookie(
-            'wp-postpass_' . \COOKIEHASH,
-            $hasher->HashPassword($password),
-            [
-                'expires' => time() + 10 * DAY_IN_SECONDS,
-                'path' => COOKIEPATH,
-                'domain' => COOKIE_DOMAIN,
-                'secure' => is_ssl(),
-                'httponly' => true,
-                'samesite' => 'Lax',
-            ]
+        return new WP_REST_Response(
+            $this->posts->detailUnlocked($post, $this->query->neighbors($post, $type), $type)->toArray()
         );
-
-        return new WP_REST_Response(['unlocked' => true]);
     }
 
     /**

@@ -5,16 +5,21 @@ declare(strict_types=1);
 namespace Aiya\Core;
 
 use Aiya\Core\Admin\CoverMetabox;
+use Aiya\Core\Admin\CardThumbnailBulkAction;
 use Aiya\Core\Admin\ConvertCodesPage;
 use Aiya\Core\Admin\DiscussionModerationPage;
 use Aiya\Core\Admin\CreditsPage;
+use Aiya\Core\Admin\EditorPlugins;
 use Aiya\Core\Admin\MetaboxAdmin;
 use Aiya\Core\Admin\NotificationPage;
+use Aiya\Core\Admin\PaymentsAuditPage;
 use Aiya\Core\Admin\PicBedPage;
 use Aiya\Core\Admin\PostTypeSwitchBulkAction;
 use Aiya\Core\Admin\SendMailPage;
 use Aiya\Core\Admin\SettingsAdmin;
+use Aiya\Core\Admin\SmiliesPicker;
 use Aiya\Core\Admin\TermMoveBulkAction;
+use Aiya\Core\Admin\VisibilityMetabox;
 use Aiya\Core\Api\Rest\RestController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentTypeModule;
@@ -22,8 +27,8 @@ use Aiya\Core\Domain\Content\ContentTypeRegistry;
 use Aiya\Core\Domain\Content\FrontendModule;
 use Aiya\Core\Domain\Content\TypographyModule;
 use Aiya\Core\Domain\Content\NavigationModule;
+use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Content\PostTypeSwitcher;
-use Aiya\Core\Domain\Content\SeoBoxModule;
 use Aiya\Core\Domain\Discussion\DiscussionModule;
 use Aiya\Core\Domain\DevTools\DevToolsModule;
 use Aiya\Core\Domain\ExternalFiles\OplistModule;
@@ -36,11 +41,16 @@ use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Domain\Identity\IdentityModule;
 use Aiya\Core\Domain\Notification\NotificationActions;
 use Aiya\Core\Domain\Notification\NotificationModule;
+use Aiya\Core\Domain\Parts\BuiltinParts;
 use Aiya\Core\Domain\Parts\PartModule;
 use Aiya\Core\Domain\Parts\PartRegistry;
 use Aiya\Core\Domain\Sponsorship\EntitlementService;
+use Aiya\Core\Domain\Sponsorship\MembershipService;
+use Aiya\Core\Domain\Sponsorship\OrderService;
 use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
 use Aiya\Core\Domain\Sponsorship\SponsorshipModule;
+use Aiya\Core\Domain\Smilies\SmiliesModule;
+use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\ThemeSupport\ThemeSupportModule;
 use Aiya\Core\Infrastructure\Headless\HeadlessModule;
 use Aiya\Core\Infrastructure\Security\SecurityModule;
@@ -101,13 +111,16 @@ final class Plugin
         $this->addModule(new SendMailPage());
         $this->addModule(new SlugModule($this->settings));
         $this->addModule(new ThemeSupportModule());
+        $this->addModule(new SmiliesModule());
         $this->addModule(new ContentTypeModule($this->contentTypes));
         $this->addModule(new PostTypeSwitchBulkAction(new PostTypeSwitcher()));
         $this->addModule(new TermMoveBulkAction(new TermTaxonomyMover()));
         $this->addModule(new NavigationModule($this->settings));
         $this->addModule(new PartModule(new PartRegistry()));
+        $this->addModule(new BuiltinParts());
+        $this->addModule(new SmiliesPicker(new SmiliesRegistry()));
+        $this->addModule(new EditorPlugins());
         $this->addModule(new MetaboxAdmin($this->metadata));
-        $this->addModule(new SeoBoxModule($this->metadata));
         $this->addModule(new TypographyModule($this->settings, $this->metadata));
         $this->addModule(new TermExtrasModule($this->metadata));
 
@@ -115,6 +128,7 @@ final class Plugin
         $this->addModule(new NotificationActions());
         $this->addModule(new CreditModule($this->settings));
         $this->addModule(new CreditsPage());
+        $this->addModule(new PaymentsAuditPage(new OrderService(), new MembershipService()));
         $this->addModule(new ConvertCodesPage(new RedeemCodeService(new EntitlementService(new LedgerService()))));
         $this->addModule(new IdentityModule());
         $this->addModule(new NotificationPage());
@@ -127,6 +141,7 @@ final class Plugin
         $this->addModule($media);
         $this->addModule(new CoverMetabox($media->covers()));
         $this->addModule(new PicBedPage($media->uploadProcessor(), $media->paths()));
+        $this->addModule(new CardThumbnailBulkAction($media->cards()));
 
         $attachments = null;
         // Business routing flag — OpenList is back on; the null branch
@@ -138,7 +153,9 @@ final class Plugin
             $attachments = $oplist->attachments();
         }
         $this->addModule(new SchemaVersionRunner());
-        $this->addModule(new RestController($avatar, $attachments, $media->cards(), $media->uploadProcessor(), $media->paths()));
+        $visibility = new PostVisibility(fn (int $userId): bool => (new MembershipService())->isSponsor($userId));
+        $this->addModule(new VisibilityMetabox($visibility));
+        $this->addModule(new RestController($avatar, $attachments, $media->cards(), $media->uploadProcessor(), $media->paths(), $visibility));
 
         add_action('plugins_loaded', function (): void {
             // WP 7.1's load_plugin_textdomain no longer falls back to the

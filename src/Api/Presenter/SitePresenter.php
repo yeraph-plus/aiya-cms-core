@@ -17,12 +17,24 @@ use Aiya\Core\Api\Contract\SiteTheme;
  * timezone is the configured IANA identifier. Defaults, the header banner
  * and the compliance footer come from the Frontend settings page
  * (attachment IDs resolved to URLs); `favicon` mirrors the WP site icon.
+ *
+ * The assembled payload is mirrored into the object cache with the same
+ * TTL the HTTP shell tier grants (300s): settings saves and site-icon or
+ * attachment changes propagate within that window, exactly the freshness
+ * contract the Cache-Control header already imposes on CDN and browser
+ * copies. Invalidation is TTL-only on purpose — the payload folds options
+ * from several pages plus attachment lookups, and no single hook covers
+ * them all.
  */
 final class SitePresenter
 {
     private const COLOR_MODES = ['system', 'dark', 'light'];
 
     private const DEFAULT_PRIMARY = '#e94f69';
+
+    private const CACHE_KEY = 'shell';
+    private const CACHE_GROUP = 'aiya_core_site';
+    private const CACHE_TTL = 300;
 
     public function present(): Site
     {
@@ -39,10 +51,35 @@ final class SitePresenter
                 $this->colorMode(),
                 $this->attachmentImage((int) aiya_core_opt('frontend', 'default_thumb', 0)),
                 $this->attachmentImage((int) aiya_core_opt('frontend', 'empty_image', 0)),
-                new SiteTheme($this->colorPrimary())
+                new SiteTheme($this->colorPrimary()),
+                trim((string) aiya_core_opt('frontend', 'seo_keywords', '')),
+                trim((string) aiya_core_opt('frontend', 'seo_description', '')),
+                trim((string) aiya_core_opt('frontend', 'ga_measurement_id', ''))
             ),
             $this->footer()
         );
+    }
+
+    /**
+     * The contract-ready /site payload, served from the object cache
+     * mirror when warm. This is the read the shell route actually serves;
+     * present() stays the uncached DTO builder (and the contract tests'
+     * entry point).
+     *
+     * @return array<string, mixed>
+     */
+    public function presentArray(): array
+    {
+        /** @var array<string, mixed>|false $cached */
+        $cached = wp_cache_get(self::CACHE_KEY, self::CACHE_GROUP);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $payload = $this->present()->toArray();
+        wp_cache_set(self::CACHE_KEY, $payload, self::CACHE_GROUP, self::CACHE_TTL);
+
+        return $payload;
     }
 
     /**

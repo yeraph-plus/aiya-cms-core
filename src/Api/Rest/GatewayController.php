@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
+use Aiya\Core\Domain\Sponsorship\AfdianGateway;
 use Aiya\Core\Domain\Sponsorship\EpayGateway;
 use Aiya\Core\Domain\Sponsorship\EntitlementService;
 use Aiya\Core\Domain\Sponsorship\OrderService;
@@ -39,6 +40,12 @@ final class GatewayController
             'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->epayCallback($request),
             'permission_callback' => '__return_true',
         ]);
+
+        register_rest_route(self::GATEWAY_NAMESPACE, 'afdian/callback', [
+            'methods' => 'POST',
+            'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->afdianCallback($request),
+            'permission_callback' => '__return_true',
+        ]);
     }
 
     /**
@@ -52,20 +59,15 @@ final class GatewayController
      */
     private function epayCallback(WP_REST_Request $request): WP_REST_Response
     {
-        $settings = SponsorshipSettings::read();
         $query = $request->get_query_params();
 
-        if ($settings['epaySavelog']) {
-            WebhookLogger::write('Epay callback received:', (string) wp_json_encode($query));
-        }
+        WebhookLogger::write('Epay callback received:', (string) wp_json_encode($query));
 
         $gateway = EpayGateway::fromSettings();
         $payment = $gateway?->verifyCallback($query);
         if ($payment === null) {
-            if ($settings['epaySavelog']) {
-                $reason = $gateway !== null && $gateway->callbackFailed($query) ? 'invalid signature' : 'not activatable (status or binding)';
-                WebhookLogger::write("Epay push rejected: {$reason}.", (string) wp_json_encode($query));
-            }
+            $reason = $gateway !== null && $gateway->callbackFailed($query) ? 'invalid signature' : 'not activatable (status or binding)';
+            WebhookLogger::write("Epay push rejected: {$reason}.", (string) wp_json_encode($query));
 
             // A bad signature answers 400 so tampering is visible to the
             // platform; a validly signed push we cannot use answers
@@ -80,8 +82,73 @@ final class GatewayController
         $orderId = $payment['orderId'];
         $userId = $payment['userId'];
         $tier = SponsorshipSettings::tierByKey(SponsorshipSettings::read()['tiers'], $payment['tierKey']);
+
+        if (!$this->orders->exists($orderId)) {
+            // Record the money fact before anything else — paid money must
+            // never silently vanish from the books, even when the tier has
+            // since been deleted. Rights are separate and refused further
+            // down.
+            $recorded = $this->orders->addPayment($userId, $orderId, $payment['tierKey'], $payment['amount'], 'epay');
+            if (is_wp_error($recorded) && $recorded->get_error_code() !== 'aiya_duplicate_order') {
+                WebhookLogger::write("The order:{$orderId} payment failed: " . $recorded->get_error_message(), '');
+
+                // Non-"success" makes the gateway resend; the exists() guard
+                // above keeps that idempotent.
+                return new WP_REST_Response('fail', 400);
+            }
+        }
+
         if ($tier === null) {
             return new WP_REST_Response('success', 200);
+        }
+
+        // Idempotent on the order_id unique key: a retry after a half-done
+        // run completes the queueing instead of double-granting.
+        $activated = $this->entitlements->activateFromPayment($userId, $orderId, $tier, $payment['cycles']);
+
+        $outcome = is_wp_error($activated) ? 'activation failed: ' . $activated->get_error_message() : 'activation completed';
+        WebhookLogger::write("The order:{$orderId} user id:{$userId} {$outcome}.", '');
+
+        if (is_wp_error($activated) && $activated->get_error_code() !== 'aiya_duplicate_order') {
+            return new WP_REST_Response('fail', 400);
+        }
+
+        return new WP_REST_Response('success', 200);
+    }
+
+    /**
+     * Afdian webhook push (POST, JSON body signed over data+ts): the same
+     * settle semantics as the Epay push — verify, record, queue — with
+     * the platform's own response shape ({ec,em}; the legacy contract
+     * Afdian clients parse). Order ids carry the `afd_` namespace prefix
+     * from the adapter; unique keys keep replays idempotent.
+     */
+    private function afdianCallback(WP_REST_Request $request): WP_REST_Response
+    {
+        $body = json_decode((string) $request->get_body(), true);
+        if (!is_array($body)) {
+            $body = [];
+        }
+
+        WebhookLogger::write('Afdian push received:', (string) wp_json_encode($body));
+
+        $gateway = AfdianGateway::fromSettings();
+        $payment = $gateway?->verifyCallback($body);
+        if ($payment === null) {
+            if ($gateway !== null && $gateway->callbackFailed($body)) {
+                WebhookLogger::write('Afdian push rejected: invalid signature.', '');
+
+                return new WP_REST_Response('fail', 400);
+            }
+
+            return new WP_REST_Response(['ec' => 200, 'em' => 'done'], 200);
+        }
+
+        $orderId = $payment['orderId'];
+        $userId = $payment['userId'];
+        $tier = SponsorshipSettings::tierByKey(SponsorshipSettings::read()['tiers'], $payment['tierKey']);
+        if ($tier === null) {
+            return new WP_REST_Response(['ec' => 200, 'em' => 'done'], 200);
         }
 
         if (!$this->orders->exists($orderId)) {
@@ -90,32 +157,24 @@ final class GatewayController
                 $orderId,
                 $tier['key'],
                 $payment['amount'],
-                'epay'
+                'afdian'
             );
             if (is_wp_error($recorded) && $recorded->get_error_code() !== 'aiya_duplicate_order') {
-                if ($settings['epaySavelog']) {
-                    WebhookLogger::write("The order:{$orderId} payment failed: " . $recorded->get_error_message(), '');
-                }
+                WebhookLogger::write("The order:{$orderId} payment failed: " . $recorded->get_error_message(), '');
 
-                // Non-"success" makes the gateway resend; the exists() guard
-                // above keeps that idempotent.
                 return new WP_REST_Response('fail', 400);
             }
         }
 
-        // Idempotent on the order_id unique key: a retry after a half-done
-        // run completes the queueing instead of double-granting.
         $activated = $this->entitlements->activateFromPayment($userId, $orderId, $tier, $payment['cycles']);
 
-        if ($settings['epaySavelog']) {
-            $outcome = is_wp_error($activated) ? 'activation failed: ' . $activated->get_error_message() : 'activation completed';
-            WebhookLogger::write("The order:{$orderId} user id:{$userId} {$outcome}.", '');
-        }
+        $outcome = is_wp_error($activated) ? 'activation failed: ' . $activated->get_error_message() : 'activation completed';
+        WebhookLogger::write("The order:{$orderId} user id:{$userId} {$outcome}.", '');
 
         if (is_wp_error($activated) && $activated->get_error_code() !== 'aiya_duplicate_order') {
             return new WP_REST_Response('fail', 400);
         }
 
-        return new WP_REST_Response('success', 200);
+        return new WP_REST_Response(['ec' => 200, 'em' => 'done'], 200);
     }
 }

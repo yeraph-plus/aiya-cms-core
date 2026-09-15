@@ -12,6 +12,7 @@ use Aiya\Core\Api\Contract\MembershipCodeGrant;
 use Aiya\Core\Api\Contract\Pagination;
 use Aiya\Core\Domain\Credit\CreditSettings;
 use Aiya\Core\Domain\Credit\LedgerService;
+use Aiya\Core\Domain\Sponsorship\AfdianActivator;
 use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
 use WP_Error;
 use WP_REST_Request;
@@ -65,6 +66,10 @@ final class CreditController
             'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
             'args' => [
                 'code' => ['type' => 'string', 'required' => true, 'maxLength' => 64],
+                // "redeem" (default) claims a site code; "afdian" treats the
+                // value as an Afdian order number and verifies it against
+                // the open API before activating the bound tier.
+                'channel' => ['type' => 'string', 'enum' => ['redeem', 'afdian'], 'default' => 'redeem'],
             ],
         ]);
     }
@@ -146,7 +151,26 @@ final class CreditController
         }
 
         $code = trim((string) $request->get_param('code'));
-        $result = $this->codes->redeem($code, $userId);
+        $channel = (string) $request->get_param('channel');
+
+        if ($channel === 'afdian') {
+            // The verification calls the Afdian open API — a tighter
+            // window than the local-code path keeps it unattractive to
+            // hammer with guessed numbers.
+            if (!$this->limiter->hit('afdian_redeem', 5, 600)) {
+                return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            }
+
+            $activator = AfdianActivator::fromSettings();
+            if ($activator === null) {
+                return new WP_Error('aiya_afdian_unavailable', __('The Afdian channel is not available.', 'aiya-core'), ['status' => 502]);
+            }
+
+            $result = $activator->activate($userId, $code);
+        } else {
+            $result = $this->codes->redeem($code, $userId);
+        }
+
         if (is_wp_error($result)) {
             return $result;
         }

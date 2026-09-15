@@ -57,7 +57,7 @@ final class AuthController
             'args' => [
                 'nickname' => ['type' => 'string', 'required' => true],
                 'email' => ['type' => 'string', 'required' => true, 'format' => 'email'],
-                'password' => ['type' => 'string', 'required' => true],
+                'password' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
                 'passwordConfirm' => ['type' => 'string', 'required' => true],
             ],
         ]);
@@ -68,7 +68,7 @@ final class AuthController
             'permission_callback' => '__return_true',
             'args' => [
                 'email' => ['type' => 'string', 'required' => true, 'format' => 'email'],
-                'password' => ['type' => 'string', 'required' => true],
+                'password' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
                 'remember' => ['type' => 'boolean', 'default' => false],
             ],
         ]);
@@ -106,7 +106,7 @@ final class AuthController
             'args' => [
                 'login' => ['type' => 'string', 'required' => true],
                 'key' => ['type' => 'string', 'required' => true],
-                'password' => ['type' => 'string', 'required' => true],
+                'password' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
                 'passwordConfirm' => ['type' => 'string', 'required' => true],
             ],
         ]);
@@ -138,6 +138,9 @@ final class AuthController
             return $this->invalidParam(__('The email address is not valid.', 'aiya-core'));
         }
         if (email_exists($email) !== false) {
+            // Distinct 409 is a knowing trade-off: registration UX needs
+            // the signal (reset flow deliberately stays uniform). Attempt
+            // budgeting on register/ reset-request blunts enumeration.
             return new WP_Error('aiya_email_exists', __('This email address is already registered.', 'aiya-core'), ['status' => 409]);
         }
         $violations = $this->policy->validate($password, $confirmation);
@@ -161,11 +164,16 @@ final class AuthController
             return new WP_Error('aiya_registration_failed', __('The account could not be created, please retry.', 'aiya-core'), ['status' => 500]);
         }
 
-        wp_update_user([
+        $updated = wp_update_user([
             'ID' => $userId,
             'nickname' => $nickname,
             'display_name' => $nickname,
         ]);
+        if ($updated instanceof WP_Error) {
+            // The account row exists but the profile write failed — the
+            // client must not read a clean 200 as "fully registered".
+            return new WP_Error('aiya_registration_failed', __('The account was created, but the profile could not be saved.', 'aiya-core'), ['status' => 500]);
+        }
 
         return $this->sessionResponse((int) $userId, true);
     }
@@ -276,6 +284,13 @@ final class AuthController
         $key = sanitize_text_field((string) $request->get_param('key'));
         if ($login === '' || $key === '') {
             return $this->invalidParam(__('The reset link is missing required parameters.', 'aiya-core'));
+        }
+
+        // Both public reset routes ride this limiter: the key check runs a
+        // DB query + hash per guess and must carry an attempt budget like
+        // every other public auth surface.
+        if (!$this->rateLimiter->hit('password-reset-confirm', 10, 600)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
         }
 
         $user = check_password_reset_key($key, $login);

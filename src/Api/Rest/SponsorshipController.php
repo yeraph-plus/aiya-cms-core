@@ -8,6 +8,7 @@ use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Contract\MembershipEntitlement;
 use Aiya\Core\Api\Contract\MembershipState;
 use Aiya\Core\Domain\Credit\LedgerService;
+use Aiya\Core\Domain\Sponsorship\AfdianGateway;
 use Aiya\Core\Domain\Sponsorship\EpayGateway;
 use Aiya\Core\Domain\Sponsorship\EntitlementService;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
@@ -22,10 +23,11 @@ use WP_REST_Server;
 /**
  * Membership self-service routes of the versioned API under the 0.50.0
  * tier model: the tier list (public, from the domain settings), the
- * viewer's queue state with the derived credit balance, and the Epay
- * cashier order builder (price × cycles bound inside the signed params,
- * so gateway callbacks never resolve amounts into rights). Code
- * redemption lives in CreditController; the Afdian integration is parked.
+ * viewer's queue state with the derived credit balance, the Epay cashier
+ * order builder (price × cycles bound inside the signed params, so
+ * gateway callbacks never resolve amounts into rights) and the Afdian
+ * order deep link carrying the user binding for webhook self-attribution.
+ * Code redemption lives in CreditController.
  */
 final class SponsorshipController
 {
@@ -53,6 +55,16 @@ final class SponsorshipController
             'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
         ]);
 
+        register_rest_route(Contract::API_NAMESPACE, '/sponsorship/afdian/order-url', [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->afdianOrderUrl($request),
+            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'args' => [
+                // Optional: pre-selects the months on the Afdian checkout.
+                'month' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 36],
+            ],
+        ]);
+
         register_rest_route(Contract::API_NAMESPACE, '/sponsorship/orders', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->createOrder($request),
@@ -68,16 +80,39 @@ final class SponsorshipController
     private function plans(): WP_REST_Response
     {
         $gateway = $this->gateway();
+        $afdian = AfdianGateway::fromSettings();
 
         return new WP_REST_Response([
             'channels' => [
                 // The gateway's own answer is authoritative: it knows
                 // both the admin switch and whether credentials exist.
                 'epay' => $gateway !== null && $gateway->enabled(),
+                'afdian' => $afdian !== null && $afdian->enabled(),
                 'methods' => $gateway?->channels() ?? [],
             ],
             'items' => SponsorshipSettings::read()['tiers'],
         ]);
+    }
+
+    /**
+     * The viewer's personalized Afdian order-create deep link for one
+     * tier: the custom_order_id segment carries the user binding back
+     * into the webhook, so the purchase self-attributes on arrival.
+     */
+    private function afdianOrderUrl(WP_REST_Request $request): WP_Error|WP_REST_Response
+    {
+        $gateway = AfdianGateway::fromSettings();
+        if ($gateway === null || !$gateway->enabled()) {
+            return new WP_Error('aiya_afdian_unavailable', __('The Afdian channel is not available.', 'aiya-core'), ['status' => 502]);
+        }
+
+        $month = max(0, min(36, (int) $request->get_param('month')));
+        $url = $gateway->orderUrl((int) get_current_user_id(), $month);
+        if ($url === '') {
+            return new WP_Error('aiya_plan_unbound', __('This tier is not bound to an Afdian plan.', 'aiya-core'), ['status' => 422]);
+        }
+
+        return new WP_REST_Response(['url' => $url]);
     }
 
     private function membershipState(): WP_REST_Response
@@ -138,13 +173,23 @@ final class SponsorshipController
         if ($tier === null) {
             return new WP_Error('aiya_not_found', __('Unknown membership tier.', 'aiya-core'), ['status' => 404]);
         }
+        // The purchase list hides disabled tiers client-side; the gate has
+        // to hold server-side too, or a hand-crafted POST buys one anyway.
+        if (!(bool) ($tier['enabled'] ?? true)) {
+            return new WP_Error('aiya_tier_disabled', __('This membership tier is not available.', 'aiya-core'), ['status' => 410]);
+        }
 
-        $orderId = gmdate('Ymd') . str_pad((string) $userId, 5, '0', STR_PAD_LEFT) . time();
+        // Entropy beyond the second: two orders in the same second must
+        // never collide on the platform's out_trade_no.
+        $orderId = gmdate('Ymd') . str_pad((string) $userId, 5, '0', STR_PAD_LEFT) . time()
+            . strtoupper(substr(md5(uniqid((string) wp_rand(), true)), 0, 6));
         $binding = (new IdSlugEncoder(8))->encodeId($userId) . '|' . $tier['key'] . '|' . $cycles;
 
         $url = $gateway->createPayment([
             'orderId' => $orderId,
-            'title' => $tier['name'],
+            // Production-proven shape: the buyer sees what they pay for
+            // ("体验卡*1"-style — tier name × cycle count).
+            'title' => sprintf('%s*%d', $tier['name'], $cycles),
             'amount' => round($tier['price'] * $cycles, 2),
             'channel' => $channel,
             'binding' => $binding,

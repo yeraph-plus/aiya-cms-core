@@ -95,7 +95,11 @@ final class MetaboxAdmin implements Module
                 ? self::ACTION_INPUT . '[' . $field->id() . ']'
                 : self::META_INPUT . '[' . $box->id() . '][' . $field->id() . ']';
             echo '<p class="aiya-core-box-field">';
-            echo '<label for="aiya-core-box-' . esc_attr($box->id()) . '-' . esc_attr($field->id()) . '"><strong>' . esc_html($field->label()) . '</strong></label><br>';
+            // Action checkboxes are self-labeling: their checkbox_label is the
+            // tool description, so no separate bold title line above.
+            if ($field->type() !== 'action_checkbox') {
+                echo '<label for="aiya-core-box-' . esc_attr($box->id()) . '-' . esc_attr($field->id()) . '"><strong>' . esc_html($field->label()) . '</strong></label><br>';
+            }
             $renderer->control($field, $value, $name, 'aiya-core-box-' . $box->id() . '-' . $field->id());
             if ($field->description() !== '') {
                 echo '<span class="description"><br>' . wp_kses_post($field->description()) . '</span>';
@@ -140,7 +144,15 @@ final class MetaboxAdmin implements Module
             if (is_wp_error($values)) {
                 continue;
             }
-            $store->replace($values);
+            // A box with no persistable fields (action-checkbox-only, like
+            // typography) normalizes to [] — writing it would plant a
+            // serialized empty-array row on every save. Delete instead, so
+            // stale noise rows are cleaned up on the next save too.
+            if ($values === []) {
+                $store->delete();
+            } else {
+                $store->replace($values);
+            }
 
             foreach ($box->fields() as $field) {
                 if ($field->type() !== 'action_checkbox') {

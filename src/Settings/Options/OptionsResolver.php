@@ -32,6 +32,7 @@ final class OptionsResolver
             'terms' => $this->terms($source),
             'posts' => $this->posts($source),
             'users' => $this->users(),
+            'option_list' => $this->optionList($source),
             default => [],
         };
     }
@@ -102,6 +103,42 @@ final class OptionsResolver
         $options = [];
         foreach ($users as $user) {
             $options[(int) $user->ID] = $user->user_login;
+        }
+
+        return $options;
+    }
+
+    /**
+     * Reads a row list stored inside another settings option (e.g. the
+     * membership tier repeater) and maps each row's fields into select
+     * options — value from `value_field`, label from `label_field`.
+     *
+     * @param array<string, mixed> $source
+     * @return array<string, string>
+     */
+    private function optionList(array $source): array
+    {
+        $optionName = (string) ($source['option'] ?? '');
+        $listKey = (string) ($source['list'] ?? '');
+        $valueField = (string) ($source['value_field'] ?? 'key');
+        $labelField = (string) ($source['label_field'] ?? $valueField);
+        if ($optionName === '' || $listKey === '') {
+            return [];
+        }
+
+        $stored = (array) get_option($optionName, []);
+        $rows = (array) ($stored[$listKey] ?? []);
+
+        $options = [];
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $value = (string) ($row[$valueField] ?? '');
+            if ($value === '') {
+                continue;
+            }
+            $options[$value] = (string) ($row[$labelField] ?? $value);
         }
 
         return $options;

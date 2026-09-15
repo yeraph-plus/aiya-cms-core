@@ -9,19 +9,18 @@ use Aiya\Core\Domain\Credit\CreditSettings;
 use Aiya\Core\Domain\Credit\LedgerService;
 
 /**
- * The membership admin entry (top-level menu; membership tiers, payments
- * and redemption codes will follow as siblings) and, as its first screen,
- * the credits surface: collapsible cards in the Light Community style —
- * the check-in policy, manual grants with user typeahead, and a per-user
- * ledger viewer. The users list gains a derived-balance column linking
- * into the viewer.
+ * The credit ledger screen (submenu of the membership menu): collapsible
+ * cards in the Light Community style — manual grants with user typeahead
+ * and a per-user ledger viewer. The users list gains a derived-balance
+ * column linking into the viewer.
  *
  * The credit domain only books; pricing stays with the caller, so the
  * page never offers more than "grant" — spending is a downstream concern.
  */
 final class CreditsPage implements Module
 {
-    private const MENU_SLUG = 'aiya-core-membership';
+    private const MENU_SLUG = 'aiya-core-credits';
+    private const PARENT_SLUG = 'aiya-core-membership';
     private const ACTION_GRANT = 'aiya_core_credit_grant';
     private const AJAX_SEARCH = 'aiya_core_credit_search';
     private const NONCE_SEARCH = 'aiya_core_credit_search';
@@ -38,7 +37,11 @@ final class CreditsPage implements Module
 
     public function register(): void
     {
-        add_action('admin_menu', [$this, 'menu'], 20);
+        // Priority 35: the membership top-level menu is registered by
+        // SettingsAdmin at 30 — add_submenu_page before the parent exists
+        // degrades the page hook to admin_page_* and the request-time access
+        // check denies the screen (the SendMailPage lesson).
+        add_action('admin_menu', [$this, 'menu'], 35);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
         add_action('admin_post_' . self::ACTION_GRANT, [$this, 'handleGrant']);
         add_action('wp_ajax_' . self::AJAX_SEARCH, [$this, 'handleSearch']);
@@ -49,7 +52,9 @@ final class CreditsPage implements Module
     /** The shared admin stylesheet carries the card and badge styles. */
     public function assets(string $hook): void
     {
-        if ($hook !== 'toplevel_page_' . self::MENU_SLUG) {
+        // The parent hook prefix is the localized menu title (percent-encoded
+        // for the Chinese title), so match on the slug suffix only.
+        if (!str_ends_with($hook, '_page_' . self::MENU_SLUG)) {
             return;
         }
 
@@ -62,21 +67,19 @@ final class CreditsPage implements Module
     }
 
     /**
-     * Position 27 keeps the entry right below the Light Community (26).
-     * The top-level page IS the credit ledger (browse + manual grant,
-     * "积分账本" in the nav); membership settings live on the settings
-     * submenu the SettingsAdmin framework registers.
+     * Priority 35: the membership top-level menu is registered by
+     * SettingsAdmin at 30 — see register() for the hookname timing.
      */
     public function menu(): void
     {
-        add_menu_page(
+        add_submenu_page(
+            self::PARENT_SLUG,
             __('Credit ledger', 'aiya-core'),
             __('Credit ledger', 'aiya-core'),
             'manage_options',
             self::MENU_SLUG,
             [$this, 'render'],
-            'dashicons-awards',
-            27
+            1 // right after the mirrored settings form
         );
     }
 

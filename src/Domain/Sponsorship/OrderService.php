@@ -82,6 +82,47 @@ final class OrderService
     }
 
     /**
+     * Paged payment log for the audit screen, newest first, optionally
+     * pinned to one holder.
+     *
+     * @return array{items: list<array<string,mixed>>, total: int, pages: int}
+     */
+    public function list(int $paged = 1, int $perPage = 20, ?int $userId = null): array
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $table = $this->table();
+        $where = $userId !== null && $userId > 0
+            ? ' WHERE user_id = ' . (int) $userId
+            : '';
+        $perPage = max(1, $perPage);
+        $offset = (max(1, $paged) - 1) * $perPage;
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed plugin-owned table plus a prepare()d filter fragment
+        // Every fragment comes from the internal whitelists above; the
+        // interpolation is safe but leaves phpstan's literal-string inference.
+        $listSql = "SELECT id, user_id, order_id, tier_key, amount, source, status, created_at
+             FROM {$table}{$where} ORDER BY id DESC LIMIT %d OFFSET %d";
+        $countSql = "SELECT COUNT(*) FROM {$table}{$where}";
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- whitelist-built SQL, see note above
+        $rows = $wpdb->get_results(
+            // @phpstan-ignore argument.type (whitelist interpolation)
+            $wpdb->prepare($listSql, $perPage, $offset), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- whitelist-built SQL, see note above
+            ARRAY_A
+        );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see note above
+        $total = (int) $wpdb->get_var($countSql);
+
+        return [
+            'items' => is_array($rows) ? $rows : [],
+            'total' => $total,
+            'pages' => (int) ceil($total / $perPage),
+        ];
+    }
+
+    /**
      * The holder's payment history, newest first.
      *
      * @return list<object{order_id:string,amount:string|int,tier_key:string,source:string,status:string,created_at:string}>

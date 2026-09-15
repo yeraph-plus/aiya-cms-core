@@ -1,0 +1,64 @@
+/* Smilies picker dialog (0.70.0): pack sections of code cells. */
+
+.aiya-smilies-grid {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 4px 2px;
+}
+
+.aiya-smilies-pack + .aiya-smilies-pack {
+    margin-top: 14px;
+}
+
+.aiya-smilies-pack-title {
+    margin: 0 0 8px;
+    padding: 0;
+    font-size: 13px;
+    text-transform: capitalize;
+    color: #50575e;
+}
+
+.aiya-smilies-pack ul {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 6px;
+    list-style: none;
+}
+
+.aiya-smilies-item {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 4px;
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.aiya-smilies-item:hover {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+.aiya-smilies-item img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.aiya-smilies-item code {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    color: #646970;
+    background: none;
+    padding: 0;
+}

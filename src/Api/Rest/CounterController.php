@@ -24,22 +24,30 @@ final class CounterController
 
     public function registerRoutes(): void
     {
+        $idArg = ['id' => ['type' => 'integer', 'minimum' => 1]];
+
         register_rest_route(Contract::API_NAMESPACE, '/content/(?P<id>\d+)/like', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): array|WP_Error => $this->like($request),
             'permission_callback' => '__return_true',
+            'args' => $idArg,
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/content/(?P<id>\d+)/view', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): array|WP_Error => $this->view($request),
             'permission_callback' => '__return_true',
+            'args' => $idArg,
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/content/(?P<id>\d+)/rating', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): array|WP_Error => $this->rating($request),
             'permission_callback' => '__return_true',
+            'args' => [
+                'id' => ['type' => 'integer', 'minimum' => 1],
+                'value' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 10],
+            ],
         ]);
     }
 

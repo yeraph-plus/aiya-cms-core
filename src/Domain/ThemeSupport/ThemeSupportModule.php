@@ -27,6 +27,13 @@ use Aiya\Core\Contracts\Module;
  *    not link to WP-rendered attachment pages — the Astro front end has
  *    no route for them. Filtered, not persisted, so a fresh install or a
  *    reset option table yields the same behaviour.
+ *  - Title prefixes and the excerpt continuation marker are trimmed the
+ *    same way: password/private posts carry no "Protected:"/"Private:"
+ *    prepend (the badge system is the front end's signal — a string
+ *    prefix would leak into admin list tables and the API title alike),
+ *    and the auto-excerpt tail is plain '...' instead of the core
+ *    bracketed ellipsis for the WP-native surfaces (feeds, fallback template). The API strips the
+ *    marker itself; the filter only changes what it has to strip.
  *
  * Everything else the legacy theme declared stays retired with the theme
  * front end it served: title-tag and automatic-feed-links only render
@@ -42,6 +49,12 @@ final class ThemeSupportModule implements Module
     {
         add_action('after_setup_theme', [$this, 'declareSupports'], 20);
         add_filter('pre_option_image_default_link_type', static fn (): string => 'none');
+        // Both title filters pass a sprintf format wrapping the title, so
+        // the prefix-free shape is a bare '%s' — returning '' would blank
+        // the title itself.
+        add_filter('protected_title_format', static fn (): string => '%s');
+        add_filter('private_title_format', static fn (): string => '%s');
+        add_filter('excerpt_more', static fn (): string => '...');
     }
 
     /**

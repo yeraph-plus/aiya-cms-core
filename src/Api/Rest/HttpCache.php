@@ -46,6 +46,16 @@ final class HttpCache
             return $served;
         }
 
+        // Any authenticated GET is per-viewer by definition (bearer-scoped
+        // balances/ledgers, signed attachment links, per-viewer discussion
+        // permission flags, the personalized Afdian deep link) — a shared
+        // cache must never hold it.
+        if (get_current_user_id() > 0) {
+            $server->send_header('Cache-Control', 'private, no-store');
+
+            return $served;
+        }
+
         // Strip the leading slash, the namespace and its trailing slash:
         // '/aiya/core/v1/site' becomes 'site'.
         $route = substr($request->get_route(), strlen(Contract::API_NAMESPACE) + 2);
@@ -58,7 +68,7 @@ final class HttpCache
             return $served;
         }
 
-        if (preg_match('#^(site|menus/.+|terms)$#', $route) === 1) {
+        if (preg_match('#^(site|menus/.+|terms|smilies)$#', $route) === 1) {
             $maxAge = self::SHELL_MAX_AGE;
         } elseif (preg_match('#^(posts|pages|resources)$#', $route) === 1) {
             $maxAge = self::LIST_MAX_AGE;
@@ -82,10 +92,18 @@ final class HttpCache
 
         $etag = '"' . substr(sha1((string) wp_json_encode($data['data'])), 0, 32) . '"';
         $server->send_header('ETag', $etag);
+        // SSR prefetches carry no Origin while browser calls do; the CDN
+        // must not serve one variant to the other.
+        $server->send_header('Vary', 'Origin');
         $server->send_header('Cache-Control', $maxAge > 0 ? "public, max-age={$maxAge}" : 'public, max-age=0, must-revalidate');
 
-        $ifNoneMatch = trim((string) ($request->get_header('If-None-Match') ?? ''));
-        if ($ifNoneMatch === $etag) {
+        // RFC 7232: compare validator-tag-wise, tolerating weak validators
+        // and comma-separated If-None-Match lists.
+        $candidates = array_map(
+            static fn (string $candidate): string => preg_replace('#^W/#', '', trim($candidate)) ?? trim($candidate),
+            explode(',', (string) ($request->get_header('If-None-Match') ?? ''))
+        );
+        if (in_array($etag, $candidates, true) || in_array('W/' . $etag, $candidates, true)) {
             status_header(304);
 
             return true; // served: the 304 carries headers only, no body
@@ -97,8 +115,10 @@ final class HttpCache
     /**
      * A `private` badge means the row exists for this viewer only; a
      * `password` badge means the body shape depends on the visitor's
-     * postpass cookie. Both responses are viewer-specific by
-     * definition. Bounded walk over the envelope payload.
+     * postpass cookie; `login`/`member` badges mark visibility-gated
+     * posts (the qualified full body must not ride a shared cache).
+     * All four responses are viewer-specific by definition. Bounded walk
+     * over the envelope payload.
      */
     private function payloadIsViewerSpecific(mixed $payload, int $depth = 0): bool
     {
@@ -108,7 +128,7 @@ final class HttpCache
         if (is_array($payload)) {
             foreach ($payload as $key => $value) {
                 if ($key === 'badges' && is_array($value)
-                    && (in_array('private', $value, true) || in_array('password', $value, true))) {
+                    && array_intersect($value, ['private', 'password', 'login', 'member']) !== []) {
                     return true;
                 }
                 if ($this->payloadIsViewerSpecific($value, $depth + 1)) {

@@ -72,7 +72,7 @@ final class CreditModule implements Module
      */
     public function settings(): void
     {
-        $this->settings->addFields('sponsorship', [
+        $this->settings->addFields('membership', [
             [
                 'id' => 'heading_checkin',
                 'type' => 'heading',

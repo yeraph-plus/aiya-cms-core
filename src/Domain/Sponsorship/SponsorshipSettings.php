@@ -6,16 +6,16 @@ namespace Aiya\Core\Domain\Sponsorship;
 
 /**
  * Normalized reader for the membership domain's two settings options: the
- * tier list on the sponsorship page and the cashier credentials/channels
- * on the dedicated payments page (0.50.x split, ready for future gateway
- * additions). Consumers get one merged shape; gateway credentials never
- * leave the server. The Afdian integration is parked (SDK class retained,
- * no settings, no routes) — Epay is the only wired gateway.
+ * tier list on the membership page and the gateway credentials/channels on
+ * the dedicated payments page (0.50.x split). Consumers get one merged
+ * shape; gateway credentials never leave the server. Epay is the cashier
+ * gateway; Afdian (0.61.0) is the platform-push gateway — its orders
+ * arrive by webhook or self-service order number, never the cashier.
  */
 final class SponsorshipSettings
 {
     /**
-     * @return array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,epayReturnUrl:string,epaySavelog:bool,tiers:list<array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}>}
+     * @return array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,epayReturnUrl:string,afdianEnable:bool,afdianUserId:string,afdianToken:string,afdianPlanId:string,afdianTierKey:string,tiers:list<array{key:string,name:string,price:float,cycleDays:int,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}>}
      */
     public static function read(): array
     {
@@ -29,7 +29,11 @@ final class SponsorshipSettings
             'epayGateway' => (string) ($payments['epay_gateway'] ?? ''),
             'epayMethods' => self::methods($payments),
             'epayReturnUrl' => (string) ($payments['epay_return_url'] ?? ''),
-            'epaySavelog' => (bool) ($payments['epay_savelog'] ?? false),
+            'afdianEnable' => (bool) ($payments['afdian_enable'] ?? false),
+            'afdianUserId' => (string) ($payments['afdian_user_id'] ?? ''),
+            'afdianToken' => (string) ($payments['afdian_token'] ?? ''),
+            'afdianPlanId' => sanitize_text_field((string) ($payments['afdian_plan_id'] ?? '')),
+            'afdianTierKey' => sanitize_key((string) ($payments['afdian_tier_key'] ?? '')),
             'tiers' => self::tiers($tiers),
         ];
     }
@@ -62,7 +66,7 @@ final class SponsorshipSettings
      * later edits never rewrite existing queues.
      *
      * @param array<string, mixed> $settings
-     * @return list<array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}>
+     * @return list<array{key:string,name:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}>
      */
     public static function tiers(array $settings): array
     {
@@ -78,6 +82,7 @@ final class SponsorshipSettings
             $tiers[] = [
                 'key' => $key,
                 'name' => (string) ($row['name'] ?? ''),
+                'enabled' => (bool) ($row['enabled'] ?? true),
                 'price' => (float) ($row['price'] ?? 0),
                 'cycleDays' => max(1, (int) ($row['cycle_days'] ?? 30)),
                 'creditsPerCycle' => max(0, (int) ($row['credits_per_cycle'] ?? 0)),
@@ -88,8 +93,8 @@ final class SponsorshipSettings
     }
 
     /**
-     * @param list<array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}> $tiers
-     * @return array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}|null
+     * @param list<array{key:string,name:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}> $tiers
+     * @return array{key:string,name:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}|null
      */
     public static function tierByKey(array $tiers, string $key): ?array
     {
@@ -100,5 +105,21 @@ final class SponsorshipSettings
         }
 
         return null;
+    }
+
+    /**
+     * The single Afdian plan binding resolved to its local tier: null when
+     * either side of the pair is unconfigured.
+     *
+     * @param array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,epayReturnUrl:string,afdianEnable:bool,afdianUserId:string,afdianToken:string,afdianPlanId:string,afdianTierKey:string,tiers:list<array{key:string,name:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}>} $settings
+     * @return array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}|null
+     */
+    public static function boundTier(array $settings): ?array
+    {
+        if ($settings['afdianPlanId'] === '' || $settings['afdianTierKey'] === '') {
+            return null;
+        }
+
+        return self::tierByKey($settings['tiers'], $settings['afdianTierKey']);
     }
 }

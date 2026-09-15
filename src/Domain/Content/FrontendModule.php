@@ -188,6 +188,33 @@ final class FrontendModule implements Module
                     'min' => 1,
                     'max' => 3650,
                 ],
+                [
+                    'id' => 'heading_seo',
+                    'type' => 'heading',
+                    'label' => __('SEO & analytics', 'aiya-core'),
+                    'level' => '2',
+                ],
+                [
+                    'id' => 'seo_keywords',
+                    'type' => 'text',
+                    'label' => __('SEO keywords', 'aiya-core'),
+                    'description' => __('Comma-separated keywords for the site home page.', 'aiya-core'),
+                    'default' => '',
+                ],
+                [
+                    'id' => 'seo_description',
+                    'type' => 'textarea',
+                    'label' => __('SEO description', 'aiya-core'),
+                    'description' => __('Meta description for the site home page.', 'aiya-core'),
+                    'default' => '',
+                ],
+                [
+                    'id' => 'ga_measurement_id',
+                    'type' => 'text',
+                    'label' => __('Google Analytics ID', 'aiya-core'),
+                    'description' => __('Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable.', 'aiya-core'),
+                    'default' => '',
+                ],
             ],
         ]);
     }

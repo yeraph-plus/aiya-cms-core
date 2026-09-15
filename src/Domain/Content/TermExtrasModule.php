@@ -8,25 +8,36 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
 
 /**
- * Term-level extras for the standard categories of the post types the
- * headless front end serves as archive pages: SEO keywords and a cover
- * image, stored as per-field term meta through the metadata registry
- * (term boxes). Tag-style taxonomies are deliberately excluded.
+ * Term-level appearance extras served to the headless front end: a cover
+ * image and an icon, stored as per-field term meta through the metadata
+ * registry (term boxes).
  *
  * Cover: the media-library attachment ID ("thumbnail_id", the de-facto core
- * convention); SEO: a comma-separated keywords string. Attachments are
- * uploaded through the shared media control and land in the media library.
+ * convention); icon: free-form text the front end resolves into an icon
+ * ("icon"). Both boxes feed one shared look — the standard categories of
+ * the three public types carry cover + icon, the tag-style taxonomies
+ * carry the icon only.
  *
- * Applies to category (post), page_category (page) and resource_category
- * (resource).
+ * The legacy SEO-keywords field was retired with the appearance rework:
+ * its term meta rows are dead data and nothing reads them.
  */
 final class TermExtrasModule implements Module
 {
     /** @var list<string> */
-    private const TAXONOMIES = [
+    private const CATEGORY_TAXONOMIES = [
         'category',
         'page_category',
         'resource_category',
+    ];
+
+    /** @var list<string> */
+    private const TAG_TAXONOMIES = [
+        'post_tag',
+        'resource_original',
+        'resource_character',
+        'resource_author',
+        'resource_content',
+        'resource_other',
     ];
 
     public function __construct(private MetadataRegistry $metadata)
@@ -40,19 +51,22 @@ final class TermExtrasModule implements Module
 
     public function boxes(): void
     {
+        // The shared icon definition: plain text — the front end resolves
+        // it into an icon itself.
+        $iconField = static fn (): array => [
+            'id' => 'icon',
+            'type' => 'text',
+            'label' => __('Icon', 'aiya-core'),
+            'description' => __('Free-form text; the front end resolves it into an icon.', 'aiya-core'),
+            'default' => '',
+        ];
+
         $this->metadata->addTermBox([
             'id' => 'term_extras',
-            'title' => __('Term SEO and cover', 'aiya-core'),
-            'taxonomies' => self::TAXONOMIES,
+            'title' => __('Custom appearance', 'aiya-core'),
+            'taxonomies' => self::CATEGORY_TAXONOMIES,
             'description' => __('Used by the headless front end for this term\'s archive page.', 'aiya-core'),
             'fields' => [
-                [
-                    'id' => 'seo_keywords',
-                    'type' => 'text',
-                    'label' => __('SEO keywords', 'aiya-core'),
-                    'description' => __('Comma-separated keywords for the term archive page.', 'aiya-core'),
-                    'default' => '',
-                ],
                 [
                     'id' => 'thumbnail_id',
                     'type' => 'media',
@@ -60,6 +74,17 @@ final class TermExtrasModule implements Module
                     'description' => __('Upload or pick an image from the media library; it serves as the cover of the term archive page.', 'aiya-core'),
                     'default' => 0,
                 ],
+                $iconField(),
+            ],
+        ]);
+
+        $this->metadata->addTermBox([
+            'id' => 'term_icon',
+            'title' => __('Custom appearance', 'aiya-core'),
+            'taxonomies' => self::TAG_TAXONOMIES,
+            'description' => __('Used by the headless front end wherever this term shows up.', 'aiya-core'),
+            'fields' => [
+                $iconField(),
             ],
         ]);
     }

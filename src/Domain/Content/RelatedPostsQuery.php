@@ -22,8 +22,9 @@ use WP_Term;
  * to this single query via an orderby marker, never globally.
  *
  * Visibility mirrors ContentQuery's list reads: `publish` + no password
- * only, so the response stays shared-cache safe. No shared terms means
- * no results — there is no recency fallback.
+ * only, plus the login/member gate exclusions (viewer-relative, same
+ * clause the lists use) — the response stays shared-cache safe. No
+ * shared terms means no results — there is no recency fallback.
  */
 final class RelatedPostsQuery
 {
@@ -31,7 +32,7 @@ final class RelatedPostsQuery
     public const MAX_NUMBER = 20;
     public const MAX_DAYS = 365;
 
-    public function __construct()
+    public function __construct(private PostVisibility $visibility)
     {
     }
 
@@ -59,6 +60,10 @@ final class RelatedPostsQuery
             'orderby' => 'related',
             'term_taxonomy_ids' => $ttIds,
         ];
+        $gateClause = $this->visibility->listExclusions();
+        if ($gateClause !== []) {
+            $args['meta_query'] = $gateClause;
+        }
         if ($days > 0) {
             $args['date_query'] = [
                 [

@@ -37,7 +37,9 @@ final class NotificationPage implements Module
 
     public function register(): void
     {
-        add_action('admin_menu', [$this, 'menu'], 20);
+        // Priority 35: the parent AIYA Core menu is registered by
+        // SettingsAdmin at 30 — see SendMailPage for the hookname timing.
+        add_action('admin_menu', [$this, 'menu'], 35);
         add_action('admin_post_' . self::ACTION_CREATE, [$this, 'handleCreate']);
         add_action('admin_post_' . self::ACTION_DELETE, [$this, 'handleDelete']);
     }
@@ -172,7 +174,7 @@ final class NotificationPage implements Module
         check_admin_referer(self::ACTION_CREATE);
 
         $title = sanitize_text_field(wp_unslash((string) ($_POST['title'] ?? '')));
-        $body = (string) ($_POST['body'] ?? '');
+        $body = wp_unslash((string) ($_POST['body'] ?? ''));
         $level = sanitize_key((string) ($_POST['min_role'] ?? ''));
 
         $created = $this->notifications->create($title, $body, $level);

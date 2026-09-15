@@ -200,9 +200,7 @@ final class CounterService
             return 'u' . $userId;
         }
 
-        $ip = isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR'])
-            ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']))
-            : '';
+        $ip = \Aiya\Core\Infrastructure\Http\ClientIp::forVisitor();
         $agent = isset($_SERVER['HTTP_USER_AGENT']) && is_string($_SERVER['HTTP_USER_AGENT'])
             ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT']))
             : '';

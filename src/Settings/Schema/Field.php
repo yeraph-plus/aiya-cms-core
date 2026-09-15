@@ -20,7 +20,7 @@ final class Field
      */
     private const NON_PERSISTENT_TYPES = ['action_checkbox', 'heading', 'note'];
 
-    private const OPTIONS_SOURCES = ['posts', 'terms', 'users'];
+    private const OPTIONS_SOURCES = ['posts', 'terms', 'users', 'option_list'];
 
     private const REPEATER_CHILD_TYPES = [
         'checkbox', 'color', 'email', 'hidden', 'number', 'radio', 'select',
@@ -126,6 +126,9 @@ final class Field
         }
         if ($kind === 'posts' && empty($source['post_type'])) {
             throw new InvalidArgumentException('The posts option source requires a post_type.');
+        }
+        if ($kind === 'option_list' && (empty($source['option']) || empty($source['list']))) {
+            throw new InvalidArgumentException('The option_list source requires an option and a list key.');
         }
 
         return $source;

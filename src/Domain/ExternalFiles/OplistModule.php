@@ -13,7 +13,8 @@ use WP_Error;
  * OpenList integration adapter (legacy `inc/func-openlist.php` + global
  * options): owns the domain settings page, the `oplist_client` post box on
  * the resource screen (protocol group key `aiya_core_oplist_client` — same
- * key, moved scope post → resource per the 2026-09-08 decision), and the
+ * key, moved scope post → resource per the 2026-09-08 decision), the
+ * manual cloud-drive links box (`aiya_core_pan_links`, 0.71.0), and the
  * authenticated client factory with the transient token cache.
  *
  * Legacy pieces deliberately not ported: the `[oplist_cli]` shortcode
@@ -35,7 +36,11 @@ final class OplistModule implements Module
         add_action('aiya_core_register', function (): void {
             $this->settingsPage();
             $this->postBox();
+            $this->panLinksBox();
         }, 10, 0);
+        // MetaboxAdmin persists the box on save_post 10; drop the rows the
+        // editor left completely blank after that pass has stored them.
+        add_action('save_post', [$this, 'pruneEmptyPanLinks'], 20, 1);
     }
 
     private function settingsPage(): void
@@ -121,8 +126,7 @@ final class OplistModule implements Module
     private function postBox(): void
     {
         $this->metadata->addPostBox([
-            'id' => 'oplist_client',
-            'title' => __('OpenList attachments', 'aiya-core'),
+            'id' => 'oplist_client',            'title' => __('OpenList attachments', 'aiya-core'),
             'screens' => ['resource'],
             'context' => 'normal',
             'priority' => 'low',
@@ -191,6 +195,90 @@ final class OplistModule implements Module
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Manual cloud-drive links box (0.71.0): a repeater of name/link/
+     * extraction-code rows the site owner fills by hand (Baidu/Quark-style
+     * shares), stored under the group key `aiya_core_pan_links` — separate
+     * from the OpenList attachment listing, which surfaces server-side
+     * directories. Rows left completely blank are pruned on save (see
+     * pruneEmptyPanLinks); rows are kept verbatim otherwise, so links
+     * normalize (esc_url) at render time, not at storage.
+     */
+    private function panLinksBox(): void
+    {
+        $this->metadata->addPostBox([
+            'id' => 'pan_links',
+            'title' => __('Cloud drive links', 'aiya-core'),
+            'screens' => ['resource'],
+            'context' => 'normal',
+            'priority' => 'low',
+            'fields' => [
+                [
+                    'id' => 'links',
+                    'type' => 'repeater',
+                    'label' => __('Drive links', 'aiya-core'),
+                    'description' => __('One row per cloud-drive share: a label, the share URL and the extraction code readers must enter.', 'aiya-core'),
+                    'default' => [],
+                    'children' => [
+                        [
+                            'id' => 'name',
+                            'type' => 'text',
+                            'label' => __('Name', 'aiya-core'),
+                            'default' => '',
+                        ],
+                        [
+                            'id' => 'url',
+                            'type' => 'text',
+                            'label' => __('Link', 'aiya-core'),
+                            'default' => '',
+                        ],
+                        [
+                            'id' => 'code',
+                            'type' => 'text',
+                            'label' => __('Extraction code', 'aiya-core'),
+                            'default' => '',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Drops fully-empty rows the repeater template leaves behind when an
+     * editor clicks "Add item" and never fills it — the framework stores
+     * such rows verbatim, and blank entries would surface in the API.
+     * Runs after MetaboxAdmin's save (save_post 20 > 10); everything else
+     * (nonces, capability, sanitizing) is the framework's job.
+     */
+    public function pruneEmptyPanLinks(int $postId): void
+    {
+        if (wp_is_post_revision($postId) || wp_is_post_autosave($postId)) {
+            return;
+        }
+
+        $stored = get_post_meta($postId, 'aiya_core_pan_links', true);
+        if (!is_array($stored) || !is_array($stored['links'] ?? null)) {
+            return;
+        }
+
+        $kept = array_values(array_filter(
+            $stored['links'],
+            static fn (mixed $row): bool => is_array($row)
+                && array_reduce($row, static fn (bool $carry, mixed $cell): bool => $carry || (is_scalar($cell) && trim((string) $cell) !== ''), false)
+        ));
+        if (count($kept) === count($stored['links'])) {
+            return;
+        }
+
+        if ($kept === []) {
+            delete_post_meta($postId, 'aiya_core_pan_links');
+
+            return;
+        }
+        update_post_meta($postId, 'aiya_core_pan_links', wp_slash(['links' => $kept]));
     }
 
     /**

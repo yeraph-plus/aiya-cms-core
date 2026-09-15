@@ -14,22 +14,26 @@ use WP_Query;
  * layer.
  *
  * Visibility rules (0.46.0 badge batch):
- *  - `publish` is the public baseline; password-protected posts enter
- *    the list as locked shapes (the presenter marks them `password`)
- *    and the detail answers a restricted body until the visitor unlocks
- *    the post through the content/unlock endpoint;
+ *  - `publish` is the public baseline; password-protected posts stay out
+ *    of lists entirely (`has_password => false`) — their detail answers
+ *    the locked shape until the visitor unlocks the post through the
+ *    content/unlock endpoint;
  *  - `private` posts join queries only for a viewer who may read them
  *    (their own posts, or `read_private_posts` for editors/admins) and
  *    carry the `private` badge — anonymous traffic never sees them, so
  *    shared caches stay safe;
+ *  - login/member gated posts (0.71.0, PostVisibility meta flag) stay
+ *    `publish` but drop out of lists for viewers who do not qualify —
+ *    guests lose both gates, logged-in non-members lose member-only rows;
  *  - sticky posts lead page one of every list through an explicit
  *    post__in merge — never WP's automatic prepend, which would push a
  *    page one row past its configured size.
  */
 final class ContentQuery
 {
-    public function __construct()
-    {
+    public function __construct(
+        private PostVisibility $visibility,
+    ) {
     }
 
     /** Whether the current viewer may read private posts of this type at all. */
@@ -60,8 +64,11 @@ final class ContentQuery
         if ($this->canReadPrivate()) {
             $statuses[] = 'private';
         } elseif ($this->ownPrivateQuery()) {
-            // Logged-in without the capability: WP's status SQL limits
-            // 'private' rows to the viewer's own — public rows stay listed.
+            // Logged-in without the capability: 'perm' => 'readable' makes
+            // WP's status SQL limit 'private' rows to the viewer's own
+            // (without 'perm' core applies NO author restriction — every
+            // subscriber would see everyone's private posts). Public rows
+            // stay listed.
             $statuses[] = 'private';
         }
 
@@ -76,6 +83,15 @@ final class ContentQuery
             'no_found_rows' => false,
             'ignore_sticky_posts' => true,
         ];
+        if (count($statuses) > 1) {
+            // Only matters when private rows joined the set; with the cap
+            // it returns ALL private rows, without it own-private only.
+            $args['perm'] = 'readable';
+        }
+        $gateClause = $this->visibility->listExclusions();
+        if ($gateClause !== []) {
+            $args['meta_query'] = $gateClause;
+        }
 
         if ($q !== '') {
             $args['s'] = $q;
@@ -87,22 +103,36 @@ final class ContentQuery
         $taxQuery = [];
         if ($category !== '') {
             $categoryTaxonomy = $type->wpCategoryTaxonomy('category');
-            if ($categoryTaxonomy !== null) {
+            $categorySlugs = $this->slugList($category);
+            if ($categoryTaxonomy !== null && $categorySlugs !== []) {
+                // Comma-separated multi-select: any chosen category counts.
                 $taxQuery[] = [
                     'taxonomy' => $categoryTaxonomy,
                     'field' => 'slug',
-                    'terms' => $category,
+                    'terms' => $categorySlugs,
+                    'operator' => 'IN',
                 ];
             }
         }
         if ($tag !== '') {
-            $tagTaxonomy = $type->wpCategoryTaxonomy('tag');
-            if ($tagTaxonomy !== null) {
-                $taxQuery[] = [
+            $tagSlugs = $this->slugList($tag);
+            // A type may carry several tag vocabularies (resource maps five
+            // onto the contract's tag role): any chosen tag in any vocabulary
+            // counts, while the category leg above keeps narrowing with the
+            // default AND.
+            $tagLegs = [];
+            foreach ($type->wpTagTaxonomies() as $tagTaxonomy) {
+                $tagLegs[] = [
                     'taxonomy' => $tagTaxonomy,
                     'field' => 'slug',
-                    'terms' => $tag,
+                    'terms' => $tagSlugs,
+                    'operator' => 'IN',
                 ];
+            }
+            if ($tagLegs !== [] && $tagSlugs !== []) {
+                $taxQuery[] = count($tagLegs) === 1
+                    ? $tagLegs[0]
+                    : array_merge(['relation' => 'OR'], $tagLegs);
             }
         }
         if ($taxQuery !== []) {
@@ -249,6 +279,12 @@ final class ContentQuery
             'ignore_sticky_posts' => true,
             'posts_per_page' => 2,
         ];
+        // Gated posts stay out of prev/next for viewers who do not qualify
+        // — same exclusion the lists apply (viewer-relative).
+        $gateClause = $this->visibility->listExclusions();
+        if ($gateClause !== []) {
+            $base['meta_query'] = $gateClause;
+        }
 
         $previousQuery = new WP_Query(array_merge($base, [
             'date_query' => [['column' => 'post_date', 'before' => $post->post_date]],
@@ -270,5 +306,17 @@ final class ContentQuery
         };
 
         return ['previous' => $pick($previousQuery, $post), 'next' => $pick($nextQuery, $post)];
+    }
+
+    /**
+     * Comma-separated parameter → sanitized slug list ('' entries dropped).
+     *
+     * @return list<string>
+     */
+    private function slugList(string $commaSeparated): array
+    {
+        $slugs = array_map('sanitize_title', explode(',', $commaSeparated));
+
+        return array_values(array_filter($slugs, static fn (string $slug): bool => $slug !== ''));
     }
 }

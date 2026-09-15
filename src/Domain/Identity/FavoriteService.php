@@ -94,8 +94,13 @@ final class FavoriteService
         // The join interpolates the fixed favorites table name and the core
         // posts table property only — no external input ever enters the
         // string, but the interpolation leaves phpstan's literal inference.
+        // Visibility-gated posts stay out of public profiles entirely: the
+        // favorites list is guest-readable and shared-cacheable, so there
+        // is no viewer-relative exclusion here — both gates always apply.
+        $gate = "AND NOT EXISTS (SELECT 1 FROM {$wpdb->postmeta} gm
+             WHERE gm.post_id = p.ID AND gm.meta_key = 'aiya_core_visibility' AND gm.meta_value <> '')";
         $join = "FROM $table f INNER JOIN {$wpdb->posts} p ON p.ID = f.post_id
-             WHERE f.user_id = %d AND p.post_status = 'publish' AND p.post_type = 'post' AND p.post_password = ''";
+             WHERE f.user_id = %d AND p.post_status = 'publish' AND p.post_type = 'post' AND p.post_password = '' $gate";
 
         $total = (int) $wpdb->get_var(
             // @phpstan-ignore argument.type (fixed table interpolation)

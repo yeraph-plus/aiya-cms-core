@@ -6,6 +6,7 @@ namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Contract\Pagination;
+use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use WP_Comment;
 use WP_Comment_Query;
 use WP_Error;
@@ -34,8 +35,10 @@ final class CommentsController
     private const HITS = 5;
     private const WINDOW = 10 * MINUTE_IN_SECONDS;
 
-    public function __construct(private RateLimiter $rateLimiter)
-    {
+    public function __construct(
+        private RateLimiter $rateLimiter,
+        private readonly SmiliesRenderer $smilies,
+    ) {
     }
 
     public function registerRoutes(): void
@@ -58,7 +61,8 @@ final class CommentsController
             'args' => [
                 'id' => ['type' => 'integer', 'required' => true, 'minimum' => 1],
                 'body' => ['type' => 'string', 'required' => true],
-                'parentId' => ['type' => 'integer', 'required' => false, 'minimum' => 1],
+                // 0/omitted = top-level comment (no parent).
+                'parentId' => ['type' => 'integer', 'required' => false, 'minimum' => 0],
             ],
         ]);
     }
@@ -165,7 +169,7 @@ final class CommentsController
             'comment_author_url' => '',
             'comment_content' => $body,
             'user_id' => (int) $user->ID,
-            'comment_author_IP' => (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
+            'comment_author_IP' => \Aiya\Core\Infrastructure\Http\ClientIp::forVisitor(),
             'comment_agent' => (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''),
             'comment_date' => current_time('mysql'),
         ], true);
@@ -231,6 +235,11 @@ final class CommentsController
                 'avatar' => is_string($avatar) && $avatar !== '' ? $avatar : null,
             ],
             'body' => (string) $comment->comment_content,
+            // Storage is plain text (tags stripped at write); escape to
+            // entities first, then let the renderer inject exactly its
+            // whitelisted smilies imgs on top. `body` stays the raw token
+            // form for plain-text consumers.
+            'bodyHtml' => $this->smilies->render(esc_html((string) $comment->comment_content)),
             'publishedAt' => is_string($publishedAt) ? $publishedAt : '',
         ];
     }

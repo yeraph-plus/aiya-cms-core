@@ -71,13 +71,6 @@ final class DiscussionController
             ],
         ]);
 
-        register_rest_route(Contract::API_NAMESPACE, '/discussions/(?P<id>\d+)', [
-            'methods' => WP_REST_Server::READABLE,
-            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->detail($request),
-            'permission_callback' => '__return_true',
-            'args' => ['id' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
-        ]);
-
         register_rest_route(Contract::API_NAMESPACE, '/discussions/(?P<id>\d+)/replies', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->replies($request),
@@ -222,7 +215,7 @@ final class DiscussionController
 
         $thread = $this->threads->byId($threadId);
         if ($thread === null) {
-            return new WP_Error('aiya_server_error', __('The thread could not be read back.', 'aiya-core'));
+            return new WP_Error('aiya_server_error', __('The thread could not be read back.', 'aiya-core'), ['status' => 500]);
         }
 
         return new WP_REST_Response($this->presenter->detail(
@@ -230,23 +223,6 @@ final class DiscussionController
             [],
             $userId,
         )->toArray());
-    }
-
-    private function detail(WP_REST_Request $request): WP_Error|WP_REST_Response
-    {
-        $thread = $this->threads->byId((int) $request->get_param('id'));
-        if ($thread === null) {
-            return $this->notFound();
-        }
-
-        $viewer = (int) get_current_user_id();
-        $replies = $this->threads->replies((int) $thread->id, 1, self::REPLIES_PER_PAGE);
-        $items = [];
-        foreach ($replies['items'] as $row) {
-            $items[] = $this->presenter->reply($row, $viewer);
-        }
-
-        return new WP_REST_Response($this->presenter->detail($thread, $items, $viewer)->toArray());
     }
 
     private function replies(WP_REST_Request $request): WP_Error|WP_REST_Response
@@ -289,7 +265,7 @@ final class DiscussionController
 
         $reply = $this->threads->replyById($replyId);
         if ($reply === null) {
-            return new WP_Error('aiya_server_error', __('The reply could not be read back.', 'aiya-core'));
+            return new WP_Error('aiya_server_error', __('The reply could not be read back.', 'aiya-core'), ['status' => 500]);
         }
 
         return new WP_REST_Response($this->presenter->reply($reply, $userId)->toArray());
@@ -353,7 +329,7 @@ final class DiscussionController
 
         $fresh = $this->threads->replyById($replyId);
         if ($fresh === null) {
-            return new WP_Error('aiya_server_error', __('The reply could not be read back.', 'aiya-core'));
+            return new WP_Error('aiya_server_error', __('The reply could not be read back.', 'aiya-core'), ['status' => 500]);
         }
 
         return new WP_REST_Response($this->presenter->reply($fresh, $userId)->toArray());

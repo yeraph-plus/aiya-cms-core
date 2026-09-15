@@ -112,6 +112,14 @@ final class SettingsAdmin implements Module
             $this->redirect($page, 'error', $values->get_error_message());
         }
 
+        // Domain guards may veto a save (e.g. refusing to delete a
+        // membership tier that still has active holders). A WP_Error here
+        // aborts the save with the message surfaced on the settings page.
+        $values = apply_filters('aiya_core_settings_validate', $values, $page->slug(), $store->all());
+        if (is_wp_error($values)) {
+            $this->redirect($page, 'error', $values->get_error_message());
+        }
+
         $store->replace($values);
         $this->redirect($page, 'saved');
     }
@@ -123,9 +131,17 @@ final class SettingsAdmin implements Module
                 continue;
             }
             $callback = fn (): null => $this->render($page);
+            $slug = 'aiya-core-' . $page->slug();
             $hook = $page->parent() === ''
-                ? add_menu_page($page->title(), $page->menuTitle(), $page->capability(), 'aiya-core-' . $page->slug(), $callback, $page->icon(), $page->position())
-                : add_submenu_page($page->parent(), $page->title(), $page->menuTitle(), $page->capability(), 'aiya-core-' . $page->slug(), $callback);
+                ? add_menu_page($page->title(), $page->menuTitle(), $page->capability(), $slug, $callback, $page->icon(), $page->position())
+                : add_submenu_page($page->parent(), $page->title(), $page->menuTitle(), $page->capability(), $slug, $callback);
+            if ($page->parent() === '') {
+                // Core idiom: the first submenu mirrors the parent slug, so
+                // the top-level menu lands on the page itself instead of
+                // being re-parented to the first registered sibling. No
+                // callback: the top-level's own hook renders the page.
+                add_submenu_page($slug, $page->title(), $page->menuTitle(), $page->capability(), $slug, '');
+            }
             if (is_string($hook)) {
                 $this->screens[$hook] = $page->slug();
             }

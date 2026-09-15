@@ -29,7 +29,9 @@ final class ConvertCodesPage implements Module
 
     public function register(): void
     {
-        add_action('admin_menu', [$this, 'menu'], 20);
+        // Priority 35: the membership top-level menu is registered by
+        // SettingsAdmin at 30 — see CreditsPage for the hookname timing.
+        add_action('admin_menu', [$this, 'menu'], 35);
         add_action('admin_post_' . self::ACTION_GENERATE, [$this, 'handleGenerate']);
         add_action('admin_post_' . self::ACTION_DELETE_ALL, [$this, 'handleDeleteAll']);
     }
@@ -185,7 +187,13 @@ final class ConvertCodesPage implements Module
         $tierKey = sanitize_key((string) ($_POST['tier_key'] ?? ''));
         $cycles = absint((string) ($_POST['cycles'] ?? '0'));
 
-        if ($quantity < 1 || $tierKey === '' || $cycles < 1) {
+        if ($quantity < 1 || $quantity > 200 || $tierKey === '' || $cycles < 1 || $cycles > 60) {
+            $this->redirectBack(['aiya_note' => 'failed']);
+        }
+        // Only configured, enabled tiers may back a code — a typo'd or
+        // stale tier key would otherwise mint codes that can never redeem.
+        $configured = wp_list_pluck(SponsorshipSettings::read()['tiers'] ?? [], 'enabled', 'key');
+        if (!array_key_exists($tierKey, $configured)) {
             $this->redirectBack(['aiya_note' => 'failed']);
         }
 

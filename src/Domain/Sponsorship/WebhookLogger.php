@@ -6,23 +6,41 @@ namespace Aiya\Core\Domain\Sponsorship;
 
 /**
  * Raw webhook payload logger, preserving the legacy debugging behavior:
- * opted in per gateway, appended under wp-content/aiya-core-logs/ as
- * dated files. Failures to write are silently ignored — logging must never
- * break callback handling.
+ * when enabled it appends gateway callbacks under wp-content/aiya-core-logs/
+ * as dated files. Logging is OFF unless the debug constant
+ * AIYA_CORE_WEBHOOK_DEBUG is defined truthy (define it in wp-config.php
+ * while debugging payment callbacks) — the payloads contain payment data,
+ * so it must never ride a settings switch that gets forgotten on. The
+ * log grows without rotation; delete the directory when done debugging.
+ * Failures to write are silently ignored — logging must never break
+ * callback handling.
  */
 final class WebhookLogger
 {
-    public static function enabled(string $setting): bool
+    public static function active(): bool
     {
-        return filter_var((string) $setting, FILTER_VALIDATE_BOOLEAN);
+        return defined('AIYA_CORE_WEBHOOK_DEBUG') && AIYA_CORE_WEBHOOK_DEBUG === true;
     }
 
     public static function write(string $label, string $payload): void
     {
+        if (!self::active()) {
+            return;
+        }
+
         $dir = trailingslashit(WP_CONTENT_DIR) . 'aiya-core-logs';
         if (!is_dir($dir) && !wp_mkdir_p($dir)) {
             return;
         }
+
+        // The payloads contain payment/order data and the dir lives in the
+        // web root: deny direct HTTP access once per directory lifetime.
+        // WP_Filesystem is unavailable in REST callback context — best-effort
+        // direct writes; a hardening failure must never break the callback.
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+        @file_put_contents($dir . '/.htaccess', "Require all denied\n");
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+        @file_put_contents($dir . '/index.html', '');
 
         $today = gmdate('Y-m-d');
         $salted = substr(md5($today . wp_salt()), 0, 6);

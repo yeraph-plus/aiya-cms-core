@@ -28,10 +28,63 @@ if (!defined('AIYA_CORE_VERSION')) {
     define('AIYA_CORE_VERSION', '0.8.0-test');
 }
 
+if (!defined('AIYA_CORE_URL')) {
+    define('AIYA_CORE_URL', 'https://aiya.test/wp-content/plugins/aiya-core/');
+}
+
+if (!defined('WP_CONTENT_DIR')) {
+    define('WP_CONTENT_DIR', sys_get_temp_dir() . '/aiya-test-content');
+}
+
+if (!defined('WP_CONTENT_URL')) {
+    define('WP_CONTENT_URL', 'https://aiya.test/wp-content');
+}
+
+if (!defined('MINUTE_IN_SECONDS')) {
+    define('MINUTE_IN_SECONDS', 60);
+}
+if (!defined('HOUR_IN_SECONDS')) {
+    define('HOUR_IN_SECONDS', 3600);
+}
+if (!defined('DAY_IN_SECONDS')) {
+    define('DAY_IN_SECONDS', 86400);
+}
+
 // --- WP_Error ------------------------------------------------------------
 
-if (!class_exists('WP_Error')) {
-    class WP_Error
+// --- WP_Post --------------------------------------------------------------
+
+if (!class_exists('WP_Post')) {
+    class WP_Post
+    {
+        /** @var array<string, mixed> */
+        private array $aiya_test_props = [];
+
+        public function __construct(object $row)
+        {
+            foreach (get_object_vars($row) as $key => $value) {
+                $this->aiya_test_props[$key] = $value;
+            }
+        }
+
+        public function __get(string $name): mixed
+        {
+            return $this->aiya_test_props[$name] ?? '';
+        }
+
+        public function __set(string $name, mixed $value): void
+        {
+            $this->aiya_test_props[$name] = $value;
+        }
+
+        public function __isset(string $name): bool
+        {
+            return isset($this->aiya_test_props[$name]);
+        }
+    }
+}
+
+if (!class_exists('WP_Error')) {    class WP_Error
     {
         /** @var array<string, list<string>> */
         private array $errors = [];
@@ -141,6 +194,70 @@ if (!function_exists('esc_url_raw')) {
     }
 }
 
+if (!function_exists('esc_url')) {
+    function esc_url(string $url): string
+    {
+        return esc_url_raw($url);
+    }
+}
+
+if (!function_exists('esc_attr')) {
+    function esc_attr(string $text): string
+    {
+        return htmlspecialchars($text, ENT_QUOTES, 'UTF-8', false);
+    }
+}
+
+if (!function_exists('esc_html')) {
+    function esc_html(string $text): string
+    {
+        return htmlspecialchars($text, ENT_QUOTES, 'UTF-8', false);
+    }
+}
+
+if (!function_exists('wp_specialchars_decode')) {
+    function wp_specialchars_decode(string $string, int $quoteStyle = ENT_QUOTES): string
+    {
+        // Core decodes twice by design so double-encoded entities unwind;
+        // mirror that with two passes.
+        $decoded = htmlspecialchars_decode($string, $quoteStyle);
+
+        return htmlspecialchars_decode($decoded, $quoteStyle);
+    }
+}
+
+if (!function_exists('do_shortcode')) {
+    function do_shortcode(string $content, bool $ignoreHtml = false): string
+    {
+        return $content; // the unit suite never registers shortcodes
+    }
+}
+
+if (!function_exists('content_url')) {
+    function content_url(string $path = ''): string
+    {
+        $base = rtrim(WP_CONTENT_URL, '/');
+        return $path === '' ? $base : $base . '/' . ltrim($path, '/');
+    }
+}
+
+if (!function_exists('wp_html_split')) {
+    function wp_html_split(string $input): array
+    {
+        // Mirrors the core split shape: markup runs (comments, CDATA,
+        // tags — the trailing > optional for an unclosed <) occupy odd
+        // offsets, plain text the even ones.
+        $parts = preg_split(
+            '/(<!--.*?-->|<!\[CDATA\[.*?\]\]>|<[^>]*>?)/s',
+            $input,
+            -1,
+            PREG_SPLIT_DELIM_CAPTURE
+        );
+
+        return $parts === false ? [] : $parts;
+    }
+}
+
 if (!function_exists('home_url')) {
     function home_url(string $path = ''): string
     {
@@ -161,7 +278,7 @@ if (!function_exists('wp_strip_all_tags')) {
         $string = preg_replace('@<(script|style)[^>]*?>.*?</\1>@si', '', $string) ?? $string;
         $string = strip_tags($string);
         if ($remove_breaks) {
-            $string = preg_replace('/[
+            $string = preg_replace('/[
 	 ]+/', ' ', $string) ?? $string;
         }
         return trim($string);
@@ -213,6 +330,266 @@ if (!function_exists('wp_unslash')) {
         }
         // Mirrors core: wp_unslash -> stripslashes_deep -> stripslashes.
         return is_string($value) ? stripslashes($value) : $value;
+    }
+}
+
+// --- Object cache (for TokenStore / SitePresenter / SmiliesRegistry) ------
+
+$GLOBALS['__aiya_test_object_cache'] = [];
+
+if (!function_exists('wp_cache_get')) {
+    function wp_cache_get(string|int $key, string $group = '', bool $force = false, ?bool &$found = null): mixed
+    {
+        $entry = $GLOBALS['__aiya_test_object_cache'][$group][$key] ?? null;
+        if ($entry === null || ($entry['expires'] > 0 && $entry['expires'] <= time())) {
+            $found = false;
+            return false;
+        }
+
+        $found = true;
+        return $entry['value'];
+    }
+}
+
+if (!function_exists('wp_cache_set')) {
+    function wp_cache_set(string|int $key, mixed $value, string $group = '', int $expires = 0): bool
+    {
+        $GLOBALS['__aiya_test_object_cache'][$group][$key] = [
+            'value' => $value,
+            'expires' => $expires > 0 ? time() + $expires : 0,
+        ];
+        return true;
+    }
+}
+
+if (!function_exists('wp_cache_delete')) {
+    function wp_cache_delete(string|int $key, string $group = ''): bool
+    {
+        $existed = isset($GLOBALS['__aiya_test_object_cache'][$group][$key]);
+        unset($GLOBALS['__aiya_test_object_cache'][$group][$key]);
+        return $existed;
+    }
+}
+
+if (!function_exists('wp_cache_flush')) {
+    function wp_cache_flush(): bool
+    {
+        $GLOBALS['__aiya_test_object_cache'] = [];
+        return true;
+    }
+}
+
+// --- Users and user meta (for TokenStore) ---------------------------------
+
+$GLOBALS['__aiya_test_users'] = [];
+$GLOBALS['__aiya_test_user_meta'] = [];
+
+if (!function_exists('get_userdata')) {
+    function get_userdata(int $userId): object|false
+    {
+        return isset($GLOBALS['__aiya_test_users'][$userId]) ? (object) ['ID' => $userId] : false;
+    }
+}
+
+if (!function_exists('wp_generate_password')) {
+    function wp_generate_password(int $length = 12, bool $specialChars = true, bool $extraSpecialChars = false): string
+    {
+        return substr(bin2hex(random_bytes(48)), 0, $length);
+    }
+}
+
+if (!function_exists('current_time')) {
+    function current_time(string $type, bool $gmt = false): string
+    {
+        return $gmt ? gmdate('Y-m-d H:i:s') : date('Y-m-d H:i:s');
+    }
+}
+
+if (!function_exists('get_user_meta')) {
+    function get_user_meta(int $userId, string $key, bool $single = false): mixed
+    {
+        $value = $GLOBALS['__aiya_test_user_meta'][$userId][$key] ?? '';
+        return $single ? $value : [$value];
+    }
+}
+
+if (!function_exists('update_user_meta')) {
+    function update_user_meta(int $userId, string $key, mixed $value): bool
+    {
+        $GLOBALS['__aiya_test_user_meta'][$userId][$key] = $value;
+        return true;
+    }
+}
+
+if (!function_exists('add_user_meta')) {
+    function add_user_meta(int $userId, string $key, mixed $value, bool $unique = false): int|false
+    {
+        $GLOBALS['__aiya_test_user_meta'][$userId][$key] = $value;
+        return $GLOBALS['__aiya_test_user_meta'][$userId][$key] !== '' ? $userId : false;
+    }
+}
+
+if (!function_exists('wp_salt')) {
+    function wp_salt(string $scheme = 'auth'): string
+    {
+        return 'aiya-test-salt';
+    }
+}
+
+$GLOBALS['__aiya_test_current_user_id'] = 0;
+
+if (!function_exists('get_current_user_id')) {
+    function get_current_user_id(): int
+    {
+        return $GLOBALS['__aiya_test_current_user_id'];
+    }
+}
+
+if (!function_exists('wp_is_post_revision')) {
+    function wp_is_post_revision(int|WP_Post $post): int|false
+    {
+        return false; // revisions never exist in the unit suite
+    }
+}
+
+if (!function_exists('wp_is_post_autosave')) {
+    function wp_is_post_autosave(int|WP_Post $post): int|false
+    {
+        return false;
+    }
+}
+
+if (!function_exists('current_user_can')) {
+    function current_user_can(string $capability, mixed ...$args): bool
+    {
+        return (bool) ($GLOBALS['__aiya_test_caps'] ?? true);
+    }
+}
+
+if (!function_exists('wp_verify_nonce')) {
+    function wp_verify_nonce(string $nonce, string|int $action = -1): int|false
+    {
+        return 1; // unit tests always present valid nonces
+    }
+}
+
+// --- wpdb stand-in (for TokenStore) ----------------------------------------
+// Intercepts the exact statement shapes TokenStore issues against the
+// token table; anything else (e.g. the per-user trim DELETE, which the
+// tests never exercise) is a counted no-op.
+
+if (!class_exists('wpdb')) {
+    class wpdb
+    {
+        public string $prefix = 'wp_';
+
+        public string $usermeta = 'wp_usermeta';
+
+        /** @var array<string, list<array<string, mixed>>> */
+        public array $aiya_test_rows = [];
+
+        public int $aiya_test_reads = 0;
+
+        public int $rows_affected = 0;
+
+        /** @param array<string, mixed> $data */
+        public function insert(string $table, array $data, array $formats = []): bool
+        {
+            $this->aiya_test_rows[$table][] = $data;
+
+            return true;
+        }
+
+        public function prepare(string $sql, mixed ...$args): string
+        {
+            // Like core, %s substitutes quoted; %i and %d go in bare (the
+            // values these statements carry contain no quotes themselves).
+            $index = 0;
+
+            return (string) preg_replace_callback(
+                '/%[ids]/',
+                static function (array $match) use (&$index, $args): string {
+                    $arg = (string) $args[$index++];
+
+                    return $match[0] === '%s' ? "'" . $arg . "'" : $arg;
+                },
+                $sql
+            );
+        }
+
+        public function get_var(string $sql): mixed
+        {
+            $this->aiya_test_reads++;
+            $row = $this->aiya_test_match($sql);
+
+            return $row === null ? null : $row['user_id'];
+        }
+
+        public function query(string $sql): int
+        {
+            $this->rows_affected = 0;
+            $table = $this->aiya_test_table($sql);
+            if ($table === null || str_contains($sql, 'expires_at <')) {
+                return 0; // trim sweep: not simulated, the tests never need it
+            }
+
+            if (preg_match("/token_hash = '([^']+)'/", $sql, $hash) === 1) {
+                $rows = array_values(array_filter(
+                    $this->aiya_test_rows[$table] ?? [],
+                    static fn (array $row): bool => $row['token_hash'] !== $hash[1]
+                ));
+                $before = count($this->aiya_test_rows[$table] ?? []);
+                $this->aiya_test_rows[$table] = $rows;
+
+                return $before - count($rows);
+            }
+
+            if (preg_match('/WHERE user_id = (\d+)$/', $sql, $user) === 1) {
+                $rows = array_values(array_filter(
+                    $this->aiya_test_rows[$table] ?? [],
+                    static fn (array $row): bool => (int) $row['user_id'] !== (int) $user[1]
+                ));
+                $before = count($this->aiya_test_rows[$table] ?? []);
+                $this->aiya_test_rows[$table] = $rows;
+
+                return $before - count($rows);
+            }
+
+            return 0;
+        }
+
+        /** @return array<string, mixed>|null */
+        private function aiya_test_match(string $sql): ?array
+        {
+            $table = $this->aiya_test_table($sql);
+            preg_match("/token_hash = '([^']+)'/", $sql, $hash);
+            if ($table === null || $hash === []) {
+                return null;
+            }
+
+            preg_match("/expires_at > '([^']+)'/", $sql, $since);
+            foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
+                if ($row['token_hash'] !== $hash[1]) {
+                    continue;
+                }
+                if ($since !== [] && !((string) $row['expires_at'] > $since[1])) {
+                    return null; // expired: the row exists but the read misses it
+                }
+
+                return $row;
+            }
+
+            return null;
+        }
+
+        private function aiya_test_table(string $sql): ?string
+        {
+            if (preg_match('/FROM (\S+)/', $sql, $table) !== 1) {
+                return null;
+            }
+
+            return $table[1];
+        }
     }
 }
 

@@ -19,6 +19,18 @@ use RuntimeException;
  * IdentityModule cron. Changing the password revokes everything (see
  * revokeAll()).
  *
+ * Resolutions are mirrored into the object cache (`aiya_core_auth`
+ * group, short TTL): every authenticated headless request used to pay
+ * one point query on this table. Two accepted soft edges of the mirror:
+ * tokens dropped by the per-user cap trim (not a revocation) keep
+ * authenticating until the mirror expires, and expiry itself carries the
+ * same sub-TTL drift — both bounded, both hygiene rather than security. Cache entries carry the user's
+ * revocation generation (bumped on every revoke/revokeAll), so a hit is
+ * re-validated against the current generation and revocations take
+ * effect immediately even though the DB row may sit behind the mirror
+ * for up to the TTL. Without an object cache drop-in the mirror lives
+ * for the request only and every resolve still hits the table.
+ *
  * This replaces the legacy usermeta array store (2026-09-09 plan): the
  * array shape lost tokens under concurrent logins (unsynchronized
  * read-append-write) and rewrote the meta row on every login. Tokens
@@ -32,6 +44,10 @@ final class TokenStore
     private const MAX_TOKENS_PER_USER = 10;
     public const SHORT_TTL = 2 * DAY_IN_SECONDS;
     public const LONG_TTL = 14 * DAY_IN_SECONDS;
+
+    private const CACHE_GROUP = 'aiya_core_auth';
+    private const CACHE_TTL = 300;
+    private const GENERATION_KEY = 'aiya_core_auth_gen';
 
     /**
      * @throws RuntimeException When the user does not exist.
@@ -93,8 +109,32 @@ final class TokenStore
             return 0;
         }
 
+        $key = 'token_' . $this->hash($token);
+        /** @var array{user: int, generation: int}|false $cached */
+        $cached = wp_cache_get($key, self::CACHE_GROUP);
+        if (is_array($cached)) {
+            // Negative mirrors (user 0) are final: a token secret is random
+            // and its validity only ever shrinks, so a dead hash stays dead.
+            if ($cached['user'] === 0) {
+                return 0;
+            }
+            if ($cached['generation'] === $this->generation($cached['user'])) {
+                return $cached['user'];
+            }
+            // Stale generation — the rows died under a revocation after this
+            // mirror was written; fall through and let the table confirm.
+        }
+
         global $wpdb;
         /** @var \wpdb $wpdb */
+        // The generation is read BEFORE the table: if a concurrent
+        // revocation lands between the two reads (generation changed under
+        // us), the row this query saw may already be deleted — the result
+        // is returned but NOT mirrored, because a mirror stamped with the
+        // post-revocation generation would survive the very revocation
+        // that raced it.
+        $generationBefore = $this->generation($userId);
+
         $found = $wpdb->get_var($wpdb->prepare(
             'SELECT user_id FROM %i WHERE token_hash = %s AND expires_at > %s LIMIT 1',
             $this->table(),
@@ -102,7 +142,20 @@ final class TokenStore
             gmdate('Y-m-d H:i:s')
         ));
 
-        return $found !== null ? (int) $found : 0;
+        if ($found === null) {
+            // Negative mirrors (user 0) are final: a token secret is random
+            // and its validity only ever shrinks, so a dead hash stays dead.
+            wp_cache_set($key, ['user' => 0, 'generation' => $generationBefore], self::CACHE_GROUP, self::CACHE_TTL);
+
+            return 0;
+        }
+
+        $generationAfter = $this->generation($userId);
+        if ($generationAfter === $generationBefore) {
+            wp_cache_set($key, ['user' => (int) $found, 'generation' => $generationAfter], self::CACHE_GROUP, self::CACHE_TTL);
+        }
+
+        return (int) $found;
     }
 
     /** Removes one presented token (logout). */
@@ -118,6 +171,7 @@ final class TokenStore
         $sql = $wpdb->prepare('DELETE FROM %i WHERE token_hash = %s', $this->table(), $this->hash($token));
         if (is_string($sql)) {
             $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+            $this->bumpGeneration($userId);
         }
         // Only a hard DB failure reports false; "no such row" is a fine
         // logout outcome.
@@ -140,6 +194,7 @@ final class TokenStore
         $sql = $wpdb->prepare('DELETE FROM %i WHERE user_id = %d', $this->table(), $userId);
         if (is_string($sql)) {
             $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+            $this->bumpGeneration($userId);
         }
 
         return is_string($sql);
@@ -174,6 +229,43 @@ final class TokenStore
         global $wpdb;
         /** @var \wpdb $wpdb */
         return $wpdb->prefix . 'aiya_auth_tokens';
+    }
+
+    /** Per-user revocation counter; cache mirrors carrying an older value are dead. */
+    private function generation(int $userId): int
+    {
+        return (int) get_user_meta($userId, self::GENERATION_KEY, true);
+    }
+
+    /**
+     * Atomic increment (raw SQL — the meta API has no increment and a
+     * read-modify-write could lose a bump to a concurrent revocation),
+     * fall back to seeding the row on its first use. The user-meta cache
+     * is invalidated either way: the raw statement bypasses it, and a
+     * stale cached generation would re-validate a revoked token's mirror
+     * for up to CACHE_TTL.
+     */
+    private function bumpGeneration(int $userId): void
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $sql = $wpdb->prepare(
+            'UPDATE %i SET meta_value = meta_value + 1 WHERE user_id = %d AND meta_key = %s',
+            $wpdb->usermeta,
+            $userId,
+            self::GENERATION_KEY
+        );
+        if (is_string($sql)) {
+            $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+        }
+        wp_cache_delete((string) $userId, 'user_meta');
+        if ((int) $wpdb->rows_affected === 0) {
+            // First revocation for this user: seed the row. Concurrent
+            // seeds may append duplicate rows — harmless, they increment
+            // in lockstep and reads take the first.
+            add_user_meta($userId, self::GENERATION_KEY, 1, true);
+            wp_cache_delete((string) $userId, 'user_meta');
+        }
     }
 
     private function hash(string $token): string

@@ -30,10 +30,6 @@ final class ContractsSnapshot
     }
 
     /**
-     * @param list<string>          $args
-     * @param array<string, string> $assocArgs
-     */
-    /**
      * Merge-style DTOs flatten their inner DTO in toArray(), so constructor
      * reflection would not describe the wire shape. These are hand-declared
      * in the exact wire form; a change here must keep toArray() in sync.
@@ -59,6 +55,8 @@ final class ContractsSnapshot
             ['name' => 'badges', 'type' => 'array', 'nullable' => false],
             ['name' => 'content', 'type' => 'object', 'nullable' => false],
             ['name' => 'locked', 'type' => 'bool', 'nullable' => false],
+            ['name' => 'visibility', 'type' => 'string', 'nullable' => false],
+            ['name' => 'gated', 'type' => 'bool', 'nullable' => false],
             ['name' => 'featured', 'type' => 'Image', 'nullable' => true],
             ['name' => 'seo', 'type' => 'Seo', 'nullable' => false],
             ['name' => 'breadcrumbs', 'type' => 'array', 'nullable' => false],

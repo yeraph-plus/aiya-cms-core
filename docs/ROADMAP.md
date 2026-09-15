@@ -702,6 +702,7 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **OpenList 重启用**：`Plugin::EXTERNAL_FILES_ENABLED` 翻回 `true`（0.29.1 的临时停用解除）——设置页 `aiya-core-oplist`（8 字段）、resource 编辑屏 `oplist_client` box（metadata 注册表 postBoxes 实测三 box 在位）、`GET /resources/{id}/attachments` 公开端点（游客实测 200 信封空 items）三件套全部恢复；phpstan 对恒真 if 的 `if.alwaysTrue` 以行内 ignore 标注（业务开关保留 null 分支给后续停靠域）；
 - **OpenList 容器**：`docker-compose.yml` 增 `openlist` 服务（`openlistteam/openlist:latest`，端口 5244，`user: "0:0"`——镜像 openlist 用户 1001 无法写卷初始化的 data 目录，属上游已知问题；named volume `openlist_data`）——镜像经 docker.m.daocloud.io 转存拉取（dockerpull.cn 镜像源 blob 损坏 text/html、ghcr.io 直连 denied、Docker Hub 直连超时）；`http://localhost:5244` 实测 200，初始管理员密码在容器日志（`docker logs wp_openlist | grep password`）；
 - **i18n**：修复 OplistModule 一处 `\u0027` 字面量撇号（make-pot 转义残留，导致 POT/PO 一条 msgid 对不上）；POT 786 条重建、未翻译 0、MO 重编译；WP 运行时实测「积分账本/会员档位/每日签到」即时生效；phpunit 166/394、phpstan、phpcs、vitest 158/158 全绿。
+- **菜单钩子时序修复（同批）**：`Admin/SendMailPage` 与 `Admin/NotificationPage` 的 `admin_menu` 注册自优先级 20 提到 **35**——父级 AIYA Core 顶级菜单由 SettingsAdmin 在 30 注册，`add_submenu_page` 在父菜单的 `$admin_page_hooks` 条目存在前调用会把页面钩子退化为 `admin_page_*`，请求时 `user_can_access_admin_page()` 重算 `aiya-core_page_*` 查 `$_registered_pages` 落空，两页一律 403「不能访问此页面」；实测钩子名归位 + 真实登录会话（curl 走 wp-login.php）两页 200 渲染正常。
 
 ### 旧命名清算：支付流水表换名（0.56.0，2026-09-14）—— ✅ 已完成
 
@@ -711,3 +712,197 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **表名更换**：支付流水表 `wp_aya_sponsor_orders` → `wp_aiya_payment_orders`——`SponsorshipModule::installTables()` / `upgradeToTierModel()` 两处 DDL、`OrderService::table()`、uninstall 表清单与头注同步改名；**无 RENAME 迁移**（站点未上线无兼容义务），开发库一次性 `RENAME TABLE` 处置；fresh install 走 activate() 记 0.0.0 全链迁移时新名建表 + 0.50.0 的旧 usermeta 删行迁移不受影响；0.54.0 的 DROP `aya_convert_codes` 与 0.50.0 的协议键删行属历史迁移记录，原样保留；
 - **运行时验证**：`OrderService::addPayment/exists/forUser` 对换名后实表写入/查询/去重实测通过（烟雾行已清）；三条 DDL 回调对换名后表幂等重放无破坏；phpcs/phpstan/phpunit 166 tests / 394 assertions 全绿；
 - **收口**：实库中不再存在任何 `aya_` 前缀表；协议 meta 键（`like_count`/`view_count`/`_thumb`/`basic_user_avatar` 等）属现行新协议保留不改；aiya-legacy-cleanup 插件按拍板保留不删。
+
+### 缩略图刷新改批量动作（0.56.0，2026-09-15）—— ✅ 已完成
+
+站长拍板：文章列表「刷新缩略图」从行操作移到批量操作下拉，并通用支持所有文章类型：
+
+- **`Admin/CardThumbnailBulkAction`**（新）：按 `bulk_actions-edit-{type}` + `handle_bulk_actions-edit-{type}` 挂载，类型集取 `get_post_types(['show_ui' => true])` 全量（剔除 attachment——其表在 upload.php），过滤器注册推迟到 `init` 20（CPT 在 init 5 才存在，含 resource 与未来 ContentTypeModule 声明的类型）；卡片管线本身类型无关（有源图即可合成），无需契约类型白名单；
+- **语义**：逐篇 `edit_post` 校验 + 仅发布态合成（卡片是前台列表资产，同旧行操作口径），`refreshFor` 换新并清理被替换文件，失败/非发布/无权限计入 skipped；重定向计数通知（_n：已刷新 N 项的缩略图 / 跳过 N 项（无可刷新内容或无权限）），批量 nonce 由核心 edit.php 统一校验；
+- **MediaModule 摘除**：`post_row_actions` 行操作与 `admin_post_aiya_core_card_refresh` 处理器整体移除（旧 `_thumb` 换新语义不变，save_post 直连与五分钟 cron 批不受影响）；
+- 实测：五个 show_ui 类型下拉均含选项；真实登录会话 HTTP 批量往返（bulk nonce → POST → 重定向）刷新 resource 外的 post 136，`_thumb` 换新、旧文件删除、通知「已刷新 1 项的缩略图。」；草稿计入 skipped 且不写 `_thumb`；行操作链接 0 残留；i18n 6 条新增 zh_CN 全量（POT 同步移除废弃单数条目，791 条未翻译 0）；phpunit 166/394、phpstan、phpcs 全绿。
+
+### 术语「自定义外观」改版（0.57.0，2026-09-15）—— ✅ 已完成
+
+站长拍板：分类法自定义 metabox 改版——标题「术语 SEO 与封面」改「自定义外观」、删除 SEO 关键词条目、新增「图标」文本条目（自由填写文本，前端自行解析为图标）；三种文章类型（category/page_category/resource_category）全部兼容，五个资源标签型分类法也挂「图标」：
+
+- **`Domain/Content/TermExtrasModule` 重写为两个 term box**：`term_extras`（三标准分类，封面 thumbnail_id media 控件 + icon 文本）与 `term_icon`（文章「标签」post_tag + 五资源标签词法，仅 icon；post_tag 为 0.57.0 收口补齐——「标签，以及资源类型的多个标签分类法也需要图标」），标题统一「Custom appearance/自定义外观」；字段仍经 Metadata 逐键 term meta 存取（icon 的 meta 键即 `icon`）；**`seo_keywords` 条目整体退役**——无任何 API/展示消费方，存量 term meta 行按未上线拍板当死数据不做迁移；
+- **契约加法演进**：`Api/Contract/Term` 增可空 `icon` 字段（PostPresenter::term() 读 term meta，空串归 null），`/terms` 与文章内嵌 categories/tags 共用同一 DTO 全部带出；快照重建 + 前端 `termSchema` 加 `icon: z.string().nullable()`（vitest 158/158）；
+- 实测：term box 注册表（标题/分类法/字段序）与前台 `/terms?taxonomy=category` icon 输出、内嵌术语 icon 透传全部核验；i18n 增 4 条删 3 条 zh_CN 全量（792 条未翻译 0）；phpunit 166/394、phpstan、phpcs 全绿。
+
+### /terms 全词法枚举 + Term.vocabulary（0.58.0，2026-09-15）—— ✅ 已完成
+
+站长拍板：补接口 DTO，让 `/terms` 返回类型的所有分类法——原实现 `taxonomy=tag` 只吐 `wpCategoryTaxonomy()` 命中的第一个标签词法（resource 只出 resource_original），资源五个标签词法无法枚举：
+
+- **`Api/Contract/Term` 增 `vocabulary` 字段**（必填 string，排在 icon 前）：`taxonomy` 保持契约分组名（category/tag）不变，`vocabulary` 给出归属词法的代码名（category/post_tag/page_category/resource_category/resource_original/…），前端按它分组 facet；`PostPresenter::term()` 直接取 `$term->taxonomy`，内嵌 categories/tags 与 /terms 共用同一形状；
+- **`presentTerms()` 重写为按 `PublicType::taxonomies` 全表遍历**：`taxonomy` 参数收窄语义为「分组过滤」（category=仅分类组、tag=该类型全部标签词法、缺省/all=全部词法打平），路由 args 同步（required 移除、default all、enum 加 all）——`?taxonomy=tag&type=resource` 由此返回五个词法合并列表（修掉 resource_original-only 旧缺陷）；
+- **前端同步**：`termSchema` 加 `vocabulary: z.string().min(1)`，`termsQuerySchema` taxonomy 加 `all` 缺省值，`client.terms()` 默认改 `all`（既有 `'category'/'tag'` 调用点全部兼容）；快照重建 vitest 158/158；
+- 实测：`?type=resource` 平铺 9 术语跨 resource_category/resource_author/resource_other 三词法、`?taxonomy=tag&type=resource` 两词法合并、post 类型 category+post_tag 双词法、page tag 过滤 0 条、内嵌术语带 vocabulary；phpunit 166/394、phpstan、phpcs、tsc 全绿。
+
+### 会员菜单落地页改为设置表单（0.59.0，2026-09-15）—— ✅ 已完成
+
+站长拍板：会员菜单的第一个页面改为会员设置表单而不是积分账本：
+
+- **Registry 页升顶级**：`SponsorshipModule` 设置页 slug `sponsorship`→`membership`（顶级菜单 slug 保持 `aiya-core-membership`），title「Membership settings/会员设置」、menu_title「Membership/会员」、position 27、不再挂 parent——档位 repeater + 每日签到三键就是菜单落地页；OPTION_NAME `aiya_core_sponsorship` 保持（内部存储键，无契约面）；`CreditModule` 贡献字段改 `addFields('membership',…)`；
+- **SettingsAdmin 顶级页加镜像子菜单**（core idiom，空 callback 防双渲染）：顶级菜单落地页=自身，不再被 re-parent 到第一个注册的兄弟页——顺带把 AIYA Core 菜单落地页从漂移到 Optimization 修回「前台设置」（符合 FrontendModule 注明的意图）；
+- **CreditsPage 降为子菜单**：slug `aiya-core-membership`→`aiya-core-credits`（积分账本，用户列表余额列与操作回跳链接随常量自动跟随），`admin_menu` 优先级 35 + 子菜单位置 1（紧跟设置表单）；**ConvertCodesPage 同批 20→35**——父顶级菜单由 SettingsAdmin 在 30 注册，20 时机注册子菜单会重演 SendMailPage 的 `admin_page_*` 钩子退化 → 403；
+- 实测（真实登录会话）：会员菜单落地 `<h1>会员设置</h1>`（档位列表/周期长度/周期积分/每日签到字段在位），子菜单序 [会员设置, 积分账本, 支付, 兑换码]，四页全部 200 正常渲染，积分账本钩子 `%e4%bc%9a%e5%91%98_page_aiya-core-credits` 正确注册、退化钩子清零；phpunit 166/394、phpstan、phpcs 全绿；i18n 增 Membership settings 删 Membership tiers（792 条未翻译 0）。
+
+### 图标调整 + 后台页面注册全量核查（0.60.0，2026-09-15）—— ✅ 已完成
+
+站长拍板：资源类型菜单图标改 `dashicons-book-alt`、会员菜单组改 `dashicons-awards`；随批对全部后台页面注册逻辑做整体核查（后台页面基本闭合的收口审计）：
+
+- **核查矩阵（运行时探针，admin 构建完整菜单后逐页判定）**：五个顶级菜单（AIYA Core/会员/轻社区/图床/开发工具）+ 十五个子页共 20 页——① 注册钩子与请求时解析钩子逐一比对：`$_registered_pages` 全部命中、退化 `admin_page_*` 钩子清零；② 回调 `has_action` 全部在位（SettingsAdmin 顶级页镜像子菜单为空 callback 属设计，渲染走顶级自身钩子）；③ admin 访问判定 20/20 通过；④ 落地页语义：AIYA Core/会员/开发工具三组首子菜单均为自身镜像，轻社区/图床为无子菜单单页顶级；⑤ DevTools 子菜单序 [镜像, crons, rewrites, shortcodes, icons, sample]。
+- **结论**：0.55–0.59 期间修的三处钩子时序问题（SendMail/Notification 35、Credits/Codes 35、SponsorshipModule 页升顶级+镜像）已覆盖全部风险点，当前无遗留缺陷；图标两处生效实测（菜单渲染 class 与 post type `menu_icon`）。
+- phpunit 166/394、phpstan、phpcs 全绿。
+
+### 爱发电会员激活接回（0.61.0，2026-09-15）—— ✅ 已完成
+
+站长拍板（计划见 `docs/afdian-membership-activation-plan.md`，§6 五个决策点全部按推荐）：接回爱发电平台的会员激活，两条激活路径，终点统一 `activateFromPayment` 入队（流水/队列双 order_id 唯一键防重放）：
+
+- **路径 B（webhook 自动激活）**：`AfdianGateway`（`PaymentGateway` 第二实现）——`verifyCallback` 验签按官方 WebHook 文档为 **RSA SHA256**（`AfdianClient::verifyWebhook` 重写：平台公钥内置常量，`data.sign` base64 验签，覆盖订单 `out_trade_no+user_id+plan_id+total_amount` 拼接；早先的 md5(token+data+ts) 读法是出站开放 API 的签名机制，不适用于入站 webhook）后解析 `custom_order_id`（XDE 绑定码 → 用户）+ `plan_id`（与后台单一绑定 `afdian_plan_id` 比对，命中取 `afdian_tier_key` 指向的档位）+ `cycles = month`（钳 1–36）；`GatewayController` 增 `POST aiya/sponsorship/v1/afdian/callback`：签名错 400、有效但不可激活（无绑定/方案未绑定）200 忽略、命中则 `addPayment`（`afd_` 前缀流水）+ `activateFromPayment`，响应沿平台 `{ec:200,em:'done'}` 约定；支付页爱发电组（开关/**方案 ID + 绑定档位 Key 单一映射**/user_id/token/日志/webhook 地址说明）；`GET /sponsorship/plans` 增 `channels.afdian` 开关；
+- **路径 A（订单号复用兑换框）**：`POST /credits/redeem` 增可选 `channel`（`redeem` 缺省 / `afdian`）——`AfdianActivator`：专属限流（5 次/10 分钟）→ `ping` 按平台 ec 分流（0 无响应 502、400002 时钟 502、400004/400005 凭据 502）→ 已激活预检（409）→ `queryOrder`（404）→ 方案反查（422 `aiya_plan_unbound`，自选金额订单无 plan_id 同样拒绝）→ 记流水 + 激活 → `MembershipCodeGrant`（前端零新形状）；
+- **`GET /sponsorship/afdian/order-url?month=`**（登录态，无 tierKey 参数）：返回绑定方案的个性化下单深链（`custom_order_id` 携带绑定码），未绑定 422——沿用 0.25.0 历史路由名，前端既有 `afdianOrderUrlResponseSchema` 直接复活；`EntitlementService` 激活档位快照形状放宽（price/afdianPlanId 可选键）；
+- **传输层缺陷修复（同批，实测暴露）**：`AfdianGateway::fromSettings` 原先未注入 HTTP 传输闭包（transport=null），任何请求都不发出而直接落到「接口不可用」——注入 `wp_remote_post` 闭包后用站长真实凭据实测：ping ec 200、假单号 404，链路真实触发；
+- **单测**：`AfdianGatewayTest` 七条（签名回环验签/篡改 400 语义/未绑定忽略/月数钳制/深链构造/未绑定档位拒绝/空 plan 隐藏跳转）+ `SponsorshipSettings` 计划反查两条；
+- **实测**（测试凭据 + 真实 HTTP）：签名推送 → 流水 90 元 source=afdian + 队列 3 周期 active；同推送重放幂等 200 零新增；篡改签名 400；未绑定方案推送 200 忽略零新增；plans 透出 afdian=true 与 tier 绑定；order-url 出个性化深链/未知档位 404；redeem afdian 通道 ping 不通 502（管道验证）；本地兑换码路径回归无损；i18n 18 条 zh_CN 全量（810 条未翻译 0）；phpunit 174/419、phpstan、phpcs、vitest 158/158、tsc 全绿；测试数据已清理。
+- **官方文档合规修订（同批，站长提供官方 WebHook 文档后核对）**：① `AfdianGateway::verifyCallback` 补 `data.type === "order"` 与 `order.status === 2`（交易成功）双重校验——未支付/退款/商品类推送一律忽略（此前只验签名不验交易状态，属真实缺口）；② 路径 A `AfdianActivator` 查单后同样补 `status === 2` 校验（422 `aiya_order_not_paid`）；③ 响应合规确认：回调路由恒回 `Content-Type: application/json` + `{"ec":200,...}`（平台仅校验 ec==200），成功/忽略均为 JSON ec 200，签名错才 400 非成功响应；官方完整字段形状（product_type/sku_detail/discount/address_* 等）实测通过；单测补 status≠2 与 type≠order 两条反例（176/422）；i18n +1（811 条未翻译 0）。
+
+### Smilies 表情包域：目录约定 + 读时正则替换（0.62.0，2026-09-15）—— ✅ 已完成
+
+站长拍板：命名 **Smilies**（非 Emoji）；素材走**目录约定直接投放**现成表情包（阿鲁、AC娘等），**不做上传管理区**；语法 `::代码::`（英文双冒号包裹）；WP 原生 ASCII 表情（use_smilies）一并禁用；本期仅后端基础实现，评论面渲染与前端选择器留接线批次定前后端分工。
+
+- **`Domain/Smilies/SmiliesRegistry`**：扫描 `wp-content/smilies/{包名}/{代码}.{webp|png|gif|jpg|jpeg}` 生成映射——代码 = 文件名去扩展名（1–24 字、禁冒号/空白/markup 字符；**纯数字允许**——真实包 AC经典款 `01`–`149` 与 ARU `0000` 起即纯数字命名，初版禁纯数字被实测否决；`::数字::` 在自然文本中无碰撞面，命中即转换属可接受语义），非法文件静默跳过，包名 = 目录名，URL 经 `content_url()` 分段 `rawurlencode` 兼容中文文件名；跨包重名先包先得（字母序）。**刻意不做持久缓存**：包规模至多数百文件，每请求一次 scandir 亚毫秒级，而目录 mtime 在 Windows bind mount 上不可靠，transient+指纹失效方案实测同秒内建文件 mtime 不变——无缓存即无失效问题，无 DB 往返；目录不存在/为空 = 空表，全链路无错误路径。
+- **`Domain/Smilies/SmiliesRenderer`**：`render()` 沿 convert_smilies 手法——`wp_html_split()` 切块（偶数下标为文本节点）+ `code|pre|style|script|textarea` 状态机跳过，仅文本节点跑 `::(注册代码白名单交替)::` 正则（按字节长度降序，`preg_quote` 逐码转义）；**正则刻意不带 lookaround 守卫**——守卫会把相邻连打的 `::a::::b::` 全部挡死（共享冒号串让任何边界断言失效），精确白名单已足够防误伤，退化冒号串 `:::x::` 只会留字面冒号不会出错误图。产物 `<img src alt class="aiya-smilie">`；`strip()` 供摘要清码。**存库始终保留 `::代码::` 原文**，读时转换，换包对存量内容即时生效；短代码 `[tag]` 解析不相干。
+- **接线**：`PostPresenter::rendered()` 在 `the_content` 结果外包 `render()`（post/page/resource 详情 + 阅读时长自动覆盖），`excerpt()` 追加 `strip()` 清摘要残码；`DiscussionPresenter` 的 `present()/detail()/reply()` 三处 contentHtml 投影包 `render()`——`tags()`/`images()` 保持吃原始库内容（转换在后），表情图**不会混进九宫格 images 数组**，后端零豁免逻辑；`CommentsController` 不动（body 纯文本契约原样透传，`::代码::` 按字面显示，渲染归属留接线批次拍板）。
+- **原生 ASCII 表情禁用**：`SmiliesModule` 挂 `pre_option_use_smilies` 钉 `'0'`（沿 ThemeSupportModule 钉 `image_default_link_type` 的 pre_option 模式；get_option 对 `false` 返回值放行，必须回 falsy 非布尔值）——convert_smilies 全面空转，写作页复选框失效但不写库，停用插件即还原；HeadlessModule `disable_emoji`（s.w.org emoji 脚本）独立不受影响。
+- **契约加法**：`SmiliesItem`（code/url）+ `SmiliesPack`（slug/items），`Site` 尾部追加 `smilies`（默认 `[]`，v1 加法）；快照重生成，前端 `contracts.ts` 增 `smiliesItemSchema`/`smiliesPackSchema` + `siteSchema.smilies`，mock 与 client 夹具补字段——仅契约管道同步，无渲染接线。
+- **单测**：`SmiliesRegistryTest`（扫描跳过非法项/包序/URL 分段编码/跨包重名/实例即扫即见/代码规则五类）+ `SmiliesRendererTest`（正文命中/长码优先/标签属性不碰/code+pre 跳过/未注册与时间字面/相邻连打全转换/退化串留字面冒号/strip/空表 no-op）；垫片补 `wp_html_split`（简化 core 切分形状）、`esc_url`/`esc_attr`/`content_url`。
+- **实测**：测试包阶段（aru/ac 中文名）与站长真实投放三包各过一遍——AC彩娘 50（下载平台乱码文件名）/AC经典款 150（纯数字 `01`–`149`+`76web`）/ARU 306（纯数字 `0000` 起+`x` 前缀）全量收录 506 条，CJK 包名与乱码码 URL 段编码正确；文章 `::01::`/`::0000::`/`::x010::` 精准命中、未注册 `::150::`（无 150.png）与 `::9999::` 保持字面、相邻连打全转换、原生 `:-)` 保持字面；AC彩娘乱码码（正则元字符 `%@$~()[]{}` 等）经 preg_quote 路径正常渲染；摘要无残码；评论 body 原样；社区帖/回复 contentHtml 出 `<img class="aiya-smilie">` 且 images 抽取仅含真实内容图；删包后 `/site` 立即反映（无缓存）；测试数据全清理；phpunit 196/484、phpstan、phpcs 全绿，vitest 162/162 全绿。注意：三包全开时 `/site` 载荷约 50KB（未压缩）——接线批次评估选择器/评论渲染的取数方式时可考虑独立端点或懒加载。
+- **留接线批次**：评论面渲染（前端解析 vs 后端出 HTML）、评论框/社区编辑器表情选择器、前端 `safeContent`/`sanitizeDiscussionHtml` 的 img class 放行与讨论面表情图豁免（讨论面表情图现阶段会被 `sanitizeDiscussionHtml` 剥除、九宫格不收——接线时须处理）、DiscussionCard 摘要清码。
+
+### Smilies 独立读端点（0.63.0，2026-09-15）—— ✅ 已完成
+
+站长拍板：表情映射从 `/site` 拆出——真实三包 506 条约 50KB，挂在 shell 端点上让每个页面载荷都背着不需要的数据。
+
+- **新端点 `GET /smilies`**（`Api/Rest/SmiliesController`，公开读 + 中央信封）：返回 `list<SmiliesPack>` 裸数组（沿 `/terms` 裸数组惯例）；`HttpCache` 把 `smilies` 归入 shell 组（`public, max-age=300`）——映射只在站长投放/增删文件时变化，浏览器侧 300s 缓存正合适；`/site` 摘除 `smilies` 字段回 10 字段原形（0.62.0 同批字段未发布即修正，v1 基线从未含它，快照/vitest 无破坏）。
+- **前端管道**：`contracts.ts` 摘 `siteSchema.smilies`、增 `smiliesResponseSchema`（`itemEnvelope(z.array(smiliesPackSchema))`），`client.smilies()` 新方法，mock 增 `smilies` 夹具路由（空数组）。
+- **实测**：`/site` 无 smilies 字段；`/smilies` 出 3 包 506 条且 `Cache-Control: public, max-age=300`；phpunit 196/481、phpstan、phpcs 全绿，vitest 162/162。
+
+### Smilies 渲染接线：评论后端挂载 + 三面前端放行（0.64.0，2026-09-15）—— ✅ 已完成
+
+站长拍板：渲染解析统一在后端处理，作用面 = 自定义社区/全部文章类型/评论；社区面明确要求挂在图片列表净化之后再解析（兼容九宫格），文章面在 content 读时挂载（避开首图缩略提取）。
+
+- **挂载点核查结论**：社区与文章的后端挂载 0.62.0 已落且顺序正确——`DiscussionPresenter` 的 `tags()`/`images()` 吃原始库内容、`render()` 在其后（present/detail/reply 三处），`PostPresenter::rendered()` 读时包 `the_content`（首图提取在 save/cron 读原始 post_content，与读时转换零交集，token 非 `<img>` 永不被选为首图）。真正的缺口全在前端清洗层 + 评论后端缺挂。
+- **评论后端挂载**：`CommentsController` 注入 renderer，`present()` 增 `bodyHtml = render(esc_html(comment_content))`（先实体化后渲染——存量纯文本被 wp_html_split 视为文本节点，token 正则安全跑，只可能注入白名单表情图）；`body` 保留原样 token 形式（契约加法零破坏；Comment 形状不在契约快照，无快照动作）。**核查新发现**：通知摘录（`NotificationActions` 评论 16 词 excerpt）原样携带 token——沿 nullable 默认构造注入 renderer，摘录改先 `strip()` 再 `wp_trim_words`（与文章摘要投影同语义）。
+- **前端清洗层放行**（`content.ts`）：① `safeContent` img attrs 加 `class`（文章面保住 `.aiya-smilie`，src 照走 /media/ 代理）；② `sanitizeDiscussionHtml` 加 `img` 白名单 + `exclusiveFilter` 只放行 class 含 `aiya-smilie` 的图——内容图照旧剥除防九宫格双渲染，帖子与回复同一函数闭合；③ 新增 `sanitizeCommentHtml`（allowedTags 仅 img、同款 exclusiveFilter、实体重编码），`CommentSection.tsx` 改渲染 `bodyHtml` 过此函数（`whitespace-pre-line` 保留使换行继续生效）。实现细节：sanitize-html 的 exclusiveFilter 入参是 `frame.tag`（非 tagName），首版写错被新测试当场抓住。
+- **样式**：`shell.css` 全局单条 `img.aiya-smilie { display:inline-block; height:1.25em; vertical-align:text-bottom; }`——文章/社区/评论三面共用。
+- **接受项**：DiscussionCard 80 字摘要剥标签时表情图随标签消失（不破版不出错、不出残码），维持现状。
+- **测试与实测**：新增 `tests/content.test.ts` 六用例（评论面表情图存活+src 代理+外来图剥除/文本实体不透传标签/讨论面豁免/文章面 class 保留）；实测评论 API 双字段（body 原样 token、bodyHtml 出 img 且恶意 `<b>` 被实体化、单冒号时间不碰）、文章详情带 class；phpunit 196/481、phpstan、phpcs 全绿；vitest 167/167、tsc 全绿。
+
+### 全量代码审查与修复批（0.65.0，2026-09-15）—— ✅ 已完成
+
+五个并行审查面（安全扫描 / REST 层 / 生命周期卸载 / Credit+Sponsorship 域 / Admin 层）+ 机器一致性扫描的全量审计，共修复 21 项、确认 1 项接受取舍、排除并行会话在制品：
+
+- **高危 4 项**：① `ContentQuery` 给登录用户加 `private` 状态查询缺 `'perm' => 'readable'`（对照 WP 7.1 核心源码确认无 perm 即无作者限制）——任何订阅者经公开列表可见他人私有文章，补 perm 修复；② `activateFromPayment` 队列尾读后插竞态（并发激活窗口重叠、周期积分双发）——加每用户 `GET_LOCK/RELEASE_LOCK` + finally 释放；③ HttpCache 观察者特定负载（附件签名直链/讨论权限旗标/afdian 深链）走 public 缓存——登录态 GET 一律 `private, no-store`；④ AfdianActivator 半完成激活死路（exists 预检 409 挡重试）——移除预检、依赖唯一键幂等完成半途激活。
+- **中危 8 项**：WebhookLogger 写 web 根日志无访问拒绝（补 .htaccess/index.html）；TokenAuthentication 站点全域生效（限定只在 `/aiya/core/v1`、`/aiya/sponsorship/v1` 解析）；限流与访客去重仅 REMOTE_ADDR（新增 `Infrastructure/Http/ClientIp` + `aiya_core_client_ip` 过滤器供反代部署接入）；密码重置 confirm/validate 无限流（补 10 次/10 分钟）；EpayGateway 记账金额改用平台实付 money（而非设置重算）；订单号补随机熵（同秒碰撞会导致第二笔钱收了权益没了）；AfdianActivator 校验 custom_order_id 绑定（绑定他人的订单 409 拒绝抢注）；`currentTier` 补 `startsAt <= now`（未来排队行不再提前生效）。
+- **低危/卫生**：DiscussionController 三处 WP_Error 补 status 500；CounterController 三路由补类型化 args；avatar 上传限流 10/h；comments parentId 允许 0；ETag 比较容忍弱验证器与逗号列表；ContractsSnapshot 孤儿 docblock 删除；login gate secret 改 password 型；PicBed render 补 `upload_files` 守卫 + 列表封顶 200 条带溢出提示；SendMail render 补 `edit_users` 守卫 + hook 匹配改 str_ends_with + 邮件 body 补 wp_unslash；NotificationPage body 补 wp_unslash；RedeemCode `used_to` 改 GMT；兑换码 duplicate 分支不再回滚砖码；档位删除后仍记流水（保留审计）；会员 cron 前清扫孤儿队列行（用户已删）；uninstall 补 postmeta `aiya_core_%` 组键、termmeta（thumbnail_id/icon/seo_keywords）、aiya-core-logs 目录、rewrite_rules 刷新；CreditSettings 改读 sponsorship 选项（修复签到设置改了不生效的真 bug——0.55.0 迁移时消费端读取源未跟随）；注册 409 账号枚举为明知取舍（代码注记）。
+- **支付查账页 + 用户列表会员状态列（同批补缺）**：`Admin/PaymentsAuditPage`——会员菜单子页「支付查账」（`aiya-core-payments`，35 优先级）：`OrderService::list()` 分页倒序列出全部网关入账（可按持有者过滤），列 = 时间/用户/订单号/档位/金额/来源；用户列表新增「会员」状态列（`MembershipService::currentTier`：当前覆盖档位名 + 到期日期，链接到按用户过滤的支付查账视图）——与积分列同款模式（静态缓存、页界有界查询）。
+- **清理**：删除测试遗留的 epay-verify.php / epay-order.json（web 可达调试脚本）；i18n +10 条（824 条未翻译 0）。
+
+### Frontend 设置补 SEO/统计字段并透出 /site（0.66.0，2026-09-15）—— ✅ 已完成
+
+站长拍板：前台设置页补站点级 SEO 关键词、SEO 描述与 Google Analytics 三个字段，并透出到 /site 端点供前端 head 渲染：
+
+- **FrontendModule 设置页**新增「SEO 与统计」组（紧跟账本保留期组之后）：`seo_keywords`（text，逗号分隔关键词）、`seo_description`（textarea，首页 meta 描述）、`ga_measurement_id`（text，衡量 ID 如 G-XXXXXXXXXX——前端据此渲染统计脚本，留空不启用）；
+- **契约加法**：`SiteDefaults` 增 `seoKeywords` / `seoDescription` / `gaId`（string，空串=未配置），`SitePresenter` 从 `aiya_core_opt('frontend',…)` 读取；快照重建 + 前端 `siteDefaultsSchema` 同步三字段（vitest 167、tsc 干净）；
+- **实测**：后台设置页渲染三个字段；设置值后 `/site` 的 `defaults` 带出 `seoKeywords/seoDescription/gaId`；i18n 6 条新增 zh_CN 全量（含恢复 SeoBox 仍在用的 `SEO keywords` 误删条目；838 条未翻译 0）；phpunit 196/481、phpstan、phpcs 全绿。
+- 门禁：phpunit 176/422、phpstan 0 错、phpcs 0、vitest 167、tsc 干净。并行会话 Smilies 域在制品未触碰、不计入门禁。
+### 会员运营逻辑闭合：档位启用开关 + 删除守卫（0.67.0，2026-09-15）—— ✅ 已完成
+
+站长拍板两点闭合会员运营逻辑：①档位 repeater 增 `enabled` 启用开关——停用的档位由前端从购买列表剔除；②保存守卫——仍有生效持有者的档位拒绝删除：
+
+- **启用开关**：`SponsorshipSettings::tiers()` 透出 `enabled`（bool，缺省 true——历史行无该键视为启用）；`GET /sponsorship/plans` 的 items 透出给前端做购买列表过滤；`createOrder` 未加后端硬拒绝（前端已把停用档位踢出列表）；
+- **删除守卫**：`SettingsAdmin::save()` 新增 `aiya_core_settings_validate` 校验过滤器（normalize 后、replace 前触发，WP_Error 中止保存并在设置页显示错误）；`SponsorshipModule::guardTierDeletion` 订阅——membership 页新旧档位差集里凡有 `wp_aiya_memberships` 活跃行（status=active）的档位一律拒绝，报错列出档位 key；
+- 实测：删除仍有持有者的档位 → 保存被拒并显示「以下档位仍有生效中的会员，无法删除：legacy」；删除未使用档位 → 正常保存；plans 端点 items 带 enabled；i18n +4 条 zh_CN 全量（842 条未翻译 0）；phpunit 196/481、phpstan、phpcs、vitest 167、tsc 全绿。
+
+
+### 对象缓存接入批（0.68.0，2026-09-15）—— ✅ 已完成
+
+站长拍板为线上 Redis Object Cache（Till Krüss drop-in）铺路，把三个热读取面接进对象缓存（全部走标准 `wp_cache_*`，无 drop-in 时退化为每请求内存、行为不变）：
+
+- **TokenStore 解析镜像**：`resolve()` 的自定义表点查改为「object cache 镜像（`aiya_core_auth` 组，TTL 300s）+ 世代号校验」——镜像条目携带 `{user, generation}`，generation 为 user meta `aiya_core_auth_gen` 的每用户递增计数，`revoke()`/`revokeAll()` 各自 +1；命中后比对当前世代，改密/重置全吊销**零延迟生效**（不依赖 TTL 过期），登出同样走世代失效；负镜像（`user=0`）永久成立——token secret 随机且有效性单调递减，死哈希不会复活。无镜像命中才落库，落库结果回写镜像（含「确认死亡」的负缓存，重复无效 token 不再每请求打表）；
+- **/site 壳载荷镜像**：`SitePresenter::presentArray()`（新公开读法，`present()` 保持无缓存 DTO 构造器原样，契约测试入口不变）——`/site` 路由改走 `presentArray()`，组装结果整包进 `aiya_core_site` 组，TTL 300s 与 HTTP shell 档 `max-age=300` 对齐；失效只靠 TTL，刻意不做钩子——载荷折叠多页 options + 附件解析，无单一失效信号，且 5 分钟新鲜度正是 Cache-Control 头已施加给 CDN/浏览器副本的同一条契约；
+- **Smilies 扫描镜像**：`SmiliesRegistry` 撤销「无持久缓存」决策（原前提是 Windows bind mount mtime 不可靠 + 无失效信号——失效信号难题仍在，但生产 Linux + Redis 下 TTL 兜底可接受）：扫描结果镜像进 `aiya_core_smilies` 组（键 `packs_{md5(目录|baseUrl)}`——URL 烤进条目，二者都属缓存身份；TTL 600s，新包十分钟内可见或 flush 即见）；键折叠目录+baseUrl 同时保证测试 fixture 互不污染；无 drop-in 的开发环境每请求重扫，行为与原先完全一致；
+- **配套**：`tests/bootstrap.php` 补 `wp_cache_get/set/delete/flush` 内存垫片（带 TTL 语义）、`wpdb` 语句形状替身（prepare 按核心语义给 `%s` 加引号、按 token_hash/user_id 两种 DELETE 形状删行、按 token_hash+expires_at 匹配读行、统计读次数）、user meta / `wp_salt` / `wp_generate_password` / `current_time` / 时间常量垫片；新增 `tests/Unit/TokenStoreTest` 五用例钉死语义——镜像命中只读表一次、登出立杀热镜像（世代失配回落查表证实）、revokeAll 立杀全部热镜像、负镜像终局（未知 token 第二次不再读表）、畸形 token 零读短路；`SmiliesRegistryTest` 的「每实例重扫即时生效」用例改写为新契约「TTL 内镜像服务、`wp_cache_flush()` 后重扫可见」；uninstall.php 孤注释（transient SQL 清理已于 0.65.0 移除）改写为准确说明——transient 在 drop-in 下活于对象缓存由 `wp_cache_flush()` 兜底、无 drop-in 时靠核心每日 `delete_expired_transients`（该 cron 排程挂 wp-admin 请求，headless 首部署需登一次后台）；
+- **实测与门禁**：真实环境 E2E——`/auth/login` 发 token → `/users/me` 双读 → `/auth/logout` → 同 token 立即 401（本环境无 drop-in，镜像路径由 TokenStoreTest 全覆盖）；`/site` 实测 200 + ETag + `public, max-age=300`；顺手把 SponsorshipController 订单熵源 `mt_rand()` 换 `wp_rand()`（phpcs 唯一警告清零）；phpunit 201/501（+5 用例）、phpstan、phpcs 全绿；i18n 零新增（无 UI 字符串）。版本对齐 0.68.0。
+
+### 排版工具 metabox 改版（0.69.0，2026-09-15）—— ✅ 已完成
+
+站长拍板三点：①box 从主栏（normal/low）移到编辑屏**右侧栏**（side/default），post/page/resource 三类编辑屏通用；②工具描述从粗体标题 label 移进 **checkbox 行内文字**——`action_checkbox` 字段补 `checkbox_label`（复用原 label 的 msgid，零新增翻译条目），`MetaboxAdmin::renderPostBox` 对 `action_checkbox` 跳过粗体标题行（该类型全插件仅排版工具使用，无波及）；③组件覆盖 **page 与 resource**——处理器本就对 wp_posts 通用，唯 `onMatchTags` 加 `is_object_in_taxonomy(…, 'post_tag')` 守卫：页面与资源贴不带 post_tag 词法（resource 走五个自定义标签词法），跳过以避免写入不可见的 post_tag 关系；
+- 实测：wp-cli 直读 Registry——screens=post,page,resource、context=side、四字段 checkbox_label 均带 zh_CN 译文、post_tag 词法 post=true/page=false/resource=false；phpunit 201/501、phpstan、phpcs 全绿；i18n 零新增。版本对齐 0.69.0。
+
+### WP 原生标题/摘要输出裁剪（0.69.1，2026-09-15）—— ✅ 已完成
+
+站长拍板的 content 域小补丁，落 ThemeSupportModule（与 image_default_link_type 同族的「WP 原生输出裁剪」职责）：`protected_title_format`/`private_title_format` 返回 `'%s'`——两个过滤器传的是 sprintf 格式串（默认 `Protected: %s`），返回 `''` 会把整个标题清空，`'%s'` 才是去前缀留标题（保护/私密信号由 PostSummary.badges 承载，不再有字符串前缀泄漏进 API 标题与后台列表）；`excerpt_more` 返回 `'...'`（核心默认 `' [&hellip;]'`），作用于 feed 与兜底模板等 WP 原生面。配套：PostPresenter 摘要剥离正则从「仅括号形态」扩为兼容裸 `...`/`…`/`&hellip;` 尾标——excerpt_more 改动后自动摘要尾部是裸省略号，不扩正则会让续读标记漏进 API 摘要、破坏「前端持有续读呈现」的既定契约（若想要 API 摘要保留 `...`，还原该正则即可）；
+- 实测：wp-cli 直读过滤器返回值 + sprintf 复合验证（`Protected: 我的秘密文章` → `我的秘密文章`）；phpunit 201/501、phpstan、phpcs 全绿；i18n 零新增。版本对齐 0.69.1。
+
+### 模板零件词库首批 + WP 默认短代码退役（0.70.0，2026-09-15）—— ✅ 已完成
+
+站长拍板迁移 list/col_list/collapse/alert/clip_board 五项 + 新增 button + 默认短代码退役，落 `Domain/Parts/BuiltinParts`（经 `aiya_core_register_parts` 过滤器注册，框架空目录兑现首批词库）：
+
+- **渲染为 HTML-first（站长二次拍板简化）**：辅助格式零件直接输出原生 HTML 由前台按 HTML 处理样式，不套自定义标签——`list` 出 `ul/ol+li`（顺手修正旧版 order 映射反了的 bug）、`col_list` 出 `dl+dt/dd`（比例经 `dl` 的 `data-ratio` 携带）、`collapse` 出原生 `details/summary`（浏览器自带交互，零绑定）；无 HTML 原生形态的组件出**用途直名标记标签**：`<alert level title>`；`button`（新增零件：href/target/variant + 按钮文字）为原生 `<a>` + `part-button part-button-{variant}` class 变体，`_blank` 自动带 `rel="noopener"`；`clip_board` 沿旧标记契约 `span[data-clipboard-slot]`（正文 strip_tags 归一为纯文本，空则零输出）；
+- **`sponsor_ship` 整体删除（站长拍板）**：contentHtml 是公开共享缓存载荷（HttpCache 分层 + ETag），旧主题在服务端按查看者分支的「赞助者可见」在前后端分离下不可用——要么每查看者 no-store（缓存与 CDN 全废）要么引入按查看者的门禁内容端点；其占位渲染形态（只出空卡、正文丢弃）过不了验证没有使用价值，词库内移除。查看者门禁组件随门禁内容 API 批次回归或不再做；`logged_in` 短代码同样不在迁移清单；
+- **WP 默认短代码退役**：`wp_caption/caption/gallery/playlist/audio/video` 六个 `remove_shortcode`（init 11）；`embed` 特殊——`WP_Embed::run_shortcode` 每次 the_content 都会清空重注册它，init 阶段 remove 无效，改为摘除其 `the_content/widget_text_content/widget_block_content` 三处过滤器（裸 URL 自动嵌入随之失效）；核心的 `__return_false` 占位注册保留不动，存量 `[embed]` 标记静默渲染为空而非字面残留；
+- **测试**：BuiltinPartsTest 八用例——注册序、build 模板、各渲染形状（ul/ol、dl data-ratio、details/summary、alert 级别白名单回退、button 变体/rel/空 href/clip_board 去标签归一）、wpcli 实测 `[clip_board]` 渲染 `<span data-clipboard-slot>`、`sponsor_ship` 已不存在；phpunit 208/516、phpstan、phpcs 全绿。版本对齐 0.70.0。
+- **⚠️ i18n 事故与现状（2026-09-15）**：零件批次的 31 条翻译曾完成（840→871 全量翻译 0），但随后一次 PO 修剪操作失误（`open('w')` 在编辑参数求值失败前已截断文件）把 `languages/aiya-core-zh_CN.po` 清空，且紧接的 MO 重编译把 `.mo` 一并清空——0.57 以来各批次的翻译存量随之丢失。站长拍板本轮跳过 i18n 恢复，后台当前回退英文。**恢复基线**：`wp-content/tmp-aiya-core-zh_CN.po`（547 条，约 0.4x 时代快照）+ 源码内 `__()` 字符串（`i18n-build.py pot` 随时可重建 POT），恢复 = 以 tmp 为基 + 对照 POT 重译缺失段（含本批 6 零件文案）；i18n 恢复列为独立批次。
+- **前台接线批待办**（本批之后）：`safeContent` 白名单扩充 `dl/dt/dd/details/summary/data-ratio`、`alert` 标签解析与组件挂载、`part-button*` 与 `data-clipboard-slot` 样式/交互。
+
+### 编辑器表情选择器 + TinyMCE 拓展调研（0.70.0 同批补记，2026-09-15）—— ✅ 已完成（实现部分）
+
+站长拍板把前台表情包组件在后台经典编辑器也做个实现，并调研旧 classic-editor-modify 的 TinyMCE 插件在当前 WP 的可用性：
+
+- **`Admin/SmiliesPicker`**：经典编辑器工具栏「Smilies」按钮（`media_buttons` 30，位于模板零件之后）→ wpdialogs 网格面板（`assets/js/smilies-picker.js` + `smilies-picker.css`）——按包分组的图片预览格，点击把 **`::code::` token 文本**插入光标处（TinyMCE 走 `insertContent`、QuickTags 走 `QTags.insertContent`），存储内容保持纯文本 token，由后端 SmiliesRenderer 在 the_content 转图。数据直接取 `SmiliesRegistry::packs()` 服务端渲染 HTML（实测 3 包 506 码 / 246KB，仅 post.php/post-new.php 装载）；`wp-content/smilies/` 无包时不注册不出按钮；
+- **调研与迁移（classic-editor-modify 插件件清单与可用性）**：旧插件 assets 内带 7 个文件——`advlist/table/toc/codesample/textpattern/image/media`（前 5 个在配置中启用，image/media 打包但注释停用）+ 自定义 `add-quicktags.button.js`（注释停用）；另有 4 项非 MCE 行为：按钮重排（行 1/2/3 插入下划线/删除线/字色/字号/字体/表格/代码样例/toc 等）、粘贴 base64 图片自动上传（content_save_pre）、作者下拉角色过滤、标签选择器全量显示。**当前 WP 7.1 内核捆绑 TinyMCE 4.9.11（2020-07-13）**，与旧插件同属 4.x PluginManager 线。**本批已迁移 `Admin/EditorPlugins`**：内核不带、可复用的四件 `advlist/table/toc/codesample`（文件随插件入 `assets/js/mce/`，`mce_external_plugins` 注册）；按钮按旧布局挂载——`toc` 行一 `wp_more` 之后、`table`/`codesample` 行二追加（挂载幂等）；`advlist` 无按钮、加载即增强内核 bullist/numlist。`textpattern` 不带（与内核 wptextpattern 功能重叠、同开双重转换），`image`/`media` 不带（内核自带）；旧插件其余非 MCE 行为（按钮美学重排/base64 粘贴上传/作者过滤/全量标签）未迁移，如需另批评估。测试 EditorPluginsTest 五用例（四件注册精确性、外方注册共存、toc 插入位置、无 wp_more 兜底、幂等）；wpcli 实测 external=row1=row2 全部就位。
+
+### 文章级可见性门禁：登录可见 / 会员可见（0.71.0，2026-09-15）—— ✅ 已完成
+
+站长拍板按调研结论实施：不用自定义 post status（与 publish 互斥会打断全链发布态逻辑、后台 UI 半残），改用 **post meta 门禁旗标 + 复刻既有密码门模式**，文章保持 publish、全部门禁在自有读取面生效：
+
+- **`Domain/Content/PostVisibility`**（新服务）：标量 meta `aiya_core_visibility`（''/login/member，白名单读取）；`satisfied()` 判定——public 恒过、login 需任意登录用户（bearer/cookie 已接，无需新端点）、member 经注入的闭包委托 `MembershipService::isSponsor`（含编辑旁路）；`listExclusions()` 按查看者类生成列表 meta_query 排除子句——访客排除两门、登录非会员仅排除 member、会员零排除（NOT EXISTS + 空值 + NOT IN 三段 OR，手工置/遗留空值行保持公开）；
+- **编辑面 `Admin/VisibilityMetabox`**：post/page/resource 编辑屏侧栏 bespoke 单选（CoverMetabox 同款自管模式——标量 meta 需直查，框架组数组不便 meta_query），保存白名单校验 + nonce + edit_post，公开即删键；
+- **读取面**：`ContentQuery::list` 注入门禁排除子句；`PostPresenter`——badges 增 `login`/`member` 徽章（配置即出现，HttpCache 同值检测将门禁响应判 private, no-store 防共享缓存泄漏）、受限查看者的摘要置空（防正文首词经 excerpt 泄漏，对齐核心对密码文章的处理）、详情 `content` 置空 + 契约加法两字段 `PostDetail.visibility`（public/login/member）与 `gated`（当前查看者是否被拦）——v1 冻结的加法演进；`ContractsSnapshot` 的 PostDetail WIRE_SHAPES 手工形态同步；
+- **实测三视角**：访客——门禁文章不出列表、详情 gated=true/content 空/摘要空/徽章带门禁值/Cache-Control private, no-store；订阅者——login 门禁全见、member 门禁不出列表且详情 gated；管理员（编辑旁路）——两门全见；前台 zod（badges 枚举 + postDetailSchema 两字段）与快照同步，vitest 167/167、tsc 干净；phpunit 219/540（+6 PostVisibilityTest：白名单读取/判定矩阵/门禁镜像/三视角排除子句）、phpstan、phpcs 全绿。测试垫片补 WP_Post 最小替身与 get_current_user_id。- **ExternalFiles 域增网盘链接 box（0.71.0 追加，站长拍板与 OpenList 零件同域）**：`OplistModule` 注册 `pan_links` post box——resource 编辑屏 repeater 自增列表（name/url/code 三子字段：名称、链接、提取码），存储走组协议键 `aiya_core_pan_links`；不加 required（半填行会静默阻断整 box 保存，框架 repeater 分支也不走 sanitize 钩子），改为 `save_post` 20 优先级的 `pruneEmptyPanLinks` 修剪器——仅丢弃全空行（编辑器「Add item」残留），半填行保留、链接 esc_url 归一留给渲染时；随 EXTERNAL_FILES_ENABLED 开关同生（与 oplist_client 一致，站长指定同域耦合）。测试 PanLinksPruneTest 四用例（只删全空行/全空删组键/无存储为 no-op/注册声明含三子字段且 oplist box 并存）+ wpcli 实测 box 注册与 repeater 渲染；API 消费（attachments 端点或详情透出网盘行）留待 B3 接线批次。
+版本对齐 0.71.0。
+- **未做/后续**：门禁文章仍进 feed/sitemap 与相关文章（标题级暴露，与密码文章现状一致，可接受）；门禁文章的计数不拦（公开无害）；`logged_in` 内容级短代码不迁移（文章级门禁已覆盖其主用例）；i18n 恢复批次一并处理本批文案。
+
+### 文章级 SEO 字段退役（0.72.0，2026-09-16）—— ✅ 已完成
+
+站长拍板：搜索引擎自 2009 年起全线忽略 meta keywords（Google/Bing/百度官方口径一致），文章级 seo_keywords 早已是「从未生效」的死数据——契约 Seo DTO 只有 title/description/noindex，keywords 从未出过程序；seo_desc 的价值被 WP 原生摘要字段覆盖：
+
+- **`Domain/Content/SeoBoxModule` 整体删除**（post_seo box 及 seo_keywords/seo_desc 两字段，post/page/resource 三屏）；存量 meta `aiya_core_post_seo` 当死数据（uninstall 的 `aiya_core_%` LIKE 清理已覆盖，注释同步更新——注意 term meta 的 seo_keywords 是 0.57.0 术语级退役的遗留，清理保留不动）；
+- **详情描述回退链简化**：`PostPresenter::detail` 摘除 meta 读取，`Seo.description` 恒取摘要（编辑手写摘要优先、否则自动摘要）——Seo DTO 形状不变（title/description/noindex），契约快照与前台 zod 零改动，前台 `posts/[id].astro` 的回退链自然兼容；
+- **保留面**：站点级 seo_keywords/seo_description（前台设置页 → /site）本轮站长未拍板删除、暂留；归档页 meta 走 term description + noindex 策略仍是 B3 接线待办；
+- 门禁：phpunit 223/552、phpstan、phpcs 全绿；wpcli 实测注册表 box 列表 = oplist_client/pan_links/typography（post_seo 已消失）。- **排版工具空组键行修复（0.72.0 追加）**：action-checkbox-only box（typography 形态）归一化恒为空数组，框架却照写 `a:0:{}` 序列化行——`MetaboxAdmin::savePostBoxes` 改为归一化结果为空时 `delete()` 组键（顺带清掉历史空行）；测试 MetaboxAdminSaveTest 三用例（空组键删行且 one-shot action 照常触发、可持久化 box 照常存值、无 nonce 跳过），垫片补 `current_user_can`/`wp_verify_nonce`；开发库 4 条存量空行已清。
+版本对齐 0.72.0。
+
+### 全量代码审查修复批（0.72.1，2026-09-16）—— ✅ 已完成
+
+四面并行审计（REST/API、Admin、Domain 新功能、生命周期与存储）后修复 18 项，全部经人工核实：
+
+- **高**：`PostDetail.visibility` 线上值——公开文章发空串而前端 zod 是 `public|login|member` 三值枚举（快照只查形状不查值域，vitest 抓不到），`PostPresenter::detail` 归一化 `'' → 'public'`；
+- **中**：① `TokenAuthentication` 作用域匹配含查询串（`?x=/aiya/core/v1/` 可在 `/wp/v2` 等面重新激活 bearer），改只匹配 `wp_parse_url` 的 path；② 前台两处接线硬伤——`resourceAttachmentsSchema` 仍要求已删除的 `gated/canSeeLinks`（收缩为 `{items}`，zod 默认剥离旧键）、`createOrder` 用裸 schema 校验带信封响应（改 `orderCreatedResponseSchema`），加上回复 content 的错误注释修正（后端有 smilies 渲染）；③ 门禁文章从 prev/next、/related、公开收藏三旁路泄漏标题元数据——`neighbors()` 与 `RelatedPostsQuery` 并入 `listExclusions()`（applyClauses 只追加 join，meta_query 共存），`FavoriteService::published()` 裸 SQL 补 NOT EXISTS 排除（公开收藏面对所有查看者无差别排除）；④ `TokenStore::bumpGeneration` 非原子（并发撤销丢递增 + 镜像写入时读世代可跨越吊销点）——改原子 SQL 自增（含 `rows_affected === 0` 首次播种回退）+ meta 缓存删除，resolve 侧加双读守卫（世代跨吊销不落正镜像）；⑤ `PartModule` 补摘 `WP_Embed::autoembed` 三挂点（裸 URL 行的服务端 oEmbed 出网）；⑥ 零件属性双重转义（存储期转义 + 渲染期再转义 = 实体字面量显示）——渲染器 `wp_specialchars_decode` 后再转义；⑦ `SendMailPage::assets` 条件反转（编辑器资产在全后台加载、本页反而不加载）；
+- **低**：CommentsController 评论 IP 改走 `ClientIp::forVisitor()`（原直读 REMOTE_ADDR，反代下泛洪控制会误伤全员）；HttpCache 契约 GET 200 补 `Vary: Origin`（SSR 预取与浏览器直连双变体）；`SponsorshipController::createOrder` 服务端校验档位 `enabled`（原只靠前端踢出，410）；ConvertCodes 生成量钳 200/cycles 钳 60 + tier_key 白名单；PostTypeSwitch redirect 空串兜底 referer（对齐姊妹刀）；pan_links 修剪器 is_scalar 守卫（数组单元格丢弃整行）；onCleanupHtml 补 busy 闸；epay 回调首段记账死代码删除（记账语义保留：未解析 tier 也记账、记账失败答 fail）；changePassword 补 10 次/10 分钟限流；register 的 wp_update_user 失败改答 500；
+- **卫生**：ContentQuery 密码文章 docblock 与 `has_password=false` 对齐；Membership DTO 派生源注释修正；TokenStore docblock 注明 trim/过期 ≤TTL 宽限为接受项；PartModule 空词库时不注册按钮/弹窗/资产（对齐 SmiliesPicker）；
+- **legacy-cleanup v1.2.1**：`deleteTaxonomyTerms` 改为先删 relationship/tt 行、仅删失去末行 tt 的孤儿 term（pre-4.4 共享 term_id 防误删）；tweet 转换 UPDATE 失败抛异常防死循环；
+- **明确干净区**（四面均确认）：HttpCache 三道缓存闸、限流桶矩阵、路由 args、信封与错误 status、赞助域 GET_LOCK/CAS/验签/幂等、Discussion/Notification/Credit、AvatarModule、PicBed/SendMail/批量动作授权链、uninstall 表名 12/12 与 cron 6/6、`aiya_core_` 前缀纪律无孤儿；
+- **遗留拍板项**：postpass 解锁 cookie 在同源代理下断链（B3 前需一次设计拍板：解锁令牌直返正文 or 代理回放 cookie）；WebhookLogger 无轮转；订单熵可加长。i18n 恢复仍为独立批次（git HEAD 有 0.56 时代 788 条 po 可作恢复基座，优于 tmp 547 条快照）。
+- 门禁：phpunit 226/556（+3 MetaboxAdminSaveTest）、phpstan、phpcs、vitest 167/167、tsc 全绿。版本对齐 0.72.1。
+
+### 解锁直返正文 + Webhook 日志改常量门控（0.73.0，2026-09-16）—— ✅ 已完成
+
+站长拍板两项（全量审查遗留的拍板项收口）：
+
+- **postpass 解锁绕 cookie、直返正文**：`POST /content/{id}/unlock` 密码校验通过后不再 `setcookie(wp-postpass)`（headless 拓扑下 cookie 落在 Astro→WP 代理跳、浏览器永远拿不到，功能接线即坏），改为直接返回**解锁后的完整 detail**（`PostPresenter::detailUnlocked` 新方法，visibility 门禁照常独立评估）；语义变化 = 解锁变为一次性（下次冷读仍 locked，需再次提交密码），前端可自行在会话内保留响应正文。前台契约新增 `postUnlockResponseSchema = itemEnvelope(postDetailSchema)` + client.unlockPost；`aiya_wrong_password` 403、限流 10/600s 不变；
+- **WebhookLogger 改调试常量门控**：删除赞助设置页 `epay_savelog`/`afdian_savelog` 两个开关及 `SponsorshipSettings::read()` 映射，`WebhookLogger::write()` 自带闸门——仅在 wp-config 定义 `AIYA_CORE_WEBHOOK_DEBUG === true` 时落盘 `aiya-core-logs/`（支付数据不因设置页开关被遗忘而无限累积）；GatewayController 八处 if 包装随之拆除，回调行为（验签 400/可用性 200、记账先于 tier 解析、激活幂等）不变；
+- 实测：密码文章详情 locked:true → 错误密码 403 → 正确密码 unlock 直返 locked:false + 全文正文；`WebhookLogger::active()` 无常量时 false、write 零落盘；phpunit 226/556、phpstan、phpcs、vitest 167/167、tsc 全绿。版本对齐 0.73.0。

@@ -128,7 +128,7 @@ final class UserController
 				'url' => ['type' => 'string', 'required' => false],
 				'email' => ['type' => 'string', 'required' => false, 'format' => 'email'],
 				'locale' => ['type' => 'string', 'required' => false],
-				'currentPassword' => ['type' => 'string', 'required' => false],
+				'currentPassword' => ['type' => 'string', 'required' => false, 'maxLength' => 200],
 			],
         ]);
 
@@ -136,6 +136,9 @@ final class UserController
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->uploadAvatar($request),
             'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            // Image-pipeline work per hit — the same budget class as the
+            // uploads route.
+            // Rate limiting happens inside uploadAvatar().
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/users/me/avatar', [
@@ -149,8 +152,8 @@ final class UserController
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->changePassword($request),
             'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
             'args' => [
-                'currentPassword' => ['type' => 'string', 'required' => true],
-                'password' => ['type' => 'string', 'required' => true],
+                'currentPassword' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
+                'password' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
                 'passwordConfirm' => ['type' => 'string', 'required' => true],
             ],
         ]);
@@ -351,6 +354,10 @@ final class UserController
 
     private function uploadAvatar(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
+        if (!$this->rateLimiter->hit('avatar_upload', 10, 3600)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        }
+
         $files = $request->get_file_params();
         $file = $files['avatar'] ?? null;
         if (!is_array($file) || empty($file['tmp_name'])) {
@@ -375,6 +382,11 @@ final class UserController
 
     private function changePassword(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
+        // The current-password check runs full-cost bcrypt per attempt; the
+        // budget keeps a stolen session from grinding it.
+        if (!$this->rateLimiter->hit('change_password', 10, 600)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, please retry later.', 'aiya-core'), ['status' => 429]);
+        }
         $user = $this->currentUser();
 
         $current = (string) $request->get_param('currentPassword');

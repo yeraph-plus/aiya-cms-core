@@ -44,7 +44,7 @@ final class ContentTypeModule implements Module
             $this->registry->addPostType([
                 'slug' => 'resource',
                 'label' => __('Resource', 'aiya-core'),
-                'icon' => 'dashicons-admin-links',
+                'icon' => 'dashicons-book-alt',
                 'menu_position' => 7,
                 'supports' => ['title', 'editor', 'author', 'thumbnail', 'excerpt', 'custom-fields', 'comments'],
             ]);

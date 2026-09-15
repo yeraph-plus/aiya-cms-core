@@ -9,17 +9,35 @@ use PHPUnit\Framework\TestCase;
 
 final class SponsorshipSettingsTest extends TestCase
 {
-    /** @var list<array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}> */
+    /** @var list<array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int,afdianPlanId:string}> */
     private array $tiers = [
-        ['key' => 'month', 'name' => 'Month', 'price' => 10.0, 'cycleDays' => 30, 'creditsPerCycle' => 100],
-        ['key' => 'season', 'name' => 'Season', 'price' => 25.0, 'cycleDays' => 90, 'creditsPerCycle' => 350],
+        ['key' => 'month', 'name' => 'Month', 'price' => 10.0, 'cycleDays' => 30, 'creditsPerCycle' => 100, 'afdianPlanId' => 'plan-month'],
+        ['key' => 'season', 'name' => 'Season', 'price' => 25.0, 'cycleDays' => 90, 'creditsPerCycle' => 350, 'afdianPlanId' => ''],
     ];
 
     public function testTierByKeyResolvesExactMatchOnly(): void
     {
-        self::assertSame('season', SponsorshipSettings::tierByKey($this->tiers, 'season')['key']);
+        $tier = SponsorshipSettings::tierByKey($this->tiers, 'season');
+        self::assertNotNull($tier);
+        self::assertSame('season', $tier['key']);
         self::assertNull(SponsorshipSettings::tierByKey($this->tiers, ''));
         self::assertNull(SponsorshipSettings::tierByKey($this->tiers, 'nope'));
+    }
+
+    public function testBoundTierResolvesTheSinglePairOrNothing(): void
+    {
+        $settings = [
+            'afdianPlanId' => 'plan-month',
+            'afdianTierKey' => 'month',
+            'tiers' => $this->tiers,
+        ];
+
+        $tier = SponsorshipSettings::boundTier($settings);
+        self::assertNotNull($tier);
+        self::assertSame('month', $tier['key']);
+
+        self::assertNull(SponsorshipSettings::boundTier(array_merge($settings, ['afdianPlanId' => ''])));
+        self::assertNull(SponsorshipSettings::boundTier(array_merge($settings, ['afdianTierKey' => 'ghost'])));
     }
 
     public function testTierRowsNormalizeAndDropKeylessRows(): void
@@ -33,7 +51,7 @@ final class SponsorshipSettingsTest extends TestCase
         ]);
 
         self::assertSame([
-            ['key' => 'gold', 'name' => 'Gold', 'price' => 15.5, 'cycleDays' => 45, 'creditsPerCycle' => 200],
+            ['key' => 'gold', 'name' => 'Gold', 'enabled' => true, 'price' => 15.5, 'cycleDays' => 45, 'creditsPerCycle' => 200],
         ], $normalized);
     }
 

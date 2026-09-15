@@ -26,7 +26,7 @@ final class SiteContractTest extends TestCase
             new Image('https://cdn.example.test/banner.webp', 'AIYA', 1920, 320),
             true,
             new SiteComments(true, 2, true, true, true, 5, false, 20, 'newest', 'asc'),
-            new SiteDefaults('dark', null, null, new SiteTheme('#E94F69')),
+            new SiteDefaults('dark', null, null, new SiteTheme('#E94F69'), '关键词1, 关键词2', '站点描述', 'G-TEST123'),
             new SiteFooter([new BeianLink('京ICP备2026000001号-1', 'https://beian.miit.gov.cn/', 'shield', '')], true),
         );
 
@@ -57,7 +57,7 @@ final class SiteContractTest extends TestCase
             'defaultCommentsPage' => 'newest',
             'commentOrder' => 'asc',
         ], $shape['comments']);
-        self::assertSame(['colorMode' => 'dark', 'thumb' => null, 'emptyImage' => null, 'theme' => ['primary' => '#E94F69']], $shape['defaults']);
+        self::assertSame(['colorMode' => 'dark', 'thumb' => null, 'emptyImage' => null, 'theme' => ['primary' => '#E94F69'], 'seoKeywords' => '关键词1, 关键词2', 'seoDescription' => '站点描述', 'gaId' => 'G-TEST123'], $shape['defaults']);
         self::assertSame([
             'links' => [
                 ['label' => '京ICP备2026000001号-1', 'url' => 'https://beian.miit.gov.cn/', 'icon' => 'shield', 'iconUrl' => ''],
@@ -77,7 +77,7 @@ final class SiteContractTest extends TestCase
             null,
             false,
             new SiteComments(false, 0, false, false, false, 1, false, 20, 'newest', 'asc'),
-            new SiteDefaults('system', null, null, new SiteTheme('#E94F69')),
+            new SiteDefaults('system', null, null, new SiteTheme('#E94F69'), '', '', ''),
             new SiteFooter([], false),
         );
 
@@ -86,7 +86,7 @@ final class SiteContractTest extends TestCase
         self::assertNull($shape['favicon']);
         self::assertNull($shape['banner']);
         self::assertFalse($shape['registrationOpen']);
-        self::assertSame(['colorMode' => 'system', 'thumb' => null, 'emptyImage' => null, 'theme' => ['primary' => '#E94F69']], $shape['defaults']);
+        self::assertSame(['colorMode' => 'system', 'thumb' => null, 'emptyImage' => null, 'theme' => ['primary' => '#E94F69'], 'seoKeywords' => '', 'seoDescription' => '', 'gaId' => ''], $shape['defaults']);
         self::assertSame(['links' => [], 'hitokoto' => false], $shape['footer']);
     }
 }

@@ -110,7 +110,10 @@ final class EpayGateway implements PaymentGateway
             'userId' => $userId,
             'tierKey' => $tierKey,
             'cycles' => $cycles,
-            'amount' => round($tier['price'] * $cycles, 2),
+            // The actually-paid amount from the platform, not a settings
+            // recompute — the money log must reflect what was paid even if
+            // the tier price changed between checkout and callback.
+            'amount' => round((float) ($query['money'] ?? 0), 2),
         ];
     }
 

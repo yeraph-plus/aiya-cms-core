@@ -142,7 +142,7 @@ final class PostTypeSwitchBulkAction implements Module
     public function handle($redirect, $action, $ids): string
     {
         if ($action !== self::ACTION || !is_string($redirect)) {
-            return is_string($redirect) ? $redirect : '';
+            return is_string($redirect) ? $redirect : (string) wp_get_referer();
         }
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- bulk nonce verified by wp-admin/edit.php before this filter

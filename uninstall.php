@@ -78,10 +78,34 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
     // token hash store). Protocol keys such as basic_user_avatar survive.
     $run($wpdb->prepare('DELETE FROM %i WHERE meta_key LIKE %s', $wpdb->usermeta, $optionLike));
 
-    // Transients (rate-limit windows, counters) and their timeouts.
-    $transientLike = $wpdb->esc_like('_transient_aiya_core_') . '%';
-    $timeoutLike = $wpdb->esc_like('_transient_timeout_aiya_core_') . '%';
-    $run($wpdb->prepare('DELETE FROM %i WHERE option_name LIKE %s OR option_name LIKE %s', $wpdb->options, $transientLike, $timeoutLike));
+    // Post-meta group keys written by the metabox framework (oplist client,
+    // typography, pan links, the retired post-SEO group). Protocol keys like
+    // like_count/_thumb/rating_* survive as documented; term meta the plugin
+    // wrote (thumbnail_id/icon, plus the 0.57.0-retired seo_keywords) on the
+    // contract taxonomies is plugin-era residue and dies here too.
+    $run($wpdb->prepare('DELETE FROM %i WHERE meta_key LIKE %s', $wpdb->postmeta, $optionLike));
+    foreach (['thumbnail_id', 'icon', 'seo_keywords'] as $termMetaKey) {
+        $run($wpdb->prepare('DELETE FROM %i WHERE meta_key = %s', $wpdb->termmeta, $termMetaKey));
+    }
+
+    // Webhook debug logs (payment payloads) and the stale rewrite cache.
+    $logsDir = trailingslashit(WP_CONTENT_DIR) . 'aiya-core-logs';
+    if (is_dir($logsDir)) {
+        foreach ((array) glob($logsDir . '/*') as $logFile) {
+            if (is_string($logFile)) {
+                // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink -- best-effort log cleanup, WP_Filesystem unavailable in uninstall
+                @unlink($logFile);
+            }
+        }
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.dir_rmdir, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged -- best-effort
+        @rmdir($logsDir);
+    }
+    $run($wpdb->prepare('DELETE FROM %i WHERE option_name = %s', $wpdb->options, 'rewrite_rules'));
+
+    // Rate-limit windows and visitor-dedup keys are transients: under an
+    // object cache drop-in they live outside the options table and the
+    // final wp_cache_flush() takes them; without one they carry TTLs and
+    // core's daily delete_expired_transients sweep collects them.
 
     wp_clear_scheduled_hook('aiya_core_notifications_cleanup');
     wp_clear_scheduled_hook('aiya_core_credits_cleanup');

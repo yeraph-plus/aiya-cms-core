@@ -10,9 +10,11 @@ use Aiya\Core\Api\Presenter\ProfilePresenter;
 use Aiya\Core\Api\Presenter\SitePresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Api\Presenter\DiscussionPresenter;
+use Aiya\Core\Api\Rest\SmiliesController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\PrimaryMenu;
+use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
@@ -27,6 +29,8 @@ use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
 use Aiya\Core\Domain\Identity\TokenStore;
 use Aiya\Core\Domain\Notification\NotificationService;
+use Aiya\Core\Domain\Smilies\SmiliesRegistry;
+use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use Aiya\Core\Domain\Sponsorship\EntitlementService;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use Aiya\Core\Domain\Sponsorship\OrderService;
@@ -47,6 +51,7 @@ final class RestController implements Module
         private CardThumbnailService $cards,
         private Closure $processUpload,
         private MediaPaths $paths,
+        private PostVisibility $visibility,
     ) {
     }
 
@@ -61,11 +66,13 @@ final class RestController implements Module
         $authentication->register();
 
         $menus = new PrimaryMenu();
+        $smilies = new SmiliesRegistry();
+        $smiliesRenderer = new SmiliesRenderer($smilies);
 
-        add_action('rest_api_init', function () use ($tokens, $authentication, $menus): void {
+        add_action('rest_api_init', function () use ($tokens, $authentication, $menus, $smiliesRenderer, $smilies): void {
             $presenter = new UserPresenter();
             $policy = new PasswordPolicy();
-            $postPresenter = new PostPresenter($this->cards);
+            $postPresenter = new PostPresenter($this->cards, $smiliesRenderer, $this->visibility);
 
             (new AuthController(
                 $tokens,
@@ -81,19 +88,21 @@ final class RestController implements Module
 
             (new CounterController(new CounterService(), new RateLimiter()))->registerRoutes();
 
-            (new CommentsController(new RateLimiter()))->registerRoutes();
+            (new CommentsController(new RateLimiter(), $smiliesRenderer))->registerRoutes();
 
             (new UploadsController($this->processUpload, $this->paths, new RateLimiter()))->registerRoutes();
 
             (new ContentController(
-                new ContentQuery(),
-                new RelatedPostsQuery(),
+                new ContentQuery($this->visibility),
+                new RelatedPostsQuery($this->visibility),
                 $postPresenter,
                 new SitePresenter(),
                 $menus,
                 new ProfilePresenter($postPresenter, $favorites, $presenter, new FollowService()),
                 new RateLimiter()
             ))->registerRoutes();
+
+            (new SmiliesController($smilies))->registerRoutes();
 
             (new NotificationController(new NotificationService(), $presenter))->registerRoutes();
 
@@ -110,7 +119,7 @@ final class RestController implements Module
             (new GatewayController(new OrderService(), $entitlements))->registerRoutes();
 
             $threads = new DiscussionService();
-            (new DiscussionController($threads, new DiscussionPresenter(), new RateLimiter()))->registerRoutes();
+            (new DiscussionController($threads, new DiscussionPresenter($smiliesRenderer), new RateLimiter()))->registerRoutes();
 
             if ($this->attachments !== null) {
                 (new ResourceAttachmentsController($this->attachments))->registerRoutes();

@@ -84,6 +84,12 @@ final class MembershipService
             if ($row['status'] !== EntitlementService::STATUS_ACTIVE) {
                 continue;
             }
+            // Queued-future rows are NOT yet the current tier: benefits
+            // must not go live before their own window starts.
+            $startsAt = (int) get_date_from_gmt($row['starts_at'], 'U');
+            if ($startsAt > $now) {
+                continue;
+            }
             $endsAt = (int) get_date_from_gmt($row['ends_at'], 'U');
             if ($endsAt <= $now) {
                 continue;

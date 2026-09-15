@@ -42,4 +42,22 @@ final class PublicType
 
         return null;
     }
+
+    /**
+     * Every WP taxonomy carrying the contract's "tag" role — resource maps
+     * five vocabularies onto it, so a tag filter must match any of them.
+     *
+     * @return list<string>
+     */
+    public function wpTagTaxonomies(): array
+    {
+        $taxonomies = [];
+        foreach ($this->taxonomies as [$wpTaxonomy, $contract]) {
+            if ($contract === 'tag') {
+                $taxonomies[] = $wpTaxonomy;
+            }
+        }
+
+        return $taxonomies;
+    }
 }

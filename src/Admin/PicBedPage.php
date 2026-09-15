@@ -33,6 +33,8 @@ final class PicBedPage implements Module
     private const AJAX_ACTION = 'aiya_core_pic_bed_upload';
     private const NONCE_ACTION = 'aiya_core_pic_bed_upload';
     private const MAX_SIZE_MB = 10;
+    /** Rendered rows per page load — the pool can grow unbounded. */
+    private const LIST_LIMIT = 200;
 
     /**
      * @param Closure(string): (string|false) $processUpload Media pipeline.
@@ -64,6 +66,9 @@ final class PicBedPage implements Module
 
     public function render(): void
     {
+        if (!current_user_can('upload_files')) {
+            wp_die(esc_html__('You are not allowed to manage the pic bed.', 'aiya-core'));
+        }
         $accept = implode(',', array_keys(MimeType::EXTENSIONS));
         ?>
         <div class="wrap">
@@ -262,13 +267,27 @@ final class PicBedPage implements Module
 
         // A plain table keeps the screen light for large pools: browser-side
         // lazy loading defers the previews until they are scrolled into view.
+        // The listing is capped — an unbounded pool must not drag the page
+        // down; the newest files (the ones being worked on) come first.
+        $shown = array_slice($files, 0, self::LIST_LIMIT);
+        $hidden = count($files) - count($shown);
+        if ($hidden > 0) {
+            printf(
+                '<p class="description">%s</p>',
+                esc_html(sprintf(
+                    /* translators: %d: number of older files not listed. */
+                    _n('The %d oldest file is not listed.', 'The %d oldest files are not listed.', $hidden, 'aiya-core'),
+                    $hidden
+                ))
+            );
+        }
         echo '<table class="widefat striped"><thead><tr>';
         echo '<th style="width:80px;">' . esc_html__('Preview', 'aiya-core') . '</th>';
         echo '<th style="width:130px;">' . esc_html__('Source', 'aiya-core') . '</th>';
         echo '<th>' . esc_html__('URL', 'aiya-core') . '</th>';
         echo '<th>' . esc_html__('Relative path', 'aiya-core') . '</th>';
         echo '</tr></thead><tbody>';
-        foreach ($files as $file) {
+        foreach ($shown as $file) {
             $url = $this->paths->localToUrl($file);
             $path = $this->paths->relativePath($file);
             if ($url === null || $path === null) {

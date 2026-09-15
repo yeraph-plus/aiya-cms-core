@@ -11,12 +11,14 @@ use WP_Term;
 use Aiya\Core\Settings\Registry as SettingsRegistry;
 
 /**
- * 排版工具（旧版 basic-optimize "数据更新" box 的重建，0.37.0）：post 编辑
- * 屏上的四个 action_checkbox——重置发布日期、自动检索标签、格式清理、中文
- * 排版纠正。勾选保存时经由 MetaboxAdmin 的 one-shot action 钩子触发本模块
- * 的处理器；处理器直接改写文章数据，busy 闸门阻断 save_post 重入递归。
- * 中文排版纠正的方法子集在 Optimization 页配置（typography_methods，逗号
- * 分隔，白名单校验），缺省为旧版默认的 insertSpace/removeSpace/full2Half。
+ * 排版工具（旧版 basic-optimize "数据更新" box 的重建，0.37.0）：post / page /
+ * resource 编辑屏侧栏的四个 action_checkbox——重置发布日期、自动检索标签、
+ * 格式清理、中文排版纠正。勾选保存时经由 MetaboxAdmin 的 one-shot action 钩子
+ * 触发本模块的处理器；处理器直接改写文章数据，busy 闸门阻断 save_post 重入
+ * 递归。中文排版纠正的方法子集在 Optimization 页配置（typography_methods，
+ * 逗号分隔，白名单校验），缺省为旧版默认的 insertSpace/removeSpace/full2Half。
+ * 自动检索标签只对携带 post_tag 词法的类型生效（页面与资源贴走各自的标签
+ * 词法或没有标签，处理器跳过）。
  */
 final class TypographyModule implements Module
 {
@@ -44,32 +46,36 @@ final class TypographyModule implements Module
         $this->metadata->addPostBox([
             'id' => 'typography',
             'title' => __('Typography tools', 'aiya-core'),
-            'screens' => ['post'],
-            'context' => 'normal',
-            'priority' => 'low',
+            'screens' => ['post', 'page', 'resource'],
+            'context' => 'side',
+            'priority' => 'default',
             'fields' => [
                 [
                     'id' => 'refresh_date',
                     'type' => 'action_checkbox',
                     'label' => __('Refresh the publish date to now', 'aiya-core'),
+                    'checkbox_label' => __('Refresh the publish date to now', 'aiya-core'),
                     'action' => 'aiya_core_typography_refresh_date',
                 ],
                 [
                     'id' => 'match_tags',
                     'type' => 'action_checkbox',
                     'label' => __('Match existing tags against the content', 'aiya-core'),
+                    'checkbox_label' => __('Match existing tags against the content', 'aiya-core'),
                     'action' => 'aiya_core_typography_match_tags',
                 ],
                 [
                     'id' => 'cleanup_html',
                     'type' => 'action_checkbox',
                     'label' => __('Clean up legacy HTML (div/center/span, overlapping tags)', 'aiya-core'),
+                    'checkbox_label' => __('Clean up legacy HTML (div/center/span, overlapping tags)', 'aiya-core'),
                     'action' => 'aiya_core_typography_cleanup_html',
                 ],
                 [
                     'id' => 'chinese_typesetting',
                     'type' => 'action_checkbox',
                     'label' => __('Run the Chinese typesetting pass', 'aiya-core'),
+                    'checkbox_label' => __('Run the Chinese typesetting pass', 'aiya-core'),
                     'action' => 'aiya_core_typography_chinese_typesetting',
                 ],
             ],
@@ -124,6 +130,13 @@ final class TypographyModule implements Module
 
     public function onMatchTags(int $postId): void
     {
+        // Tags are matched against the post_tag vocabulary; types that carry
+        // their own tag taxonomies (or none) would only collect invisible
+        // term relationships.
+        if (!is_object_in_taxonomy((string) get_post_type($postId), 'post_tag')) {
+            return;
+        }
+
         $content = (string) get_post_field('post_content', $postId);
         $tagNames = [];
         $tags = get_tags(['hide_empty' => false]);
@@ -143,10 +156,18 @@ final class TypographyModule implements Module
 
     public function onCleanupHtml(int $postId): void
     {
-        $content = (string) get_post_field('post_content', $postId);
-        $clean = ContentFormatter::cleanupHtml($content);
-        if ($clean !== $content && $clean !== '') {
-            $this->updatePost($postId, ['post_content' => $clean]);
+        if ($this->busy) {
+            return;
+        }
+        $this->busy = true;
+        try {
+            $content = (string) get_post_field('post_content', $postId);
+            $clean = ContentFormatter::cleanupHtml($content);
+            if ($clean !== $content && $clean !== '') {
+                $this->updatePost($postId, ['post_content' => $clean]);
+            }
+        } finally {
+            $this->busy = false;
         }
     }
 

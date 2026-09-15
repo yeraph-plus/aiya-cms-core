@@ -37,9 +37,12 @@ final class EntitlementService
     }
 
     /**
-     * Queues one purchased entitlement behind the holder's tail.
+     * Queues one purchased entitlement behind the holder's tail. The
+     * tail-read + insert pair runs under a per-holder advisory lock:
+     * without it two concurrent activations read the same tail and
+     * overlap their windows, doubling the per-cycle credit grants.
      *
-     * @param array{key:string, name:string, cycleDays:int, creditsPerCycle:int} $tier snapshot read from the domain settings
+     * @param array{key:string, name:string, cycleDays:int, creditsPerCycle:int, price?:float, afdianPlanId?:string} $tier snapshot read from the domain settings
      * @return true|WP_Error aiya_duplicate_order when the order was already activated
      */
     public function activateFromPayment(int $userId, string $orderId, array $tier, int $cycles): bool|WP_Error
@@ -54,35 +57,48 @@ final class EntitlementService
 
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $now = time();
-        $startsAt = max($now, $this->queueTail($userId));
-        $endsAt = $startsAt + $cycles * max(1, $tier['cycleDays']) * DAY_IN_SECONDS;
+        $lock = 'aiya_membership_' . $userId;
+        if ((int) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 10)', $lock)) !== 1) {
+            return new WP_Error('aiya_activation_busy', __('The membership is being updated — try again.', 'aiya-core'), ['status' => 503]);
+        }
 
-        $inserted = $wpdb->insert(
-            $this->table(),
-            [
-                'user_id' => $userId,
-                'order_id' => substr($orderId, 0, 64),
-                'tier_key' => substr($tier['key'], 0, 32),
-                'tier_name' => substr($tier['name'], 0, 100),
-                'cycle_days' => max(1, $tier['cycleDays']),
-                'credits_per_cycle' => max(0, $tier['creditsPerCycle']),
-                'cycles_total' => $cycles,
-                'cycles_granted' => 0,
-                'starts_at' => gmdate('Y-m-d H:i:s', $startsAt),
-                'ends_at' => gmdate('Y-m-d H:i:s', $endsAt),
-                'status' => self::STATUS_ACTIVE,
-                'created_at' => current_time('mysql', true),
-            ],
-            ['%d', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%s']
-        );
+        try {
+            $now = time();
+            $startsAt = max($now, $this->queueTail($userId));
+            $endsAt = $startsAt + $cycles * max(1, $tier['cycleDays']) * DAY_IN_SECONDS;
 
-        if ($inserted === false) {
-            if (str_contains((string) $wpdb->last_error, 'Duplicate')) {
-                return new WP_Error('aiya_duplicate_order', __('This order was already activated.', 'aiya-core'), ['status' => 409]);
+            $inserted = $wpdb->insert(
+                $this->table(),
+                [
+                    'user_id' => $userId,
+                    'order_id' => substr($orderId, 0, 64),
+                    'tier_key' => substr($tier['key'], 0, 32),
+                    'tier_name' => substr($tier['name'], 0, 100),
+                    'cycle_days' => max(1, $tier['cycleDays']),
+                    'credits_per_cycle' => max(0, $tier['creditsPerCycle']),
+                    'cycles_total' => $cycles,
+                    'cycles_granted' => 0,
+                    'starts_at' => gmdate('Y-m-d H:i:s', $startsAt),
+                    'ends_at' => gmdate('Y-m-d H:i:s', $endsAt),
+                    'status' => self::STATUS_ACTIVE,
+                    'created_at' => current_time('mysql', true),
+                ],
+                ['%d', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%s']
+            );
+
+            if ($inserted === false) {
+                if (str_contains((string) $wpdb->last_error, 'Duplicate')) {
+                    return new WP_Error('aiya_duplicate_order', __('This order was already activated.', 'aiya-core'), ['status' => 409]);
+                }
+
+                return new WP_Error('aiya_db_error', __('The membership could not be stored.', 'aiya-core'));
             }
-
-            return new WP_Error('aiya_db_error', __('The membership could not be stored.', 'aiya-core'));
+        } finally {
+            $release = $wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock);
+            if (is_string($release)) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $release comes from prepare() directly above
+                $wpdb->query($release);
+            }
         }
 
         do_action('aiya_core_membership_activated', $userId, $orderId);
@@ -108,6 +124,15 @@ final class EntitlementService
         $advanced = 0;
         $lastId = 0;
         $batch = 500;
+
+        // Entitlement rows whose holder vanished (account deleted in the
+        // validate→insert gap) would be granted forever — sweep them once
+        // per daily run.
+        $sweepSql = "DELETE m FROM {$this->table()} m
+             LEFT JOIN {$wpdb->users} u ON u.ID = m.user_id
+             WHERE u.ID IS NULL";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- fixed plugin-owned tables, no input in the statement
+        $wpdb->query($sweepSql);
 
         while (true) {
             $rows = $wpdb->get_results($wpdb->prepare(
@@ -300,5 +325,40 @@ final class EntitlementService
         global $wpdb;
         /** @var \wpdb $wpdb */
         return $wpdb->prefix . 'aiya_memberships';
+    }
+
+    /**
+     * Active membership row count per tier key — the settings-save guard
+     * refuses to delete a tier that still has holders. Only keys present
+     * in the result have active rows.
+     *
+     * @param list<string> $tierKeys
+     * @return array<string, int>
+     */
+    public function activeCountByTier(array $tierKeys): array
+    {
+        if ($tierKeys === []) {
+            return [];
+        }
+
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $table = $this->table();
+        $in = implode(',', array_fill(0, count($tierKeys), '%s'));
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- whitelist IN-list over admin-defined tier keys
+        $sql = "SELECT tier_key, COUNT(*) AS n FROM {$table} WHERE status = 'active' AND tier_key IN ($in) GROUP BY tier_key";
+        $rows = $wpdb->get_results(
+            // @phpstan-ignore argument.type (whitelist interpolation)
+            $wpdb->prepare($sql, ...$tierKeys), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is the whitelist-built statement above
+            ARRAY_A
+        );
+
+        $out = [];
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $out[(string) $row['tier_key']] = (int) $row['n'];
+        }
+
+        return $out;
     }
 }
