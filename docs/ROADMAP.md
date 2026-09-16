@@ -914,3 +914,13 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 ### 可见性门禁 metabox 翻译补漏（0.73.2，2026-09-16）—— ✅ 已完成
 
 可见性单选的标签与描述此前为硬编码英文（未走 `__()`，POT 抓取不到）：补 `__()` 包装并入 POT，补译「所有人/登录用户/仅限会员」三条标签与描述；NotificationPage 列表残留的硬编码 `User #%d` 一并包装补译（用户 #%d）。实测 metabox 渲染中文标签、公开档默认选中；POT 880 条全量翻译 0 缺失；phpunit 226/556、phpstan、phpcs 全绿。版本对齐 0.73.2。
+
+### 封面/卡片管线分写 + image-processor 卫生修复（随 0.74.0，2026-09-17）—— ✅ 已完成
+
+站长报告「封面生成路线不能正确叠加文字标题（和黑色半透明文字遮罩）」。追踪结论：CoverGenerator 的标题绘制本身正常（包级与运行时实测均出字），真凶是**两条管线共写 `thumbnail/cover/` 目录与 `_thumb` 键**——save_post/cron 的自动卡片（按设计无标题）每次保存都顶掉 metabox 手动生成的带标题封面，post 152 的无字封面即自动卡片实物。修复：
+
+- **产物分目录**：`CoverService`（手动、带标题）写入 `thumbnail/cover/manual/`，`CardThumbnailService`（自动、无标题）写入 `thumbnail/cover/auto/`——路径自识别生产者；`MediaPaths` 增 `coverManualDir()/coverAutoDir()`；
+- **手动优先**：`CardThumbnailService::refreshFor` 对 `_thumb` 指向 `cover/manual/` 的文章直接跳过（save_post 与批量「刷新缩略图」均不覆盖手动封面，批量动作计为 skipped）；重做封面 = 在编辑器再点一次「Generate cover」；`pendingIds` 天然跳过（手动封面有 `_thumb` 行）；
+- **孤儿清理**：`CoverService` 生成新封面时删除被替换的旧封面文件（仅限 `coverDir()` 下符合 `\d{14}_\d{4}` 托管命名模式的文件，手改值不误删——旧自动卡片的孤儿同样被清）；
+- **image-processor 卫生**：`CoverGenerator::drawCenterTitle` 的衬条取色（20×20 采样）从行循环内提升到循环外——采样对象是未污染画布，且 Imagick 下省一半 getColorAt 调用；删除从未使用的 `$maxWidth` 死代码。包内其余（Colors/ImagineAware/SaveOptions/FirstImageMatcher/WatermarkSpec/UploadApplier/ImagineFactory 探针）审查通过；
+- **metabox 传参核实无问题**：model/title/colors 经 sanitize 后全量进 `CoverSpec::fromArray`，映射完整；字体解析（配置缺失回退包内 AlibabaPuHuiTi）与 Imagick 探针正常。

@@ -239,7 +239,7 @@ final class CardThumbnailService
             ? strtolower((string) $policy['format'])
             : 'jpg';
 
-        $dest = $this->paths->coverDir() . '/' . wp_date('YmdHis') . '_' . wp_rand(1000, 9999) . '.' . $format;
+        $dest = $this->paths->coverAutoDir() . '/' . wp_date('YmdHis') . '_' . wp_rand(1000, 9999) . '.' . $format;
         $generated = (new ThumbnailGenerator($this->imagine))->generate($local, $dest, self::WIDTH, self::HEIGHT, SaveOptions::for($format, (int) $policy['quality']));
         if (!is_string($generated)) {
             return false;
@@ -260,6 +260,12 @@ final class CardThumbnailService
     public function refreshFor(int $postId): bool
     {
         $previous = get_post_meta($postId, self::THUMB_KEY, true);
+        // A manually generated titled cover (thumbnail/cover/manual/) wins:
+        // the automatic card pipeline never overwrites it. Redoing a cover
+        // means pressing "Generate cover" in the editor again.
+        if (is_string($previous) && str_contains($previous, '/thumbnail/cover/manual/')) {
+            return false;
+        }
         $generated = $this->generateFor($postId);
         if (!$generated) {
             return false;

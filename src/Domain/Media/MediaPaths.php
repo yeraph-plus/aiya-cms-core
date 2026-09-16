@@ -100,6 +100,22 @@ final class MediaPaths
         return $this->ensureDir($this->contentDir() . '/thumbnail/cover/' . wp_date('Y/m'));
     }
 
+    /**
+     * Editor-generated titled covers (CoverService). A manual cover wins
+     * over the automatic card pipeline: the save/cron card path skips
+     * posts whose `_thumb` points into this subtree.
+     */
+    public function coverManualDir(): string
+    {
+        return $this->ensureDir($this->contentDir() . '/thumbnail/cover/manual/' . wp_date('Y/m'));
+    }
+
+    /** Automatic card pipeline output (save hook / cron), no title. */
+    public function coverAutoDir(): string
+    {
+        return $this->ensureDir($this->contentDir() . '/thumbnail/cover/auto/' . wp_date('Y/m'));
+    }
+
     /** Month-sharded pic-bed pool, created on demand. */
     public function picBedDir(): string
     {

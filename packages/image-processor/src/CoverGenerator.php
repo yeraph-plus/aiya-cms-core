@@ -216,18 +216,19 @@ final class CoverGenerator extends ImagineAware
 
         $lines = $this->splitTitleLines($title);
         $lineBoxes = [];
-        $maxWidth = 0;
         $totalHeight = 0;
         foreach ($lines as $line) {
             $box = $font->box($line);
             $lineBoxes[] = $box;
-            $maxWidth = max($maxWidth, $box->getWidth());
             $totalHeight += $box->getHeight();
         }
         $totalHeight += max(0, count($lines) - 1) * $spec->lineSpacing;
 
-        // Backing strips first for every line, then both text layers, so a
-        // strip never covers a neighboring line's glyphs.
+        // The backing-strip tint samples the untouched canvas once — strips
+        // must not tint themselves off previously drawn strips. All strips
+        // draw first, then both text layers, so a strip never covers a
+        // neighboring line's glyphs.
+        $labelColor = $palette->color(Colors::normalizeHex($this->labelMaskColor($image, $width, $height)), $spec->labelAlpha);
         $positions = [];
         $currentY = (int) floor(($height - $totalHeight) / 2);
         foreach ($lines as $index => $line) {
@@ -235,7 +236,6 @@ final class CoverGenerator extends ImagineAware
             $x = (int) floor(($width - $box->getWidth()) / 2);
             $positions[] = ['line' => $line, 'x' => $x, 'y' => $currentY, 'box' => $box];
 
-            $labelColor = $palette->color(Colors::normalizeHex($this->labelMaskColor($image, $width, $height)), $spec->labelAlpha);
             $image->draw()->rectangle(
                 new Point(max(0, $x - $spec->labelPaddingX), max(0, $currentY - $spec->labelPaddingY)),
                 new Point(min($width - 1, $x + $box->getWidth() + $spec->labelPaddingX), min($height - 1, $currentY + $box->getHeight() + $spec->labelPaddingY)),
@@ -245,7 +245,6 @@ final class CoverGenerator extends ImagineAware
 
             $currentY += $box->getHeight() + $spec->lineSpacing;
         }
-        unset($maxWidth);
 
         foreach ($positions as $item) {
             // imagine 1.5 types DrawerInterface::text() as AbstractFont while
