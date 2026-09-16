@@ -923,4 +923,4 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **手动优先**：`CardThumbnailService::refreshFor` 对 `_thumb` 指向 `cover/manual/` 的文章直接跳过（save_post 与批量「刷新缩略图」均不覆盖手动封面，批量动作计为 skipped）；重做封面 = 在编辑器再点一次「Generate cover」；`pendingIds` 天然跳过（手动封面有 `_thumb` 行）；
 - **孤儿清理**：`CoverService` 生成新封面时删除被替换的旧封面文件（仅限 `coverDir()` 下符合 `\d{14}_\d{4}` 托管命名模式的文件，手改值不误删——旧自动卡片的孤儿同样被清）；
 - **image-processor 卫生**：`CoverGenerator::drawCenterTitle` 的衬条取色（20×20 采样）从行循环内提升到循环外——采样对象是未污染画布，且 Imagick 下省一半 getColorAt 调用；删除从未使用的 `$maxWidth` 死代码。包内其余（Colors/ImagineAware/SaveOptions/FirstImageMatcher/WatermarkSpec/UploadApplier/ImagineFactory 探针）审查通过；
-- **metabox 传参核实无问题**：model/title/colors 经 sanitize 后全量进 `CoverSpec::fromArray`，映射完整；字体解析（配置缺失回退包内 AlibabaPuHuiTi）与 Imagick 探针正常。
+- **metabox 传参核实无问题**：model/title/colors 经 sanitize 后全量进 `CoverSpec::fromArray`，映射完整；字体解析（配置缺失回退包内 AlibabaPuHuiTi）与 Imagick 探针正常。**调度简化（站长拍板）**：`refreshFor` 增 `force` 参数——保存钩子路径改为「`_thumb` 已存在即跳过」（首次发布生成、后续保存不再重derive，特色图变更后靠批量刷新强制更新）；批量「刷新缩略图」为唯一强制口（`force: true` 重derive 自动卡片）；手动封面在两种路径下都绝对跳过。**孤儿收口**：`delete_post` 时清除 `thumbnail/cover/` 下的托管卡片文件（`\d{14}_\d{4}` 命名匹配，手改值不误删）——postmeta 随文章级联删除后文件不再遗留。

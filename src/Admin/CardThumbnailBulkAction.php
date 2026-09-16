@@ -86,7 +86,7 @@ final class CardThumbnailBulkAction implements Module
             if (!$post instanceof \WP_Post
                 || $post->post_status !== 'publish'
                 || !current_user_can('edit_post', $postId)
-                || !$this->cards->refreshFor($postId)) {
+                || !$this->cards->refreshFor($postId, true)) {
                 ++$skipped;
                 continue;
             }

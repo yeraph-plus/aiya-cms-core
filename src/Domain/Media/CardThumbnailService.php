@@ -257,15 +257,26 @@ final class CardThumbnailService
      * `_thumb` to the new file and removes the replaced card — a failed
      * generation keeps the previous thumbnail untouched.
      */
-    public function refreshFor(int $postId): bool
+    public function refreshFor(int $postId, bool $force = false): bool
     {
         $previous = get_post_meta($postId, self::THUMB_KEY, true);
-        // A manually generated titled cover (thumbnail/cover/manual/) wins:
-        // the automatic card pipeline never overwrites it. Redoing a cover
-        // means pressing "Generate cover" in the editor again.
+
+        // A manually generated titled cover (thumbnail/cover/manual/) wins
+        // over every automatic path — save hook, cron, even a forced batch
+        // refresh. Redoing a cover means pressing "Generate cover" in the
+        // editor again.
         if (is_string($previous) && str_contains($previous, '/thumbnail/cover/manual/')) {
             return false;
         }
+
+        // Save-hook semantics: an existing automatic card stays until the
+        // batch refresh explicitly forces regeneration (e.g. after a
+        // featured-image change). First publish has no `_thumb` and
+        // generates right here.
+        if (!$force && $previous !== '') {
+            return false;
+        }
+
         $generated = $this->generateFor($postId);
         if (!$generated) {
             return false;

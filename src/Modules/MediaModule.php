@@ -92,6 +92,31 @@ final class MediaModule implements Module
             return $hooks;
         });
         add_action('save_post', [$this, 'syncCardOnSave'], 100, 2);
+        add_action('delete_post', [$this, 'purgeCardOnDelete'], 10, 1);
+    }
+
+    /**
+     * Post deletion removes the postmeta rows but not the generated card
+     * file under thumbnail/cover/ — delete managed files so orphans do
+     * not accumulate. Hand-edited or foreign `_thumb` values never match
+     * the managed naming and stay untouched.
+     */
+    public function purgeCardOnDelete(int $postId): void
+    {
+        if (wp_is_post_revision($postId) || wp_is_post_autosave($postId)) {
+            return;
+        }
+
+        $thumb = get_post_meta($postId, '_thumb', true);
+        if (!is_string($thumb) || $thumb === '') {
+            return;
+        }
+
+        $local = $this->paths()->urlToLocal($thumb);
+        if ($local !== null && str_starts_with($local, $this->paths()->contentDir() . '/thumbnail/cover/')
+            && preg_match('/\/\d{14}_\d{4}\.(?:jpg|webp|avif)$/', $local) === 1) {
+            wp_delete_file($local);
+        }
     }
 
     private const CARD_TYPES = ['post', 'page', 'resource'];
