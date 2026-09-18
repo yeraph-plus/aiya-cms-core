@@ -2063,14 +2063,14 @@ msgstr "区块小工具"
 msgid "Revert the widgets screen to the classic interface"
 msgstr "将小工具屏幕恢复为经典界面"
 
-msgid "Appearance screens"
-msgstr "外观屏幕"
+msgid "Site editor and menus"
+msgstr "站点编辑器与菜单"
 
-msgid "Remove the customizer, site editor and menus screens and block direct access"
-msgstr "移除定制器、站点编辑器与菜单屏幕并阻止直接访问"
+msgid "Remove the site editor and menus screens and block direct access"
+msgstr "移除站点编辑器与菜单屏幕并阻止直接访问"
 
-msgid "The themes screen stays available so the shell theme can be switched."
-msgstr "主题屏幕保持可用，以便切换壳主题。"
+msgid "The customizer and themes screens stay available for the shell theme."
+msgstr "定制器与主题屏幕保持可用，供壳主题使用。"
 
 msgid "Font library and global styles"
 msgstr "字体库与全局样式"
