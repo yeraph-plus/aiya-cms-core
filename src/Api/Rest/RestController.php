@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
-use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\ProfilePresenter;
 use Aiya\Core\Api\Presenter\SitePresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Api\Presenter\DiscussionPresenter;
-use Aiya\Core\Api\Rest\SmiliesController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\PrimaryMenu;

@@ -66,6 +66,14 @@ Domain/Content/ read services (ContentQuery, MenuService,
                 queries; presenters and controllers call them
 ```
 
+First-party REST namespaces announce themselves through the
+`aiya_core_firstparty_rest_namespaces` filter (each controller adds its own
+prefix in `registerRoutes()`); the headless REST gate
+(`Infrastructure/Headless`) consumes that list when it trims `rest_endpoints`
+and the namespace index. The seam is the extension point for future domains:
+registering routes under a new namespace plus announcing it there is all a
+new domain needs to stay reachable while `/wp/v2` stays gated.
+
 ## Infrastructure packages (`packages/`)
 
 Unit features that used to live in the legacy theme's `plugins/` directory become independent composer packages: `aiya/<slug>`, `type: library`, PSR-4 `Aiya\Infra\<Name>\`. Packages MUST NOT depend on aiya-core, call WordPress functions, or register hooks; a core-side adapter module under `src/Modules/` instantiates the package service, registers its settings into the shared add-ons page, and wires it into the module system. The dependency arrow is one-directional: core -> package.

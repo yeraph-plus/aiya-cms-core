@@ -19,6 +19,15 @@ namespace Aiya\Core\Api\Contract;
  * fields: `visibility` names the post's configured gate (public/login/
  * member) and `gated` is true when THIS viewer does not qualify — empty
  * content block again, and the summary carries the matching badge.
+ *
+ * `commentsOpen` mirrors the per-post discussion switch (`comments_open`):
+ * false means the front end renders its comment section in the disabled
+ * state instead of offering the composer.
+ *
+ * `hasManualExcerpt` separates the editor-written excerpt from the
+ * auto-generated one the summary carries (cards describe with the auto
+ * text; the detail page shows the excerpt strip only when the author
+ * actually wrote one).
  */
 final class PostDetail
 {
@@ -31,6 +40,8 @@ final class PostDetail
         public readonly bool $locked,
         public readonly string $visibility,
         public readonly bool $gated,
+        public readonly bool $commentsOpen,
+        public readonly bool $hasManualExcerpt,
         public readonly Seo $seo,
         public readonly array $breadcrumbs,
         public readonly ?Image $featured,
@@ -47,6 +58,8 @@ final class PostDetail
             'locked' => $this->locked,
             'visibility' => $this->visibility,
             'gated' => $this->gated,
+            'commentsOpen' => $this->commentsOpen,
+            'hasManualExcerpt' => $this->hasManualExcerpt,
             'featured' => $this->featured?->toArray(),
             'seo' => $this->seo->toArray(),
             'breadcrumbs' => array_map(static fn (Breadcrumb $breadcrumb): array => $breadcrumb->toArray(), $this->breadcrumbs),

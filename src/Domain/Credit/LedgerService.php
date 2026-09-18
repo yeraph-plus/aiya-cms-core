@@ -70,6 +70,12 @@ final class LedgerService
 
         global $wpdb;
         /** @var \wpdb $wpdb */
+        // The unique (dedupe, user) key is the duplicate signal here: an
+        // expected duplicate must answer the caller as a WP_Error, never
+        // leak as wpdb's debug HTML in front of the JSON envelope (which
+        // would also break the status header). last_error is populated
+        // regardless of suppression — only the printing stops.
+        $suppress = $wpdb->suppress_errors(true);
         $inserted = $wpdb->insert(
             $this->table(),
             [
@@ -85,6 +91,7 @@ final class LedgerService
             ],
             ['%d', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s']
         );
+        $wpdb->suppress_errors($suppress);
 
         if ($inserted === false) {
             if (str_contains((string) $wpdb->last_error, 'Duplicate')) {

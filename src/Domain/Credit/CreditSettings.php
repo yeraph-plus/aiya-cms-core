@@ -6,11 +6,13 @@ namespace Aiya\Core\Domain\Credit;
 
 /**
  * Normalized reader for the credit policy. The check-in settings live on
- * the membership settings page (option `aiya_core_sponsorship`, where the
- * 0.55.0 rework moved them) and the ledger retention on the Frontend page
- * next to the notification retention. The credit domain is bookkeeping
- * only — it never prices a downstream action; the caller passes the amount
- * into LedgerService::spend().
+ * the membership settings page — page slug `membership`, option name
+ * `aiya_core_sponsorship` (deliberately different; aiya_core_opt() keys on
+ * the SLUG, so passing the option's own suffix here reads nothing and
+ * every value silently falls back to its default). The ledger retention
+ * lives on the Frontend page next to the notification retention. The
+ * credit domain is bookkeeping only — it never prices a downstream
+ * action; the caller passes the amount into LedgerService::spend().
  */
 final class CreditSettings
 {
@@ -23,9 +25,9 @@ final class CreditSettings
     public static function read(): array
     {
         return [
-            'checkinEnabled' => (bool) aiya_core_opt('sponsorship', 'checkin_enable', true),
-            'checkinCredits' => max(0, (int) aiya_core_opt('sponsorship', 'checkin_credits', 5)),
-            'validityDays' => max(1, (int) aiya_core_opt('sponsorship', 'credit_validity_days', 30)),
+            'checkinEnabled' => (bool) aiya_core_opt('membership', 'checkin_enable', true),
+            'checkinCredits' => max(0, (int) aiya_core_opt('membership', 'checkin_credits', 5)),
+            'validityDays' => max(1, (int) aiya_core_opt('membership', 'credit_validity_days', 30)),
         ];
     }
 

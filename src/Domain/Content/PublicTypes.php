@@ -21,21 +21,21 @@ final class PublicTypes
             'post' => new PublicType(
                 'post',
                 ['post'],
-                '/posts/%d/',
+                '/posts/%s/',
                 [['category', 'category'], ['post_tag', 'tag']],
                 'category'
             ),
             'page' => new PublicType(
                 'page',
                 ['page'],
-                '/pages/%d/',
+                '/pages/%s/',
                 [['page_category', 'category']],
                 'page_category'
             ),
             'resource' => new PublicType(
                 'resource',
                 ['resource'],
-                '/resources/%d/',
+                '/resources/%s/',
                 [
                     ['resource_category', 'category'],
                     ['resource_original', 'tag'],

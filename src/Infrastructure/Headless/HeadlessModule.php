@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Aiya\Core\Infrastructure\Headless;
 
 use Aiya\Core\Api\Contract\Contract;
-use Aiya\Core\Api\Rest\GatewayController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Registry;
 
@@ -256,10 +255,17 @@ final class HeadlessModule implements Module
             return $endpoints;
         }
 
-        $allowed = [
-            '/' . Contract::API_NAMESPACE,
-            '/' . GatewayController::GATEWAY_NAMESPACE,
-        ];
+        // The infra layer owns the trim; the API layer owns the list of
+        // first-party namespaces it serves (controllers announce theirs
+        // through this seam — the extension point for future domains).
+        $allowed = apply_filters(
+            'aiya_core_firstparty_rest_namespaces',
+            ['/' . Contract::API_NAMESPACE]
+        );
+        $allowed = array_values(array_filter(
+            is_array($allowed) ? $allowed : [],
+            static fn ($namespace): bool => is_string($namespace) && $namespace !== ''
+        ));
 
         foreach (array_keys($endpoints) as $route) {
             if (!is_string($route)) {
@@ -370,7 +376,12 @@ final class HeadlessModule implements Module
         remove_action('template_redirect', 'rest_output_link_header', 11);
         remove_action('wp_head', 'adjacent_posts_rel_link_wp_head', 10);
         remove_action('wp_head', 'wp_resource_hints', 2);
-        remove_action('wp_head', 'wp_render_img_auto_sizes_contain_css');
+        // WP ≥ 6.9 split the img contain-size fix in two: the priority-0
+        // enqueue only unsets the priority-1 print callback (and re-prints
+        // the rule through the styles system) — both must go, or the print
+        // callback answers alone and the <style> leaks to the shell head.
+        remove_action('wp_head', 'wp_enqueue_img_auto_sizes_contain_css_fix', 0);
+        remove_action('wp_head', 'wp_print_auto_sizes_contain_css_fix', 1);
 
         add_action('wp_enqueue_scripts', [$this, 'dequeueBlockAssets'], 999);
     }

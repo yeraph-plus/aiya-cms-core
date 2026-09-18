@@ -25,6 +25,7 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentTypeModule;
 use Aiya\Core\Domain\Content\ContentTypeRegistry;
 use Aiya\Core\Domain\Content\FrontendModule;
+use Aiya\Core\Domain\Content\LightboxModule;
 use Aiya\Core\Domain\Content\TypographyModule;
 use Aiya\Core\Domain\Content\NavigationModule;
 use Aiya\Core\Domain\Content\PostVisibility;
@@ -112,6 +113,7 @@ final class Plugin
         $this->addModule(new SlugModule($this->settings));
         $this->addModule(new ThemeSupportModule());
         $this->addModule(new SmiliesModule());
+        $this->addModule(new LightboxModule());
         $this->addModule(new ContentTypeModule($this->contentTypes));
         $this->addModule(new PostTypeSwitchBulkAction(new PostTypeSwitcher()));
         $this->addModule(new TermMoveBulkAction(new TermTaxonomyMover()));

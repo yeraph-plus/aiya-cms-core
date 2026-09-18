@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Sponsorship;
 
-use Aiya\Core\Api\Rest\GatewayController;
 use Aiya\Infra\SlugToolkit\IdSlugEncoder;
 use WP_Error;
 
@@ -71,7 +70,7 @@ final class EpayGateway implements PaymentGateway
             'money' => number_format(round((float) $payment['amount'], 2), 2, '.', ''),
             'param' => (string) $payment['binding'],
             'type' => (string) $payment['channel'],
-        ], get_rest_url(null, '/' . GatewayController::GATEWAY_NAMESPACE . '/epay/callback'), $settings['epayReturnUrl']);
+        ], get_rest_url(null, '/' . self::GATEWAY_NAMESPACE . '/epay/callback'), $settings['epayReturnUrl']);
 
         return $this->client->submitUrl($submitQuery);
     }

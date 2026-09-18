@@ -57,6 +57,8 @@ final class ContractsSnapshot
             ['name' => 'locked', 'type' => 'bool', 'nullable' => false],
             ['name' => 'visibility', 'type' => 'string', 'nullable' => false],
             ['name' => 'gated', 'type' => 'bool', 'nullable' => false],
+            ['name' => 'commentsOpen', 'type' => 'bool', 'nullable' => false],
+            ['name' => 'hasManualExcerpt', 'type' => 'bool', 'nullable' => false],
             ['name' => 'featured', 'type' => 'Image', 'nullable' => true],
             ['name' => 'seo', 'type' => 'Seo', 'nullable' => false],
             ['name' => 'breadcrumbs', 'type' => 'array', 'nullable' => false],

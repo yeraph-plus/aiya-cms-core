@@ -6,7 +6,6 @@ namespace Aiya\Core\Domain\Credit;
 
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Registry;
-use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
 
 /**
  * Wires the credit ledger into the runtime: the table migration through

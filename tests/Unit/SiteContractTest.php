@@ -25,7 +25,7 @@ final class SiteContractTest extends TestCase
             new Image('https://cdn.example.test/favicon.png', 'AIYA', 64, 64),
             new Image('https://cdn.example.test/banner.webp', 'AIYA', 1920, 320),
             true,
-            new SiteComments(true, 2, true, true, true, 5, false, 20, 'newest', 'asc'),
+            new SiteComments(true, 2, true, true, true, 5, false, 20, 'newest', 'asc', true),
             new SiteDefaults('dark', null, null, new SiteTheme('#E94F69'), '关键词1, 关键词2', '站点描述', 'G-TEST123'),
             new SiteFooter([new BeianLink('京ICP备2026000001号-1', 'https://beian.miit.gov.cn/', 'shield', '')], true),
         );
@@ -56,6 +56,7 @@ final class SiteContractTest extends TestCase
             'commentsPerPage' => 20,
             'defaultCommentsPage' => 'newest',
             'commentOrder' => 'asc',
+            'commentRegistration' => true,
         ], $shape['comments']);
         self::assertSame(['colorMode' => 'dark', 'thumb' => null, 'emptyImage' => null, 'theme' => ['primary' => '#E94F69'], 'seoKeywords' => '关键词1, 关键词2', 'seoDescription' => '站点描述', 'gaId' => 'G-TEST123'], $shape['defaults']);
         self::assertSame([
@@ -76,7 +77,7 @@ final class SiteContractTest extends TestCase
             null,
             null,
             false,
-            new SiteComments(false, 0, false, false, false, 1, false, 20, 'newest', 'asc'),
+            new SiteComments(false, 0, false, false, false, 1, false, 20, 'newest', 'asc', false),
             new SiteDefaults('system', null, null, new SiteTheme('#E94F69'), '', '', ''),
             new SiteFooter([], false),
         );

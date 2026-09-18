@@ -21,8 +21,8 @@ use WP_User;
 
 /**
  * Public read routes of the content batch (`/site`, `/menus/primary`,
- * `/menus/secondary`, `/terms`, `/posts`, `/posts/{id}`, `/pages`,
- * `/pages/{id}`, `/resources`, `/resources/{id}`, `/profiles/{slug}`)
+ * `/menus/secondary`, `/terms`, `/posts`, `/posts/{slug}`, `/pages`,
+ * `/pages/{slug}`, `/resources`, `/resources/{slug}`, `/profiles/{slug}`)
  * plus the password gate (`POST /content/{id}/unlock`) for locked
  * bodies and the shared-term related reads (`GET /content/{id}/related`).
  * Controllers only orchestrate: queries run in Domain, mapping in the
@@ -42,6 +42,26 @@ final class ContentController
         private ProfilePresenter $profiles,
         private RateLimiter $limiter,
     ) {
+    }
+
+    /**
+     * Page size for a list request that carries none: the site's own reading
+     * setting, clamped to this API's 1–100 ceiling. A reading setting of -1
+     * is core's "show all posts" — the API cannot express an unbounded list,
+     * so the faithful default is the ceiling (not 1).
+     *
+     * An explicit `perPage` from the caller always wins — `ContentQuery::list()`
+     * hands the validated request value straight to WP_Query, so the option is
+     * only ever consulted for the default.
+     */
+    public static function defaultPerPage(): int
+    {
+        $value = (int) get_option('posts_per_page', 10);
+        if ($value < 1) {
+            return 100;
+        }
+
+        return min(100, $value);
     }
 
     public function registerRoutes(): void
@@ -129,7 +149,12 @@ final class ContentController
             'permission_callback' => '__return_true',
             'args' => [
                 'page' => ['type' => 'integer', 'default' => 1, 'minimum' => 1],
-                'perPage' => ['type' => 'integer', 'default' => 12, 'minimum' => 1, 'maximum' => 100],
+                'perPage' => [
+                    'type' => 'integer',
+                    'default' => self::defaultPerPage(),
+                    'minimum' => 1,
+                    'maximum' => 100,
+                ],
                 'q' => ['type' => 'string', 'default' => '', 'maxLength' => 100],
                 'category' => ['type' => 'string', 'default' => '', 'maxLength' => 200],
                 'tag' => ['type' => 'string', 'default' => '', 'maxLength' => 200],
@@ -138,12 +163,12 @@ final class ContentController
             ],
         ]);
 
-        register_rest_route(Contract::API_NAMESPACE, '/' . $path . '/(?P<id>\d+)', [
+        register_rest_route(Contract::API_NAMESPACE, '/' . $path . '/(?P<slug>[^/]+)', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (WP_REST_Request $request) => $this->detail($request, $typeName),
             'permission_callback' => '__return_true',
             'args' => [
-                'id' => ['type' => 'integer', 'required' => true, 'minimum' => 1],
+                'slug' => ['type' => 'string', 'required' => true],
             ],
         ]);
     }
@@ -203,13 +228,19 @@ final class ContentController
             return $this->notFound(__('Content not found.', 'aiya-core'));
         }
 
-        $post = $this->query->byId((int) $request->get_param('id'), $type);
+        $post = $this->query->bySlug(sanitize_title((string) $request->get_param('slug')), $type);
         if ($post === null) {
             return $this->notFound(__('Content not found.', 'aiya-core'));
         }
 
+        // Adjacency is a posts-only affordance; page/resource details carry
+        // the empty pair (the contract field stays, the values stay null).
+        $neighbors = $typeName === 'post'
+            ? $this->query->neighbors($post, $type)
+            : ['previous' => null, 'next' => null];
+
         return new WP_REST_Response(
-            $this->posts->detail($post, $this->query->neighbors($post, $type), $type)->toArray()
+            $this->posts->detail($post, $neighbors, $type)->toArray()
         );
     }
 

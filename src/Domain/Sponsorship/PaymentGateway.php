@@ -19,6 +19,16 @@ use WP_Error;
  */
 interface PaymentGateway
 {
+    /**
+     * The webhook namespace of the membership domain's callback routes.
+     * Owned here — the domain's push surface — so adapters build their
+     * notify URLs and controllers register their routes without reaching
+     * across layers. First-party REST namespaces additionally announce
+     * themselves through the `aiya_core_firstparty_rest_namespaces`
+     * filter for the headless REST gate.
+     */
+    public const GATEWAY_NAMESPACE = 'aiya/sponsorship/v1';
+
     /** Stable identifier used in settings, order sources and routes. */
     public function id(): string;
 

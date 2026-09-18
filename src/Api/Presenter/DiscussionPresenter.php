@@ -118,7 +118,7 @@ final class DiscussionPresenter
             (int) $post->ID,
             (string) $post->post_type,
             (string) get_the_title($post),
-            $type->url((int) $post->ID),
+            $type->url((string) $post->post_name),
         );
     }
 

@@ -8,6 +8,7 @@ use Aiya\Core\Domain\Sponsorship\AfdianGateway;
 use Aiya\Core\Domain\Sponsorship\EpayGateway;
 use Aiya\Core\Domain\Sponsorship\EntitlementService;
 use Aiya\Core\Domain\Sponsorship\OrderService;
+use Aiya\Core\Domain\Sponsorship\PaymentGateway;
 use Aiya\Core\Domain\Sponsorship\SponsorshipSettings;
 use Aiya\Core\Domain\Sponsorship\WebhookLogger;
 use WP_REST_Request;
@@ -15,18 +16,16 @@ use WP_REST_Response;
 
 /**
  * Third-party gateway callbacks, deliberately outside the versioned
- * contract namespace (`aiya/sponsorship/v1`): platform pushes are not
- * visitor-facing contract. Authentication IS the signature check —
- * mis-signed pushes are rejected outright. The 0.50.0 rewrite wires only
- * the Epay cashier: a verified push records the payment and queues the
- * entitlement (money facts and service rights are separate rows joined
- * by the same order id). The Afdian integration is parked — SDK class
- * retained in the domain, no webhook route.
+ * contract namespace (the domain-owned `PaymentGateway::GATEWAY_NAMESPACE`):
+ * platform pushes are not visitor-facing contract. Authentication IS the
+ * signature check — mis-signed pushes are rejected outright. Both
+ * cashier-side gateways are wired: a verified Epay push records the
+ * payment and queues the entitlement (money facts and service rights are
+ * separate rows joined by the same order id); Afdian pushes arrive as
+ * webhooks through the same pair of routes.
  */
 final class GatewayController
 {
-    public const GATEWAY_NAMESPACE = 'aiya/sponsorship/v1';
-
     public function __construct(
         private OrderService $orders,
         private EntitlementService $entitlements,
@@ -35,17 +34,26 @@ final class GatewayController
 
     public function registerRoutes(): void
     {
-        register_rest_route(self::GATEWAY_NAMESPACE, 'epay/callback', [
+        register_rest_route(PaymentGateway::GATEWAY_NAMESPACE, 'epay/callback', [
             'methods' => 'GET',
             'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->epayCallback($request),
             'permission_callback' => '__return_true',
         ]);
 
-        register_rest_route(self::GATEWAY_NAMESPACE, 'afdian/callback', [
+        register_rest_route(PaymentGateway::GATEWAY_NAMESPACE, 'afdian/callback', [
             'methods' => 'POST',
             'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->afdianCallback($request),
             'permission_callback' => '__return_true',
         ]);
+
+        // Announce this first-party namespace to the headless REST gate —
+        // the infrastructure layer owns the trim, the API layer owns the
+        // list of namespaces it serves (extension seam for future domains).
+        add_filter('aiya_core_firstparty_rest_namespaces', static function (array $namespaces): array {
+            $namespaces[] = '/' . PaymentGateway::GATEWAY_NAMESPACE;
+
+            return $namespaces;
+        });
     }
 
     /**

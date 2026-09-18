@@ -51,9 +51,33 @@ final class CounterController
         ]);
     }
 
+    /**
+     * Interaction writes (like/rating) are login-only as of 2026-09-17:
+     * the visitor-hash dedup made anonymous counts trivially gameable, and
+     * the front end disables its action buttons for guests anyway. Views
+     * stay public — visitor counting is their purpose.
+     */
+    private function requireLoggedIn(): ?WP_Error
+    {
+        if (!is_user_logged_in()) {
+            return new WP_Error(
+                'aiya_not_logged_in',
+                __('Please log in to interact.', 'aiya-core'),
+                ['status' => 401]
+            );
+        }
+
+        return null;
+    }
+
     /** @return array<string, mixed>|WP_Error */
     private function like(WP_REST_Request $request): array|WP_Error
     {
+        $notLoggedIn = $this->requireLoggedIn();
+        if ($notLoggedIn !== null) {
+            return $notLoggedIn;
+        }
+
         if (!$this->limiter->hit('counter_like', 30, 60)) {
             return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
         }
@@ -84,6 +108,11 @@ final class CounterController
     /** @return array<string, mixed>|WP_Error */
     private function rating(WP_REST_Request $request): array|WP_Error
     {
+        $notLoggedIn = $this->requireLoggedIn();
+        if ($notLoggedIn !== null) {
+            return $notLoggedIn;
+        }
+
         if (!$this->limiter->hit('counter_rating', 30, 60)) {
             return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
         }

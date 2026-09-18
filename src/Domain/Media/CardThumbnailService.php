@@ -32,9 +32,13 @@ final class CardThumbnailService
     public const WIDTH = 640;
     public const HEIGHT = 360;
 
-    /** The detail-page background render of the featured image. */
+    /**
+     * The detail-page hero render of the featured image: a wide 1000x240
+     * banner crop — the front end displays the hero at this exact ratio,
+     * title/meta overlaid at the bottom.
+     */
     public const FEATURED_WIDTH = 1000;
-    public const FEATURED_HEIGHT = 640;
+    public const FEATURED_HEIGHT = 240;
 
     public const THUMB_KEY = '_thumb';
 
@@ -83,8 +87,34 @@ final class CardThumbnailService
     }
 
     /**
+     * The site-wide default post cover, derived through the SAME hero
+     * crop as post featured images — the front end falls back to it for
+     * posts without one, so every article hero shares one geometry.
+     */
+    public function featuredForAttachment(int $attachmentId): ?Image
+    {
+        if ($attachmentId <= 0) {
+            return null;
+        }
+
+        $derived = $this->ensureDerived($attachmentId, self::FEATURED_WIDTH, self::FEATURED_HEIGHT);
+        if ($derived !== null) {
+            $alt = (string) get_the_title($attachmentId);
+
+            return new Image(
+                $derived,
+                $alt !== '' ? $alt : (string) get_bloginfo('name'),
+                self::FEATURED_WIDTH,
+                self::FEATURED_HEIGHT
+            );
+        }
+
+        return null;
+    }
+
+    /**
      * The detail-page background render: the featured image composited
-     * at 1000x640 (same three-layer recipe), falling back to the
+     * at the featured hero size (same three-layer recipe), falling back to the
      * attachment's full-size URL when the driver fails.
      */
     public function featuredFor(\WP_Post $post): ?Image
@@ -135,13 +165,13 @@ final class CardThumbnailService
 
     /**
      * Featured-image derivatives for the read side: the card size for
-     * list thumbnails and the 1000x640 render for detail backgrounds.
+     * list thumbnails and the 1000x240 banner render for detail backgrounds.
      * Deterministic per attachment+size — ThumbnailGenerator reuses an
      * existing dest file, so repeated calls are free (pure-file logic).
      * Never touches `_thumb`; the featured attachment stays the source
      * of record for these files.
      *
-     * @return list<Image> 640x360 card first, 1000x640 render second.
+     * @return list<Image> 640x360 card first, 1000x240 banner render second.
      */
     public function featuredDerivatives(\WP_Post $post): array
     {

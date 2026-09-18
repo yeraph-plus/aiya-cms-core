@@ -6,7 +6,6 @@ namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Contract\Pagination;
-use Aiya\Core\Api\Contract\PostSummary;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Domain\Content\PublicTypes;

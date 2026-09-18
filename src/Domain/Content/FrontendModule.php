@@ -87,6 +87,13 @@ final class FrontendModule implements Module
                     'default' => 0,
                 ],
                 [
+                    'id' => 'default_post_cover',
+                    'type' => 'media',
+                    'label' => __('Default post cover', 'aiya-core'),
+                    'description' => __('Hero cover shown on article pages when the post has no featured image of its own (auto-cropped to the article banner ratio).', 'aiya-core'),
+                    'default' => 0,
+                ],
+                [
                     'id' => 'heading_banner',
                     'type' => 'heading',
                     'label' => __('Header banner', 'aiya-core'),

@@ -7,9 +7,11 @@ namespace Aiya\Core\Api\Contract;
 /**
  * The WP discussion settings the front end needs to build comment forms
  * and pagination UI (`/site` payload, `comments` block). Values mirror
- * the classic Settings → Discussion screen; the session identity already
- * guarantees login-only posting, so `commentRegistration` is not
- * projected — it is always true in this headless shape.
+ * the classic Settings → Discussion screen. `commentRegistration` is the
+ * site's "users must be logged in to comment" switch: true keeps the
+ * login-only wall (the structural default), false lets the front end
+ * offer guests the native name/email composer and the write route
+ * accepts anonymous bodies under the same moderation pipeline.
  */
 final class SiteComments
 {
@@ -24,6 +26,7 @@ final class SiteComments
         public readonly int $commentsPerPage,
         public readonly string $defaultCommentsPage,
         public readonly string $commentOrder,
+        public readonly bool $commentRegistration,
     ) {
     }
 
@@ -41,6 +44,7 @@ final class SiteComments
             'commentsPerPage' => $this->commentsPerPage,
             'defaultCommentsPage' => $this->defaultCommentsPage,
             'commentOrder' => $this->commentOrder,
+            'commentRegistration' => $this->commentRegistration,
         ];
     }
 }

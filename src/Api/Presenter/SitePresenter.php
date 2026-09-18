@@ -142,7 +142,9 @@ final class SitePresenter
      * The WP discussion settings the comment form and pagination UI are
      * built from (Settings → Discussion). Login-only posting is a
      * structural property of this headless shape, so
-     * comment_registration is not projected.
+     * comment_registration rides as `commentRegistration` (2026-09-17
+     * batch): false lets the front end offer guests the native name/email
+     * composer; the write route enforces the same switch.
      */
     private function commentsSettings(): SiteComments
     {
@@ -156,7 +158,8 @@ final class SitePresenter
             (bool) get_option('page_comments', false),
             max(1, (int) get_option('comments_per_page', 20)),
             (string) get_option('default_comments_page', 'newest'),
-            (string) get_option('comment_order', 'asc')
+            (string) get_option('comment_order', 'asc'),
+            (bool) get_option('comment_registration', false)
         );
     }
 

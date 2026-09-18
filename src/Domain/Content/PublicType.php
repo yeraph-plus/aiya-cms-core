@@ -26,9 +26,9 @@ final class PublicType
     ) {
     }
 
-    public function url(int $id): string
+    public function url(string $slug): string
     {
-        return sprintf($this->urlPattern, $id);
+        return sprintf($this->urlPattern, $slug);
     }
 
     /** The WP taxonomy carrying the contract's "category" role, or null. */

@@ -7,8 +7,9 @@ namespace Aiya\Core\Api\Contract;
 /**
  * The viewer's membership state under the tier model: whether the queue
  * currently covers them, when the whole queue ends, when the next credit
- * grant lands, the derived credit balance, and the full purchase queue
-(each row a MembershipEntitlement).
+ * grant lands, the derived credit balance, the full purchase queue
+ * (each row a MembershipEntitlement), and the site's check-in policy
+ * (a CheckinPolicy) so the panel can describe the daily grant.
  */
 final class MembershipState
 {
@@ -21,6 +22,7 @@ final class MembershipState
         public readonly ?string $nextGrantAt,
         public readonly int $balance,
         public readonly array $queue,
+        public readonly CheckinPolicy $checkin,
     ) {
     }
 
@@ -33,6 +35,7 @@ final class MembershipState
             'nextGrantAt' => $this->nextGrantAt,
             'balance' => $this->balance,
             'queue' => $this->queue,
+            'checkin' => $this->checkin->toArray(),
         ];
     }
 }

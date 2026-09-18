@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.73.1\n"
+"Project-Id-Version: AIYA Core 0.78.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-15T22:37:20+00:00\n"
+"POT-Creation-Date: 2026-09-17T03:29:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -162,7 +162,7 @@ msgid "All codes deleted."
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:222
-#: src/Admin/NotificationPage.php:214
+#: src/Admin/NotificationPage.php:217
 msgid "The operation failed — check the values and try again."
 msgstr ""
 
@@ -234,7 +234,7 @@ msgstr ""
 #: src/Admin/CreditsPage.php:78
 #: src/Admin/CreditsPage.php:99
 #: src/Admin/CreditsPage.php:205
-#: src/Domain/Content/FrontendModule.php:179
+#: src/Domain/Content/FrontendModule.php:186
 msgid "Credit ledger"
 msgstr ""
 
@@ -421,7 +421,7 @@ msgid "Excerpt"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:127
-#: src/Admin/NotificationPage.php:240
+#: src/Admin/NotificationPage.php:243
 #: src/Domain/Content/ContentTypeModule.php:60
 msgid "Author"
 msgstr ""
@@ -456,7 +456,7 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:155
 #: src/Admin/DiscussionModerationPage.php:437
-#: src/Admin/NotificationPage.php:140
+#: src/Admin/NotificationPage.php:143
 #: src/Domain/DevTools/CronsPage.php:189
 msgid "Delete"
 msgstr ""
@@ -614,13 +614,13 @@ msgstr ""
 #: src/Admin/NotificationPage.php:51
 #: src/Admin/NotificationPage.php:52
 #: src/Admin/NotificationPage.php:70
-#: src/Domain/Content/FrontendModule.php:164
+#: src/Domain/Content/FrontendModule.php:171
 msgid "Notifications"
 msgstr ""
 
 #: src/Admin/NotificationPage.php:62
-#: src/Admin/NotificationPage.php:172
-#: src/Admin/NotificationPage.php:194
+#: src/Admin/NotificationPage.php:175
+#: src/Admin/NotificationPage.php:197
 msgid "You are not allowed to manage notifications."
 msgstr ""
 
@@ -661,41 +661,42 @@ msgid "No notifications stored."
 msgstr ""
 
 #. translators: %d: user ID.
-#: src/Admin/NotificationPage.php:128
+#: src/Admin/NotificationPage.php:130
 #: src/Admin/PicBedPage.php:329
 #, php-format
 msgid "User #%d"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:128
+#. translators: %d: user ID.
+#: src/Admin/NotificationPage.php:130
 msgid "Broadcast"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:139
+#: src/Admin/NotificationPage.php:142
 msgid "Delete this notification?"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:212
+#: src/Admin/NotificationPage.php:215
 msgid "Notification published."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:213
+#: src/Admin/NotificationPage.php:216
 msgid "Notification deleted."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:238
+#: src/Admin/NotificationPage.php:241
 msgid "Subscriber"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:239
+#: src/Admin/NotificationPage.php:242
 msgid "Sponsor"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:241
+#: src/Admin/NotificationPage.php:244
 msgid "Administrator"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:242
+#: src/Admin/NotificationPage.php:245
 msgid "Guest"
 msgstr ""
 
@@ -1176,9 +1177,9 @@ msgid "The reset link is missing required parameters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:293
-#: src/Api/Rest/CounterController.php:58
-#: src/Api/Rest/CounterController.php:73
-#: src/Api/Rest/CounterController.php:88
+#: src/Api/Rest/CounterController.php:81
+#: src/Api/Rest/CounterController.php:96
+#: src/Api/Rest/CounterController.php:115
 #: src/Api/Rest/CreditController.php:118
 #: src/Api/Rest/CreditController.php:150
 #: src/Api/Rest/CreditController.php:161
@@ -1212,56 +1213,68 @@ msgid "Authentication required."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:339
-#: src/Api/Rest/CommentsController.php:115
-#: src/Api/Rest/ContentController.php:228
+#: src/Api/Rest/CommentsController.php:150
+#: src/Api/Rest/ContentController.php:234
 #: src/Api/Rest/UploadsController.php:62
 #: src/Api/Rest/UserController.php:252
 #: src/Api/Rest/UserController.php:388
 msgid "Too many requests, please retry later."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:124
+#: src/Api/Rest/CommentsController.php:159
 msgid "Comments are closed for this content."
 msgstr ""
 
+#: src/Api/Rest/CommentsController.php:169
+msgid "The comment is too long."
+msgstr ""
+
 #. translators: %d: maximum comment length.
-#: src/Api/Rest/CommentsController.php:133
+#: src/Api/Rest/CommentsController.php:179
 #, php-format
 msgid "The comment must be 1-%d characters long."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:146
+#: src/Api/Rest/CommentsController.php:192
 msgid "The commented reply does not exist."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:158
+#: src/Api/Rest/CommentsController.php:204
 msgid "Please log in to comment."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:180
-#: src/Api/Rest/CommentsController.php:188
-#: src/Api/Rest/CommentsController.php:191
+#: src/Api/Rest/CommentsController.php:212
+msgid "Please provide your name and a valid email address to comment."
+msgstr ""
+
+#: src/Api/Rest/CommentsController.php:248
+#: src/Api/Rest/CommentsController.php:256
+#: src/Api/Rest/CommentsController.php:259
 msgid "The comment could not be posted."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:185
+#: src/Api/Rest/CommentsController.php:253
 msgid "You are commenting too quickly. Slow down."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:249
+#: src/Api/Rest/CommentsController.php:318
 #: src/Api/Rest/ContentController.php:203
 #: src/Api/Rest/ContentController.php:208
-#: src/Api/Rest/ContentController.php:243
-#: src/Api/Rest/ContentController.php:279
+#: src/Api/Rest/ContentController.php:249
+#: src/Api/Rest/ContentController.php:285
 msgid "Content not found."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:253
+#: src/Api/Rest/ContentController.php:259
 msgid "Incorrect password."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:299
+#: src/Api/Rest/ContentController.php:305
 msgid "Profile not found."
+msgstr ""
+
+#: src/Api/Rest/CounterController.php:65
+msgid "Please log in to interact."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:123
@@ -1425,122 +1438,130 @@ msgid "Placeholder shown on empty lists and error cards across the front end."
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:92
-msgid "Header banner"
+msgid "Default post cover"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:98
-msgid "Show the header banner"
+#: src/Domain/Content/FrontendModule.php:93
+msgid "Hero cover shown on article pages when the post has no featured image of its own (auto-cropped to the article banner ratio)."
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:99
-msgid "Turns the compact top bar into a tall header backed by the banner image."
+msgid "Header banner"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:105
-msgid "Banner image"
+msgid "Show the header banner"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:106
-msgid "Wide image shown behind the top navigation while the banner is on."
+msgid "Turns the compact top bar into a tall header backed by the banner image."
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:112
-msgid "Compliance footer"
+msgid "Banner image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:118
-msgid "Footer hitokoto"
+#: src/Domain/Content/FrontendModule.php:113
+msgid "Wide image shown behind the top navigation while the banner is on."
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:119
-msgid "Show a random one-liner quote as the footer sign-off."
+msgid "Compliance footer"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:125
-msgid "Compliance links"
+msgid "Footer hitokoto"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:126
-msgid "One row per filing shown in the footer, e.g. ICP or public security."
+msgid "Show a random one-liner quote as the footer sign-off."
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:132
-#: src/Modules/MediaModule.php:201
+msgid "Compliance links"
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:133
+msgid "One row per filing shown in the footer, e.g. ICP or public security."
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:139
+#: src/Modules/MediaModule.php:226
 msgid "Text"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:138
+#: src/Domain/Content/FrontendModule.php:145
 #: src/Domain/ExternalFiles/OplistModule.php:234
 msgid "Link"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:144
+#: src/Domain/Content/FrontendModule.php:151
 #: src/Domain/Content/NavigationModule.php:99
 #: src/Domain/Content/TermExtrasModule.php:59
 msgid "Icon"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:147
+#: src/Domain/Content/FrontendModule.php:154
 msgid "Shield (ICP)"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:148
+#: src/Domain/Content/FrontendModule.php:155
 msgid "Police badge"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:149
+#: src/Domain/Content/FrontendModule.php:156
 msgid "Custom image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:155
+#: src/Domain/Content/FrontendModule.php:162
 msgid "Custom icon URL"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:156
+#: src/Domain/Content/FrontendModule.php:163
 msgid "Used when the icon template is set to custom."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:170
+#: src/Domain/Content/FrontendModule.php:177
 msgid "Notification retention (days)"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:171
+#: src/Domain/Content/FrontendModule.php:178
 msgid "A daily cleanup removes stored notifications older than this many days."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:185
+#: src/Domain/Content/FrontendModule.php:192
 msgid "Ledger retention (days)"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:186
+#: src/Domain/Content/FrontendModule.php:193
 msgid "How long closed credit history (spent rows, emptied buckets) is kept before the daily cleanup removes it. Live unexpired buckets are never touched."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:194
+#: src/Domain/Content/FrontendModule.php:201
 msgid "SEO & analytics"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:200
+#: src/Domain/Content/FrontendModule.php:207
 msgid "SEO keywords"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:201
+#: src/Domain/Content/FrontendModule.php:208
 msgid "Comma-separated keywords for the site home page."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:207
+#: src/Domain/Content/FrontendModule.php:214
 msgid "SEO description"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:208
+#: src/Domain/Content/FrontendModule.php:215
 msgid "Meta description for the site home page."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:214
+#: src/Domain/Content/FrontendModule.php:221
 msgid "Google Analytics ID"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:215
+#: src/Domain/Content/FrontendModule.php:222
 msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
 msgstr ""
 
@@ -2918,11 +2939,11 @@ msgstr ""
 msgid "The post does not exist."
 msgstr ""
 
-#: src/Domain/Media/CoverService.php:96
+#: src/Domain/Media/CoverService.php:108
 msgid "Cover generation failed."
 msgstr ""
 
-#: src/Domain/Media/CoverService.php:101
+#: src/Domain/Media/CoverService.php:113
 msgid "The cover URL could not be resolved."
 msgstr ""
 
@@ -3628,160 +3649,160 @@ msgstr ""
 msgid "Every five minutes"
 msgstr ""
 
-#: src/Modules/MediaModule.php:130
+#: src/Modules/MediaModule.php:155
 msgid "Image processor"
 msgstr ""
 
-#: src/Modules/MediaModule.php:131
-#: src/Modules/MediaModule.php:200
+#: src/Modules/MediaModule.php:156
+#: src/Modules/MediaModule.php:225
 msgid "Image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:138
+#: src/Modules/MediaModule.php:163
 msgid "Image processing"
 msgstr ""
 
-#: src/Modules/MediaModule.php:144
+#: src/Modules/MediaModule.php:169
 msgid "Media library takeover"
 msgstr ""
 
-#: src/Modules/MediaModule.php:145
+#: src/Modules/MediaModule.php:170
 msgid "Run uploads through the image processor: scale, watermark, format conversion"
 msgstr ""
 
-#: src/Modules/MediaModule.php:146
+#: src/Modules/MediaModule.php:171
 msgid "WebP/AVIF saving requires the libwebp/libavif PHP libraries; unsupported targets fall back to the source format."
 msgstr ""
 
-#: src/Modules/MediaModule.php:152
+#: src/Modules/MediaModule.php:177
 msgid "Save format"
 msgstr ""
 
-#: src/Modules/MediaModule.php:155
+#: src/Modules/MediaModule.php:180
 msgid "Keep source format"
 msgstr ""
 
-#: src/Modules/MediaModule.php:156
+#: src/Modules/MediaModule.php:181
 msgid "JPG"
 msgstr ""
 
-#: src/Modules/MediaModule.php:157
+#: src/Modules/MediaModule.php:182
 msgid "WebP"
 msgstr ""
 
-#: src/Modules/MediaModule.php:158
+#: src/Modules/MediaModule.php:183
 msgid "AVIF"
 msgstr ""
 
-#: src/Modules/MediaModule.php:164
+#: src/Modules/MediaModule.php:189
 msgid "Max image width"
 msgstr ""
 
-#: src/Modules/MediaModule.php:165
+#: src/Modules/MediaModule.php:190
 msgid "Uploads wider than this are scaled down; 0 disables the limit."
 msgstr ""
 
-#: src/Modules/MediaModule.php:173
+#: src/Modules/MediaModule.php:198
 msgid "Image quality"
 msgstr ""
 
-#: src/Modules/MediaModule.php:174
+#: src/Modules/MediaModule.php:199
 msgid "Save quality from 0 to 100; PNG maps it to the compression level."
 msgstr ""
 
-#: src/Modules/MediaModule.php:183
+#: src/Modules/MediaModule.php:208
 msgid "Font file"
 msgstr ""
 
-#: src/Modules/MediaModule.php:184
+#: src/Modules/MediaModule.php:209
 msgid "Content URL, content-relative path or absolute path for cover titles and text watermarks. Leave empty to use the bundled font."
 msgstr ""
 
-#: src/Modules/MediaModule.php:190
+#: src/Modules/MediaModule.php:215
 msgid "Watermark"
 msgstr ""
 
-#: src/Modules/MediaModule.php:196
+#: src/Modules/MediaModule.php:221
 msgid "Watermark mode"
 msgstr ""
 
-#: src/Modules/MediaModule.php:199
+#: src/Modules/MediaModule.php:224
 msgid "Disabled"
 msgstr ""
 
-#: src/Modules/MediaModule.php:207
+#: src/Modules/MediaModule.php:232
 msgid "Watermark position"
 msgstr ""
 
-#: src/Modules/MediaModule.php:210
+#: src/Modules/MediaModule.php:235
 msgid "Center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:211
+#: src/Modules/MediaModule.php:236
 msgid "Center left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:212
+#: src/Modules/MediaModule.php:237
 msgid "Center right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:213
+#: src/Modules/MediaModule.php:238
 msgid "Center top"
 msgstr ""
 
-#: src/Modules/MediaModule.php:214
+#: src/Modules/MediaModule.php:239
 msgid "Center bottom"
 msgstr ""
 
-#: src/Modules/MediaModule.php:215
+#: src/Modules/MediaModule.php:240
 msgid "Top right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:216
+#: src/Modules/MediaModule.php:241
 msgid "Top left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:217
+#: src/Modules/MediaModule.php:242
 msgid "Top center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:218
+#: src/Modules/MediaModule.php:243
 msgid "Bottom right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:219
+#: src/Modules/MediaModule.php:244
 msgid "Bottom left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:220
+#: src/Modules/MediaModule.php:245
 msgid "Bottom center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:226
+#: src/Modules/MediaModule.php:251
 msgid "Watermark image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:227
+#: src/Modules/MediaModule.php:252
 msgid "Media library attachment used in image mode; its own alpha is kept as-is."
 msgstr ""
 
-#: src/Modules/MediaModule.php:233
+#: src/Modules/MediaModule.php:258
 msgid "Watermark text"
 msgstr ""
 
-#: src/Modules/MediaModule.php:239
+#: src/Modules/MediaModule.php:264
 msgid "Watermark font size"
 msgstr ""
 
-#: src/Modules/MediaModule.php:247
+#: src/Modules/MediaModule.php:272
 msgid "Watermark opacity (text)"
 msgstr ""
 
-#: src/Modules/MediaModule.php:248
+#: src/Modules/MediaModule.php:273
 msgid "0 = fully transparent, 100 = fully opaque; applies to the text watermark only."
 msgstr ""
 
-#: src/Modules/MediaModule.php:342
+#: src/Modules/MediaModule.php:367
 msgid "Image processing failed; the upload was cancelled."
 msgstr ""
 

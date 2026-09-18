@@ -262,6 +262,40 @@ final class ContentQuery
     }
 
     /**
+     * The same viewer-relative read as byId, keyed by slug: detail routes
+     * answer slugs, and the page resolves the numeric id only after the
+     * lookup. WP_Query normalizes the incoming slug the same way core
+     * permalinks do (sanitize_title_for_query), so percent-encoded
+     * non-ASCII slugs match the stored post_name.
+     */
+    public function bySlug(string $slug, PublicType $type): ?WP_Post
+    {
+        $found = get_posts([
+            'name' => $slug,
+            'post_type' => $type->postTypes,
+            'post_status' => ['publish', 'private'],
+            'posts_per_page' => 1,
+            'ignore_sticky_posts' => true,
+            'no_found_rows' => true,
+        ]);
+        $post = $found[0] ?? null;
+        if (!$post instanceof WP_Post) {
+            return null;
+        }
+
+        $status = (string) $post->post_status;
+        if ($status === 'publish') {
+            return $post;
+        }
+        if ($status === 'private'
+            && (current_user_can('read_post', $post->ID) || (int) $post->post_author === get_current_user_id())) {
+            return $post;
+        }
+
+        return null;
+    }
+
+    /**
      * Adjacent public posts under the list ordering (date + id, same
      * direction), scoped to the type's WP post types. Two small bounded
      * queries per call; `before`/`after` are inclusive so same-second

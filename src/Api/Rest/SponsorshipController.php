@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Api\Contract\CheckinPolicy;
 use Aiya\Core\Api\Contract\MembershipEntitlement;
 use Aiya\Core\Api\Contract\MembershipState;
+use Aiya\Core\Domain\Credit\CreditSettings;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Sponsorship\AfdianGateway;
 use Aiya\Core\Domain\Sponsorship\EpayGateway;
@@ -135,12 +137,19 @@ final class SponsorshipController
             ))->toArray();
         }
 
+        $checkin = CreditSettings::read();
+
         return new WP_REST_Response((new MembershipState(
             $this->membership->isActive($userId),
             $window['expiresAt'] > 0 ? (string) wp_date('c', $window['expiresAt']) : null,
             $window['nextGrantAt'] > 0 ? (string) wp_date('c', $window['nextGrantAt']) : null,
             $this->ledger->balance($userId),
             $queue,
+            new CheckinPolicy(
+                $checkin['checkinEnabled'],
+                $checkin['checkinCredits'],
+                $checkin['validityDays']
+            ),
         ))->toArray());
     }
 

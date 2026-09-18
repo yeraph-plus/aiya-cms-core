@@ -46,7 +46,7 @@ final class PostPresenter
         return new PostSummary(
             (int) $post->ID,
             (string) $post->post_name,
-            $type->url((int) $post->ID),
+            $type->url((string) $post->post_name),
             $type->name,
             (string) get_the_title($post),
             // A withheld body must not leak its first words either — core
@@ -114,9 +114,11 @@ final class PostPresenter
             $locked,
             $visibility === PostVisibility::PUBLIC ? 'public' : $visibility,
             $gated,
+            comments_open($post),
+            (string) $post->post_excerpt !== '',
             new Seo($summary->title, $summary->excerpt, false),
             [new Breadcrumb($summary->title, null)],
-            $this->featured($post),
+            $this->featured($post, $type),
             isset($neighbors['previous']) && $neighbors['previous'] instanceof WP_Post
                 ? $this->summary($neighbors['previous'], $type)
                 : null,
@@ -239,13 +241,25 @@ final class PostPresenter
     }
 
     /**
-     * The featured image composited at 1000x640 through the media
-     * pipeline (three-layer render) — the detail page's title
-     * background.
+     * The detail hero image. POSTS get the always-valued chain: the
+     * featured image first (1000x240 banner crop), then the site-level
+     * default post cover, then the site fallback cover — all through the
+     * same crop pipeline — and finally the card thumbnail chain; the
+     * front end renders the posts hero without any fallback logic of its
+     * own. PAGES and RESOURCES never ride the site defaults (the type
+     * keeps no hero settings): they answer only their own featured image,
+     * usually unset.
      */
-    private function featured(WP_Post $post): ?Image
+    private function featured(WP_Post $post, PublicType $type): ?Image
     {
-        return $this->cards->featuredFor($post);
+        $own = $this->cards->featuredFor($post);
+        if ($own !== null || $type->name !== 'post') {
+            return $own;
+        }
+
+        return $this->cards->featuredForAttachment((int) aiya_core_opt('frontend', 'default_post_cover', 0))
+            ?? $this->cards->featuredForAttachment((int) aiya_core_opt('frontend', 'default_thumb', 0))
+            ?? $this->cards->resolveFor($post);
     }
 
     /** Author projection by user id; unknown users degrade to an empty author. */
