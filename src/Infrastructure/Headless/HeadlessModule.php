@@ -10,9 +10,9 @@ use Aiya\Core\Settings\Registry;
 
 /**
  * Strips WordPress surfaces that are meaningless for a headless backend
- * (block editor, site editor, nav menus, block widgets, font library,
- * block patterns, pingbacks/trackbacks, XML-RPC, emoji, oEmbed discovery,
- * XML sitemaps, feeds, the native /wp/v2 API)
+ * (block editor, nav menus, block widgets, font library, block patterns,
+ * pingbacks/trackbacks, XML-RPC, emoji, oEmbed discovery, XML sitemaps,
+ * feeds, the native /wp/v2 API)
  * and cleans the remaining front-end head output.
  *
  * Comment storage and moderation stay in WordPress (the classic
@@ -101,8 +101,8 @@ final class HeadlessModule implements Module
                 [
                     'id' => 'disable_appearance',
                     'type' => 'switch',
-                    'label' => __('Site editor and menus', 'aiya-core'),
-                    'checkbox_label' => __('Remove the site editor and menus screens and block direct access', 'aiya-core'),
+                    'label' => __('Menus screen', 'aiya-core'),
+                    'checkbox_label' => __('Remove the menus screen and block direct access', 'aiya-core'),
                     'description' => __('The customizer and themes screens stay available for the shell theme.', 'aiya-core'),
                     'default' => true,
                 ],
@@ -400,19 +400,17 @@ final class HeadlessModule implements Module
     }
 
     /**
-     * Strips the visual-editing leftovers (site editor) and menu
-     * management while the customizer and the themes screen stay
-     * reachable — the shell theme edits its identity (logo, card text)
-     * in the customizer and has to remain switchable from the admin.
-     * Menus have no headless consumer (Navigation settings feed the
-     * API); the entrance is already hidden by the missing theme
-     * support, the submenu removal and the URL guard below close the
-     * rest.
+     * Strips menu management while the customizer, site editor and
+     * themes screens stay reachable — the shell theme edits its
+     * appearance (logo, card text) in the customizer and has to remain
+     * switchable from the admin. Menus have no headless consumer
+     * (Navigation settings feed the API); the entrance is already
+     * hidden by the missing theme support, the submenu removal and the
+     * URL guard below close the rest.
      */
     public function menus(): void
     {
         if ($this->enabled('disable_appearance')) {
-            remove_submenu_page('themes.php', 'site-editor.php');
             remove_submenu_page('themes.php', 'nav-menus.php');
         }
 
@@ -435,7 +433,7 @@ final class HeadlessModule implements Module
 
         $denied = [];
         if ($this->enabled('disable_appearance')) {
-            $denied = ['site-editor.php', 'nav-menus.php'];
+            $denied = ['nav-menus.php'];
         }
         if ($this->enabled('disable_fonts_global_styles')) {
             $denied[] = 'font-library.php';
