@@ -34,16 +34,12 @@ use Aiya\Core\Contracts\Module;
  *    and the auto-excerpt tail is plain '...' instead of the core
  *    bracketed ellipsis for the WP-native surfaces (feeds, fallback template). The API strips the
  *    marker itself; the filter only changes what it has to strip.
- *  - menus: never hard-stripped, only entrance-hidden — the Appearance →
- *    Menus screen is gated on this support in wp-admin/menu.php, and the
- *    shell theme declares no supports of its own. Declaring it restores
- *    the native management surface (2026-09-19 站长拍板); the Navigation
- *    settings stay the API's source of truth for front-end menus.
- *
  * Everything else the legacy theme declared stays retired with the theme
  * front end it served: title-tag and automatic-feed-links only render
  * wp_head output (the fallback template writes its own <title> and must
- * not grow feed links),
+ * not grow feed links), menus have no headless consumer (the Navigation
+ * settings are the API's source of truth; the screen is entrance-hidden
+ * by the missing support and URL-blocked by HeadlessModule),
  * post-formats' only consumer (the Tweet domain) was cancelled, html5
  * shapes theme-rendered core markup, and custom-logo/custom-background
  * are customizer features whose surface HeadlessModule removed.
@@ -68,6 +64,5 @@ final class ThemeSupportModule implements Module
     public function declareSupports(): void
     {
         add_theme_support('post-thumbnails');
-        add_theme_support('menus');
     }
 }

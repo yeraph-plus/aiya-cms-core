@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-17T03:29:30+00:00\n"
+"POT-Creation-Date: 2026-09-18T23:16:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -330,7 +330,7 @@ msgstr ""
 
 #: src/Admin/CreditsPage.php:285
 #: src/Domain/Credit/LedgerService.php:62
-#: src/Domain/Credit/LedgerService.php:118
+#: src/Domain/Credit/LedgerService.php:125
 msgid "The credit holder does not exist."
 msgstr ""
 
@@ -354,7 +354,7 @@ msgid "The operation failed."
 msgstr ""
 
 #: src/Admin/CreditsPage.php:420
-#: src/Domain/Credit/CreditModule.php:85
+#: src/Domain/Credit/CreditModule.php:84
 msgid "Check-in"
 msgstr ""
 
@@ -1135,18 +1135,18 @@ msgid "Registration is currently disabled."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:135
-#: src/Api/Rest/UserController.php:292
+#: src/Api/Rest/UserController.php:291
 msgid "The nickname must be 1-50 characters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:138
 #: src/Api/Rest/AuthController.php:227
-#: src/Api/Rest/UserController.php:315
+#: src/Api/Rest/UserController.php:314
 msgid "The email address is not valid."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:144
-#: src/Api/Rest/UserController.php:317
+#: src/Api/Rest/UserController.php:316
 msgid "This email address is already registered."
 msgstr ""
 
@@ -1168,7 +1168,7 @@ msgid "The email address or the password is incorrect."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:268
-#: src/Api/Rest/UserController.php:407
+#: src/Api/Rest/UserController.php:406
 msgid "Existing sessions could not be invalidated; the password was left unchanged."
 msgstr ""
 
@@ -1177,17 +1177,17 @@ msgid "The reset link is missing required parameters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:293
-#: src/Api/Rest/CounterController.php:81
-#: src/Api/Rest/CounterController.php:96
-#: src/Api/Rest/CounterController.php:115
+#: src/Api/Rest/CounterController.php:82
+#: src/Api/Rest/CounterController.php:97
+#: src/Api/Rest/CounterController.php:117
 #: src/Api/Rest/CreditController.php:118
 #: src/Api/Rest/CreditController.php:150
 #: src/Api/Rest/CreditController.php:161
 #: src/Api/Rest/DiscussionController.php:197
 #: src/Api/Rest/DiscussionController.php:258
-#: src/Api/Rest/SponsorshipController.php:157
-#: src/Api/Rest/UserController.php:198
-#: src/Api/Rest/UserController.php:358
+#: src/Api/Rest/SponsorshipController.php:166
+#: src/Api/Rest/UserController.php:197
+#: src/Api/Rest/UserController.php:357
 msgid "Too many requests, try again later."
 msgstr ""
 
@@ -1206,70 +1206,70 @@ msgstr ""
 #: src/Api/Rest/AuthController.php:334
 #: src/Api/Rest/CreditController.php:194
 #: src/Api/Rest/DiscussionController.php:385
-#: src/Api/Rest/SponsorshipController.php:219
+#: src/Api/Rest/SponsorshipController.php:228
 #: src/Api/Rest/UploadsController.php:55
-#: src/Api/Rest/UserController.php:437
+#: src/Api/Rest/UserController.php:436
 msgid "Authentication required."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:339
-#: src/Api/Rest/CommentsController.php:150
-#: src/Api/Rest/ContentController.php:234
+#: src/Api/Rest/CommentsController.php:181
+#: src/Api/Rest/ContentController.php:259
 #: src/Api/Rest/UploadsController.php:62
-#: src/Api/Rest/UserController.php:252
-#: src/Api/Rest/UserController.php:388
+#: src/Api/Rest/UserController.php:251
+#: src/Api/Rest/UserController.php:387
 msgid "Too many requests, please retry later."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:159
+#: src/Api/Rest/CommentsController.php:190
 msgid "Comments are closed for this content."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:169
+#: src/Api/Rest/CommentsController.php:200
 msgid "The comment is too long."
 msgstr ""
 
 #. translators: %d: maximum comment length.
-#: src/Api/Rest/CommentsController.php:179
+#: src/Api/Rest/CommentsController.php:210
 #, php-format
 msgid "The comment must be 1-%d characters long."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:192
+#: src/Api/Rest/CommentsController.php:223
 msgid "The commented reply does not exist."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:204
+#: src/Api/Rest/CommentsController.php:235
 msgid "Please log in to comment."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:212
+#: src/Api/Rest/CommentsController.php:243
 msgid "Please provide your name and a valid email address to comment."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:248
-#: src/Api/Rest/CommentsController.php:256
-#: src/Api/Rest/CommentsController.php:259
+#: src/Api/Rest/CommentsController.php:279
+#: src/Api/Rest/CommentsController.php:287
+#: src/Api/Rest/CommentsController.php:290
 msgid "The comment could not be posted."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:253
+#: src/Api/Rest/CommentsController.php:284
 msgid "You are commenting too quickly. Slow down."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:318
-#: src/Api/Rest/ContentController.php:203
-#: src/Api/Rest/ContentController.php:208
-#: src/Api/Rest/ContentController.php:249
-#: src/Api/Rest/ContentController.php:285
+#: src/Api/Rest/CommentsController.php:349
+#: src/Api/Rest/ContentController.php:228
+#: src/Api/Rest/ContentController.php:233
+#: src/Api/Rest/ContentController.php:274
+#: src/Api/Rest/ContentController.php:310
 msgid "Content not found."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:259
+#: src/Api/Rest/ContentController.php:284
 msgid "Incorrect password."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:305
+#: src/Api/Rest/ContentController.php:330
 msgid "Profile not found."
 msgstr ""
 
@@ -1286,7 +1286,7 @@ msgid "Already checked in today."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:166
-#: src/Api/Rest/SponsorshipController.php:106
+#: src/Api/Rest/SponsorshipController.php:108
 msgid "The Afdian channel is not available."
 msgstr ""
 
@@ -1312,52 +1312,52 @@ msgstr ""
 msgid "Thread not found."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:112
+#: src/Api/Rest/SponsorshipController.php:114
 msgid "This tier is not bound to an Afdian plan."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:163
+#: src/Api/Rest/SponsorshipController.php:172
 msgid "No payment gateway is available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:166
-#: src/Domain/Sponsorship/EpayGateway.php:64
+#: src/Api/Rest/SponsorshipController.php:175
+#: src/Domain/Sponsorship/EpayGateway.php:63
 msgid "The requested payment channel is not available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:174
+#: src/Api/Rest/SponsorshipController.php:183
 msgid "Unknown membership tier."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:179
+#: src/Api/Rest/SponsorshipController.php:188
 msgid "This membership tier is not available."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:212
+#: src/Api/Rest/UserController.php:211
 msgid "The favorite could not be removed."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:268
+#: src/Api/Rest/UserController.php:267
 msgid "The follow could not be removed."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:328
+#: src/Api/Rest/UserController.php:327
 msgid "The locale is not supported."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:343
+#: src/Api/Rest/UserController.php:342
 msgid "Changing the email address requires the current password."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:348
+#: src/Api/Rest/UserController.php:347
 msgid "The profile could not be saved."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:364
+#: src/Api/Rest/UserController.php:363
 msgid "No avatar image was uploaded."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:394
+#: src/Api/Rest/UserController.php:393
 msgid "The current password is incorrect."
 msgstr ""
 
@@ -1772,32 +1772,32 @@ msgstr ""
 msgid "Remove paragraph indentation"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:79
+#: src/Domain/Credit/CreditModule.php:78
 msgid "Daily check-in"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:86
+#: src/Domain/Credit/CreditModule.php:85
 msgid "Signed-in users claim a small daily credit grant from the front end."
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:92
+#: src/Domain/Credit/CreditModule.php:91
 msgid "Check-in grant"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:93
+#: src/Domain/Credit/CreditModule.php:92
 msgid "Credits added per check-in; 0 disables granting."
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:102
+#: src/Domain/Credit/CreditModule.php:101
 msgid "Credit validity (days)"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:103
+#: src/Domain/Credit/CreditModule.php:102
 msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
 msgstr ""
 
 #: src/Domain/Credit/LedgerService.php:65
-#: src/Domain/Credit/LedgerService.php:121
+#: src/Domain/Credit/LedgerService.php:128
 msgid "The credit amount must be positive."
 msgstr ""
 
@@ -1805,25 +1805,25 @@ msgstr ""
 msgid "The credit source is required."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:91
+#: src/Domain/Credit/LedgerService.php:98
 msgid "This credit grant was already recorded."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:94
+#: src/Domain/Credit/LedgerService.php:101
 msgid "The credit grant could not be stored."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:150
+#: src/Domain/Credit/LedgerService.php:157
 msgid "Not enough credits."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:166
 #: src/Domain/Credit/LedgerService.php:173
-#: src/Domain/Credit/LedgerService.php:201
+#: src/Domain/Credit/LedgerService.php:180
+#: src/Domain/Credit/LedgerService.php:208
 msgid "The spend could not be recorded."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:198
+#: src/Domain/Credit/LedgerService.php:205
 msgid "This spend was already recorded."
 msgstr ""
 
@@ -3229,7 +3229,7 @@ msgstr ""
 msgid "The membership could not be stored."
 msgstr ""
 
-#: src/Domain/Sponsorship/EpayGateway.php:61
+#: src/Domain/Sponsorship/EpayGateway.php:60
 msgid "The Epay channel is not available."
 msgstr ""
 
@@ -3411,132 +3411,132 @@ msgstr ""
 msgid "These tiers still have active members and cannot be deleted: %s."
 msgstr ""
 
+#: src/Infrastructure/Headless/HeadlessModule.php:70
 #: src/Infrastructure/Headless/HeadlessModule.php:71
-#: src/Infrastructure/Headless/HeadlessModule.php:72
 msgid "Optimization"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:79
+#: src/Infrastructure/Headless/HeadlessModule.php:78
 msgid "Stripping is enforced at runtime; REST reads for content stay available for the Astro front end."
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:85
+#: src/Infrastructure/Headless/HeadlessModule.php:84
 msgid "Disabled features"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:91
+#: src/Infrastructure/Headless/HeadlessModule.php:90
 msgid "Block editor (Gutenberg)"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:92
+#: src/Infrastructure/Headless/HeadlessModule.php:91
 msgid "Force the classic editor for every post type"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:98
+#: src/Infrastructure/Headless/HeadlessModule.php:97
 msgid "Block widgets"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:99
+#: src/Infrastructure/Headless/HeadlessModule.php:98
 msgid "Revert the widgets screen to the classic interface"
 msgstr ""
 
+#: src/Infrastructure/Headless/HeadlessModule.php:104
+msgid "Appearance screens"
+msgstr ""
+
 #: src/Infrastructure/Headless/HeadlessModule.php:105
-msgid "Customizer and site editor"
+msgid "Remove the customizer, site editor and menus screens and block direct access"
 msgstr ""
 
 #: src/Infrastructure/Headless/HeadlessModule.php:106
-msgid "Remove the customizer and site editor screens and block direct access"
+msgid "The themes screen stays available so the shell theme can be switched."
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:107
-msgid "The themes screen and menu management stay available so the shell theme can be switched."
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:113
+#: src/Infrastructure/Headless/HeadlessModule.php:112
 msgid "Font library and global styles"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:114
+#: src/Infrastructure/Headless/HeadlessModule.php:113
 msgid "Remove the font library screen and the font/global-style REST routes"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:120
+#: src/Infrastructure/Headless/HeadlessModule.php:119
 msgid "Block patterns and block directory"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:121
+#: src/Infrastructure/Headless/HeadlessModule.php:120
 msgid "Drop core block patterns, remote patterns and their REST routes"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:127
+#: src/Infrastructure/Headless/HeadlessModule.php:126
 msgid "Pingbacks and trackbacks"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:128
+#: src/Infrastructure/Headless/HeadlessModule.php:127
 msgid "Disable the pingback/trackback protocols entirely"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:134
+#: src/Infrastructure/Headless/HeadlessModule.php:133
 msgid "Emoji"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:135
+#: src/Infrastructure/Headless/HeadlessModule.php:134
 msgid "Remove the emoji detection script and staticization filters"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:141
+#: src/Infrastructure/Headless/HeadlessModule.php:140
 msgid "oEmbed discovery"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:142
+#: src/Infrastructure/Headless/HeadlessModule.php:141
 msgid "Remove discovery links, the embed route and auto-embeds"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:148
+#: src/Infrastructure/Headless/HeadlessModule.php:147
 msgid "XML-RPC"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:149
+#: src/Infrastructure/Headless/HeadlessModule.php:148
 msgid "Disable the XML-RPC server entirely"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:155
+#: src/Infrastructure/Headless/HeadlessModule.php:154
 msgid "Front-end head cleanup"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:156
+#: src/Infrastructure/Headless/HeadlessModule.php:155
 msgid "Strip generator, RSD, shortlink, REST hints and block CSS from front-end output"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:162
+#: src/Infrastructure/Headless/HeadlessModule.php:161
 msgid "Native /wp/v2 REST API"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:163
+#: src/Infrastructure/Headless/HeadlessModule.php:162
 msgid "Answer 404 for the whole /wp/v2 API — only the aiya contract routes stay public"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:164
+#: src/Infrastructure/Headless/HeadlessModule.php:163
 msgid "The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Backend sessions (administrator, editor, author) keep the full /wp/v2 for admin screens such as the media picker."
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:170
+#: src/Infrastructure/Headless/HeadlessModule.php:169
 msgid "XML sitemaps"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:171
+#: src/Infrastructure/Headless/HeadlessModule.php:170
 msgid "Answer 404 for wp-sitemap.xml and drop the robots.txt sitemap line"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:177
+#: src/Infrastructure/Headless/HeadlessModule.php:176
 msgid "Feeds"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:178
+#: src/Infrastructure/Headless/HeadlessModule.php:177
 msgid "Answer 404 for every RSS/RDF/Atom feed URL"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:452
+#: src/Infrastructure/Headless/HeadlessModule.php:467
 msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA Core > Optimization."
 msgstr ""
 
