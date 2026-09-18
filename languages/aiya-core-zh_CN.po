@@ -2063,11 +2063,11 @@ msgstr "区块小工具"
 msgid "Revert the widgets screen to the classic interface"
 msgstr "将小工具屏幕恢复为经典界面"
 
-msgid "Menus screen"
-msgstr "菜单屏幕"
+msgid "Site editor and menus"
+msgstr "站点编辑器与菜单"
 
-msgid "Remove the menus screen and block direct access"
-msgstr "移除菜单屏幕并阻止直接访问"
+msgid "Remove the site editor and menus screens and block direct access"
+msgstr "移除站点编辑器与菜单屏幕并阻止直接访问"
 
 msgid "The customizer and themes screens stay available for the shell theme."
 msgstr "定制器与主题屏幕保持可用，供壳主题使用。"

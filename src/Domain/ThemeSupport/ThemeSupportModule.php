@@ -41,10 +41,9 @@ use Aiya\Core\Contracts\Module;
  * settings are the API's source of truth; the screen is entrance-hidden
  * by the missing support and URL-blocked by HeadlessModule),
  * post-formats' only consumer (the Tweet domain) was cancelled, html5
- * shapes theme-rendered core markup, and custom-background is a
- * customizer feature with no shell consumer. custom-logo is NOT declared
- * here: the shell theme owns it outright (Site Identity logo), keeping
- * the theme's appearance self-contained rather than plugin-provided.
+ * shapes theme-rendered core markup, and custom-logo/custom-background
+ * are customizer features with no shell consumer — the shell page
+ * embeds the core Site Icon (Settings → General) directly instead.
  */
 final class ThemeSupportModule implements Module
 {

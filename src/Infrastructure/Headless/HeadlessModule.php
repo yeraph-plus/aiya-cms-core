@@ -101,8 +101,8 @@ final class HeadlessModule implements Module
                 [
                     'id' => 'disable_appearance',
                     'type' => 'switch',
-                    'label' => __('Menus screen', 'aiya-core'),
-                    'checkbox_label' => __('Remove the menus screen and block direct access', 'aiya-core'),
+                    'label' => __('Site editor and menus', 'aiya-core'),
+                    'checkbox_label' => __('Remove the site editor and menus screens and block direct access', 'aiya-core'),
                     'description' => __('The customizer and themes screens stay available for the shell theme.', 'aiya-core'),
                     'default' => true,
                 ],
@@ -400,17 +400,20 @@ final class HeadlessModule implements Module
     }
 
     /**
-     * Strips menu management while the customizer, site editor and
-     * themes screens stay reachable — the shell theme edits its
-     * appearance (logo, card text) in the customizer and has to remain
+     * Strips the visual-editing leftovers (site editor) and menu
+     * management while the customizer and themes screens stay
+     * reachable — the shell theme edits its appearance (site icon,
+     * card text) with stock settings surfaces and has to remain
      * switchable from the admin. Menus have no headless consumer
      * (Navigation settings feed the API); the entrance is already
      * hidden by the missing theme support, the submenu removal and the
-     * URL guard below close the rest.
+     * URL guard below close the rest. The site editor is dead weight on
+     * a classic theme and stays behind the same switch.
      */
     public function menus(): void
     {
         if ($this->enabled('disable_appearance')) {
+            remove_submenu_page('themes.php', 'site-editor.php');
             remove_submenu_page('themes.php', 'nav-menus.php');
         }
 
@@ -433,7 +436,7 @@ final class HeadlessModule implements Module
 
         $denied = [];
         if ($this->enabled('disable_appearance')) {
-            $denied = ['nav-menus.php'];
+            $denied = ['site-editor.php', 'nav-menus.php'];
         }
         if ($this->enabled('disable_fonts_global_styles')) {
             $denied[] = 'font-library.php';
