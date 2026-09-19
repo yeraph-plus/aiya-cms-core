@@ -753,6 +753,7 @@ final class DiscussionService
         );
 
         // The three default boards seed once, on the empty table.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed table name interpolation
         $seeded = (int) $wpdb->get_var("SELECT COUNT(id) FROM $boards");
         if ($seeded === 0) {
             $now = current_time('mysql', true);

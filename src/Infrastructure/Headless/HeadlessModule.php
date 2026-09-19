@@ -264,7 +264,7 @@ final class HeadlessModule implements Module
         );
         $allowed = array_values(array_filter(
             is_array($allowed) ? $allowed : [],
-            static fn ($namespace): bool => is_string($namespace) && $namespace !== ''
+            static fn ($candidate): bool => is_string($candidate) && $candidate !== ''
         ));
 
         foreach (array_keys($endpoints) as $route) {
