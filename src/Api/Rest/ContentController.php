@@ -75,7 +75,6 @@ final class ContentController
             'permission_callback' => '__return_true',
         ]);
 
-
         register_rest_route(Contract::API_NAMESPACE, '/terms', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->terms($request),
