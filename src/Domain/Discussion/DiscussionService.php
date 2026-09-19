@@ -723,63 +723,14 @@ final class DiscussionService
         return $wpdb->prefix . 'aiya_discussion_boards';
     }
 
-    /** Creates both thread tables; the 0.26.0 schema migration callback. */
-    public static function installTables(): void
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $charset = $wpdb->get_charset_collate();
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
-        $threads = $wpdb->prefix . 'aiya_discussions';
-        dbDelta(
-            "CREATE TABLE $threads (
-                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-                user_id BIGINT UNSIGNED NOT NULL,
-                type VARCHAR(20) NOT NULL DEFAULT 'discussion',
-                status VARCHAR(20) NOT NULL DEFAULT 'open',
-                title VARCHAR(191) NOT NULL,
-                content TEXT NOT NULL,
-                post_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
-                reply_count BIGINT UNSIGNED NOT NULL DEFAULT 0,
-                last_reply_user_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
-                last_reply_at DATETIME DEFAULT NULL,
-                created_at DATETIME NOT NULL,
-                updated_at DATETIME NOT NULL,
-                PRIMARY KEY  (id),
-                KEY user_id (user_id),
-                KEY type (type),
-                KEY status (status),
-                KEY post_id (post_id),
-                KEY last_reply_at (last_reply_at)
-            ) $charset;"
-        );
-
-        $replies = $wpdb->prefix . 'aiya_discussion_replies';
-        dbDelta(
-            "CREATE TABLE $replies (
-                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-                thread_id BIGINT UNSIGNED NOT NULL,
-                user_id BIGINT UNSIGNED NOT NULL,
-                content TEXT NOT NULL,
-                created_at DATETIME NOT NULL,
-                updated_at DATETIME NOT NULL,
-                PRIMARY KEY  (id),
-                KEY thread_id (thread_id),
-                KEY user_id (user_id)
-            ) $charset;"
-        );
-    }
-
     /**
-     * The 0.45.0 schema migration: boards table + the type → board_id
-     * swap. Idempotent — every step checks the current shape first, so
-     * fresh installs (0.26.0 → 0.45.0 in one run) and older databases
-     * converge on the same layout. The three legacy type values become
-     * the three seed boards; orphan threads land in the first board.
+     * Creates the three community tables in their final shape and seeds
+     * the three default boards; the clean-release migration callback.
+     * dbDelta fails silently on transient DB hiccups, so every table is
+     * verified afterwards and the runner holds the version back on
+     * failure (the next request retries).
      */
-    public static function migrateToBoards(): void
+    public static function installTables(): void
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
@@ -801,46 +752,58 @@ final class DiscussionService
             ) $charset;"
         );
 
-        $threads = $wpdb->prefix . 'aiya_discussions';
-        // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
-        $columns = $wpdb->get_col("SHOW COLUMNS FROM $threads", 0);
-        $columns = is_array($columns) ? $columns : [];
-
-        // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
+        // The three default boards seed once, on the empty table.
         $seeded = (int) $wpdb->get_var("SELECT COUNT(id) FROM $boards");
         if ($seeded === 0) {
             $now = current_time('mysql', true);
-            $wpdb->insert(
-                $boards,
-                ['slug' => 'discussion', 'name' => '讨论', 'sort' => 1, 'created_at' => $now],
-                ['%s', '%s', '%d', '%s']
-            );
-            $wpdb->insert(
-                $boards,
-                ['slug' => 'question', 'name' => '问答', 'sort' => 2, 'created_at' => $now],
-                ['%s', '%s', '%d', '%s']
-            );
-            $wpdb->insert(
-                $boards,
-                ['slug' => 'feedback', 'name' => '反馈', 'sort' => 3, 'created_at' => $now],
-                ['%s', '%s', '%d', '%s']
-            );
-        }
-        // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
-        $first = (int) $wpdb->get_var("SELECT id FROM $boards ORDER BY sort, id LIMIT 1");
-
-        if (!in_array('board_id', $columns, true)) {
-            // The default mirrors the seed order; orphan backfill below
-            // re-points anything the seeds could not claim.
-            $wpdb->query("ALTER TABLE $threads ADD COLUMN board_id BIGINT UNSIGNED NOT NULL DEFAULT $first AFTER user_id"); // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
-            $wpdb->query("ALTER TABLE $threads ADD KEY board_id (board_id)"); // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
+            $wpdb->insert($boards, ['slug' => 'discussion', 'name' => '讨论', 'sort' => 1, 'created_at' => $now], ['%s', '%s', '%d', '%s']);
+            $wpdb->insert($boards, ['slug' => 'question', 'name' => '问答', 'sort' => 2, 'created_at' => $now], ['%s', '%s', '%d', '%s']);
+            $wpdb->insert($boards, ['slug' => 'feedback', 'name' => '反馈', 'sort' => 3, 'created_at' => $now], ['%s', '%s', '%d', '%s']);
         }
 
-        if (in_array('type', $columns, true)) {
-            $wpdb->query("UPDATE $threads d JOIN $boards b ON b.slug = d.type SET d.board_id = b.id"); // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
-            $wpdb->query("UPDATE $threads d LEFT JOIN $boards b ON b.id = d.board_id SET d.board_id = $first WHERE b.id IS NULL"); // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
-            $wpdb->query("ALTER TABLE $threads DROP INDEX type"); // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
-            $wpdb->query("ALTER TABLE $threads DROP COLUMN type"); // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
+        $threads = $wpdb->prefix . 'aiya_discussions';
+        dbDelta(
+            "CREATE TABLE $threads (
+                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                user_id BIGINT UNSIGNED NOT NULL,
+                board_id BIGINT UNSIGNED NOT NULL DEFAULT 1,
+                status VARCHAR(20) NOT NULL DEFAULT 'open',
+                title VARCHAR(191) NOT NULL,
+                content TEXT NOT NULL,
+                post_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+                reply_count BIGINT UNSIGNED NOT NULL DEFAULT 0,
+                last_reply_user_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+                last_reply_at DATETIME DEFAULT NULL,
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL,
+                PRIMARY KEY  (id),
+                KEY user_id (user_id),
+                KEY board_id (board_id),
+                KEY status (status),
+                KEY post_id (post_id),
+                KEY last_reply_at (last_reply_at)
+            ) $charset;"
+        );
+
+        $replies = $wpdb->prefix . 'aiya_discussion_replies';
+        dbDelta(
+            "CREATE TABLE $replies (
+                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                thread_id BIGINT UNSIGNED NOT NULL,
+                user_id BIGINT UNSIGNED NOT NULL,
+                content TEXT NOT NULL,
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL,
+                PRIMARY KEY  (id),
+                KEY thread_id (thread_id),
+                KEY user_id (user_id)
+            ) $charset;"
+        );
+
+        foreach ([$boards, $threads, $replies] as $table) {
+            if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+                throw new \RuntimeException(sprintf('Table %s was not created.', $table));
+            }
         }
     }
 }

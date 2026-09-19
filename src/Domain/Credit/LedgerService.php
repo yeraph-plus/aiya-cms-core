@@ -309,8 +309,10 @@ final class LedgerService
 
     /**
      * Creates the ledger table with the 0.51.0 dedupe shape (fresh
-     * installs); existing 0.47.0-shape tables are migrated by
-     * upgradeToDedupeKey() — dbDelta cannot replace a unique key.
+     * installs) — the clean-release CREATE with the final shape.
+     * dbDelta fails silently on transient DB hiccups, so the table is
+     * verified afterwards and the runner holds the version back on
+     * failure (the next request retries).
      */
     public static function installTable(): void
     {
@@ -339,58 +341,9 @@ final class LedgerService
                 KEY created_at (created_at)
             ) $charset;"
         );
-    }
 
-    /**
-     * The 0.51.0 idempotency-key migration: the old UNIQUE(source, ref,
-     * user_id) treated every spend as a potential duplicate, which
-     * contradicts the API-style prepaid-deduction model (one download
-     * click = one deduction; the ledger never rejects by destination).
-     * The key moves to a dedicated nullable `dedupe` column — grant rows
-     * carry a derived `source:ref` value, spend rows stay NULL and MySQL
-     * unique keys do not dedupe NULLs. Legacy in rows are backfilled;
-     * re-runs are no-ops (nothing to add = nothing to do).
-     */
-    public static function upgradeToDedupeKey(): void
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $table = $wpdb->prefix . 'aiya_credit_entries';
-
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-shot DDL on the fixed self-owned table; the name never carries input
-        $columns = $wpdb->get_col("SHOW COLUMNS FROM `$table`", 0);
-        if (!is_array($columns)) {
-            return; // table missing — installTable() creates the final shape
-        }
-
-        if (!in_array('dedupe', $columns, true)) {
-            // Add the column first, then backfill — the UPDATE needs the
-            // column to exist; in-row grants keep their idempotency across
-            // the pre-key gap.
-            $wpdb->query("ALTER TABLE `$table` ADD COLUMN dedupe VARCHAR(80) DEFAULT NULL AFTER ref");
-            $wpdb->query(
-                "UPDATE `$table` SET dedupe = CONCAT(source, ':', ref) WHERE direction = 'in'"
-            );
-        }
-
-        $indexes = $wpdb->get_results("SHOW INDEX FROM `$table`", ARRAY_A);
-        // phpcs:enable
-        $hasLegacyKey = false;
-        $hasNewKey = false;
-        foreach (is_array($indexes) ? $indexes : [] as $index) {
-            if ((string) $index['Key_name'] === 'dedupe') {
-                $hasLegacyKey = true;
-            }
-            if ((string) $index['Key_name'] === 'dedupe_key') {
-                $hasNewKey = true;
-            }
-        }
-
-        if ($hasLegacyKey) {
-            $wpdb->query("ALTER TABLE `$table` DROP INDEX `dedupe`"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- DDL as above
-        }
-        if (!$hasNewKey) {
-            $wpdb->query("ALTER TABLE `$table` ADD UNIQUE KEY `dedupe_key` (dedupe, user_id)"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- DDL as above
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+            throw new \RuntimeException(sprintf('Table %s was not created.', $table));
         }
     }
 

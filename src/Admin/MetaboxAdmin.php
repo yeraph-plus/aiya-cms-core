@@ -10,6 +10,7 @@ use Aiya\Core\Metadata\Registry;
 use Aiya\Core\Metadata\TermBox;
 use Aiya\Core\Metadata\Storage\PostMetaStore;
 use Aiya\Core\Settings\ValueNormalizer;
+use WP_Error;
 
 /**
  * Renders and saves the code-declared field groups (post boxes, term boxes,
@@ -29,6 +30,7 @@ final class MetaboxAdmin implements Module
     private const TERM_INPUT = 'aiya_core_term';
     private const USER_INPUT = 'aiya_core_user';
     private const ACTION_INPUT = 'aiya_core_actions';
+    private const ERROR_TRANSIENT = 'aiya_core_meta_save_errors';
 
     public function __construct(private Registry $registry)
     {
@@ -38,6 +40,7 @@ final class MetaboxAdmin implements Module
     {
         add_action('add_meta_boxes', [$this, 'addPostBoxes'], 10, 2);
         add_action('save_post', [$this, 'savePostBoxes'], 10, 2);
+        add_action('admin_notices', [$this, 'renderSaveErrors']);
         add_action('init', [$this, 'attachTermHooks'], 15);
         add_action('show_user_profile', [$this, 'renderUserFields']);
         add_action('edit_user_profile', [$this, 'renderUserFields']);
@@ -142,6 +145,7 @@ final class MetaboxAdmin implements Module
             $store = new PostMetaStore($postId, $box->metaKey());
             $values = $normalizer->normalize($box->fields(), $raw, $store->all());
             if (is_wp_error($values)) {
+                self::stashSaveError($values);
                 continue;
             }
             // A box with no persistable fields (action-checkbox-only, like
@@ -253,6 +257,7 @@ final class MetaboxAdmin implements Module
         $normalizer = new ValueNormalizer();
         $values = $normalizer->normalize($box->fields(), $raw, []);
         if (is_wp_error($values)) {
+            self::stashSaveError($values);
             return;
         }
 
@@ -314,6 +319,7 @@ final class MetaboxAdmin implements Module
         $normalizer = new ValueNormalizer();
         $values = $normalizer->normalize($this->registry->userFields(), $raw, []);
         if (is_wp_error($values)) {
+            self::stashSaveError($values);
             return;
         }
 
@@ -345,5 +351,37 @@ final class MetaboxAdmin implements Module
         wp_enqueue_media();
         wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], AIYA_CORE_VERSION);
         wp_enqueue_script('aiya-core-admin', AIYA_CORE_URL . 'assets/js/admin.js', ['jquery', 'underscore', 'backbone', 'wp-util', 'wp-a11y'], AIYA_CORE_VERSION, true);
+    }
+
+    /**
+     * Stashes one metadata normalization failure for the single next
+     * admin screen. The save hooks cannot echo (headers already sent by
+     * the redirect), and the stale values survive untouched — but the
+     * operator must hear why the page flashed "updated" while nothing
+     * changed (parity with the settings page's redirect-with-error).
+     */
+    private static function stashSaveError(WP_Error $error): void
+    {
+        $messages = (array) get_transient(self::ERROR_TRANSIENT);
+        $messages[] = $error->get_error_message();
+        set_transient(self::ERROR_TRANSIENT, $messages, 2 * MINUTE_IN_SECONDS);
+    }
+
+    /** Renders and clears stashed metadata save errors, once. */
+    public function renderSaveErrors(): void
+    {
+        $messages = get_transient(self::ERROR_TRANSIENT);
+        if (!is_array($messages) || $messages === []) {
+            return;
+        }
+        delete_transient(self::ERROR_TRANSIENT);
+
+        echo '<div class="notice notice-error is-dismissible"><p>';
+        echo esc_html__('Some metadata fields were not saved:', 'aiya-core');
+        echo '</p><ul>';
+        foreach (array_slice($messages, 0, 5) as $message) {
+            echo '<li>' . esc_html((string) $message) . '</li>';
+        }
+        echo '</ul></div>';
     }
 }

@@ -324,32 +324,9 @@ final class NotificationService
                 KEY created_at (created_at)
             ) $charset;"
         );
-    }
 
-    /**
-     * The 0.46.0 schema migration: action provenance columns (actor and
-     * object reference) for the interaction notification listeners.
-     * Idempotent — every step checks the current shape first.
-     */
-    public static function migrateToActions(): void
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $table = $wpdb->prefix . 'aiya_notifications';
-        // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
-        $columns = $wpdb->get_col("SHOW COLUMNS FROM $table", 0);
-        $columns = is_array($columns) ? $columns : [];
-
-        if (!in_array('actor_id', $columns, true)) {
-            $wpdb->query("ALTER TABLE $table ADD COLUMN actor_id BIGINT UNSIGNED NOT NULL DEFAULT 0 AFTER user_id"); // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
-            $wpdb->query("ALTER TABLE $table ADD KEY actor_id (actor_id)"); // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
-        }
-        if (!in_array('object_type', $columns, true)) {
-            $wpdb->query("ALTER TABLE $table ADD COLUMN object_type VARCHAR(20) NOT NULL DEFAULT '' AFTER actor_id"); // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
-        }
-        if (!in_array('object_id', $columns, true)) {
-            $wpdb->query("ALTER TABLE $table ADD COLUMN object_id BIGINT UNSIGNED NOT NULL DEFAULT 0 AFTER object_type"); // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
-            $wpdb->query("ALTER TABLE $table ADD KEY object_ref (object_type, object_id)"); // phpcs:ignore WordPress.DB.PreparedSQL -- internal identifiers, see ARCHITECTURE conventions
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+            throw new \RuntimeException(sprintf('Table %s was not created.', $table));
         }
     }
 

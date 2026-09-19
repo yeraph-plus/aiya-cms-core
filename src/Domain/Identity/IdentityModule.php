@@ -16,7 +16,7 @@ use Aiya\Core\Contracts\Module;
 final class IdentityModule implements Module
 {
     public const CRON_HOOK = 'aiya_core_auth_tokens_cleanup';
-    private const MIGRATION_VERSION = '0.31.0';
+    private const MIGRATION_VERSION = '0.80.0';
 
     public function register(): void
     {
@@ -43,7 +43,7 @@ final class IdentityModule implements Module
         });
     }
 
-    /** Creates the three relation tables; the 0.28.0 migration callback. */
+    /** Creates the three relation tables; the clean-release migration callback. */
     public static function installTables(): void
     {
         global $wpdb;

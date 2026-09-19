@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.79.0\n"
+"Project-Id-Version: AIYA Core 0.80.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-19T01:55:58+00:00\n"
+"POT-Creation-Date: 2026-09-19T03:06:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -354,7 +354,7 @@ msgid "The operation failed."
 msgstr ""
 
 #: src/Admin/CreditsPage.php:420
-#: src/Domain/Credit/CreditModule.php:84
+#: src/Domain/Credit/CreditModule.php:80
 msgid "Check-in"
 msgstr ""
 
@@ -364,7 +364,7 @@ msgstr ""
 
 #: src/Admin/CreditsPage.php:422
 #: src/Admin/PaymentsAuditPage.php:200
-#: src/Domain/Sponsorship/SponsorshipModule.php:80
+#: src/Domain/Sponsorship/SponsorshipModule.php:76
 msgid "Membership"
 msgstr ""
 
@@ -518,7 +518,7 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:384
 #: src/Admin/DiscussionModerationPage.php:407
 #: src/Domain/ExternalFiles/OplistModule.php:232
-#: src/Domain/Sponsorship/SponsorshipModule.php:114
+#: src/Domain/Sponsorship/SponsorshipModule.php:110
 msgid "Name"
 msgstr ""
 
@@ -607,8 +607,12 @@ msgstr ""
 msgid "Add item"
 msgstr ""
 
-#: src/Admin/MetaboxAdmin.php:279
+#: src/Admin/MetaboxAdmin.php:284
 msgid "Additional fields"
+msgstr ""
+
+#: src/Admin/MetaboxAdmin.php:380
+msgid "Some metadata fields were not saved:"
 msgstr ""
 
 #: src/Admin/NotificationPage.php:51
@@ -797,44 +801,44 @@ msgid "Insufficient permissions."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:187
-#: src/Api/Rest/UploadsController.php:67
+#: src/Api/Rest/UploadsController.php:69
 #: src/Domain/Identity/AvatarModule.php:375
 msgid "No file was uploaded."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:190
-#: src/Api/Rest/UploadsController.php:70
+#: src/Api/Rest/UploadsController.php:72
 msgid "Invalid upload."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:193
-#: src/Api/Rest/UploadsController.php:73
+#: src/Api/Rest/UploadsController.php:75
 #: src/Domain/Identity/AvatarModule.php:498
 msgid "The upload failed with a file error."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:198
-#: src/Api/Rest/UploadsController.php:78
+#: src/Api/Rest/UploadsController.php:80
 msgid "The file is too large."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:206
-#: src/Api/Rest/UploadsController.php:86
+#: src/Api/Rest/UploadsController.php:88
 msgid "This file type is not supported."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:211
-#: src/Api/Rest/UploadsController.php:92
+#: src/Api/Rest/UploadsController.php:94
 msgid "The file could not be written."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:217
-#: src/Api/Rest/UploadsController.php:98
+#: src/Api/Rest/UploadsController.php:100
 msgid "Image processing failed."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:224
-#: src/Api/Rest/UploadsController.php:106
+#: src/Api/Rest/UploadsController.php:108
 msgid "The image URL could not be resolved."
 msgstr ""
 
@@ -1185,7 +1189,7 @@ msgstr ""
 #: src/Api/Rest/CreditController.php:161
 #: src/Api/Rest/DiscussionController.php:197
 #: src/Api/Rest/DiscussionController.php:258
-#: src/Api/Rest/SponsorshipController.php:166
+#: src/Api/Rest/SponsorshipController.php:181
 #: src/Api/Rest/UserController.php:197
 #: src/Api/Rest/UserController.php:357
 msgid "Too many requests, try again later."
@@ -1206,8 +1210,8 @@ msgstr ""
 #: src/Api/Rest/AuthController.php:334
 #: src/Api/Rest/CreditController.php:194
 #: src/Api/Rest/DiscussionController.php:385
-#: src/Api/Rest/SponsorshipController.php:228
-#: src/Api/Rest/UploadsController.php:55
+#: src/Api/Rest/SponsorshipController.php:243
+#: src/Api/Rest/UploadsController.php:57
 #: src/Api/Rest/UserController.php:436
 msgid "Authentication required."
 msgstr ""
@@ -1215,7 +1219,7 @@ msgstr ""
 #: src/Api/Rest/AuthController.php:339
 #: src/Api/Rest/CommentsController.php:149
 #: src/Api/Rest/ContentController.php:259
-#: src/Api/Rest/UploadsController.php:62
+#: src/Api/Rest/UploadsController.php:64
 #: src/Api/Rest/UserController.php:251
 #: src/Api/Rest/UserController.php:387
 msgid "Too many requests, please retry later."
@@ -1286,7 +1290,7 @@ msgid "Already checked in today."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:166
-#: src/Api/Rest/SponsorshipController.php:108
+#: src/Api/Rest/SponsorshipController.php:123
 msgid "The Afdian channel is not available."
 msgstr ""
 
@@ -1312,24 +1316,24 @@ msgstr ""
 msgid "Thread not found."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:114
+#: src/Api/Rest/SponsorshipController.php:129
 msgid "This tier is not bound to an Afdian plan."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:172
+#: src/Api/Rest/SponsorshipController.php:187
 msgid "No payment gateway is available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:175
+#: src/Api/Rest/SponsorshipController.php:190
 #: src/Domain/Sponsorship/EpayGateway.php:63
 msgid "The requested payment channel is not available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:183
+#: src/Api/Rest/SponsorshipController.php:198
 msgid "Unknown membership tier."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:188
+#: src/Api/Rest/SponsorshipController.php:203
 msgid "This membership tier is not available."
 msgstr ""
 
@@ -1772,27 +1776,27 @@ msgstr ""
 msgid "Remove paragraph indentation"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:78
+#: src/Domain/Credit/CreditModule.php:74
 msgid "Daily check-in"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:85
+#: src/Domain/Credit/CreditModule.php:81
 msgid "Signed-in users claim a small daily credit grant from the front end."
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:91
+#: src/Domain/Credit/CreditModule.php:87
 msgid "Check-in grant"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:92
+#: src/Domain/Credit/CreditModule.php:88
 msgid "Credits added per check-in; 0 disables granting."
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:101
+#: src/Domain/Credit/CreditModule.php:97
 msgid "Credit validity (days)"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:102
+#: src/Domain/Credit/CreditModule.php:98
 msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
 msgstr ""
 
@@ -2268,7 +2272,7 @@ msgid "Priority"
 msgstr ""
 
 #: src/Domain/DevTools/SamplePage.php:251
-#: src/Domain/Sponsorship/SponsorshipModule.php:101
+#: src/Domain/Sponsorship/SponsorshipModule.php:97
 msgid "Enabled"
 msgstr ""
 
@@ -3241,11 +3245,11 @@ msgstr ""
 msgid "The order user does not exist."
 msgstr ""
 
-#: src/Domain/Sponsorship/OrderService.php:62
+#: src/Domain/Sponsorship/OrderService.php:60
 msgid "This order was already recorded."
 msgstr ""
 
-#: src/Domain/Sponsorship/OrderService.php:65
+#: src/Domain/Sponsorship/OrderService.php:63
 msgid "The order could not be stored."
 msgstr ""
 
@@ -3268,149 +3272,149 @@ msgstr ""
 msgid "The membership activation failed — the code was not consumed, try again."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:79
+#: src/Domain/Sponsorship/SponsorshipModule.php:75
 msgid "Membership settings"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:88
+#: src/Domain/Sponsorship/SponsorshipModule.php:84
 msgid "Tiers"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:94
+#: src/Domain/Sponsorship/SponsorshipModule.php:90
 msgid "Tier list"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:95
+#: src/Domain/Sponsorship/SponsorshipModule.php:91
 msgid "Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:102
+#: src/Domain/Sponsorship/SponsorshipModule.php:98
 msgid "Disabled tiers stay out of the purchase list; existing holders keep their membership."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:108
+#: src/Domain/Sponsorship/SponsorshipModule.php:104
 msgid "Key"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:120
+#: src/Domain/Sponsorship/SponsorshipModule.php:116
 msgid "Price (per cycle)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:128
+#: src/Domain/Sponsorship/SponsorshipModule.php:124
 msgid "Cycle length (days)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:129
+#: src/Domain/Sponsorship/SponsorshipModule.php:125
 msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:138
+#: src/Domain/Sponsorship/SponsorshipModule.php:134
 msgid "Credits per cycle"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:139
+#: src/Domain/Sponsorship/SponsorshipModule.php:135
 msgid "Credit bucket granted at each cycle start."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:153
-#: src/Domain/Sponsorship/SponsorshipModule.php:154
+#: src/Domain/Sponsorship/SponsorshipModule.php:149
+#: src/Domain/Sponsorship/SponsorshipModule.php:150
 msgid "Payments"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:161
+#: src/Domain/Sponsorship/SponsorshipModule.php:157
 msgid "Epay gateway (cashier integration)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:167
+#: src/Domain/Sponsorship/SponsorshipModule.php:163
 msgid "Epay integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:173
+#: src/Domain/Sponsorship/SponsorshipModule.php:169
 msgid "Merchant id (pid)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:179
+#: src/Domain/Sponsorship/SponsorshipModule.php:175
 msgid "Merchant key"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:185
+#: src/Domain/Sponsorship/SponsorshipModule.php:181
 msgid "Gateway submit URL"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:191
+#: src/Domain/Sponsorship/SponsorshipModule.php:187
 msgid "Payment channels"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:192
+#: src/Domain/Sponsorship/SponsorshipModule.php:188
 msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:195
+#: src/Domain/Sponsorship/SponsorshipModule.php:191
 msgid "Alipay"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:196
+#: src/Domain/Sponsorship/SponsorshipModule.php:192
 msgid "WeChat Pay"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:197
+#: src/Domain/Sponsorship/SponsorshipModule.php:193
 msgid "USDT (TRC20)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:203
+#: src/Domain/Sponsorship/SponsorshipModule.php:199
 msgid "Front-end return URL"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:204
+#: src/Domain/Sponsorship/SponsorshipModule.php:200
 msgid "Where the browser lands after paying; the headless front end owns this page."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:210
+#: src/Domain/Sponsorship/SponsorshipModule.php:206
 msgid "Afdian (platform push)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:216
+#: src/Domain/Sponsorship/SponsorshipModule.php:212
 msgid "Afdian integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:217
+#: src/Domain/Sponsorship/SponsorshipModule.php:213
 msgid "Activates memberships from Afdian: signed webhook pushes and the order-number self-service check. Bind the Afdian plan below to one local tier."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:223
+#: src/Domain/Sponsorship/SponsorshipModule.php:219
 msgid "Afdian plan ID"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:224
+#: src/Domain/Sponsorship/SponsorshipModule.php:220
 msgid "The plan_id this membership binds to; orders paid for it auto-activate the bound tier. Leave empty to keep Afdian unbound."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:230
+#: src/Domain/Sponsorship/SponsorshipModule.php:226
 msgid "Bound membership tier"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:231
+#: src/Domain/Sponsorship/SponsorshipModule.php:227
 msgid "The tier (from the membership settings page) that the Afdian plan activates."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:244
+#: src/Domain/Sponsorship/SponsorshipModule.php:240
 msgid "Afdian user id"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:250
+#: src/Domain/Sponsorship/SponsorshipModule.php:246
 msgid "Afdian API token"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:257
+#: src/Domain/Sponsorship/SponsorshipModule.php:253
 msgid "Afdian webhook address"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:258
+#: src/Domain/Sponsorship/SponsorshipModule.php:254
 msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
 msgstr ""
 
 #. translators: %s: tier keys that still have active holders.
-#: src/Domain/Sponsorship/SponsorshipModule.php:404
+#: src/Domain/Sponsorship/SponsorshipModule.php:351
 #, php-format
 msgid "These tiers still have active members and cannot be deleted: %s."
 msgstr ""
@@ -3814,34 +3818,34 @@ msgstr ""
 msgid "A value is required."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:139
+#: src/Settings/ValueNormalizer.php:143
 msgid "Enter a valid number."
 msgstr ""
 
 #. translators: %s: minimum allowed value.
-#: src/Settings/ValueNormalizer.php:146
+#: src/Settings/ValueNormalizer.php:150
 #, php-format
 msgid "The minimum value is %s."
 msgstr ""
 
 #. translators: %s: maximum allowed value.
-#: src/Settings/ValueNormalizer.php:150
+#: src/Settings/ValueNormalizer.php:154
 #, php-format
 msgid "The maximum value is %s."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:158
+#: src/Settings/ValueNormalizer.php:162
 msgid "Enter a valid email address."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:164
+#: src/Settings/ValueNormalizer.php:168
 msgid "Enter a valid URL."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:174
+#: src/Settings/ValueNormalizer.php:178
 msgid "Select a valid media attachment."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:190
+#: src/Settings/ValueNormalizer.php:194
 msgid "Select a valid option."
 msgstr ""

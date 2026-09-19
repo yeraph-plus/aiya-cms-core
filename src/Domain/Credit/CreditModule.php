@@ -25,8 +25,7 @@ use Aiya\Core\Settings\Registry;
 final class CreditModule implements Module
 {
     public const CRON_HOOK = 'aiya_core_credits_cleanup';
-    private const MIGRATION_VERSION = '0.47.0';
-    private const DEDUPE_MIGRATION_VERSION = '0.51.0';
+    private const MIGRATION_VERSION = '0.80.0';
 
     public function __construct(private Registry $settings)
     {
@@ -41,9 +40,6 @@ final class CreditModule implements Module
 
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
             $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [LedgerService::class, 'installTable']];
-            // Idempotency key moves to the dedicated dedupe column
-            // (0.51.0) — spends become repeatable by default.
-            $migrations[] = ['version' => self::DEDUPE_MIGRATION_VERSION, 'callback' => [LedgerService::class, 'upgradeToDedupeKey']];
 
             return $migrations;
         });

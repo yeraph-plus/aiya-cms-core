@@ -2678,3 +2678,6 @@ msgstr "预留给前台资源面板（待该接线落地后，在资源未描述
 
 msgid "Reserved for the front-end resource panel (B3 wiring)."
 msgstr "预留给前台资源面板（B3 接线）。"
+
+msgid "Some metadata fields were not saved:"
+msgstr "部分元数据字段未保存："

@@ -28,9 +28,7 @@ final class SponsorshipModule implements Module
     public const PAYMENTS_PAGE_SLUG = 'sponsorship-payments';
     public const PAYMENTS_OPTION_NAME = 'aiya_core_sponsorship_payments';
     public const CRON_HOOK = 'aiya_core_membership_grants';
-    private const MIGRATION_VERSION = '0.24.0';
-    private const QUEUE_MIGRATION_VERSION = '0.50.0';
-    private const CODES_MIGRATION_VERSION = '0.54.0';
+    private const MIGRATION_VERSION = '0.80.0';
 
     public function __construct(private Registry $settings)
     {
@@ -45,8 +43,6 @@ final class SponsorshipModule implements Module
 
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
             $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'installTables']];
-            $migrations[] = ['version' => self::QUEUE_MIGRATION_VERSION, 'callback' => [self::class, 'upgradeToTierModel']];
-            $migrations[] = ['version' => self::CODES_MIGRATION_VERSION, 'callback' => [self::class, 'upgradeCodesToMembership']];
 
             return $migrations;
         });
@@ -263,10 +259,11 @@ final class SponsorshipModule implements Module
     }
 
     /**
-     * Creates the plugin-owned tables when missing (fresh installs;
-     * existing ones find their schemas and skip). The
-     * `aya_convert_codes` table is NOT part of the clean model — the
-     * 0.54.0 step below creates `aiya_redeem_codes` and drops it.
+     * Creates the three sponsorship tables in their final shape (the
+     * payment log, the entitlement queue and the redeem codes); the
+     * clean-release migration callback. dbDelta fails silently on
+     * transient DB hiccups, so every table is verified afterwards and
+     * the runner holds the version back on failure.
      */
     public static function installTables(): void
     {
@@ -282,79 +279,29 @@ final class SponsorshipModule implements Module
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 user_id BIGINT UNSIGNED NOT NULL,
                 order_id VARCHAR(64) NOT NULL,
-                start_time INT UNSIGNED NOT NULL,
-                duration_days INT UNSIGNED NOT NULL,
                 amount DECIMAL(10,2) NOT NULL DEFAULT 0,
                 tier_key VARCHAR(32) NOT NULL DEFAULT '',
-                source VARCHAR(32) DEFAULT '',
-                status VARCHAR(16) DEFAULT 'paid',
+                source VARCHAR(32) NOT NULL DEFAULT '',
+                status VARCHAR(16) NOT NULL DEFAULT 'paid',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY  (id),
                 UNIQUE KEY order_id (order_id),
                 KEY user_id (user_id)
             ) $charset;"
         );
-    }
-
-    /**
-     * The 0.50.0 tier-model step: the entitlement queue table, the
-     * payment-log columns on the orders table, and the retirement of the
-     * legacy membership protocol meta (unlaunched site — rows die, the
-     * queue derives everything).
-     */
-    public static function upgradeToTierModel(): void
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $charset = $wpdb->get_charset_collate();
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
         EntitlementService::installTable();
-
-        $orders = $wpdb->prefix . 'aiya_payment_orders';
-        dbDelta(
-            "CREATE TABLE $orders (
-                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-                user_id BIGINT UNSIGNED NOT NULL,
-                order_id VARCHAR(64) NOT NULL,
-                start_time INT UNSIGNED NOT NULL,
-                duration_days INT UNSIGNED NOT NULL,
-                amount DECIMAL(10,2) NOT NULL DEFAULT 0,
-                tier_key VARCHAR(32) NOT NULL DEFAULT '',
-                source VARCHAR(32) DEFAULT '',
-                status VARCHAR(16) DEFAULT 'paid',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY  (id),
-                UNIQUE KEY order_id (order_id),
-                KEY user_id (user_id)
-            ) $charset;"
-        );
-
-        // The three legacy membership protocol keys die here (unlaunched
-        // site — rows delete, the queue derives everything). The
-        // expiry-scan marker `aiya_core_sponsor_state_noticed` is NOT in
-        // this list: NotificationActions still uses it as its live dedupe.
-        foreach (['sponsor_expiration', 'aya_force_cancel_sponsor', 'aya_trigger_count_sponsor'] as $key) {
-            $wpdb->delete($wpdb->usermeta, ['meta_key' => $key], ['%s']);
-        }
-    }
-
-    /**
-     * The 0.54.0 redemption-codes step: membership codes move onto the
-     * plugin-owned `aiya_redeem_codes` table; the legacy
-     * `aya_convert_codes` table is dropped outright (never launched —
-     * no rows worth carrying, and its credit semantics died with the
-     * 0.51.0 ledger rework).
-     */
-    public static function upgradeCodesToMembership(): void
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
         RedeemCodeService::installTable();
-        $legacy = $wpdb->prefix . 'aya_convert_codes';
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-shot DDL dropping the retired legacy table
-        $wpdb->query("DROP TABLE IF EXISTS `$legacy`");
+
+        foreach ([
+            $orders,
+            $wpdb->prefix . 'aiya_memberships',
+            $wpdb->prefix . 'aiya_redeem_codes',
+        ] as $table) {
+            if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+                throw new \RuntimeException(sprintf('Table %s was not created.', $table));
+            }
+        }
     }
 
     /**

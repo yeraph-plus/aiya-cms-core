@@ -37,7 +37,7 @@ final class ValueNormalizer
                 $present = true;
             }
 
-            $normalized = $this->field($field, $value, true);
+            $normalized = $this->field($field, $value, $present);
             if (is_wp_error($normalized)) {
                 return $normalized;
             }
@@ -53,7 +53,11 @@ final class ValueNormalizer
     {
         $type = $field->type();
         if ($type === 'multicheck') {
-            // 未勾选任何项时浏览器不发送该键：视为清空而非回退默认值。
+            // 未勾选任何项时浏览器不发送该键：$present=false 即清空，
+            // 绝不回退默认值（否则保存动作会悄悄重新启用全部选项）。
+            if (!$present) {
+                return [];
+            }
             $selected = is_array($value) ? array_values(array_filter(array_map('strval', $value), static fn ($item): bool => $item !== '')) : [];
             $valid = array_map('strval', array_keys($field->options()));
 

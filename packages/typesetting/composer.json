@@ -9,7 +9,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Aiya\Infra\Typesetting\\": "src/"
+            "Aiya\\Infra\\Typesetting\\": "src/"
         }
     }
 }

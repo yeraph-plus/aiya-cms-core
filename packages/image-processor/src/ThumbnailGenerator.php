@@ -56,6 +56,12 @@ final class ThumbnailGenerator extends ImagineAware
             $image = $this->renderFrame($image, $width, $height);
             $image->save($destPath, SaveOptions::withDefaults(pathinfo($destPath, PATHINFO_EXTENSION), $saveOptions));
         } catch (Throwable) {
+            // A mid-write failure leaves a truncated file that the reuse
+            // path above would serve forever — delete the partial output.
+            if (is_file($destPath)) {
+                @unlink($destPath); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- WordPress-free package
+            }
+
             return null;
         }
 

@@ -971,3 +971,18 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 
 - **契约执法补口（0.79.0 追加）**：三处快照外裸形状升格为正式 DTO——`TiersPayload`/`PlanChannels`/`Tier`（购买面）、`UploadResult`/`UploadedImage`（社区上传）、`Comment`/`CommentAuthor`（评论投影），快照重生成 + 前端 zod manifest 同步（vitest 195/195，7 DTO 逐字段吻合零漂移）；`client.uploadImage` 的宽松 url 拾取改 `uploadResultSchema` 全形验证；
 - **已记录待决（不阻塞 1.0）**：`/discussions/boards` 与 `items` 形两种信封偏差待统一；`opencc-convert` 包保持零消费状态（简繁重建待定，站长拍板 2026-09-19）。
+
+### 干净发布批（0.80.0，2026-09-19）—— ✅ 已完成
+
+站长拍板：core 从未上线，1.0 tag 前不允许任何表名迁移、表结构升级与数据/字段转换——安装即最终形态。十条件迁移链折叠为五条纯 CREATE（版本统一 0.80.0），升级专用回调整体删除：
+
+- **Discussion**：`installTables` 直建最终形状（threads 无 `type` 列、`board_id` 就位），三块默认种子（讨论/问答/反馈）从 `migrateToBoards` 迁入（空表守卫，幂等）；`migrateToBoards` 删除；
+- **Credit**：`installTable` 本就是 0.51.0 最终形状，`upgradeToDedupeKey` 删除（其 ALTER-回填两段间的中断半态隐患随之消失）；
+- **Notification**：`installTable` 已含 actor/object 列（0.46.0 折叠完成），`migrateToActions` 删除；
+- **Sponsorship**：`installTables` 一条建三表（payment_orders + memberships + redeem_codes，原 DDL 逐字重复一份的问题消除）；`upgradeToTierModel`/`upgradeCodesToMembership` 删除（legacy usermeta 三键 DELETE 与 `aya_convert_codes` DROP 随之退场）；`payment_orders` 去掉只写 0 从不读的 `start_time`/`duration_days` 两列（写入点同步删除），`source`/`status` 补 NOT NULL 与全仓 DDL 对齐；
+- **重试契约补齐**：五个 CREATE 回调全部补 SHOW TABLES 验证并抛 RuntimeException（沿 IdentityModule 既有纪律）——dbDelta 静默失败时运行器扣住版本号，下一请求重试，而不是带着「成功」标记永久缺表；
+- **uninstall 去 legacy**：`aya_convert_codes` 兜底 DROP 与三个退休 protocol key 的 DELETE 移除（净装库不存在这些对象），仅保留 `aiya_core_sponsor_state_noticed` 活跃标记清理；
+- **第二遍审查修复**：① `ValueNormalizer` multicheck 缺键清空语义落地（原代码 presence 标志硬编码 true，清空保存被默认值静默重启用——补单测）；② `ThumbnailGenerator` 写失败删除截断残片（复用路径曾会把半截文件永久当缓存命中）；③ typesetting 包 composer.json 反斜杠转义修复（原文件非合法 JSON，靠 composer 宽容解析存活）；④ MetaboxAdmin 三处保存静默吞错改为 transient + admin_notices 一次性提示（与设置页 redirect-with-error 对齐）；
+- **dev 库重建实测**：13 表备份（backup-aiya-tables-20260919.sql，含两份无代码引用的 `aya_sponsor_orders` 孤儿 223 行）→ 全删 → 版本标记重置 → 净链一次跑通 11 表 + 种子 + 无迁移错误；社区发帖/板卡、全 REST 矩阵复测正常。phpunit 237/571、phpstan、phpcs 全绿。
+
+**1.0 tag 就绪**：安装路径 = 五条 0.80.0 纯 CREATE，零升级步骤、零数据转换、零 legacy 兼容面（AvatarModule 前缀守卫为防御性存在，非读取路径）。

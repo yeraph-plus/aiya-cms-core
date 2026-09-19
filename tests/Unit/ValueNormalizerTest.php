@@ -63,6 +63,24 @@ final class ValueNormalizerTest extends TestCase
         $this->assertTrue(is_wp_error($high));
     }
 
+    public function testMulticheckAbsentKeyClearsInsteadOfDefaulting(): void
+    {
+        $fields = [Field::fromArray([
+            'id' => 'fixes',
+            'type' => 'multicheck',
+            'options' => ['insertSpace' => 'A', 'removeSpace' => 'B', 'full2Half' => 'C'],
+            'default' => ['insertSpace', 'removeSpace', 'full2Half'],
+        ])];
+
+        $present = $this->normalizer->normalize($fields, ['fixes' => ['insertSpace', 'zzz']]);
+        $this->assertSame(['insertSpace'], $present['fixes']);
+
+        // The browser omits the key when nothing is checked: the save is a
+        // clear, never a silent re-enable of the defaults.
+        $cleared = $this->normalizer->normalize($fields, []);
+        $this->assertSame([], $cleared['fixes']);
+    }
+
     public function testSelectRejectsUnknownChoice(): void
     {
         $fields = [Field::fromArray(['id' => 'mode', 'type' => 'select', 'options' => ['a' => 'A', 'b' => 'B']])];

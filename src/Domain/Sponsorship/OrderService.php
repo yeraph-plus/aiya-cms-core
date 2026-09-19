@@ -46,15 +46,13 @@ final class OrderService
             [
                 'user_id' => $userId,
                 'order_id' => substr($orderId, 0, 64),
-                'start_time' => 0,
-                'duration_days' => 0,
                 'amount' => $amount,
                 'tier_key' => substr($tierKey, 0, 32),
                 'source' => sanitize_text_field($source),
                 'status' => self::STATUS_PAID,
                 'created_at' => current_time('mysql', true),
             ],
-            ['%d', '%s', '%d', '%d', '%f', '%s', '%s', '%s', '%s']
+            ['%d', '%s', '%f', '%s', '%s', '%s', '%s']
         );
 
         if ($inserted === false) {

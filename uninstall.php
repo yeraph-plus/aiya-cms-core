@@ -47,10 +47,7 @@ $delete_site_options = static function () use ($wpdb, $optionLike, $run): void {
 $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_site_options): void {
     $delete_site_options();
 
-    // Plugin-owned tables. The 0.56.0 rename moved the payment log onto
-    // the plugin-owned prefix (aiya_payment_orders); the superseded
-    // wp_aya_convert_codes dies here too (its 0.54.0 migration normally
-    // drops it — this covers never-migrated installs).
+    // Plugin-owned tables (the clean-release CREATE set).
     foreach ([
         $wpdb->prefix . 'aiya_user_favorites',
         $wpdb->prefix . 'aiya_user_follows',
@@ -60,7 +57,6 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
         $wpdb->prefix . 'aiya_memberships',
         $wpdb->prefix . 'aiya_redeem_codes',
         $wpdb->prefix . 'aiya_payment_orders',
-        $wpdb->prefix . 'aya_convert_codes',
         $wpdb->prefix . 'aiya_discussions',
         $wpdb->prefix . 'aiya_discussion_replies',
         $wpdb->prefix . 'aiya_discussion_boards',
@@ -68,9 +64,9 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
         $run($wpdb->prepare('DROP TABLE IF EXISTS %i', $table));
     }
 
-    // Retired membership protocol meta (0.50.0 tier rewrite) — plugin-era
-    // keys with no other writer, so uninstall removes the residue too.
-    foreach (['sponsor_expiration', 'aya_force_cancel_sponsor', 'aya_trigger_count_sponsor', 'aiya_core_sponsor_state_noticed'] as $metaKey) {
+    // The expiry-scan dedupe marker is plugin-era user meta with no
+    // other cleanup path; uninstall removes the residue.
+    foreach (['aiya_core_sponsor_state_noticed'] as $metaKey) {
         $run($wpdb->prepare('DELETE FROM %i WHERE meta_key = %s', $wpdb->usermeta, $metaKey));
     }
 
