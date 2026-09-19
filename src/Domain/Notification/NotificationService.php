@@ -9,10 +9,9 @@ use WP_Error;
 /**
  * Site notification store on its own table (`{prefix}aiya_notifications`):
  * broadcast rows (`user_id` 0, gated by the role ladder) and targeted rows
- * (`user_id` > 0, the future interaction-notification shape). The v1
- * surface only writes `announcement` rows from the admin screen; the
- * schema is deliberately minimal — actor/object columns arrive with the
- * interaction batches through a schema migration.
+ * (`user_id` > 0, the interaction-notification shape the 0.46.0 action
+ * system writes: ten kinds, with the actor/object columns the schema
+ * migration added). The admin broadcast screen rides the same store.
  *
  * Read state is a front-end concern (the client keeps its own last-seen
  * marker), so the service only answers the visible slice for a viewer
@@ -137,7 +136,7 @@ final class NotificationService
      *
      * @return list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>
      */
-    public function visible(int $viewerRank, int $viewerId, int $limit = 50): array
+    public function visible(int $viewerRank, int $viewerId, int $limit = 50, int $offset = 0): array
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
@@ -155,10 +154,11 @@ final class NotificationService
                  FROM %i
                  WHERE (user_id = 0 AND min_role IN ($levels)) OR (user_id = %d)
                  ORDER BY created_at DESC, id DESC
-                 LIMIT %d",
+                 LIMIT %d OFFSET %d",
                 $table,
                 $viewerId,
-                $limit
+                $limit,
+                max(0, $offset)
             ));
             // phpcs:enable
         } else {
@@ -169,14 +169,43 @@ final class NotificationService
                  FROM %i
                  WHERE user_id = 0 AND min_role IN ($levels)
                  ORDER BY created_at DESC, id DESC
-                 LIMIT %d",
+                 LIMIT %d OFFSET %d",
                 $table,
-                $limit
+                $limit,
+                max(0, $offset)
             ));
             // phpcs:enable
         }
 
         return is_array($rows) ? $rows : [];
+    }
+
+    /** Total rows visible to the same viewer, for the feed's pagination. */
+    public function countVisible(int $viewerRank, int $viewerId): int
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $table = $this->table();
+        $levels = self::IN_CLAUSES_BY_RANK[$viewerRank] ?? self::IN_CLAUSES_BY_RANK[0];
+
+        if ($viewerId > 0) {
+            // phpcs:disable WordPress.DB.PreparedSQL -- whitelist IN fragment, as above
+            $total = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM %i WHERE (user_id = 0 AND min_role IN ($levels)) OR (user_id = %d)",
+                $table,
+                $viewerId
+            ));
+            // phpcs:enable
+        } else {
+            // phpcs:disable WordPress.DB.PreparedSQL -- whitelist IN fragment, as above
+            $total = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM %i WHERE user_id = 0 AND min_role IN ($levels)",
+                $table
+            ));
+            // phpcs:enable
+        }
+
+        return (int) ($total ?? 0);
     }
 
     /**

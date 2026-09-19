@@ -13,6 +13,7 @@ use Aiya\Core\Api\Contract\Image;
 use Aiya\Core\Api\Contract\PostRef;
 use Aiya\Core\Domain\Content\PublicTypes;
 use Aiya\Core\Domain\Discussion\DiscussionContent;
+use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Discussion\ThreadStatus;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use WP_Post;
@@ -28,7 +29,10 @@ use WP_Post;
  */
 final class DiscussionPresenter
 {
-    public function __construct(private readonly SmiliesRenderer $smilies)
+    public function __construct(
+        private readonly SmiliesRenderer $smilies,
+        private readonly DiscussionService $threads,
+    )
     {
     }
 
@@ -139,10 +143,10 @@ final class DiscussionPresenter
         );
     }
 
-    /** Mirrors the service's authorization rule for the contract flags. */
+    /** The contract flags come from the service's own rule — one authority, no drift. */
     private function canModerate(int $ownerId, int $viewerId): bool
     {
-        return $ownerId === $viewerId || ($viewerId > 0 && user_can($viewerId, 'edit_pages'));
+        return $this->threads->canModerate($ownerId, $viewerId);
     }
 
     private function iso(string $mysqlGmt): string

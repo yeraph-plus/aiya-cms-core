@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.78.0\n"
+"Project-Id-Version: AIYA Core 0.79.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-19T00:18:37+00:00\n"
+"POT-Creation-Date: 2026-09-19T01:55:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -62,7 +62,7 @@ msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:54
 #: src/Admin/ConvertCodesPage.php:182
-#: src/Admin/ConvertCodesPage.php:207
+#: src/Admin/ConvertCodesPage.php:209
 msgid "You are not allowed to manage redemption codes."
 msgstr ""
 
@@ -153,15 +153,15 @@ msgstr ""
 msgid "Unused"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:220
+#: src/Admin/ConvertCodesPage.php:222
 msgid "Codes generated."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:221
+#: src/Admin/ConvertCodesPage.php:223
 msgid "All codes deleted."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:222
+#: src/Admin/ConvertCodesPage.php:224
 #: src/Admin/NotificationPage.php:217
 msgid "The operation failed — check the values and try again."
 msgstr ""
@@ -364,7 +364,7 @@ msgstr ""
 
 #: src/Admin/CreditsPage.php:422
 #: src/Admin/PaymentsAuditPage.php:200
-#: src/Domain/Sponsorship/SponsorshipModule.php:79
+#: src/Domain/Sponsorship/SponsorshipModule.php:80
 msgid "Membership"
 msgstr ""
 
@@ -517,8 +517,8 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:384
 #: src/Admin/DiscussionModerationPage.php:407
-#: src/Domain/ExternalFiles/OplistModule.php:228
-#: src/Domain/Sponsorship/SponsorshipModule.php:113
+#: src/Domain/ExternalFiles/OplistModule.php:232
+#: src/Domain/Sponsorship/SponsorshipModule.php:114
 msgid "Name"
 msgstr ""
 
@@ -1213,7 +1213,7 @@ msgid "Authentication required."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:339
-#: src/Api/Rest/CommentsController.php:181
+#: src/Api/Rest/CommentsController.php:149
 #: src/Api/Rest/ContentController.php:259
 #: src/Api/Rest/UploadsController.php:62
 #: src/Api/Rest/UserController.php:251
@@ -1221,43 +1221,43 @@ msgstr ""
 msgid "Too many requests, please retry later."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:190
+#: src/Api/Rest/CommentsController.php:158
 msgid "Comments are closed for this content."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:200
+#: src/Api/Rest/CommentsController.php:168
 msgid "The comment is too long."
 msgstr ""
 
 #. translators: %d: maximum comment length.
-#: src/Api/Rest/CommentsController.php:210
+#: src/Api/Rest/CommentsController.php:178
 #, php-format
 msgid "The comment must be 1-%d characters long."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:223
+#: src/Api/Rest/CommentsController.php:189
 msgid "The commented reply does not exist."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:235
+#: src/Api/Rest/CommentsController.php:201
 msgid "Please log in to comment."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:243
+#: src/Api/Rest/CommentsController.php:209
 msgid "Please provide your name and a valid email address to comment."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:279
-#: src/Api/Rest/CommentsController.php:287
-#: src/Api/Rest/CommentsController.php:290
+#: src/Api/Rest/CommentsController.php:245
+#: src/Api/Rest/CommentsController.php:253
+#: src/Api/Rest/CommentsController.php:256
 msgid "The comment could not be posted."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:284
+#: src/Api/Rest/CommentsController.php:250
 msgid "You are commenting too quickly. Slow down."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:349
+#: src/Api/Rest/CommentsController.php:271
 #: src/Api/Rest/ContentController.php:228
 #: src/Api/Rest/ContentController.php:233
 #: src/Api/Rest/ContentController.php:274
@@ -1491,7 +1491,7 @@ msgid "Text"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:145
-#: src/Domain/ExternalFiles/OplistModule.php:234
+#: src/Domain/ExternalFiles/OplistModule.php:238
 msgid "Link"
 msgstr ""
 
@@ -1629,7 +1629,7 @@ msgstr ""
 
 #: src/Domain/Content/SlugModule.php:69
 #: src/Domain/Content/SlugModule.php:89
-#: src/Domain/ExternalFiles/OplistModule.php:140
+#: src/Domain/ExternalFiles/OplistModule.php:142
 #: src/Domain/Identity/AvatarModule.php:108
 #: src/Infrastructure/Security/SecurityModule.php:132
 msgid "Off"
@@ -1819,11 +1819,11 @@ msgstr ""
 
 #: src/Domain/Credit/LedgerService.php:173
 #: src/Domain/Credit/LedgerService.php:180
-#: src/Domain/Credit/LedgerService.php:208
+#: src/Domain/Credit/LedgerService.php:217
 msgid "The spend could not be recorded."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:205
+#: src/Domain/Credit/LedgerService.php:214
 msgid "This spend was already recorded."
 msgstr ""
 
@@ -2268,7 +2268,7 @@ msgid "Priority"
 msgstr ""
 
 #: src/Domain/DevTools/SamplePage.php:251
-#: src/Domain/Sponsorship/SponsorshipModule.php:100
+#: src/Domain/Sponsorship/SponsorshipModule.php:101
 msgid "Enabled"
 msgstr ""
 
@@ -2577,11 +2577,11 @@ msgstr ""
 msgid "The bound content does not exist or cannot carry discussions."
 msgstr ""
 
-#: src/Domain/Engagement/CounterService.php:215
+#: src/Domain/Engagement/CounterService.php:219
 msgid "The content does not exist."
 msgstr ""
 
-#: src/Domain/Engagement/CounterService.php:218
+#: src/Domain/Engagement/CounterService.php:222
 msgid "This content does not carry counters."
 msgstr ""
 
@@ -2679,92 +2679,96 @@ msgstr ""
 msgid "Default panel description"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:118
-msgid "Shown when a resource does not describe its attachments."
+#: src/Domain/ExternalFiles/OplistModule.php:120
+msgid "Reserved for the front-end resource panel (shown when a resource does not describe its attachments once that wiring lands)."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:129
+#: src/Domain/ExternalFiles/OplistModule.php:131
 msgid "OpenList attachments"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:137
+#: src/Domain/ExternalFiles/OplistModule.php:139
 msgid "Surfacing mode"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:141
+#: src/Domain/ExternalFiles/OplistModule.php:143
 msgid "List a directory"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:142
+#: src/Domain/ExternalFiles/OplistModule.php:144
 msgid "Single file or directory"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:143
+#: src/Domain/ExternalFiles/OplistModule.php:145
 msgid "Directory tree"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:144
+#: src/Domain/ExternalFiles/OplistModule.php:146
 msgid "Search"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:150
+#: src/Domain/ExternalFiles/OplistModule.php:152
 msgid "Path"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:156
+#: src/Domain/ExternalFiles/OplistModule.php:158
 msgid "Panel description"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:162
+#: src/Domain/ExternalFiles/OplistModule.php:160
+msgid "Reserved for the front-end resource panel (B3 wiring)."
+msgstr ""
+
+#: src/Domain/ExternalFiles/OplistModule.php:166
 msgid "Search root"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:163
-#: src/Domain/ExternalFiles/OplistModule.php:170
+#: src/Domain/ExternalFiles/OplistModule.php:167
+#: src/Domain/ExternalFiles/OplistModule.php:174
 msgid "Search mode only."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:169
+#: src/Domain/ExternalFiles/OplistModule.php:173
 msgid "Search keywords"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:176
+#: src/Domain/ExternalFiles/OplistModule.php:180
 msgid "Per page"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:177
+#: src/Domain/ExternalFiles/OplistModule.php:181
 msgid "0 lists everything."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:185
+#: src/Domain/ExternalFiles/OplistModule.php:189
 msgid "OpenList path password"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:186
+#: src/Domain/ExternalFiles/OplistModule.php:190
 msgid "The password of the configured path on the OpenList side, if any."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:192
+#: src/Domain/ExternalFiles/OplistModule.php:196
 msgid "Force refresh"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:193
+#: src/Domain/ExternalFiles/OplistModule.php:197
 msgid "Skip the OpenList cache on every listing request."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:213
+#: src/Domain/ExternalFiles/OplistModule.php:217
 msgid "Cloud drive links"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:221
+#: src/Domain/ExternalFiles/OplistModule.php:225
 msgid "Drive links"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:222
+#: src/Domain/ExternalFiles/OplistModule.php:226
 msgid "One row per cloud-drive share: a label, the share URL and the extraction code readers must enter."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:240
+#: src/Domain/ExternalFiles/OplistModule.php:244
 msgid "Extraction code"
 msgstr ""
 
@@ -3005,23 +3009,23 @@ msgstr ""
 msgid "Your membership expires on %s. Renew to keep the perks."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:95
+#: src/Domain/Notification/NotificationService.php:94
 msgid "Notification title is required."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:98
+#: src/Domain/Notification/NotificationService.php:97
 msgid "Unknown notification role level."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:101
+#: src/Domain/Notification/NotificationService.php:100
 msgid "Unknown notification type."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:104
+#: src/Domain/Notification/NotificationService.php:103
 msgid "Invalid notification recipient."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:126
+#: src/Domain/Notification/NotificationService.php:125
 msgid "The notification could not be stored."
 msgstr ""
 
@@ -3264,149 +3268,149 @@ msgstr ""
 msgid "The membership activation failed — the code was not consumed, try again."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:78
+#: src/Domain/Sponsorship/SponsorshipModule.php:79
 msgid "Membership settings"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:87
+#: src/Domain/Sponsorship/SponsorshipModule.php:88
 msgid "Tiers"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:93
+#: src/Domain/Sponsorship/SponsorshipModule.php:94
 msgid "Tier list"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:94
+#: src/Domain/Sponsorship/SponsorshipModule.php:95
 msgid "Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:101
+#: src/Domain/Sponsorship/SponsorshipModule.php:102
 msgid "Disabled tiers stay out of the purchase list; existing holders keep their membership."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:107
+#: src/Domain/Sponsorship/SponsorshipModule.php:108
 msgid "Key"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:119
+#: src/Domain/Sponsorship/SponsorshipModule.php:120
 msgid "Price (per cycle)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:127
+#: src/Domain/Sponsorship/SponsorshipModule.php:128
 msgid "Cycle length (days)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:128
+#: src/Domain/Sponsorship/SponsorshipModule.php:129
 msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:137
+#: src/Domain/Sponsorship/SponsorshipModule.php:138
 msgid "Credits per cycle"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:138
+#: src/Domain/Sponsorship/SponsorshipModule.php:139
 msgid "Credit bucket granted at each cycle start."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:152
 #: src/Domain/Sponsorship/SponsorshipModule.php:153
+#: src/Domain/Sponsorship/SponsorshipModule.php:154
 msgid "Payments"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:160
+#: src/Domain/Sponsorship/SponsorshipModule.php:161
 msgid "Epay gateway (cashier integration)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:166
+#: src/Domain/Sponsorship/SponsorshipModule.php:167
 msgid "Epay integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:172
+#: src/Domain/Sponsorship/SponsorshipModule.php:173
 msgid "Merchant id (pid)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:178
+#: src/Domain/Sponsorship/SponsorshipModule.php:179
 msgid "Merchant key"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:184
+#: src/Domain/Sponsorship/SponsorshipModule.php:185
 msgid "Gateway submit URL"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:190
+#: src/Domain/Sponsorship/SponsorshipModule.php:191
 msgid "Payment channels"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:191
+#: src/Domain/Sponsorship/SponsorshipModule.php:192
 msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:194
+#: src/Domain/Sponsorship/SponsorshipModule.php:195
 msgid "Alipay"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:195
+#: src/Domain/Sponsorship/SponsorshipModule.php:196
 msgid "WeChat Pay"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:196
+#: src/Domain/Sponsorship/SponsorshipModule.php:197
 msgid "USDT (TRC20)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:202
+#: src/Domain/Sponsorship/SponsorshipModule.php:203
 msgid "Front-end return URL"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:203
+#: src/Domain/Sponsorship/SponsorshipModule.php:204
 msgid "Where the browser lands after paying; the headless front end owns this page."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:209
+#: src/Domain/Sponsorship/SponsorshipModule.php:210
 msgid "Afdian (platform push)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:215
+#: src/Domain/Sponsorship/SponsorshipModule.php:216
 msgid "Afdian integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:216
+#: src/Domain/Sponsorship/SponsorshipModule.php:217
 msgid "Activates memberships from Afdian: signed webhook pushes and the order-number self-service check. Bind the Afdian plan below to one local tier."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:222
+#: src/Domain/Sponsorship/SponsorshipModule.php:223
 msgid "Afdian plan ID"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:223
+#: src/Domain/Sponsorship/SponsorshipModule.php:224
 msgid "The plan_id this membership binds to; orders paid for it auto-activate the bound tier. Leave empty to keep Afdian unbound."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:229
+#: src/Domain/Sponsorship/SponsorshipModule.php:230
 msgid "Bound membership tier"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:230
+#: src/Domain/Sponsorship/SponsorshipModule.php:231
 msgid "The tier (from the membership settings page) that the Afdian plan activates."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:243
+#: src/Domain/Sponsorship/SponsorshipModule.php:244
 msgid "Afdian user id"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:249
+#: src/Domain/Sponsorship/SponsorshipModule.php:250
 msgid "Afdian API token"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:256
+#: src/Domain/Sponsorship/SponsorshipModule.php:257
 msgid "Afdian webhook address"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:257
+#: src/Domain/Sponsorship/SponsorshipModule.php:258
 msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
 msgstr ""
 
 #. translators: %s: tier keys that still have active holders.
-#: src/Domain/Sponsorship/SponsorshipModule.php:403
+#: src/Domain/Sponsorship/SponsorshipModule.php:404
 #, php-format
 msgid "These tiers still have active members and cannot be deleted: %s."
 msgstr ""

@@ -115,7 +115,9 @@ final class OplistModule implements Module
                     'id' => 'oplist_file_desc',
                     'type' => 'textarea',
                     'label' => __('Default panel description', 'aiya-core'),
-                    'description' => __('Shown when a resource does not describe its attachments.', 'aiya-core'),
+                    // Persisted for the B3 resource read layer; the
+                    // attachments wire shape does not carry it yet.
+                    'description' => __('Reserved for the front-end resource panel (shown when a resource does not describe its attachments once that wiring lands).', 'aiya-core'),
                     'default' => '',
                 ],
             ],
@@ -154,6 +156,8 @@ final class OplistModule implements Module
                     'id' => 'desc',
                     'type' => 'textarea',
                     'label' => __('Panel description', 'aiya-core'),
+                    // Same B3 reservation as the page-level default above.
+                    'description' => __('Reserved for the front-end resource panel (B3 wiring).', 'aiya-core'),
                     'default' => '',
                 ],
                 [

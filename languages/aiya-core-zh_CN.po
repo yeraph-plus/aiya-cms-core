@@ -1,9 +1,27 @@
 # aiya-core 简体中文翻译。
+# This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-
-msgid ""
-msgstr ""
+"Project-Id-Version: AIYA Core 0.79.0
+"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core
+"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>
+"
+"Language-Team: LANGUAGE <LL@li.org>
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=UTF-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+"PO-Revision-Date: 2026-09-19 10:00+0800
+"
+"X-Generator: WP-CLI 2.12.0
+"
+"X-Domain: aiya-core
+"
 
 msgid "AIYA Core"
 msgstr "AIYA Core"
@@ -462,7 +480,7 @@ msgid "Pic bed"
 msgstr "图床"
 
 msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk."
-msgstr "将图片上传到 wp-content/upload-pics，不占用媒体库与 uploads 目录：无附件 ID、不生成 WP 缩略图。每张图都会经过图像处理器处理一次，落盘的即是处理后的文件。"
+msgstr "将图片上传到 wp-content/aiya_upload_pics，不占用媒体库与 uploads 目录：无附件 ID、不生成 WP 缩略图。每张图都会经过图像处理器处理一次，落盘的即是处理后的文件。"
 
 msgid "Upload"
 msgstr "上传"
@@ -2654,3 +2672,9 @@ msgstr "文章页在文章没有自己的特色图时展示的头部封面（自
 
 msgid "Please log in to interact."
 msgstr "登录后才能点赞或评分。"
+
+msgid "Reserved for the front-end resource panel (shown when a resource does not describe its attachments once that wiring lands)."
+msgstr "预留给前台资源面板（待该接线落地后，在资源未描述其附件时显示）。"
+
+msgid "Reserved for the front-end resource panel (B3 wiring)."
+msgstr "预留给前台资源面板（B3 接线）。"

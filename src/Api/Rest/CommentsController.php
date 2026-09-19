@@ -6,11 +6,10 @@ namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Contract\Pagination;
-use Aiya\Core\Domain\Smilies\SmiliesRenderer;
+use Aiya\Core\Api\Presenter\CommentPresenter;
+use Aiya\Core\Domain\Content\CommentQuery;
 use WP_Comment;
-use WP_Comment_Query;
 use WP_Error;
-use WP_Post;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -29,12 +28,15 @@ use WP_User;
  * status instead of a silent 404-style drop. Bodies carry kses'd
  * restricted HTML so the shared tiptap editor (and its uploaded images)
  * survives storage; the read path re-runs the whitelist.
+ *
+ * Layer split: reads go through Domain\Content\CommentQuery and the wire
+ * projection through Api\Presenter\CommentPresenter (whose ALLOWED_TAGS
+ * is the whitelist the write-side kses reuses). wp_new_comment stays
+ * here on purpose — it IS the moderation pipeline this controller
+ * orchestrates, not a query to wrap.
  */
 final class CommentsController
 {
-    /** Types that may carry comments; matches the counter feature matrix. */
-    private const COMMENTABLE_TYPES = ['post', 'page', 'resource'];
-
     private const MAX_BODY_LENGTH = 5000;
     private const MAX_BODY_RAW_LENGTH = 20000;
     private const HITS = 5;
@@ -61,31 +63,10 @@ final class CommentsController
         return (string) get_option('default_comments_page', 'newest') === 'oldest' ? 'asc' : 'desc';
     }
 
-    /**
-     * Rich-comment whitelist (2026-09-17 batch): comment bodies ride as
-     * restricted HTML so the shared tiptap editor and its uploaded images
-     * survive storage. kses runs at write AND read (idempotent, and it
-     * keeps legacy plain-text rows on the same path); the front end runs
-     * its own sanitizer on top as defense in depth.
-     */
-    private const ALLOWED_TAGS = [
-        'p' => [],
-        'br' => [],
-        'strong' => [],
-        'em' => [],
-        'b' => [],
-        'i' => [],
-        'u' => [],
-        's' => [],
-        'blockquote' => [],
-        'code' => [],
-        'span' => ['data-spoiler' => true],
-        'img' => ['src' => true, 'alt' => true, 'class' => true, 'loading' => true],
-    ];
-
     public function __construct(
         private RateLimiter $rateLimiter,
-        private readonly SmiliesRenderer $smilies,
+        private readonly CommentQuery $query,
+        private readonly CommentPresenter $presenter,
     ) {
     }
 
@@ -136,34 +117,21 @@ final class CommentsController
     private function list(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         $postId = (int) $request->get_param('id');
-        if ($this->publicPost($postId) === null) {
+        if ($this->query->commentablePost($postId) === null) {
             return $this->notFound();
         }
 
         $page = (int) $request->get_param('page');
         $perPage = (int) $request->get_param('perPage');
 
-        $countQuery = new WP_Comment_Query([
-            'post_id' => $postId,
-            'status' => 'approve',
-            'count' => true,
-        ]);
-        $total = (int) ($countQuery->total_comments ?? 0);
-
-        $query = new WP_Comment_Query([
-            'post_id' => $postId,
-            'status' => 'approve',
-            'order' => (string) $request->get_param('order') === 'desc' ? 'DESC' : 'ASC',
-            'number' => min(100, max(1, $perPage)),
-            'paged' => max(1, $page),
-        ]);
-
-        $items = [];
-        foreach (is_array($query->comments) ? $query->comments : [] as $comment) {
-            if ($comment instanceof WP_Comment) {
-                $items[] = $this->present($comment);
-            }
-        }
+        $result = $this->query->page(
+            $postId,
+            $page,
+            $perPage,
+            (string) $request->get_param('order') === 'desc' ? 'desc' : 'asc'
+        );
+        $items = array_map($this->presenter->present(...), $result['items']);
+        $total = $result['total'];
 
         return new WP_REST_Response([
             'data' => $items,
@@ -182,7 +150,7 @@ final class CommentsController
         }
 
         $postId = (int) $request->get_param('id');
-        $post = $this->publicPost($postId);
+        $post = $this->query->commentablePost($postId);
         if ($post === null) {
             return $this->notFound();
         }
@@ -216,10 +184,8 @@ final class CommentsController
 
         $parentId = (int) $request->get_param('parentId');
         if ($parentId > 0) {
-            $parent = get_comment($parentId);
-            if (!$parent instanceof WP_Comment
-                || (int) $parent->comment_post_ID !== $postId
-                || (string) $parent->comment_approved !== '1') {
+            $parent = $this->query->approvedById($parentId);
+            if (!$parent instanceof WP_Comment || (int) $parent->comment_post_ID !== $postId) {
                 return new WP_Error('aiya_invalid_parent', __('The commented reply does not exist.', 'aiya-core'), ['status' => 400]);
             }
         }
@@ -262,7 +228,7 @@ final class CommentsController
             'comment_author' => $authorName,
             'comment_author_email' => $authorEmail,
             'comment_author_url' => '',
-            'comment_content' => wp_kses($raw, self::ALLOWED_TAGS),
+            'comment_content' => wp_kses($raw, CommentPresenter::ALLOWED_TAGS),
             'user_id' => $loggedIn ? (int) $user->ID : 0,
             'comment_author_IP' => \Aiya\Core\Infrastructure\Http\ClientIp::forVisitor(),
             'comment_agent' => (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''),
@@ -298,50 +264,6 @@ final class CommentsController
             'id' => $commentId,
             'status' => $approved ? 'approved' : 'held',
         ]);
-    }
-
-    /**
-     * Resolves a public, non-protected post of a commentable type;
-     * anything else answers 404 like content that does not exist.
-     */
-    private function publicPost(int $id): ?WP_Post
-    {
-        $post = get_post($id);
-        if (!$post instanceof WP_Post
-            || !in_array($post->post_type, self::COMMENTABLE_TYPES, true)
-            || $post->post_status !== 'publish'
-            || (string) $post->post_password !== '') {
-            return null;
-        }
-
-        return $post;
-    }
-
-    /** @return array<string, mixed> */
-    private function present(WP_Comment $comment): array
-    {
-        $authorId = (int) $comment->user_id;
-        $avatar = get_avatar_url($authorId > 0 ? $authorId : (string) $comment->comment_author_email, ['size' => 64]);
-
-        $publishedAt = mysql2date('c', (string) $comment->comment_date, false);
-
-        return [
-            'id' => (int) $comment->comment_ID,
-            'parentId' => (int) $comment->comment_parent > 0 ? (int) $comment->comment_parent : null,
-            'author' => [
-                'id' => $authorId,
-                'name' => (string) $comment->comment_author,
-                'avatar' => is_string($avatar) && $avatar !== '' ? $avatar : null,
-            ],
-            'body' => (string) $comment->comment_content,
-            // Storage carries kses'd restricted HTML (legacy rows are the
-            // plain text they always were); the read re-runs the whitelist
-            // and lets the renderer inject exactly its whitelisted smilies
-            // imgs — the state machine only touches text nodes. `body`
-            // stays the source form.
-            'bodyHtml' => $this->smilies->render(wp_kses((string) $comment->comment_content, self::ALLOWED_TAGS)),
-            'publishedAt' => is_string($publishedAt) ? $publishedAt : '',
-        ];
     }
 
     private function notFound(): WP_Error

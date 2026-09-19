@@ -23,9 +23,9 @@ use WP_REST_Server;
  * The viewer's own credit surface of the versioned API: the derived
  * balance, the paged personal ledger, the daily check-in grant and code
  * redemption. All routes are bearer/cookie authenticated — credits are
- * per-user state. Check-in and redemption idempotency rides the ledger's
- * unique (source, ref, user) key plus the code's single-use claim: a
- * second attempt answers 409, never double-grants.
+ * per-user state. Check-in idempotency rides the ledger's derived dedupe
+ * key (source:ref) and redemption the code's single-use claim: a second
+ * attempt answers 409, never double-grants.
  */
 final class CreditController
 {

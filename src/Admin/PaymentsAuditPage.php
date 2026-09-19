@@ -80,7 +80,7 @@ final class PaymentsAuditPage implements Module
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ditto
         $source = sanitize_key((string) ($_GET['source'] ?? ''));
 
-        $result = $this->orders->list($paged, self::PER_PAGE, $userId > 0 ? $userId : null);
+        $result = $this->orders->list($paged, self::PER_PAGE, $userId > 0 ? $userId : null, $source !== '' ? $source : null);
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Payment audit', 'aiya-core'); ?></h1>

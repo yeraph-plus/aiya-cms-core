@@ -15,7 +15,8 @@ use WP_Error;
  * schema migration runner, the legacy protocol-meta retirement, the
  * daily cycle-grant cron, and the domain's settings page under the
  * membership menu (Epay credentials + the tier repeater; the Afdian
- * integration is parked — SDK retained, nothing wired). The payment log
+ * integration is wired through its own gateway adapter and webhook
+ * route since 0.61.0). The payment log
  * lives on `wp_aiya_payment_orders` (renamed from the legacy
  * `aya_sponsor_orders` name in 0.56.0 — the site never launched, so the
  * rename is a fresh-install DDL name change, not a data migration).

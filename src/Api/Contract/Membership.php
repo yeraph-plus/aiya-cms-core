@@ -6,7 +6,8 @@ namespace Aiya\Core\Api\Contract;
 
 /**
  * Membership projection of a profile owner. `status`/`renewsAt` derive
- * from the persistent sponsor protocol meta; `label` and `benefits` are
+ * from the entitlement queue (the 0.50.0 tier model; the sponsor meta
+ * protocol keys were retired with it); `label` and `benefits` are
  * deliberately empty — display copy belongs to the front end's own i18n
  * (decision D4/D8), so the backend never localizes membership wording.
  */

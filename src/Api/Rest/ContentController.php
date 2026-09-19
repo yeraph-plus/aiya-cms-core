@@ -117,7 +117,7 @@ final class ContentController
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->profile($request),
             'permission_callback' => '__return_true',
             'args' => [
-                'slug' => ['type' => 'string', 'required' => true],
+                'slug' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
             ],
         ]);
     }
@@ -168,7 +168,7 @@ final class ContentController
             'callback' => fn (WP_REST_Request $request) => $this->detail($request, $typeName),
             'permission_callback' => '__return_true',
             'args' => [
-                'slug' => ['type' => 'string', 'required' => true],
+                'slug' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
             ],
         ]);
     }

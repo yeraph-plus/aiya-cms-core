@@ -87,14 +87,20 @@ final class OrderService
      *
      * @return array{items: list<array<string,mixed>>, total: int, pages: int}
      */
-    public function list(int $paged = 1, int $perPage = 20, ?int $userId = null): array
+    public function list(int $paged = 1, int $perPage = 20, ?int $userId = null, ?string $source = null): array
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
         $table = $this->table();
-        $where = $userId !== null && $userId > 0
-            ? ' WHERE user_id = ' . (int) $userId
-            : '';
+        $conditions = [];
+        if ($userId !== null && $userId > 0) {
+            $conditions[] = 'user_id = ' . (int) $userId;
+        }
+        // Whitelist constants, never caller text.
+        if ($source !== null && in_array($source, ['epay', 'afdian'], true)) {
+            $conditions[] = "source = '" . $source . "'";
+        }
+        $where = $conditions === [] ? '' : ' WHERE ' . implode(' AND ', $conditions);
         $perPage = max(1, $perPage);
         $offset = (max(1, $paged) - 1) * $perPage;
 

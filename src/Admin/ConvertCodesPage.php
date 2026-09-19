@@ -190,10 +190,12 @@ final class ConvertCodesPage implements Module
         if ($quantity < 1 || $quantity > 200 || $tierKey === '' || $cycles < 1 || $cycles > 60) {
             $this->redirectBack(['aiya_note' => 'failed']);
         }
-        // Only configured, enabled tiers may back a code — a typo'd or
-        // stale tier key would otherwise mint codes that can never redeem.
+        // Only configured, enabled tiers may back a code — a typo'd,
+        // stale or disabled tier key would otherwise mint codes the
+        // purchase list refuses to honor. read() normalizes every tier
+        // with a boolean `enabled`, so the pluck value is the guard.
         $configured = wp_list_pluck(SponsorshipSettings::read()['tiers'] ?? [], 'enabled', 'key');
-        if (!array_key_exists($tierKey, $configured)) {
+        if (!($configured[$tierKey] ?? false)) {
             $this->redirectBack(['aiya_note' => 'failed']);
         }
 

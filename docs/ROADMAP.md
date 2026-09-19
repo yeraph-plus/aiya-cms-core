@@ -924,3 +924,49 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **孤儿清理**：`CoverService` 生成新封面时删除被替换的旧封面文件（仅限 `coverDir()` 下符合 `\d{14}_\d{4}` 托管命名模式的文件，手改值不误删——旧自动卡片的孤儿同样被清）；
 - **image-processor 卫生**：`CoverGenerator::drawCenterTitle` 的衬条取色（20×20 采样）从行循环内提升到循环外——采样对象是未污染画布，且 Imagick 下省一半 getColorAt 调用；删除从未使用的 `$maxWidth` 死代码。包内其余（Colors/ImagineAware/SaveOptions/FirstImageMatcher/WatermarkSpec/UploadApplier/ImagineFactory 探针）审查通过；
 - **metabox 传参核实无问题**：model/title/colors 经 sanitize 后全量进 `CoverSpec::fromArray`，映射完整；字体解析（配置缺失回退包内 AlibabaPuHuiTi）与 Imagick 探针正常。**调度简化（站长拍板）**：`refreshFor` 增 `force` 参数——保存钩子路径改为「`_thumb` 已存在即跳过」（首次发布生成、后续保存不再重derive，特色图变更后靠批量刷新强制更新）；批量「刷新缩略图」为唯一强制口（`force: true` 重derive 自动卡片）；手动封面在两种路径下都绝对跳过。**孤儿收口**：`delete_post` 时清除 `thumbnail/cover/` 下的托管卡片文件（`\d{14}_\d{4}` 命名匹配，手改值不误删）——postmeta 随文章级联删除后文件不再遗留。
+
+### 详情路由 slug 化（0.75.0，2026-09-18）—— ✅ 已完成
+
+详情读端从 id 键改 slug 键：`ContentQuery::bySlug()`（WP_Query name 匹配 + publish/private 查看者判定），路由 `/posts|pages|resources/{slug}`（URL 模板 `%s`），邻接文章仅 post 详情携带（page/resource 空对，契约字段保留）。审查补：slug 参数 maxLength 200。
+
+### 评论富文本与互动登录墙（0.76.0，2026-09-18）—— ✅ 已完成
+
+- 评论体改 kses 白名单受限 HTML（写读双侧过滤，宽限 tiptap 编辑器与上传图 `<img>`），可见文本 5000 字上限 + 原始 20000 上限；游客评论跟 `comment_registration` 开关（原生 name/email 字段 + require_name_email），读端增 `order` 参数；
+- 点赞/评分改登录-only（访客哈希去重易刷，视图保持公开）；
+- 上传端 docblock 更新：评论可嵌图片 HTML。
+
+### 壳层细节透出与 hero 重排（0.77.0，2026-09-18）—— ✅ 已完成
+
+- `LightboxModule`：the_content 后期 pass 给内容图盖 `aiya-lightbox` class（跳过 smilies 图）；
+- `PostDetail` 增 `commentsOpen`（comments_open 镜像）与 `hasManualExcerpt`（区分手写摘要与自动摘要）；
+- 详情 hero 改 1000×240 banner 裁剪（原 1000×640），post 类型走「特色图 → 站级默认文章封面（新 Frontend 设置 `default_post_cover`）→ 站级兜底图」链，page/resource 不吃站级默认；
+- `SiteComments` 加法透出 `commentRegistration`（游客评论开关）。
+
+### 默认值归站点设置 + 签到策略透出（0.78.0，2026-09-19）—— ✅ 已完成
+
+- 内容列表 `perPage` 默认改读 `posts_per_page`（-1「显示全部」映射 API 上限 100），评论列表默认读 `comments_per_page`/`default_comments_page`——显式传值恒优先；前端四个查询 schema 的写死 `.default()` 改 optional；
+- `MembershipState` 加法增 `checkin`（新 `CheckinPolicy` DTO：enabled/credits/validityDays，读 membership 页设置），契约快照重生成；related 代理 `number` 真透传（原本地 slice 遮蔽）。
+
+### 发布审查批（0.79.0，2026-09-19）—— ✅ 已完成
+
+1.0 前全量审查（API/Domain/Admin/发布机械四面并行）后修复：
+
+- **CommentsController 层级重构（高）**：读侧 WP_Comment_Query 与 post/comment 查找下沉 `Domain/Content/CommentQuery`，投影迁 `Api/Presenter/CommentPresenter`（kses 白名单随迁为写读共用契约）；wp_new_comment 留控制器（即被编排的审核管线本身，docblock 记明）；
+- **通知列表分页（中）**：`NotificationService::countVisible()` + visible 增 offset，`/notifications` 增 page/perPage 与标准 `meta.pagination`（原 50 条硬顶无分页无提示）；
+- **支付审计页 source 过滤器（中）**：原来下拉只改表单不进查询——`OrderService::list` 增白名单 source 条件接通；
+- **兑换码档位守卫（中）**：mint 时只查 key 存在不查 `enabled` 布尔，停用档位可发码但购买列表拒买——改为 `enabled` 真值校验；
+- **spend() 与 grant() 抑制不对称（中）**：一次性 dedupe 令牌的重复 INSERT 同样会打印 wpdb 调试 HTML——补 suppress_errors 包裹（与 0.51.0 grant 同款）；
+- **DiscussionPresenter 授权去重（中）**：canModerate 私有镜像删除，注入 DiscussionService 直调权威判定（契约 flag 与执行不再可能漂移）；
+- **uninstall 补 transients 删除**：前缀 DELETE 漏 `_transient_aiya_core_*` 包装行（限流/去重 TTL 最长 30 天）——显式清；
+- **列表性能（低）**：PostSummary reading time 改读原始 post_content（ReadingTime 自剥标签），百行列表不再逐行全量跑 the_content 链；
+- **参数上限（低）**：/users/me/profile description/url 补 maxLength（2000/300）；
+- **契约/注释过时族清理（低×10）**：Notification DTO 的「v1 仅 announcement」、Discussion 四值状态、Membership 协议 meta 推导、CreditGrant「签到+兑换共用」、CreditController 旧唯一键句、Plugin EXTERNAL_FILES「parked」、SponsorshipModule「爱发电未接线」、NotificationService v1 句、评分折叠并发丢票注记、粉丝扇出 100 上限注记、activate 0.0.0 重置语义注记；
+- **oplist desc 重标注（中）**：资源盒 desc 与页级 `oplist_file_desc` 两处「Shown to readers」承诺改「Reserved for B3 wiring」（值已持久化，附件契约形状未携带；`pan_links` 盒同类 B3 预留记档）；
+- **架构审查批（同日早前提交）**：`GATEWAY_NAMESPACE` 下沉 PaymentGateway 接口 + `aiya_core_firstparty_rest_namespaces` 缝（Domain/Infra 不再 import HTTP 层，ARCHITECTURE.md 登记）、死引用清扫、外接域四缝清点；
+- **内容目录统一前缀**：`aiya_logs`/`aiya_thumbnail`（avatars 随树）/`aiya_smilies`/`aiya_upload_pics`，磁盘搬移 + `_thumb`/`basic_user_avatar`/社区内容 URL 一次性改写，死数据顶层 `avatars/` 删除；
+- **配套壳主题入库**：`themes/aiya-headless/` 随仓库版本化（README 标记占位主题壳 + ARCHITECTURE.md companion 段），运行位 `wp-content/themes/aiya-headless/` 逐字节同步；壳主题最终形态 = 站点图标品牌行（贴左）+ 定制器 intro 文本域 + robots 双保险 + admin bar 关闭，零插件依赖；
+- **运行时升级 PHP 8.4.25**（wordpress:php8.4-apache / cli-php8.4 变体，daocloud 镜像转存）：自研代码零隐式可空违规，phpunit/phpstan/phpcs 全绿复跑，全路径压测零 Deprecated；
+- **外观开关收窄**：`disable_appearance` 定格「站点编辑器 + 菜单」（定制器/主题屏供壳主题使用），菜单三层全关（无 support + 子菜单移除 + 403 守卫）；
+- **发布机械**：PO 头恢复（0.73.1 恢复批丢头，补 Project-Id-Version/charset/X-Domain 并去重复空条目）、POT 885 条全译 0 缺失、版本对齐 0.79.0、README WP 底线句、Domain Path 头补齐；phpunit 236/569、phpstan、phpcs 全绿。
+
+**已记录待决（不阻塞 1.0）**：`/sponsorship/plans`、`/uploads/image`、评论投影三处 wire 形状不在契约快照执法范围（B3 前端接线时补 DTO）；`/discussions/boards` 与 `items` 形两种信封偏差待统一；`opencc-convert` 包无消费方（简繁重建待定）；通知评论摘录等低频项沿现状。

@@ -1,6 +1,7 @@
 # AIYA Core
 
-Headless-first WordPress plugin for AIYA CMS (WP 7.1+ / PHP 8.2+): the
+Headless-first WordPress plugin for AIYA CMS (WP 6.4+, developed and
+running against WP 7.1 / PHP 8.2+, runtime on PHP 8.4): the
 admin half of a decoupled site — settings, content domains, media
 pipeline, community, notifications and a versioned REST contract
 (`aiya/core/v1`) consumed by the Astro front end. No Gutenberg, no

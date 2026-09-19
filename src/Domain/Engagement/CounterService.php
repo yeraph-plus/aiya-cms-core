@@ -175,10 +175,14 @@ final class CounterService
         $storedScore = $this->ratingScore($postId);
         // Fold the new vote into the running average in integer arithmetic:
         // the atomic increment above guarantees the count already includes
-        // this vote, so there is no read-modify-write race on the count. The
-        // stored average is rounded, so the reconstructed total carries at
-        // most half a point of display error per fold — acceptable for a
-        // display-only value and the spec stores nothing else.
+        // this vote, so there is no read-modify-write race on the count.
+        // The score read below IS a read-modify-write on the average: two
+        // votes landing between one read and the next both fold from the
+        // same stale score and the later writer erases the earlier vote's
+        // influence (the count stays exact). Accepted for a display-only
+        // value whose folded average already carries up to half a point
+        // of rounding error per fold; a locked rewrite is the cure if it
+        // ever needs to be exact.
         $previousTotal = $storedScore * ($count - 1) + $value;
         $average = max(0, (int) round($previousTotal / max(1, $count)));
 

@@ -123,8 +123,8 @@ final class UserController
             'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
 			'args' => [
 				'nickname' => ['type' => 'string', 'required' => false],
-				'description' => ['type' => 'string', 'required' => false],
-				'url' => ['type' => 'string', 'required' => false],
+				'description' => ['type' => 'string', 'required' => false, 'maxLength' => 2000],
+				'url' => ['type' => 'string', 'required' => false, 'maxLength' => 300],
 				'email' => ['type' => 'string', 'required' => false, 'format' => 'email'],
 				'locale' => ['type' => 'string', 'required' => false],
 				'currentPassword' => ['type' => 'string', 'required' => false, 'maxLength' => 200],

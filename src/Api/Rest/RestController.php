@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
+use Aiya\Core\Api\Presenter\CommentPresenter;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\ProfilePresenter;
 use Aiya\Core\Api\Presenter\SitePresenter;
@@ -11,6 +12,7 @@ use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Api\Presenter\DiscussionPresenter;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
+use Aiya\Core\Domain\Content\CommentQuery;
 use Aiya\Core\Domain\Content\PrimaryMenu;
 use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
@@ -86,7 +88,7 @@ final class RestController implements Module
 
             (new CounterController(new CounterService(), new RateLimiter()))->registerRoutes();
 
-            (new CommentsController(new RateLimiter(), $smiliesRenderer))->registerRoutes();
+            (new CommentsController(new RateLimiter(), new CommentQuery(), new CommentPresenter($smiliesRenderer)))->registerRoutes();
 
             (new UploadsController($this->processUpload, $this->paths, new RateLimiter()))->registerRoutes();
 
@@ -117,7 +119,7 @@ final class RestController implements Module
             (new GatewayController(new OrderService(), $entitlements))->registerRoutes();
 
             $threads = new DiscussionService();
-            (new DiscussionController($threads, new DiscussionPresenter($smiliesRenderer), new RateLimiter()))->registerRoutes();
+            (new DiscussionController($threads, new DiscussionPresenter($smiliesRenderer, $threads), new RateLimiter()))->registerRoutes();
 
             if ($this->attachments !== null) {
                 (new ResourceAttachmentsController($this->attachments))->registerRoutes();

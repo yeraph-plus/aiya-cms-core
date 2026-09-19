@@ -74,9 +74,9 @@ final class Plugin
     /**
      * Business routing: the sponsorship domain returned with the 0.50.0
      * tier rewrite (membership menus, Epay cashier, entitlement queue).
-     * External files stay parked — flipping EXTERNAL_FILES_ENABLED back
-     * to true restores the OpenList settings page, the resource box and
-     * the attachments route.
+     * External files returned with the 0.55.0 re-enable; the flag stays
+     * as the one-line kill switch for the OpenList settings page, the
+     * resource box and the attachments route.
      */
     private const EXTERNAL_FILES_ENABLED = true;
     /** One-shot rewrite flush marker set by activate() (autoload off). */
@@ -198,6 +198,12 @@ final class Plugin
      * defaulted when empty (never overwritten), and one full rewrite flush
      * is deferred to the next boot, after every post type and taxonomy has
      * registered.
+     *
+     * The schema version resets to 0.0.0 so a fresh install runs every
+     * migration (the 0.43.0 fix). All callbacks are idempotent, so the
+     * deactivate/reactivate cycle also replays them harmlessly — but the
+     * runner's "keep the stored version" upgrade behaviour only applies
+     * to in-place upgrades, not to this activation reset.
      */
     public function activate(): void
     {

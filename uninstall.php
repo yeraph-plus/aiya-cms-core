@@ -104,8 +104,15 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
 
     // Rate-limit windows and visitor-dedup keys are transients: under an
     // object cache drop-in they live outside the options table and the
-    // final wp_cache_flush() takes them; without one they carry TTLs and
-    // core's daily delete_expired_transients sweep collects them.
+    // final wp_cache_flush() takes them; without one the prefixed delete
+    // above misses their _transient_ wrapper, so they are removed
+    // explicitly (live values, not only the expired sweep's scope).
+    $run($wpdb->prepare(
+        'DELETE FROM %i WHERE option_name LIKE %s OR option_name LIKE %s',
+        $wpdb->options,
+        $wpdb->esc_like('_transient_aiya_core_') . '%',
+        $wpdb->esc_like('_transient_timeout_aiya_core_') . '%'
+    ));
 
     wp_clear_scheduled_hook('aiya_core_notifications_cleanup');
     wp_clear_scheduled_hook('aiya_core_credits_cleanup');

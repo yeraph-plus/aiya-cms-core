@@ -55,7 +55,11 @@ final class PostPresenter
             $gated ? '' : $this->excerpt($post),
             $this->isoDate($post, 'date'),
             $this->isoDate($post, 'modified'),
-            ReadingTime::estimate($this->rendered($post)),
+            // Raw post content, not the filtered render: ReadingTime
+            // strips tags itself, and a 100-row list must not run the
+            // full the_content chain once per row (detail() renders for
+            // real and legitimately pays that cost).
+            ReadingTime::estimate((string) $post->post_content),
             $this->thumbnail($post),
             $this->author((int) $post->post_author),
             $this->typedTerms($post, $type, 'category'),

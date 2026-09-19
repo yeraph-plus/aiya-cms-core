@@ -389,6 +389,9 @@ final class NotificationActions implements Module
 
     private function fanOutToFollowers(int $authorId, string $objectType, int $objectId, string $title): void
     {
+        // First follower page only: the fanout is a best-effort window
+        // capped at 100 — authors past that size need a queued fanout,
+        // not a synchronous loop inside a content write.
         $result = $this->follows->followerIds($authorId, 1, 100);
         foreach ($result['ids'] as $followerId) {
             $followerId = (int) $followerId;

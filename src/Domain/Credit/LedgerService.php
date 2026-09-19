@@ -181,6 +181,11 @@ final class LedgerService
             }
         }
 
+        // Same suppression contract as grant(): the one-shot $dedupe
+        // token makes a duplicate INSERT an expected signal, and wpdb's
+        // debug HTML must not print in front of the JSON envelope under
+        // WP_DEBUG. last_error survives suppression; only printing stops.
+        $suppress = $wpdb->suppress_errors(true);
         $inserted = $wpdb->insert(
             $table,
             [
@@ -189,6 +194,9 @@ final class LedgerService
                 'amount' => $amount,
                 'remaining' => 0,
                 'source' => $source,
+                // Truncation note: callers deriving per-cycle refs from a
+                // near-64-char order id (…#c12) can collide after the cut;
+                // real gateway order ids stay well below that ceiling.
                 'ref' => substr($ref, 0, 64),
                 'dedupe' => $dedupe !== null ? substr($dedupe, 0, 80) : null,
                 'created_at' => $this->now(),
@@ -196,6 +204,7 @@ final class LedgerService
             ],
             ['%d', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s']
         );
+        $wpdb->suppress_errors($suppress);
         if ($inserted === false) {
             // Capture before the ROLLBACK: a successful query() flushes
             // wpdb's last_error, which would erase the duplicate signal.

@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Contract;
 
 /**
- * One notification row as the front end receives it. `type` is `announcement`
- * in v1 (the value reserved for future interaction kinds); the role level
- * that gated visibility is intentionally not part of the contract — it is
- * server-side routing, not visitor-facing data. Read state lives on the
- * client: it compares `createdAt` against its own last-seen marker.
+ * One notification row as the front end receives it. `type` names one of
+ * the interaction kinds the 0.46.0 action system writes (announcement,
+ * comment, reply, follow, sponsor, ...) — the front end renders per-kind
+ * copy and never branches on it structurally. The role level that gated
+ * visibility is intentionally not part of the contract: it is server-side
+ * routing, not visitor-facing data. Read state lives on the client: it
+ * compares `createdAt` against its own last-seen marker.
  */
 final class Notification
 {

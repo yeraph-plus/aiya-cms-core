@@ -22,8 +22,8 @@ use WP_REST_Server;
  * operator-curated root stays clean and S3 keys mirror per author later.
  *
  * The discussion flow inlines the returned URL as an <img> into the
- * kses-filtered HTML body; comment bodies are plain text and do not
- * consume this endpoint yet.
+ * kses-filtered HTML body; comment bodies embed the same image HTML
+ * through the comment whitelist (2026-09-17 batch).
  *
  * Abuse surface is bounded by the login wall, a fixed-window rate limit
  * and a tighter size cap than the admin tool. No ownership index exists

@@ -7,8 +7,9 @@ namespace Aiya\Core\Api\Contract;
 /**
  * The result of one successful credit grant as seen from the wire: the
  * granted amount, the balance after the grant, and when the freshly
- * created bucket expires. Shared by the daily check-in and code
- * redemption (both are plain grants into the ledger).
+ * created bucket expires. Serves the daily check-in (code redemption
+ * answers MembershipCodeGrant instead — a membership code queues a
+ * tier, it does not grant balance).
  */
 final class CreditGrant
 {
