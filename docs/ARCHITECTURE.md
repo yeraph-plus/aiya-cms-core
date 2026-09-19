@@ -68,9 +68,9 @@ Api/Rest/       controllers for the aiya/core/v1 namespace;
 Api/Presenter/  the ONLY layer allowed to touch WP_Post / WP_Term /
                 WP_Query results; maps them to DTOs; runs the_content
                 filters here (content HTML is contract data)
-Api/Contract/   pure value objects (PostSummary, PostDetail, TermDto,
-                AuthorDto, ThumbnailDto, MenuTree, MenuItem, Pagination,
-                Breadcrumb) plus a contract version constant;
+Api/Contract/   pure value objects (PostSummary, PostDetail, Term,
+                Author, Image, Tier, Comment, Notification, MenuItem,
+                Pagination, Breadcrumb, ...) plus a contract version constant;
                 zero WordPress dependency; TS types for the front end
                 are generated from these shapes
 Domain/Content/ read services (ContentQuery, MenuService,
