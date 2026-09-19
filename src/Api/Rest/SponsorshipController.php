@@ -8,6 +8,9 @@ use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Contract\CheckinPolicy;
 use Aiya\Core\Api\Contract\MembershipEntitlement;
 use Aiya\Core\Api\Contract\MembershipState;
+use Aiya\Core\Api\Contract\PlanChannels;
+use Aiya\Core\Api\Contract\Tier;
+use Aiya\Core\Api\Contract\TiersPayload;
 use Aiya\Core\Domain\Credit\CreditSettings;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Sponsorship\AfdianGateway;
@@ -84,16 +87,28 @@ final class SponsorshipController
         $gateway = $this->gateway();
         $afdian = AfdianGateway::fromSettings();
 
-        return new WP_REST_Response([
-            'channels' => [
-                // The gateway's own answer is authoritative: it knows
-                // both the admin switch and whether credentials exist.
-                'epay' => $gateway !== null && $gateway->enabled(),
-                'afdian' => $afdian !== null && $afdian->enabled(),
-                'methods' => $gateway?->channels() ?? [],
-            ],
-            'items' => SponsorshipSettings::read()['tiers'],
-        ]);
+        $tiers = [];
+        foreach (SponsorshipSettings::read()['tiers'] as $row) {
+            $tiers[] = new Tier(
+                (string) $row['key'],
+                (string) $row['name'],
+                (float) $row['price'],
+                (int) $row['cycleDays'],
+                (int) $row['creditsPerCycle'],
+                (bool) ($row['enabled'] ?? true)
+            );
+        }
+
+        return new WP_REST_Response((new TiersPayload(
+            // Each gateway's own answer is authoritative: it knows both
+            // the admin switch and whether credentials exist.
+            new PlanChannels(
+                $gateway !== null && $gateway->enabled(),
+                $afdian !== null && $afdian->enabled(),
+                $gateway?->channels() ?? []
+            ),
+            $tiers
+        ))->toArray());
     }
 
     /**

@@ -969,4 +969,5 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **外观开关收窄**：`disable_appearance` 定格「站点编辑器 + 菜单」（定制器/主题屏供壳主题使用），菜单三层全关（无 support + 子菜单移除 + 403 守卫）；
 - **发布机械**：PO 头恢复（0.73.1 恢复批丢头，补 Project-Id-Version/charset/X-Domain 并去重复空条目）、POT 885 条全译 0 缺失、版本对齐 0.79.0、README WP 底线句、Domain Path 头补齐；phpunit 236/569、phpstan、phpcs 全绿。
 
-**已记录待决（不阻塞 1.0）**：`/sponsorship/plans`、`/uploads/image`、评论投影三处 wire 形状不在契约快照执法范围（B3 前端接线时补 DTO）；`/discussions/boards` 与 `items` 形两种信封偏差待统一；`opencc-convert` 包无消费方（简繁重建待定）；通知评论摘录等低频项沿现状。
+- **契约执法补口（0.79.0 追加）**：三处快照外裸形状升格为正式 DTO——`TiersPayload`/`PlanChannels`/`Tier`（购买面）、`UploadResult`/`UploadedImage`（社区上传）、`Comment`/`CommentAuthor`（评论投影），快照重生成 + 前端 zod manifest 同步（vitest 195/195，7 DTO 逐字段吻合零漂移）；`client.uploadImage` 的宽松 url 拾取改 `uploadResultSchema` 全形验证；
+- **已记录待决（不阻塞 1.0）**：`/discussions/boards` 与 `items` 形两种信封偏差待统一；`opencc-convert` 包保持零消费状态（简繁重建待定，站长拍板 2026-09-19）。

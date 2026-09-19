@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Presenter;
 
+use Aiya\Core\Api\Contract\Comment;
+use Aiya\Core\Api\Contract\CommentAuthor;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use WP_Comment;
 
@@ -48,22 +50,22 @@ final class CommentPresenter
 
         $publishedAt = mysql2date('c', (string) $comment->comment_date, false);
 
-        return [
-            'id' => (int) $comment->comment_ID,
-            'parentId' => (int) $comment->comment_parent > 0 ? (int) $comment->comment_parent : null,
-            'author' => [
-                'id' => $authorId,
-                'name' => (string) $comment->comment_author,
-                'avatar' => is_string($avatar) && $avatar !== '' ? $avatar : null,
-            ],
-            'body' => (string) $comment->comment_content,
+        return (new Comment(
+            (int) $comment->comment_ID,
+            (int) $comment->comment_parent > 0 ? (int) $comment->comment_parent : null,
+            new CommentAuthor(
+                $authorId,
+                (string) $comment->comment_author,
+                is_string($avatar) && $avatar !== '' ? $avatar : null
+            ),
+            (string) $comment->comment_content,
             // Storage carries kses'd restricted HTML (legacy rows are the
             // plain text they always were); the read re-runs the whitelist
             // and lets the renderer inject exactly its whitelisted smilies
             // imgs — the state machine only touches text nodes. `body`
             // stays the source form.
-            'bodyHtml' => $this->smilies->render(wp_kses((string) $comment->comment_content, self::ALLOWED_TAGS)),
-            'publishedAt' => is_string($publishedAt) ? $publishedAt : '',
-        ];
+            $this->smilies->render(wp_kses((string) $comment->comment_content, self::ALLOWED_TAGS)),
+            is_string($publishedAt) ? $publishedAt : '',
+        ))->toArray();
     }
 }

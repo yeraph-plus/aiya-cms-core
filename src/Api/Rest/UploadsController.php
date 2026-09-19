@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Api\Contract\UploadedImage;
+use Aiya\Core\Api\Contract\UploadResult;
 use Aiya\Core\Domain\Media\MediaPaths;
 use Aiya\Core\Domain\Media\MimeType;
 use Closure;
@@ -108,15 +110,15 @@ final class UploadsController
 
         $size = getimagesize($target);
 
-        return new WP_REST_Response([
-            'image' => [
-                'width' => is_array($size) ? (int) $size[0] : 0,
-                'height' => is_array($size) ? (int) $size[1] : 0,
-                'mime' => is_array($size) ? (string) $size['mime'] : 'image/jpeg',
-                'title' => sanitize_file_name((string) ($file['name'] ?? '')),
-            ],
-            'url' => $url,
-            'path' => $path,
-        ]);
+        return new WP_REST_Response((new UploadResult(
+            new UploadedImage(
+                is_array($size) ? (int) $size[0] : 0,
+                is_array($size) ? (int) $size[1] : 0,
+                is_array($size) ? (string) $size['mime'] : 'image/jpeg',
+                sanitize_file_name((string) ($file['name'] ?? ''))
+            ),
+            $url,
+            $path
+        ))->toArray());
     }
 }
