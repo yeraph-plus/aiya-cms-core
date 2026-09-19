@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
+use Aiya\Core\Api\Contract\AdSlot;
+use Aiya\Core\Api\Contract\BeianLink;
+use Aiya\Core\Api\Contract\CarouselSlide;
 use Aiya\Core\Api\Contract\Image;
+use Aiya\Core\Api\Contract\MenuItem;
 use Aiya\Core\Api\Contract\Site;
+use Aiya\Core\Api\Contract\SiteBlocks;
 use Aiya\Core\Api\Contract\SiteComments;
 use Aiya\Core\Api\Contract\SiteDefaults;
-use Aiya\Core\Api\Contract\BeianLink;
 use Aiya\Core\Api\Contract\SiteFooter;
 use Aiya\Core\Api\Contract\SiteTheme;
 use PHPUnit\Framework\TestCase;
@@ -28,6 +32,13 @@ final class SiteContractTest extends TestCase
             new SiteComments(true, 2, true, true, true, 5, false, 20, 'newest', 'asc', true),
             new SiteDefaults('dark', null, null, new SiteTheme('#E94F69'), '关键词1, 关键词2', '站点描述', 'G-TEST123'),
             new SiteFooter([new BeianLink('京ICP备2026000001号-1', 'https://beian.miit.gov.cn/', 'shield', '')], true),
+            new SiteBlocks(
+                [new MenuItem(1, '文章', '/posts/', 'self', 'file-text', [])],
+                [new MenuItem(1, '关于本站', '/pages/sample-page/', 'self', null, [])],
+                [new AdSlot('/promote/', '推广', new Image('https://cdn.example.test/ads-top.webp', '推广', 970, 250))],
+                [],
+                [new CarouselSlide('轮播一', '/posts/autocard/', new Image('https://cdn.example.test/slide-1.webp', '轮播一', 1600, 640))],
+            ),
         );
 
         $shape = $site->toArray();
@@ -65,6 +76,13 @@ final class SiteContractTest extends TestCase
             ],
             'hitokoto' => true,
         ], $shape['footer']);
+        self::assertSame([
+            'primary' => [['id' => 1, 'label' => '文章', 'url' => '/posts/', 'target' => 'self', 'icon' => 'file-text', 'children' => []]],
+            'secondary' => [['id' => 1, 'label' => '关于本站', 'url' => '/pages/sample-page/', 'target' => 'self', 'icon' => null, 'children' => []]],
+            'adsTop' => [['url' => '/promote/', 'label' => '推广', 'image' => ['url' => 'https://cdn.example.test/ads-top.webp', 'alt' => '推广', 'width' => 970, 'height' => 250]]],
+            'adsBottom' => [],
+            'carousel' => [['title' => '轮播一', 'url' => '/posts/autocard/', 'image' => ['url' => 'https://cdn.example.test/slide-1.webp', 'alt' => '轮播一', 'width' => 1600, 'height' => 640]]],
+        ], $shape['blocks']);
     }
 
     public function testUnconfiguredSectionsSerializeEmpty(): void
@@ -80,6 +98,7 @@ final class SiteContractTest extends TestCase
             new SiteComments(false, 0, false, false, false, 1, false, 20, 'newest', 'asc', false),
             new SiteDefaults('system', null, null, new SiteTheme('#E94F69'), '', '', ''),
             new SiteFooter([], false),
+            new SiteBlocks([], [], [], [], []),
         );
 
         $shape = $site->toArray();

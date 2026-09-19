@@ -2681,3 +2681,63 @@ msgstr "预留给前台资源面板（B3 接线）。"
 
 msgid "Some metadata fields were not saved:"
 msgstr "部分元数据字段未保存："
+
+msgid "Blocks"
+msgstr "页面区块"
+
+msgid "These lists replace the WordPress menu system and feed the shell's dynamic slots: the front end reads them through the `blocks` group of GET /aiya/core/v1/site, rows in listed order."
+msgstr "这些列表替代 WordPress 菜单系统，并填充壳层的动态槽位：前台经 GET /aiya/core/v1/site 的 `blocks` 组按列表顺序读取。"
+
+msgid "Page-top advertisements"
+msgstr "页面顶部广告"
+
+msgid "Ad slots rendered at the top of front-end pages, in listed order."
+msgstr "在前台页面顶部按列表顺序渲染的广告位。"
+
+msgid "Page-bottom advertisements"
+msgstr "页面底部广告"
+
+msgid "Ad slots rendered at the bottom of front-end pages, in listed order."
+msgstr "在前台页面底部按列表顺序渲染的广告位。"
+
+msgid "Carousel"
+msgstr "轮播"
+
+msgid "Carousel slides for the front-end banner slot, in listed order."
+msgstr "前台横幅槽位的轮播卡片，按列表顺序渲染。"
+
+msgid "Link"
+msgstr "链接"
+
+msgid "Link text"
+msgstr "链接文本"
+
+msgid "Also used as the banner image alt text."
+msgstr "同时用作横幅图的替代文本。"
+
+msgid "Ad image"
+msgstr "广告图"
+
+msgid "The banner artwork from the media library."
+msgstr "来自媒体库的横幅图。"
+
+msgid "Title"
+msgstr "标题"
+
+msgid "Front-end path or external URL; empty renders the banner without a link."
+msgstr "前台路径或外部 URL；留空则横幅不带链接。"
+
+msgid "Slide image"
+msgstr "轮播图"
+
+msgid "The slide artwork from the media library."
+msgstr "来自媒体库的轮播图。"
+
+msgid "Front-end path or external URL; empty renders the slide without a link."
+msgstr "前台路径或外部 URL；留空则轮播卡片不带链接。"
+
+msgid "The comment is too long."
+msgstr "评论过长。"
+
+msgid "Please provide your name and a valid email address to comment."
+msgstr "评论需要提供昵称与有效邮箱地址。"

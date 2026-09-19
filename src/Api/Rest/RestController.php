@@ -18,7 +18,6 @@ use Aiya\Core\Api\Presenter\DiscussionPresenter;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\CommentQuery;
-use Aiya\Core\Domain\Content\PrimaryMenu;
 use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
 use Aiya\Core\Domain\Credit\LedgerService;
@@ -70,11 +69,10 @@ final class RestController implements Module
         $authentication = new TokenAuthentication($tokens);
         $authentication->register();
 
-        $menus = new PrimaryMenu();
         $smilies = new SmiliesRegistry();
         $smiliesRenderer = new SmiliesRenderer($smilies);
 
-        add_action('rest_api_init', function () use ($tokens, $authentication, $menus, $smiliesRenderer, $smilies): void {
+        add_action('rest_api_init', function () use ($tokens, $authentication, $smiliesRenderer, $smilies): void {
             $presenter = new UserPresenter();
             $policy = new PasswordPolicy();
             $postPresenter = new PostPresenter($this->cards, $smiliesRenderer, $this->visibility);
@@ -102,7 +100,6 @@ final class RestController implements Module
                 new RelatedPostsQuery($this->visibility),
                 $postPresenter,
                 new SitePresenter(),
-                $menus,
                 new ProfilePresenter($postPresenter, $favorites, $presenter, new FollowService()),
                 new RateLimiter()
             ))->registerRoutes();

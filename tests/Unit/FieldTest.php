@@ -73,7 +73,7 @@ final class FieldTest extends TestCase
         Field::fromArray([
             'id' => 'r',
             'type' => 'repeater',
-            'children' => [['id' => 'child', 'type' => 'media']],
+            'children' => [['id' => 'child', 'type' => 'note']],
         ]);
     }
 }

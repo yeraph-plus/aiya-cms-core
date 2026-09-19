@@ -11,8 +11,10 @@ namespace Aiya\Core\Api\Contract;
  * banner from the Frontend settings page (null when the switch is off),
  * `registrationOpen` mirrors the WP membership setting
  * (users_can_register), `comments` carries the WP discussion settings
- * the comment form needs, and `defaults` / `footer` come from the
- * Frontend settings page. (The smilies pack map moved to its own
+ * the comment form needs, `defaults` / `footer` come from the
+ * Frontend settings page, and `blocks` carries the shell's dynamic
+ * slots from the Blocks settings page (navigation menus, page
+ * advertisements, carousel). (The smilies pack map moved to its own
  * `GET /smilies` read in 0.63.0 — hundreds of tokens do not belong in
  * every shell payload.)
  */
@@ -29,6 +31,7 @@ final class Site
         public readonly SiteComments $comments,
         public readonly SiteDefaults $defaults,
         public readonly SiteFooter $footer,
+        public readonly SiteBlocks $blocks,
     ) {
     }
 
@@ -46,6 +49,7 @@ final class Site
             'comments' => $this->comments->toArray(),
             'defaults' => $this->defaults->toArray(),
             'footer' => $this->footer->toArray(),
+            'blocks' => $this->blocks->toArray(),
         ];
     }
 }

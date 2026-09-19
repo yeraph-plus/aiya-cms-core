@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.80.0\n"
+"Project-Id-Version: AIYA Core 0.83.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-19T03:06:07+00:00\n"
+"POT-Creation-Date: 2026-09-19T10:30:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -191,6 +191,7 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:187
 #: src/Admin/NotificationPage.php:81
 #: src/Admin/NotificationPage.php:109
+#: src/Domain/Content/BlocksModule.php:186
 #: src/Domain/Parts/BuiltinParts.php:96
 #: src/Domain/Parts/BuiltinParts.php:107
 msgid "Title"
@@ -773,7 +774,7 @@ msgstr ""
 
 #: src/Admin/PicBedPage.php:105
 #: src/Admin/PicBedPage.php:287
-#: src/Domain/Content/NavigationModule.php:91
+#: src/Domain/Content/BlocksModule.php:116
 #: src/Domain/DevTools/SamplePage.php:237
 #: src/Domain/Parts/BuiltinParts.php:131
 msgid "URL"
@@ -1181,6 +1182,7 @@ msgid "The reset link is missing required parameters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:293
+#: src/Api/Rest/ContentController.php:156
 #: src/Api/Rest/CounterController.php:82
 #: src/Api/Rest/CounterController.php:97
 #: src/Api/Rest/CounterController.php:117
@@ -1189,7 +1191,7 @@ msgstr ""
 #: src/Api/Rest/CreditController.php:161
 #: src/Api/Rest/DiscussionController.php:197
 #: src/Api/Rest/DiscussionController.php:258
-#: src/Api/Rest/SponsorshipController.php:181
+#: src/Api/Rest/SponsorshipController.php:142
 #: src/Api/Rest/UserController.php:197
 #: src/Api/Rest/UserController.php:357
 msgid "Too many requests, try again later."
@@ -1210,7 +1212,7 @@ msgstr ""
 #: src/Api/Rest/AuthController.php:334
 #: src/Api/Rest/CreditController.php:194
 #: src/Api/Rest/DiscussionController.php:385
-#: src/Api/Rest/SponsorshipController.php:243
+#: src/Api/Rest/SponsorshipController.php:204
 #: src/Api/Rest/UploadsController.php:57
 #: src/Api/Rest/UserController.php:436
 msgid "Authentication required."
@@ -1218,7 +1220,7 @@ msgstr ""
 
 #: src/Api/Rest/AuthController.php:339
 #: src/Api/Rest/CommentsController.php:149
-#: src/Api/Rest/ContentController.php:259
+#: src/Api/Rest/ContentController.php:336
 #: src/Api/Rest/UploadsController.php:64
 #: src/Api/Rest/UserController.php:251
 #: src/Api/Rest/UserController.php:387
@@ -1262,18 +1264,19 @@ msgid "You are commenting too quickly. Slow down."
 msgstr ""
 
 #: src/Api/Rest/CommentsController.php:271
-#: src/Api/Rest/ContentController.php:228
-#: src/Api/Rest/ContentController.php:233
-#: src/Api/Rest/ContentController.php:274
+#: src/Api/Rest/ContentController.php:189
+#: src/Api/Rest/ContentController.php:305
 #: src/Api/Rest/ContentController.php:310
+#: src/Api/Rest/ContentController.php:351
+#: src/Api/Rest/ContentController.php:387
 msgid "Content not found."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:284
+#: src/Api/Rest/ContentController.php:361
 msgid "Incorrect password."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:330
+#: src/Api/Rest/ContentController.php:407
 msgid "Profile not found."
 msgstr ""
 
@@ -1290,7 +1293,7 @@ msgid "Already checked in today."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:166
-#: src/Api/Rest/SponsorshipController.php:123
+#: src/Api/Rest/SponsorshipController.php:105
 msgid "The Afdian channel is not available."
 msgstr ""
 
@@ -1316,24 +1319,24 @@ msgstr ""
 msgid "Thread not found."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:129
+#: src/Api/Rest/SponsorshipController.php:111
 msgid "This tier is not bound to an Afdian plan."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:187
+#: src/Api/Rest/SponsorshipController.php:148
 msgid "No payment gateway is available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:190
+#: src/Api/Rest/SponsorshipController.php:151
 #: src/Domain/Sponsorship/EpayGateway.php:63
 msgid "The requested payment channel is not available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:198
+#: src/Api/Rest/SponsorshipController.php:159
 msgid "Unknown membership tier."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:203
+#: src/Api/Rest/SponsorshipController.php:164
 msgid "This membership tier is not available."
 msgstr ""
 
@@ -1363,6 +1366,125 @@ msgstr ""
 
 #: src/Api/Rest/UserController.php:393
 msgid "The current password is incorrect."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:36
+#: src/Domain/Content/BlocksModule.php:37
+msgid "Blocks"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:45
+msgid "These lists replace the WordPress menu system and feed the shell's dynamic slots: the front end reads them through the `blocks` group of GET /aiya/core/v1/site, rows in listed order."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:51
+msgid "Primary menu"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:52
+msgid "The main navigation of the front-end shell (site header). Internal targets are front-end paths (/posts/), external ones absolute https URLs."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:63
+msgid "Secondary menu"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:64
+msgid "The auxiliary navigation of the front-end shell (footer, legal links). Same rules as the primary menu."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:71
+msgid "Page-top advertisements"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:72
+msgid "Ad slots rendered at the top of front-end pages, in listed order."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:79
+msgid "Page-bottom advertisements"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:80
+msgid "Ad slots rendered at the bottom of front-end pages, in listed order."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:87
+msgid "Carousel"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:88
+msgid "Carousel slides for the front-end banner slot, in listed order."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:109
+#: src/Domain/DevTools/SamplePage.php:231
+msgid "Label"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:117
+msgid "Front-end path (/posts/) or external URL; empty falls back to the home path."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:124
+#: src/Domain/Content/FrontendModule.php:151
+#: src/Domain/Content/TermExtrasModule.php:59
+msgid "Icon"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:125
+msgid "Optional Lucide icon name for the sidebar (e.g. \"home\", \"image\", \"file-text\")."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:131
+msgid "Open in"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:134
+msgid "Same window"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:135
+msgid "New window"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:156
+#: src/Domain/Content/BlocksModule.php:193
+#: src/Domain/Content/FrontendModule.php:145
+#: src/Domain/ExternalFiles/OplistModule.php:238
+msgid "Link"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:157
+msgid "Front-end path or external URL; empty renders the banner without a link."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:162
+msgid "Link text"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:163
+msgid "Also used as the banner image alt text."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:168
+msgid "Ad image"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:169
+msgid "The banner artwork from the media library."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:194
+msgid "Front-end path or external URL; empty renders the slide without a link."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:199
+msgid "Slide image"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:200
+msgid "The slide artwork from the media library."
 msgstr ""
 
 #: src/Domain/Content/ContentTypeModule.php:46
@@ -1494,17 +1616,6 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:145
-#: src/Domain/ExternalFiles/OplistModule.php:238
-msgid "Link"
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:151
-#: src/Domain/Content/NavigationModule.php:99
-#: src/Domain/Content/TermExtrasModule.php:59
-msgid "Icon"
-msgstr ""
-
 #: src/Domain/Content/FrontendModule.php:154
 msgid "Shield (ICP)"
 msgstr ""
@@ -1567,56 +1678,6 @@ msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:222
 msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
-msgstr ""
-
-#: src/Domain/Content/NavigationModule.php:35
-#: src/Domain/Content/NavigationModule.php:36
-msgid "Navigation"
-msgstr ""
-
-#: src/Domain/Content/NavigationModule.php:44
-msgid "These lists replace the WordPress menu system: the front end reads them through GET /aiya/core/v1/menus/primary and /menus/secondary, rows in listed order."
-msgstr ""
-
-#: src/Domain/Content/NavigationModule.php:50
-msgid "Primary menu"
-msgstr ""
-
-#: src/Domain/Content/NavigationModule.php:51
-msgid "The main navigation of the front-end shell (site header). Internal targets are front-end paths (/posts/), external ones absolute https URLs."
-msgstr ""
-
-#: src/Domain/Content/NavigationModule.php:62
-msgid "Secondary menu"
-msgstr ""
-
-#: src/Domain/Content/NavigationModule.php:63
-msgid "The auxiliary navigation of the front-end shell (footer, legal links). Same rules as the primary menu."
-msgstr ""
-
-#: src/Domain/Content/NavigationModule.php:84
-#: src/Domain/DevTools/SamplePage.php:231
-msgid "Label"
-msgstr ""
-
-#: src/Domain/Content/NavigationModule.php:92
-msgid "Front-end path (/posts/) or external URL; empty falls back to the home path."
-msgstr ""
-
-#: src/Domain/Content/NavigationModule.php:100
-msgid "Optional Lucide icon name for the sidebar (e.g. \"home\", \"image\", \"file-text\")."
-msgstr ""
-
-#: src/Domain/Content/NavigationModule.php:106
-msgid "Open in"
-msgstr ""
-
-#: src/Domain/Content/NavigationModule.php:109
-msgid "Same window"
-msgstr ""
-
-#: src/Domain/Content/NavigationModule.php:110
-msgid "New window"
 msgstr ""
 
 #: src/Domain/Content/SlugModule.php:60

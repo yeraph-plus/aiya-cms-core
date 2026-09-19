@@ -7,6 +7,7 @@ namespace Aiya\Core\Api\Presenter;
 use Aiya\Core\Api\Contract\BeianLink;
 use Aiya\Core\Api\Contract\Image;
 use Aiya\Core\Api\Contract\Site;
+use Aiya\Core\Domain\Content\ContentBlocks;
 use Aiya\Core\Api\Contract\SiteDefaults;
 use Aiya\Core\Api\Contract\SiteFooter;
 use Aiya\Core\Api\Contract\SiteComments;
@@ -36,6 +37,10 @@ final class SitePresenter
     private const CACHE_GROUP = 'aiya_core_site';
     private const CACHE_TTL = 300;
 
+    public function __construct(private ContentBlocks $blocks = new ContentBlocks())
+    {
+    }
+
     public function present(): Site
     {
         return new Site(
@@ -56,7 +61,8 @@ final class SitePresenter
                 trim((string) aiya_core_opt('frontend', 'seo_description', '')),
                 trim((string) aiya_core_opt('frontend', 'ga_measurement_id', ''))
             ),
-            $this->footer()
+            $this->footer(),
+            $this->blocks->all()
         );
     }
 

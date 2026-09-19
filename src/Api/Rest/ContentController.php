@@ -13,7 +13,6 @@ use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\ProfilePresenter;
 use Aiya\Core\Api\Presenter\SitePresenter;
 use Aiya\Core\Domain\Content\ContentQuery;
-use Aiya\Core\Domain\Content\PrimaryMenu;
 use Aiya\Core\Domain\Content\PublicType;
 use Aiya\Core\Domain\Content\PublicTypes;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
@@ -43,7 +42,6 @@ final class ContentController
         private RelatedPostsQuery $related,
         private PostPresenter $posts,
         private SitePresenter $site,
-        private PrimaryMenu $menus,
         private ProfilePresenter $profiles,
         private RateLimiter $limiter,
     ) {
@@ -77,8 +75,6 @@ final class ContentController
             'permission_callback' => '__return_true',
         ]);
 
-        $this->registerMenuRoute(PrimaryMenu::GROUP_PRIMARY);
-        $this->registerMenuRoute(PrimaryMenu::GROUP_SECONDARY);
 
         register_rest_route(Contract::API_NAMESPACE, '/terms', [
             'methods' => WP_REST_Server::READABLE,
@@ -219,24 +215,6 @@ final class ContentController
             $groups['page'],
             $groups['resource']
         ))->toArray());
-    }
-
-    /**
-     * Registers one menu group read route; the response `location` mirrors
-     * the group key so the front end can reuse one schema per group.
-     *
-     * @param PrimaryMenu::GROUP_* $group
-     */
-    private function registerMenuRoute(string $group): void
-    {
-        register_rest_route(Contract::API_NAMESPACE, '/menus/' . $group, [
-            'methods' => WP_REST_Server::READABLE,
-            'callback' => fn (): WP_REST_Response => new WP_REST_Response([
-                'location' => $group,
-                'items' => array_map(static fn ($item): array => $item->toArray(), $this->menus->group($group)),
-            ]),
-            'permission_callback' => '__return_true',
-        ]);
     }
 
     /** Registers the list + detail pair for one public type. */

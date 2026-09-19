@@ -1005,3 +1005,14 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **成本与限流**：`q` 短于 2 字符直接回空载荷（不触库，输入中途态友好）；LIKE 全表扫描为本站最贵读——`content_search` 30/60s 限流；HttpCache 落默认档（`max-age=0, must-revalidate` + ETag，高基数不进 60s 共享组）；
 - **契约**：新 `SearchGroup`/`SearchResult` DTO 入快照执法（47 DTO）；typed 模式复用 PostSummary 列表形状零新形状；前端 zod（`searchGroup/searchResult/searchQuery` 三 schema）+ client.search 双模式分派解析同批（页面适配归前端另批）；
 - 实测：CJK 分组 1/2/1、typed 命中「文章图片灯箱测试」、短 q 全零、通配 q 不漏门禁标题、31 连发限流收口。phpunit 246/582（含并行开发的 TrustedProxy 九用例）、phpstan、phpcs、vitest 203/203、astro check 全绿。
+
+### Blocks 页：导航/广告/轮播合并进 /site（0.83.0，2026-09-19）—— ✅ 已完成
+
+站长拍板：`aiya-core-navigation` 页更名 **aiya-core-blocks**（Blocks），并扩为壳层动态区块总页面——新增两组广告（页面顶部/底部：链接、链接文本、广告图）与一组轮播（标题、链接、图）；**`/menus/primary|secondary` 两端点摘除，全部合并进 `/site` 的 `blocks` 组**——硬执行干净迁移，DTO 不留兼容形状：
+
+- **域改名**：`NavigationModule` → `BlocksModule`（option `aiya_core_navigation` → `aiya_core_blocks`，dev 库一次性改名保留 4+2 行菜单），`PrimaryMenu` → `ContentBlocks`——一次性投影全部区块组（/site 单消费方，300s shell 缓存整组共享）；
+- **新 DTO**：`SiteBlocks`（primary/secondary/adsTop/adsBottom/carousel）+ `AdSlot`（url/label/image）+ `CarouselSlide`（title/url/image），入快照执法（50 DTO）；广告/轮播行无图或无文案在投影时丢弃（不产烂横幅）；图片走媒体库（Image 契约含 alt=链接文本/宽高）；
+- **设置框架增强**：`REPEATER_CHILD_TYPES` 白名单补 `media`——repeaterItem 复用统一 `control()` 渲染器，媒体选择器在 repeater 行内直接可用；FieldTest 反例夹具改 note；
+- **摘除面**：`/menus/*` 路由、`registerMenuRoute()`、ContentController 的 PrimaryMenu 依赖、RestController 的构造与 use 全部移除；前端 `menuResponseSchema`/`client.menu()/secondaryMenu()` 删除，`loadPage` 改从 `site.blocks` 组装 Menu 形状（AppShell/TabBar props 零变动）；
+- **i18n**：Blocks 页 16 条新串 + 评论 2 条漏译补齐（906 条未翻译 0）；
+- 实测：dev 库 option 改名后菜单 4+2 行完好；保存链归一化往返（media 子字段 image id 通过）→ ContentBlocks 投影 → 真实 /site 载荷（adsTop/carousel 全形状）端到端验证；/menus 404 确认摘除。phpunit 244/584、phpstan、phpcs、vitest 216/216、astro check 全绿。

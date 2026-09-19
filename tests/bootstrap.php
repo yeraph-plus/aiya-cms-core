@@ -265,6 +265,20 @@ if (!function_exists('home_url')) {
     }
 }
 
+if (!function_exists('wp_get_attachment_image_src')) {
+    function wp_get_attachment_image_src(int $attachment_id, string $size = 'medium'): array|false
+    {
+        $images = $GLOBALS['__aiya_test_attachment_images'] ?? [];
+        $image = $images[$attachment_id] ?? null;
+        if ($image === null) {
+            return false;
+        }
+
+        // WP's numeric tuple: [url, width, height, is_intermediate].
+        return [$image['url'], $image['width'], $image['height'], false];
+    }
+}
+
 if (!function_exists('wp_parse_url')) {
     function wp_parse_url(string $url, int $component = -1): mixed
     {

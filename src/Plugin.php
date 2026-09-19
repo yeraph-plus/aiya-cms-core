@@ -27,7 +27,7 @@ use Aiya\Core\Domain\Content\ContentTypeRegistry;
 use Aiya\Core\Domain\Content\FrontendModule;
 use Aiya\Core\Domain\Content\LightboxModule;
 use Aiya\Core\Domain\Content\TypographyModule;
-use Aiya\Core\Domain\Content\NavigationModule;
+use Aiya\Core\Domain\Content\BlocksModule;
 use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Content\PostTypeSwitcher;
 use Aiya\Core\Domain\Discussion\DiscussionModule;
@@ -119,7 +119,7 @@ final class Plugin
         $this->addModule(new ContentTypeModule($this->contentTypes));
         $this->addModule(new PostTypeSwitchBulkAction(new PostTypeSwitcher()));
         $this->addModule(new TermMoveBulkAction(new TermTaxonomyMover()));
-        $this->addModule(new NavigationModule($this->settings));
+        $this->addModule(new BlocksModule($this->settings));
         $this->addModule(new PartModule(new PartRegistry()));
         $this->addModule(new BuiltinParts());
         $this->addModule(new SmiliesPicker(new SmiliesRegistry()));
