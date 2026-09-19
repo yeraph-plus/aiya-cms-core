@@ -7,29 +7,25 @@ namespace Aiya\Core\Api\Contract;
 /**
  * Membership projection of a profile owner. `status`/`renewsAt` derive
  * from the entitlement queue (the 0.50.0 tier model; the sponsor meta
- * protocol keys were retired with it); `label` and `benefits` are
- * deliberately empty — display copy belongs to the front end's own i18n
- * (decision D4/D8), so the backend never localizes membership wording.
+ * protocol keys were retired with it). The membership surface is state
+ * + expiry only: the 2026-09-19 design (credits per cycle, no benefit
+ * tiers) has no display copy on the backend, and the badge wording is
+ * the front end's own i18n.
  */
 final class Membership
 {
     public function __construct(
-        public readonly string $label,
         public readonly string $status,
         public readonly ?string $renewsAt,
-        /** @var list<string> */
-        public readonly array $benefits,
     ) {
     }
 
-    /** @return array{label: string, status: string, renewsAt: string|null, benefits: list<string>} */
+    /** @return array{status: string, renewsAt: string|null} */
     public function toArray(): array
     {
         return [
-            'label' => $this->label,
             'status' => $this->status,
             'renewsAt' => $this->renewsAt,
-            'benefits' => $this->benefits,
         ];
     }
 }

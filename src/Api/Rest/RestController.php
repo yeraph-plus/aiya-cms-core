@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
+use Aiya\Core\Api\Presenter\AttachmentPresenter;
 use Aiya\Core\Api\Presenter\CommentPresenter;
+use Aiya\Core\Api\Presenter\NotificationPresenter;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\ProfilePresenter;
 use Aiya\Core\Api\Presenter\SitePresenter;
+use Aiya\Core\Api\Presenter\SmiliesPresenter;
+use Aiya\Core\Api\Presenter\SponsorshipPresenter;
+use Aiya\Core\Api\Presenter\UploadPresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Api\Presenter\DiscussionPresenter;
 use Aiya\Core\Contracts\Module;
@@ -90,7 +95,7 @@ final class RestController implements Module
 
             (new CommentsController(new RateLimiter(), new CommentQuery(), new CommentPresenter($smiliesRenderer)))->registerRoutes();
 
-            (new UploadsController($this->processUpload, $this->paths, new RateLimiter()))->registerRoutes();
+            (new UploadsController($this->processUpload, $this->paths, new RateLimiter(), new UploadPresenter()))->registerRoutes();
 
             (new ContentController(
                 new ContentQuery($this->visibility),
@@ -102,9 +107,9 @@ final class RestController implements Module
                 new RateLimiter()
             ))->registerRoutes();
 
-            (new SmiliesController($smilies))->registerRoutes();
+            (new SmiliesController($smilies, new SmiliesPresenter()))->registerRoutes();
 
-            (new NotificationController(new NotificationService(), $presenter))->registerRoutes();
+            (new NotificationController(new NotificationService(), $presenter, new NotificationPresenter()))->registerRoutes();
 
             $ledger = new LedgerService();
             $entitlements = new EntitlementService($ledger);
@@ -114,7 +119,7 @@ final class RestController implements Module
             // rewrite; Admin surfaces live under the membership menu.
             $membership = new MembershipService();
             $entitlements = new EntitlementService($ledger);
-            (new SponsorshipController($membership, $entitlements, $ledger, new RateLimiter()))->registerRoutes();
+            (new SponsorshipController($membership, $entitlements, $ledger, new RateLimiter(), new SponsorshipPresenter()))->registerRoutes();
 
             (new GatewayController(new OrderService(), $entitlements))->registerRoutes();
 
@@ -122,7 +127,7 @@ final class RestController implements Module
             (new DiscussionController($threads, new DiscussionPresenter($smiliesRenderer, $threads), new RateLimiter()))->registerRoutes();
 
             if ($this->attachments !== null) {
-                (new ResourceAttachmentsController($this->attachments))->registerRoutes();
+                (new ResourceAttachmentsController($this->attachments, new AttachmentPresenter()))->registerRoutes();
             }
         });
     }

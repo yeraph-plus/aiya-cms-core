@@ -54,18 +54,14 @@ final class ProfilePresenter
             (string) get_user_meta((int) $user->ID, 'description', true),
             $this->joinedAt($user),
             new ProfileStats(
-                0,
                 $favorites['count'],
                 (int) count_user_posts((int) $user->ID, 'post', true),
                 $this->follows?->countFollowers((int) $user->ID) ?? 0
             ),
             new Membership(
-                '',
                 $active ? 'active' : 'inactive',
-                $active ? (string) wp_date('c', $expiresAt) : null,
-                []
+                $active ? (string) wp_date('c', $expiresAt) : null
             ),
-            [],
             $favorites['posts']
         );
     }

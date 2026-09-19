@@ -22,9 +22,8 @@ final class ProfileContractTest extends TestCase
             new Image('https://wp.example/avatars/7/128.jpg?v=1', '夜行玩家', null, null),
             'About me',
             '2026-09-06T08:00:00+08:00',
-            new ProfileStats(0, 3, 4, 2),
-            new Membership('', 'active', '2026-10-05T00:00:00+08:00', []),
-            [],
+            new ProfileStats(3, 4, 2),
+            new Membership('active', '2026-10-05T00:00:00+08:00'),
             []
         );
 
@@ -36,20 +35,21 @@ final class ProfileContractTest extends TestCase
             'avatar' => ['url' => 'https://wp.example/avatars/7/128.jpg?v=1', 'alt' => '夜行玩家', 'width' => null, 'height' => null],
             'bio' => 'About me',
             'joinedAt' => '2026-09-06T08:00:00+08:00',
-            'stats' => ['activities' => 0, 'favorites' => 3, 'contributions' => 4, 'followers' => 2],
-            'membership' => ['label' => '', 'status' => 'active', 'renewsAt' => '2026-10-05T00:00:00+08:00', 'benefits' => []],
-            'activities' => [],
+            'stats' => ['favorites' => 3, 'contributions' => 4, 'followers' => 2],
+            'membership' => ['status' => 'active', 'renewsAt' => '2026-10-05T00:00:00+08:00'],
             'favorites' => [],
         ], $profile->toArray());
     }
 
-    public function testMembershipCarriesNoDisplayCopy(): void
+    public function testMembershipCarriesStateAndExpiryOnly(): void
     {
-        // D4/D8: label/benefits stay empty — the front end owns the wording.
-        $membership = new Membership('', 'inactive', null, []);
+        // The 2026-09-19 membership design (credits per cycle, no benefit
+        // tiers) leaves no display copy on the backend — the front end's
+        // i18n owns the badge wording entirely.
+        $membership = new Membership('inactive', null);
 
         self::assertSame(
-            ['label' => '', 'status' => 'inactive', 'renewsAt' => null, 'benefits' => []],
+            ['status' => 'inactive', 'renewsAt' => null],
             $membership->toArray()
         );
     }

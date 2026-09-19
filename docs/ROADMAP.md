@@ -986,3 +986,11 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **dev 库重建实测**：13 表备份（backup-aiya-tables-20260919.sql，含两份无代码引用的 `aya_sponsor_orders` 孤儿 223 行）→ 全删 → 版本标记重置 → 净链一次跑通 11 表 + 种子 + 无迁移错误；社区发帖/板卡、全 REST 矩阵复测正常。phpunit 237/571、phpstan、phpcs 全绿。
 
 **1.0 tag 就绪**：安装路径 = 五条 0.80.0 纯 CREATE，零升级步骤、零数据转换、零 legacy 兼容面（AvatarModule 前缀守卫为防御性存在，非读取路径）。
+
+### 投影统一 + 契约瘦身批（0.81.0，2026-09-19）—— ✅ 已完成
+
+站长逐条审查后的三刀：
+
+- **投影位置统一**：五个控制器内联 DTO 构造全部迁入 Api/Presenter（新 NotificationPresenter / SmiliesPresenter / AttachmentPresenter / SponsorshipPresenter / UploadPresenter），控制器回归纯编排（鉴权、限流、参数、服务调用）；**约定成文**：ARCHITECTURE.md 增「Projection convention」节——投影只发生在 Presenter；Domain 服务允许构造 Contract 值对象（PrimaryMenu→MenuItem、CardThumbnailService→Image）当且仅当该 DTO 是服务自身的产出物且无 WP 对象映射——Api/Contract 是零依赖叶子词表，此边不算跨层，禁止方向仍是 Domain→HTTP/Admin。**不动**：PrimaryMenu/CardThumbnailService 留在原位（Image 的 alt/宽高元数据归属生成器自身）；
+- **恒空字段随契约瘦身（v1 基线修订，站长拍板）**：Profile.activities（活动流预留，规划未含）、ProfileStats.activities（恒 0）、Membership.label 与 Membership.benefits（恒空/恒 []；会员设计=按周期发积分，无权益文案，徽章措辞全归前端 i18n）四字段移除——快照 + v1 基线 JSON 同步修订（未上线、唯一消费方 front-station 同批更新），前端三 schema（profile/profileStats/membershipBadge）与两处测试夹具同步；front 组件零消费，实测无波及；
+- 回归：phpunit 237/571、phpstan、phpcs、vitest 195/195、astro check 全绿；profile/membership 端点真实 HTTP 形状实测。

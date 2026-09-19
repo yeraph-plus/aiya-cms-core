@@ -86,6 +86,24 @@ and the namespace index. The seam is the extension point for future domains:
 registering routes under a new namespace plus announcing it there is all a
 new domain needs to stay reachable while `/wp/v2` stays gated.
 
+## Projection convention
+
+Every REST payload is built in exactly one of two places — controllers never
+assemble DTOs inline:
+
+- `Api/Presenter/*` owns the mapping of WP objects and domain rows into the
+  contract (posts, comments, users, profiles, menus-of-record pages,
+  notifications, smilies packs, attachments, the membership surface,
+  uploads). If a projection is reused or converts dates, that is its home.
+- A Domain service may construct Contract value objects when the DTO is the
+  service's own natural product and no WP-object mapping is involved:
+  `Domain/Content/PrimaryMenu` emits `MenuItem` and
+  `Domain/Media/CardThumbnailService` emits `Image` (the file-generation
+  metadata — alt/width/height — belongs with the generator that owns the
+  derived file). `Api/Contract` is a zero-dependency leaf vocabulary, so
+  this edge is not a layer crossing; the forbidden directions stay
+  Domain → HTTP and Domain → Admin.
+
 ## Infrastructure packages (`packages/`)
 
 Unit features that used to live in the legacy theme's `plugins/` directory become independent composer packages: `aiya/<slug>`, `type: library`, PSR-4 `Aiya\Infra\<Name>\`. Packages MUST NOT depend on aiya-core, call WordPress functions, or register hooks; a core-side adapter module under `src/Modules/` instantiates the package service, registers its settings into the shared add-ons page, and wires it into the module system. The dependency arrow is one-directional: core -> package.

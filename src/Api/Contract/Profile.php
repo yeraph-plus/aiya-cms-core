@@ -7,13 +7,11 @@ namespace Aiya\Core\Api\Contract;
 /**
  * Public author profile (`/profiles/{slug}`): the front-end-facing view
  * of an account without email or login name. `slug` is the WP nicename
- * (a UUID for accounts created headlessly). `activities` stays empty
- * until the discussion activity feed lands.
+ * (a UUID for accounts created headlessly).
  */
 final class Profile
 {
     /**
-     * @param list<array<string, mixed>> $activities
      * @param list<PostSummary> $favorites
      */
     public function __construct(
@@ -27,7 +25,6 @@ final class Profile
         public readonly string $joinedAt,
         public readonly ProfileStats $stats,
         public readonly Membership $membership,
-        public readonly array $activities,
         public readonly array $favorites,
     ) {
     }
@@ -45,7 +42,6 @@ final class Profile
             'joinedAt' => $this->joinedAt,
             'stats' => $this->stats->toArray(),
             'membership' => $this->membership->toArray(),
-            'activities' => $this->activities,
             'favorites' => array_map(static fn (PostSummary $post): array => $post->toArray(), $this->favorites),
         ];
     }

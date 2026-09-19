@@ -34,7 +34,7 @@ final class UserProfileContractTest extends TestCase
             '2026-09-06T08:00:00+00:00',
             'subscriber',
             $this->avatar(),
-            new ProfileStats(0, 5, 9, 2),
+            new ProfileStats(5, 9, 2),
         );
     }
 
@@ -70,7 +70,6 @@ final class UserProfileContractTest extends TestCase
                 'thumbUrl' => 'https://wp.example.com/wp-content/avatars/12/64.jpg?v=1757000000',
             ],
             'stats' => [
-                'activities' => 0,
                 'favorites' => 5,
                 'contributions' => 9,
                 'followers' => 2,

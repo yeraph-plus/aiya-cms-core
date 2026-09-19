@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
-use Aiya\Core\Api\Contract\Notification;
 use Aiya\Core\Api\Contract\Pagination;
+use Aiya\Core\Api\Presenter\NotificationPresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Domain\Notification\NotificationService;
 use Aiya\Core\Domain\Notification\RoleLevel;
@@ -31,6 +31,7 @@ final class NotificationController
     public function __construct(
         private NotificationService $notifications,
         private UserPresenter $users,
+        private NotificationPresenter $presenter,
     ) {
     }
 
@@ -63,16 +64,10 @@ final class NotificationController
         $perPage = min(self::MAX_PER_PAGE, max(1, (int) $request->get_param('perPage')));
         $total = $this->notifications->countVisible($rank, $viewerId);
 
-        $items = [];
-        foreach ($this->notifications->visible($rank, $viewerId, $perPage, ($page - 1) * $perPage) as $row) {
-            $items[] = (new Notification(
-                (int) $row->id,
-                (string) $row->type,
-                (string) $row->title,
-                (string) $row->body,
-                $this->isoCreatedAt((string) $row->created_at)
-            ))->toArray();
-        }
+        $items = array_map(
+            $this->presenter->present(...),
+            $this->notifications->visible($rank, $viewerId, $perPage, ($page - 1) * $perPage)
+        );
 
         return new WP_REST_Response([
             'items' => $items,
@@ -82,13 +77,5 @@ final class NotificationController
                 'pagination' => Pagination::fromCounts($page, $perPage, $total)->toArray(),
             ],
         ]);
-    }
-
-    /** created_at is stored GMT; the contract wants offset ISO 8601. */
-    private function isoCreatedAt(string $mysqlGmt): string
-    {
-        $timestamp = (int) get_date_from_gmt($mysqlGmt, 'U');
-
-        return $timestamp > 0 ? (string) wp_date('c', $timestamp) : '';
     }
 }

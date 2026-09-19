@@ -49,7 +49,6 @@ final class UserPresenter
     private function stats(int $userId): ProfileStats
     {
         return new ProfileStats(
-            0,
             (new FavoriteService())->countForAuthor($userId),
             (int) count_user_posts($userId, 'post', true),
             (new FollowService())->countFollowers($userId)

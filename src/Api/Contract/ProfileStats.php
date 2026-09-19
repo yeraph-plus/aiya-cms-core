@@ -13,18 +13,16 @@ namespace Aiya\Core\Api\Contract;
 final class ProfileStats
 {
     public function __construct(
-        public readonly int $activities = 0,
         public readonly int $favorites = 0,
         public readonly int $contributions = 0,
         public readonly int $followers = 0,
     ) {
     }
 
-    /** @return array{activities: int, favorites: int, contributions: int, followers: int} */
+    /** @return array{favorites: int, contributions: int, followers: int} */
     public function toArray(): array
     {
         return [
-            'activities' => $this->activities,
             'favorites' => $this->favorites,
             'contributions' => $this->contributions,
             'followers' => $this->followers,

@@ -5,12 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
-use Aiya\Core\Api\Contract\CheckinPolicy;
-use Aiya\Core\Api\Contract\MembershipEntitlement;
-use Aiya\Core\Api\Contract\MembershipState;
-use Aiya\Core\Api\Contract\PlanChannels;
-use Aiya\Core\Api\Contract\Tier;
-use Aiya\Core\Api\Contract\TiersPayload;
+use Aiya\Core\Api\Presenter\SponsorshipPresenter;
 use Aiya\Core\Domain\Credit\CreditSettings;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Sponsorship\AfdianGateway;
@@ -43,6 +38,7 @@ final class SponsorshipController
         private EntitlementService $entitlements,
         private LedgerService $ledger,
         private RateLimiter $limiter,
+        private SponsorshipPresenter $presenter,
     ) {
     }
 
@@ -87,28 +83,14 @@ final class SponsorshipController
         $gateway = $this->gateway();
         $afdian = AfdianGateway::fromSettings();
 
-        $tiers = [];
-        foreach (SponsorshipSettings::read()['tiers'] as $row) {
-            $tiers[] = new Tier(
-                (string) $row['key'],
-                (string) $row['name'],
-                (float) $row['price'],
-                (int) $row['cycleDays'],
-                (int) $row['creditsPerCycle'],
-                (bool) ($row['enabled'] ?? true)
-            );
-        }
-
-        return new WP_REST_Response((new TiersPayload(
-            // Each gateway's own answer is authoritative: it knows both
-            // the admin switch and whether credentials exist.
-            new PlanChannels(
-                $gateway !== null && $gateway->enabled(),
-                $afdian !== null && $afdian->enabled(),
-                $gateway?->channels() ?? []
-            ),
-            $tiers
-        ))->toArray());
+        // Each gateway's own answer is authoritative: it knows both the
+        // admin switch and whether credentials exist.
+        return new WP_REST_Response($this->presenter->plans(
+            $gateway !== null && $gateway->enabled(),
+            $afdian !== null && $afdian->enabled(),
+            $gateway?->channels() ?? [],
+            SponsorshipSettings::read()['tiers']
+        ));
     }
 
     /**
@@ -137,35 +119,14 @@ final class SponsorshipController
         $userId = (int) get_current_user_id();
         $window = $this->entitlements->window($userId);
 
-        $queue = [];
-        foreach ($this->entitlements->queueFor($userId) as $row) {
-            $queue[] = (new MembershipEntitlement(
-                $row['tier_key'],
-                $row['tier_name'],
-                $row['cycle_days'],
-                $row['credits_per_cycle'],
-                $row['cycles_total'],
-                $row['cycles_granted'],
-                $this->iso($row['starts_at']),
-                $this->iso($row['ends_at']),
-                $row['status'],
-            ))->toArray();
-        }
-
-        $checkin = CreditSettings::read();
-
-        return new WP_REST_Response((new MembershipState(
+        return new WP_REST_Response($this->presenter->membershipState(
             $this->membership->isActive($userId),
-            $window['expiresAt'] > 0 ? (string) wp_date('c', $window['expiresAt']) : null,
-            $window['nextGrantAt'] > 0 ? (string) wp_date('c', $window['nextGrantAt']) : null,
+            $window['expiresAt'] > 0 ? $window['expiresAt'] : null,
+            $window['nextGrantAt'] > 0 ? $window['nextGrantAt'] : null,
             $this->ledger->balance($userId),
-            $queue,
-            new CheckinPolicy(
-                $checkin['checkinEnabled'],
-                $checkin['checkinCredits'],
-                $checkin['validityDays']
-            ),
-        ))->toArray());
+            $this->entitlements->queueFor($userId),
+            CreditSettings::read()
+        ));
     }
 
     /**
@@ -241,13 +202,5 @@ final class SponsorshipController
         }
 
         return new WP_Error('aiya_not_logged_in', __('Authentication required.', 'aiya-core'), ['status' => 401]);
-    }
-
-    /** GMT DATETIME queue value → ISO 8601 for the wire. */
-    private function iso(string $mysqlGmt): string
-    {
-        $timestamp = (int) get_date_from_gmt($mysqlGmt, 'U');
-
-        return $timestamp > 0 ? (string) wp_date('c', $timestamp) : '';
     }
 }

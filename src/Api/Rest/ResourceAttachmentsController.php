@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
-use Aiya\Core\Api\Contract\Attachment;
 use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Api\Presenter\AttachmentPresenter;
 use Aiya\Core\Domain\ExternalFiles\AttachmentService;
 use WP_Error;
 use WP_REST_Request;
@@ -20,8 +20,10 @@ use WP_REST_Server;
  */
 final class ResourceAttachmentsController
 {
-    public function __construct(private AttachmentService $attachments)
-    {
+    public function __construct(
+        private AttachmentService $attachments,
+        private AttachmentPresenter $presenter,
+    ) {
     }
 
     public function registerRoutes(): void
@@ -41,20 +43,8 @@ final class ResourceAttachmentsController
             return $result;
         }
 
-        $items = [];
-        foreach ($result['items'] as $item) {
-            $items[] = (new Attachment(
-                $item['name'],
-                $item['size'],
-                $item['type'],
-                $item['modified'],
-                $item['url'],
-                $item['ready'],
-            ))->toArray();
-        }
-
         return new WP_REST_Response([
-            'items' => $items,
+            'items' => $this->presenter->items($result['items']),
         ]);
     }
 }
