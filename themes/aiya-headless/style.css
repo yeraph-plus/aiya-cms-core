@@ -1,0 +1,10 @@
+/*
+Theme Name: AIYA Headless Shell
+Description: Minimal shell theme for the headless AIYA CMS stack. Boots nothing, hides the toolbar and provides only a fallback page; the public frontend is served by the Astro application.
+Author: Yeraph Studio
+Version: 0.2.0
+Requires at least: 6.4
+Requires PHP: 8.2
+License: GPL-3.0-or-later
+Text Domain: aiya-headless
+*/

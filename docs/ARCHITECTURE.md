@@ -2,6 +2,18 @@
 
 AIYA Core is a conventional WordPress plugin. It does not depend on an active theme and does not provide front-end templates.
 
+## Companion shell theme
+
+`themes/aiya-headless/` in this repository is the project's companion
+placeholder shell theme (占位主题壳), versioned here as the sync source for
+its runtime location `wp-content/themes/aiya-headless/`. It exists only so
+direct hits on the WP host render a harmless document while the Astro
+application serves the public frontend: it boots no framework, takes
+nothing from this plugin (its two appearance features ride stock WordPress
+surfaces — the Site Icon and one Customizer field), and HeadlessModule
+owns the headless trims around it. See that directory's README for the
+details; keep the two copies byte-identical.
+
 ## Current foundation
 
 ```text
