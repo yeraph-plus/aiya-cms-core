@@ -994,3 +994,14 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **投影位置统一**：五个控制器内联 DTO 构造全部迁入 Api/Presenter（新 NotificationPresenter / SmiliesPresenter / AttachmentPresenter / SponsorshipPresenter / UploadPresenter），控制器回归纯编排（鉴权、限流、参数、服务调用）；**约定成文**：ARCHITECTURE.md 增「Projection convention」节——投影只发生在 Presenter；Domain 服务允许构造 Contract 值对象（PrimaryMenu→MenuItem、CardThumbnailService→Image）当且仅当该 DTO 是服务自身的产出物且无 WP 对象映射——Api/Contract 是零依赖叶子词表，此边不算跨层，禁止方向仍是 Domain→HTTP/Admin。**不动**：PrimaryMenu/CardThumbnailService 留在原位（Image 的 alt/宽高元数据归属生成器自身）；
 - **恒空字段随契约瘦身（v1 基线修订，站长拍板）**：Profile.activities（活动流预留，规划未含）、ProfileStats.activities（恒 0）、Membership.label 与 Membership.benefits（恒空/恒 []；会员设计=按周期发积分，无权益文案，徽章措辞全归前端 i18n）四字段移除——快照 + v1 基线 JSON 同步修订（未上线、唯一消费方 front-station 同批更新），前端三 schema（profile/profileStats/membershipBadge）与两处测试夹具同步；front 组件零消费，实测无波及；
 - 回归：phpunit 237/571、phpstan、phpcs、vitest 195/195、astro check 全绿；profile/membership 端点真实 HTTP 形状实测。
+
+### 跨类型搜索端点 /search（0.82.0，2026-09-19）—— ✅ 已完成
+
+站长拍板加搜索专端点（首页不立专端点，组合留前端——组合逻辑成为后端状态〔置顶/策展位〕时再评估）：
+
+- **双模式**：无 `type` → 分组 `SearchResult`（post/page/resource 各组：相关度序 page one + `total` 计数，前端渲染分类型计数并深链）；带 `type` → 单类型标准列表形状（PostSummary[] + meta.pagination 全翻页）；
+- **相关度排序**：`ContentQuery::list` 增 `relevance` 排序档——WP 原生 `orderby => relevance`（`s` 非空时按标题匹配评分优先），置顶提升对 rand/relevance 均不生效（无「头部」语义）；
+- **可见性**：复用 `ContentQuery::list` 既有排除面（`listExclusions` 门禁/密码/私有 + `perm=readable`）——0.72.1 泄漏家族不因新入口重开；`has_password=false` 照排；
+- **成本与限流**：`q` 短于 2 字符直接回空载荷（不触库，输入中途态友好）；LIKE 全表扫描为本站最贵读——`content_search` 30/60s 限流；HttpCache 落默认档（`max-age=0, must-revalidate` + ETag，高基数不进 60s 共享组）；
+- **契约**：新 `SearchGroup`/`SearchResult` DTO 入快照执法（47 DTO）；typed 模式复用 PostSummary 列表形状零新形状；前端 zod（`searchGroup/searchResult/searchQuery` 三 schema）+ client.search 双模式分派解析同批（页面适配归前端另批）；
+- 实测：CJK 分组 1/2/1、typed 命中「文章图片灯箱测试」、短 q 全零、通配 q 不漏门禁标题、31 连发限流收口。phpunit 246/582（含并行开发的 TrustedProxy 九用例）、phpstan、phpcs、vitest 203/203、astro check 全绿。

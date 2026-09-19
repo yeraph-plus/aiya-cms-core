@@ -6,14 +6,19 @@ namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Contract\Pagination;
+use Aiya\Core\Api\Contract\PostSummary;
+use Aiya\Core\Api\Contract\SearchGroup;
+use Aiya\Core\Api\Contract\SearchResult;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\ProfilePresenter;
 use Aiya\Core\Api\Presenter\SitePresenter;
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\PrimaryMenu;
+use Aiya\Core\Domain\Content\PublicType;
 use Aiya\Core\Domain\Content\PublicTypes;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
 use WP_Error;
+use WP_Post;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -120,6 +125,100 @@ final class ContentController
                 'slug' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
             ],
         ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/search', [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->search($request),
+            'permission_callback' => '__return_true',
+            'args' => [
+                'q' => ['type' => 'string', 'required' => true, 'maxLength' => 100],
+                // Omitted = grouped cross-type answer (page one per type
+                // plus totals); present = one type with full pagination.
+                'type' => ['type' => 'string', 'enum' => ['post', 'page', 'resource']],
+                'page' => ['type' => 'integer', 'default' => 1, 'minimum' => 1],
+                'perPage' => ['type' => 'integer', 'default' => 10, 'minimum' => 1, 'maximum' => 50],
+            ],
+        ]);
+    }
+
+    /**
+     * Cross-type search (posts / pages / resources). Relevance-ordered
+     * (title matches first) through WP's own scoring, visibility
+     * exclusions applied by the shared query — gated, passworded and
+     * private rows never surface here. Two modes:
+     *
+     *  - no `type`: grouped SearchResult (page one per type + totals);
+     *  - `type` present: one type's full pagination, standard list shape.
+     *
+     * Short or missing queries answer an empty payload without hitting
+     * the database (a one-character box mid-typing is a normal state).
+     * LIKE search is the priciest read on the site, hence the limiter.
+     */
+    private function search(WP_REST_Request $request): WP_Error|WP_REST_Response
+    {
+        if (!$this->limiter->hit('content_search', 30, 60)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        }
+
+        $q = trim(sanitize_text_field((string) $request->get_param('q')));
+        $page = max(1, (int) $request->get_param('page'));
+        $perPage = min(50, max(1, (int) $request->get_param('perPage')));
+        $typeName = (string) $request->get_param('type');
+
+        if (mb_strlen($q) < 2) {
+            if ($typeName !== '') {
+                return new WP_REST_Response([
+                    'data' => [],
+                    'meta' => [
+                        'apiVersion' => Contract::VERSION,
+                        'requestId' => Envelope::meta()['requestId'],
+                        'pagination' => Pagination::fromCounts($page, $perPage, 0)->toArray(),
+                    ],
+                ]);
+            }
+
+            $empty = static fn (): SearchGroup => new SearchGroup([], 0);
+
+            return new WP_REST_Response((new SearchResult($empty(), $empty(), $empty()))->toArray());
+        }
+
+        $summarize = fn (array $posts, PublicType $type): array => array_values(array_map(
+            fn (WP_Post $post): PostSummary => $this->posts->summary($post, $type),
+            $posts
+        ));
+
+        if ($typeName !== '') {
+            $type = PublicTypes::get($typeName);
+            if ($type === null) {
+                return new WP_Error('aiya_invalid_param', __('Content not found.', 'aiya-core'), ['status' => 400]);
+            }
+
+            $result = $this->query->list($type, $page, $perPage, $q, '', 'relevance');
+
+            return new WP_REST_Response([
+                'data' => array_map(
+                    static fn (PostSummary $summary): array => $summary->toArray(),
+                    $summarize($result['items'], $type)
+                ),
+                'meta' => [
+                    'apiVersion' => Contract::VERSION,
+                    'requestId' => Envelope::meta()['requestId'],
+                    'pagination' => Pagination::fromCounts($page, $perPage, $result['total'])->toArray(),
+                ],
+            ]);
+        }
+
+        $groups = [];
+        foreach (PublicTypes::all() as $name => $type) {
+            $result = $this->query->list($type, 1, $perPage, $q, '', 'relevance');
+            $groups[$name] = new SearchGroup($summarize($result['items'], $type), $result['total']);
+        }
+
+        return new WP_REST_Response((new SearchResult(
+            $groups['post'],
+            $groups['page'],
+            $groups['resource']
+        ))->toArray());
     }
 
     /**

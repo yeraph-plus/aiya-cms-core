@@ -78,7 +78,7 @@ final class ContentQuery
             'has_password' => false,
             'posts_per_page' => $perPage,
             'paged' => $page,
-            'orderby' => $sort === 'rand' ? 'rand' : 'date',
+            'orderby' => $sort === 'relevance' && $q !== '' ? 'relevance' : ($sort === 'rand' ? 'rand' : 'date'),
             'order' => $sort === 'oldest' ? 'ASC' : 'DESC',
             'no_found_rows' => false,
             'ignore_sticky_posts' => true,
@@ -152,9 +152,10 @@ final class ContentQuery
         // the active filters. They occupy this page's quota (explicit
         // post__in merge, dedup keeps the count at exactly perPage) —
         // WP's automatic prepend is precisely what used to overflow a
-        // 20-per-page request to 21 rows. Random order has no "front",
-        // so the promotion only applies to date sorts.
-        if ($page === 1 && $sort !== 'rand') {
+        // 20-per-page request to 21 rows. Random order and relevance
+        // search have no "front", so the promotion only applies to date
+        // sorts.
+        if ($page === 1 && !in_array($sort, ['rand', 'relevance'], true)) {
             $sticky = $this->stickyIdsFor($type);
             if ($sticky !== []) {
                 $merged = $this->mergeStickyFirst($sticky, $items, $perPage);

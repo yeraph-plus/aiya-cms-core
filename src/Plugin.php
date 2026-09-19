@@ -54,6 +54,7 @@ use Aiya\Core\Domain\Smilies\SmiliesModule;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\ThemeSupport\ThemeSupportModule;
 use Aiya\Core\Infrastructure\Headless\HeadlessModule;
+use Aiya\Core\Infrastructure\Http\TrustedProxy;
 use Aiya\Core\Infrastructure\Security\SecurityModule;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
 use Aiya\Core\Modules\MediaModule;
@@ -107,6 +108,7 @@ final class Plugin
         $this->addModule(new FrontendModule($this->settings));
         $this->addModule(new HeadlessModule($this->settings));
         $this->addModule(new SecurityModule($this->settings));
+        $this->addModule(new TrustedProxy());
         $avatar = new AvatarModule($this->settings);
         $this->addModule($avatar);
         $this->addModule(new SendMailPage());
