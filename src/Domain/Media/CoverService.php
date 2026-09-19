@@ -16,7 +16,7 @@ use WP_Error;
 /**
  * Generated-cover pipeline. Produces a photo-mode cover from the featured
  * image or the first local content image (falling back to pattern mode),
- * draws the title, stores the result under wp-content/thumbnail/cover/ and
+ * draws the title, stores the result under wp-content/aiya_thumbnail/cover/ and
  * persists the `_thumb` card key (content-relative path, full URL as
  * fallback) — one of that key's writers, next to the cron card pipeline.
  * The editor cover shares the card canvas size (640x360): the card image
@@ -96,7 +96,7 @@ final class CoverService
         $previous = get_post_meta($postId, CardThumbnailService::THUMB_KEY, true);
         if (is_string($previous) && $previous !== '') {
             $previousLocal = $this->paths->urlToLocal($previous);
-            if ($previousLocal !== null && str_starts_with($previousLocal, $this->paths->contentDir() . '/thumbnail/cover/')
+            if ($previousLocal !== null && str_starts_with($previousLocal, $this->paths->contentDir() . '/aiya_thumbnail/cover/')
                 && preg_match('/\/\d{14}_\d{4}\.(?:jpg|webp|avif)$/', $previousLocal) === 1) {
                 wp_delete_file($previousLocal);
             }

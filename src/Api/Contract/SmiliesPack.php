@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Contract;
 
 /**
- * One smilies pack (= one directory under `wp-content/smilies/`). The
+ * One smilies pack (= one directory under `wp-content/aiya_smilies/`). The
  * slug is the directory name; items keep the directory listing order,
  * which the front end may use as picker display order.
  */

@@ -91,13 +91,13 @@ final class MediaPaths
     /** Directory for generated thumbnails, created on demand. */
     public function thumbnailDir(int $width, int $height): string
     {
-        return $this->ensureDir($this->contentDir() . '/thumbnail/' . $width . 'x' . $height);
+        return $this->ensureDir($this->contentDir() . '/aiya_thumbnail/' . $width . 'x' . $height);
     }
 
     /** Month-sharded directory for generated covers, created on demand. */
     public function coverDir(): string
     {
-        return $this->ensureDir($this->contentDir() . '/thumbnail/cover/' . wp_date('Y/m'));
+        return $this->ensureDir($this->contentDir() . '/aiya_thumbnail/cover/' . wp_date('Y/m'));
     }
 
     /**
@@ -107,25 +107,25 @@ final class MediaPaths
      */
     public function coverManualDir(): string
     {
-        return $this->ensureDir($this->contentDir() . '/thumbnail/cover/manual/' . wp_date('Y/m'));
+        return $this->ensureDir($this->contentDir() . '/aiya_thumbnail/cover/manual/' . wp_date('Y/m'));
     }
 
     /** Automatic card pipeline output (save hook / cron), no title. */
     public function coverAutoDir(): string
     {
-        return $this->ensureDir($this->contentDir() . '/thumbnail/cover/auto/' . wp_date('Y/m'));
+        return $this->ensureDir($this->contentDir() . '/aiya_thumbnail/cover/auto/' . wp_date('Y/m'));
     }
 
     /** Month-sharded pic-bed pool, created on demand. */
     public function picBedDir(): string
     {
-        return $this->ensureDir($this->contentDir() . '/upload-pics/' . wp_date('Y/m'));
+        return $this->ensureDir($this->contentDir() . '/aiya_upload_pics/' . wp_date('Y/m'));
     }
 
     /** Root of the pic-bed pool, without creating it. */
     public function picBedRoot(): string
     {
-        return $this->contentDir() . '/upload-pics';
+        return $this->contentDir() . '/aiya_upload_pics';
     }
 
     /**
@@ -135,7 +135,7 @@ final class MediaPaths
      */
     public function userPicBedDir(int $userId): string
     {
-        return $this->ensureDir($this->contentDir() . '/upload-pics/u/' . $userId . '/' . wp_date('Y/m'));
+        return $this->ensureDir($this->contentDir() . '/aiya_upload_pics/u/' . $userId . '/' . wp_date('Y/m'));
     }
 
     private function ensureDir(string $dir): string

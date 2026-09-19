@@ -6,7 +6,7 @@ namespace Aiya\Core\Domain\Smilies;
 
 /**
  * Directory-convention smilies registry: packs live as plain folders under
- * `wp-content/smilies/{pack}/{code}.{ext}` — the site owner drops a ready-
+ * `wp-content/aiya_smilies/{pack}/{code}.{ext}` — the site owner drops a ready-
  * made pack (Aru, AC-tan, ...) in through the file system and this scan
  * turns file names into the `::code::` token map. Nothing touches the
  * media library and there is no admin surface; the map is consumed by the
@@ -177,11 +177,11 @@ final class SmiliesRegistry
 
     private function directory(): string
     {
-        return $this->directory ?? (defined('WP_CONTENT_DIR') ? WP_CONTENT_DIR . '/smilies' : 'smilies');
+        return $this->directory ?? (defined('WP_CONTENT_DIR') ? WP_CONTENT_DIR . '/aiya_smilies' : 'smilies');
     }
 
     private function baseUrl(): string
     {
-        return $this->baseUrl ?? content_url('smilies');
+        return $this->baseUrl ?? content_url('aiya_smilies');
     }
 }

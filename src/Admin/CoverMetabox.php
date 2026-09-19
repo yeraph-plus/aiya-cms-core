@@ -14,7 +14,7 @@ use WP_Post;
  * fit the schema-driven metadata field groups, so it keeps its own bespoke
  * screen in the Admin layer. Generation itself lives in CoverService.
  *
- * The generated file is persisted under wp-content/thumbnail/cover/ and the
+ * The generated file is persisted under wp-content/aiya_thumbnail/cover/ and the
  * `_thumb` protocol key is written by the service — replacing the
  * legacy frontend-time writes with an explicit editor action.
  */

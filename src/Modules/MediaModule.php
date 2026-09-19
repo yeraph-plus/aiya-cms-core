@@ -97,7 +97,7 @@ final class MediaModule implements Module
 
     /**
      * Post deletion removes the postmeta rows but not the generated card
-     * file under thumbnail/cover/ — delete managed files so orphans do
+     * file under aiya_thumbnail/cover/ — delete managed files so orphans do
      * not accumulate. Hand-edited or foreign `_thumb` values never match
      * the managed naming and stay untouched.
      */
@@ -113,7 +113,7 @@ final class MediaModule implements Module
         }
 
         $local = $this->paths()->urlToLocal($thumb);
-        if ($local !== null && str_starts_with($local, $this->paths()->contentDir() . '/thumbnail/cover/')
+        if ($local !== null && str_starts_with($local, $this->paths()->contentDir() . '/aiya_thumbnail/cover/')
             && preg_match('/\/\d{14}_\d{4}\.(?:jpg|webp|avif)$/', $local) === 1) {
             wp_delete_file($local);
         }

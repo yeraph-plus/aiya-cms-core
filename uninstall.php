@@ -12,7 +12,7 @@
  * aiya_core_* transients/cron events.
  *
  * Deliberately KEPT: user content (media library, the avatar files under
- * wp-content/thumbnail/avatars/, the cover/pic-bed trees). The payment
+ * wp-content/aiya_thumbnail/ tree (generated covers and avatars), the pic-bed pool). The payment
  * log moved to the plugin-owned aiya_payment_orders table (0.56.0) and
  * is dropped with the rest; the codes table moved to aiya_redeem_codes
  * in 0.54.0 (the superseded wp_aya_convert_codes is dropped by the
@@ -89,7 +89,7 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
     }
 
     // Webhook debug logs (payment payloads) and the stale rewrite cache.
-    $logsDir = trailingslashit(WP_CONTENT_DIR) . 'aiya-core-logs';
+    $logsDir = trailingslashit(WP_CONTENT_DIR) . 'aiya_logs';
     if (is_dir($logsDir)) {
         foreach ((array) glob($logsDir . '/*') as $logFile) {
             if (is_string($logFile)) {

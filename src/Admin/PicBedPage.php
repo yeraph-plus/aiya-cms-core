@@ -16,7 +16,7 @@ use SplFileInfo;
 
 /**
  * Standalone pic-bed screen (legacy internal-pic-bed): uploads images
- * straight into wp-content/upload-pics/YYYY/MM/ without touching the media
+ * straight into wp-content/aiya_upload_pics/YYYY/MM/ without touching the media
  * library — no attachment IDs, no WP thumbnail generation, nothing lands in
  * wp-content/uploads. Files are addressed by path; the headless front end
  * consumes the content-relative path, the legacy shortcode/HTML outputs are
@@ -74,7 +74,7 @@ final class PicBedPage implements Module
         <div class="wrap">
             <h1><?php esc_html_e('Pic bed', 'aiya-core'); ?></h1>
             <p class="description">
-                <?php esc_html_e('Upload images to wp-content/upload-pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk.', 'aiya-core'); ?>
+                <?php esc_html_e('Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk.', 'aiya-core'); ?>
             </p>
 
             <h2><?php esc_html_e('Upload', 'aiya-core'); ?></h2>
@@ -306,12 +306,12 @@ final class PicBedPage implements Module
 
     /**
      * Community uploads live in the pool's per-user namespace
-     * (`upload-pics/u/{id}/…`) and are labeled with a link to the author;
+     * (`aiya_upload_pics/u/{id}/…`) and are labeled with a link to the author;
      * operator rows carry no marker.
      */
     private function sourceCell(string $path): string
     {
-        if (!preg_match('#^upload-pics/u/(\d+)/#', $path, $matches)) {
+        if (!preg_match('#^aiya_upload_pics/u/(\d+)/#', $path, $matches)) {
             return '—';
         }
 

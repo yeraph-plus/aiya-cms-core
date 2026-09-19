@@ -22,9 +22,9 @@ use Throwable;
  *
  * The user meta key `basic_user_avatar` is a persistent data protocol
  * carried over from the legacy theme (workspace AGENTS.md). One shape is
- * readable — the file avatar: `['full' => 'thumbnail/avatars/{user}/128.jpg',
+ * readable — the file avatar: `['full' => 'aiya_thumbnail/avatars/{user}/128.jpg',
  * 'v' => int]` with pre-generated 128px and 64px square crops under
- * wp-content/thumbnail/avatars/{user_id}/ — outside the media library and
+ * wp-content/aiya_thumbnail/avatars/{user_id}/ — outside the media library and
  * uploads, assembled to static URLs with no PHP hit per render. The
  * media-library and legacy-URL shapes are dead data since the 2026-09-11
  * decision and no longer read; users carrying one fall through to the
@@ -40,7 +40,7 @@ final class AvatarModule implements Module
     private const META_KEY = 'basic_user_avatar';
 
     /** The only accepted meta path prefix (rows from earlier shapes are dead data). */
-    private const FILE_PATH_PREFIX = 'thumbnail/avatars/';
+    private const FILE_PATH_PREFIX = 'aiya_thumbnail/avatars/';
 
     /** Pre-generated square sizes; requests at or below 64 serve the small one. */
     private const FILE_SIZES = [128, 64];
@@ -269,7 +269,7 @@ final class AvatarModule implements Module
     {
         $version = $this->fileAvatarVersion($user->ID);
         $previewUrl = $version > 0
-            ? content_url('/thumbnail/avatars/' . $user->ID . '/' . self::LARGE_SIZE . '.jpg?v=' . $version)
+            ? content_url('/aiya_thumbnail/avatars/' . $user->ID . '/' . self::LARGE_SIZE . '.jpg?v=' . $version)
             : null;
 
         $nonce = wp_create_nonce('aiya_core_avatar_' . $user->ID);
@@ -382,7 +382,7 @@ final class AvatarModule implements Module
         }
 
         wp_send_json_success([
-            'url' => content_url('/thumbnail/avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg?v=' . $this->fileAvatarVersion($userId)),
+            'url' => content_url('/aiya_thumbnail/avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg?v=' . $this->fileAvatarVersion($userId)),
             'nonce' => wp_create_nonce('aiya_core_avatar_' . $userId),
         ]);
     }
@@ -440,7 +440,7 @@ final class AvatarModule implements Module
         }
 
         update_user_meta($userId, self::META_KEY, [
-            'full' => 'thumbnail/avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg',
+            'full' => 'aiya_thumbnail/avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg',
             'v' => time(),
         ]);
     }
@@ -452,7 +452,7 @@ final class AvatarModule implements Module
             return;
         }
 
-        $dir = WP_CONTENT_DIR . '/thumbnail/avatars/' . $userId;
+        $dir = WP_CONTENT_DIR . '/aiya_thumbnail/avatars/' . $userId;
         if (is_dir($dir)) {
             $iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
@@ -523,7 +523,7 @@ final class AvatarModule implements Module
 
     private function avatarsDir(int $userId): string
     {
-        $dir = WP_CONTENT_DIR . '/thumbnail/avatars/' . $userId;
+        $dir = WP_CONTENT_DIR . '/aiya_thumbnail/avatars/' . $userId;
         if (!is_dir($dir)) {
             wp_mkdir_p($dir);
         }

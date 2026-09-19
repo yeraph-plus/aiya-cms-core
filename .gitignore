@@ -17,3 +17,6 @@ Thumbs.db
 
 # Contract snapshot scratch output (sync tool workspace artifact)
 /backend-snap.json
+
+# A stray copy of the shell theme once synced here; the real theme lives at wp-content/themes/
+themes/
