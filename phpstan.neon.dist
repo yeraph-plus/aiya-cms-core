@@ -5,11 +5,29 @@ includes:
 parameters:
     level: 8
 
+    # Analysis target: the runtime PHP (plugin header "Requires PHP: 8.5").
+    # The composer constraint also admits 8.4, and PHPCompatibility checks
+    # that lower bound — see testVersion in phpcs.xml.dist.
+    phpVersion: 80500
+
     paths:
         - aiya-core.php
         - uninstall.php
         - src
+        - packages/gofile-api/src
         - packages/image-processor/src
+        - packages/openlist/src
+        - packages/payment-epay/src
+        - packages/payment-afdian/src
+
+    # The bundled packages are not composer-installed, so PHPStan cannot
+    # discover Aiya\Infra\* symbols from the vendor autoload map — scan them.
+    # (Five wired packages' src/ are analysed in paths above — gofile-api,
+    # image-processor, openlist, payment-epay, payment-afdian; the rest
+    # (opencc-convert, slug-toolkit, typesetting) are symbol-only until an
+    # adapter module wires them.)
+    scanDirectories:
+        - packages
 
     excludePaths:
         analyse:

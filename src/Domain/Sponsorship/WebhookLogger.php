@@ -8,7 +8,7 @@ namespace Aiya\Core\Domain\Sponsorship;
  * Raw webhook payload logger, preserving the legacy debugging behavior:
  * when enabled it appends gateway callbacks under wp-content/aiya_logs/
  * as dated files. Logging is OFF unless the debug constant
- * AIYA_CORE_WEBHOOK_DEBUG is defined truthy (define it in wp-config.php
+ * WP_DEBUG is defined truthy (define it in wp-config.php
  * while debugging payment callbacks) — the payloads contain payment data,
  * so it must never ride a settings switch that gets forgotten on. The
  * log grows without rotation; delete the directory when done debugging.
@@ -19,7 +19,7 @@ final class WebhookLogger
 {
     public static function active(): bool
     {
-        return defined('AIYA_CORE_WEBHOOK_DEBUG') && AIYA_CORE_WEBHOOK_DEBUG === true;
+        return defined('WP_DEBUG') && WP_DEBUG === true;
     }
 
     public static function write(string $label, string $payload): void

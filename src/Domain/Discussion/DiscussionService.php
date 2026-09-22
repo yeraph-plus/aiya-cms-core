@@ -686,7 +686,7 @@ final class DiscussionService
         );
     }
 
-    /** Validates the postRef binding: must be an existing published post/resource. */
+    /** Validates the bound-post binding: must be an existing published post/resource (the thread renders its card). */
     private function validateBinding(int $postId): int|WP_Error
     {
         $postId = absint((string) $postId);

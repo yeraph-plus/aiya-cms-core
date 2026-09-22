@@ -4,10 +4,9 @@
     "type": "wordpress-plugin",
     "license": "GPL-3.0-or-later",
     "require": {
-        "php": ">=8.2",
-        "aiya/slug-toolkit": "@dev",
-        "aiya/image-processor": "@dev",
-        "aiya/typesetting": "@dev"
+        "php": ">=8.4 <8.6",
+        "imagine/imagine": "^1.5",
+        "overtrue/pinyin": "^6.0"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
@@ -22,10 +21,6 @@
         "wp-cli/i18n-command": "^2.6"
     },
     "repositories": {
-        "packages": {
-            "type": "path",
-            "url": "packages/*"
-        },
         "packagist": {
             "type": "composer",
             "url": "https://mirrors.cloud.tencent.com/composer/"
@@ -40,6 +35,9 @@
         "i18n:pot": "@php ./vendor/wp-cli/wp-cli/php/boot-fs.php --allow-root i18n make-pot . languages/aiya-core.pot --domain=aiya-core --exclude=vendor,node_modules,.git,docs"
     },
     "config": {
+        "platform": {
+            "php": "8.4.0"
+        },
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
         }

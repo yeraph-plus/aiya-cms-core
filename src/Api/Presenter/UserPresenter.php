@@ -9,6 +9,7 @@ use Aiya\Core\Api\Contract\UserProfile;
 use Aiya\Core\Api\Contract\ProfileStats;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
+use Aiya\Core\Domain\Identity\UserBan;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use WP_User;
 
@@ -18,7 +19,9 @@ use WP_User;
  *
  * The role field keeps the legacy front-end levels (administrator /
  * author / sponsor / subscriber); sponsor validity reads the persistent
- * membership entitlement queue (0.50.0 tier model).
+ * membership entitlement queue (0.50.0 tier model) and therefore answers
+ * "no" for a disabled account, while the separate `banned` flag reports
+ * the disable switch itself.
  */
 final class UserPresenter
 {
@@ -39,6 +42,7 @@ final class UserPresenter
             get_user_locale((int) $user->ID),
             $this->registeredAt($user),
             $this->role($user),
+            UserBan::isBanned((int) $user->ID),
             $this->avatar((int) $user->ID),
             $this->stats((int) $user->ID)
         );

@@ -70,10 +70,10 @@ Directories are created when their first working tracer slice is implemented; em
 | visitor counter | ✅ 0.16.0–0.18.0: Domain/Engagement (like/view/rating with visitor dedup, feature matrix per post type) |
 | `inc/func-tweet-post.php` (Tweet domain) | Cancelled (2026-09-08): no migration, no compatibility reader; existing tweet rows (and their `gallery_images` values) stay as dead data |
 | `inc/func-issue.php` (Issue domain) | Rebuilt as Domain/Discussion from the design prototype only (2026-09-08, B2 restart); legacy `wp_aya_issues` / `wp_aya_issue_comments` rows are dead data — no migration, no compatibility reader |
-| `inc/func-openlist.php` (OpenList embed) | ✅ 0.27.0, re-enabled 0.55.0: Domain/ExternalFiles — `oplist_client` box (protocol group key renamed to `aiya_core_oplist_client` in 0.31.0, verbatim nine fields) moved to the resource screen; domain settings page; read-only OpenListClient with token caching; `GET /resources/{id}/attachments` serves public listing metadata with download links trimmed per viewer (2026-09-09 gate redesign — no trigger counting). The `[oplist_cli]` shortcode meta-persist layer is not migrated (template-parts plan). A `pan_links` cloud-drive box joined the same domain in 0.71.0 |
+| `inc/func-openlist.php` (OpenList embed) | ✅ 0.27.0 → re-enabled 0.55.0 → **rebuilt as Domain/FileServe 0.90.0** (the ExternalFiles domain and the `aiya/file-source` package were deleted outright; see the appendix below for what they did). OpenList is now the `aiya/openlist` **request exit** package (`Client` + `Gateway`, WordPress-free, rows as plain arrays) behind `Modules/OpenListModule`; the domain owns the vocabulary (`Entry`/`Failure`/`Adapter`), the adapter registry, one JSON post meta (`aiya_core_fileserve`), the credit pricing and `GET|POST /content/{id}/downloads` for every public content type. The `[oplist_cli]` shortcode meta-persist layer is not migrated (template-parts plan) |
 | `inc/func-notify.php` (site notice dispatcher) | ✅ 0.23.0: Domain/Notification — custom table `wp_aiya_notifications`; admin screen (create + list + delete + retention); daily WP-Cron cleanup; read state stays client-side. 0.46.0 added the interaction action system (ten kinds, actor/object columns) on the same table |
 | `inc/func-payment.php` (Afdian integration + redemption codes) | ✅ 0.24.0/0.25.0 as the 0.50.0 tier-model rewrite (no legacy inheritance): `wp_aiya_payment_orders` is a pure payment log; membership rights live in the `wp_aiya_memberships` entitlement queue with per-cycle credit grants; redeem codes moved to `wp_aiya_redeem_codes` (0.54.0) and can activate tiers by Afdian order number (0.61.0); the retired `sponsor_expiration`-family meta keys are gone. Live since the 0.55.0 re-enable |
-| `plugins/sponsor-order-compat` (Epay gateway) | ✅ 0.25.0: `GET aiya/sponsorship/v1/epay/callback` with legacy-algorithm signature verification; cashier submit built by `POST /sponsorship/orders` returning a signed gateway URL; days come from the plan key carried in signed params (amount matching abolished); legacy template pages retire with the front end |
+| `plugins/sponsor-order-compat` (Epay gateway) | ✅ 0.88.0 package split: the provider protocol (signing, submit params, callback shapes) now lives in the WordPress-free packages `packages/payment-epay` and `packages/payment-afdian`, with the core adapters owning settings, notify URLs, WP_Error and copy; the checkout also writes a `pending` order row the push settles. Original port: ✅ 0.25.0: `GET aiya/sponsorship/v1/epay/callback` with legacy-algorithm signature verification; cashier submit built by `POST /sponsorship/orders` returning a signed gateway URL; days come from the plan key carried in signed params (amount matching abolished); legacy template pages retire with the front end |
 | `inc/lib/Afdian_API.php`, `inc/lib/Epay_Core.php` | Third-party API clients rebuilt as WP-free clients (package candidates) — public behavior preserved, code not ported as-is |
 | `inc/func-media.php` | Empty placeholder file (5 lines, no code) — dropped (audit 2026-09-08) |
 | `inc/func-plyr-player.php` (Plyr player shortcodes) | Player shortcodes ride the template-parts plan (same batch as the shortcode inserter): the API exposes structured part data, Astro renders and loads the player; the legacy front-end player retires |
@@ -83,7 +83,7 @@ Directories are created when their first working tracer slice is implemented; em
 | theme registration and templates | Remain in legacy theme, then retire |
 | widget framework | Retire with legacy front end |
 
-Field-group consumers in the legacy theme (for parity tracking; group keys renamed `aya_box_{id}` → `aiya_core_{id}` in 0.31.0): `oplist_client` post box (OpenList client fields, key `aiya_core_oplist_client`), `post_seo` post box (✅ retired 0.72.0 — article-level SEO keywords are dead data by decision), `post_automatic` post box (action checkboxes consumed by basic-automatic; ✅ 0.37.0 rebuilt as `Domain/Content/TypographyModule` + `packages/typesetting` — refresh date, tag matching, HTML cleanup, Chinese typesetting pass on the post screen; the pinyin/XDE slug half shipped with SlugModule 0.6.0), `tips` term fields (per-field term meta keys).
+Field-group consumers in the legacy theme (for parity tracking; group keys renamed `aya_box_{id}` → `aiya_core_{id}` in 0.31.0): `oplist_client` post box (OpenList client fields; its key `aiya_core_oplist_client` and the `pan_links` repeater key `aiya_core_pan_links` are dead data since 0.90.0 — see the appendix), `post_seo` post box (✅ retired 0.72.0 — article-level SEO keywords are dead data by decision), `post_automatic` post box (action checkboxes consumed by basic-automatic; ✅ 0.37.0 rebuilt as `Domain/Content/TypographyModule` + `packages/typesetting` — refresh date, tag matching, HTML cleanup, Chinese typesetting pass on the post screen; the pinyin/XDE slug half shipped with SlugModule 0.6.0), `tips` term fields (per-field term meta keys).
 
 ## Delivery sequence
 
@@ -96,3 +96,27 @@ Field-group consumers in the legacy theme (for parity tracking; group keys renam
 7. Design the new REST representation after domain use cases stabilize.
 8. Clean release (0.80.0): the install path is five pure CREATE migrations — no upgrade steps, no data conversions, no legacy compatibility readers.
 
+## Appendix: the retired external-files implementation (2026-09-21, 0.90.0)
+
+`Domain/ExternalFiles` + `Modules/OpenListModule` + the `aiya/file-source` package + the `Attachment`
+contract/presenter/controller were **deleted** when `Domain/FileServe` replaced them. What they did,
+kept here as the reference the rewrite was measured against:
+
+- **Wiring**: a `Plugin::EXTERNAL_FILES_ENABLED` flag gated one domain module and one adapter module;
+  the listing was `GET /resources/{id}/attachments` over `AttachmentService` + a source registry that
+  paired a post box id with a `FileSource\Source` implementation (`openlist`, `share`).
+- **Config**: two per-post boxes — `aiya_core_oplist_client` (mode/path/parent/keywords/per_page/
+  password/refresh/desc) and `aiya_core_pan_links` (a name/url/code repeater) — plus one settings page
+  (`aiya_core_oplist`) holding the OpenList connection and the list knobs. All of it is dead data.
+- **Five defects the 0.89.0 rewrite fixed, all found by probing the live OpenList** (and all still
+  fixed in FileServe): the `modified` stamp was cast from an ISO string to int and rendered as 1970;
+  `get` mode built a link with the file name twice; `dirs` mode always returned an empty list (the
+  endpoint answers a bare array while the code read a `content` key); an empty path produced `//name`
+  links; and `r` (raw_url) mode resolved nothing in list/search because only `get` carries `raw_url`
+  (that mode is gone in FileServe — links are built locally).
+- **What replaced each piece**: the port vocabulary became `Domain/FileServe/{Entry,Failure,Adapter}`;
+  the two boxes became one JSON meta (`aiya_core_fileserve`, short-id keys, one `adapter` per group);
+  the settings page became `aiya_core_fileserve` (page slug `fileserve`); the listing became
+  `GET /content/{id}/downloads` (grouped lists, no links) with `POST` on the same route claiming a row
+  through the credit ledger. GoFile joined the same domain in 0.91.0 as an additional read-only backend
+  (`aiya/gofile-api` + `Adapters/GofileAdapter`), which is new work rather than a legacy migration.

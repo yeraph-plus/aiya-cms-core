@@ -55,6 +55,9 @@ final class SponsorshipModule implements Module
 
         add_action(self::CRON_HOOK, static function (): void {
             (new EntitlementService(new LedgerService()))->advance();
+            // Untouched checkouts age out of `pending` so the payment log
+            // tells "never paid" apart from "waiting".
+            (new OrderService())->expirePending();
         });
 
         add_filter('aiya_core_scheduled_events', function (array $hooks): array {
@@ -210,25 +213,47 @@ final class SponsorshipModule implements Module
                     'id' => 'afdian_enable',
                     'type' => 'switch',
                     'label' => __('Afdian integration', 'aiya-core'),
-                    'description' => __('Activates memberships from Afdian: signed webhook pushes and the order-number self-service check. Bind the Afdian plan below to one local tier.', 'aiya-core'),
+                    'description' => __('Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body.', 'aiya-core'),
                     'default' => false,
                 ],
                 [
-                    'id' => 'afdian_plan_id',
-                    'type' => 'text',
-                    'label' => __('Afdian plan ID', 'aiya-core'),
-                    'description' => __('The plan_id this membership binds to; orders paid for it auto-activate the bound tier. Leave empty to keep Afdian unbound.', 'aiya-core'),
-                    'default' => '',
+                    'id' => 'afdian_bindings',
+                    'type' => 'repeater',
+                    'label' => __('Afdian plan bindings', 'aiya-core'),
+                    'description' => __('Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored.', 'aiya-core'),
+                    'default' => [],
+                    'children' => [
+                        [
+                            'id' => 'plan_id',
+                            'type' => 'text',
+                            'label' => __('Afdian plan ID', 'aiya-core'),
+                            'required' => true,
+                        ],
+                        [
+                            'id' => 'tier_key',
+                            'type' => 'select',
+                            'label' => __('Membership tier', 'aiya-core'),
+                            'description' => __('The tier (from the membership settings page) that this plan activates.', 'aiya-core'),
+                            'default' => '',
+                            'options_source' => [
+                                'source' => 'option_list',
+                                'option' => self::OPTION_NAME,
+                                'list' => 'tiers',
+                                'value_field' => 'key',
+                                'label_field' => 'name',
+                            ],
+                        ],
+                    ],
                 ],
                 [
-                    'id' => 'afdian_tier_key',
+                    'id' => 'afdian_fallback_tier',
                     'type' => 'select',
-                    'label' => __('Bound membership tier', 'aiya-core'),
-                    'description' => __('The tier (from the membership settings page) that the Afdian plan activates.', 'aiya-core'),
+                    'label' => __('Fallback tier', 'aiya-core'),
+                    'description' => __('Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them.', 'aiya-core'),
                     'default' => '',
                     'options_source' => [
                         'source' => 'option_list',
-                        'option' => 'aiya_core_sponsorship',
+                        'option' => self::OPTION_NAME,
                         'list' => 'tiers',
                         'value_field' => 'key',
                         'label_field' => 'name',
@@ -263,7 +288,12 @@ final class SponsorshipModule implements Module
      * payment log, the entitlement queue and the redeem codes); the
      * clean-release migration callback. dbDelta fails silently on
      * transient DB hiccups, so every table is verified afterwards and
-     * the runner holds the version back on failure.
+     * the runner holds the version back on failure. The payment log's
+     * created_at rides the site-wide GMT DATETIME convention — every
+     * writer passes current_time('mysql', true), so the column needs no
+     * default and never depends on the DB session time zone (the earlier
+     * TIMESTAMP DEFAULT CURRENT_TIMESTAMP was the one column that did,
+     * with a 2038 ceiling on top).
      */
     public static function installTables(): void
     {
@@ -281,9 +311,10 @@ final class SponsorshipModule implements Module
                 order_id VARCHAR(64) NOT NULL,
                 amount DECIMAL(10,2) NOT NULL DEFAULT 0,
                 tier_key VARCHAR(32) NOT NULL DEFAULT '',
+                cycles INT UNSIGNED NOT NULL DEFAULT 1,
                 source VARCHAR(32) NOT NULL DEFAULT '',
                 status VARCHAR(16) NOT NULL DEFAULT 'paid',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                created_at DATETIME NOT NULL,
                 PRIMARY KEY  (id),
                 UNIQUE KEY order_id (order_id),
                 KEY user_id (user_id)

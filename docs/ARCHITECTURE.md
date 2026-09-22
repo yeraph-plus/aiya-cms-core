@@ -93,7 +93,7 @@ assemble DTOs inline:
 
 - `Api/Presenter/*` owns the mapping of WP objects and domain rows into the
   contract (posts, comments, users, profiles, menus-of-record pages,
-  notifications, smilies packs, attachments, the membership surface,
+  notifications, smilies packs, file lists, the membership surface,
   uploads). If a projection is reused or converts dates, that is its home.
 - A Domain service may construct Contract value objects when the DTO is the
   service's own natural product and no WP-object mapping is involved:
@@ -107,6 +107,10 @@ assemble DTOs inline:
 ## Infrastructure packages (`packages/`)
 
 Unit features that used to live in the legacy theme's `plugins/` directory become independent composer packages: `aiya/<slug>`, `type: library`, PSR-4 `Aiya\Infra\<Name>\`. Packages MUST NOT depend on aiya-core, call WordPress functions, or register hooks; a core-side adapter module under `src/Modules/` instantiates the package service, registers its settings into the shared add-ons page, and wires it into the module system. The dependency arrow is one-directional: core -> package.
+
+Package -> package is allowed (acyclic, undeclared in `require`) — `payment-afdian` -> `slug-toolkit` uses it. A port does **not** need one: what a remote backend is packaged for is its **request exit** (HTTP, protocol, error categories), not the site's vocabulary. `aiya/openlist` is exactly that — `Client` + `Gateway` answering rows as plain arrays and failures as its own `Error` — while the vocabulary (`Entry`, `Failure`, the `Adapter` contract) lives in core, where the domain and every adapter can reach it without a package depending back on core. Core consumes backends only through `Domain/FileServe/AdapterRegistry`, so it names none of them.
+
+Loading: packages ship in-tree and are **not** composer-installed — there is no path repository, no `vendor/aiya`, and nothing of theirs in Composer's autoload map. `Runtime\Packages` reads each package's own `composer.json` (`autoload.psr-4`, `Aiya\Infra\` prefixes only) lazily, the first time an `Aiya\Infra\*` class is requested, and the autoloader in `aiya-core.php` serves the file; `tests/bootstrap.php` mirrors that pair. A package's manifest therefore stays its own description, and the consequences of adding one are explicit: drop the directory in, and declare its third-party dependencies in the **root** `composer.json` (packages keep no vendor/ of their own). Wired packages are listed in the root PHPStan/PHPCS paths; unwired ones are symbol-scanned by PHPStan (`scanDirectories`) but not analysed — `opencc-convert` is the current example, and its `overtrue/php-opencc` dependency is deliberately not required yet.
 
 ## Error handling conventions
 
@@ -171,6 +175,9 @@ endpoints deliberately accept the WP `EDITABLE` verb set
 - Schema and normalization must not depend on admin HTML.
 - Content domains must not depend on Admin, Api, or HTTP transports.
 - `Api/Contract/` depends on nothing; `Api/Presenter/` is the only WordPress-data touch point; `Api/Rest/` only orchestrates.
+- `contentHtml` is a **public, shared-cacheable payload**, so only viewer-independent markup may ride inside it (bodies, rendered parts, the related-post card). Anything that would differ per viewer — a gated body, a per-user permission flag — belongs in a per-viewer field served `no-store`, or nowhere (the legacy `sponsor_ship` part was dropped for exactly this reason). Newly registered shortcodes enter the community-thread body's execution surface automatically (`do_shortcode` semantics), so every new expandable shortcode must be designed to this public-cached-HTML standard from day one: viewer-independent output, every attribute escaped.
+- `Domain/Identity` is the account layer and may be consulted by other domains for account-level facts: the credit ledger and the sponsorship gates both ask `UserBan` before acting (the account disable switch). It is a leaf — it depends on nothing else in the plugin — so this edge never runs backwards.
+- `Domain/Operations` is a **read-only reporting consumer**: it reads the credit, membership and payment fact tables and writes nothing but its own two counter tables. Monthly reporting needs figures the ledger has already pruned, so the durable copy is the point; the alternative — hosting revenue and membership aggregation inside the domains that own those tables — would put reporting queries into domains nothing else asks them of. The write direction stays one-way: the ledger publishes `aiya_core_credit_granted` / `aiya_core_credit_spent`, and no accounting path depends on who listens.
 - `packages/` packages never depend back on core; integration is adapter-only.
 - Astro and other front ends consume the versioned API contract; they never load this framework directly.
 

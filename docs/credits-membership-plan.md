@@ -168,7 +168,7 @@ wp_aiya_credit_entries (
 | `GET /credits/balance` | Bearer | 余额 + 最近流水摘要 | ✅ 0.47.0（余额） |
 | `GET /credits/entries` | Bearer | 分页流水（direction/source/amount/remaining/createdAt/expiresAt） | ✅ 0.47.0 |
 | `POST /credits/checkin` | Bearer + RateLimiter | 每日一签，`ref=当日` 撞唯一键；响应发放额与新余额与桶过期 | ✅ 0.47.0 |
-| `POST /resources/{id}/attachments/download` | Bearer + RateLimiter | 付费领取：扣减 + 返回直链 | ⏸ 随 `sponsor_can` 删除延后（§0 第 8 条），另行设计 |
+| `POST /content/{id}/downloads` | Bearer + RateLimiter | 付费领取：计价 + 扣减 + 返回直链 | ✅ 0.90.0 落地（`Domain/FileServe/DownloadService`）：价由列表组自报（每文件 N 积分），领取用「列表 id + 行 ref」寻址并自行重解析行，30 秒窗口的去重键让连点只扣一次；免费行与编辑旁路走同一入口，唯一计量动作 `aiya_core_download_served` 每次投递恰好一次 |
 
 编辑旁路：领取端点（延后）对 `edit_pages` 会话直接返回链接不扣减（与 `MembershipService::isSponsor` 的编辑旁路语义一致）。
 

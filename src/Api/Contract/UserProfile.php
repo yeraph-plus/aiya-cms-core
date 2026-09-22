@@ -12,6 +12,9 @@ namespace Aiya\Core\Api\Contract;
  * `role` carries the legacy front-end level semantics
  * (administrator / author / sponsor / subscriber), where sponsor validity
  * is derived from the membership entitlement queue (0.50.0 tier model).
+ * `banned` is the account-level disable switch (0.86.0) — it rides beside
+ * the role rather than replacing a level, because a disabled editor is
+ * still staff while a disabled sponsor is no longer a sponsor.
  */
 final class UserProfile
 {
@@ -27,6 +30,8 @@ final class UserProfile
         public readonly string $locale,
         public readonly string $registeredAt,
         public readonly string $role,
+        /** Account disabled (`aiya_core_banned` user meta). */
+        public readonly bool $banned,
         public readonly AvatarImage $avatar,
         public readonly ?ProfileStats $stats = null,
     ) {
@@ -46,6 +51,7 @@ final class UserProfile
             'locale' => $this->locale,
             'registeredAt' => $this->registeredAt,
             'role' => $this->role,
+            'banned' => $this->banned,
             'avatar' => $this->avatar->toArray(),
             'stats' => $this->stats?->toArray(),
         ];

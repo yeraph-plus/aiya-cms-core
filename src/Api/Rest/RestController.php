@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
-use Aiya\Core\Api\Presenter\AttachmentPresenter;
 use Aiya\Core\Api\Presenter\CommentPresenter;
+use Aiya\Core\Api\Presenter\FilePresenter;
 use Aiya\Core\Api\Presenter\NotificationPresenter;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\ProfilePresenter;
@@ -25,7 +25,8 @@ use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Media\MediaPaths;
 use Aiya\Core\Domain\Engagement\CounterService;
-use Aiya\Core\Domain\ExternalFiles\AttachmentService;
+use Aiya\Core\Domain\FileServe\DownloadService;
+use Aiya\Core\Domain\FileServe\FileService;
 use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
@@ -51,7 +52,8 @@ final class RestController implements Module
 {
     public function __construct(
         private AvatarModule $avatars,
-        private ?AttachmentService $attachments,
+        private FileService $files,
+        private DownloadService $downloads,
         private CardThumbnailService $cards,
         private Closure $processUpload,
         private MediaPaths $paths,
@@ -91,7 +93,7 @@ final class RestController implements Module
 
             (new CounterController(new CounterService(), new RateLimiter()))->registerRoutes();
 
-            (new CommentsController(new RateLimiter(), new CommentQuery(), new CommentPresenter($smiliesRenderer)))->registerRoutes();
+            (new CommentsController(new RateLimiter(), new CommentQuery($this->visibility), new CommentPresenter($smiliesRenderer)))->registerRoutes();
 
             (new UploadsController($this->processUpload, $this->paths, new RateLimiter(), new UploadPresenter()))->registerRoutes();
 
@@ -116,16 +118,14 @@ final class RestController implements Module
             // rewrite; Admin surfaces live under the membership menu.
             $membership = new MembershipService();
             $entitlements = new EntitlementService($ledger);
-            (new SponsorshipController($membership, $entitlements, $ledger, new RateLimiter(), new SponsorshipPresenter()))->registerRoutes();
+            (new SponsorshipController($membership, $entitlements, $ledger, new OrderService(), new RateLimiter(), new SponsorshipPresenter()))->registerRoutes();
 
             (new GatewayController(new OrderService(), $entitlements))->registerRoutes();
 
             $threads = new DiscussionService();
             (new DiscussionController($threads, new DiscussionPresenter($smiliesRenderer, $threads), new RateLimiter()))->registerRoutes();
 
-            if ($this->attachments !== null) {
-                (new ResourceAttachmentsController($this->attachments, new AttachmentPresenter()))->registerRoutes();
-            }
+            (new FileServeController($this->files, $this->downloads, new FilePresenter(), new RateLimiter()))->registerRoutes();
         });
     }
 }

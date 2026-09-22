@@ -33,6 +33,7 @@ final class UserProfileContractTest extends TestCase
             'zh_CN',
             '2026-09-06T08:00:00+00:00',
             'subscriber',
+            false,
             $this->avatar(),
             new ProfileStats(5, 9, 2),
         );
@@ -65,6 +66,7 @@ final class UserProfileContractTest extends TestCase
             'locale' => 'zh_CN',
             'registeredAt' => '2026-09-06T08:00:00+00:00',
             'role' => 'subscriber',
+            'banned' => false,
             'avatar' => [
                 'url' => 'https://wp.example.com/wp-content/avatars/12/128.jpg?v=1757000000',
                 'thumbUrl' => 'https://wp.example.com/wp-content/avatars/12/64.jpg?v=1757000000',

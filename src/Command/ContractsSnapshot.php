@@ -72,7 +72,6 @@ final class ContractsSnapshot
             ['name' => 'board', 'type' => 'DiscussionBoard', 'nullable' => true],
             ['name' => 'status', 'type' => 'string', 'nullable' => false],
             ['name' => 'author', 'type' => 'Author', 'nullable' => false],
-            ['name' => 'postRef', 'type' => 'PostRef', 'nullable' => true],
             ['name' => 'replies', 'type' => 'array', 'nullable' => false],
             ['name' => 'tags', 'type' => 'array', 'nullable' => false],
             ['name' => 'images', 'type' => 'array', 'nullable' => false],

@@ -9,10 +9,10 @@ use PHPUnit\Framework\TestCase;
 
 final class SponsorshipSettingsTest extends TestCase
 {
-    /** @var list<array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int,afdianPlanId:string}> */
+    /** @var list<array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}> */
     private array $tiers = [
-        ['key' => 'month', 'name' => 'Month', 'price' => 10.0, 'cycleDays' => 30, 'creditsPerCycle' => 100, 'afdianPlanId' => 'plan-month'],
-        ['key' => 'season', 'name' => 'Season', 'price' => 25.0, 'cycleDays' => 90, 'creditsPerCycle' => 350, 'afdianPlanId' => ''],
+        ['key' => 'month', 'name' => 'Month', 'price' => 10.0, 'cycleDays' => 30, 'creditsPerCycle' => 100],
+        ['key' => 'season', 'name' => 'Season', 'price' => 25.0, 'cycleDays' => 90, 'creditsPerCycle' => 350],
     ];
 
     public function testTierByKeyResolvesExactMatchOnly(): void
@@ -24,20 +24,22 @@ final class SponsorshipSettingsTest extends TestCase
         self::assertNull(SponsorshipSettings::tierByKey($this->tiers, 'nope'));
     }
 
-    public function testBoundTierResolvesTheSinglePairOrNothing(): void
+    public function testBindingRowsNormalizePlanAndTierKeys(): void
     {
-        $settings = [
-            'afdianPlanId' => 'plan-month',
-            'afdianTierKey' => 'month',
-            'tiers' => $this->tiers,
-        ];
+        $bindings = SponsorshipSettings::bindings([
+            'afdian_bindings' => [
+                ['plan_id' => ' plan-month ', 'tier_key' => 'Month'],
+                'garbage',
+                ['plan_id' => 'plan-only', 'tier_key' => ''],
+            ],
+        ]);
 
-        $tier = SponsorshipSettings::boundTier($settings);
-        self::assertNotNull($tier);
-        self::assertSame('month', $tier['key']);
+        self::assertSame([
+            ['planId' => 'plan-month', 'tierKey' => 'month'],
+            ['planId' => 'plan-only', 'tierKey' => ''],
+        ], $bindings);
 
-        self::assertNull(SponsorshipSettings::boundTier(array_merge($settings, ['afdianPlanId' => ''])));
-        self::assertNull(SponsorshipSettings::boundTier(array_merge($settings, ['afdianTierKey' => 'ghost'])));
+        self::assertSame([], SponsorshipSettings::bindings([]));
     }
 
     public function testTierRowsNormalizeAndDropKeylessRows(): void

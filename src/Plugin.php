@@ -10,8 +10,10 @@ use Aiya\Core\Admin\ConvertCodesPage;
 use Aiya\Core\Admin\DiscussionModerationPage;
 use Aiya\Core\Admin\CreditsPage;
 use Aiya\Core\Admin\EditorPlugins;
+use Aiya\Core\Admin\FileServeMetabox;
 use Aiya\Core\Admin\MetaboxAdmin;
 use Aiya\Core\Admin\NotificationPage;
+use Aiya\Core\Admin\OperationsPage;
 use Aiya\Core\Admin\PaymentsAuditPage;
 use Aiya\Core\Admin\PicBedPage;
 use Aiya\Core\Admin\PostTypeSwitchBulkAction;
@@ -20,8 +22,12 @@ use Aiya\Core\Admin\SettingsAdmin;
 use Aiya\Core\Admin\SmiliesPicker;
 use Aiya\Core\Admin\TermMoveBulkAction;
 use Aiya\Core\Admin\VisibilityMetabox;
+use Aiya\Core\Api\Presenter\FilePresenter;
+use Aiya\Core\Api\Presenter\PostCardPresenter;
+use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Rest\RestController;
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\ContentTypeModule;
 use Aiya\Core\Domain\Content\ContentTypeRegistry;
 use Aiya\Core\Domain\Content\FrontendModule;
@@ -32,7 +38,8 @@ use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Content\PostTypeSwitcher;
 use Aiya\Core\Domain\Discussion\DiscussionModule;
 use Aiya\Core\Domain\DevTools\DevToolsModule;
-use Aiya\Core\Domain\ExternalFiles\OplistModule;
+use Aiya\Core\Domain\FileServe\AdapterRegistry;
+use Aiya\Core\Domain\FileServe\FileServeModule;
 use Aiya\Core\Domain\Content\SlugModule;
 use Aiya\Core\Domain\Content\TermExtrasModule;
 use Aiya\Core\Domain\Content\TermTaxonomyMover;
@@ -42,6 +49,7 @@ use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Domain\Identity\IdentityModule;
 use Aiya\Core\Domain\Notification\NotificationActions;
 use Aiya\Core\Domain\Notification\NotificationModule;
+use Aiya\Core\Domain\Operations\OperationsModule;
 use Aiya\Core\Domain\Parts\BuiltinParts;
 use Aiya\Core\Domain\Parts\PartModule;
 use Aiya\Core\Domain\Parts\PartRegistry;
@@ -52,12 +60,15 @@ use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
 use Aiya\Core\Domain\Sponsorship\SponsorshipModule;
 use Aiya\Core\Domain\Smilies\SmiliesModule;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
+use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use Aiya\Core\Domain\ThemeSupport\ThemeSupportModule;
 use Aiya\Core\Infrastructure\Headless\HeadlessModule;
 use Aiya\Core\Infrastructure\Http\TrustedProxy;
 use Aiya\Core\Infrastructure\Security\SecurityModule;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
 use Aiya\Core\Modules\MediaModule;
+use Aiya\Core\Modules\GofileModule;
+use Aiya\Core\Modules\OpenListModule;
 use Aiya\Core\Runtime\SchemaVersionRunner;
 use Aiya\Core\Settings\Registry;
 
@@ -72,14 +83,6 @@ final class Plugin
     /** @var array<class-string<Module>, Module> */
     private array $modules = [];
 
-    /**
-     * Business routing: the sponsorship domain returned with the 0.50.0
-     * tier rewrite (membership menus, Epay cashier, entitlement queue).
-     * External files returned with the 0.55.0 re-enable; the flag stays
-     * as the one-line kill switch for the OpenList settings page, the
-     * resource box and the attachments route.
-     */
-    private const EXTERNAL_FILES_ENABLED = true;
     /** One-shot rewrite flush marker set by activate() (autoload off). */
     private const FLUSH_REWRITE_FLAG = 'aiya_core_flush_rewrite';
 
@@ -111,6 +114,9 @@ final class Plugin
         $this->addModule(new TrustedProxy());
         $avatar = new AvatarModule($this->settings);
         $this->addModule($avatar);
+        // One gate instance for every consumer: the metabox, the REST
+        // controllers and the related-post card's summary projection.
+        $visibility = new PostVisibility(fn (int $userId): bool => (new MembershipService())->isSponsor($userId));
         $this->addModule(new SendMailPage());
         $this->addModule(new SlugModule($this->settings));
         $this->addModule(new ThemeSupportModule());
@@ -121,7 +127,6 @@ final class Plugin
         $this->addModule(new TermMoveBulkAction(new TermTaxonomyMover()));
         $this->addModule(new BlocksModule($this->settings));
         $this->addModule(new PartModule(new PartRegistry()));
-        $this->addModule(new BuiltinParts());
         $this->addModule(new SmiliesPicker(new SmiliesRegistry()));
         $this->addModule(new EditorPlugins());
         $this->addModule(new MetaboxAdmin($this->metadata));
@@ -134,7 +139,9 @@ final class Plugin
         $this->addModule(new CreditsPage());
         $this->addModule(new PaymentsAuditPage(new OrderService(), new MembershipService()));
         $this->addModule(new ConvertCodesPage(new RedeemCodeService(new EntitlementService(new LedgerService()))));
-        $this->addModule(new IdentityModule());
+        $this->addModule(new OperationsModule($this->settings));
+        $this->addModule(new OperationsPage());
+        $this->addModule(new IdentityModule($this->metadata));
         $this->addModule(new NotificationPage());
 
         $this->addModule(new SponsorshipModule($this->settings));
@@ -147,19 +154,29 @@ final class Plugin
         $this->addModule(new PicBedPage($media->uploadProcessor(), $media->paths()));
         $this->addModule(new CardThumbnailBulkAction($media->cards()));
 
-        $attachments = null;
-        // Business routing flag — OpenList is back on; the null branch
-        // stays for the next parked domain that wants the same slot.
-        // @phpstan-ignore if.alwaysTrue
-        if (self::EXTERNAL_FILES_ENABLED) {
-            $oplist = new OplistModule($this->settings, $this->metadata);
-            $this->addModule($oplist);
-            $attachments = $oplist->attachments();
-        }
+        // The card part reads a post through the Api-layer projection, so
+        // the composition root injects that renderer; it needs the media
+        // stack above, hence the late registration.
+        $postCards = new PostCardPresenter(
+            new ContentQuery($visibility),
+            new PostPresenter($media->cards(), new SmiliesRenderer(new SmiliesRegistry()), $visibility)
+        );
+        $this->addModule(new BuiltinParts(static fn (int $postId): string => $postCards->render($postId)));
+
+        // File downloads: the domain registers the adapters it ships and the
+        // settings page they hang off, the OpenList module adds its own
+        // section and its two adapters to the same registry, and the metabox
+        // is the editor's way into a post's groups.
+        $adapters = new AdapterRegistry();
+        $fileServe = new FileServeModule($this->settings, $adapters, $visibility);
+        $this->addModule($fileServe);
+        $this->addModule(new OpenListModule($this->settings, $adapters));
+        $this->addModule(new GofileModule($this->settings, $adapters));
+        $this->addModule(new FileServeMetabox($adapters, $fileServe->files(), new FilePresenter()));
+
         $this->addModule(new SchemaVersionRunner());
-        $visibility = new PostVisibility(fn (int $userId): bool => (new MembershipService())->isSponsor($userId));
         $this->addModule(new VisibilityMetabox($visibility));
-        $this->addModule(new RestController($avatar, $attachments, $media->cards(), $media->uploadProcessor(), $media->paths(), $visibility));
+        $this->addModule(new RestController($avatar, $fileServe->files(), $fileServe->downloads(), $media->cards(), $media->uploadProcessor(), $media->paths(), $visibility));
 
         add_action('plugins_loaded', function (): void {
             // WP 7.1's load_plugin_textdomain no longer falls back to the

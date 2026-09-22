@@ -19,9 +19,19 @@ final class CommentQuery
     /** Types that may carry comments; matches the counter feature matrix. */
     private const COMMENTABLE_TYPES = ['post', 'page', 'resource'];
 
+    public function __construct(private PostVisibility $visibility)
+    {
+    }
+
     /**
-     * Resolves a public, non-protected post of a commentable type;
-     * anything else reads as content that does not exist.
+     * Resolves a public, non-protected, ungated post of a commentable
+     * type; anything else reads as content that does not exist.
+     *
+     * The visibility gate applies to comments exactly as it does to the
+     * body: a thread under a member-only post is that post's content, so
+     * an unqualified viewer gets the same answer as for a missing id —
+     * the gate never confirms that the post exists. Passing the gate also
+     * closes writing: no comments on a post you cannot read.
      */
     public function commentablePost(int $id): ?WP_Post
     {
@@ -29,7 +39,8 @@ final class CommentQuery
         if (!$post instanceof WP_Post
             || !in_array($post->post_type, self::COMMENTABLE_TYPES, true)
             || $post->post_status !== 'publish'
-            || (string) $post->post_password !== '') {
+            || (string) $post->post_password !== ''
+            || $this->visibility->gated($post)) {
             return null;
         }
 

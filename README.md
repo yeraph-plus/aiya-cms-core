@@ -1,7 +1,7 @@
 # AIYA Core
 
 Headless-first WordPress plugin for AIYA CMS (WP 6.4+, developed and
-running against WP 7.1, runtime PHP 8.4, `Requires PHP: 8.2`): the
+running against WP 7.1, runtime PHP 8.5, `Requires PHP: 8.5`): the
 admin half of a decoupled site — settings, content domains, media
 pipeline, community, notifications and a versioned REST contract
 (`aiya/core/v1`) consumed by the Astro front end (`front-station/`).
@@ -14,7 +14,11 @@ No Gutenberg, no React in the admin; native admin styles only.
   `Aiya\Core\` plus `Aiya\Infra\` from `packages/`
 - `packages/` — WordPress-free infrastructure packages
   (`aiya/image-processor`, `aiya/slug-toolkit`, `aiya/typesetting`,
-  `aiya/opencc-convert` — the last one currently unwired by decision)
+  `aiya/opencc-convert` — the last one currently unwired by decision).
+  They are shipped in-tree and NOT composer-installed: the plugin
+  autoloader reads each package's own composer.json for its PSR-4
+  prefix, and a package's third-party dependencies are declared in the
+  root composer.json
 - `themes/aiya-headless/` — the companion shell theme; sync source for
   its runtime location `wp-content/themes/aiya-headless/` (see its README)
 - `assets/` — admin CSS/JS (Backbone + jQuery UI + code editor)
@@ -49,7 +53,7 @@ theme only catches direct hits on the WP host.
 ### 1. Backend (WordPress + aiya-core)
 
 ```bash
-docker compose up -d        # wordpress:php8.4-apache + mariadb + phpmyadmin + openlist
+docker compose up -d        # wordpress:php8.5-apache + mariadb + phpmyadmin + openlist
 docker compose run --rm wpcli plugin activate aiya-core
 ```
 
@@ -63,7 +67,7 @@ docker compose run --rm wpcli plugin activate aiya-core
   - behind a CDN/reverse proxy, bridge the real client IP through the
     `aiya_core_client_ip` filter (rate limiting and guest dedup key on
     it — `REMOTE_ADDR` would collapse everyone onto the proxy IP);
-  - leave `AIYA_CORE_WEBHOOK_DEBUG` undefined (webhook logs stay off);
+  - leave `WP_DEBUG` undefined (webhook logs stay off);
   - `/wp/v2` is gated to logged-in editors automatically; first-party
     namespaces self-announce via `aiya_core_firstparty_rest_namespaces`.
 

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.83.0\n"
+"Project-Id-Version: AIYA Core 0.91.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-19T10:30:25+00:00\n"
+"POT-Creation-Date: 2026-09-21T17:04:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -80,7 +80,7 @@ msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:77
 #: src/Admin/ConvertCodesPage.php:126
-#: src/Admin/PaymentsAuditPage.php:112
+#: src/Admin/PaymentsAuditPage.php:145
 msgid "Tier"
 msgstr ""
 
@@ -94,6 +94,7 @@ msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:95
 #: src/Admin/ConvertCodesPage.php:127
+#: src/Admin/PaymentsAuditPage.php:147
 msgid "Cycles"
 msgstr ""
 
@@ -125,6 +126,7 @@ msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:128
 #: src/Admin/DiscussionModerationPage.php:201
+#: src/Admin/PaymentsAuditPage.php:148
 msgid "Status"
 msgstr ""
 
@@ -192,8 +194,8 @@ msgstr ""
 #: src/Admin/NotificationPage.php:81
 #: src/Admin/NotificationPage.php:109
 #: src/Domain/Content/BlocksModule.php:186
-#: src/Domain/Parts/BuiltinParts.php:96
-#: src/Domain/Parts/BuiltinParts.php:107
+#: src/Domain/Parts/BuiltinParts.php:118
+#: src/Domain/Parts/BuiltinParts.php:129
 msgid "Title"
 msgstr ""
 
@@ -218,12 +220,14 @@ msgid "Generation failed."
 msgstr ""
 
 #: src/Admin/CoverMetabox.php:112
+#: src/Admin/FileServeMetabox.php:294
 #: src/Admin/SendMailPage.php:197
 #: src/Domain/Identity/AvatarModule.php:313
 msgid "Request failed."
 msgstr ""
 
 #: src/Admin/CoverMetabox.php:126
+#: src/Admin/FileServeMetabox.php:320
 msgid "You are not allowed to edit this post."
 msgstr ""
 
@@ -254,19 +258,19 @@ msgid "Manual grant"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:161
-#: src/Admin/PaymentsAuditPage.php:110
+#: src/Admin/PaymentsAuditPage.php:143
 msgid "User"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:164
 #: src/Admin/CreditsPage.php:210
-#: src/Admin/PaymentsAuditPage.php:94
+#: src/Admin/PaymentsAuditPage.php:126
 msgid "Type a username or name…"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:170
 #: src/Admin/CreditsPage.php:227
-#: src/Admin/PaymentsAuditPage.php:113
+#: src/Admin/PaymentsAuditPage.php:146
 msgid "Amount"
 msgstr ""
 
@@ -299,7 +303,7 @@ msgid "Pick a user to browse their grants and spends."
 msgstr ""
 
 #: src/Admin/CreditsPage.php:223
-#: src/Admin/PaymentsAuditPage.php:109
+#: src/Admin/PaymentsAuditPage.php:142
 msgid "Time"
 msgstr ""
 
@@ -308,7 +312,7 @@ msgid "Direction"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:225
-#: src/Admin/PaymentsAuditPage.php:114
+#: src/Admin/PaymentsAuditPage.php:149
 #: src/Admin/PicBedPage.php:286
 msgid "Source"
 msgstr ""
@@ -330,8 +334,8 @@ msgid "No ledger entries for this user yet."
 msgstr ""
 
 #: src/Admin/CreditsPage.php:285
-#: src/Domain/Credit/LedgerService.php:62
-#: src/Domain/Credit/LedgerService.php:125
+#: src/Domain/Credit/LedgerService.php:70
+#: src/Domain/Credit/LedgerService.php:143
 msgid "The credit holder does not exist."
 msgstr ""
 
@@ -355,6 +359,7 @@ msgid "The operation failed."
 msgstr ""
 
 #: src/Admin/CreditsPage.php:420
+#: src/Admin/OperationsPage.php:337
 #: src/Domain/Credit/CreditModule.php:80
 msgid "Check-in"
 msgstr ""
@@ -364,8 +369,9 @@ msgid "Redeem code"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:422
-#: src/Admin/PaymentsAuditPage.php:200
-#: src/Domain/Sponsorship/SponsorshipModule.php:76
+#: src/Admin/OperationsPage.php:338
+#: src/Admin/PaymentsAuditPage.php:236
+#: src/Domain/Sponsorship/SponsorshipModule.php:79
 msgid "Membership"
 msgstr ""
 
@@ -405,7 +411,7 @@ msgid "All statuses"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:118
-#: src/Admin/PaymentsAuditPage.php:103
+#: src/Admin/PaymentsAuditPage.php:136
 #: src/Domain/DevTools/CronsPage.php:163
 #: src/Domain/DevTools/RewritesPage.php:85
 #: src/Domain/DevTools/ShortcodesPage.php:72
@@ -518,8 +524,8 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:384
 #: src/Admin/DiscussionModerationPage.php:407
-#: src/Domain/ExternalFiles/OplistModule.php:232
-#: src/Domain/Sponsorship/SponsorshipModule.php:110
+#: src/Admin/FileServeMetabox.php:288
+#: src/Domain/Sponsorship/SponsorshipModule.php:113
 msgid "Name"
 msgstr ""
 
@@ -608,11 +614,101 @@ msgstr ""
 msgid "Add item"
 msgstr ""
 
-#: src/Admin/MetaboxAdmin.php:284
+#: src/Admin/FileServeMetabox.php:64
+#: src/Admin/FileServeMetabox.php:279
+#: src/Domain/FileServe/FileServeModule.php:69
+#: src/Domain/FileServe/FileServeModule.php:70
+msgid "File downloads"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:86
+msgid "Each data group becomes its own list on the front end. Readers see the file names and what a download costs; the link itself is handed over when they claim it."
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:91
+msgid "Add a data group"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:98
+msgid "Add data group"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:105
+msgid "Save configuration"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:108
+msgid "Preview file lists"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:139
+msgid "File configuration saved."
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:171
+msgid "Lists refreshed from their sources."
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:220
+msgid "The file configuration was not saved."
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:280
+msgid "Data group"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:281
+msgid "Remove this group"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:282
+msgid "Remove this data group? Its settings are dropped when you save."
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:283
+msgid "This group has nothing configured yet."
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:284
+msgid "No list has anything to show yet."
+msgstr ""
+
+#. translators: %d: credits charged for one file.
+#: src/Admin/FileServeMetabox.php:286
+#, php-format
+msgid "%d credits per file"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:287
+msgid "Free"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:289
+msgid "Type"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:290
+msgid "Size"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:291
+#: src/Admin/PicBedPage.php:285
+msgid "Preview"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:292
+msgid "Saving…"
+msgstr ""
+
+#: src/Admin/FileServeMetabox.php:293
+msgid "Reading the sources…"
+msgstr ""
+
+#: src/Admin/MetaboxAdmin.php:302
 msgid "Additional fields"
 msgstr ""
 
-#: src/Admin/MetaboxAdmin.php:380
+#: src/Admin/MetaboxAdmin.php:450
 msgid "Some metadata fields were not saved:"
 msgstr ""
 
@@ -705,38 +801,231 @@ msgstr ""
 msgid "Guest"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:46
-#: src/Admin/PaymentsAuditPage.php:47
-#: src/Admin/PaymentsAuditPage.php:86
+#: src/Admin/OperationsPage.php:70
+#: src/Admin/OperationsPage.php:71
+#: src/Admin/OperationsPage.php:94
+#: src/Domain/Operations/OperationsModule.php:109
+msgid "Operations report"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:82
+msgid "You are not allowed to view the operations report."
+msgstr ""
+
+#: src/Admin/OperationsPage.php:96
+msgid "Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger's spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
+msgstr ""
+
+#: src/Admin/OperationsPage.php:122
+#: src/Admin/OperationsPage.php:274
+#: src/Admin/OperationsPage.php:336
+msgid "Month"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:130
+msgid "View"
+msgstr ""
+
+#. translators: %s: month key, e.g. 2026-09
+#: src/Admin/OperationsPage.php:145
+#, php-format
+msgid "Indicators — %s"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:149
+msgid "Credits granted"
+msgstr ""
+
+#. translators: 1: check-in credits, 2: membership credits, 3: code credits, 4: manual credits
+#: src/Admin/OperationsPage.php:156
+#, php-format
+msgid "Check-in %1$s · Membership %2$s · Codes %3$s · Manual %4$s"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:167
+msgid "Credits consumed"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:171
+msgid "Credits expired"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:175
+#: src/Admin/OperationsPage.php:278
+msgid "Downloads"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:179
+#: src/Admin/OperationsPage.php:279
+msgid "Active users"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:183
+#: src/Admin/OperationsPage.php:280
+msgid "Members"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:186
+msgid "Holders whose membership covers this month, codes included."
+msgstr ""
+
+#: src/Admin/OperationsPage.php:190
+#: src/Admin/OperationsPage.php:281
+msgid "Paying users"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:193
+msgid "Covered holders whose order was actually paid."
+msgstr ""
+
+#: src/Admin/OperationsPage.php:197
+msgid "Cash collected"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:201
+msgid "Recognized revenue"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:204
+msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once and its months sum back to the order total. Booked revenue for the month — not a forward-looking MRR run rate."
+msgstr ""
+
+#: src/Admin/OperationsPage.php:208
+#: src/Admin/OperationsPage.php:284
+msgid "Cost"
+msgstr ""
+
+#. translators: 1: rate per download, 2: state of the rate
+#: src/Admin/OperationsPage.php:215
+#, php-format
+msgid "Downloads × %1$s per download, %2$s"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:218
+msgid "rate frozen when the month closed"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:219
+msgid "at the current rate; frozen when the month closes"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:226
+msgid "Outstanding credits"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:229
+msgid "What every holder could still spend right now — the report's liability figure."
+msgstr ""
+
+#: src/Admin/OperationsPage.php:233
+#: src/Admin/OperationsPage.php:285
+msgid "Consumption rate"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:237
+msgid "Expiry rate"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:241
+msgid "Downloads per active user"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:245
+msgid "Downloads per paying user"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:249
+msgid "Revenue per paying user"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:253
+msgid "Cost per paying user"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:270
+msgid "Trailing 12 months"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:275
+msgid "Granted"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:276
+msgid "Consumed"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:277
+msgid "Expired"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:282
+msgid "Cash"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:283
+msgid "Recognized"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:332
+msgid "Grants by source"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:339
+msgid "Codes"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:340
+msgid "Manual"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:341
+msgid "Total"
+msgstr ""
+
+#: src/Admin/PaymentsAuditPage.php:63
+#: src/Admin/PaymentsAuditPage.php:64
+#: src/Admin/PaymentsAuditPage.php:118
 msgid "Payment audit"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:73
+#: src/Admin/PaymentsAuditPage.php:104
 msgid "You are not allowed to view payments."
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:87
+#: src/Admin/PaymentsAuditPage.php:119
 msgid "Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue."
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:99
+#: src/Admin/PaymentsAuditPage.php:131
 msgid "All sources"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:100
-msgid "Epay"
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:101
-msgid "Afdian"
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:111
+#: src/Admin/PaymentsAuditPage.php:144
 msgid "Order"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:119
+#: src/Admin/PaymentsAuditPage.php:154
 msgid "No payments recorded yet."
+msgstr ""
+
+#: src/Admin/PaymentsAuditPage.php:295
+msgid "Epay"
+msgstr ""
+
+#: src/Admin/PaymentsAuditPage.php:296
+msgid "Afdian"
+msgstr ""
+
+#: src/Admin/PaymentsAuditPage.php:332
+msgid "Paid"
+msgstr ""
+
+#: src/Admin/PaymentsAuditPage.php:333
+msgid "Awaiting payment"
+msgstr ""
+
+#: src/Admin/PaymentsAuditPage.php:334
+msgid "Unpaid"
 msgstr ""
 
 #: src/Admin/PicBedPage.php:57
@@ -776,7 +1065,7 @@ msgstr ""
 #: src/Admin/PicBedPage.php:287
 #: src/Domain/Content/BlocksModule.php:116
 #: src/Domain/DevTools/SamplePage.php:237
-#: src/Domain/Parts/BuiltinParts.php:131
+#: src/Domain/Parts/BuiltinParts.php:153
 msgid "URL"
 msgstr ""
 
@@ -855,10 +1144,6 @@ msgid "The %d oldest file is not listed."
 msgid_plural "The %d oldest files are not listed."
 msgstr[0] ""
 msgstr[1] ""
-
-#: src/Admin/PicBedPage.php:285
-msgid "Preview"
-msgstr ""
 
 #. translators: 1: user display name or login, 2: user ID.
 #: src/Admin/PicBedPage.php:323
@@ -1182,16 +1467,18 @@ msgid "The reset link is missing required parameters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:293
-#: src/Api/Rest/ContentController.php:156
+#: src/Api/Rest/ContentController.php:155
 #: src/Api/Rest/CounterController.php:82
 #: src/Api/Rest/CounterController.php:97
 #: src/Api/Rest/CounterController.php:117
-#: src/Api/Rest/CreditController.php:118
-#: src/Api/Rest/CreditController.php:150
-#: src/Api/Rest/CreditController.php:161
+#: src/Api/Rest/CreditController.php:125
+#: src/Api/Rest/CreditController.php:157
+#: src/Api/Rest/CreditController.php:168
 #: src/Api/Rest/DiscussionController.php:197
 #: src/Api/Rest/DiscussionController.php:258
-#: src/Api/Rest/SponsorshipController.php:142
+#: src/Api/Rest/FileServeController.php:75
+#: src/Api/Rest/SponsorshipController.php:111
+#: src/Api/Rest/SponsorshipController.php:172
 #: src/Api/Rest/UserController.php:197
 #: src/Api/Rest/UserController.php:357
 msgid "Too many requests, try again later."
@@ -1210,9 +1497,10 @@ msgid "The session could not be started."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:334
-#: src/Api/Rest/CreditController.php:194
+#: src/Api/Rest/CreditController.php:201
 #: src/Api/Rest/DiscussionController.php:385
-#: src/Api/Rest/SponsorshipController.php:204
+#: src/Api/Rest/FileServeController.php:97
+#: src/Api/Rest/SponsorshipController.php:250
 #: src/Api/Rest/UploadsController.php:57
 #: src/Api/Rest/UserController.php:436
 msgid "Authentication required."
@@ -1220,7 +1508,7 @@ msgstr ""
 
 #: src/Api/Rest/AuthController.php:339
 #: src/Api/Rest/CommentsController.php:149
-#: src/Api/Rest/ContentController.php:336
+#: src/Api/Rest/ContentController.php:335
 #: src/Api/Rest/UploadsController.php:64
 #: src/Api/Rest/UserController.php:251
 #: src/Api/Rest/UserController.php:387
@@ -1264,19 +1552,21 @@ msgid "You are commenting too quickly. Slow down."
 msgstr ""
 
 #: src/Api/Rest/CommentsController.php:271
-#: src/Api/Rest/ContentController.php:189
-#: src/Api/Rest/ContentController.php:305
-#: src/Api/Rest/ContentController.php:310
-#: src/Api/Rest/ContentController.php:351
-#: src/Api/Rest/ContentController.php:387
+#: src/Api/Rest/ContentController.php:188
+#: src/Api/Rest/ContentController.php:304
+#: src/Api/Rest/ContentController.php:309
+#: src/Api/Rest/ContentController.php:350
+#: src/Api/Rest/ContentController.php:386
+#: src/Domain/FileServe/DownloadService.php:108
+#: src/Domain/FileServe/FileService.php:51
 msgid "Content not found."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:361
+#: src/Api/Rest/ContentController.php:360
 msgid "Incorrect password."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:407
+#: src/Api/Rest/ContentController.php:406
 msgid "Profile not found."
 msgstr ""
 
@@ -1284,16 +1574,21 @@ msgstr ""
 msgid "Please log in to interact."
 msgstr ""
 
-#: src/Api/Rest/CreditController.php:123
+#: src/Api/Rest/CreditController.php:122
+#: src/Domain/Credit/LedgerService.php:140
+msgid "This account is disabled."
+msgstr ""
+
+#: src/Api/Rest/CreditController.php:130
 msgid "Check-in is not available."
 msgstr ""
 
-#: src/Api/Rest/CreditController.php:133
+#: src/Api/Rest/CreditController.php:140
 msgid "Already checked in today."
 msgstr ""
 
-#: src/Api/Rest/CreditController.php:166
-#: src/Api/Rest/SponsorshipController.php:105
+#: src/Api/Rest/CreditController.php:173
+#: src/Api/Rest/SponsorshipController.php:116
 msgid "The Afdian channel is not available."
 msgstr ""
 
@@ -1319,24 +1614,24 @@ msgstr ""
 msgid "Thread not found."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:111
+#: src/Api/Rest/SponsorshipController.php:123
 msgid "This tier is not bound to an Afdian plan."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:148
+#: src/Api/Rest/SponsorshipController.php:178
 msgid "No payment gateway is available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:151
-#: src/Domain/Sponsorship/EpayGateway.php:63
+#: src/Api/Rest/SponsorshipController.php:181
+#: src/Domain/Sponsorship/EpayGateway.php:86
 msgid "The requested payment channel is not available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:159
+#: src/Api/Rest/SponsorshipController.php:189
 msgid "Unknown membership tier."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:164
+#: src/Api/Rest/SponsorshipController.php:194
 msgid "This membership tier is not available."
 msgstr ""
 
@@ -1451,7 +1746,6 @@ msgstr ""
 #: src/Domain/Content/BlocksModule.php:156
 #: src/Domain/Content/BlocksModule.php:193
 #: src/Domain/Content/FrontendModule.php:145
-#: src/Domain/ExternalFiles/OplistModule.php:238
 msgid "Link"
 msgstr ""
 
@@ -1694,7 +1988,6 @@ msgstr ""
 
 #: src/Domain/Content/SlugModule.php:69
 #: src/Domain/Content/SlugModule.php:89
-#: src/Domain/ExternalFiles/OplistModule.php:142
 #: src/Domain/Identity/AvatarModule.php:108
 #: src/Infrastructure/Security/SecurityModule.php:132
 msgid "Off"
@@ -1861,34 +2154,34 @@ msgstr ""
 msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:65
-#: src/Domain/Credit/LedgerService.php:128
+#: src/Domain/Credit/LedgerService.php:73
+#: src/Domain/Credit/LedgerService.php:146
 msgid "The credit amount must be positive."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:68
+#: src/Domain/Credit/LedgerService.php:76
 msgid "The credit source is required."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:98
+#: src/Domain/Credit/LedgerService.php:106
 msgid "This credit grant was already recorded."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:101
+#: src/Domain/Credit/LedgerService.php:109
 msgid "The credit grant could not be stored."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:157
+#: src/Domain/Credit/LedgerService.php:175
 msgid "Not enough credits."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:173
-#: src/Domain/Credit/LedgerService.php:180
-#: src/Domain/Credit/LedgerService.php:217
+#: src/Domain/Credit/LedgerService.php:191
+#: src/Domain/Credit/LedgerService.php:198
+#: src/Domain/Credit/LedgerService.php:235
 msgid "The spend could not be recorded."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:214
+#: src/Domain/Credit/LedgerService.php:232
 msgid "This spend was already recorded."
 msgstr ""
 
@@ -2333,7 +2626,7 @@ msgid "Priority"
 msgstr ""
 
 #: src/Domain/DevTools/SamplePage.php:251
-#: src/Domain/Sponsorship/SponsorshipModule.php:97
+#: src/Domain/Sponsorship/SponsorshipModule.php:100
 msgid "Enabled"
 msgstr ""
 
@@ -2650,191 +2943,173 @@ msgstr ""
 msgid "This content does not carry counters."
 msgstr ""
 
-#: src/Domain/ExternalFiles/AttachmentService.php:43
-msgid "Resource not found."
+#: src/Domain/FileServe/Adapters/GofileAdapter.php:60
+msgid "Folder id or share code"
 msgstr ""
 
-#: src/Domain/ExternalFiles/AttachmentService.php:164
-msgid "Unsupported mode."
+#: src/Domain/FileServe/Adapters/GofileAdapter.php:61
+msgid "The GoFile folder this list shows. Reading it through the API needs a Premium account on the token from the file downloads settings page."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OpenListClient.php:72
-msgid "Unsupported OpenList operation."
+#: src/Domain/FileServe/Adapters/GofileAdapter.php:128
+msgid "The GoFile token is not a Premium account, and the API only lists folders for Premium."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OpenListClient.php:77
-#: src/Domain/ExternalFiles/OpenListClient.php:106
-msgid "The file service is unreachable."
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:50
+msgid "OpenList search"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OpenListClient.php:82
-msgid "The file service returned an invalid response."
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:51
+msgid "OpenList directory"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:50
-#: src/Domain/ExternalFiles/OplistModule.php:51
-msgid "OpenList"
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:62
+msgid "Keywords"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:58
-msgid "Server URL"
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:63
+msgid "What this list searches for."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:59
-msgid "Base address of the OpenList instance that hosts resource attachments."
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:65
-msgid "API username"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:71
-msgid "API password"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:72
-msgid "Used to fetch fresh bearer tokens; stored server-side and never exposed."
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:78
-msgid "Token cache (hours)"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:79
-msgid "0 refetches the token on every request. Uses the object cache, so a Redis/memcached drop-in makes it persist."
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:88
-msgid "Attachment list cache (minutes)"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:89
-msgid "How long an attachment listing is served from the object cache before OpenList is asked again; 0 disables caching. The box's force-refresh switch always bypasses it."
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:98
-msgid "Download link mode"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:101
-msgid "Plain path"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:102
-msgid "Direct (/d/)"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:103
-msgid "Proxied (/p/)"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:104
-msgid "raw_url from the API"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:110
-msgid "File type icons"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:111
-msgid "Classify attachments by extension for the front end."
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:117
-msgid "Default panel description"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:120
-msgid "Reserved for the front-end resource panel (shown when a resource does not describe its attachments once that wiring lands)."
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:131
-msgid "OpenList attachments"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:139
-msgid "Surfacing mode"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:143
-msgid "List a directory"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:144
-msgid "Single file or directory"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:145
-msgid "Directory tree"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:146
-msgid "Search"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:152
-msgid "Path"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:158
-msgid "Panel description"
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:160
-msgid "Reserved for the front-end resource panel (B3 wiring)."
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:166
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:69
 msgid "Search root"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:167
-#: src/Domain/ExternalFiles/OplistModule.php:174
-msgid "Search mode only."
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:70
+msgid "The directory the search starts from; empty means the service root."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:173
-msgid "Search keywords"
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:76
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:103
+msgid "Path password"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:180
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:77
+msgid "The password of that directory on the OpenList side, if any."
+msgstr ""
+
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:83
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:110
 msgid "Per page"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:181
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:84
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:111
 msgid "0 lists everything."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:189
-msgid "OpenList path password"
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:96
+msgid "Path"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:190
-msgid "The password of the configured path on the OpenList side, if any."
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:97
+msgid "The directory whose files this list shows; leave it empty to keep this list off."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:196
-msgid "Force refresh"
+#: src/Domain/FileServe/Adapters/OpenListAdapter.php:104
+msgid "The password of that directory on the OpenList side, if any. Kept readable: every request re-sends it."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:197
-msgid "Skip the OpenList cache on every listing request."
+#: src/Domain/FileServe/Adapters/PlatformAdapter.php:31
+msgid "Drive share"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:217
-msgid "Cloud drive links"
+#: src/Domain/FileServe/Adapters/PlatformAdapter.php:41
+msgid "Share link"
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:225
-msgid "Drive links"
+#: src/Domain/FileServe/Adapters/PlatformAdapter.php:42
+msgid "The cloud-drive share a reader opens. A bare domain is read as https at delivery time, so the stored value stays what you typed."
 msgstr ""
 
-#: src/Domain/ExternalFiles/OplistModule.php:226
-msgid "One row per cloud-drive share: a label, the share URL and the extraction code readers must enter."
-msgstr ""
-
-#: src/Domain/ExternalFiles/OplistModule.php:244
+#: src/Domain/FileServe/Adapters/PlatformAdapter.php:48
 msgid "Extraction code"
+msgstr ""
+
+#: src/Domain/FileServe/Adapters/PlatformAdapter.php:49
+msgid "The drive's own code, handed to the reader together with the link."
+msgstr ""
+
+#: src/Domain/FileServe/Config.php:40
+msgid "List title"
+msgstr ""
+
+#: src/Domain/FileServe/Config.php:41
+msgid "Shown above this list on the front end; leave it empty to show the adapter name instead."
+msgstr ""
+
+#: src/Domain/FileServe/Config.php:47
+msgid "Credits per file"
+msgstr ""
+
+#: src/Domain/FileServe/Config.php:48
+msgid "Charged for every download from this list; 0 keeps it free."
+msgstr ""
+
+#: src/Domain/FileServe/Config.php:92
+msgid "The file configuration could not be read."
+msgstr ""
+
+#: src/Domain/FileServe/Config.php:102
+msgid "A data group key could not be read."
+msgstr ""
+
+#. translators: %s: data group id.
+#: src/Domain/FileServe/Config.php:107
+#, php-format
+msgid "Data group %s could not be read."
+msgstr ""
+
+#. translators: %s: data group id.
+#: src/Domain/FileServe/Config.php:114
+#, php-format
+msgid "Data group %s names an adapter that is not available."
+msgstr ""
+
+#. translators: 1: data group id, 2: error message.
+#: src/Domain/FileServe/Config.php:126
+#, php-format
+msgid "Data group %1$s: %2$s"
+msgstr ""
+
+#: src/Domain/FileServe/Failure.php:49
+msgid "The file service rejected our credentials."
+msgstr ""
+
+#: src/Domain/FileServe/Failure.php:50
+msgid "You do not have permission to fetch this file."
+msgstr ""
+
+#: src/Domain/FileServe/Failure.php:51
+msgid "The file does not exist or has been removed."
+msgstr ""
+
+#: src/Domain/FileServe/Failure.php:52
+msgid "The file service answered with something unrecognizable."
+msgstr ""
+
+#: src/Domain/FileServe/Failure.php:53
+msgid "The file service is temporarily unavailable."
+msgstr ""
+
+#: src/Domain/FileServe/FileServeModule.php:77
+msgid "File lists"
+msgstr ""
+
+#: src/Domain/FileServe/FileServeModule.php:83
+msgid "List cache (minutes)"
+msgstr ""
+
+#: src/Domain/FileServe/FileServeModule.php:84
+msgid "How long a list is served from the object cache before its source is asked again; 0 disables caching. Editing a post's groups starts a new cache generation on its own."
+msgstr ""
+
+#: src/Domain/FileServe/FileServeModule.php:93
+msgid "File type icons"
+msgstr ""
+
+#: src/Domain/FileServe/FileServeModule.php:94
+msgid "Classify each row by extension so the front end can pick an icon."
 msgstr ""
 
 #: src/Domain/Identity/AvatarModule.php:99
@@ -2948,6 +3223,14 @@ msgstr ""
 
 #: src/Domain/Identity/FollowService.php:54
 msgid "The follow could not be stored."
+msgstr ""
+
+#: src/Domain/Identity/IdentityModule.php:73
+msgid "Disable this account"
+msgstr ""
+
+#: src/Domain/Identity/IdentityModule.php:74
+msgid "A disabled account cannot check in, cannot spend credits and is not treated as a member anywhere. Credits and memberships are left untouched — grants keep landing, they simply cannot be used, and the balance keeps expiring on its own schedule."
 msgstr ""
 
 #. translators: %d: minimum password length.
@@ -3094,132 +3377,152 @@ msgstr ""
 msgid "The notification could not be stored."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:60
-msgid "Quick list"
+#: src/Domain/Operations/OperationsModule.php:115
+msgid "Upstream cost per download"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:61
-msgid "Turns lines of text into a list, one item per line."
-msgstr ""
-
-#: src/Domain/Parts/BuiltinParts.php:64
-#: src/Domain/Parts/BuiltinParts.php:75
-#: src/Domain/Parts/BuiltinParts.php:97
-#: src/Domain/Parts/BuiltinParts.php:121
-#: src/Domain/Parts/BuiltinParts.php:162
-msgid "Content"
-msgstr ""
-
-#: src/Domain/Parts/BuiltinParts.php:65
-msgid "Ordered list"
-msgstr ""
-
-#: src/Domain/Parts/BuiltinParts.php:71
-msgid "Quick list (columns)"
-msgstr ""
-
-#: src/Domain/Parts/BuiltinParts.php:72
-msgid "Alternates lines into a description list: first line the term, second the description, and so on."
-msgstr ""
-
-#: src/Domain/Parts/BuiltinParts.php:79
-msgid "Term width"
-msgstr ""
-
-#: src/Domain/Parts/BuiltinParts.php:81
-msgid "1/4 width terms"
+#: src/Domain/Operations/OperationsModule.php:116
+msgid "What one metered download costs upstream, in the payment currency. The report derives a month's cost as downloads × this rate and freezes the rate into each month when it closes, so changing it never rewrites past months."
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:82
-msgid "1/2 width terms"
+msgid "Quick list"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:83
-msgid "3/4 width terms"
+msgid "Turns lines of text into a list, one item per line."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:92
-msgid "Collapse panel"
+#: src/Domain/Parts/BuiltinParts.php:86
+#: src/Domain/Parts/BuiltinParts.php:97
+#: src/Domain/Parts/BuiltinParts.php:119
+#: src/Domain/Parts/BuiltinParts.php:143
+#: src/Domain/Parts/BuiltinParts.php:184
+msgid "Content"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:87
+msgid "Ordered list"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:93
-msgid "A panel readers can expand or collapse."
+msgid "Quick list (columns)"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:94
+msgid "Alternates lines into a description list: first line the term, second the description, and so on."
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:101
+msgid "Term width"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:103
-msgid "Notice card"
+msgid "1/4 width terms"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:104
-msgid "A highlighted notice with a level and a title."
+msgid "1/2 width terms"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:111
-msgid "Level"
-msgstr ""
-
-#: src/Domain/Parts/BuiltinParts.php:113
-msgid "Default"
+#: src/Domain/Parts/BuiltinParts.php:105
+msgid "3/4 width terms"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:114
-msgid "Warning"
+msgid "Collapse panel"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:115
-msgid "Info"
+msgid "A panel readers can expand or collapse."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:116
-msgid "Success"
+#: src/Domain/Parts/BuiltinParts.php:125
+msgid "Notice card"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:117
-msgid "Error"
+#: src/Domain/Parts/BuiltinParts.php:126
+msgid "A highlighted notice with a level and a title."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:127
-msgid "Button link"
-msgstr ""
-
-#: src/Domain/Parts/BuiltinParts.php:128
-msgid "A styled link button."
+#: src/Domain/Parts/BuiltinParts.php:133
+msgid "Level"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:135
-msgid "Opens"
+msgid "Default"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:136
+msgid "Warning"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:137
-msgid "Same tab"
+msgid "Info"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:138
-msgid "New tab"
+msgid "Success"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:145
-msgid "Style"
+#: src/Domain/Parts/BuiltinParts.php:139
+msgid "Error"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:147
-msgid "Primary"
+#: src/Domain/Parts/BuiltinParts.php:149
+msgid "Button link"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:148
-msgid "Outline"
+#: src/Domain/Parts/BuiltinParts.php:150
+msgid "A styled link button."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:152
-msgid "Button label"
-msgstr ""
-
-#: src/Domain/Parts/BuiltinParts.php:158
-msgid "Quick copy"
+#: src/Domain/Parts/BuiltinParts.php:157
+msgid "Opens"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:159
+msgid "Same tab"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:160
+msgid "New tab"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:167
+msgid "Style"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:169
+msgid "Primary"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:170
+msgid "Outline"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:174
+msgid "Button label"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:180
+msgid "Quick copy"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:181
 msgid "A text snippet the reader copies with one click."
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:190
+msgid "Related post card"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:191
+msgid "Shows one post as a card with its cover, category, title and counters. Enter the post ID."
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:197
+msgid "Post ID"
 msgstr ""
 
 #: src/Domain/Parts/PartModule.php:90
@@ -3240,41 +3543,45 @@ msgstr ""
 msgid "No template parts are registered yet."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:61
-msgid "The Afdian API is unreachable — try again later."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:65
-msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:66
-msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:75
-msgid "No matching Afdian order — check the order number."
-msgstr ""
-
 #: src/Domain/Sponsorship/AfdianActivator.php:80
-msgid "This order is not a paid trade."
+msgid "This order has already been activated."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:85
-msgid "This order's Afdian plan is not bound to a membership tier."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:95
-msgid "This order is bound to another account."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:105
-#: src/Domain/Sponsorship/AfdianActivator.php:116
+#: src/Domain/Sponsorship/AfdianActivator.php:81
+#: src/Domain/Sponsorship/AfdianActivator.php:221
 msgid "The membership activation failed — try again."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:115
-msgid "This order has already been activated."
+#: src/Domain/Sponsorship/AfdianActivator.php:144
+msgid "The Afdian API is unreachable — try again later."
+msgstr ""
+
+#: src/Domain/Sponsorship/AfdianActivator.php:148
+msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
+msgstr ""
+
+#: src/Domain/Sponsorship/AfdianActivator.php:149
+msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
+msgstr ""
+
+#: src/Domain/Sponsorship/AfdianActivator.php:156
+msgid "No matching Afdian order — check the order number."
+msgstr ""
+
+#: src/Domain/Sponsorship/AfdianActivator.php:162
+msgid "This order is not a paid trade."
+msgstr ""
+
+#: src/Domain/Sponsorship/AfdianActivator.php:171
+msgid "This order's Afdian plan is not bound to a membership tier."
+msgstr ""
+
+#: src/Domain/Sponsorship/AfdianActivator.php:179
+msgid "This order is bound to another account."
+msgstr ""
+
+#: src/Domain/Sponsorship/AfdianActivator.php:184
+msgid "The order carries no account binding — activate it from the account page with the order number."
 msgstr ""
 
 #: src/Domain/Sponsorship/EntitlementService.php:51
@@ -3282,7 +3589,8 @@ msgid "The membership holder does not exist."
 msgstr ""
 
 #: src/Domain/Sponsorship/EntitlementService.php:54
-#: src/Domain/Sponsorship/OrderService.php:39
+#: src/Domain/Sponsorship/OrderService.php:54
+#: src/Domain/Sponsorship/OrderService.php:105
 msgid "The order id is required."
 msgstr ""
 
@@ -3290,27 +3598,31 @@ msgstr ""
 msgid "The membership is being updated — try again."
 msgstr ""
 
-#: src/Domain/Sponsorship/EntitlementService.php:91
+#: src/Domain/Sponsorship/EntitlementService.php:99
 msgid "This order was already activated."
 msgstr ""
 
-#: src/Domain/Sponsorship/EntitlementService.php:94
+#: src/Domain/Sponsorship/EntitlementService.php:102
 msgid "The membership could not be stored."
 msgstr ""
 
-#: src/Domain/Sponsorship/EpayGateway.php:60
+#: src/Domain/Sponsorship/EpayGateway.php:83
+#: src/Domain/Sponsorship/EpayGateway.php:91
 msgid "The Epay channel is not available."
 msgstr ""
 
-#: src/Domain/Sponsorship/OrderService.php:36
+#: src/Domain/Sponsorship/OrderService.php:51
+#: src/Domain/Sponsorship/OrderService.php:102
 msgid "The order user does not exist."
 msgstr ""
 
-#: src/Domain/Sponsorship/OrderService.php:60
+#: src/Domain/Sponsorship/OrderService.php:81
+#: src/Domain/Sponsorship/OrderService.php:129
 msgid "This order was already recorded."
 msgstr ""
 
-#: src/Domain/Sponsorship/OrderService.php:63
+#: src/Domain/Sponsorship/OrderService.php:84
+#: src/Domain/Sponsorship/OrderService.php:132
 msgid "The order could not be stored."
 msgstr ""
 
@@ -3333,149 +3645,161 @@ msgstr ""
 msgid "The membership activation failed — the code was not consumed, try again."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:75
+#: src/Domain/Sponsorship/SponsorshipModule.php:78
 msgid "Membership settings"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:84
+#: src/Domain/Sponsorship/SponsorshipModule.php:87
 msgid "Tiers"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:90
+#: src/Domain/Sponsorship/SponsorshipModule.php:93
 msgid "Tier list"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:91
+#: src/Domain/Sponsorship/SponsorshipModule.php:94
 msgid "Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:98
+#: src/Domain/Sponsorship/SponsorshipModule.php:101
 msgid "Disabled tiers stay out of the purchase list; existing holders keep their membership."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:104
+#: src/Domain/Sponsorship/SponsorshipModule.php:107
 msgid "Key"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:116
+#: src/Domain/Sponsorship/SponsorshipModule.php:119
 msgid "Price (per cycle)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:124
+#: src/Domain/Sponsorship/SponsorshipModule.php:127
 msgid "Cycle length (days)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:125
+#: src/Domain/Sponsorship/SponsorshipModule.php:128
 msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:134
+#: src/Domain/Sponsorship/SponsorshipModule.php:137
 msgid "Credits per cycle"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:135
+#: src/Domain/Sponsorship/SponsorshipModule.php:138
 msgid "Credit bucket granted at each cycle start."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:149
-#: src/Domain/Sponsorship/SponsorshipModule.php:150
+#: src/Domain/Sponsorship/SponsorshipModule.php:152
+#: src/Domain/Sponsorship/SponsorshipModule.php:153
 msgid "Payments"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:157
+#: src/Domain/Sponsorship/SponsorshipModule.php:160
 msgid "Epay gateway (cashier integration)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:163
+#: src/Domain/Sponsorship/SponsorshipModule.php:166
 msgid "Epay integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:169
+#: src/Domain/Sponsorship/SponsorshipModule.php:172
 msgid "Merchant id (pid)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:175
+#: src/Domain/Sponsorship/SponsorshipModule.php:178
 msgid "Merchant key"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:181
+#: src/Domain/Sponsorship/SponsorshipModule.php:184
 msgid "Gateway submit URL"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:187
+#: src/Domain/Sponsorship/SponsorshipModule.php:190
 msgid "Payment channels"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:188
+#: src/Domain/Sponsorship/SponsorshipModule.php:191
 msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:191
+#: src/Domain/Sponsorship/SponsorshipModule.php:194
 msgid "Alipay"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:192
+#: src/Domain/Sponsorship/SponsorshipModule.php:195
 msgid "WeChat Pay"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:193
+#: src/Domain/Sponsorship/SponsorshipModule.php:196
 msgid "USDT (TRC20)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:199
+#: src/Domain/Sponsorship/SponsorshipModule.php:202
 msgid "Front-end return URL"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:200
+#: src/Domain/Sponsorship/SponsorshipModule.php:203
 msgid "Where the browser lands after paying; the headless front end owns this page."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:206
+#: src/Domain/Sponsorship/SponsorshipModule.php:209
 msgid "Afdian (platform push)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:212
+#: src/Domain/Sponsorship/SponsorshipModule.php:215
 msgid "Afdian integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:213
-msgid "Activates memberships from Afdian: signed webhook pushes and the order-number self-service check. Bind the Afdian plan below to one local tier."
+#: src/Domain/Sponsorship/SponsorshipModule.php:216
+msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:219
+#: src/Domain/Sponsorship/SponsorshipModule.php:222
+msgid "Afdian plan bindings"
+msgstr ""
+
+#: src/Domain/Sponsorship/SponsorshipModule.php:223
+msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
+msgstr ""
+
+#: src/Domain/Sponsorship/SponsorshipModule.php:229
 msgid "Afdian plan ID"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:220
-msgid "The plan_id this membership binds to; orders paid for it auto-activate the bound tier. Leave empty to keep Afdian unbound."
+#: src/Domain/Sponsorship/SponsorshipModule.php:235
+msgid "Membership tier"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:226
-msgid "Bound membership tier"
+#: src/Domain/Sponsorship/SponsorshipModule.php:236
+msgid "The tier (from the membership settings page) that this plan activates."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:227
-msgid "The tier (from the membership settings page) that the Afdian plan activates."
+#: src/Domain/Sponsorship/SponsorshipModule.php:251
+msgid "Fallback tier"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:240
+#: src/Domain/Sponsorship/SponsorshipModule.php:252
+msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
+msgstr ""
+
+#: src/Domain/Sponsorship/SponsorshipModule.php:265
 msgid "Afdian user id"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:246
+#: src/Domain/Sponsorship/SponsorshipModule.php:271
 msgid "Afdian API token"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:253
+#: src/Domain/Sponsorship/SponsorshipModule.php:278
 msgid "Afdian webhook address"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:254
+#: src/Domain/Sponsorship/SponsorshipModule.php:279
 msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
 msgstr ""
 
 #. translators: %s: tier keys that still have active holders.
-#: src/Domain/Sponsorship/SponsorshipModule.php:351
+#: src/Domain/Sponsorship/SponsorshipModule.php:382
 #, php-format
 msgid "These tiers still have active members and cannot be deleted: %s."
 msgstr ""
@@ -3703,7 +4027,7 @@ msgid "Request URI guard"
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:144
-msgid "Reject logged-out requests with oversized or probe-shaped URIs (414)"
+msgid "Reject logged-out requests with oversized or probe-shaped URIs (414, REST routes excepted)"
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:164
@@ -3712,6 +4036,18 @@ msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:226
 msgid "Not found."
+msgstr ""
+
+#: src/Modules/GofileModule.php:61
+msgid "GoFile"
+msgstr ""
+
+#: src/Modules/GofileModule.php:67
+msgid "Account token"
+msgstr ""
+
+#: src/Modules/GofileModule.php:68
+msgid "From the GoFile profile page. The account lists, folders and search endpoints work for any tier, but reading a folder needs Premium — without it every GoFile list reports that it needs Premium."
 msgstr ""
 
 #: src/Modules/MediaModule.php:72
@@ -3873,6 +4209,58 @@ msgstr ""
 
 #: src/Modules/MediaModule.php:367
 msgid "Image processing failed; the upload was cancelled."
+msgstr ""
+
+#: src/Modules/OpenListModule.php:108
+msgid "OpenList service"
+msgstr ""
+
+#: src/Modules/OpenListModule.php:114
+msgid "Server URL"
+msgstr ""
+
+#: src/Modules/OpenListModule.php:115
+msgid "Base address of the OpenList instance that hosts the listed files."
+msgstr ""
+
+#: src/Modules/OpenListModule.php:121
+msgid "API username"
+msgstr ""
+
+#: src/Modules/OpenListModule.php:127
+msgid "API password"
+msgstr ""
+
+#: src/Modules/OpenListModule.php:128
+msgid "Used to fetch fresh bearer tokens; stored server-side and never exposed."
+msgstr ""
+
+#: src/Modules/OpenListModule.php:134
+msgid "Token cache (hours)"
+msgstr ""
+
+#: src/Modules/OpenListModule.php:135
+msgid "0 refetches the token on every request. Uses the object cache, so a Redis/memcached drop-in makes it persist."
+msgstr ""
+
+#: src/Modules/OpenListModule.php:144
+msgid "Download link mode"
+msgstr ""
+
+#: src/Modules/OpenListModule.php:145
+msgid "How a delivery link is built. All three are download paths on the OpenList host — none of them sends a reader to its browsing pages."
+msgstr ""
+
+#: src/Modules/OpenListModule.php:148
+msgid "Direct (/d/)"
+msgstr ""
+
+#: src/Modules/OpenListModule.php:149
+msgid "Proxied (/p/)"
+msgstr ""
+
+#: src/Modules/OpenListModule.php:150
+msgid "Plain path"
 msgstr ""
 
 #: src/Settings/ValueNormalizer.php:45

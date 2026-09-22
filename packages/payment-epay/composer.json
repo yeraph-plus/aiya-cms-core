@@ -1,0 +1,14 @@
+{
+    "name": "aiya/payment-epay",
+    "description": "Epay (彩虹易支付) payment primitives for AIYA CMS: submit-query signing, callback verification and the provider's payment/callback wire shapes (WordPress-free).",
+    "type": "library",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "php": ">=8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aiya\\Infra\\PaymentEpay\\": "src/"
+        }
+    }
+}

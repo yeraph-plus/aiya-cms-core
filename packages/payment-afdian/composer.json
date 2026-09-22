@@ -1,0 +1,14 @@
+{
+    "name": "aiya/payment-afdian",
+    "description": "Afdian (爱发电) payment primitives for AIYA CMS: open-API signing, the webhook trade-number reader and the order-create deep link (WordPress-free).",
+    "type": "library",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "php": ">=8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aiya\\Infra\\PaymentAfdian\\": "src/"
+        }
+    }
+}

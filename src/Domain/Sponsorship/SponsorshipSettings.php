@@ -15,7 +15,7 @@ namespace Aiya\Core\Domain\Sponsorship;
 final class SponsorshipSettings
 {
     /**
-     * @return array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,epayReturnUrl:string,afdianEnable:bool,afdianUserId:string,afdianToken:string,afdianPlanId:string,afdianTierKey:string,tiers:list<array{key:string,name:string,price:float,cycleDays:int,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}>}
+     * @return array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,epayReturnUrl:string,afdianEnable:bool,afdianUserId:string,afdianToken:string,afdianBindings:list<array{planId:string,tierKey:string}>,afdianFallbackTier:string,tiers:list<array{key:string,name:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}>}
      */
     public static function read(): array
     {
@@ -32,8 +32,8 @@ final class SponsorshipSettings
             'afdianEnable' => (bool) ($payments['afdian_enable'] ?? false),
             'afdianUserId' => (string) ($payments['afdian_user_id'] ?? ''),
             'afdianToken' => (string) ($payments['afdian_token'] ?? ''),
-            'afdianPlanId' => sanitize_text_field((string) ($payments['afdian_plan_id'] ?? '')),
-            'afdianTierKey' => sanitize_key((string) ($payments['afdian_tier_key'] ?? '')),
+            'afdianBindings' => self::bindings($payments),
+            'afdianFallbackTier' => sanitize_key((string) ($payments['afdian_fallback_tier'] ?? '')),
             'tiers' => self::tiers($tiers),
         ];
     }
@@ -108,18 +108,27 @@ final class SponsorshipSettings
     }
 
     /**
-     * The single Afdian plan binding resolved to its local tier: null when
-     * either side of the pair is unconfigured.
+     * The Afdian plan→tier binding rows, normalized. Resolution against
+     * the tier list happens in the adapter (rows naming a tier that was
+     * deleted since are dropped there, not here) — the reader only
+     * sanitizes what the settings page stored.
      *
-     * @param array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,epayReturnUrl:string,afdianEnable:bool,afdianUserId:string,afdianToken:string,afdianPlanId:string,afdianTierKey:string,tiers:list<array{key:string,name:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}>} $settings
-     * @return array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}|null
+     * @param array<string, mixed> $payments
+     * @return list<array{planId:string, tierKey:string}>
      */
-    public static function boundTier(array $settings): ?array
+    public static function bindings(array $payments): array
     {
-        if ($settings['afdianPlanId'] === '' || $settings['afdianTierKey'] === '') {
-            return null;
+        $bindings = [];
+        foreach ((array) ($payments['afdian_bindings'] ?? []) as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $bindings[] = [
+                'planId' => sanitize_text_field((string) ($row['plan_id'] ?? '')),
+                'tierKey' => sanitize_key((string) ($row['tier_key'] ?? '')),
+            ];
         }
 
-        return self::tierByKey($settings['tiers'], $settings['afdianTierKey']);
+        return $bindings;
     }
 }

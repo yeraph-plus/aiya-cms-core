@@ -9,6 +9,7 @@ use Aiya\Core\Metadata\PostBox;
 use Aiya\Core\Metadata\Registry;
 use Aiya\Core\Metadata\TermBox;
 use Aiya\Core\Metadata\Storage\PostMetaStore;
+use Aiya\Core\Settings\Schema\Field;
 use Aiya\Core\Settings\ValueNormalizer;
 use WP_Error;
 
@@ -19,6 +20,16 @@ use WP_Error;
  *
  * Storage shapes follow the legacy protocol: post boxes keep the aiya_core_{id}
  * single-key group, term and user values live under per-field meta keys.
+ * Normalized empties (blank string, null, empty list, unticked switch) never
+ * persist — a kicked field falls back to its default on read, and a group
+ * that is empty after the kick deletes its meta key instead of storing an
+ * empty row.
+ *
+ * User fields may declare a `capability` the current viewer must hold;
+ * capability-gated fields never render on the holder's own profile screen
+ * (they are control switches, not preferences), and the save path filters
+ * the field list by the same rule before normalizing, so a hidden field
+ * cannot come back through a forged form key.
  *
  * action_checkbox fields are one-shot save triggers: their state is never
  * stored; when ticked the hook named by the field's `action` setting fires
@@ -148,10 +159,14 @@ final class MetaboxAdmin implements Module
                 self::stashSaveError($values);
                 continue;
             }
-            // A box with no persistable fields (action-checkbox-only, like
-            // typography) normalizes to [] — writing it would plant a
-            // serialized empty-array row on every save. Delete instead, so
-            // stale noise rows are cleaned up on the next save too.
+            // Empties never persist: a kicked field falls back to its
+            // default on read, so storing the empty would only fossilize
+            // "empty" into the group. A group that is empty after the kick
+            // — action-checkbox-only boxes (like typography) normalize to
+            // [] outright — deletes the meta key instead of planting a
+            // serialized empty-array row, so stale noise rows are cleaned
+            // up on the next save too.
+            $values = self::withoutEmptyValues($values);
             if ($values === []) {
                 $store->delete();
             } else {
@@ -263,8 +278,11 @@ final class MetaboxAdmin implements Module
 
         foreach ($values as $fieldId => $value) {
             // Term protocol shape: per-field meta keys with scalars. Values
-            // are unslashed; the meta API expects slashed data.
-            if ($value === '' || $value === null || $value === []) {
+            // are unslashed; the meta API expects slashed data. Empties
+            // (including an unticked switch) delete their key — absent is
+            // the one representation of "no value", and the read side
+            // falls back to the field default.
+            if ($value === '' || $value === null || $value === [] || $value === false) {
                 delete_term_meta($termId, $fieldId);
                 continue;
             }
@@ -275,7 +293,7 @@ final class MetaboxAdmin implements Module
     /** Renders the shared user profile fields section; empty when none are registered. */
     public function renderUserFields(\WP_User $user): void
     {
-        $fields = $this->registry->userFields();
+        $fields = $this->editableUserFields($user->ID);
         if ($fields === []) {
             return;
         }
@@ -299,6 +317,36 @@ final class MetaboxAdmin implements Module
         echo '</tbody></table>';
     }
 
+    /**
+     * The user fields the current viewer may see and write on THIS holder's
+     * profile screen. A field that declares a `capability` demands that
+     * capability from the viewer, and it never participates on the holder's
+     * own screen: a capability-gated field is a control switch (the account
+     * disable switch), not a preference, so an operator must not be able to
+     * flip it for themselves. Rendering and saving share this one list, so
+     * whatever is hidden here cannot come back through a forged form key
+     * either — `current_user_can('edit_user', ...)` alone would not stop a
+     * holder from editing their own profile.
+     *
+     * @return list<Field>
+     */
+    private function editableUserFields(int $userId): array
+    {
+        $self = $userId === get_current_user_id();
+
+        return array_values(array_filter(
+            $this->registry->userFields(),
+            static function (Field $field) use ($self): bool {
+                $capability = (string) $field->setting('capability', '');
+                if ($capability === '') {
+                    return true;
+                }
+
+                return !$self && current_user_can($capability);
+            }
+        ));
+    }
+
     /** Saves the shared user profile fields; values live under per-field user meta keys. */
     public function saveUserFields(int $userId): void
     {
@@ -316,15 +364,21 @@ final class MetaboxAdmin implements Module
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- the dedicated nonce is verified above.
         $raw = isset($_POST[self::USER_INPUT]) && is_array($_POST[self::USER_INPUT]) ? wp_unslash($_POST[self::USER_INPUT]) : [];
 
+        // The field list is filtered to what THIS viewer may write on THIS
+        // screen before normalization: a field outside the list cannot be
+        // smuggled in through a forged form key.
         $normalizer = new ValueNormalizer();
-        $values = $normalizer->normalize($this->registry->userFields(), $raw, []);
+        $values = $normalizer->normalize($this->editableUserFields($userId), $raw, []);
         if (is_wp_error($values)) {
             self::stashSaveError($values);
             return;
         }
 
         foreach ($values as $fieldId => $value) {
-            if ($value === '' || $value === null || $value === []) {
+            // Empties — including an unticked switch (false) — delete their
+            // key: absent is the one representation of "no value", and the
+            // read side falls back to the field default.
+            if ($value === '' || $value === null || $value === [] || $value === false) {
                 delete_user_meta($userId, $fieldId);
                 continue;
             }
@@ -351,6 +405,22 @@ final class MetaboxAdmin implements Module
         wp_enqueue_media();
         wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], AIYA_CORE_VERSION);
         wp_enqueue_script('aiya-core-admin', AIYA_CORE_URL . 'assets/js/admin.js', ['jquery', 'underscore', 'backbone', 'wp-util', 'wp-a11y'], AIYA_CORE_VERSION, true);
+    }
+
+    /**
+     * Kicks normalized empties (blank string, null, empty list, unticked
+     * switch) out of a group before it is stored. Strict comparison keeps
+     * legit falsy payloads — a media field's 0, the string '0' — intact.
+     *
+     * @param array<string, mixed> $values
+     * @return array<string, mixed>
+     */
+    private static function withoutEmptyValues(array $values): array
+    {
+        return array_filter(
+            $values,
+            static fn (mixed $value): bool => !in_array($value, ['', null, [], false], true)
+        );
     }
 
     /**

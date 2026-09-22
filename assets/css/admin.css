@@ -253,9 +253,11 @@
     display: none;
 }
 
-/* Dev Tools meter bars (server status opcache/usage rows): a thin track
-   with a filled span, kept to core admin grays/blues. */
-.aiya-devtools-bar {
+/* Meter bars (Dev Tools server status opcache/usage rows, the operations
+   report's ratios): a thin track with a filled span, kept to core admin
+   grays/blues. One rule, two owners. */
+.aiya-devtools-bar,
+.aiya-core-meter {
     display: inline-block;
     vertical-align: middle;
     width: 220px;
@@ -267,7 +269,8 @@
     overflow: hidden;
 }
 
-.aiya-devtools-bar > span {
+.aiya-devtools-bar > span,
+.aiya-core-meter > span {
     display: block;
     height: 100%;
     background: #2271b1;

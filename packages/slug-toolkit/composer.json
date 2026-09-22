@@ -4,7 +4,7 @@
     "type": "library",
     "license": "GPL-3.0-or-later",
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.4",
         "overtrue/pinyin": "^6.0"
     },
     "autoload": {

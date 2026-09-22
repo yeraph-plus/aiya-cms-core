@@ -10,7 +10,6 @@ use Aiya\Core\Api\Contract\DiscussionBoard;
 use Aiya\Core\Api\Contract\DiscussionDetail;
 use Aiya\Core\Api\Contract\DiscussionReply;
 use Aiya\Core\Api\Contract\Image;
-use Aiya\Core\Api\Contract\PostRef;
 use PHPUnit\Framework\TestCase;
 
 final class DiscussionContractTest extends TestCase
@@ -24,7 +23,6 @@ final class DiscussionContractTest extends TestCase
             new DiscussionBoard(2, 'question', '问答'),
             'open',
             new Author(7, 'zhan-zhang', '站长', null),
-            new PostRef(12, 'resource', '某资源', '/resources/12/'),
             3,
             ['下载', 'AVIF'],
             [new Image('https://cdn.example.test/shot.webp', '', 800, 600)],
@@ -47,10 +45,6 @@ final class DiscussionContractTest extends TestCase
         self::assertSame([['url' => 'https://cdn.example.test/shot.webp', 'alt' => '', 'width' => 800, 'height' => 600]], $shape['images']);
         self::assertSame('open', $shape['status']);
         self::assertSame(['id' => 7, 'slug' => 'zhan-zhang', 'name' => '站长', 'avatar' => null], $shape['author']);
-        self::assertSame(
-            ['id' => 12, 'type' => 'resource', 'title' => '某资源', 'url' => '/resources/12/'],
-            $shape['postRef']
-        );
         self::assertSame(3, $shape['replies']);
         self::assertTrue($shape['canReply']);
     }
@@ -74,17 +68,17 @@ final class DiscussionContractTest extends TestCase
         self::assertSame('open', $shape['status'], 'thread fields carry through the detail');
     }
 
-    public function testStandaloneThreadHasNullPostRef(): void
+    public function testStandaloneThreadKeepsTheEmptyShape(): void
     {
         $thread = new Discussion(
             1, '/community/1/', '问个问题', null, 'closed',
-            new Author(1, 'a', 'a', null), null, 0, [], [], '', '2026-09-09T00:00:00+08:00',
+            new Author(1, 'a', 'a', null), 0, [], [], '', '2026-09-09T00:00:00+08:00',
             false, false, false,
         );
 
         $shape = $thread->toArray();
 
-        self::assertNull($shape['postRef']);
+        self::assertArrayNotHasKey('postRef', $shape, 'the bound post is a rendered card now, not a field');
         self::assertNull($shape['board']);
         self::assertSame([], $shape['tags']);
         self::assertSame([], $shape['images']);

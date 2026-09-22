@@ -5,21 +5,32 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Identity;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Metadata\Registry as MetadataRegistry;
 
 /**
  * Wires the user relation tables into the runtime (2026-09-09 plan, ten-
  * thousand-user scale): favorites and follows replace the array-shaped
  * `favorite_posts` usermeta, and the bearer-token store moves from user
  * meta to its own table. Also schedules the daily cleanup of expired
- * auth tokens.
+ * auth tokens, and declares the account disable switch on the profile
+ * screen (UserBan — the meta key IS the field id).
  */
 final class IdentityModule implements Module
 {
     public const CRON_HOOK = 'aiya_core_auth_tokens_cleanup';
     private const MIGRATION_VERSION = '0.80.0';
 
+    public function __construct(private MetadataRegistry $metadata)
+    {
+    }
+
     public function register(): void
     {
+        // Declared on the registration seam (init 0), not at plugin-load
+        // time: the labels are translated strings and the .mo only loads on
+        // plugins_loaded.
+        add_action('aiya_core_register', [$this, 'fields'], 10, 0);
+
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
             $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'installTables']];
 
@@ -41,6 +52,33 @@ final class IdentityModule implements Module
 
             return $hooks;
         });
+    }
+
+    /**
+     * A code-declared user field: MetaboxAdmin renders it in the shared
+     * fields section of the profile screens and stores it under its own
+     * meta key, editable by whoever may edit that user. Fields may declare
+     * a `capability` the current viewer must hold to see or write the
+     * field; capability-gated fields never appear on the holder's own
+     * profile screen, so the disable switch is invisible to the disabled
+     * and an administrator cannot flip it on themselves (the switch's
+     * canonical programmatic writer is UserBan::set()).
+     */
+    public function fields(): void
+    {
+        $this->metadata->addUserFields([
+            [
+                'id' => UserBan::META_KEY,
+                'type' => 'switch',
+                'label' => __('Disable this account', 'aiya-core'),
+                'description' => __('A disabled account cannot check in, cannot spend credits and is not treated as a member anywhere. Credits and memberships are left untouched — grants keep landing, they simply cannot be used, and the balance keeps expiring on its own schedule.', 'aiya-core'),
+                'default' => false,
+                // Administrator gate: only a manage_options viewer renders
+                // and may write the switch, and never on their own screen —
+                // see MetaboxAdmin::editableUserFields().
+                'capability' => 'manage_options',
+            ],
+        ]);
     }
 
     /** Creates the three relation tables; the clean-release migration callback. */

@@ -4,60 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e779676a4653cdc6aa1deda30e9cb73d",
+    "content-hash": "09f478ab3fc2f2f9b4f47da06ec7d696",
     "packages": [
-        {
-            "name": "aiya/image-processor",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "packages/image-processor",
-                "reference": "91919f228e22f43a02d7e15b93a4d1295b17b5fa"
-            },
-            "require": {
-                "imagine/imagine": "^1.5",
-                "php": ">=8.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Aiya\\Infra\\ImageProcessor\\": "src/"
-                }
-            },
-            "license": [
-                "GPL-3.0-or-later"
-            ],
-            "description": "Image primitives for AIYA CMS: watermarking, thumbnail and cover generation on top of imagine/imagine (WordPress-free).",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "aiya/slug-toolkit",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "packages/slug-toolkit",
-                "reference": "da6e02ecd1581b0b96ded469d6cb089adad56f5a"
-            },
-            "require": {
-                "overtrue/pinyin": "^6.0",
-                "php": ">=8.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Aiya\\Infra\\SlugToolkit\\": "src/"
-                }
-            },
-            "license": [
-                "GPL-3.0-or-later"
-            ],
-            "description": "Slug generation primitives for AIYA CMS: pinyin conversion and XDE-style ID encoding (WordPress-free).",
-            "transport-options": {
-                "relative": true
-            }
-        },
         {
             "name": "imagine/imagine",
             "version": "1.5.4",
@@ -424,11 +372,11 @@
         },
         {
             "name": "mck89/peast",
-            "version": "v1.18.0",
+            "version": "v1.18.1",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/mck89/peast/v1.18.0/mck89-peast-v1.18.0.zip",
-                "reference": "9c211ef67a0cf7511f864b6d390fe5939a837d05",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/mck89/peast/v1.18.1/mck89-peast-v1.18.1.zip",
+                "reference": "70881e535f519aba943b6200411d2888d6c50dec",
                 "shasum": ""
             },
             "require": {
@@ -436,12 +384,13 @@
                 "php": ">=5.4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.0"
+                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.0",
+                "squizlabs/php_codesniffer": "^3.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.18.0-dev"
+                    "dev-master": "1.18.1-dev"
                 }
             },
             "autoload": {
@@ -461,9 +410,9 @@
             "description": "Peast is PHP library that generates AST for JavaScript code",
             "support": {
                 "issues": "https://github.com/mck89/peast/issues",
-                "source": "https://github.com/mck89/peast/tree/v1.18.0"
+                "source": "https://github.com/mck89/peast/tree/v1.18.1"
             },
-            "time": "2026-08-19T09:36:10+00:00"
+            "time": "2026-09-15T06:27:15+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -515,11 +464,11 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v5.8.0",
+            "version": "v5.9.0",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/nikic/php-parser/v5.8.0/nikic-php-parser-v5.8.0.zip",
-                "reference": "044a6a392ff8ad0d61f14370a5fbbd0a0107152f",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/nikic/php-parser/v5.9.0/nikic-php-parser-v5.9.0.zip",
+                "reference": "9e33da9553fe7786f0962b35f4e4ecf01be89def",
                 "shasum": ""
             },
             "require": {
@@ -560,9 +509,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v5.8.0"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v5.9.0"
             },
-            "time": "2026-07-04T14:30:18+00:00"
+            "time": "2026-09-13T18:51:52+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -1053,11 +1002,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.2.12",
+            "version": "2.2.14",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/phpstan/phpstan/2.2.12/phpstan-phpstan-2.2.12.zip",
-                "reference": "174b0d88710f00a42598886504dd7a146f91ace5",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/phpstan/phpstan/2.2.14/phpstan-phpstan-2.2.14.zip",
+                "reference": "9c672e7a8e791dfc3d30e55f683e73fc0b63a3ac",
                 "shasum": ""
             },
             "require": {
@@ -1102,7 +1051,7 @@
                 "security": "https://github.com/phpstan/phpstan/security/policy",
                 "source": "https://github.com/phpstan/phpstan-src"
             },
-            "time": "2026-08-31T19:09:43+00:00"
+            "time": "2026-09-12T21:39:33+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -2337,15 +2286,15 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v8.1.5",
+            "version": "v8.0.14",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.cloud.tencent.com/repository/composer/symfony/finder/v8.1.5/symfony-finder-v8.1.5.zip",
-                "reference": "8d7acede2b2ae07605783d1c43e49b5767036474",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/symfony/finder/v8.0.14/symfony-finder-v8.0.14.zip",
+                "reference": "4a93f8c95fabc35fcfd2f5dbb29d138d3fe98f43",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.4.1"
+                "php": ">=8.4"
             },
             "require-dev": {
                 "symfony/filesystem": "^7.4|^8.0"
@@ -2375,9 +2324,9 @@
             "description": "Finds files and directories via an intuitive fluent interface",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/finder/tree/v8.1.5"
+                "source": "https://github.com/symfony/finder/tree/v8.0.14"
             },
-            "time": "2026-08-21T12:16:08+00:00"
+            "time": "2026-06-27T08:56:37+00:00"
         },
         {
             "name": "szepeviktor/phpstan-wordpress",
@@ -2806,15 +2755,15 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "aiya/image-processor": 20,
-        "aiya/slug-toolkit": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.2"
+        "php": ">=8.4 <8.6"
     },
     "platform-dev": {},
+    "platform-overrides": {
+        "php": "8.4.0"
+    },
     "plugin-api-version": "2.9.0"
 }

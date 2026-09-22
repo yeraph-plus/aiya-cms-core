@@ -1,0 +1,14 @@
+{
+    "name": "aiya/openlist",
+    "description": "OpenList (alist-family) request exit for AIYA CMS: login, the read-only fs operations, the two surfacing calls (directory listing, search) and download-link construction (WordPress-free, no site types).",
+    "type": "library",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "php": ">=8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aiya\\Infra\\OpenList\\": "src/"
+        }
+    }
+}

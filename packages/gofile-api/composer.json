@@ -1,0 +1,14 @@
+{
+    "name": "aiya/gofile-api",
+    "description": "GoFile read-only request exit for AIYA CMS: token auth, the account and content read endpoints, the shared {status,data} envelope and its error vocabulary (WordPress-free, no site types).",
+    "type": "library",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "php": ">=8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aiya\\Infra\\Gofile\\": "src/"
+        }
+    }
+}

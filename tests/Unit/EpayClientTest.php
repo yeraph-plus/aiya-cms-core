@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Sponsorship\EpayClient;
+use Aiya\Infra\PaymentEpay\Client;
 use PHPUnit\Framework\TestCase;
 
 final class EpayClientTest extends TestCase
@@ -13,7 +13,7 @@ final class EpayClientTest extends TestCase
 
     public function testSubmitQueryIsSignedAndVerifiable(): void
     {
-        $client = new EpayClient('1001', self::KEY, 'https://pay.example.com/');
+        $client = new Client('1001', self::KEY, 'https://pay.example.com/');
 
         $query = $client->buildSubmitQuery([
             'out_trade_no' => '202609090000117570000000',
@@ -33,7 +33,7 @@ final class EpayClientTest extends TestCase
 
     public function testVerifyCallbackRejectsTampering(): void
     {
-        $client = new EpayClient('1001', self::KEY, 'https://pay.example.com/');
+        $client = new Client('1001', self::KEY, 'https://pay.example.com/');
         $query = $client->buildSubmitQuery(['out_trade_no' => 'T1', 'name' => 'n', 'money' => '5.00', 'param' => 'p', 'type' => 'wxpay']);
         parse_str($query, $params);
 
@@ -61,7 +61,7 @@ final class EpayClientTest extends TestCase
         }
         $expected = md5(implode('&', $pairs) . self::KEY);
 
-        $client = new EpayClient('1001', self::KEY, 'https://pay.example.com/');
+        $client = new Client('1001', self::KEY, 'https://pay.example.com/');
         $signed = $client->buildSubmitQuery($params);
         parse_str($signed, $out);
 
@@ -70,8 +70,8 @@ final class EpayClientTest extends TestCase
 
     public function testSubmitUrlNormalizesTrailingSlash(): void
     {
-        $withSlash = new EpayClient('1', 'k', 'https://pay.example.com/');
-        $withoutSlash = new EpayClient('1', 'k', 'https://pay.example.com');
+        $withSlash = new Client('1', 'k', 'https://pay.example.com/');
+        $withoutSlash = new Client('1', 'k', 'https://pay.example.com');
 
         self::assertSame('https://pay.example.com/submit.php?a=1', $withSlash->submitUrl('a=1'));
         self::assertSame('https://pay.example.com/submit.php?a=1', $withoutSlash->submitUrl('a=1'));

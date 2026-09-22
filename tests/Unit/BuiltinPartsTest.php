@@ -26,10 +26,26 @@ final class BuiltinPartsTest extends TestCase
     public function testRegistersTheCoreVocabulary(): void
     {
         self::assertSame(
-            ['list', 'col_list', 'collapse', 'alert', 'button', 'clip_board'],
+            ['list', 'col_list', 'collapse', 'alert', 'button', 'clip_board', 'post_id'],
             array_keys($this->parts)
         );
         self::assertTrue((new BuiltinParts())->registerParts(['x' => 'keep-me'])['x'] === 'keep-me', 'foreign entries pass through untouched');
+    }
+
+    /**
+     * The card reads a post, so its renderer is injected from outside the
+     * parts domain. Uninjected it stays a declaration — the part contract's
+     * editor-only state — rather than registering a shortcode that would
+     * silently render nothing.
+     */
+    public function testTheCardIsDeclarationOnlyWithoutAnInjectedRenderer(): void
+    {
+        self::assertNull($this->parts[BuiltinParts::POST_CARD_TAG]->render);
+
+        $injected = (new BuiltinParts(static fn (int $id): string => 'CARD' . $id))->registerParts([]);
+        $render = $injected[BuiltinParts::POST_CARD_TAG]->render;
+        self::assertNotNull($render);
+        self::assertSame('CARD7', $render(['id' => '7'], ''));
     }
 
     public function testListBuildsMarkupAndRendersPlainListHtml(): void

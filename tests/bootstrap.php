@@ -10,16 +10,26 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// Mirror the plugin's runtime autoloader (Aiya\Core\ -> src/) so the unit
-// suite loads plugin classes without booting WordPress.
+// Mirror the plugin's runtime autoloaders (Aiya\Core\ -> src/, Aiya\Infra\ ->
+// packages/*/src as each package's own composer.json declares) so the unit
+// suite loads plugin and package classes without booting WordPress.
 spl_autoload_register(static function (string $class): void {
     $prefix = 'Aiya\\Core\\';
-    if (!str_starts_with($class, $prefix)) {
+    if (str_starts_with($class, $prefix)) {
+        $path = __DIR__ . '/../src/' . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+        if (is_readable($path)) {
+            require_once $path;
+        }
+
         return;
     }
 
-    $path = __DIR__ . '/../src/' . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-    if (is_readable($path)) {
+    if (!str_starts_with($class, 'Aiya\\Infra\\')) {
+        return;
+    }
+
+    $path = Aiya\Core\Runtime\Packages::locate($class);
+    if ($path !== null) {
         require_once $path;
     }
 });
@@ -63,6 +73,70 @@ if (!class_exists('WP_Post')) {
         public function __construct(object $row)
         {
             foreach (get_object_vars($row) as $key => $value) {
+                $this->aiya_test_props[$key] = $value;
+            }
+        }
+
+        public function __get(string $name): mixed
+        {
+            return $this->aiya_test_props[$name] ?? '';
+        }
+
+        public function __set(string $name, mixed $value): void
+        {
+            $this->aiya_test_props[$name] = $value;
+        }
+
+        public function __isset(string $name): bool
+        {
+            return isset($this->aiya_test_props[$name]);
+        }
+    }
+}
+
+// --- WP_Term --------------------------------------------------------------
+
+if (!class_exists('WP_Term')) {
+    class WP_Term
+    {
+        /** @var array<string, mixed> */
+        private array $aiya_test_props = [];
+
+        public function __construct(?object $row = null)
+        {
+            foreach (get_object_vars($row ?? new \stdClass()) as $key => $value) {
+                $this->aiya_test_props[$key] = $value;
+            }
+        }
+
+        public function __get(string $name): mixed
+        {
+            return $this->aiya_test_props[$name] ?? '';
+        }
+
+        public function __set(string $name, mixed $value): void
+        {
+            $this->aiya_test_props[$name] = $value;
+        }
+
+        public function __isset(string $name): bool
+        {
+            return isset($this->aiya_test_props[$name]);
+        }
+    }
+}
+
+// --- WP_User --------------------------------------------------------------
+
+if (!class_exists('WP_User')) {
+    class WP_User
+    {
+        /** @var array<string, mixed> */
+        private array $aiya_test_props = [];
+
+        public function __construct(?object $row = null)
+        {
+            foreach (get_object_vars($row ?? new \stdClass()) as $key => $value) {
                 $this->aiya_test_props[$key] = $value;
             }
         }
@@ -187,10 +261,34 @@ if (!function_exists('sanitize_email')) {
 }
 
 if (!function_exists('esc_url_raw')) {
-    function esc_url_raw(string $url): string
+    /**
+     * Approximates core's whitelist semantics instead of a blacklist: an
+     * absolute URL is kept when its scheme is in the protocol list (the
+     * second parameter, as in core; default http/https), anything that reads
+     * as a relative path, protocol-relative reference, query or fragment
+     * carries no scheme and is kept as-is, and every other scheme
+     * (javascript:, data:, ftp:, file:, ...) — including spacing tricks,
+     * which core would also refuse without needing an entity decode here —
+     * is stripped to ''. The earlier blacklist form could not express
+     * "only these schemes", which is what callers like PlatformAdapter
+     * actually ask for.
+     */
+    function esc_url_raw(string $url, ?array $protocols = null): string
     {
         $url = trim($url);
-        return preg_match('#^https?://[^\s]+$#i', $url) === 1 ? $url : '';
+        if ($url === '') {
+            return '';
+        }
+
+        $slash = strpos($url, '/');
+        $colon = strpos($url, ':');
+        if ($colon !== false && ($slash === false || $colon < $slash)) {
+            $scheme = strtolower((string) substr($url, 0, $colon));
+
+            return in_array($scheme, $protocols ?? ['http', 'https'], true) ? $url : '';
+        }
+
+        return $url;
     }
 }
 
@@ -198,6 +296,20 @@ if (!function_exists('esc_url')) {
     function esc_url(string $url): string
     {
         return esc_url_raw($url);
+    }
+}
+
+if (!function_exists('esc_html_e')) {
+    function esc_html_e(string $text, string $domain = 'default'): void
+    {
+        echo esc_html($text);
+    }
+}
+
+if (!function_exists('esc_attr_e')) {
+    function esc_attr_e(string $text, string $domain = 'default'): void
+    {
+        echo esc_attr($text);
     }
 }
 
@@ -226,10 +338,68 @@ if (!function_exists('wp_specialchars_decode')) {
     }
 }
 
+// --- Shortcodes (minimal registry: the parts contract is a shortcode) ------
+
+$GLOBALS['__aiya_test_shortcodes'] = [];
+
+if (!function_exists('add_shortcode')) {
+    function add_shortcode(string $tag, callable $callback): void
+    {
+        $GLOBALS['__aiya_test_shortcodes'][$tag] = $callback;
+    }
+}
+
+if (!function_exists('shortcode_exists')) {
+    function shortcode_exists(string $tag): bool
+    {
+        return isset($GLOBALS['__aiya_test_shortcodes'][$tag]);
+    }
+}
+
 if (!function_exists('do_shortcode')) {
+    /**
+     * Simplified core behaviour: the self-closing and enclosing forms with
+     * double-quoted, single-quoted or bare attributes, the [[tag]] escaped
+     * form (outer brackets stripped, the text never executed), no nesting.
+     * That covers every part this plugin ships (they are flat); the real
+     * parser is exercised at runtime.
+     */
     function do_shortcode(string $content, bool $ignoreHtml = false): string
     {
-        return $content; // the unit suite never registers shortcodes
+        if ($content === '' || $GLOBALS['__aiya_test_shortcodes'] === []) {
+            return $content;
+        }
+
+        $tags = implode('|', array_map('preg_quote', array_keys($GLOBALS['__aiya_test_shortcodes'])));
+
+        // Escaped tokens first: [[tag attr="x"]] renders as the literal
+        // [tag attr="x"], whatever handlers are registered.
+        $unescaped = preg_replace_callback(
+            '/\[\[(' . $tags . ')([^\[\]]*)\]\]/',
+            static fn (array $match): string => '[' . $match[1] . $match[2] . ']',
+            $content
+        );
+        $content = is_string($unescaped) ? $unescaped : $content;
+
+        $pattern = '/\[(' . $tags . ')((?:\s+[^\s\]]+=(?:"[^"]*"|\'[^\']*\'|[^\s\]]+))*)\s*\](?:(.*?)\[\/\1\])?/s';
+
+        $result = preg_replace_callback($pattern, static function (array $match): string {
+            $atts = [];
+            if (preg_match_all('/([^\s=]+)=(?:"([^"]*)"|\'([^\']*)\'|([^\s\]]+))/', $match[2], $pairs, PREG_SET_ORDER) > 0) {
+                foreach ($pairs as $pair) {
+                    $atts[$pair[1]] = $pair[2] ?? $pair[3] ?? $pair[4] ?? '';
+                }
+            }
+
+            $handler = $GLOBALS['__aiya_test_shortcodes'][$match[1]] ?? null;
+            if (!is_callable($handler)) {
+                return $match[0];
+            }
+
+            return (string) $handler($atts, $match[3] ?? '', $match[1]);
+        }, $content);
+
+        return is_string($result) ? $result : $content;
     }
 }
 
@@ -306,6 +476,18 @@ if (!function_exists('wp_kses_post')) {
     }
 }
 
+if (!defined('ARRAY_A')) {
+    define('ARRAY_A', 'ARRAY_A');
+}
+
+if (!defined('ARRAY_N')) {
+    define('ARRAY_N', 'ARRAY_N');
+}
+
+if (!defined('OBJECT')) {
+    define('OBJECT', 'OBJECT');
+}
+
 if (!function_exists('absint')) {
     function absint(mixed $value): int
     {
@@ -317,6 +499,13 @@ if (!function_exists('is_email')) {
     function is_email(string $email): bool
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+}
+
+if (!function_exists('wp_json_encode')) {
+    function wp_json_encode(mixed $value, int $flags = 0, int $depth = 512): string|false
+    {
+        return json_encode($value, $flags, $depth);
     }
 }
 
@@ -419,6 +608,14 @@ if (!function_exists('current_time')) {
     }
 }
 
+if (!function_exists('delete_user_meta')) {
+    function delete_user_meta(int $userId, string $key, mixed $metaValue = ''): bool
+    {
+        unset($GLOBALS['__aiya_test_user_meta'][$userId][$key]);
+        return true;
+    }
+}
+
 if (!function_exists('get_user_meta')) {
     function get_user_meta(int $userId, string $key, bool $single = false): mixed
     {
@@ -480,10 +677,188 @@ if (!function_exists('current_user_can')) {
     }
 }
 
+if (!function_exists('get_rest_url')) {
+    function get_rest_url(?int $blogId = null, string $path = '/', string $scheme = 'rest'): string
+    {
+        return 'https://aiya.test/wp-json' . ('/' === $path[0] ? '' : '/') . $path;
+    }
+}
+
+if (!function_exists('get_bloginfo')) {
+    function get_bloginfo(string $show = '', string $filter = 'raw'): string
+    {
+        return $show === 'name' ? 'AIYA 测试站' : '';
+    }
+}
+
+if (!function_exists('rest_get_url_prefix')) {
+    function rest_get_url_prefix(): string
+    {
+        return 'wp-json';
+    }
+}
+
+if (!function_exists('user_can')) {
+    function user_can(mixed $user, string $capability, mixed ...$args): bool
+    {
+        // Same switch as current_user_can(): the suite reads one global,
+        // and the default stays permissive so unset fixtures keep passing.
+        return (bool) ($GLOBALS['__aiya_test_caps'] ?? true);
+    }
+}
+
 if (!function_exists('wp_verify_nonce')) {
     function wp_verify_nonce(string $nonce, string|int $action = -1): int|false
     {
-        return 1; // unit tests always present valid nonces
+        // Unit tests always present valid nonces — but an absent one is
+        // still absent, and callers that distinguish (check_ajax_referer)
+        // must see it fail like it would in core.
+        return $nonce !== '' ? 1 : false;
+    }
+}
+
+if (!function_exists('wp_create_nonce')) {
+    function wp_create_nonce(string|int $action = -1): string
+    {
+        return 'aiya-test-nonce';
+    }
+}
+
+if (!function_exists('wp_nonce_field')) {
+    function wp_nonce_field(string|int $action = -1, string $name = '_wpnonce', bool $referer = true, bool $echo = true): string
+    {
+        $field = '<input type="hidden" id="' . $name . '" name="' . $name . '" value="aiya-test-nonce" />';
+
+        if ($echo) {
+            echo $field;
+        }
+
+        return $field;
+    }
+}
+
+// --- AJAX handlers (for the bespoke metabox/page endpoints) ----------------
+
+if (!class_exists('Aiya_Test_Json_Response')) {
+    /**
+     * What wp_send_json_* "returns" in the shim: in real WordPress the
+     * handler echoes the envelope and dies, so the call never comes back —
+     * the envelope therefore travels as an exception the test catches and
+     * inspects.
+     */
+    class Aiya_Test_Json_Response extends RuntimeException
+    {
+        public function __construct(public readonly bool $success, public readonly mixed $data, public readonly int $status)
+        {
+            parent::__construct($success ? 'wp_send_json_success' : 'wp_send_json_error');
+        }
+
+        /** @return array{success: bool, data: mixed} */
+        public function body(): array
+        {
+            return ['success' => $this->success, 'data' => $this->data];
+        }
+    }
+}
+
+if (!class_exists('Aiya_Test_Abort')) {
+    /** A bare die-style stop (a failed check_ajax_referer): no envelope at all. */
+    class Aiya_Test_Abort extends RuntimeException
+    {
+    }
+}
+
+if (!function_exists('wp_send_json_success')) {
+    function wp_send_json_success(mixed $data = null, int $statusCode = 200): never
+    {
+        throw new Aiya_Test_Json_Response(true, $data, $statusCode);
+    }
+}
+
+if (!function_exists('wp_send_json_error')) {
+    function wp_send_json_error(mixed $data = null, int $statusCode = 200): never
+    {
+        throw new Aiya_Test_Json_Response(false, $data, $statusCode);
+    }
+}
+
+if (!function_exists('check_ajax_referer')) {
+    /**
+     * Reads the nonce named by $queryArg and verifies it; a failed check
+     * throws (core dies), which is exactly the "handler never got to do
+     * anything" a test wants to observe. Core reads $_REQUEST only; the
+     * shim falls back to $_POST/$_GET because the CLI SAPI never populates
+     * $_REQUEST from them, and the tests set the superglobals directly.
+     */
+    function check_ajax_referer(string|int $action = -1, string|false $queryArg = false, bool $die = true): int|false
+    {
+        $nonce = '';
+        if (is_string($queryArg)) {
+            $nonce = (string) ($_REQUEST[$queryArg] ?? $_POST[$queryArg] ?? $_GET[$queryArg] ?? '');
+        }
+        if (wp_verify_nonce($nonce, $action) !== false) {
+            return 1;
+        }
+
+        if ($die) {
+            throw new Aiya_Test_Abort('check_ajax_referer: nonce failed');
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('wp_mkdir_p')) {
+    function wp_mkdir_p(string $dir): bool
+    {
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.dir_mkdir -- test double of the core helper
+        return is_dir($dir) || mkdir($dir, 0777, true);
+    }
+}
+
+// --- Metabox registration (for bespoke boxes) -----------------------------
+
+$GLOBALS['__aiya_test_meta_boxes'] = [];
+
+if (!function_exists('add_meta_box')) {
+    function add_meta_box(string $id, string $title, callable $callback, mixed $screen = null, string $context = 'advanced', string $priority = 'default', mixed $args = null): void
+    {
+        $GLOBALS['__aiya_test_meta_boxes'][] = [
+            'id' => $id,
+            'title' => $title,
+            'screen' => $screen,
+            'context' => $context,
+            'priority' => $priority,
+        ];
+    }
+}
+
+// --- Transients (for settings save errors, rate limiting) -----------------
+
+$GLOBALS['__aiya_test_transients'] = [];
+
+if (!function_exists('set_transient')) {
+    function set_transient(string $key, mixed $value, int $expiration = 0): bool
+    {
+        $GLOBALS['__aiya_test_transients'][$key] = $value;
+
+        return true;
+    }
+}
+
+if (!function_exists('get_transient')) {
+    function get_transient(string $key): mixed
+    {
+        return $GLOBALS['__aiya_test_transients'][$key] ?? false;
+    }
+}
+
+if (!function_exists('delete_transient')) {
+    function delete_transient(string $key): bool
+    {
+        unset($GLOBALS['__aiya_test_transients'][$key]);
+
+        return true;
     }
 }
 
@@ -502,16 +877,95 @@ if (!class_exists('wpdb')) {
         /** @var array<string, list<array<string, mixed>>> */
         public array $aiya_test_rows = [];
 
+        /** @var array<string, list<array<string, mixed>>>|null rows as of START TRANSACTION */
+        public ?array $aiya_test_snapshot = null;
+
         public int $aiya_test_reads = 0;
 
         public int $rows_affected = 0;
 
-        /** @param array<string, mixed> $data */
+        public string $last_error = '';
+
+        /**
+         * The ledger's unique keys, honoured the way MySQL answers them: a
+         * repeat of a one-shot key is a false return plus a last_error the
+         * caller can read as "already recorded".
+         *
+         * @param array<string, mixed> $data
+         */
         public function insert(string $table, array $data, array $formats = []): bool
         {
+            $dedupe = $data['dedupe'] ?? null;
+            if (is_string($dedupe) && $dedupe !== '') {
+                foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
+                    if (($row['dedupe'] ?? null) === $dedupe
+                        && (int) ($row['user_id'] ?? 0) === (int) ($data['user_id'] ?? 0)
+                    ) {
+                        $this->last_error = sprintf("Duplicate entry '%s' for key 'dedupe_key'", $dedupe);
+
+                        return false;
+                    }
+                }
+            }
+
+            $this->last_error = '';
             $this->aiya_test_rows[$table][] = $data;
 
             return true;
+        }
+
+        public function suppress_errors(bool $suppress = true): bool
+        {
+            $previous = $this->suppress_errors;
+            $this->suppress_errors = $suppress;
+
+            return $previous;
+        }
+
+        public bool $suppress_errors = false;
+
+        /**
+         * The bucket read the allocator plans against: rows of id/remaining
+         * for the holder, live buckets only.
+         *
+         * @return list<array<string, mixed>>
+         */
+        public function get_results(string $sql, mixed $output = null): array
+        {
+            $this->aiya_test_reads++;
+            $table = $this->aiya_test_table($sql);
+            if ($table === null) {
+                return [];
+            }
+
+            $rows = [];
+            foreach ($this->aiya_test_rows[$table] ?? [] as $index => $row) {
+                if (str_contains($sql, "direction = 'in'") && ($row['direction'] ?? '') !== 'in') {
+                    continue;
+                }
+                if (preg_match('/user_id = (\d+)/', $sql, $user) === 1
+                    && (int) ($row['user_id'] ?? 0) !== (int) $user[1]
+                ) {
+                    continue;
+                }
+                if (str_contains($sql, 'remaining > 0') && (int) ($row['remaining'] ?? 0) <= 0) {
+                    continue;
+                }
+                if (preg_match("/expires_at > '([^']+)'/", $sql, $since) === 1
+                    && is_string($row['expires_at'] ?? null)
+                    && $row['expires_at'] !== ''
+                    && !($row['expires_at'] > $since[1])
+                ) {
+                    continue;
+                }
+
+                $rows[] = [
+                    'id' => is_numeric($row['id'] ?? null) ? (int) $row['id'] : $index + 1,
+                    'remaining' => (int) ($row['remaining'] ?? 0),
+                ];
+            }
+
+            return $rows;
         }
 
         public function prepare(string $sql, mixed ...$args): string
@@ -534,6 +988,37 @@ if (!class_exists('wpdb')) {
         public function get_var(string $sql): mixed
         {
             $this->aiya_test_reads++;
+
+            // The ledger's balance read: one SUM over the holder's live
+            // buckets, filtered exactly like the bucket read above — the
+            // statement carries `expires_at IS NULL OR expires_at > now`,
+            // so a bucket past its expiry counts no more here than the
+            // allocator would spend it.
+            if (str_contains($sql, 'SUM(remaining)')) {
+                $table = $this->aiya_test_table($sql);
+                preg_match("/expires_at > '([^']+)'/", $sql, $since);
+                $sum = 0;
+                foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
+                    if (($row['direction'] ?? '') !== 'in' || (int) ($row['remaining'] ?? 0) <= 0) {
+                        continue;
+                    }
+                    if (preg_match('/user_id = (\d+)/', $sql, $user) === 1
+                        && (int) ($row['user_id'] ?? 0) !== (int) $user[1]
+                    ) {
+                        continue;
+                    }
+                    if ($since !== [] && is_string($row['expires_at'] ?? null)
+                        && $row['expires_at'] !== ''
+                        && !($row['expires_at'] > $since[1])
+                    ) {
+                        continue;
+                    }
+                    $sum += (int) $row['remaining'];
+                }
+
+                return $sum;
+            }
+
             $row = $this->aiya_test_match($sql);
 
             return $row === null ? null : $row['user_id'];
@@ -542,6 +1027,45 @@ if (!class_exists('wpdb')) {
         public function query(string $sql): int
         {
             $this->rows_affected = 0;
+
+            // A transaction the ledger opened: snapshot on START, restore on
+            // ROLLBACK, drop the snapshot on COMMIT.
+            if (str_starts_with($sql, 'START TRANSACTION')) {
+                $this->aiya_test_snapshot = $this->aiya_test_rows;
+
+                return 1;
+            }
+            if (str_starts_with($sql, 'ROLLBACK')) {
+                if ($this->aiya_test_snapshot !== null) {
+                    $this->aiya_test_rows = $this->aiya_test_snapshot;
+                    $this->aiya_test_snapshot = null;
+                }
+
+                return 1;
+            }
+            if (str_starts_with($sql, 'COMMIT')) {
+                $this->aiya_test_snapshot = null;
+
+                return 1;
+            }
+
+            // The ledger's guarded bucket decrement: it only succeeds while the
+            // row still covers the take, exactly like the real statement.
+            if (preg_match('/UPDATE (\S+) SET remaining = remaining - (\d+) WHERE id = (\d+) AND remaining >= (\d+)/', $sql, $step) === 1) {
+                $table = $step[1];
+                foreach ($this->aiya_test_rows[$table] ?? [] as $index => $row) {
+                    if ($index + 1 !== (int) $step[3] || (int) ($row['remaining'] ?? 0) < (int) $step[2]) {
+                        continue;
+                    }
+                    $this->aiya_test_rows[$table][$index]['remaining'] = (int) $row['remaining'] - (int) $step[2];
+                    $this->rows_affected = 1;
+
+                    return 1;
+                }
+
+                return 0;
+            }
+
             $table = $this->aiya_test_table($sql);
             if ($table === null || str_contains($sql, 'expires_at <')) {
                 return 0; // trim sweep: not simulated, the tests never need it
@@ -624,7 +1148,16 @@ if (!function_exists('update_post_meta')) {
 if (!function_exists('get_post_meta')) {
     function get_post_meta(int $objectId, string $key, bool $single = false): mixed
     {
-        $value = $GLOBALS['__aiya_test_post_meta'][$objectId][$key] ?? '';
+        if (!isset($GLOBALS['__aiya_test_post_meta'][$objectId][$key])) {
+            // Core (get_metadata_default) answers '' for a missing single
+            // value and [] for a missing set — never a one-element array
+            // wrapping the empty default, which is what this shim used to
+            // say and no production code may rely on.
+            return $single ? '' : [];
+        }
+
+        $value = $GLOBALS['__aiya_test_post_meta'][$objectId][$key];
+
         return $single ? $value : [$value];
     }
 }
@@ -634,6 +1167,187 @@ if (!function_exists('delete_post_meta')) {
     {
         unset($GLOBALS['__aiya_test_post_meta'][$objectId][$key]);
         return true;
+    }
+}
+
+// --- Post records (content read paths: gate consumers, presenters) --------
+//
+// Fixture posts are registered by assigning to $GLOBALS['__aiya_test_posts']
+// (keyed by ID) — there is no wp_insert_post double. The readers below
+// mirror core's field provenance: titles come off the record, excerpts off
+// post_excerpt, thumbnails off _thumbnail_id meta.
+
+$GLOBALS['__aiya_test_posts'] = [];
+$GLOBALS['__aiya_test_sticky'] = [];
+$GLOBALS['__aiya_test_options'] = [];
+
+if (!function_exists('get_post')) {
+    function get_post(mixed $id = null): WP_Post|array|null
+    {
+        if ($id instanceof WP_Post) {
+            return $id;
+        }
+
+        return $GLOBALS['__aiya_test_posts'][(int) $id] ?? null;
+    }
+}
+
+if (!function_exists('get_the_title')) {
+    function get_the_title(mixed $post = 0): string
+    {
+        if (!($post instanceof WP_Post)) {
+            $post = $GLOBALS['__aiya_test_posts'][(int) $post] ?? null;
+        }
+
+        return $post instanceof WP_Post ? (string) ($post->post_title ?? '') : '';
+    }
+}
+
+if (!function_exists('get_the_excerpt')) {
+    function get_the_excerpt(mixed $post = null): string
+    {
+        if (!($post instanceof WP_Post)) {
+            $post = $GLOBALS['__aiya_test_posts'][(int) $post] ?? null;
+        }
+
+        return $post instanceof WP_Post ? (string) ($post->post_excerpt ?? '') : '';
+    }
+}
+
+if (!function_exists('is_sticky')) {
+    function is_sticky(int $postId = 0): bool
+    {
+        return in_array($postId, $GLOBALS['__aiya_test_sticky'], true);
+    }
+}
+
+if (!function_exists('comments_open')) {
+    function comments_open(mixed $post = null): bool
+    {
+        if (!($post instanceof WP_Post)) {
+            $post = $GLOBALS['__aiya_test_posts'][(int) $post] ?? null;
+        }
+
+        return $post instanceof WP_Post && ($post->comment_status ?? '') === 'open';
+    }
+}
+
+if (!function_exists('get_comments_number')) {
+    function get_comments_number(mixed $post = 0): string
+    {
+        if (!($post instanceof WP_Post)) {
+            $post = $GLOBALS['__aiya_test_posts'][(int) $post] ?? null;
+        }
+
+        return $post instanceof WP_Post ? (string) ($post->comment_count ?? 0) : '0';
+    }
+}
+
+if (!function_exists('get_post_thumbnail_id')) {
+    function get_post_thumbnail_id(mixed $post = 0): int
+    {
+        if (!($post instanceof WP_Post)) {
+            $post = $GLOBALS['__aiya_test_posts'][(int) $post] ?? null;
+        }
+
+        return $post instanceof WP_Post ? (int) get_post_meta((int) $post->ID, '_thumbnail_id', true) : 0;
+    }
+}
+
+if (!function_exists('untrailingslashit')) {
+    function untrailingslashit(string $value): string
+    {
+        return rtrim($value, '/\\');
+    }
+}
+
+if (!function_exists('trailingslashit')) {
+    function trailingslashit(string $value): string
+    {
+        return rtrim($value, '/\\') . '/';
+    }
+}
+
+$GLOBALS['__aiya_test_post_terms'] = [];
+$GLOBALS['__aiya_test_term_meta'] = [];
+
+if (!function_exists('wp_get_post_terms')) {
+    /** @return list<WP_Term>|WP_Error */
+    function wp_get_post_terms(int $postId, string $taxonomy = '', array $args = []): array|WP_Error
+    {
+        return $GLOBALS['__aiya_test_post_terms'][$postId][$taxonomy] ?? [];
+    }
+}
+
+if (!function_exists('get_term_meta')) {
+    function get_term_meta(int $termId, string $key = '', bool $single = false): mixed
+    {
+        $value = $GLOBALS['__aiya_test_term_meta'][$termId][$key] ?? '';
+
+        return $single ? $value : [$value];
+    }
+}
+
+if (!function_exists('get_date_from_gmt')) {
+    function get_date_from_gmt(string $date, string $format = 'Y-m-d H:i:s'): string
+    {
+        // UTC-only test double, like the wp_date shim: the suite never
+        // asserts site-local rendering.
+        $parsed = strtotime($date . ' UTC');
+
+        return $parsed === false ? $date : gmdate($format, $parsed);
+    }
+}
+
+if (!function_exists('post_password_required')) {
+    function post_password_required(mixed $post = null): bool
+    {
+        if (!($post instanceof WP_Post)) {
+            $post = $GLOBALS['__aiya_test_posts'][(int) $post] ?? null;
+        }
+
+        // No cookie jar here: a passworded post always owes its password,
+        // which is the production topology anyway (the visitor's browser
+        // never talks to WordPress, so the postpass cookie never arrives).
+        return $post instanceof WP_Post && (string) ($post->post_password ?? '') !== '';
+    }
+}
+
+if (!function_exists('get_post_timestamp')) {
+    function get_post_timestamp(mixed $post = null, string $field = 'date'): int|false
+    {
+        if (!($post instanceof WP_Post)) {
+            $post = $GLOBALS['__aiya_test_posts'][(int) $post] ?? null;
+        }
+        if (!($post instanceof WP_Post)) {
+            return false;
+        }
+
+        $value = (string) ($field === 'modified' ? ($post->post_modified_gmt ?? '') : ($post->post_date_gmt ?? ''));
+        $parsed = strtotime($value . ' UTC');
+
+        return $parsed === false ? false : $parsed;
+    }
+}
+
+if (!function_exists('wp_date')) {
+    function wp_date(string $format, ?int $timestamp = null, ?DateTimeZone $timezone = null): string|false
+    {
+        // UTC-only test double: the suite never asserts site-local rendering.
+        return gmdate($format, $timestamp ?? time());
+    }
+}
+
+if (!function_exists('aiya_core_opt')) {
+    /**
+     * The settings facade, stubbed at the boundary: fixtures assign
+     * $GLOBALS['__aiya_test_options'][page][id]; anything unset answers the
+     * caller's fallback, which is how the real facade behaves on a fresh
+     * install.
+     */
+    function aiya_core_opt(string $page, string $id, mixed $fallback = null): mixed
+    {
+        return $GLOBALS['__aiya_test_options'][$page][$id] ?? $fallback;
     }
 }
 
@@ -734,8 +1448,23 @@ if (!function_exists('apply_filters')) {
 }
 
 if (!function_exists('do_action')) {
+    /**
+     * Core hands action callbacks exactly the arguments do_action was given
+     * (WP_Hook::apply_filters() skips `$args[0] = $value` while doing an
+     * action) and slices them by accepted_args like any other callback. The
+     * leading-value injection is apply_filters' business alone: the earlier
+     * shim routed do_action through apply_filters, which made every
+     * multi-argument listener declare a phantom first $null parameter no
+     * production signature has.
+     */
     function do_action(string $hook, mixed ...$args): void
     {
-        apply_filters($hook, null, ...$args);
+        $buckets = $GLOBALS['__aiya_test_filters'][$hook] ?? [];
+        ksort($buckets);
+        foreach ($buckets as $callbacks) {
+            foreach ($callbacks as $entry) {
+                call_user_func_array($entry['callback'], array_slice($args, 0, $entry['args']));
+            }
+        }
     }
 }

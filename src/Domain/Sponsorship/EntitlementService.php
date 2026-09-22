@@ -22,13 +22,13 @@ use WP_Error;
  * user) ledger key plus the compare-and-swap counter block double grants.
  *
  * The legacy `sponsor_expiration` / `aya_force_cancel_sponsor` protocol
- * meta are retired here: validity derives from the queue, forced cancel
- * flips the rows to `cancelled`.
+ * meta are retired here: validity derives from the queue. The `status`
+ * column is kept (rows are written `active`) but nothing flips it any
+ * more — the forced-cancel writer went with 0.86.0.
  */
 final class EntitlementService
 {
     public const STATUS_ACTIVE = 'active';
-    public const STATUS_CANCELLED = 'cancelled';
 
     private const MAX_CYCLES = 60;
 
@@ -42,7 +42,7 @@ final class EntitlementService
      * without it two concurrent activations read the same tail and
      * overlap their windows, doubling the per-cycle credit grants.
      *
-     * @param array{key:string, name:string, cycleDays:int, creditsPerCycle:int, price?:float, afdianPlanId?:string} $tier snapshot read from the domain settings
+     * @param array{key:string, name:string, cycleDays:int, creditsPerCycle:int, price?:float} $tier snapshot read from the domain settings
      * @return true|WP_Error aiya_duplicate_order when the order was already activated
      */
     public function activateFromPayment(int $userId, string $orderId, array $tier, int $cycles): bool|WP_Error
@@ -67,6 +67,12 @@ final class EntitlementService
             $startsAt = max($now, $this->queueTail($userId));
             $endsAt = $startsAt + $cycles * max(1, $tier['cycleDays']) * DAY_IN_SECONDS;
 
+            // The unique order_id key is the duplicate signal here: an
+            // expected duplicate must answer the caller as a WP_Error, never
+            // leak as wpdb's debug HTML into the response body (a replayed
+            // gateway push is normal traffic — platforms retry). last_error
+            // is populated regardless of suppression; only printing stops.
+            $suppress = $wpdb->suppress_errors(true);
             $inserted = $wpdb->insert(
                 $this->table(),
                 [
@@ -85,6 +91,8 @@ final class EntitlementService
                 ],
                 ['%d', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%s']
             );
+
+            $wpdb->suppress_errors($suppress);
 
             if ($inserted === false) {
                 if (str_contains((string) $wpdb->last_error, 'Duplicate')) {
@@ -202,7 +210,8 @@ final class EntitlementService
 
     /**
      * The holder's queue, purchase order (start ASC). Every row carries
-     * its own tier snapshot; cancelled rows stay listed for the history.
+     * its own tier snapshot, so past purchases stay readable as history
+     * even after their window has run out.
      *
      * @return list<array{tier_key:string, tier_name:string, cycle_days:int, credits_per_cycle:int, cycles_total:int, cycles_granted:int, starts_at:string, ends_at:string, status:string}>
      */
@@ -251,6 +260,48 @@ final class EntitlementService
     }
 
     /**
+     * Active queue rows of many holders in ONE query, keyed by holder —
+     * the users-list membership column's batch read (queueFor() is the
+     * per-holder twin). Rows arrive purchase order (start ASC) so the
+     * covering fold sees the same sequence the single read does.
+     *
+     * @param list<int> $userIds
+     * @return array<int, list<array{tier_key:string, tier_name:string, starts_at:string, ends_at:string, status:string}>>
+     */
+    public function activeQueueFor(array $userIds): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $userIds))));
+        if ($ids === []) {
+            return [];
+        }
+
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $in = implode(',', array_fill(0, count($ids), '%d'));
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- whitelist IN-list over caller ids
+        $sql = "SELECT user_id, tier_key, tier_name, starts_at, ends_at
+             FROM %i WHERE status = %s AND user_id IN ($in)
+             ORDER BY starts_at ASC, id ASC";
+        $rows = $wpdb->get_results(
+            $wpdb->prepare($sql, $this->table(), self::STATUS_ACTIVE, ...$ids), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- whitelist-built SQL, see note above
+            ARRAY_A
+        );
+
+        $byUser = [];
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $byUser[(int) $row['user_id']][] = [
+                'tier_key' => (string) $row['tier_key'],
+                'tier_name' => (string) $row['tier_name'],
+                'starts_at' => (string) $row['starts_at'],
+                'ends_at' => (string) $row['ends_at'],
+                'status' => (string) $row['status'],
+            ];
+        }
+
+        return $byUser;
+    }
+
+    /**
      * The current membership window from the queue: active rows only.
      *
      * @return array{expiresAt:int, nextGrantAt:int} unix timestamps, 0 when absent
@@ -278,14 +329,6 @@ final class EntitlementService
         }
 
         return ['expiresAt' => $expiresAt, 'nextGrantAt' => $nextGrantAt];
-    }
-
-    /** Forced cancel (legacy `aya_force_cancel_sponsor`): every row flips. */
-    public function cancelAll(int $userId): void
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $wpdb->update($this->table(), ['status' => self::STATUS_CANCELLED], ['user_id' => $userId, 'status' => self::STATUS_ACTIVE], ['%s'], ['%d', '%s']);
     }
 
     /** Creates the queue table; the 0.50.0 schema migration. */

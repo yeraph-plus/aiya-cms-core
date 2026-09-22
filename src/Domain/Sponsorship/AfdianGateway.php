@@ -4,30 +4,41 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Sponsorship;
 
+use Aiya\Infra\PaymentAfdian\Client;
+use Aiya\Infra\PaymentAfdian\Gateway;
+
 /**
- * The Afdian (爱发电) adapter behind PaymentGateway. Afdian is a
- * platform-push gateway, not a cashier: orders arrive either as signed
- * webhook pushes (verifyCallback) or through the buyer typing the order
- * number into the redeem box (AfdianActivator's queryOrder). The
- * "payment URL" is the platform's own order-create deep link carrying the
- * site user binding in custom_order_id — the tier is resolved from
- * plan_id on the way back, never from the amount.
+ * The Afdian (爱发电) adapter behind PaymentGateway — the WordPress half of
+ * the `aiya/payment-afdian` package. It owns every WordPress touchpoint:
+ * the settings read, the `wp_remote_post` transport the package client
+ * calls through, the site-name remark the platform shows the buyer, and
+ * the plan→tier binding table (2026-09-21 model: many plans may bind, each
+ * to one tier, plus a fallback tier for the amount-only plan). The
+ * package turns the primary binding into the deep link; the resolution
+ * helpers (tierForPlan/planForTier/fallbackTier) are what the activation
+ * chain settles purchases with.
  */
 final class AfdianGateway implements PaymentGateway
 {
-    private const ORDER_PREFIX = 'afd_';
-    private const MAX_CYCLES = 36;
+    /** @var array<string, array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}> plan id => tier it activates */
+    private array $planTiers;
+
+    /** @var array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}|null the first binding's tier — the deep link's target */
+    private ?array $primaryTier;
 
     /**
-     * @param array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}|null $boundTier
+     * @param array<string, array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}> $planTiers
+     * @param array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}|null $fallbackTier
      */
     public function __construct(
-        private AfdianClient $client,
+        private Client $client,
+        private Gateway $gateway,
         private bool $enabled,
-        private string $planId,
-        private ?array $boundTier,
-        private string $siteName,
+        array $planTiers,
+        private ?array $fallbackTier,
     ) {
+        $this->planTiers = $planTiers;
+        $this->primaryTier = $planTiers === [] ? null : $planTiers[(string) array_key_first($planTiers)];
     }
 
     /** Builds the adapter from the domain settings (null when disabled/unconfigured). */
@@ -40,7 +51,7 @@ final class AfdianGateway implements PaymentGateway
 
         // The real HTTP transport for the open API: raw JSON in, response
         // body out (API-level errors ride HTTP 200 with their own ec).
-        $client = new AfdianClient(
+        $client = new Client(
             $settings['afdianUserId'],
             $settings['afdianToken'],
             static function (string $url, string $jsonBody): ?string {
@@ -59,25 +70,37 @@ final class AfdianGateway implements PaymentGateway
             }
         );
 
-        $bound = SponsorshipSettings::boundTier($settings);
+        // The binding table: plan id → tier. The first row wins for a
+        // duplicated plan id (an admin slip), and bindings naming a tier
+        // that no longer exists drop out here — they resolve like unknown
+        // plans: ignored, never a purchase.
+        $planTiers = [];
+        foreach ($settings['afdianBindings'] as $binding) {
+            $tier = SponsorshipSettings::tierByKey($settings['tiers'], $binding['tierKey']);
+            if ($binding['planId'] !== '' && $tier !== null && !array_key_exists($binding['planId'], $planTiers)) {
+                $planTiers[$binding['planId']] = $tier;
+            }
+        }
 
-        return new self($client, true, $settings['afdianPlanId'], $bound, (string) get_bloginfo('name'));
+        $primaryPlan = (string) array_key_first($planTiers);
+
+        return new self(
+            $client,
+            new Gateway(
+                $client,
+                $primaryPlan,
+                $primaryPlan === '' ? null : $planTiers[$primaryPlan]['key'],
+                sprintf('来自「%s」的会员订单', (string) get_bloginfo('name'))
+            ),
+            true,
+            $planTiers,
+            SponsorshipSettings::tierByKey($settings['tiers'], $settings['afdianFallbackTier'])
+        );
     }
 
-    public function client(): AfdianClient
+    public function client(): Client
     {
         return $this->client;
-    }
-
-    public function planId(): string
-    {
-        return $this->planId;
-    }
-
-    /** @return array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}|null */
-    public function boundTier(): ?array
-    {
-        return $this->boundTier;
     }
 
     public function id(): string
@@ -96,112 +119,89 @@ final class AfdianGateway implements PaymentGateway
         return [];
     }
 
+    public function orderId(string $reference): string
+    {
+        return Gateway::ORDER_PREFIX . $reference;
+    }
+
     /**
-     * The order-create deep link for the single bound plan on behalf of
-     * one user. The binding's first segment (the encoded user id) becomes
-     * custom_order_id and rides the checkout back into the webhook.
+     * The order-create deep link for the primary binding on behalf of one
+     * user. With several bindings the deep link can only point at one —
+     * it targets the first bound plan, and the webhook still settles by
+     * whatever plan the buyer actually paid.
      *
      * @param array{orderId:string, title:string, amount:float, channel:string, binding:string} $payment
      */
     public function createPayment(array $payment): string
     {
-        $segments = explode('|', (string) $payment['binding']);
-
-        return $this->orderUrl($this->client->resolveUser($segments[0] ?? ''), (int) ($segments[2] ?? 0));
+        return $this->gateway->createPayment($payment);
     }
 
-    /**
-     * The personalized order-create deep link; empty when the plan
-     * binding is unconfigured so callers can hide the jump. Params follow
-     * the official order-create URL doc: plan_id + product_type=0
-     * identify the plan, custom_order_id carries the user binding, an
-     * optional month pre-selects the cycle count (the buyer can still
-     * change it there).
-     */
+    /** The personalized order-create deep link; empty when nothing is bound. */
     public function orderUrl(int $userId, int $month = 0): string
     {
-        if ($this->planId === '' || $this->boundTier === null) {
-            return '';
-        }
-
-        $remark = rawurlencode(sprintf('来自「%s」的会员订单', $this->siteName));
-        $url = 'https://afdian.com/order/create?plan_id=' . rawurlencode($this->planId)
-            . '&product_type=0'
-            . '&custom_order_id=' . rawurlencode($this->client->bindUser($userId))
-            . '&remark=' . $remark;
-        if ($month > 0) {
-            $url .= '&month=' . $month;
-        }
-
-        return $url;
+        return $this->gateway->orderUrl($userId, $month);
     }
 
     /**
-     * Verifies a webhook push and resolves the payment description. Null
-     * means not activatable: bad signature (see callbackFailed), a push
-     * that is not a successful trade (status 2 / type order), no user
-     * binding, or an order whose plan is not the bound one (e.g. the
-     * optional amount plan) — the platform hears {ec:200} so it stops
-     * retrying.
+     * The webhook push's trade number — the push's one trusted field (the
+     * package carries the RSA-free push-trust model; the site re-reads the
+     * order through the open API).
      *
      * @param array<string, mixed> $body
-     * @return array{orderId:string, userId:int, tierKey:string, cycles:int, amount:float}|null
      */
-    public function verifyCallback(array $body): ?array
+    public function pushOrderNo(array $body): ?string
     {
-        if (!$this->client->verifyWebhook($body)) {
-            return null;
-        }
-
-        $data = $body['data'] ?? null;
-        if (!is_array($data) || (string) ($data['type'] ?? '') !== 'order') {
-            return null;
-        }
-
-        $order = $data['order'] ?? null;
-        if (!is_array($order)) {
-            return null;
-        }
-
-        // Official webhook doc: status 2 = 交易成功; anything else is not
-        // money the site can book (pending, refunded, …).
-        if ((int) ($order['status'] ?? 0) !== 2) {
-            return null;
-        }
-
-        $userId = $this->client->resolveUser((string) ($order['custom_order_id'] ?? ''));
-        if ($userId <= 0) {
-            return null;
-        }
-
-        // Single binding: only pushes for the configured plan activate.
-        if ((string) ($order['plan_id'] ?? '') !== $this->planId || $this->boundTier === null) {
-            return null;
-        }
-
-        $outTradeNo = (string) ($order['out_trade_no'] ?? '');
-        if ($outTradeNo === '') {
-            return null;
-        }
-
-        return [
-            'orderId' => self::ORDER_PREFIX . $outTradeNo,
-            'userId' => $userId,
-            'tierKey' => $this->boundTier['key'],
-            'cycles' => max(1, min(self::MAX_CYCLES, (int) ($order['month'] ?? 1))),
-            'amount' => (float) ($order['total_amount'] ?? 0),
-        ];
+        return $this->gateway->pushOrderNo($body);
     }
 
     /**
-     * Only a signature mismatch is a push the platform must hear about
-     * (400). A validly signed push without an activatable description
-     * (gift without binding, unbound plan) answers success.
+     * The tier a bound plan activates; null for unknown plans.
      *
-     * @param array<string, mixed> $body
+     * @return array{key:string, name:string, price:float, cycleDays:int, creditsPerCycle:int}|null
      */
-    public function callbackFailed(array $body): bool
+    public function tierForPlan(string $planId): ?array
     {
-        return !$this->client->verifyWebhook($body);
+        return $this->planTiers[$planId] ?? null;
+    }
+
+    /** The first plan bound to a tier; null when the tier has none. Feeds the per-tier plan id (a contract field the v1 Tier shape does not carry yet). */
+    public function planForTier(string $tierKey): ?string
+    {
+        foreach ($this->planTiers as $planId => $tier) {
+            if ($tier['key'] === $tierKey) {
+                return $planId;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The tier the amount-only plan (empty plan_id) falls into; null
+     * refuses those orders.
+     *
+     * @return array{key:string, name:string, price:float, cycleDays:int, creditsPerCycle:int}|null
+     */
+    public function fallbackTier(): ?array
+    {
+        return $this->fallbackTier;
+    }
+
+    /**
+     * The first binding's tier — the checkout placeholder and deep link
+     * target; null when nothing is bound.
+     *
+     * @return array{key:string, name:string, price:float, cycleDays:int, creditsPerCycle:int}|null
+     */
+    public function primaryTier(): ?array
+    {
+        return $this->primaryTier;
+    }
+
+    /** The purchase channel exists only while at least one plan is bound. */
+    public function hasBindings(): bool
+    {
+        return $this->planTiers !== [];
     }
 }

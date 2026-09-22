@@ -7,21 +7,31 @@ namespace Aiya\Core\Domain\Content;
 use Aiya\Core\Contracts\Module;
 
 /**
- * Marks content images for the front end's lightbox (2026-09-16 batch):
- * a late `the_content` pass stamps every `<img>` of the filtered body
- * with the `aiya-lightbox` class, which the front end binds its viewer
- * to. Runs on the_content — after shortcodes and the core responsive
- * passes — and never touches images already carrying `aiya-smilie`, so
- * rendered smilies stay inline glyphs even if they ever ride inside the
- * filtered text instead of being appended after this pass.
+ * Marks AUTHOR content images for the front end's lightbox (2026-09-16
+ * batch): the pass stamps `<img>` tags with the `aiya-lightbox` class,
+ * which the front end binds its viewer to.
+ *
+ * Ordering is the contract: priority 9 runs before core's own content
+ * passes (`wp_filter_content_tags` at 10) and before `do_shortcode` at 11,
+ * so the pass only ever sees what the author wrote. Markup produced by a
+ * shortcode or part — the related-post card's cover, for instance, which is
+ * a LINK and must not swallow its click into a viewer — is simply not there
+ * yet and needs no per-feature exemption list here. A part that wants its
+ * own images zoomable stamps them itself.
+ *
+ * The one skip that remains is for images that are already inline glyphs
+ * (`aiya-smilie`), i.e. author-pasted or historically stored ones.
  */
 final class LightboxModule implements Module
 {
     public const CLASS_NAME = 'aiya-lightbox';
 
+    /** Rendered smilies stay inline glyphs, never zoom targets. */
+    private const SKIPPED_CLASS = 'aiya-smilie';
+
     public function register(): void
     {
-        add_filter('the_content', [$this, 'inject'], 20, 1);
+        add_filter('the_content', [$this, 'inject'], 9, 1);
     }
 
     public function inject(string $content): string
@@ -42,8 +52,7 @@ final class LightboxModule implements Module
     {
         if (preg_match('/class\s*=\s*(["\'])([^"\']*)\1/i', $tag, $m, PREG_OFFSET_CAPTURE)) {
             $classes = $m[2][0];
-            if ($classes === self::CLASS_NAME || str_contains($classes, self::CLASS_NAME)
-                || str_contains($classes, 'aiya-smilie')) {
+            if (str_contains($classes, self::CLASS_NAME) || str_contains($classes, self::SKIPPED_CLASS)) {
                 return $tag;
             }
             // Insert before the attribute's closing quote.

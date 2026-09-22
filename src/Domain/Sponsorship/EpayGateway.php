@@ -4,22 +4,24 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Sponsorship;
 
-use Aiya\Infra\SlugToolkit\IdSlugEncoder;
+use Aiya\Infra\PaymentEpay\Client;
+use Aiya\Infra\PaymentEpay\Gateway;
 use WP_Error;
 
 /**
- * The Epay (彩虹易支付) adapter behind PaymentGateway: reads its own
- * credentials/channels from the payments settings option, signs cashier
- * URLs through the byte-compatible EpayClient and verifies callbacks
- * back into the domain's payment description. Everything Epay-specific
- * (params shape, '0'-skip signing quirk) lives here.
+ * The Epay (彩虹易支付) adapter behind PaymentGateway — the WordPress half
+ * of the `aiya/payment-epay` package. It owns every WordPress touchpoint:
+ * reading the credentials/channels from the payments settings, building
+ * the notify URL the platform pushes back to, handing the package the tier
+ * keys a callback may activate, and mapping the package's answers onto
+ * WP_Error plus translated copy. The package never sees WordPress.
  */
 final class EpayGateway implements PaymentGateway
 {
     /**
      * @param list<string> $channels
      */
-    public function __construct(private EpayClient $client, private bool $enabled, private array $channels)
+    public function __construct(private Gateway $gateway, private bool $enabled, private array $channels)
     {
     }
 
@@ -31,12 +33,28 @@ final class EpayGateway implements PaymentGateway
             return null;
         }
 
-        $client = new EpayClient($settings['epayPid'], $settings['epayKey'], $settings['epayGateway']);
+        $client = new Client($settings['epayPid'], $settings['epayKey'], $settings['epayGateway']);
         if (!$client->configured()) {
             return null;
         }
 
-        return new self($client, true, $settings['epayMethods']);
+        return new self(
+            new Gateway(
+                $client,
+                (string) get_rest_url(null, '/' . self::GATEWAY_NAMESPACE . '/epay/callback'),
+                $settings['epayReturnUrl'],
+                // Disabled tiers stay in the callback whitelist BY DESIGN
+                // (2026-09-21): enabled gates the storefront buy list only —
+                // SponsorshipController refuses disabled tiers at order
+                // time, so a signed push naming one can only be settling a
+                // purchase made while it was on sale. Whitelisting just the
+                // enabled tiers would orphan that money at the one moment
+                // it is verified.
+                array_map(static fn (array $tier): string => (string) $tier['key'], $settings['tiers'])
+            ),
+            true,
+            $settings['epayMethods']
+        );
     }
 
     public function id(): string
@@ -46,12 +64,17 @@ final class EpayGateway implements PaymentGateway
 
     public function enabled(): bool
     {
-        return $this->enabled && $this->client->configured();
+        return $this->enabled && $this->gateway->configured();
     }
 
     public function channels(): array
     {
         return $this->enabled() ? $this->channels : [];
+    }
+
+    public function orderId(string $reference): string
+    {
+        return Gateway::ORDER_PREFIX . $reference;
     }
 
     public function createPayment(array $payment): string|WP_Error
@@ -63,69 +86,36 @@ final class EpayGateway implements PaymentGateway
             return new WP_Error('aiya_channel_unavailable', __('The requested payment channel is not available.', 'aiya-core'), ['status' => 502]);
         }
 
-        $settings = SponsorshipSettings::read();
-        $submitQuery = $this->client->buildSubmitQuery([
-            'out_trade_no' => (string) $payment['orderId'],
-            'name' => (string) $payment['title'],
-            'money' => number_format(round((float) $payment['amount'], 2), 2, '.', ''),
-            'param' => (string) $payment['binding'],
-            'type' => (string) $payment['channel'],
-        ], get_rest_url(null, '/' . self::GATEWAY_NAMESPACE . '/epay/callback'), $settings['epayReturnUrl']);
-
-        return $this->client->submitUrl($submitQuery);
-    }
-
-    public function verifyCallback(array $query): ?array
-    {
-        if (!$this->client->verifyCallback($query)) {
-            return null;
-        }
-        if ((string) ($query['trade_status'] ?? '') !== 'TRADE_SUCCESS') {
-            return null;
+        $url = $this->gateway->createPayment($payment);
+        if ($url === '') {
+            return new WP_Error('aiya_channel_unavailable', __('The Epay channel is not available.', 'aiya-core'), ['status' => 502]);
         }
 
-        $outTradeNo = (string) ($query['out_trade_no'] ?? '');
-        $binding = (string) ($query['param'] ?? '');
-        if ($outTradeNo === '' || $binding === '') {
-            return null;
-        }
-
-        [$userBinding, $tierKey, $cyclesRaw] = array_pad(explode('|', $binding, 3), 3, '');
-        $userId = (int) (new IdSlugEncoder(8))->decodeId($userBinding);
-        $tierKey = sanitize_key($tierKey);
-        $cycles = absint($cyclesRaw);
-
-        if ($userId <= 0 || $tierKey === '' || $cycles < 1) {
-            return null;
-        }
-
-        $tier = SponsorshipSettings::tierByKey(SponsorshipSettings::read()['tiers'], $tierKey);
-        if ($tier === null) {
-            return null;
-        }
-
-        return [
-            'orderId' => 'epc_' . $outTradeNo,
-            'userId' => $userId,
-            'tierKey' => $tierKey,
-            'cycles' => $cycles,
-            // The actually-paid amount from the platform, not a settings
-            // recompute — the money log must reflect what was paid even if
-            // the tier price changed between checkout and callback.
-            'amount' => round((float) ($query['money'] ?? 0), 2),
-        ];
+        return $url;
     }
 
     /**
-     * True when a push carries an invalid signature — the one callback
-     * failure mode the platform must hear about (400). A validly signed
-     * push we merely cannot use (bad status, unknown binding) returns
-     * false: answer success and move on.
+     * Verifies a callback and resolves the payment description.
+     * Null means not activatable: a bad signature, a non-success trade
+     * status, a malformed binding, or a tier this site does not sell.
+     *
+     * @param array<string, mixed> $query
+     * @return array{orderId:string, userId:int, tierKey:string, cycles:int, amount:float}|null
+     */
+    public function verifyCallback(array $query): ?array
+    {
+        return $this->gateway->verifyCallback($query);
+    }
+
+    /**
+     * True when a push carries an invalid signature — the one failure the
+     * platform must hear about (the caller answers 400). A validly signed
+     * push we merely cannot use returns false: answer success and move on.
      *
      * @param array<string, mixed> $query
      */
     public function callbackFailed(array $query): bool
     {
-        return !$this->client->verifyCallback($query);
+        return $this->gateway->callbackFailed($query);
     }
 }

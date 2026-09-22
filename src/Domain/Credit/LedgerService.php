@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Credit;
 
+use Aiya\Core\Domain\Identity\UserBan;
 use WP_Error;
 
 /**
@@ -15,10 +16,17 @@ use WP_Error;
  *
  * The balance is always derived (SUM of open buckets), never cached into
  * user meta: the ledger is the single source of truth. Grants are
- * idempotent through the `(source, ref, user_id)` unique key — webhook
- * retries, double check-ins and double code redemptions all die there.
+ * idempotent per holder through the derived dedupe key (`source:ref`) —
+ * webhook retries, double check-ins and double code redemptions all die
+ * there. Spends are unconstrained repeats by default; a one-shot
+ * $dedupe token opts a caller into the same per-holder uniqueness.
  * Spends run inside a transaction with row locks, walking the holder's
  * live buckets earliest-expiry-first (CreditAllocator).
+ *
+ * Both writes announce themselves once they are committed
+ * (`aiya_core_credit_granted` / `aiya_core_credit_spent`): the ledger
+ * publishes, it never subscribes — the operations report is one listener,
+ * and no accounting path depends on who is listening.
  */
 final class LedgerService
 {
@@ -101,6 +109,8 @@ final class LedgerService
             return new WP_Error('aiya_db_error', __('The credit grant could not be stored.', 'aiya-core'));
         }
 
+        do_action('aiya_core_credit_granted', $userId, $amount, $source, $expiresAt);
+
         return true;
     }
 
@@ -116,11 +126,19 @@ final class LedgerService
      * semantics (e.g. a claim token); the dedupe key then rejects a
      * second insert for the same holder.
      *
+     * A disabled account never spends (UserBan): the refusal happens here,
+     * before the ledger is touched, so every consumer — the future
+     * download claim endpoint included — inherits the rule without knowing
+     * about it. The balance itself is left alone and keeps expiring.
+     *
      * @param string|null $dedupe Optional per-holder one-shot key; null = unconstrained repeatable spend
      * @return array{balance: int}|WP_Error aiya_credit_insufficient (409, data carries the balance) when short
      */
     public function spend(int $userId, int $amount, string $source, string $ref, ?string $dedupe = null): array|WP_Error
     {
+        if (UserBan::isBanned($userId)) {
+            return new WP_Error('aiya_account_disabled', __('This account is disabled.', 'aiya-core'), ['status' => 403]);
+        }
         if ($userId <= 0) {
             return new WP_Error('aiya_invalid_user', __('The credit holder does not exist.', 'aiya-core'), ['status' => 400]);
         }
@@ -218,6 +236,8 @@ final class LedgerService
         }
 
         $wpdb->query('COMMIT');
+
+        do_action('aiya_core_credit_spent', $userId, $amount, $source, $ref);
 
         return ['balance' => $this->balance($userId)];
     }

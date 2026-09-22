@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Parts;
 
 use Aiya\Core\Contracts\Module;
+use Closure;
 
 /**
  * The core template-part vocabulary (0.70.0 batch): the legacy inserter's
  * list/col_list/collapse/alert/clip_board shortcodes rebuilt on the part
- * contract, plus the new button link.
+ * contract, plus the new button link and, since 0.87.0, the related-post
+ * card (`[post_id id="7"]`).
  *
  * Rendering is HTML-first: the auxiliary format parts emit plain native
  * markup the front end styles directly (`ul`/`ol`+`li`, `dl`+`dt`/`dd`
@@ -19,6 +21,14 @@ use Aiya\Core\Contracts\Module;
  * tag the front end binds (`<alert>`), and the button is a plain anchor
  * carrying its variant as a class. Legacy tailwind classes do not carry
  * over.
+ *
+ * The card is the one part that must READ something (a post, through the
+ * content domain's query + the Api-layer summary projection), so its
+ * renderer arrives as an injected closure from the composition root: this
+ * domain declares the shortcode, the closure does the reading, and the
+ * parts domain keeps no dependency on the API layer. Without an injected
+ * renderer the part stays a declaration (no shortcode registered), which is
+ * the part contract's own "editor-only" state.
  *
  * The legacy `sponsor_ship` (supporters-gated body) was dropped without a
  * port: contentHtml is a public, shared-cached payload, so a gated body
@@ -30,6 +40,18 @@ final class BuiltinParts implements Module
 {
     private const ALERT_LEVELS = ['default', 'warning', 'info', 'success', 'error'];
     private const RATIOS = ['1', '2', '3'];
+
+    /** The related-post card's shortcode contract. */
+    public const POST_CARD_TAG = 'post_id';
+    public const POST_CARD_ATTRIBUTE = 'id';
+
+    /**
+     * @param Closure(int): string|null $postCard post id → card markup ('' when nothing resolves);
+     *                                               null leaves the card an editor declaration only
+     */
+    public function __construct(private readonly ?Closure $postCard = null)
+    {
+    }
 
     public function register(): void
     {
@@ -163,7 +185,51 @@ final class BuiltinParts implements Module
                 ],
                 fn (array $attrs, string $content): string => $this->renderClipBoard($attrs, $content),
             ),
+            new PartType(
+                self::POST_CARD_TAG,
+                __('Related post card', 'aiya-core'),
+                __('Shows one post as a card with its cover, category, title and counters. Enter the post ID.', 'aiya-core'),
+                '[' . self::POST_CARD_TAG . '{{attributes}}]',
+                [
+                    [
+                        'id' => self::POST_CARD_ATTRIBUTE,
+                        'type' => 'text',
+                        'label' => __('Post ID', 'aiya-core'),
+                        'default' => '',
+                    ],
+                ],
+                $this->postCard === null
+                    ? null
+                    : fn (array $attrs, string $content): string => $this->renderPostCard($attrs, $content),
+            ),
         ];
+    }
+
+    /**
+     * Hands the id to the injected card renderer. The attribute is the
+     * only id source — the inserter writes `[post_id id="7"]`, and the
+     * hand-typed enclosing spelling `[post_id]7[/post_id]` deliberately
+     * renders nothing instead of quietly inheriting its enclosed text.
+     * Note also that WordPress cannot parse `[post_id="7"]` at all — the
+     * quotes read as part of the shortcode name — and that a bare
+     * `[post_id 7]` is dropped by `shortcode_atts()`, so neither spelling
+     * reaches this method.
+     *
+     * @param array<string, string> $attrs
+     */
+    private function renderPostCard(array $attrs, string $content): string
+    {
+        $renderer = $this->postCard;
+        if ($renderer === null) {
+            return '';
+        }
+
+        $id = (int) ($attrs[self::POST_CARD_ATTRIBUTE] ?? 0);
+        if ($id <= 0) {
+            return '';
+        }
+
+        return $renderer($id);
     }
 
     /** @param array<string, string> $attrs */

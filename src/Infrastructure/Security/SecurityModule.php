@@ -141,7 +141,7 @@ final class SecurityModule implements Module
                     'id' => 'request_uri_guard',
                     'type' => 'switch',
                     'label' => __('Request URI guard', 'aiya-core'),
-                    'checkbox_label' => __('Reject logged-out requests with oversized or probe-shaped URIs (414)', 'aiya-core'),
+                    'checkbox_label' => __('Reject logged-out requests with oversized or probe-shaped URIs (414, REST routes excepted)', 'aiya-core'),
                     'default' => true,
                 ],
             ],
@@ -257,15 +257,40 @@ final class SecurityModule implements Module
         }
 
         $uri = isset($_SERVER['REQUEST_URI']) ? (string) $_SERVER['REQUEST_URI'] : '';
-        $suspicious = strlen($uri) > 255
-            || stripos($uri, 'eval(') !== false
-            || stripos($uri, 'base64') !== false
-            || strpos($uri, '/**/') !== false;
-
-        if ($suspicious) {
+        if (self::isBlockedUri($uri)) {
             status_header(414);
             nocache_headers();
             exit;
         }
+    }
+
+    /**
+     * The guard's decision, pure so it is testable without the exit.
+     *
+     * REST requests are exempt. The rule was born in the legacy theme's
+     * basic-optimize as a front-end path filter — probe shapes like
+     * `eval(` or `/**` name files that get executed — while a REST request
+     * is parsed as data by the REST layer. The ceiling is what broke:
+     * the Epay gateway push is an anonymous GET whose signed query alone
+     * runs ~300 bytes, so covering /wp-json rejected payments (414) rather
+     * than probes. Everything else, including every front-end path, keeps
+     * the original limits.
+     */
+    public static function isBlockedUri(string $uri): bool
+    {
+        if (str_contains($uri, '/' . rest_get_url_prefix() . '/')) {
+            return false;
+        }
+
+        // Plain-permalink REST form: /?rest_route=%2Faiya%2Fcore%2Fv1%2F…
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- routing hint read at init, not form processing
+        if (isset($_GET['rest_route']) && is_string($_GET['rest_route']) && $_GET['rest_route'] !== '') {
+            return false;
+        }
+
+        return strlen($uri) > 255
+            || stripos($uri, 'eval(') !== false
+            || stripos($uri, 'base64') !== false
+            || strpos($uri, '/**/') !== false;
     }
 }

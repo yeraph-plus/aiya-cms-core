@@ -5,7 +5,11 @@
     <file>aiya-core.php</file>
     <file>uninstall.php</file>
     <file>src</file>
+    <file>packages/gofile-api/src</file>
     <file>packages/image-processor/src</file>
+    <file>packages/openlist/src</file>
+    <file>packages/payment-epay/src</file>
+    <file>packages/payment-afdian/src</file>
 
     <exclude-pattern>*/vendor/*</exclude-pattern>
 
@@ -15,7 +19,7 @@
     <arg name="parallel" value="8"/>
 
     <config name="minimum_supported_wp_version" value="6.4"/>
-    <config name="testVersion" value="8.2-"/>
+    <config name="testVersion" value="8.4-8.5"/>
 
     <!--
         本插件采用 strict_types + 命名空间 + camelCase 的 PSR 风格，

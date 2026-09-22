@@ -176,9 +176,10 @@ aiya-core/
 │  │                                #   用户名防护组按决定取消；AIYA Core > Security hardening
 │  │                                # 其余（Media/ 等）有真实需求才建
 │  └─ Http/                         # （M5 起并入 Api/Rest，不再单独设 Http/）
-├─ packages/                        # ✅ 基础设施包目录（约定与批次见下节）；slug-toolkit（✅ 0.6.0）
-│                                   #   与 image-processor（✅ 0.9.0，含字体/花纹素材）已接入；
-│                                   #   opencc-convert（包体就绪，待适配器）
+├─ packages/                        # ✅ 基础设施包目录（约定与批次见下节）；slug-toolkit（✅ 0.6.0）、
+│                                   #   image-processor（✅ 0.9.0，含字体/花纹素材）与 typesetting（✅ 0.37.0）已接入；
+│                                   #   opencc-convert（包体就绪，待适配器）；包不随 composer 安装
+│                                   #   （0.84.0 起根 composer.json 无 path repository、无 vendor/aiya）
 ├─ assets/                          # ✅ admin.css / admin.js
 ├─ languages/                       # ✅ aiya-core.pot 已生成；.po/.mo 待译
 ├─ tests/
@@ -187,7 +188,8 @@ aiya-core/
 │  │                                #   FirstImageMatcher / ImagineAware（56 tests 126 assertions；
 │  │                                #   tests/bootstrap.php 最小 WP 垫片，无 WP 环境可跑）
 │  └─ Integration/                  # M2+：metabox 保存链路（wp-env 或 wp-cli 驱动）
-├─ composer.json                    # ✅ dev 工具链 + path repositories（packages/*）+ phpunit
+├─ composer.json                    # ✅ dev 工具链 + phpunit；三方依赖（imagine/pinyin）直挂，
+│                                   #   php 约束 8.4–8.5（platform 钉 8.4）
 └─ docs/                            # ✅ ARCHITECTURE / MIGRATION / ROADMAP + 迁移评估两份
 ```
 
@@ -199,7 +201,7 @@ aiya-core/
 
 ## 三、基础设施包约定（packages/）
 
-替代旧主题 `plugins/` require 加载结构。每个子目录一个独立 composer 包：`aiya/<slug>`、`type: library`、PSR-4 `Aiya\Infra\<CamelName>\`，自带 composer.json（php>=8.2 + 自身三方依赖，随根仓库腾讯镜像解析）。core 侧 `Modules/<Name>Module.php` 适配器实例化包服务、把包配置注册进**该功能自己的设置页**（旧 extra-plugin 单页分区结构明确不继承，如 image 包 →「Image processor」页），并挂入 Module 系统。
+替代旧主题 `plugins/` require 加载结构。每个子目录一个独立 composer 包：`aiya/<slug>`、`type: library`、PSR-4 `Aiya\Infra\<CamelName>\`，自带 composer.json 作为自身描述（`php >= 8.4` + 自身三方依赖）。**包不随 composer 安装**（0.84.0 起）：根 `composer.json` 无 path repository、`vendor/aiya` 不存在、Composer autoload 映射里没有 `Aiya\Infra\*`；包的三方依赖声明在根 `composer.json`（腾讯镜像解析），由插件自动加载器 `src/Runtime/Packages.php` 在首次请求 `Aiya\Infra\*` 类时惰性读取各包 composer.json 的 `autoload.psr-4` 并 require 文件（`tests/bootstrap.php` 镜像同一对加载器）。core 侧 `Modules/<Name>Module.php` 适配器实例化包服务、把包配置注册进**该功能自己的设置页**（旧 extra-plugin 单页分区结构明确不继承，如 image 包 →「Image processor」页），并挂入 Module 系统。
 
 迁移批次（按旧 plugins/ 耦合度探查结论，随落地更新）：
 
@@ -446,7 +448,7 @@ Discussion 不走 Tweet 的 feed 形，改以旧 `inc/func-issue.php` 的自建�
 - 旧 `site_custom_notify_list` / `site_custom_consent_list` 选项不入协议，随旧设置退役（consent 弹窗归前端自有实现）；
 - 落地清单：`Domain/Notification/`（RoleLevel 阶梯 + NotificationService 唯一写入方 + NotificationModule 迁移/调度接线）+ `Api/Contract/Notification` + `Api/Rest/NotificationController`（`GET /notifications`，信封包裹）+ `Admin/NotificationPage`（AIYA Core 子菜单页：发布/列表/删除 + 保留期，admin_post 逐动作 nonce）；表 `wp_aiya_notifications` 由 0.23.0 迁移建表（SchemaVersionRunner 首个真实消费者）；单测 + 运行时验证（游客/订阅者/赞助者三级可见性、定向行、prune、保留期往返、管理页渲染），运行时发现的游客 `OR user_id = 0` 退化 bug 已修复；
 
-### 资源编辑面与附件域（Domain/ExternalFiles + resource metabox）—— ✅ 已完成（0.27.0）；⏸ 0.29.1 起临时停用
+### 资源编辑面与附件域（Domain/ExternalFiles + resource metabox）—— ✅ 已完成（0.27.0）；⏸ 0.29.1 起临时停用；🔄 2026-09-21 起由 provider 化重写整体取代（见文末 0.89.0，本节留作历史记录）
 
 B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍板：门禁整套重写，代理端点本批全含）：
 
@@ -904,7 +906,7 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 站长拍板两项（全量审查遗留的拍板项收口）：
 
 - **postpass 解锁绕 cookie、直返正文**：`POST /content/{id}/unlock` 密码校验通过后不再 `setcookie(wp-postpass)`（headless 拓扑下 cookie 落在 Astro→WP 代理跳、浏览器永远拿不到，功能接线即坏），改为直接返回**解锁后的完整 detail**（`PostPresenter::detailUnlocked` 新方法，visibility 门禁照常独立评估）；语义变化 = 解锁变为一次性（下次冷读仍 locked，需再次提交密码），前端可自行在会话内保留响应正文。前台契约新增 `postUnlockResponseSchema = itemEnvelope(postDetailSchema)` + client.unlockPost；`aiya_wrong_password` 403、限流 10/600s 不变；
-- **WebhookLogger 改调试常量门控**：删除赞助设置页 `epay_savelog`/`afdian_savelog` 两个开关及 `SponsorshipSettings::read()` 映射，`WebhookLogger::write()` 自带闸门——仅在 wp-config 定义 `AIYA_CORE_WEBHOOK_DEBUG === true` 时落盘 `aiya-core-logs/`（支付数据不因设置页开关被遗忘而无限累积）；GatewayController 八处 if 包装随之拆除，回调行为（验签 400/可用性 200、记账先于 tier 解析、激活幂等）不变；
+- **WebhookLogger 改调试常量门控**：删除赞助设置页 `epay_savelog`/`afdian_savelog` 两个开关及 `SponsorshipSettings::read()` 映射，`WebhookLogger::write()` 自带闸门——仅在 wp-config 定义 `WP_DEBUG === true` 时落盘 `aiya-core-logs/`（支付数据不因设置页开关被遗忘而无限累积）；GatewayController 八处 if 包装随之拆除，回调行为（验签 400/可用性 200、记账先于 tier 解析、激活幂等）不变；
 - 实测：密码文章详情 locked:true → 错误密码 403 → 正确密码 unlock 直返 locked:false + 全文正文；`WebhookLogger::active()` 无常量时 false、write 零落盘；phpunit 226/556、phpstan、phpcs、vitest 167/167、tsc 全绿。版本对齐 0.73.0。
 
 ### 中文翻译恢复批（0.73.1，2026-09-16）—— ✅ 已完成
@@ -1016,3 +1018,264 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **摘除面**：`/menus/*` 路由、`registerMenuRoute()`、ContentController 的 PrimaryMenu 依赖、RestController 的构造与 use 全部移除；前端 `menuResponseSchema`/`client.menu()/secondaryMenu()` 删除，`loadPage` 改从 `site.blocks` 组装 Menu 形状（AppShell/TabBar props 零变动）；
 - **i18n**：Blocks 页 16 条新串 + 评论 2 条漏译补齐（906 条未翻译 0）；
 - 实测：dev 库 option 改名后菜单 4+2 行完好；保存链归一化往返（media 子字段 image id 通过）→ ContentBlocks 投影 → 真实 /site 载荷（adsTop/carousel 全形状）端到端验证；/menus 404 确认摘除。phpunit 244/584、phpstan、phpcs、vitest 216/216、astro check 全绿。
+
+### PHP 8.5 运行时 + 包加载脱离 vendor（0.84.0，2026-09-20）—— ✅ 已完成
+
+站长拍板两件事：后台 core 的 PHP 版本提到 8.5；自建 packages 不再经 composer autoload 加载。
+
+- **运行时升级 PHP 8.5.10**：`wordpress:php8.5-apache` / `cli-php8.5`（经 docker.1ms.run 转存——daocloud 源本次 TLS 证书校验失败、dockerpull.cn 早前已知 blob 损坏）；插件头 `Requires PHP: 8.5` + `AIYA_CORE_VERSION` 0.84.0（版本始终与插件头对齐）；两个镜像与卷内 WP 核心版本一致（7.1.1），换镜像不触发数据库升级；实测 Web 面 `X-Powered-By: PHP/8.5.10`，GD 与 Imagick 均在；
+- **composer 兼容带 8.4–8.5**：根 `composer.json` 的 `php` 约束改 `>=8.4 <8.6`，并 `config.platform.php` 钉 `8.4.0`（依赖按支持带**下界**解析，dev 工具链在 8.4 与 8.5 上都能装出同一份 lock）；PHPStan `phpVersion: 80500`（分析目标=运行版本，8.5 弃用检测生效），PHPCS `testVersion: 8.4-8.5`（守下界，报「仅 8.5 才有」的用法——两者配合覆盖带的两端）；
+- **包加载脱离 vendor/autoload**：根 `composer.json` 摘掉 `repositories.packages` path 仓库与三个 `aiya/*` require，包的三方依赖（`imagine/imagine`、`overtrue/pinyin`）改由根直挂。`vendor/aiya` 从此不存在，Composer autoload 映射与 `composer.lock` 里都没有 `aiya/*`（旧状态本已漂移：lock 只有两个包、typesetting 靠残留映射存活，新机器 `composer install` 会直接报 lock 不一致）。新 `src/Runtime/Packages.php` 在首次请求 `Aiya\Infra\*` 类时惰性读各包自己的 `composer.json`（`autoload.psr-4`，仅认 `Aiya\Infra\` 前缀，包无法冒充 core 命名空间）并按需 require 文件；`aiya-core.php` 与 `tests/bootstrap.php` 注册同一对加载器。包仍自描述（composer.json 即清单），加包的代价显式化为「投放目录 + 在根声明三方依赖」，无符号链接、无 lock 抖动；
+- **静态分析面适配**：PHPStan 增 `scanDirectories: packages`——包不在 composer 映射里，符号发现必须显式给，否则 21 处 `class.notFound`；未接线包只做符号发现不分析（PHPCS 扫 typesetting 的巨型数组会把嗅探器撑到 OOM，实测复现，故保持「接线后才进根检查面」的既有纪律）；
+- **包 composer.json**：`php >= 8.2` → `>= 8.4`（与根约束下界一致；包不再被 composer 安装，该字段为声明性描述）；
+- 实测：phpunit 244/584、phpstan、phpcs、parallel-lint 全绿（均在 PHP 8.5.10 跑）；运行时 `Aiya\Infra` 五个类 autoloaded、拼音与中文排版输出正确；真实图片走完整管线（媒体导入 → 特色图 → 重新保存），640×360 卡片图与 1000×240 详情图按既有语义生成、详情契约 `featured` 正确带出；REST 冒烟 `/site` `/smilies` `/terms` `/posts` `/pages` `/resources` `/search` 与详情 slug 路由全 200、`/credits/balance` 401（鉴权预期）；插件在 8.5 下 active 0.84.0；测试文章/附件/派生文件已清理；
+- **壳主题**：`themes/aiya-headless/style.css` 及其运行位副本 `Requires PHP: 8.5` 同步（两份仍逐字节一致）。
+
+### 运营域（积分/会员月度统计面板）（0.85.0，2026-09-20）—— ✅ 已完成
+
+站长拍板：会员菜单下加一个统计面板，按月看积分与经营数据；口径四条同批定稿——**只做运营域与统计面板**（下载扣费端点仍归 `Domain/ExternalFiles` 另批）、**MAU = 登录态请求即活跃**、**成本 = 下载次数 × 单次成本**、**收入同时给实收与 MRR**。
+
+- **为什么必须有表**：`aiya_core_credits_cleanup` 按 `credit_retention`（默认 30 天）删 `out` 行、过期桶与扣空桶，账本答不出「七月发放了多少」；会员/支付表永不清删，故实算不复制。两张新表终态一次写定：`aiya_stats_monthly`（month CHAR(7) 站点本地历月 PK；granted + 四个来源列 checkin/membership/code/admin；consumed/expired/downloads；unit_cost DECIMAL(10,4) + frozen；updated_at）与 `aiya_stats_active`（month+user_id 复合 PK，MAU 去重集，一月一行/人）。无历史回填（out 行可能已被清理，回填只能错），水位线在安装时播种、此后只前进；
+- **采集＝事件驱动，不扫账本**：`LedgerService::grant()`/`spend()` 落盘后各发一个动作（`aiya_core_credit_granted` / `aiya_core_credit_spent`，与 `aiya_core_membership_activated` 同型——账本只发布不订阅，两行加法零行为变化），ops 侧以单条 `INSERT … ON DUPLICATE KEY UPDATE col = col + n` 累加当月行：剪枝窗口、漏跑 cron、并发发放都不会丢数或双计。**过期积分不新增 cron**——挂在 `aiya_core_credits_cleanup` 优先级 5，`CreditModule` 的剪枝在默认 10，同一 tick 内先记账后删桶，窗口为零（实测：40 天前到期的桶被记入 2026-08 的 expired=40，随后被剪枝删除）；水位线是时间戳而非游标，漏跑只会加宽窗口，归属月份由 `expires_at` 决定绝不漂移；
+- **MAU**：`determine_current_user` 优先级 30（在 `TokenAuthentication` 的 20 之后，Bearer 与 cookie 会话一视同仁），排除 wp-admin 浏览，`INSERT IGNORE` 只写当月首见、请求内静态标志一次、错误抑制（早于建表的首次请求静默丢失，指标类允许静默降级）；
+- **读取＝只读报表消费方**：`StatsQuery` 读月度表 + `aiya_stats_active` + 实算会员/订单——会员数（窗口与该月相交的去重用户，取消态仍算持有过）、付费用户数（其中订单实付的子集，兑换码会员不计入）、实收（该月已付订单金额合计）、MRR（金额 ÷ 周期数 ÷ 周期天数 × 该月内重叠秒数，跨月按秒摊分，全周期之和恰等于订单额）。历月一律站点本地时区（事件归属 `current_time('Y-m')`、查询边界 `get_gmt_from_date()`、GMT 事实回桶 `get_date_from_gmt()`）；
+- **成本按月冻结**：当月按设置单价实时算，`frozen=0` 的已过月份由每日扫掠写入当时的单价并置 `frozen=1`——改单价只影响之后的月份，绝不改写历史；
+- **面板**（`Admin/OperationsPage`，slug `aiya-core-operations`，会员菜单 position 3）：月份下拉（近 12 个月）→ 选中月指标表（10 个数据点 + 消耗率/过期率 meter 条 + 未消耗积分余额实时负债数 + 当前单价的说明文案）→ 近 12 个月趋势表 → 发放来源表（签到/会员/兑换码/手动）。无表单写入、无 nonce、无 AJAX；图表只用原生表格 + CSS meter 条（ServerStatusPage 政策）。单价一个字段经 `Registry::addFields('membership', …)`（`aiya_core_register` 优先级 12）挂在会员设置页；
+- **契约零变化**：纯后台面板，无新 REST 路由，快照与前端 zod/manifest 全不动；
+- **i18n**：43 条新串（POT 934 条、MO 编译、未翻译 0）。流程补刀：`i18n-build.py missing` 只扫 .po 里空 msgstr 的条目，**POT 有而 .po 完全没有的新串不会被它发现**（本批 43 条正是这一类），需先用 `parse_po` 比对 POT/PO 才能看见；本批用一次性脚本按 POT 顺序追加进 .po（已有条目一字不动，diff 仅 +130 行），另记 13 条陈旧条目（'Save settings'/'SEO fields' 等已被替换的旧串）留作后续清理；
+- **待接线（下一批 ExternalFiles 领取端点的义务）**：下载计量点唯一动作 `aiya_core_download_served`（`$userId, $resourceId, $key`）——付费扣减与免费放行都只发这一个动作，付费路径不得另行计数（否则「消耗 > 0 而下载 = 0」或双计）。端点上线前 downloads 恒为 0；
+- 实测：迁移建两表（列/键逐一核对）；设置字段注册 + `aiya_core_opt` 读取；四个来源列与 consumed/downloads 的累加；过期扫掠归属与水位线推进；月冻结只写一次；查询层（月行、比值零分母为 null、12 个月趋势、未消耗余额 820=850−30 且已过期桶不计入、非法月份回落当月）；面板渲染 19.4KB 中文输出；会员菜单第三位落位 + `get_plugin_page_hookname` 无 `admin_page_*` 退化；真实 Bearer 令牌 REST 请求落 `aiya_stats_active` 一行、匿名请求不落；测试数据已清零。phpunit 262/623（新增 StatsMathTest 18 条）、phpstan、phpcs、parallel-lint 全绿。
+
+### 门禁补刀：评论门禁 + 门禁测试组（0.85.1，2026-09-20）—— ✅ 已完成
+
+站长对 0.85.0 后的积分/会员基础设施核对结果逐条拍板（**保持原样**：签到不排除会员——后期前台要做会员自动签到；兑换码可激活停用档位——符合设计；积分发放 cron 延后时保持严格语义不额外兼容——全服补偿另批规划），本批落地两条：
+
+- **评论过门禁**：`CommentQuery` 收编 `PostVisibility`（与 `ContentQuery`/`RelatedPostsQuery` 同构造形状，无默认值不制造 fail-open），`commentablePost()` 增 `gated()` 判定——**被门禁文章的评论区对不合格访客答「不存在」**（与缺失 id 同答，门禁从不确认存在性），同时关掉写入（看不到就读不到，也评不了）。`RestController` 传 `$this->visibility` 一行接线；
+- **门禁测试组**（`tests/Unit/ContentGateTest.php`，12 用例）：这是 0.72.1「门禁标题旁路」批一直缺的消费者层覆盖，补在门禁的**对外契约**上而不是服务内部（服务层 `PostVisibilityTest` 已覆盖）：评论区（member/login 两档 × 访客/会员，加 draft/密码/非评论类型/缺失 id 四条对照）、`summary()`（保标题、清摘要、门禁徽章）、`detail()`（保标题、清正文、`gated=true`、`visibility` 归一 `public`、SEO description 同清）、**解锁不解除可见性门禁**（`detailUnlocked` 只证明密码）、密码文章 `locked`。为跑通这些新增 11 个 WP 垫片（`get_post`/`get_the_title`/`get_the_excerpt`/`is_sticky`/`comments_open`/`get_comments_number`/`get_post_thumbnail_id`/`get_post_timestamp`/`wp_date`/`post_password_required`/`aiya_core_opt`，均按核心字段来源建模，`aiya_core_opt` 打到设置边界、未配置回落 fallback）；
+- **实测**：会员门禁文章作访客请求 `/content/{id}/comments` → 404 `aiya_not_found`（内容不存在），带会员 Bearer → 200 空列表；同文章详情访客侧 `title` 保留、`excerpt`/`content.html` 空、`badges=['member']`、`gated=true`、`visibility='member'`；探针文章已清理。phpunit 274/654（+12 用例 31 断言）、phpstan、phpcs、parallel-lint 全绿。
+- **核对确认（不是缺口，按设计）**：兑换码核销不写支付流水（礼码非收入，故不进实收/MRR，运营面板按「会员数含、付费用户不含」计算）；签到不限会员；`SOURCE_CODE` 常量保留未用。
+- **资源附件归属（答复站长提问）**：附件**不挂在文章 DTO 上**——`Attachment` 是独立 DTO，`GET /resources/{id}/attachments` 独立路由，由 `Domain/ExternalFiles` 的 `AttachmentService` + `AttachmentPresenter` 自组装；`PostSummary`/`PostDetail` 里没有任何附件字段。唯一耦合是 `AttachmentService::forResource()` 用 `get_post()` 自查 resource 的 type/status。按拍板**本批不动**，重构外接下载域时把门禁判定补在该域（或改为经内容域的服务）。**已闭合**：2026-09-21 的重写把门禁判定补在 `AttachmentService` 自身（`PostVisibility` + 公共类型集），路由也随通用化改为 `GET /content/{id}/attachments`——见文末 0.89.0。
+- **门禁强制取消移除面（答复站长提问，未执行）**：可干净移除，共 5 项——`MembershipService::cancel()`（:48-51）、`MembershipService::leftDays()`（:40-45，本就无调用方）、`EntitlementService::cancelAll()`（:284-289）、`EntitlementService::STATUS_CANCELLED`（:31，仅 cancelAll 使用），外加 3 处注释（`MembershipService.php:9-10`、`EntitlementService.php:24,283` 的强制取消描述）。**不需要迁移**：`status` 列保留（DDL 冻结，`status='active'` 过滤是各查询的既存语义，「cancelled」退化为不可达值）；`OrderService::STATUSES` 里的 `'cancelled'` 是**支付订单状态**、与会员取消无关，保留不动。
+- **仍开放的泄漏面（本批未动，待拍板）**：① 社区帖 `postRef` 返回被门禁文章标题+URL（`DiscussionPresenter.php:124`）；② 术语 `count` 含门禁行（`PostPresenter.php:328`）；③ `/wp/v2` 对持有 `publish_posts` 的会话开放（`HeadlessModule.php:254` 的 `lock_wp_v2` 只挡无该权限的访客）。
+
+### 用户级禁用 + 强制取消移除（0.86.0，2026-09-20）—— ✅ 已完成
+
+站长拍板：强制取消（`aya_force_cancel_sponsor` 遗产）已无实际作用，整体移除；用户级禁用作为**唯一**的会员/积分中断手段，开关写在用户 meta。
+
+- **移除强制取消（3 方法 + 1 常量 + 注释）**：`MembershipService::cancel()`/`leftDays()`、`EntitlementService::cancelAll()`/`STATUS_CANCELLED` 及三处注释清除。**零迁移**：`status` 列保留（DDL 冻结，`status='active'` 过滤是各查询的既存语义，`'cancelled'` 退化为不可达值）；`OrderService::STATUSES` 里的 `'cancelled'` 是**支付订单状态**，与会员无关，保留；历史 ROADMAP 条目按记录不改写；
+- **`Domain/Identity/UserBan`**（新）：键 `aiya_core_banned` 用户 meta，`isBanned()`/`set()`（清除即 delete，**not banned 只有一种表示**）。开关以**代码声明式用户字段**（`Metadata\Registry::addUserFields`，字段 id **就是** meta 键，单一真相）注册进用户资料页——`IdentityModule::fields()` 挂 `aiya_core_register`（优先级 10）声明，**不在插件加载期翻译**（首版在 `register()` 里调 `__()` 触发 WP 6.7+ 的 `_load_textdomain_just_in_time` 通知，被契约快照命令实测抓到后改为域内既定时机）；
+- **三个拦截点（各问各答，恰好一处）**：① **签到**——`CreditController::checkin()` 在读设置与限流**之前**拒绝（403 `aiya_account_disabled`，不烧同 NAT 的共享限流额度）；② **消耗**——`LedgerService::spend()` 在打开事务前拒绝（402/403 语义为 403，**扣费点拦截故所有下游（含未来下载领取端点）零改动继承**）；③ **会员**——`MembershipService` 的**门禁三方法** `isSponsor()`/`isActive()`/`expiresAt()` 一律答「不是会员」，覆盖内容门禁、wire 状态与全部派生读取方（公开资料页的 Membership 块读 `expiresAt()`，同批自动一致）。`currentTier()` **保持数据读**（管理端仍能看到被禁用者买过的档位），docblock 明写「授权必须问门禁，不问这个」；
+- **不做的事（有意）**：不动账本、不动队列——已发放的积分保留（可读、不可花、照常过期），已购买的周期照常入账（只是无法使用），不退款、不删行、不翻转状态。禁用是**策略覆盖，不是记账事件**；**登录会话不受影响**（令牌照常认证，只是被门禁拒绝业务动作）；
+- **契约加法**：`UserProfile` 增 `banned: bool`（紧邻 `role`，**不吸收进 role**——被禁用的编辑仍是 staff 级别，被禁用的赞助者不再是赞助者，字段说明写在 DTO docblock）。快照重生成 50 DTO、仅 `UserProfile` 变化（实测生成结果与已提交快照**逐字节一致只多这一字段**，佐证加法演进）；front-station 同批：`userSchema.banned` + 两处用户夹具 + `contracts.snapshot.json` 同步，vitest 228/228、astro check 0 错误；
+- **i18n**：3 条新串（禁用开关 label/描述、拒绝文案「该账号已被禁用。」），POT 937 条、MO 编译、未翻译 0；
+- **实测**：探针订阅者全链路——禁用前 checkin 200 / `spend` 答 `aiya_credit_insufficient`（余额 0，非禁用路径）；禁用后 `isSponsor=false`/`isActive=false`/`expiresAt=0`、`spend` 答 `aiya_account_disabled` 403 且**账本零写入**（`out` 行 0、余额 5 原样保留）、`POST /credits/checkin` 403、`GET /users/me` 出 `banned=true`、`/credits/balance` 仍可读、`/sponsorship/membership` `active=false`、令牌仍可认证；解除后全部恢复；探针用户与账本/统计/令牌行已清零；
+- 门禁：phpunit 281/673（新增 UserBanTest 7 条，含「禁用先于 bypass」「禁用先于事务」两条断言语义）、phpstan、phpcs、parallel-lint 全绿。
+
+### 关联文章卡片：postRef 换成短代码渲染 + 社区贴挂卡（0.87.0，2026-09-20）—— ✅ 已完成
+
+站长拍板简化：社区贴只存关联文章 id，`[post_id="1"]` 短代码输出卡片 div（封面+分类+标题+计数器，走项目内既有单条查询），帖子有绑定就在正文底部 `do_shortcode` 挂同一张卡；顺带让社区贴正文支持短代码。
+
+- **卡片＝零件（短代码）**：内置在 `Domain/Parts/BuiltinParts` 里（tag `post_id`，属性 `id`，与其余零件同处一份词表），渲染闭包由**组合根注入**——domain 不依赖 Api（`PostVisibility` 成员判定的同款手法），Plugin 里 `PostCardPresenter(ContentQuery, PostPresenter)` 一次性装配。渲染走 `PostPresenter::summary()` —— 内容读取唯一路径，卡片与 API 对同一篇文章的说法不可能漂移；
+- **语法坑，但不写兼容层**（站长复核：「名字不是问题，语法才是」）：`[post_id="1"]` **不是合法 WP 短代码**（引号被解析进短代码名，没有 handler 能认领）。只支持两种**原生合法**写法——属性形 `[post_id id="7"]`（编辑器插入对话框产出的就是它）与包围形 `[post_id]7[/post_id]`（手打友好，闭包从 `$content` 兜底取 id）。首版曾写一层字面形态改写（`normalizeLegacy` + `the_content` 过滤器），复核后**整段删除**：改名/换写法即可，不值得为自造语法养一套改写机器。两条顺带记录：裸 token 形 `[post_id 7]` 走不通（`shortcode_atts()` 丢弃未知键，除非改 PartModule 共享设施）；属性形后面若再出现 `[/post_id]`，WP 会把前者当「包围短代码」吞掉中间内容——同一篇里混用两种写法才会踩到；
+- **卡片必须与访客无关**：卡片落在 `contentHtml` 里，而它是**公开且可共享缓存**的载荷（退休 `sponsor_ship` 零件时定下的同一条约束）——所以卡片不含摘要（summary 唯一的按访客变化字段），门禁级别只作为 `data-badges` 数据带出（与 `PostSummary.badges` 同语义：报「配置了什么门禁」而非「你能不能看」）。被门禁文章仍出封面/分类/标题/计数器，与详情路由「标题可见、正文不可见」的既有立场一致；**若要卡片对不合格访客连标题都隐藏，需要另立缓存策略**（留作拍板项）；
+- **社区贴**：`DiscussionPresenter` 正文与回复统一走「smilies → `do_shortcode`」；绑定文章的帖子在正文末尾追加同一张卡（由同一个短代码产出，手写卡与绑定卡不可能渲染不一致）。`tags()`/`images()` 仍读**原始库内容**，卡片不会污染九宫格图片抽取（实测）；
+- **postRef 退场（v1 基线修订）**：`Discussion.postRef`、`DiscussionDetail.postRef` 与 `PostRef` DTO 全部删除，`ContractsSnapshot::WIRE_SHAPES` 同步；快照 50→49 DTO。这是 v1 锁定的**破坏性修订**，按 0.81.0 先例由站长本轮指令授权，`contracts.snapshot.v1.json` 同步修订（前端 lock 测试 0 失败）。前端同批：`postRefSchema`/`postRef` 字段/类型导出删除、`DiscussionCard.astro` 关联内容 chip 删除、`relatedPost` 词典键四语言清理；
+- **前端白名单收窄式放行**：卡片 markup 只用**数据属性**（`div[data-post-card|data-post-card-body|data-card-type|data-badges]`、`span[data-post-card-part|data-views|data-likes|data-comments|data-rating|data-rating-count]`），**不开 class**——内容 HTML 借不到站点样式（既有 `span[data-spoiler]`/`dl[data-ratio]` 政策）；`safeContent` 与 `sanitizeDiscussionHtml` 两份白名单同批；`shell.css` 新增一份卡片规则（三面共用，沿 smilie 先例），`data-badges` 有意不设样式（数据留用）；
+- **灯箱改分层，不加兼容层**（站长复核指令）：灯箱原挂 `the_content` 优先级 20（短代码之后），于是它连短代码产出的图一起打标——卡片封面是指向文章的链接，被绑灯箱就吞掉点击，首版只能加「跳过 `aiya-post-card-cover`」的按特性豁免名单。改为**优先级 9**：早于核心内容标签 pass（10）与 `do_shortcode`（11），于是它**只看见作者亲手写的 `<img>`**，短代码/零件产出的 markup 此时根本不存在，**后续任何功能都不需要在这里加豁免**（要灯的零件自己打标）。跳过名单缩回只剩 `aiya-smilie`；契约写进 docblock，单测钉住注册优先级；
+- **连带修的一处既有缺陷**：测试垫片 `esc_url_raw` 只认绝对 http(s)（相对路径一律清空），而契约夹具普遍是相对路径——首版卡片 href 全空就是它造成的，已改为「保留相对路径、只拒危险协议」（与核心一致）；
+- **测试垫片扩容**：新增最小短代码注册表（`add_shortcode`/`shortcode_exists`/`do_shortcode`，自闭合+包围形态、不嵌套）——零件系统此前零单测覆盖，现在可测；另补 `WP_Term` stub、`wp_get_post_terms`/`get_term_meta`/`get_date_from_gmt`/`untrailingslashit`/`trailingslashit`。`tests/Unit/PostCardTest.php` 11 用例（id 来源优先级、卡片内容与转义、零计数不出可见文本、不可解析目标空串、零件声明与闭包转发、短代码在正文展开、绑定帖卡片在末尾、独立帖无卡、帖子正文展开短代码、灯箱优先级与 smilie 跳过）；
+- **i18n** 3 条（零件名/说明/字段名），POT 940、未翻译 0；版本 0.87.0；
+- **实测**：零件注册表含 `post_id`；短代码在真实 WP 引擎里展开（属性形与包围形各自单独验证；同篇混用会踩上文的吞并语义）；REST 详情 `content.html` 出卡、无短代码残留、摘要不外泄、`Cache-Control: public, max-age=0, must-revalidate` 未变；讨论列表 `contentHtml` 出作者卡 + 绑定卡共 2 张、末尾为卡、`postRef` 字段已不在载荷；**作者手写的 `<img>` 拿到 `aiya-lightbox`，卡片封面没有**（分层生效的直接证据）；探针文章/帖/板块已清零。后端 phpunit 292/712、phpstan、phpcs、parallel-lint 全绿；前端 vitest 225/225、astro check 0 错误、`npm run build` 通过。
+- **体量复盘**（站长指「八百多行太膨胀」）：功能本体 ≈200 行（`PostCardPresenter` 116 + `BuiltinParts` 内的卡片段 ≈60 + 接线与 Presenter 改动）＋测试 ≈290 行＋测试垫片 ≈85 行（零件系统此前的零覆盖是它一次性补的，后续功能摊薄）＋前端白名单/样式 ≈100 行＋文档。首版的改写层（≈30 行代码 + 25 行测试 + 文档段）与按特性豁免名单已按复核意见删除。
+
+### 支付网关包化（payment-epay / payment-afdian）+ 待支付订单生命周期（0.88.0，2026-09-20）—— ✅ 已完成
+
+站长拍板：把 epay 与 afdian 的 client 与网关拆成两个 WordPress-free 包（以后改一处就够）；下单落一行**待支付**订单，回调靠订单行确认用户与内容，「只在易支付验签，爱发电不做额外验证」。
+
+- **包 1 `packages/payment-epay`**（`aiya/payment-epay`，`Aiya\Infra\PaymentEpay\`，零三方依赖）：`Client` = 旧 `EpayClient` 原样搬家（md5 签名，`ksort` + 跳过 `sign`/`sign_type`/空值/字面 `'0'` 的怪癖逐字保留，`hash_equals` 比对）；`Gateway` = 协议层（out_trade_no/name/money/param/type 参数组装与提交 URL、`TRADE_SUCCESS` 判定、binding 三段拆分与用户解码、**档位 key 必须在本站在售列表内**（按拍板保持旧语义，列表由适配器注入）、`epc_` 前缀、包内自带 `sanitizeKey()` 等价 `sanitize_key`）；
+- **包 2 `packages/payment-afdian`**（`aiya/payment-afdian`，`Aiya\Infra\PaymentAfdian\`，`ext-openssl`）：`Client` = 旧 `AfdianClient` 搬家（出站 md5 签名、入站 RSA-SHA256 验签、内置平台公钥、transport 闭包签名不变、`IdSlugEncoder` 来自同仓 slug-toolkit 包——**包→包依赖**，`require` 不声明、README 说明）；`Gateway` = 协议层（订单深链与 `custom_order_id` 绑定、`type=order`/`status=2`/plan 匹配、周期钳 1..36、`afd_` 前缀；中文备注由核心传入，包内零翻译字符串）。`verifyCallback()`（含验签）与 `describeCallback()`（**不含验签**）并列，核心按站长的决定选后者，想恢复是一行；
+- **核心侧只薄两处**：`EpayGateway`/`AfdianGateway` 变薄适配器（读设置、拼 notify URL、注入 transport 与档位列表、把包的结果映射成 `WP_Error` 与中文文案）；`PaymentGateway` 接口、两个控制器、`OrderService`/`EntitlementService`/`RedeemCodeService`/`MembershipService`/`WebhookLogger` 零改动；`AfdianActivator` 留在核心（它写钱与权益）。旧 `EpayClient.php`/`AfdianClient.php` 从 `src/Domain/Sponsorship/` 删除；
+- **待支付订单生命周期（站长设计）**：`createPending()` 在下单时落一行 `status='pending'`（user / tier / **cycles** / amount 冻结成快照），易支付按我们生成的订单号建行、爱发电按本地占位号建行（平台自己生成真单号）；回调统一走 `settle()`：**订单行是「买了什么」的权威，推送只说明钱到了**——找到行 → 未结则 `confirm()` 结为 `paid`（金额取平台实际推送值 = 钱的真相；爱发电同时把行**改名**为平台单号并写入买家在平台选的周期）→ 用**行上的** user/tier/cycles 入队。三种情形都可重入：待支付行正常结算；已 paid 行只重跑入队（`order_id` 唯一键幂等，激活失败后的推送重试能补完）；查无此行 → 记日志并回 200（不是本站发出的单号，平台停止重试）。`expirePending()` 每日把超过 7 天的 `pending` 翻成 `unpaid`（挂在既有 `aiya_core_membership_grants` 上，不新增 cron）；
+- **验证口径（站长拍板）**：易支付**保留签名验签**（商户密钥是唯一不可伪造的凭证；买家看得到自己的订单号与含 `notify_url` 的收银台 URL，所以订单号与地址密钥都不是凭证）；爱发电**不验签**——该路由匿名未被公开列出（实测 `/wp-json/` 匿名索引 0 路由 0 命名空间），且任何激活都必须匹配一条本站发出的待支付行；此权衡写入本条目作为**已知取舍**，恢复验签为一行改动。另：**公钥可覆写设置取消**（站长复核：与旧版 SDK 一致地不做额外配置；旧版根本无验签，已核 `inc/lib/Afdian_API.php` 只有出站签名）；
+- **连带修复**：① 重放的支付回调会把 wpdb 的 `Duplicate entry` 错误 HTML 打进响应体（实测抓到的真 bug）→ `EntitlementService::activateFromPayment()` 与 `OrderService::addPayment()` 补 `suppress_errors`（与 `LedgerService` 同一手法），重放响应现在是干净的 `success`；② 查账页补 **Cycles** 与 **Status** 列（已支付/待支付/未支付），待支付订单因此可见；
+- **表结构**：`wp_aiya_payment_orders` 增 `cycles INT UNSIGNED NOT NULL DEFAULT 1`（终态 CREATE 直接带列；dev 库按 0.56.0 先例一次性 `ALTER` 处置，不建迁移条目）；
+- **实测（脚本 + 数据库层）**：`createPending → orderRow → confirm → orderRow（paid，金额改为平台实付）→ pendingForUser 落地后为 null`、爱发电 `confirm` 改名 + 周期覆盖为 3、`expirePending(7)` 把 30 天前的行翻 `unpaid`、探针行清零；易支付签名回调往返（首次 200 `success` + 流水/队列各一行、重放 200 `success` **响应体干净**、篡改签名 400 `fail`）；伪造签名的爱发电推送 400 且零落库（旧口径）；`/wp-json/` 匿名索引确认不列出路由；
+- **i18n**：POT 943 条（新增 Paid / Waiting for payment / Unpaid 三条，Cycles 与 Status 复用既有串），未翻译 0；版本 0.88.0；`phpstan.neon.dist` / `phpcs.xml.dist` 已把两个包的 `src` 纳入分析面；
+- **待办**：整条 **HTTP 回调往返**（`pending → paid → 重放幂等`）尚未跑（本轮按站长要求先停运行时验证），SQL 层与单元层已核；爱发电 `user_id` / `token` 需重填（上一轮误清事故的恢复说明见同批记录）。
+
+### HTTP 回调往返实测 + 两处修复（0.88.1，2026-09-20）—— ✅ 已完成
+
+站长恢复密钥后跑整条 HTTP 往返（线上易支付会因域名白名单拒绝，故推送由本机按商户密钥签名构造；爱发电除手工激活外全部按推送形态模拟）。**往返立刻抓到两处缺陷**——两处都只在真链路上暴露：
+
+- **修复 1：结算路径的订单 ID 不一致（0.88.0 引入，会静默丢单）**。下单行写入的是**裸** wire 单号（`20260920…AF37EF`），而回调经包网关解析出的是带前缀的 `epc_20260920…AF37EF` → `settle()` 的 `orderRow()` 查无此行 → 记「不是本站的订单」**并回 200 `success`**：平台认为回调成功、用户却什么都没买到，钱与权益都没落库。修法：`PaymentGateway` 接缝增第三条方法 `orderId(string $reference): string`（前缀由适配器给：`epc_`/`afd_`），下单行与爱发电深链占位行统一写 `$gateway->orderId($raw)`；**wire 单号保持裸值**（买家在收银台看到的就是它），与 0.25.0 起「日志/队列里的单号带前缀」的旧口径对齐。回归测试 `EpayGatewayTest::testTheCheckoutIdMatchesTheIdItsCallbackResolves`（下单 ID ≡ 同一单号回调解析出的 ID）。0.88.0 条目里记的那次「签名回调往返」跑的是重构前的老结算路径（无需下单行），因此结构上不可能发现它；
+- **修复 2：请求 URI 守卫 414 挡住支付回调（继承旧主题的既有缺陷）**。`SecurityModule::guardRequestUri()` 的规则来自旧主题 `basic-optimize`（`strlen($uri) > 255` → 414），在旧站它只覆盖主题前台路径；搬进插件后连 `/wp-json/` 一起挡——一条真实易支付推送是「44 字节路径 + 约 300 字节签名查询串」，**必然 414**（本机实测 `HTTP/1.1 414`，且响应头带 WP 的 `X-Powered-By`/缓存头，说明死在 WP 自己的钩子上）。早前的探针推送 URI 只有 210 余字节，恰好卡在门槛内，缺陷因此一直隐藏。修法：判定抽成纯函数 `SecurityModule::isBlockedUri()` 并**豁免 REST 请求**（`/wp-json/` 前缀与 `?rest_route=` 两种形态都认），其余规则与 255 门槛一字未改；安全页开关文案补「REST 路由除外」。新增 `tests/Unit/SecurityModuleTest`（8 例，含真实易支付推送 URI 的回归用例与两种 REST 形态）；
+- **实测记录**（探针用户 84，事后全部清零）：下单 → 行 `pending` 12.00 → 签名推送（金额改 11.50）→ 200 `success` + 行 `epc_…` `paid` **11.50**（平台金额为准）+ 队列一行 `cycles_total=2` → **重放** 200 `success` 且无第二行（日志「该订单已激活过」）；篡改签名 400 `fail`；有效签名但档位不在售 / 非 `TRADE_SUCCESS` / binding 破损 / 未知单号 → 四种均 200 `success` 且零结算；爱发电：`order-url` 出深链（`custom_order_id` 绑定正确）并落占位行 → 推送命中该行 → 改名 `afd_TESTAFD0001` + `paid` 18.00 + 入队 3 周期，重放幂等，**未持有待支付行的用户推送 → 忽略**，非绑定方案 / 非成功状态推送 → 忽略；`plans` 公开在售（epay+afdian）、未知档位 404、未启用渠道 502、匿名 401；
+- **爱发电手工激活实测（站长给的订单号 `20250620170531984854997221`）**：`ping` ec 200（凭据有效）、查单命中（`status=2` 已付款 5.00、`custom_order_id=FXixPJXa` → 解出 user 1——**用一笔真实生产订单反向验证了 XDE 绑定算法**），但该单 `plan_id` 为空 → 报 422 `aiya_plan_unbound`，**按设计拒绝**：它是「充电」单而非「方案」单，方案→档位反查无从成立。站长若要这类订单也能激活，需要另定规则（现行单绑定模型下，放行等于「任意金额充电都买断一个档位」）；正确的成功路径测试需要一笔来自绑定方案的订单；
+- **附带发现（需站长处置）**：设置里的 `afdian_plan_id = plan-gold` 出自**本仓运行时探针日志**（`webhook-2026-09-14-*.log` 里 `RUNTIME1` + `deadbeef` 那批，09-20 的 `PROBE*` 条目同理），**不是生产推送**，故当前值不能确认为真实方案 ID；`afdian_tier_key = legacy` 同为推断值（`afdian_user_id` / `token` 已由站长重填并实测有效）。**动作**：从爱发电后台方案页取真实 plan id 填回，之后一笔真实方案订单即可验证成功路径；
+- **门禁**：phpunit 311 / 785（新增 SecurityModuleTest 8 例 + 两个网关回归例）、phpstan、phpcs、parallel-lint 全绿；i18n POT 944 条（改 1 条守卫文案），未翻译 0；版本 0.88.1。**遗留**：PO 里另有 22 条 POT 已不存在的退休串（历批累积、无害），未随本批清理。
+
+### 网关文档逐条核对（lempay.org/doc.html，同批 0.88.1）—— ✅ 已核对
+
+站长给出网关官方文档，逐条比对实现，**签名与参数全部一致，一处应答形态不符已修**：
+
+- **签名算法完全一致**：参数名 ASCII 升序 → `a=b&c=d`（值不 url 编码）→ 末尾拼商户 KEY → md5 小写；`sign`、`sign_type`、**值为空或 `0`** 不参与签名——与 `Client::sign()` 逐字相同（`ksort` + 跳过 `''`/`'0'`，先签名后 `http_build_query` 传输）；
+- **提交参数一致**：`pid`/`type`/`out_trade_no`/`notify_url`/`return_url`/`name`/`money`/`param`/`sign`/`sign_type` 全数对得上；`money` 两位小数、`param` 原样返回、`type` 不传会进收银台（我们恒传）均符合；
+- **回调形态一致**：文档明确 **GET** 查询串（我们路由就是 GET-only）、`trade_status` 仅 `TRADE_SUCCESS` 为成功、字段集（pid/trade_no/out_trade_no/type/name/money/trade_status/param/sign/sign_type）我们只用其中四个、回调签名同算法；
+- **修复：应答体形态**。文档要求「收到异步通知后，需返回 success」，而 WP REST 会把字符串响应 JSON 编码成 `"success"`——平台若按精确匹配判读就会认为未收到、反复重试。改为：`GatewayController` 挂 `rest_pre_serve_request`，**只对易支付回调路由**自行输出裸文本（状态头在此之前已发出，故签名错的 400 `fail` 原样保留），爱发电路由保持 JSON 信封（该平台解析 `{ec,em}`）。实测：未签名 → `400` + body `fail`（无引号）、签名正确但查无此单 → `200` + body `success`、爱发电 → `{"ec":200,"em":"done"}`、普通契约路由仍 JSON；
+- **待办（需站长处置）**：① `return_url` 文档标注**必填**，而设置里 `epay_return_url` 目前为空（事故恢复时按推断留空），空值会被我们主动省略——需填前台回调页地址（headless 下应是 front-station 的页面），否则买家付完回不到站内；② 文档同时给出 `mapi.php`（POST，返回 JSON 收款链接/二维码）与 `submit.php`（GET 或 POST 均可、推荐 POST 防劫持）两种形态，我们沿旧 SDK 走 `submit.php` GET；若要换成 POST 需改契约（前端改为自动提交表单）；
+- **另记两点观察**：`name` 超 127 字节平台会截断（我们的 `档位名*周期` 远小于此）；`money` 为 `0.00` 时平台侧若用宽松比较会把它当 `0` 跳过签名，而我们按文档字面只跳字面 `'0'`——**零价档位不要走收银台**（免费档位应从购买列表剔除）。
+
+
+### 外接下载域 provider 化重写（0.89.0，2026-09-21）—— ✅ 已完成
+
+站长四条指令下的整体重写（不复刻旧实现，按新架构重铸）：① OpenList 请求器**包化**；② **普通 post 与 page 也拿到 metabox 与附件出口**，这组 meta 注册可工作到任何内容类型、方便后期拓展；③ 文件列表**数据结构通用化**，为后期对接 S3 / GoFile 一类后端预留（本轮只定形态、不接入）；④ 网盘链接**不做「输入提取码换链接」的闸门**——`code` 列记录的是**外部网盘自己的提取码**，是展示数据。
+
+**两个新包（均 WP-free、随插件投递、不进 composer）**
+
+- `packages/file-source`（`aiya/file-source` → `Aiya\Infra\FileSource\`）：跨 provider 的词汇表——`Entry`（通用文件行）、`Failure`（provider 无关的失败值：unreachable / unauthorized / denied / not_found / invalid + 建议 HTTP 状态）、`Source`（端口四法：`key()` / `configured()` / `fresh()` / `entries()`；配置以盒子存储数组原样传入，键归 provider 自己所有）。**包→包**依赖（openlist → file-source）与 afdian → slug-toolkit 同例，不在 composer require 里声明；
+- `packages/openlist`（`aiya/openlist` → `Aiya\Infra\OpenList\`）：`Client`（登录 + 四个只读 fs 操作，transport 闭包注入，错误分级成 `Failure`——**不再碰 WP_Error 与 `__()`**）与 `Source implements FileSource\Source`（四种 surfacing 模式 → 通用行，再按站点链接模式拼链接）。
+
+**核心两处适配**：`src/Modules/OpenListModule.php`（旧 `Domain/ExternalFiles/OplistModule` 的 WP 一侧整体搬来——设置页 `aiya_core_oplist`（**键名一字不动**，改的是页面分区：新增「OpenList 服务」/「文件列表」两个 heading）、`oplist_client` box、wp_remote transport、对象缓存登录 token、`source()` 工厂）与 `src/Domain/ExternalFiles/ExternalFilesModule.php`（域自身：`pan_links` box + 空行修剪器 + `SourceRegistry`）。旧的 `OpenListClient` / `OplistModule` / `ResourceAttachmentsController` 删除。
+
+**provider 缝**：`SourceRegistry` 配对「盒子 id ↔ port 实现」，`AttachmentService` 只认注册表、不认任何 provider 名字；注册顺序即 wire 顺序（provider 先注册 → 主列表在前、手工分享在后，实测 `['openlist','share']`）。新增后端 = 一个包（实现 `Source`）+ 一个 `src/Modules/` 适配器（注册自己的盒子与设置），核心域零改动。
+
+**作用面（指令 ②）**：`SupportedTypes::all()` 默认取公共内容类型（`PublicTypes`：post / page / resource），两个盒子与端点**三处共用同一列表**，`aiya_core_external_files_post_types` 过滤器可扩可缩。**路由换代**：`GET /resources/{id}/attachments` → **`GET /content/{id}/attachments`**（与同类 `/content/{id}/*` 对齐；附件域本在 v1 锁外，按「域重新验收」重锁，本次属破坏性换代，前端同批改）。**门禁一并补上**（0.85.1 记的开放项就此闭合）：非公共类型 / 非 publish / 可见性门禁未过 / id 不存在，四种一律 404 `aiya_not_found`（与评论区同规则，不确认存在性）。
+
+**通用行形态（指令 ③，本轮只定形态）**：wire DTO `Attachment` **加法**扩 7 个字段，v1 基线一字未动、无需修订：`kind`（file|dir）、`source`（openlist / share / …）、`id`、`path`、`mime`、`hash`、`code`；原 6 字段（name / size / type / modified / url / ready）原样。每个字段的来源与各后端的填充计划写在 `packages/file-source/src/Entry.php` 的类注释表里：OpenList 现填 kind / path / modified / url；GoFile 计划填 id / code / mime / hash；S3 计划填 id / path / mime / hash(ETag)。响应体加 `description`（盒子 `desc` → 页级 `oplist_file_desc` 兜底——长期标着「B3 预留」的字段终于落地），`items` 形状不变。
+
+**指令 ④ 的落地**：`pan_links` 行作为 `source: 'share'` 的普通行进同一份列表，`code` 与 `url` 并列透出；只填了名字没有链接的行不产出；裸域名（`pan.baidu.com/s/x`）读取时补成 https 绝对地址（前端 zod 要绝对 URL）。游客裁剪把 `url` 与 `code` **一起**置 null——提取码离开链接没有意义，故与链接同命。
+
+**重写中实测抓到的既有缺陷（本轮全部修掉）**：① `modified` 一直是 1970——旧代码 `wp_date('c', (int) $entry['modified'])` 把 ISO8601 串强转整数（`2026-…` → `2026`）；实测 OpenList 返回纳秒精度 ISO（`2026-09-19T08:15:16.197349297Z`），`strtotime` 读得动，现解析成 unix 秒再按站点时区格式化；② `get` 模式链接把文件名拼了两遍（`/docs/a.pdf/a.pdf`）——旧实现按「盒子路径 + 行内文件名」拼，而 `get` 的盒子路径本身就是那个文件；改为每行携带自己的完整 `path`，链接一律由它拼；③ `dirs` 模式**永远返回空**——旧代码只从 `content` 键取行，而 `/api/fs/dirs` 直接返回数组（旧版面板同样如此，属继承缺陷）；现按模式语义产出 `kind: 'dir'` 的行（无下载链接），该模式从「标着却不可用」变为可用；④ 空路径拼出双斜杠（`//name`）——路径归一化统一为「前导斜杠、无尾斜杠、根为 `/`」；⑤ `r`（raw_url）模式在 list / search 下取不到链接（列表端点不带 `raw_url`）——改为按需逐行 `get` 解析，正是旧面板当年的做法。
+
+**排错面两处更名**（新 API 不泄漏旧形状）：错误码族 `aiya_oplist_*` → 中性 `aiya_source_*`（unreachable / unauthorized / denied / not_found / invalid，前端四份词典同批改）；日志钩子 `aiya_core_oplist_error` → `aiya_core_file_source_error(int $postId, string $sourceKey, Failure $failure)`（仓内无消费者，站长自用观察点）。`ready` 字段保留（v1 锁定；语义仍是「列出来就是可用」）。失败语义不变：一个源读不到只贡献零行并上报，其余源照常出列表；`not_found` 视为「这里还没文件」不上报。
+
+**验证**：phpunit **335 / 910**（`OpenListPackageTest` 12 例重写——端点/错误分级/登录解析/五种模式/时间戳/路径归一/force-refresh 标志；新增 `ExternalFilesTest` 15 例——三类型各有列表、四类 404、游客与登录者的链接/提取码裁剪、source 顺序、失败源隔离与上报、not_found 不上报、描述两级兜底、图标开关、通用行全字段、缓存世代与 force-refresh、过滤器扩类型；`PanLinksPruneTest` 改为新模块并断言双盒 screens = post/page/resource）。phpstan（两个新包已入分析面）、phpcs、parallel-lint 全绿；前端 vitest 228 + `astro check` 0 错误 + 快照同步（仅 `Attachment` 一个 DTO 变化）。**运行时实测**（真实 OpenList 容器 + 真实 WP，用后全部清零）：普通 post 与 page 两种类型端点均 200（page 验 `get` 单文件模式，链接正确、无重复名）；`dirs` 出 `subfolder`（kind=dir、无链接）；`list` 出两个文件（`modified` 是正确的站点时区日期、`path` 完整、sign 已拼进链接）；`search` 在上游答「search not available」时静默不产出（404 归 not_found 的既有语义）；游客 `url`/`code` 全 null、登录者两者俱得、`description` 先取盒子 `desc`、盒子清空后回落页级默认；门禁文章与不存在 id 均 404 `aiya_not_found`；缓存头 `public, max-age=0, must-revalidate` + ETag（游客路径）。测试期间临时把 `oplist_server_url` 指向 `host.docker.internal:5244` 以便容器访问（站长的值是 `localhost:5244`，仅浏览器可达），**事后已还原**。
+
+**i18n**：POT 958 条、新增 16 条（两个分区标题 + box 与设置页的改写句），PO 并入后 973 条、未翻译 0（已做 POT/PO 集合比对，规避 `missing` 对「POT 有而 PO 无」的已知假绿）；MO 重编译，实测「文件列表 | OpenList 服务 | 列出子目录」中文生效。版本 0.89.0。
+
+**已知耦合与待办**：① 设置页仍是「provider 连接 + 站点级文件列表旋钮」同页（键名不动以免迁移），第二个 provider 落地时拆页；② 付费领取端点（`POST /content/{id}/attachments/download`）与下载计量 `aiya_core_download_served` 仍待设计，本轮不动；③ `search` 模式在上游不支持时是否要给更响的提示（现在按 404 静默）留待站长定。
+### FileServe 域：外接下载域从头重写（0.90.0，2026-09-21）—— ✅ 已完成
+
+站长四条指令下的整体重写，**旧 ExternalFiles 域与 `aiya/file-source` 包整体删除**（行为要点留 MIGRATION 附录）：
+
+1. **积分扣费**：账本只记账，下载域自算价（列表组自报「每文件 N 积分」）调 `LedgerService::spend()`，扣费成功才返回下载链接；按 API 调用扣费设计，前台只有一个下载按钮。
+2. **门禁**：文章设了登录/会员可见时，文件列表同样过文章门禁（不过门禁不返回列表），**只过门禁**；会员下载照样扣积分。列表交付定为**独立端点**（不并入文章 DTO）——后台预览草稿也要用同一条数据路径，且远程源故障不该拖慢详情渲染。
+3. **数据形态**：一个 meta 字段存 JSON，键是**自动生成的短 id**（`"1"`、`"2"`…，新增取 max+1、删除不复用）所以建组不需要命名；组内 `adapter` 决定适配器，适配器拆成 `platform` / `openlist_list` / `openlist_search` / `gofile_api`（**不再有 method 字段**）。
+4. **metabox**：自定义外观 + AJAX 写 meta，分两层——配置层（竖排 tab 切每个数据组，字段由适配器字段表驱动）+ 预览层（走**与前台相同的服务与投影**，只读展示，含失败组的错误）。
+
+**分层：出口在包里，词汇表在 core**（本轮最大的一处返工）。`packages/openlist` 重写为**纯请求出口**：`Client`（登录 + fs 读操作、transport 闭包注入、平台错误分级成包内 `Error`）+ `Gateway`（`list()` / `search()` 两个 surfacing 调用 → **纯数组行**：name / kind / size / modified / path / url；链接本地拼 f·d·p），**不与 core 共享任何类型**；`packages/file-source` 删除——`Entry` / `Failure` / `Adapter` 回到 `src/Domain/FileServe/`，`Adapters/OpenListAdapter` 负责把包的行映射成站内 `Entry`。链路成环检查：包只依赖 PHP，core 单向消费包。
+
+**数据形态**：
+
+```json
+{
+  "1": { "adapter": "platform",        "title": "夸克网盘", "url": "https://pan.quark.cn/s/abc", "code": "x7k2", "price": 0 },
+  "2": { "adapter": "openlist_list",   "title": "文档目录", "path": "/docs", "password": "", "per_page": 0, "price": 5 },
+  "3": { "adapter": "openlist_search", "title": "搜索", "keywords": "2026", "parent": "/docs", "per_page": 50, "price": 5 },
+  "4": { "adapter": "gofile_api",      "title": "", "folder_id": "", "price": 5 }
+}
+```
+
+- **通用字段**（域统一注入，每组都有）：`title`（列表标题）+ `price`（每文件 N 积分，0 = 免费）。
+- **GoFile 只留配置位**：字段可填、`entries()` 回「尚未接入」的 Failure，预览里显式提示——其文档写明列目录 API 属 Premium 专属，等有 token 再补包与适配器，核心零改动。
+- 旧的 `get`（单文件）与 `dirs`（子目录）两种 surfacing 模式不迁移；测试期间实测 `get`/`dirs` 的可疑行为（见 MIGRATION 附录的五处缺陷）随模式一起退场，要时按同样方式再加 `openlist_file` 之类适配器。
+- `Config::parse()` 用设置框架自己的 `ValueNormalizer` 归一化：只保留字段表里的键（未知键丢弃）、非法值**整份拒收**（不静默丢组），错误逐条回报。
+
+**执行与缓存**：拿到 config 后逐组串行跑（一组失败只影响该组），**分组返回**给前台，前台按列表各自循环渲染。每组独立的对象缓存：键 `list_{postId}_{组id}_{配置哈希}`（改配置即换世代、无需失效钩子），TTL = 设置页「列表缓存（分钟）」；**只缓存归一化后的纯数组**（含 url/code，内部用），避免持久对象缓存序列化对象。预览强制绕过缓存。
+
+**API（`/content/{id}/downloads`）**：
+
+- `GET` → `{ lists: [{ id, adapter, title, price, items: [{ ref, name, kind, size, type, modified }] }] }`——**行里没有任何上游标识**：`ref` 是行身份（`path ?? url ?? name`）的 HMAC 摘要，所以列表对游客与登录者同形、可公开缓存（实测 `public, max-age=0, must-revalidate` + ETag），也不能被拿来绕过扣费直连上游。失败的组不出现在公开响应里。
+- `POST`（`{ listId, ref }`）→ `{ url, code, price, balance }`：门禁 → 用**缓存过的 listing** 重解析该行（摘要重算，伪造 ref 无处可去）→ `price > 0` 时 `spend($userId, $price, SOURCE_SPEND_DOWNLOAD, "{$postId}:{$listId}:{$ref}", "download:…:{30秒窗口}")` → 取链接 → 计量 → 返回余额。未登录 401；积分不足 409 `aiya_credit_insufficient`；行/组不存在或门禁未过 404；限流 30/10 分钟。
+- **防抖**：同窗口重复点击命中账本唯一键 → `spend()` 回滚并答 409 `aiya_credit_duplicate` → 域视作「已付费」，直接给链接、不二次扣费（实测余额只动一次）。
+- **编辑旁路**：`edit_post` 会话取链接不扣费、不计入下载计量（管理员的取用不是投递）。
+- **计量**：唯一动作 `aiya_core_download_served` 每次投递恰好一次（免费也发）——付费与免费同一入口，ops 面板的 downloads 与 consumed 从此有数据（实测 7 次投递 / 20 积分消耗，测试后已把当月计数还原为 0）。
+
+**后台 metabox**（`Admin/FileServeMetabox`，照 CoverMetabox 的 bespoke + `wp_ajax_` 模式，自有 `assets/{js,css}/fileserve.*`）：存储是一个 JSON 隐藏字段，**面板由脚本从 bootstrap 数据构建**（适配器字段表驱动，新增后端不动 UI）；「+ 新增数据组」自动分配短 id；「保存配置」走 AJAX（`wp_ajax_aiya_core_fileserve_save`），另有 `save_post` 兜底读同一字段（防「改了没点保存就发布」）；「预览文件列表」走 `wp_ajax_aiya_core_fileserve_preview`，处理器调用与前台**同一个 `FileService::preview()` 与同一个 Presenter**，按列表分别返回（失败组带上游原话）。解析失败时**不落库**并暂存错误，`admin_notices` 列出。
+
+**设置页**：新页 `aiya_core_fileserve`（slug `fileserve`，父菜单前台设置）——「文件列表」组（列表缓存分钟数、图标分类）、「GoFile」组（账号令牌，标注预留）、「OpenList 服务」组（服务地址 / 账号 / 密码 / token 时长 / **链接模式 radio d·p·f，默认 d，`raw_url` 选项删除**）。旧 option `aiya_core_oplist` 不迁移（死数据）。
+
+**删除清单**：`src/Domain/ExternalFiles/*`、`packages/file-source/`、`Api/Contract/Attachment.php`、`Api/Presenter/AttachmentPresenter.php`、`Api/Rest/AttachmentController.php`、`tests/Unit/{ExternalFilesTest,PanLinksPruneTest}.php`，`Plugin::EXTERNAL_FILES_ENABLED` 开关一并摘除；`phpstan/phpcs` 路径与 `packages/README.md` 同步。**`Attachment` 随旧域退出 v1 基线**（按 0.87.0 先例删条目，v1 DTO 26 → 25），新 DTO 三件为加法：`FileEntry` / `FileList` / `FileDownload`（快照 49 → 51）。
+
+**验证**：phpunit **340 / 977**（新增 `FileServeTest` 14 例、`FileServeDownloadTest` 9 例、`FileServeMetaboxTest` 5 例；`OpenListPackageTest` 按出口重写 10 例；删除旧域 3 份）。测试垫片按需扩容：`add_meta_box` 记录器、`wp_create_nonce`/`wp_nonce_field`、transients、`ARRAY_A` 常量，以及 **wpdb 替身的账本面**（bucket 读、带守卫的递减、唯一键重复、事务快照/回滚）——最后一项让「同窗口只扣一次」是实测行数而非推断。phpstan、phpcs、parallel-lint 全绿；前端 vitest 232 + `astro check` 0 错误 + build 通过（契约快照与 v1 基线同步，新 DTO 全部入 zod 清单）。
+
+**运行时实测**（真实 OpenList 容器 + 真实 WP，用后全部清零）：普通 post 的两组配置 → 分组列表（平台 1 行 / OpenList 2 行，图标类别与站点时区日期正确、行内无 url/path/code）；免费行领取 → 网盘链接 + 提取码、账本零写入、计量 +1；付费行领取 → OpenList `/d/` 下载路径（`curl` 该链接拿到文件内容 `zipzip`）、账本一行 `spend_download` 5 分、余额 20→15、计量 +1；30 秒内重复 → 同链接、余额不动、账本仍一行；余额清空 → 409 `aiya_credit_insufficient`；游客领取 401、未知 ref 404、旧路由 `/content/{id}/attachments` 404、门禁页游客 404 而登录订阅者可见列表、失效 id 404；metabox 在 post/page/resource 三屏均注册（旧两盒消失）；预览路径经同一服务返回两组（price 0/5、行数 1/2、无错误）。**测试后处置**：探针用户与其账本行删除、当月 ops 计数还原为 0、OpenList 测试目录删除、`aiya_core_fileserve` 保留 OpenList 连接值（服务地址按站长原值写回 `http://localhost:5244/`，省一次重填）。
+
+**后台 UI 真机验证（内置浏览器，经典编辑器）**：新建草稿 → 编辑屏 metabox 在位（标题「文件下载」、四类适配器可选）、「新增数据组」自动分配短 id 并渲染该适配器字段 + 通用两字段、tab 标签在填了标题后显示标题、预览按钮经同一服务返回表格（「文档目录 每文件 5 积分」+ 名称/类型/大小两行 + 「已从各自来源重新读取列表。」）、「保存配置」AJAX 落库、再点经典编辑器「保存草稿」把只在表单里的第二组也落库（`save_post` 兜底路径实证）。**这一步抓到两处只有真机才暴露的缺陷并已修**：① 前端 `send()` 把配置挂在 `config` 键上而后端读的是 `aiya_core_fileserve_config` → 预览与保存都答「文件配置无法读取」，改为由 bootstrap 的 `inputId` 决定字段名（一条形状、两条路径共用）；② 空配置经 `wp_json_encode([])` 传成 JSON 数组 `[]` 而非对象 `{}`，改为 `(object) $config`；顺带给面板补 `data-group` 属性便于定位。
+
+**i18n**：POT 974、新增 58 条（metabox、适配器字段表、设置页、错误文案），PO 并入后 1031 条、未翻译 0（POT/PO 集合比对规避 `missing` 假绿）；MO 重编译，实测「文件下载 | 列表标题 | 每文件积分 | 网盘分享 | GoFile | 大小」中文生效。版本 0.90.0。
+
+**已知取舍与待办**：① 编辑旁路不扣费也不计量（一行可改）；② 旧 option 与旧 meta 键（`aiya_core_oplist` / `aiya_core_oplist_client` / `aiya_core_pan_links`）成死数据，不迁移；③ 公开列表**省略失败组**，错误只在后台预览与 `aiya_core_fileserve_error` 钩子里可见；④ 组内没有「强制刷新」开关——缓存靠 TTL + 配置哈希换代，预览强制读实时；⑤ GoFile 与 S3 一类后端按同一形态追加：一个出口包 + 一个适配器类 + 在注册表登记一行——**GoFile 已于 0.91.0 按此落地**（见下一节，只读接入）。
+### GoFile 只读接入（gofile-api 包，0.91.0，2026-09-21）—— ✅ 已完成（目录读取待高级版令牌）
+
+站长指令：按 GoFile 文档写请求包 `gofile-api`，**忽略管理端点、只做只读接入**，测通之后再买高级版。上批 0.90.0 里 GoFile 只是「配置位」，本批把它接成真适配器。
+
+**包**：`packages/gofile-api`（`aiya/gofile-api` → `Aiya\Infra\Gofile\`，零三方依赖）
+
+- `Client`：**GET-only** 的只读客户端（`{status, data}` 信封按平台要求分支——**HTTP 200 也可能带 error 状态**），transport 闭包注入 `fn(string $url, string $token)`，失败分级成包内 `Error`：`UNAUTHORIZED` / `PREMIUM` / `DENIED` / `NOT_FOUND` / `RATE_LIMITED` / `INVALID` / `UNREACHABLE`。`PREMIUM` 单列一类：内容读端点对非高级版一律答 `error-notPremium`，这是配置事实而非接线故障，调用方要分开呈现。
+- `Gateway`：四个读法 —— `account()`（`GET /accounts/getid`，任意档位可用，返回 id/email/**tier**）、`accountDetails()`（`GET /accounts/{id}`：档位、根目录、用量）、`contents()`（`GET /contents/{contentId}`，UUID 或分享码都收，`children` 以内容 UUID 为键 → **纯数组行**：name/kind/size/modified/id/url/hash/md5/mime/code）、`search()`（`GET /contents/search`，递归搜索）。
+- **刻意不移植**：管理端点（createFolder/update/delete/move/copy/import/directlinks/resettoken）与上传fleet——包在设计上就写不出写请求。
+- 行里带 `md5`/`mimetype`/`code`（平台报了就带上），**文件夹不是行**（列表回答「这里有什么可下载的」）；`link` 是平台自己的下载 URL，`id` 是行身份（链接主机可能轮换，id 不会）。
+
+**core 两处**：
+
+- `Entry` 增 `?string $id`（提供方自己的把手，内部持有不上wire），`identity()` 的判定次序改为 **path → id → url → name**——GoFile 行没有 path，用链接做身份会在主机轮换时漂移，所以用内容 UUID。OpenList 与 platform 行不受影响（前者有 path，后者 id 为 null）。
+- `Adapters/GofileAdapter` 从「配置位」重写为真适配器（字段 `folder_id`「文件夹 ID 或分享码」）；`Error::PREMIUM` 映射为 `Failure::DENIED` 但**给出专属文案**（「该 GoFile 令牌不是高级版账号…」），后台预览里直接说明原因，而不是笼统的「无权访问」。
+- `Modules/GofileModule`：包适配器——读设置页令牌、`wp_remote_get` transport、构造 `Gateway`、把适配器登记进注册表；GoFile 设置段（heading + 令牌字段，`password` 写后即焚语义）从 `FileServeModule` 迁到这里（令牌字段 id `fileserve_gofile_token` 不变）。
+
+**实测（本批的「能不能用」结论）**
+
+- **连通性**：宿主机 curl 到 `api.gofile.io` **TLS 直接失败**（本机网络原因），但**容器内可达**（PHP stream 425ms 拿到 401，DNS 202.165.70.13）——插件请求由 PHP 发出，因此不受影响。
+- **文档页里的那枚令牌已失效**：`D:\CkMsr\Desktop\文档.html` 里内嵌的 `Guest 5248437172` 令牌实测答 `error-wrongToken`（HTTP 401）——**需要站长从 GoFile 个人页取当前令牌**。（顺带发现：文档的「Common error statuses」表只列了 `error-token`，真实串是 `error-wrongToken`；包按实测串分级。）
+- **新号实测**（按文档的匿名上传路径现开一个 guest 账号，上传 34 字节探针文件取得 `guestToken`）：`GET /accounts/getid` → `{"id":"863665a7…","email":"guest…@gofile.io","tier":"guest"}`；`GET /accounts/{id}` → 档位/根目录/用量齐全；**三个内容读端点（按 UUID 读文件夹、按分享码读文件夹、递归搜索）全部 HTTP 401 `error-notPremium`** —— 与文档一致：**账户类读任意档位可用，文件列表必须高级版**。
+- **插件链路实测**：把该 guest 令牌填进设置页，建一篇带 GoFile 组（`folder_id` = 探针账号的根目录）的已发布文章：公开列表 `{lists: []}`（失败的组按 0.90.0 的既定行为不出现在公开面），**后台预览**报 `aiya_source_denied | 该 GoFile 令牌不是高级版账号，而 API 仅对高级版开放文件夹列表。`；另用 `wp eval` 让插件侧 transport 跑真请求，`account()`/`accountDetails()` 返回真实数据（tier=guest、rootFolder、files=1）——即**接线、鉴权、信封、错误分级、超时与 WordPress 传输全部打通，缺的只是高级版令牌**。
+
+**对站长决策的答复**：买高级版之后把令牌填进「文件下载 → GoFile → 账号令牌」即可，`folder_id` 填文件夹 UUID 或分享码，其余无需改动；若买之前想先看渲染效果，可先用 `platform` 组（手填网盘链接）占位。
+
+**验证与收尾**：phpunit 350/1034（新增 `GofilePackageTest` 10 例：信封/状态分级/200-带-error/参数拼装/文件夹丢弃/搜索/账户读；`FileServeTest` 的适配器两例改为真 gateway 覆盖，含 Premium 文案），phpstan、phpcs、parallel-lint 全绿；i18n POT 974、新增 4 条（字段标签/两处说明/Premium 文案）、PO 1036 未翻译 0，实测中文生效；版本 0.91.0。**测试残留**：探针文章已删除；**探针 guest 账号的令牌留在设置页**（`fileserve_gofile_token`，便于复现 Premium 提示，换真实令牌即可覆盖），该匿名账号里有一个 34 字节的探针文件（`aiya-core-probe.txt`，未走管理端点故未清理）。
+
+### 全量审查修复批（0.92.0，2026-09-21）—— ✅ 已完成
+
+对 d4d6dc0（0.83.0）之后至 0.91.0 的全部工作区变更做六面并行审查（bug/漏洞/分层/精简），3 个 P0（爱发电伪造回调、爱发电周期快照错位、封禁开关本人可清）与一批 P1/P2/P3 按站长九条拍板一次性修复。四域并行实现，文件所有权互斥。
+
+**爱发电 webhook 整体重写（站长拍板：放弃验签路线）**
+
+- 平台不开源、RSA 验签不好维护——`packages/payment-afdian` 删除 `verifyWebhook`/`WEBHOOK_PUBLIC_KEY` 与 `ext-openssl` 依赖（全仓 openssl 触点清零），`Gateway` 增 `pushOrderNo()`：只从推送取 `data.order.out_trade_no`，**推送里其余字段一律不作为事实**。
+- 结算走与手动订单号激活完全一致的回查链：`AfdianActivator::resolvePurchase()`（ping→查单→status==2→实付金额/实际 month 钳 1-36/实际 plan_id）+ `bookAndActivate()`——有 pending 行则 `confirm` 翻转并写入**真实单号/实付/实际周期/实际档位**（档位以查单 plan 反查为准，不再用深链预选快照——P0-2 随之闭合）；无 pending 行（过期/未走深链）则 `addPayment` 直插 paid。order_id 唯一键使 webhook 与手动激活双路幂等，重复激活被登记的单号挡住。
+- **归属**：webhook 只信查单返回的 `custom_order_id`（本站深链绑定）；无绑定单（爱发电直接购买）无法归属 → 记 `aiya_order_unattributed` 忽略，买家走既有手动订单号激活端点（保留）。
+- **应答**：正常接收一律 200 `{ec:200,em:'done'}`，仅 body 非 JSON 才 400；`afdian_webhook` 桶 10 次/10 分钟限流（先于网关可用性判定，防出站查询放大）。WebhookLogger 只记有意义节点（门控维持 WP_DEBUG——代码从无 `AIYA_CORE_WEBHOOK_DEBUG` 常量，旧记载有误，本批修正）。
+- **设置**：档位 repeater 的 `afdian_plan_id` 摘除，改「爱发电方案绑定」独立 repeater（plan_id 文本 + 档位下拉，`Field::REPEATER_CHILD_TYPES` 原生支持 select 未扩框架）+「兜底档位」下拉（空 plan_id 的任意金额充电单落入；留空拒绝；未知 plan 忽略并记日志）。**停用档位照样可激活**（enabled 只管前台 DTO 组装——站长拍板 #6，Epay 白名单同口径并补注释）。旧绑定数据不迁移（dev 期，站长重填）。
+- plans 的 `channels.afdian` = 渠道启用**且存在绑定**；深链多绑定时指向第一行（契约零变化，`Contract/` 未动一字节）。
+- `PaymentGateway` 接口摘除 `verifyCallback/callbackFailed`（证明方式下放各适配器）；epay 流程不动。
+
+**封禁开关权限收敛（P0-3）**
+
+- 字段 schema 增可选 `capability` 键（`Field::setting` 通道，框架零改动）；ban 字段 `capability=manage_options`。`MetaboxAdmin::editableUserFields()`：capability 门控字段在**持有者自己的页面永不渲染、保存前按同一谓词过滤字段清单**（伪造表单键不落库）——渲染与保存共用一个判定；即「管理员不能禁用自己、非管理员看不见也写不进」。
+- 用户字段保存循环删除分支补 `false`（开关保存 false 从落空值收敛为删键，兑现「键不存在=未禁用」唯一表示）；`UserBan::set()` 定位为规范写入 API（docblock 成文）。
+
+**支付域 P1/P3**
+
+- `confirm()` WHERE 钉 `status='pending'`（返回值=「本次由我结转」）；settle 对 false：重读行已 paid → 继续激活（唯一键幂等），仍非 paid（DB 失败）→ 400 fail 让平台重试。`afdian/order-url` 挂 10/600 限流。`epayCallback` 双验签合并；`PaymentsAuditPage` 孤儿 docblock 归位、会员列 N+1 批量化（`activeQueueFor` 一条 IN 查询 + `pre_user_query` 捕获页用户）；`OrderService::list()` source 白名单改由调用方从网关 `id()` 派生；`SponsorshipSettings` phpdoc 去重。
+- `wp_aiya_payment_orders.created_at` TIMESTAMP → **DATETIME**（全站 GMT 惯例、消 2038 上限；终态 CREATE 直改无迁移，dev 库已在 UTC 会话下 ALTER，字面值原样保留）。
+
+**FileServe / 包 / 测试垫片**
+
+- `Gofile\Gateway::contents()` 补 `is_array` 守卫（畸形上游响应此前会 TypeError 打穿公开 downloads 端点 500）；分页默认值与 `getid` 的 tier 串 docblock 标注「未对真实 API 复验」。OpenList `login()` 不可解析响应 UNAUTHORIZED→**UNREACHABLE**（携 HTTP 码）；`search()` 逐 hit 只吞 NOT_FOUND；classify 的 500→404 折叠写成知情取舍注释。
+- platform 组空标题回落**适配器名**（不再把分享链接当公开行名绕过扣费门，测试反转钉住）；失败组 **60s 负缓存** + 空列表短 TTL（匿名 GET 不再每请求打上游 15s）；缓存世代哈希折入 `Adapter::siteConfig()`（link mode/server/token 变更即换代）；去重窗口重复点击返回真实余额、注释如实「固定 30 秒窗口」；metabox 空配置往返 `(object)` 双端归一、bootstrap JSON 补 `JSON_HEX_TAG`、AJAX handler 测试补齐（nonce/403/对象回显）、反斜杠往返实测无损并加测试钉死；`fileserve.js` 死行清理。
+- OpenList 接线（站长拍板 #7）：transport 闭包收敛为纯 HTTP 出口（零钩子/零重试副作用），调试日志由包外调用方写——新 `Domain/FileServe/SourceLog`（`wp-content/aiya_logs/`，WP_DEBUG 门控 + 300s 节流，同 WebhookLogger 形态）；GET 分支补 Authorization。
+
+**测试垫片对齐真实 WP**（`tests/bootstrap.php`）
+
+- `do_action` 不再经 `apply_filters(hook, null, ...)`（真实 WP 在 doing_action 时跳过 `$args[0]=$value`）——三个按旧垫片形状写的监听器签名修正（`FileServeTest`/`FileServeDownloadTest`/`MetaboxAdminSaveTest`）；wpdb 替身 SUM 分支补 `expires_at` 过滤（与 get_results 分支不再分叉）；`esc_url_raw` 黑名单改白名单语义（支持第二参协议数组、相对路径放行，对齐 core 子串行为）；`get_post_meta` 缺失值对齐 core（single=false → `[]`）；`do_shortcode` 支持单引号属性与 `[[tag]]` 转义。
+
+**内容/身份**
+
+- `[post_id]` **只保留属性形** `[post_id id="7"]`（站长拍板取消包围形兼容；无效 id 渲染空串且不调渲染闭包）。卡片显式跳过非 publish（private 帖即使作者也不出卡，与访客彻底解耦；密码帖 publish+post_password 照出卡带 badges）。通用 metabox 保存踢空字段（`''/null/[]/false` 严格判定，`0`/`'0'` 合法 falsy 不受伤；整组空删 meta 键）。ARCHITECTURE.md 补 do_shortcode 暴露面约定（新注册短代码自动进入社区正文执行面，须按公开缓存 HTML 标准设计）。
+
+**运营统计**
+
+- 过期扫描水位线加 `GET_LOCK`（`aiya_stats_expiry_sweep`，try-lock 不等待，**水位线在锁内重读**防双记 expired）；`ops_unit_cost` 补 max=999999.9999（DECIMAL(10,4) 上限，冻结不再可能静默失效）；面板文案如实化（下载计量 0.90.0 已上线）、`Recognized revenue (MRR)` → `Recognized revenue` + 「非前瞻 MRR 运行率」澄清、趋势列头同步；`LedgerService`/`StatsRecorder` 过时 docblock 修正；phpstan.neon 注释更正。
+
+**验证与收尾**：phpunit 379/1168（新增 AfdianActivatorTest/AfdianOrderUrlTest、UserBanTest +7、metabox AJAX 与空值踢除、垫片对齐后全量绿），phpstan（level 8）、phpcs、parallel-lint（275 文件）全绿；i18n POT 重建（977 条），PO 追加 13 条新串（POT/PO 集合比对 0 差、未翻译 0），MO 编译实测中文生效；dev 库 ALTER 已执行；运行时实测 `/site` 200、webhook 畸形 body 400 / 未知单号 200 done、版本常量 0.92.0。版本 0.92.0。
+
+**已知取舍与待办**：① 爱发电绑定旧设置数据不迁移，需站长在会员设置页重填 plan 绑定与兜底档位；② 多绑定时 order-url 深链固定指向第一行（webhook 结算不受影响）；③ settle 对已过期 unpaid 行 confirm 被守卫拒绝 → 400 让平台有界重试，行保持 unpaid 供审计；④ GoFile 分页默认值与 getid tier 两处契约假设待真实高级版令牌复验；⑤ capability 字段门在单测中受单开关垫片限制，生产语义由「过滤先于 normalize」结构保证；⑥ PO 中 70 条历史陈旧条目为 .mo 惰性数据，不清理。

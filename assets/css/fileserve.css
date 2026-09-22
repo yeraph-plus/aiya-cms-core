@@ -1,0 +1,97 @@
+/*
+ * File configuration metabox. Scoped to its own root: internals only, nothing
+ * here reaches another screen or the settings pages.
+ */
+.aiya-fileserve__nav {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 8px;
+	margin: 12px 0;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.aiya-fileserve__nav ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.aiya-fileserve__add {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0 0 0 auto;
+}
+
+.aiya-fileserve__tab.is-active {
+	border-color: #2271b1;
+	background: #f0f6fc;
+	color: #1d2327;
+	font-weight: 600;
+}
+
+.aiya-fileserve__panel {
+	display: none;
+}
+
+.aiya-fileserve__panel.is-active {
+	display: block;
+}
+
+.aiya-fileserve__adapter {
+	margin: 0 0 10px;
+}
+
+.aiya-fileserve__field {
+	margin: 0 0 14px;
+}
+
+.aiya-fileserve__field label {
+	font-weight: 600;
+}
+
+.aiya-fileserve__field .description {
+	display: inline-block;
+	max-width: 640px;
+}
+
+.aiya-fileserve__remove {
+	color: #b32d2e;
+	margin-top: 4px;
+}
+
+.aiya-fileserve__actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 16px 0 0;
+	padding-top: 12px;
+	border-top: 1px solid #dcdcde;
+}
+
+.aiya-fileserve__preview {
+	margin-top: 16px;
+}
+
+.aiya-fileserve__list {
+	margin-bottom: 20px;
+}
+
+.aiya-fileserve__list h4 {
+	margin: 0 0 6px;
+	font-size: 13px;
+}
+
+.aiya-fileserve__list .aiya-fileserve__error {
+	margin: 6px 0;
+}
+
+.aiya-fileserve__list table td,
+.aiya-fileserve__list table th {
+	font-size: 13px;
+}

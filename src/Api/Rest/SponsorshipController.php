@@ -12,6 +12,7 @@ use Aiya\Core\Domain\Sponsorship\AfdianGateway;
 use Aiya\Core\Domain\Sponsorship\EpayGateway;
 use Aiya\Core\Domain\Sponsorship\EntitlementService;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
+use Aiya\Core\Domain\Sponsorship\OrderService;
 use Aiya\Core\Domain\Sponsorship\PaymentGateway;
 use Aiya\Core\Domain\Sponsorship\SponsorshipSettings;
 use Aiya\Infra\SlugToolkit\IdSlugEncoder;
@@ -37,6 +38,7 @@ final class SponsorshipController
         private MembershipService $membership,
         private EntitlementService $entitlements,
         private LedgerService $ledger,
+        private OrderService $orders,
         private RateLimiter $limiter,
         private SponsorshipPresenter $presenter,
     ) {
@@ -84,10 +86,12 @@ final class SponsorshipController
         $afdian = AfdianGateway::fromSettings();
 
         // Each gateway's own answer is authoritative: it knows both the
-        // admin switch and whether credentials exist.
+        // admin switch and whether credentials exist. The Afdian purchase
+        // channel exists only while at least one plan is bound — with no
+        // binding there is no deep link to offer the buyer.
         return new WP_REST_Response($this->presenter->plans(
             $gateway !== null && $gateway->enabled(),
-            $afdian !== null && $afdian->enabled(),
+            $afdian !== null && $afdian->enabled() && $afdian->hasBindings(),
             $gateway?->channels() ?? [],
             SponsorshipSettings::read()['tiers']
         ));
@@ -100,15 +104,41 @@ final class SponsorshipController
      */
     private function afdianOrderUrl(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
+        // Same fixed window as the cashier's order builder: both endpoints
+        // hand out one outbound platform artifact per hit, and the buyer
+        // has no reason to hammer either.
+        if (!$this->limiter->hit('afdian_order_url', 10, 600)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        }
+
         $gateway = AfdianGateway::fromSettings();
         if ($gateway === null || !$gateway->enabled()) {
             return new WP_Error('aiya_afdian_unavailable', __('The Afdian channel is not available.', 'aiya-core'), ['status' => 502]);
         }
 
         $month = max(0, min(36, (int) $request->get_param('month')));
-        $url = $gateway->orderUrl((int) get_current_user_id(), $month);
+        $userId = (int) get_current_user_id();
+        $url = $gateway->orderUrl($userId, $month);
         if ($url === '') {
             return new WP_Error('aiya_plan_unbound', __('This tier is not bound to an Afdian plan.', 'aiya-core'), ['status' => 422]);
+        }
+
+        // The platform generates the order number, so the checkout record
+        // carries a local placeholder that the push replaces with the real
+        // id (and the cycles the buyer picked there). The placeholder
+        // names the primary binding's tier — the webhook re-resolves the
+        // real plan from the queried order anyway.
+        $primary = $gateway->primaryTier();
+        $pending = $this->orders->createPending(
+            $userId,
+            $gateway->orderId('pending_' . strtoupper(substr(md5(uniqid((string) wp_rand(), true)), 0, 12))),
+            (string) ($primary['key'] ?? ''),
+            max(1, $month),
+            0.0,
+            'afdian'
+        );
+        if (is_wp_error($pending)) {
+            return $pending;
         }
 
         return new WP_REST_Response(['url' => $url]);
@@ -169,6 +199,22 @@ final class SponsorshipController
         $orderId = gmdate('Ymd') . str_pad((string) $userId, 5, '0', STR_PAD_LEFT) . time()
             . strtoupper(substr(md5(uniqid((string) wp_rand(), true)), 0, 6));
         $binding = (new IdSlugEncoder(8))->encodeId($userId) . '|' . $tier['key'] . '|' . $cycles;
+
+        // The checkout's own record of what is about to be paid for: the
+        // push later settles against this row instead of against values
+        // travelling through the callback. A checkout that cannot be
+        // recorded must not proceed — the push would have nothing to match.
+        $pending = $this->orders->createPending(
+            $userId,
+            $gateway->orderId($orderId),
+            $tier['key'],
+            $cycles,
+            round($tier['price'] * $cycles, 2),
+            'epay'
+        );
+        if (is_wp_error($pending)) {
+            return $pending;
+        }
 
         $url = $gateway->createPayment([
             'orderId' => $orderId,

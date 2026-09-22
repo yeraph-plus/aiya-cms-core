@@ -57,6 +57,8 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
         $wpdb->prefix . 'aiya_memberships',
         $wpdb->prefix . 'aiya_redeem_codes',
         $wpdb->prefix . 'aiya_payment_orders',
+        $wpdb->prefix . 'aiya_stats_monthly',
+        $wpdb->prefix . 'aiya_stats_active',
         $wpdb->prefix . 'aiya_discussions',
         $wpdb->prefix . 'aiya_discussion_replies',
         $wpdb->prefix . 'aiya_discussion_boards',

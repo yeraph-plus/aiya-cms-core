@@ -12,6 +12,7 @@ use Aiya\Core\Api\Contract\MembershipCodeGrant;
 use Aiya\Core\Api\Contract\Pagination;
 use Aiya\Core\Domain\Credit\CreditSettings;
 use Aiya\Core\Domain\Credit\LedgerService;
+use Aiya\Core\Domain\Identity\UserBan;
 use Aiya\Core\Domain\Sponsorship\AfdianActivator;
 use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
 use WP_Error;
@@ -114,6 +115,12 @@ final class CreditController
     private function checkin(): WP_Error|WP_REST_Response
     {
         $userId = (int) get_current_user_id();
+        // Disabled accounts do not earn (UserBan). Checked before the rate
+        // limiter so a hammering disabled session cannot burn a household's
+        // shared attempt budget.
+        if (UserBan::isBanned($userId)) {
+            return new WP_Error('aiya_account_disabled', __('This account is disabled.', 'aiya-core'), ['status' => 403]);
+        }
         if (!$this->limiter->hit('credits_checkin', 10, 3600)) {
             return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
         }

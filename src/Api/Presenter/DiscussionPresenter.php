@@ -10,13 +10,11 @@ use Aiya\Core\Api\Contract\DiscussionBoard;
 use Aiya\Core\Api\Contract\DiscussionDetail;
 use Aiya\Core\Api\Contract\DiscussionReply;
 use Aiya\Core\Api\Contract\Image;
-use Aiya\Core\Api\Contract\PostRef;
-use Aiya\Core\Domain\Content\PublicTypes;
 use Aiya\Core\Domain\Discussion\DiscussionContent;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Discussion\ThreadStatus;
+use Aiya\Core\Domain\Parts\BuiltinParts;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
-use WP_Post;
 
 /**
  * Maps discussion table rows onto the contract. Permission flags are
@@ -26,6 +24,12 @@ use WP_Post;
  * discussion read path. Smilies tokens convert on the contentHtml
  * projections only — tags() and images() parse the raw stored HTML, so a
  * rendered token never leaks into the grid extraction.
+ *
+ * Bodies expand registered shortcodes (template parts) and a thread bound
+ * to a post gets that post's card appended at the bottom — one mechanism
+ * for "this thread is about that article", rendered by the same shortcode
+ * an editor would type. Both are viewer-independent, which is what makes
+ * them safe inside contentHtml (a shared-cacheable payload).
  */
 final class DiscussionPresenter
 {
@@ -46,7 +50,6 @@ final class DiscussionPresenter
             $this->board($row),
             (string) $row->status,
             $this->author((int) $row->user_id),
-            $this->postRef((int) $row->post_id),
             (int) $row->reply_count,
             DiscussionContent::tags((string) $row->content),
             $this->images((string) $row->content),
@@ -55,7 +58,7 @@ final class DiscussionPresenter
             $this->canModerate((int) $row->user_id, $viewerId),
             $this->canModerate((int) $row->user_id, $viewerId),
             $viewerId > 0 && !ThreadStatus::locksReplies((string) $row->status),
-            $this->smilies->render((string) $row->content),
+            $this->contentHtml((string) $row->content, (int) $row->post_id),
         );
     }
 
@@ -65,7 +68,11 @@ final class DiscussionPresenter
      */
     public function detail(object $row, array $replies, int $viewerId): DiscussionDetail
     {
-        return new DiscussionDetail($this->present($row, $viewerId), $this->smilies->render((string) $row->content), $replies);
+        return new DiscussionDetail(
+            $this->present($row, $viewerId),
+            $this->contentHtml((string) $row->content, (int) $row->post_id),
+            $replies
+        );
     }
 
     /** @param object{id:int,user_id:int,content:string,created_at:string} $row */
@@ -74,7 +81,7 @@ final class DiscussionPresenter
         return new DiscussionReply(
             (int) $row->id,
             $this->author((int) $row->user_id),
-            $this->smilies->render((string) $row->content),
+            $this->bodyHtml((string) $row->content),
             $this->images((string) $row->content),
             $this->iso((string) $row->created_at),
             $this->canModerate((int) $row->user_id, $viewerId),
@@ -102,28 +109,35 @@ final class DiscussionPresenter
         return $images;
     }
 
-    private function postRef(int $postId): ?PostRef
+    /**
+     * The body as the front end receives it: smilies first (on the author's
+     * text), then registered shortcodes, then — for a thread bound to a
+     * post — that post's card. The card is produced by the same shortcode
+     * an editor would type, so a bound thread and a hand-embedded card
+     * cannot render differently.
+     */
+    private function contentHtml(string $raw, int $postId): string
     {
+        $html = $this->bodyHtml($raw);
+
         if ($postId <= 0) {
-            return null;
+            return $html;
         }
 
-        $post = get_post($postId);
-        if (!$post instanceof WP_Post || $post->post_status !== 'publish' || !in_array($post->post_type, ['post', 'resource'], true)) {
-            return null;
-        }
-
-        $type = PublicTypes::get($post->post_type);
-        if ($type === null) {
-            return null;
-        }
-
-        return new PostRef(
-            (int) $post->ID,
-            (string) $post->post_type,
-            (string) get_the_title($post),
-            $type->url((string) $post->post_name),
+        $card = do_shortcode(
+            '[' . BuiltinParts::POST_CARD_TAG . ' ' . BuiltinParts::POST_CARD_ATTRIBUTE . '="' . $postId . '"]'
         );
+        if ($card === '') {
+            return $html;
+        }
+
+        return $html . "\n" . $card;
+    }
+
+    /** A body with smilies and shortcodes expanded — replies included. */
+    private function bodyHtml(string $raw): string
+    {
+        return do_shortcode($this->smilies->render($raw));
     }
 
     private function author(int $userId): Author

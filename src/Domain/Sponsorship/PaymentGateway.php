@@ -13,9 +13,12 @@ use WP_Error;
  * settings, never touching SponsorshipController/GatewayController flow.
  *
  * A payment is a value description; gateways never resolve amounts into
- * rights. The domain binds tier/cycles inside the gateway's own signed
- * payload (the adapter's job to carry it) and verifies callbacks back
- * into the same description.
+ * rights. How a push proves itself is each adapter's own business: the
+ * Epay cashier verifies its signed callback into the description, the
+ * Afdian webhook treats the push as a hint and re-reads the purchase
+ * through the platform's authenticated API (2026-09-21 decision) — so
+ * this seam carries order identity, availability, channels and the
+ * signed payment URL only, no callback protocol.
  */
 interface PaymentGateway
 {
@@ -54,22 +57,11 @@ interface PaymentGateway
     public function createPayment(array $payment): string|WP_Error;
 
     /**
-     * Verifies a gateway callback and returns the bound payment
-     * description. Null means the push is not activatable (non-success
-     * status, unresolvable binding) — callers answer the gateway with
-     * success without touching the domain.
-     *
-     * @param array<string, mixed> $query
-     * @return array{orderId:string, userId:int, tierKey:string, cycles:int, amount:float}|null
+     * The payment-log order id for one checkout reference: the provider's
+     * own prefix plus the wire id (the callbacks resolve back to
+     * `epc_<out_trade_no>` and `afd_<platform order no>`). The checkout
+     * row must be written under THIS id — it is what a push is matched
+     * against — while the wire keeps the bare reference the buyer sees.
      */
-    public function verifyCallback(array $query): ?array;
-
-    /**
-     * True when a push carries an invalid signature — the one callback
-     * failure mode the platform must hear about (the caller answers 400).
-     * A validly signed push that verifyCallback() rejected returns false.
-     *
-     * @param array<string, mixed> $query
-     */
-    public function callbackFailed(array $query): bool;
+    public function orderId(string $reference): string;
 }

@@ -2,9 +2,9 @@
 /**
  * Plugin Name: AIYA Core
  * Description: Headless-first administration and content framework for AIYA CMS.
- * Version: 0.83.0
+ * Version: 0.92.0
  * Requires at least: 6.4
- * Requires PHP: 8.2
+ * Requires PHP: 8.5
  * Author: Yeraph Studio
  * License: GPL-3.0-or-later
  * Text Domain: aiya-core
@@ -17,25 +17,36 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AIYA_CORE_VERSION', '0.83.0');
+define('AIYA_CORE_VERSION', '0.92.0');
 define('AIYA_CORE_FILE', __FILE__);
 define('AIYA_CORE_PATH', plugin_dir_path(__FILE__));
 define('AIYA_CORE_URL', plugin_dir_url(__FILE__));
 
-// Composer autoload: packages/ primitives (Aiya\Infra\*) land here.
+// Composer autoload: third-party dependencies (imagine, pinyin, …). The
+// bundled packages under packages/ are NOT composer-installed — vendor/aiya
+// does not exist — and are loaded by the plugin autoloader below.
 if (is_readable(AIYA_CORE_PATH . 'vendor/autoload.php')) {
     require_once AIYA_CORE_PATH . 'vendor/autoload.php';
 }
 
 spl_autoload_register(static function (string $className): void {
     $prefix = 'Aiya\\Core\\';
-    if (!str_starts_with($className, $prefix)) {
+    if (str_starts_with($className, $prefix)) {
+        $relative = substr($className, strlen($prefix));
+        $path = AIYA_CORE_PATH . 'src/' . str_replace('\\', '/', $relative) . '.php';
+        if (is_readable($path)) {
+            require_once $path;
+        }
+
         return;
     }
 
-    $relative = substr($className, strlen($prefix));
-    $path = AIYA_CORE_PATH . 'src/' . str_replace('\\', '/', $relative) . '.php';
-    if (is_readable($path)) {
+    if (!str_starts_with($className, 'Aiya\\Infra\\')) {
+        return;
+    }
+
+    $path = Aiya\Core\Runtime\Packages::locate($className);
+    if ($path !== null) {
         require_once $path;
     }
 });
