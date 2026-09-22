@@ -27,14 +27,12 @@ final class ContentBlocks
      */
     public function all(): SiteBlocks
     {
-        $settings = (array) get_option(BlocksModule::OPTION_NAME, []);
-
         return new SiteBlocks(
-            $this->menu($settings['primary_items'] ?? [], true),
-            $this->menu($settings['secondary_items'] ?? []),
-            $this->ads($settings['ads_top'] ?? []),
-            $this->ads($settings['ads_bottom'] ?? []),
-            $this->carousel($settings['carousel'] ?? []),
+            $this->menu((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'primary_items', []), true),
+            $this->menu((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'secondary_items', [])),
+            $this->ads((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'ads_top', [])),
+            $this->ads((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'ads_bottom', [])),
+            $this->carousel((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'carousel', [])),
         );
     }
 
