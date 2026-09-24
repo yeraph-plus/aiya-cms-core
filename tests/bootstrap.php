@@ -1365,9 +1365,32 @@ if (!function_exists('taxonomy_exists')) {
 if (!function_exists('get_terms')) {
     function get_terms(array $args = []): mixed
     {
-        $taxonomy = (string) ($args['taxonomy'] ?? '');
-        $terms = $GLOBALS['__aiya_test_terms'][$taxonomy] ?? [];
+        // The real query accepts one taxonomy or a list; the stub merges
+        // the vocabularies in listed order.
+        $taxonomies = (array) ($args['taxonomy'] ?? '');
+        $terms = [];
+        foreach ($taxonomies as $taxonomy) {
+            $terms = array_merge($terms, $GLOBALS['__aiya_test_terms'][(string) $taxonomy] ?? []);
+        }
         return $terms === [] ? [] : $terms;
+    }
+}
+
+if (!function_exists('get_taxonomy')) {
+    function get_taxonomy(string $taxonomy): ?object
+    {
+        if (!array_key_exists($taxonomy, $GLOBALS['__aiya_test_terms'])) {
+            return null;
+        }
+        return (object) ['labels' => (object) ['singular_name' => ucfirst($taxonomy)]];
+    }
+}
+
+if (!function_exists('sanitize_title')) {
+    function sanitize_title(string $title): string
+    {
+        $title = strtolower(trim($title));
+        return (string) preg_replace(['/[^a-z0-9_-]+/', '/-+/'], ['-', '-'], $title);
     }
 }
 
