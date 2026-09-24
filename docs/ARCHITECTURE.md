@@ -53,7 +53,13 @@ The plugin owns a full lifecycle and can be activated normally from `wp-content/
 - `boot()` runs on every request and delegates to `register()`.
 - `activate()` records the `aiya_core_schema_version` option. Field defaults are applied lazily at read time, so no eager seeding is needed.
 - `deactivate()` clears scheduled events; modules declare their cron hooks through the `aiya_core_scheduled_events` filter.
-- `uninstall.php` deletes every option under the `aiya_core_` prefix (all sites in multisite). There is no "keep settings" switch; the headless rebuild treats uninstall as a full reset.
+- `uninstall.php` never erases data silently. Deleting from the Plugins screen stops at a confirmation
+  first: keep everything (the default, built for delete-and-reinstall updates) or erase the plugin's
+  data along with the files. Off-screen uninstalls (WP-CLI, scripted calls) follow the standing answer:
+  the `uninstall_purge` switch on the Security page (default off = keep), force-overridden everywhere
+  by `AIYA_CORE_UNINSTALL_PURGE === true` in wp-config.php. When purging, every option under the
+  `aiya_core_` prefix, the plugin-owned tables, meta residue, transients and cron events are removed
+  across all sites in multisite; uploaded media, the `aiya_thumbnail/` tree and the pic-bed pool stay.
 
 Schema upgrades run through a future `Runtime/SchemaVersion` migration runner when stored shapes change.
 

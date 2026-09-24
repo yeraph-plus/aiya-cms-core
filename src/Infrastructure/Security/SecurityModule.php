@@ -144,6 +144,20 @@ final class SecurityModule implements Module
                     'checkbox_label' => __('Reject logged-out requests with oversized or probe-shaped URIs (414, REST routes excepted)', 'aiya-core'),
                     'default' => true,
                 ],
+                [
+                    'id' => 'heading_uninstall',
+                    'type' => 'heading',
+                    'label' => __('Uninstall', 'aiya-core'),
+                    'level' => '2',
+                ],
+                [
+                    'id' => 'uninstall_purge',
+                    'type' => 'switch',
+                    'label' => __('Erase data on scripted uninstalls', 'aiya-core'),
+                    'checkbox_label' => __('Wipe the tables, settings and meta on WP-CLI and scripted uninstalls (the Plugins screen always asks)', 'aiya-core'),
+                    'description' => __('Deleting the plugin keeps all of its data (tables, settings, meta fields, scheduled events), so reinstalling picks up where it left off. Deleting from the Plugins screen always stops and asks first; this switch is the standing answer for the uninstalls that have no UI, such as WP-CLI. Off they keep the data, on they wipe it — the wipe cannot be undone. AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php forces the same wipe everywhere and skips the question.', 'aiya-core'),
+                    'default' => false,
+                ],
             ],
         ]);
     }

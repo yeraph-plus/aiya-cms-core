@@ -65,6 +65,7 @@ use Aiya\Core\Domain\ThemeSupport\ThemeSupportModule;
 use Aiya\Core\Infrastructure\Headless\HeadlessModule;
 use Aiya\Core\Infrastructure\Http\TrustedProxy;
 use Aiya\Core\Infrastructure\Security\SecurityModule;
+use Aiya\Core\Infrastructure\Uninstall\RemnantCleanupModule;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
 use Aiya\Core\Modules\MediaModule;
 use Aiya\Core\Modules\GofileModule;
@@ -112,6 +113,7 @@ final class Plugin
         $this->addModule(new HeadlessModule($this->settings));
         $this->addModule(new SecurityModule($this->settings));
         $this->addModule(new TrustedProxy());
+        $this->addModule(new RemnantCleanupModule());
         $avatar = new AvatarModule($this->settings);
         $this->addModule($avatar);
         // One gate instance for every consumer: the metabox, the REST
