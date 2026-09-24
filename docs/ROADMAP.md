@@ -1279,3 +1279,30 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 **验证与收尾**：phpunit 379/1168（新增 AfdianActivatorTest/AfdianOrderUrlTest、UserBanTest +7、metabox AJAX 与空值踢除、垫片对齐后全量绿），phpstan（level 8）、phpcs、parallel-lint（275 文件）全绿；i18n POT 重建（977 条），PO 追加 13 条新串（POT/PO 集合比对 0 差、未翻译 0），MO 编译实测中文生效；dev 库 ALTER 已执行；运行时实测 `/site` 200、webhook 畸形 body 400 / 未知单号 200 done、版本常量 0.92.0。版本 0.92.0。
 
 **已知取舍与待办**：① 爱发电绑定旧设置数据不迁移，需站长在会员设置页重填 plan 绑定与兜底档位；② 多绑定时 order-url 深链固定指向第一行（webhook 结算不受影响）；③ settle 对已过期 unpaid 行 confirm 被守卫拒绝 → 400 让平台有界重试，行保持 unpaid 供审计；④ GoFile 分页默认值与 getid tier 两处契约假设待真实高级版令牌复验；⑤ capability 字段门在单测中受单开关垫片限制，生产语义由「过滤先于 normalize」结构保证；⑥ PO 中 70 条历史陈旧条目为 .mo 惰性数据，不清理。
+
+### 卸载数据清理确认屏（2026-09-23，并入在途 0.93.0 批次）—— ✅ 已完成
+
+站长指令：卸载清理数据前先过一道确认，可选择「不清理数据只删插件」用于删除后重装/更新。工作树在途批次已把 uninstall.php 从「无条件全清」改为「默认保留 + Security 页开关/wp-config 常量控制清除」，本批在其上补齐卸载现场的交互确认：
+
+- **确认屏拦截**（`uninstall.php` 重写）：`delete_plugins()` 对每个插件先包含 uninstall.php 再删文件、且 verify-delete 二次请求此时零输出——uninstall.php 据此在「插件页删除流程」（`$pagenow === 'plugins.php'` + `action=delete-selected`，WP_CLI 显式排除）且无答案时渲染 admin 样式确认屏并 exit：清除发生在任何文件/数据被触碰之前。回放表单原样携带 verify-delete/action/checked[] 并用 `wp_nonce_field('bulk-plugins')` 新鲜 nonce 重入同一删除流；第二遍按 `aiya_core_uninstall_mode`（keep|purge）路由。批量删除时已在本循环先行删掉的插件被 `file_exists` 过滤出回放清单，避免重放产生假「删除失败」；过滤后为空则直接放行（保数据，让调用方删文件）。屏幕文案走 textdomain——插件未激活时 `load_plugin_textdomain` 手动注册 languages 路径供 JIT 装载（实测未激活插件中文正常）。
+- **语义矩阵**：插件页删除=总是先问（keep/purge 双按钮，keep 主按钮）；WP-CLI 与脚本化 `uninstall_plugin()` 无 UI 可问 → Security 页 `uninstall_purge` 开关为既定答案（默认关=保留）；`AIYA_CORE_UNINSTALL_PURGE === true` 在所有路径强制清除并跳过提问。SecurityModule 开关改名为「Erase data on scripted uninstalls」并同步文案。
+- **选择当次有效**：不落任何持久状态；purge 主体（13 表 DROP、aiya_core_* options/meta/transients、cron、aiya_logs、rewrite_rules、多站循环）与既定清单一字未动。
+
+**修复连带**：zh_CN.po 文件头在在途批次被改坏成两对空 msgid/msgstr（Content-Type/charset 全丢），恢复标准 PO 头（Project-Id-Version 0.93.0 等 11 项）。
+
+**删除链路全套追查 + 大目录阻塞修复（2026-09-23 站长实测反馈后）**：站长用完整拷贝实测删除「仍直接进入删除且卡在删除中」。全套核对容器实际 WP 7.1.1 与参考源码（plugins.php/列表表逐字节一致，删除=表单流 `delete-selected` → `delete_plugins()` → 逐插件 `uninstall_plugin()` 含 uninstall.php → WP_Filesystem 递归删目录；「删除中…」非核心文案）。**确认屏对真实完整拷贝实测正常出现**——站长那份「行为没变化」的拷贝是本批改动前的旧文件（在途批次本身即「无屏静默保留」，表象一致）。**真正的缺陷是删除耗时**：vendor（5403 文件 98MB）在 Windows bind mount 上被核心递归删除实测 **41 秒**，删除请求全程无反馈。修复：uninstall.php 在文件删除前把 `vendor`/`node_modules`/`.git` **同卷改名**移入 `wp-content/upgrade/aiya-core-remnant-<uniqid>/`（rename O(1)），核心只递归删瘦目录（实测 **1.7s**）；新 `Infrastructure/Uninstall/RemnantCleanupModule`（`aiya_core_remnants_cleanup` 每日 cron，单次最多清 2 个、1 小时新鲜期防与在途删除竞争、realpath 守卫只认 upgrade/ 下前缀目录）后台清除暂存副本；确认屏补一行说明。改名失败自然回落原慢删除。实cron 已随激活排期（`wp cron event list` 可见）、sweep 过期清/新鲜留实测。
+
+**验证**：phpunit 379/1170、phpstan（level 8）、phpcs、parallel-lint（276 文件）全绿；i18n POT 重建、PO 累计追加 15 条新串，未翻译 0、POT/PO 集合比对 0 差、MO 编译后未激活态 `wp eval` 实测中文。**端到端实测**（完整 robocopy 拷贝 + 探针双路）：确认屏对真实拷贝渲染（含新说明行）→取消=零删除；keep=文件删/数据留且亚秒完成；purge=分支执行；批量回放过滤先行消失插件；`wp plugin delete` 不阻塞默认保数据；残留暂存/清理实测（过期清、新鲜留）。测试残留清零（拷贝、探针、暂存目录、临时管理员全清；13 张真实表原样）。
+
+### 0.93.0 在途批次小规模审查修复（2026-09-24）—— ✅ 已完成
+
+对 0.92.0 审查批之后工作区在途改动（卸载确认屏 + remnant 暂存、档位定周期/描述、HomeSection 换 CarouselSlide、收藏扩全公共类型、/site 赞助者去广告、epay returnUrl 按单下发、OpenList linkBase 拆分、multicheck 惰性源保存校验）做一轮审查，五点修复：
+
+- **P1 purge 卸载残留 + cron 僵尸**：uninstall.php 的 `wp_clear_scheduled_hook` 清单补 `aiya_core_remnants_cleanup`——原清单漏掉 sweeper 自己的 hook，purge 后事件成为无回调的每日僵尸；且暂存副本（含 .git/vendor）随插件删除再无人清理、滞留在 web 可达的 upgrade/ 下。purge 路径新增 `aiya_core_uninstall_remove_remnants()` + `aiya_core_uninstall_rmtree()`（realpath 前缀守卫防 symlink 越界、@ 抑制 best-effort 与 aiya_logs 清理同风格），在删除请求内联清掉 `wp-content/upgrade/aiya-core-remnant-*`（含既往 keep 遗留副本）；keep 模式维持「重装后 cron 收集」。头部文档同步改口径。
+- **P2 爱发电周期钳制与档位上限冲突**：`AfdianActivator::MAX_CYCLES` 36→60，对齐档位 repeater 的 cycles 上限——查单 month 是平台事实，买家真买多个月不得被钳掉（原 36 钳在档位 cycles>36 且经爱发电单笔购买时造成「按档位总价付款、少入队周期」）；钳制仅兜底垃圾查询行。补 `AfdianActivatorTest::testQueriedCyclesClampToTheTierSettingsCeiling`（month=99 → 60）。
+- **P3 phpcs 门禁修复**（审查时实报 1E+2W，与该批「phpcs 全绿」记录不符——最后几笔编辑晚于验证运行）：① FavoriteService countForAuthor 的 `phpcs:ignore` 从字符串赋值行移到 `$wpdb->prepare($query,…)` 使用行（NotPrepared 在使用处触发，赋值行挂注释盖不住）；② uninstall.php rename 的 ignore 补真实代码 `AlternativeFunctions.rename_rename`；③ RemnantCleanupModule rmdir 的 ignore 把无效的 `AlternativeFunctions.dir_rmdir` 换成 `file_system_operations_rmdir`（json 报告实证）。
+- **P3 收藏计数密码文口径对齐**：`countForAuthor` 补 `AND p.post_password = ''` 对齐 published() 列表过滤——作者「获收藏总数」不再计入密码文文章（隐藏内容热度不外泄）；写入侧维持不拒密码文（收藏动作发生在列表卡片可见态，本批不动 validatePost）。
+
+**验证**：容器 PHP 8.5.10 实测 parallel-lint、phpunit（新增 1 例）、phpstan（level 8）、phpcs 全绿。
+
+**遗留（批次收口时处理）**：0.93.0 主批次的 ROADMAP/AGENTS 条目与基线修订记录（CarouselSlide 删除 = v1 基线破坏性修订，按 0.87.0/0.90.0 惯例需拍板记录）尚未写入；旧 `aiya_core_blocks.carousel` 选项键成死数据宜随批次记录。

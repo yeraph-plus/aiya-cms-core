@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.91.0\n"
+"Project-Id-Version: AIYA Core 0.93.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-21T17:04:30+00:00\n"
+"POT-Creation-Date: 2026-09-23T15:04:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -193,7 +193,7 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:187
 #: src/Admin/NotificationPage.php:81
 #: src/Admin/NotificationPage.php:109
-#: src/Domain/Content/BlocksModule.php:186
+#: src/Domain/Content/BlocksModule.php:197
 #: src/Domain/Parts/BuiltinParts.php:118
 #: src/Domain/Parts/BuiltinParts.php:129
 msgid "Title"
@@ -531,6 +531,7 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:388
 #: src/Admin/DiscussionModerationPage.php:409
+#: src/Domain/Sponsorship/SponsorshipModule.php:119
 msgid "Description"
 msgstr ""
 
@@ -1063,7 +1064,7 @@ msgstr ""
 
 #: src/Admin/PicBedPage.php:105
 #: src/Admin/PicBedPage.php:287
-#: src/Domain/Content/BlocksModule.php:116
+#: src/Domain/Content/BlocksModule.php:124
 #: src/Domain/DevTools/SamplePage.php:237
 #: src/Domain/Parts/BuiltinParts.php:153
 msgid "URL"
@@ -1157,6 +1158,7 @@ msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:70
 #: src/Admin/PostTypeSwitchBulkAction.php:109
+#: src/Domain/Content/BlocksModule.php:212
 msgid "Posts"
 msgstr ""
 
@@ -1167,6 +1169,7 @@ msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:72
 #: src/Admin/PostTypeSwitchBulkAction.php:111
+#: src/Domain/Content/BlocksModule.php:213
 msgid "Resources"
 msgstr ""
 
@@ -1467,7 +1470,7 @@ msgid "The reset link is missing required parameters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:293
-#: src/Api/Rest/ContentController.php:155
+#: src/Api/Rest/ContentController.php:157
 #: src/Api/Rest/CounterController.php:82
 #: src/Api/Rest/CounterController.php:97
 #: src/Api/Rest/CounterController.php:117
@@ -1477,8 +1480,8 @@ msgstr ""
 #: src/Api/Rest/DiscussionController.php:197
 #: src/Api/Rest/DiscussionController.php:258
 #: src/Api/Rest/FileServeController.php:75
-#: src/Api/Rest/SponsorshipController.php:111
-#: src/Api/Rest/SponsorshipController.php:172
+#: src/Api/Rest/SponsorshipController.php:110
+#: src/Api/Rest/SponsorshipController.php:177
 #: src/Api/Rest/UserController.php:197
 #: src/Api/Rest/UserController.php:357
 msgid "Too many requests, try again later."
@@ -1500,7 +1503,7 @@ msgstr ""
 #: src/Api/Rest/CreditController.php:201
 #: src/Api/Rest/DiscussionController.php:385
 #: src/Api/Rest/FileServeController.php:97
-#: src/Api/Rest/SponsorshipController.php:250
+#: src/Api/Rest/SponsorshipController.php:280
 #: src/Api/Rest/UploadsController.php:57
 #: src/Api/Rest/UserController.php:436
 msgid "Authentication required."
@@ -1508,7 +1511,7 @@ msgstr ""
 
 #: src/Api/Rest/AuthController.php:339
 #: src/Api/Rest/CommentsController.php:149
-#: src/Api/Rest/ContentController.php:335
+#: src/Api/Rest/ContentController.php:337
 #: src/Api/Rest/UploadsController.php:64
 #: src/Api/Rest/UserController.php:251
 #: src/Api/Rest/UserController.php:387
@@ -1552,21 +1555,21 @@ msgid "You are commenting too quickly. Slow down."
 msgstr ""
 
 #: src/Api/Rest/CommentsController.php:271
-#: src/Api/Rest/ContentController.php:188
-#: src/Api/Rest/ContentController.php:304
-#: src/Api/Rest/ContentController.php:309
-#: src/Api/Rest/ContentController.php:350
-#: src/Api/Rest/ContentController.php:386
+#: src/Api/Rest/ContentController.php:190
+#: src/Api/Rest/ContentController.php:306
+#: src/Api/Rest/ContentController.php:311
+#: src/Api/Rest/ContentController.php:352
+#: src/Api/Rest/ContentController.php:388
 #: src/Domain/FileServe/DownloadService.php:108
 #: src/Domain/FileServe/FileService.php:51
 msgid "Content not found."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:360
+#: src/Api/Rest/ContentController.php:362
 msgid "Incorrect password."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:406
+#: src/Api/Rest/ContentController.php:427
 msgid "Profile not found."
 msgstr ""
 
@@ -1588,7 +1591,7 @@ msgid "Already checked in today."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:173
-#: src/Api/Rest/SponsorshipController.php:116
+#: src/Api/Rest/SponsorshipController.php:115
 msgid "The Afdian channel is not available."
 msgstr ""
 
@@ -1614,25 +1617,30 @@ msgstr ""
 msgid "Thread not found."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:123
+#: src/Api/Rest/SponsorshipController.php:127
+#: src/Api/Rest/SponsorshipController.php:193
+msgid "Unknown membership tier."
+msgstr ""
+
+#: src/Api/Rest/SponsorshipController.php:134
 msgid "This tier is not bound to an Afdian plan."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:178
+#: src/Api/Rest/SponsorshipController.php:183
 msgid "No payment gateway is available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:181
+#: src/Api/Rest/SponsorshipController.php:186
 #: src/Domain/Sponsorship/EpayGateway.php:86
 msgid "The requested payment channel is not available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:189
-msgid "Unknown membership tier."
+#: src/Api/Rest/SponsorshipController.php:201
+msgid "This membership tier is not available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:194
-msgid "This membership tier is not available."
+#: src/Api/Rest/SponsorshipController.php:222
+msgid "The return URL is not a valid absolute http(s) address."
 msgstr ""
 
 #: src/Api/Rest/UserController.php:211
@@ -1663,122 +1671,142 @@ msgstr ""
 msgid "The current password is incorrect."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:36
-#: src/Domain/Content/BlocksModule.php:37
+#: src/Domain/Content/BlocksModule.php:38
+#: src/Domain/Content/BlocksModule.php:39
 msgid "Blocks"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:45
+#: src/Domain/Content/BlocksModule.php:47
 msgid "These lists replace the WordPress menu system and feed the shell's dynamic slots: the front end reads them through the `blocks` group of GET /aiya/core/v1/site, rows in listed order."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:51
+#: src/Domain/Content/BlocksModule.php:53
 msgid "Primary menu"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:52
+#: src/Domain/Content/BlocksModule.php:54
 msgid "The main navigation of the front-end shell (site header). Internal targets are front-end paths (/posts/), external ones absolute https URLs."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:63
+#: src/Domain/Content/BlocksModule.php:68
 msgid "Secondary menu"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:64
+#: src/Domain/Content/BlocksModule.php:69
 msgid "The auxiliary navigation of the front-end shell (footer, legal links). Same rules as the primary menu."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:71
+#: src/Domain/Content/BlocksModule.php:79
 msgid "Page-top advertisements"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:72
+#: src/Domain/Content/BlocksModule.php:80
 msgid "Ad slots rendered at the top of front-end pages, in listed order."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:79
+#: src/Domain/Content/BlocksModule.php:87
 msgid "Page-bottom advertisements"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:80
+#: src/Domain/Content/BlocksModule.php:88
 msgid "Ad slots rendered at the bottom of front-end pages, in listed order."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:87
-msgid "Carousel"
+#: src/Domain/Content/BlocksModule.php:95
+msgid "Home sections"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:88
-msgid "Carousel slides for the front-end banner slot, in listed order."
+#: src/Domain/Content/BlocksModule.php:96
+msgid "Query templates for the front page, in listed order: a heading row (icon + title, \"more\" link at the right) over a list of posts. The front end resolves each section against its public list reads; rows without a title are skipped."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:109
+#: src/Domain/Content/BlocksModule.php:117
 #: src/Domain/DevTools/SamplePage.php:231
 msgid "Label"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:117
+#: src/Domain/Content/BlocksModule.php:125
 msgid "Front-end path (/posts/) or external URL; empty falls back to the home path."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:124
+#: src/Domain/Content/BlocksModule.php:132
+#: src/Domain/Content/BlocksModule.php:203
 #: src/Domain/Content/FrontendModule.php:151
 #: src/Domain/Content/TermExtrasModule.php:59
 msgid "Icon"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:125
+#: src/Domain/Content/BlocksModule.php:133
 msgid "Optional Lucide icon name for the sidebar (e.g. \"home\", \"image\", \"file-text\")."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:131
+#: src/Domain/Content/BlocksModule.php:139
 msgid "Open in"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:134
+#: src/Domain/Content/BlocksModule.php:142
 msgid "Same window"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:135
+#: src/Domain/Content/BlocksModule.php:143
 msgid "New window"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:156
-#: src/Domain/Content/BlocksModule.php:193
+#: src/Domain/Content/BlocksModule.php:164
 #: src/Domain/Content/FrontendModule.php:145
 msgid "Link"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:157
+#: src/Domain/Content/BlocksModule.php:165
 msgid "Front-end path or external URL; empty renders the banner without a link."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:162
+#: src/Domain/Content/BlocksModule.php:170
 msgid "Link text"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:163
+#: src/Domain/Content/BlocksModule.php:171
 msgid "Also used as the banner image alt text."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:168
+#: src/Domain/Content/BlocksModule.php:176
 msgid "Ad image"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:169
+#: src/Domain/Content/BlocksModule.php:177
 msgid "The banner artwork from the media library."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:194
-msgid "Front-end path or external URL; empty renders the slide without a link."
+#: src/Domain/Content/BlocksModule.php:204
+msgid "Optional Lucide icon name beside the title (e.g. \"newspaper\", \"flame\", \"star\")."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:199
-msgid "Slide image"
+#: src/Domain/Content/BlocksModule.php:209
+msgid "Content type"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:200
-msgid "The slide artwork from the media library."
+#: src/Domain/Content/BlocksModule.php:219
+msgid "Categories"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:220
+msgid "Nothing checked shows every category of the type; the listed vocabularies cover posts and resources alike."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:231
+msgid "Post count"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:232
+msgid "How many posts the section lists (1-20)."
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:241
+msgid "\"More\" link"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:242
+msgid "Optional override for the heading row's link; empty derives the type's own archive path (with the chosen categories)."
 msgstr ""
 
 #: src/Domain/Content/ContentTypeModule.php:46
@@ -3201,12 +3229,12 @@ msgstr ""
 msgid "Only JPEG, PNG, WebP and GIF images can be used as an avatar."
 msgstr ""
 
-#: src/Domain/Identity/FavoriteService.php:50
+#: src/Domain/Identity/FavoriteService.php:57
 msgid "The favorite could not be stored."
 msgstr ""
 
-#: src/Domain/Identity/FavoriteService.php:176
-msgid "Only published posts can be favorited."
+#: src/Domain/Identity/FavoriteService.php:188
+msgid "Only published content can be favorited."
 msgstr ""
 
 #: src/Domain/Identity/FollowService.php:26
@@ -3669,137 +3697,141 @@ msgstr ""
 msgid "Key"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:119
+#: src/Domain/Sponsorship/SponsorshipModule.php:120
+msgid "One-liner shown on the plan card (what the tier includes)."
+msgstr ""
+
+#: src/Domain/Sponsorship/SponsorshipModule.php:126
 msgid "Price (per cycle)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:127
+#: src/Domain/Sponsorship/SponsorshipModule.php:134
 msgid "Cycle length (days)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:128
+#: src/Domain/Sponsorship/SponsorshipModule.php:135
 msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:137
+#: src/Domain/Sponsorship/SponsorshipModule.php:144
 msgid "Credits per cycle"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:138
+#: src/Domain/Sponsorship/SponsorshipModule.php:145
 msgid "Credit bucket granted at each cycle start."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:152
 #: src/Domain/Sponsorship/SponsorshipModule.php:153
+msgid "Cycles per purchase"
+msgstr ""
+
+#: src/Domain/Sponsorship/SponsorshipModule.php:154
+msgid "One purchase of this tier always queues this many cycles; the front end shows the total, there is no cycle picker."
+msgstr ""
+
+#: src/Domain/Sponsorship/SponsorshipModule.php:169
+#: src/Domain/Sponsorship/SponsorshipModule.php:170
 msgid "Payments"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:160
+#: src/Domain/Sponsorship/SponsorshipModule.php:177
 msgid "Epay gateway (cashier integration)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:166
+#: src/Domain/Sponsorship/SponsorshipModule.php:183
 msgid "Epay integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:172
+#: src/Domain/Sponsorship/SponsorshipModule.php:189
 msgid "Merchant id (pid)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:178
+#: src/Domain/Sponsorship/SponsorshipModule.php:195
 msgid "Merchant key"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:184
+#: src/Domain/Sponsorship/SponsorshipModule.php:201
 msgid "Gateway submit URL"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:190
+#: src/Domain/Sponsorship/SponsorshipModule.php:207
 msgid "Payment channels"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:191
+#: src/Domain/Sponsorship/SponsorshipModule.php:208
 msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:194
+#: src/Domain/Sponsorship/SponsorshipModule.php:211
 msgid "Alipay"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:195
+#: src/Domain/Sponsorship/SponsorshipModule.php:212
 msgid "WeChat Pay"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:196
+#: src/Domain/Sponsorship/SponsorshipModule.php:213
 msgid "USDT (TRC20)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:202
-msgid "Front-end return URL"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:203
-msgid "Where the browser lands after paying; the headless front end owns this page."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:209
+#: src/Domain/Sponsorship/SponsorshipModule.php:219
 msgid "Afdian (platform push)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:215
+#: src/Domain/Sponsorship/SponsorshipModule.php:225
 msgid "Afdian integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:216
+#: src/Domain/Sponsorship/SponsorshipModule.php:226
 msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:222
+#: src/Domain/Sponsorship/SponsorshipModule.php:232
 msgid "Afdian plan bindings"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:223
+#: src/Domain/Sponsorship/SponsorshipModule.php:233
 msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:229
+#: src/Domain/Sponsorship/SponsorshipModule.php:239
 msgid "Afdian plan ID"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:235
+#: src/Domain/Sponsorship/SponsorshipModule.php:245
 msgid "Membership tier"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:236
+#: src/Domain/Sponsorship/SponsorshipModule.php:246
 msgid "The tier (from the membership settings page) that this plan activates."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:251
+#: src/Domain/Sponsorship/SponsorshipModule.php:261
 msgid "Fallback tier"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:252
+#: src/Domain/Sponsorship/SponsorshipModule.php:262
 msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:265
+#: src/Domain/Sponsorship/SponsorshipModule.php:275
 msgid "Afdian user id"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:271
+#: src/Domain/Sponsorship/SponsorshipModule.php:281
 msgid "Afdian API token"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:278
+#: src/Domain/Sponsorship/SponsorshipModule.php:288
 msgid "Afdian webhook address"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:279
+#: src/Domain/Sponsorship/SponsorshipModule.php:289
 msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
 msgstr ""
 
 #. translators: %s: tier keys that still have active holders.
-#: src/Domain/Sponsorship/SponsorshipModule.php:382
+#: src/Domain/Sponsorship/SponsorshipModule.php:392
 #, php-format
 msgid "These tiers still have active members and cannot be deleted: %s."
 msgstr ""
@@ -4030,11 +4062,27 @@ msgstr ""
 msgid "Reject logged-out requests with oversized or probe-shaped URIs (414, REST routes excepted)"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:164
+#: src/Infrastructure/Security/SecurityModule.php:150
+msgid "Uninstall"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:156
+msgid "Erase data on scripted uninstalls"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:157
+msgid "Wipe the tables, settings and meta on WP-CLI and scripted uninstalls (the Plugins screen always asks)"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:158
+msgid "Deleting the plugin keeps all of its data (tables, settings, meta fields, scheduled events), so reinstalling picks up where it left off. Deleting from the Plugins screen always stops and asks first; this switch is the standing answer for the uninstalls that have no UI, such as WP-CLI. Off they keep the data, on they wipe it — the wipe cannot be undone. AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php forces the same wipe everywhere and skips the question."
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:178
 msgid "Please log in with your email address."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:226
+#: src/Infrastructure/Security/SecurityModule.php:240
 msgid "Not found."
 msgstr ""
 
@@ -4224,42 +4272,50 @@ msgid "Base address of the OpenList instance that hosts the listed files."
 msgstr ""
 
 #: src/Modules/OpenListModule.php:121
-msgid "API username"
+msgid "Link base URL"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:127
-msgid "API password"
+#: src/Modules/OpenListModule.php:122
+msgid "Base address the delivery links are built on — the one the visitor's browser must reach. Leave empty to reuse the server URL; split them when WordPress reaches the file service on an internal host."
 msgstr ""
 
 #: src/Modules/OpenListModule.php:128
-msgid "Used to fetch fresh bearer tokens; stored server-side and never exposed."
+msgid "API username"
 msgstr ""
 
 #: src/Modules/OpenListModule.php:134
-msgid "Token cache (hours)"
+msgid "API password"
 msgstr ""
 
 #: src/Modules/OpenListModule.php:135
+msgid "Used to fetch fresh bearer tokens; stored server-side and never exposed."
+msgstr ""
+
+#: src/Modules/OpenListModule.php:141
+msgid "Token cache (hours)"
+msgstr ""
+
+#: src/Modules/OpenListModule.php:142
 msgid "0 refetches the token on every request. Uses the object cache, so a Redis/memcached drop-in makes it persist."
 msgstr ""
 
-#: src/Modules/OpenListModule.php:144
+#: src/Modules/OpenListModule.php:151
 msgid "Download link mode"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:145
+#: src/Modules/OpenListModule.php:152
 msgid "How a delivery link is built. All three are download paths on the OpenList host — none of them sends a reader to its browsing pages."
 msgstr ""
 
-#: src/Modules/OpenListModule.php:148
+#: src/Modules/OpenListModule.php:155
 msgid "Direct (/d/)"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:149
+#: src/Modules/OpenListModule.php:156
 msgid "Proxied (/p/)"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:150
+#: src/Modules/OpenListModule.php:157
 msgid "Plain path"
 msgstr ""
 
@@ -4267,34 +4323,82 @@ msgstr ""
 msgid "A value is required."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:143
+#: src/Settings/ValueNormalizer.php:150
 msgid "Enter a valid number."
 msgstr ""
 
 #. translators: %s: minimum allowed value.
-#: src/Settings/ValueNormalizer.php:150
+#: src/Settings/ValueNormalizer.php:157
 #, php-format
 msgid "The minimum value is %s."
 msgstr ""
 
 #. translators: %s: maximum allowed value.
-#: src/Settings/ValueNormalizer.php:154
+#: src/Settings/ValueNormalizer.php:161
 #, php-format
 msgid "The maximum value is %s."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:162
+#: src/Settings/ValueNormalizer.php:169
 msgid "Enter a valid email address."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:168
+#: src/Settings/ValueNormalizer.php:175
 msgid "Enter a valid URL."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:178
+#: src/Settings/ValueNormalizer.php:185
 msgid "Select a valid media attachment."
 msgstr ""
 
-#: src/Settings/ValueNormalizer.php:194
+#: src/Settings/ValueNormalizer.php:201
 msgid "Select a valid option."
+msgstr ""
+
+#: uninstall.php:95
+msgid "Delete AIYA Core"
+msgstr ""
+
+#: uninstall.php:97
+msgid "WordPress is about to delete the plugin files. Before that happens, choose what to do with the data the plugin wrote."
+msgstr ""
+
+#: uninstall.php:108
+msgid "Keep the data"
+msgstr ""
+
+#: uninstall.php:110
+msgid "Deletes only the plugin files. The plugin tables, aiya_core_* settings, meta fields and scheduled events survive, so reinstalling picks up where it left off — the safe answer for plugin updates."
+msgstr ""
+
+#: uninstall.php:111
+msgid "Delete plugin only, keep the data"
+msgstr ""
+
+#: uninstall.php:115
+msgid "Erase everything"
+msgstr ""
+
+#: uninstall.php:117
+msgid "Also drops the plugin tables (favorites, follows, auth tokens, notifications, credits, memberships, redeem codes, payment orders, stats, discussions) plus the aiya_core_* options, meta residue, transients and scheduled events. This cannot be undone."
+msgstr ""
+
+#: uninstall.php:118
+msgid "Delete plugin and erase all data"
+msgstr ""
+
+#: uninstall.php:125
+msgid "Kept either way:"
+msgstr ""
+
+#: uninstall.php:126
+msgid "uploaded media and the wp-content/aiya_thumbnail/ tree (generated covers and avatars), and the pic-bed pool."
+msgstr ""
+
+#: uninstall.php:128
+msgid "Heavy dependency directories such as vendor/ are moved aside instantly so the deletion never blocks, and a daily cleanup cron removes the staged copy from wp-content/upgrade/ afterwards."
+msgstr ""
+
+#: uninstall.php:129
+msgid "Cancel, back to the plugin list"
 msgstr ""

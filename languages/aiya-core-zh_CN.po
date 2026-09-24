@@ -2,26 +2,16 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.79.0
-"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core
-"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>
-"
-"Language-Team: LANGUAGE <LL@li.org>
-"
-"MIME-Version: 1.0
-"
-"Content-Type: text/plain; charset=UTF-8
-"
-"Content-Transfer-Encoding: 8bit
-"
-"PO-Revision-Date: 2026-09-19 10:00+0800
-"
-"X-Generator: WP-CLI 2.12.0
-"
-"X-Domain: aiya-core
-"
+"Project-Id-Version: AIYA Core 0.93.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2026-09-23 10:45+0800\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: aiya-core\n"
 
 msgid "AIYA Core"
 msgstr "AIYA Core"
@@ -31,6 +21,18 @@ msgstr "面向 AIYA CMS 的无头优先管理与内容框架。"
 
 msgid "Yeraph Studio"
 msgstr "Yeraph Studio"
+
+msgid "Refresh thumbnails"
+msgstr "刷新缩略图"
+
+msgid "%d item refreshed."
+msgstr "已刷新 %d 项。"
+
+msgid "%d item skipped (nothing to refresh or not permitted)."
+msgstr "已跳过 %d 项（无可刷新或不具备权限）。"
+
+msgid "No thumbnails were refreshed."
+msgstr "没有刷新任何缩略图。"
 
 msgid "Redemption codes"
 msgstr "兑换码"
@@ -149,41 +151,14 @@ msgstr "您无权编辑这篇文章。"
 msgid "Cover generated."
 msgstr "封面已生成。"
 
-msgid "Membership"
-msgstr "会员"
-
-msgid "Credits"
-msgstr "积分"
+msgid "Credit ledger"
+msgstr "积分账本"
 
 msgid "You are not allowed to manage credits."
 msgstr "您无权管理积分。"
 
 msgid "Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice."
 msgstr "成本计量账本：发放生成会过期的桶，消费按最早过期先扣。余额由账本推导，不做二次存储。"
-
-msgid "Daily check-in"
-msgstr "每日签到"
-
-msgid "Check-in"
-msgstr "签到"
-
-msgid "Signed-in users claim a small daily credit grant from the front end."
-msgstr "登录用户可在前台每日领取一小笔积分。"
-
-msgid "Check-in grant"
-msgstr "签到发放额"
-
-msgid "Credits added per check-in; 0 disables granting."
-msgstr "每次签到加入的积分；0 表示不发放。"
-
-msgid "Credit validity (days)"
-msgstr "积分有效期（天）"
-
-msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
-msgstr "签到发放的积分可使用的时长。积分是成本计量，不是存款——每笔发放都会过期。"
-
-msgid "Save settings"
-msgstr "保存设置"
 
 msgid "Manual grant"
 msgstr "手动发放"
@@ -211,9 +186,6 @@ msgstr "可选；会记入账本关联号。"
 
 msgid "Grant credits"
 msgstr "发放积分"
-
-msgid "Credit ledger"
-msgstr "积分账本"
 
 msgid "View ledger"
 msgstr "查看流水"
@@ -248,8 +220,8 @@ msgstr "积分账户用户不存在。"
 msgid "An admin grant with this exact note already exists for this user."
 msgstr "该用户已存在一条完全相同备注的手动发放。"
 
-msgid "Settings saved."
-msgstr "设置已保存。"
+msgid "Credits"
+msgstr "积分"
 
 msgid "Credits granted."
 msgstr "积分已发放。"
@@ -257,8 +229,14 @@ msgstr "积分已发放。"
 msgid "The operation failed."
 msgstr "操作失败。"
 
+msgid "Check-in"
+msgstr "签到"
+
 msgid "Redeem code"
 msgstr "兑换码"
+
+msgid "Membership"
+msgstr "会员"
 
 msgid "Admin grant"
 msgstr "手动发放"
@@ -416,8 +394,74 @@ msgstr "清除已存值"
 msgid "Add item"
 msgstr "添加条目"
 
+msgid "File downloads"
+msgstr "文件下载"
+
+msgid "Each data group becomes its own list on the front end. Readers see the file names and what a download costs; the link itself is handed over when they claim it."
+msgstr "每个数据组在前台各自成为一个列表。读者看到文件名与下载所需积分；链接在领取时才交给读者。"
+
+msgid "Add a data group"
+msgstr "新增数据组"
+
+msgid "Add data group"
+msgstr "新增数据组"
+
+msgid "Save configuration"
+msgstr "保存配置"
+
+msgid "Preview file lists"
+msgstr "预览文件列表"
+
+msgid "File configuration saved."
+msgstr "文件配置已保存。"
+
+msgid "Lists refreshed from their sources."
+msgstr "已从各自来源重新读取列表。"
+
+msgid "The file configuration was not saved."
+msgstr "文件配置未保存。"
+
+msgid "Data group"
+msgstr "数据组"
+
+msgid "Remove this group"
+msgstr "删除此组"
+
+msgid "Remove this data group? Its settings are dropped when you save."
+msgstr "删除这个数据组？保存后它的设置会被丢弃。"
+
+msgid "This group has nothing configured yet."
+msgstr "这个数据组还没有任何配置。"
+
+msgid "No list has anything to show yet."
+msgstr "还没有任何列表有内容可显示。"
+
+msgid "%d credits per file"
+msgstr "每文件 %d 积分"
+
+msgid "Free"
+msgstr "免费"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "Size"
+msgstr "大小"
+
+msgid "Preview"
+msgstr "预览"
+
+msgid "Saving…"
+msgstr "保存中…"
+
+msgid "Reading the sources…"
+msgstr "正在读取来源…"
+
 msgid "Additional fields"
 msgstr "附加字段"
+
+msgid "Some metadata fields were not saved:"
+msgstr "部分元数据字段未保存："
 
 msgid "Notifications"
 msgstr "通知"
@@ -452,6 +496,9 @@ msgstr "范围"
 msgid "No notifications stored."
 msgstr "尚无通知。"
 
+msgid "User #%d"
+msgstr "用户 #%d"
+
 msgid "Broadcast"
 msgstr "广播"
 
@@ -476,8 +523,167 @@ msgstr "管理员"
 msgid "Guest"
 msgstr "访客"
 
+msgid "Operations report"
+msgstr "运营统计"
+
+msgid "You are not allowed to view the operations report."
+msgstr "您无权查看运营统计。"
+
+msgid "Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger's spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
+msgstr "积分流水、会员与流量的月度报表。消耗直接取自账本的 spend 事件，下载由文件下载域计量——每次交付计一次，扣费与免费均算。数据自安装起累计，更早的月份无法从账本重建。"
+
+msgid "Month"
+msgstr "月份"
+
+msgid "View"
+msgstr "查看"
+
+msgid "Indicators — %s"
+msgstr "指标 — %s"
+
+msgid "Credits granted"
+msgstr "发放积分"
+
+msgid "Check-in %1$s · Membership %2$s · Codes %3$s · Manual %4$s"
+msgstr "签到 %1$s · 会员 %2$s · 兑换码 %3$s · 手动 %4$s"
+
+msgid "Credits consumed"
+msgstr "消耗积分"
+
+msgid "Credits expired"
+msgstr "过期积分"
+
+msgid "Downloads"
+msgstr "下载次数"
+
+msgid "Active users"
+msgstr "活跃用户"
+
+msgid "Members"
+msgstr "会员"
+
+msgid "Holders whose membership covers this month, codes included."
+msgstr "该月处于会员有效期内的用户，含兑换码持有者。"
+
+msgid "Paying users"
+msgstr "付费用户"
+
+msgid "Covered holders whose order was actually paid."
+msgstr "有效期内且订单已实付的用户。"
+
+msgid "Cash collected"
+msgstr "实收"
+
+msgid "Recognized revenue"
+msgstr "确认收入"
+
+msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once and its months sum back to the order total. Booked revenue for the month — not a forward-looking MRR run rate."
+msgstr "订单金额按服务周期摊分，多周期购买不会一次性入账，各月之和回到订单总额。这是当月确认收入，而非前瞻性的 MRR 运行率。"
+
+msgid "Cost"
+msgstr "成本"
+
+msgid "Downloads × %1$s per download, %2$s"
+msgstr "下载次数 × 单次 %1$s，%2$s"
+
+msgid "rate frozen when the month closed"
+msgstr "单价已于月末冻结"
+
+msgid "at the current rate; frozen when the month closes"
+msgstr "按当前单价计算，月末冻结"
+
+msgid "Outstanding credits"
+msgstr "未消耗积分"
+
+msgid "What every holder could still spend right now — the report's liability figure."
+msgstr "当前所有用户仍可消费的积分总额，即报告的积分负债。"
+
+msgid "Consumption rate"
+msgstr "积分消耗率"
+
+msgid "Expiry rate"
+msgstr "过期率"
+
+msgid "Downloads per active user"
+msgstr "用户平均下载量"
+
+msgid "Downloads per paying user"
+msgstr "付费用户平均下载量"
+
+msgid "Revenue per paying user"
+msgstr "每个付费用户带来的收入"
+
+msgid "Cost per paying user"
+msgstr "每个付费用户的实际成本"
+
+msgid "Trailing 12 months"
+msgstr "近 12 个月趋势"
+
+msgid "Granted"
+msgstr "发放"
+
+msgid "Consumed"
+msgstr "消耗"
+
+msgid "Expired"
+msgstr "过期"
+
+msgid "Cash"
+msgstr "实收"
+
+msgid "Recognized"
+msgstr "确认收入"
+
+msgid "Grants by source"
+msgstr "发放来源"
+
+msgid "Codes"
+msgstr "兑换码"
+
+msgid "Manual"
+msgstr "手动"
+
+msgid "Total"
+msgstr "合计"
+
+msgid "Payment audit"
+msgstr "支付查账"
+
+msgid "You are not allowed to view payments."
+msgstr "您无权查看支付记录。"
+
+msgid "Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue."
+msgstr "记录中的全部网关入账——仅记资金事实；所购权益见会员队列。"
+
+msgid "All sources"
+msgstr "全部来源"
+
+msgid "Order"
+msgstr "订单"
+
+msgid "No payments recorded yet."
+msgstr "暂无支付记录。"
+
+msgid "Epay"
+msgstr "易支付"
+
+msgid "Afdian"
+msgstr "爱发电"
+
+msgid "Paid"
+msgstr "已支付"
+
+msgid "Awaiting payment"
+msgstr "待支付"
+
+msgid "Unpaid"
+msgstr "未支付"
+
 msgid "Pic bed"
 msgstr "图床"
+
+msgid "You are not allowed to manage the pic bed."
+msgstr "您无权管理图床。"
 
 msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk."
 msgstr "将图片上传到 wp-content/aiya_upload_pics，不占用媒体库与 uploads 目录：无附件 ID、不生成 WP 缩略图。每张图都会经过图像处理器处理一次，落盘的即是处理后的文件。"
@@ -539,14 +745,11 @@ msgstr "无法解析图片 URL。"
 msgid "No uploads yet."
 msgstr "还没有上传记录。"
 
-msgid "Preview"
-msgstr "预览"
+msgid "The %d oldest file is not listed."
+msgstr "最早的 %d 个文件未列出。"
 
 msgid "User %1$s (#%2$d)"
 msgstr "用户 %1$s（#%2$d）"
-
-msgid "User #%d"
-msgstr "用户 #%d"
 
 msgid "Switch post type…"
 msgstr "切换文章类型…"
@@ -580,6 +783,9 @@ msgstr "没有切换任何内容。"
 
 msgid "Send Mail"
 msgstr "发送邮件"
+
+msgid "You are not allowed to send mail."
+msgstr "您无权发送邮件。"
 
 msgid "Compose an HTML email and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport."
 msgstr "撰写 HTML 邮件并即时发送。投递经由 wp_mail，由站点所用的 SMTP 插件负责传输。"
@@ -626,6 +832,9 @@ msgstr "您无权更新这些设置。"
 msgid "You are not allowed to view these settings."
 msgstr "您无权查看这些设置。"
 
+msgid "Settings saved."
+msgstr "设置已保存。"
+
 msgid "Settings reset."
 msgstr "设置已重置。"
 
@@ -640,6 +849,9 @@ msgstr "重置本页所有设置？"
 
 msgid "Reset"
 msgstr "重置"
+
+msgid "Smilies"
+msgstr "表情包"
 
 msgid "Move to another taxonomy…"
 msgstr "移动到其他分类法…"
@@ -686,6 +898,27 @@ msgstr "跳过 %d 个术语（未变化或无权限）。"
 msgid "Nothing was moved."
 msgstr "没有移动任何内容。"
 
+msgid "Visibility gate"
+msgstr "可见性门禁"
+
+msgid "Everyone"
+msgstr "所有人"
+
+msgid "The post reads like any other published post."
+msgstr "与其他已发布文章一样可读。"
+
+msgid "Logged-in users"
+msgstr "登录用户"
+
+msgid "Guests see neither the post in lists nor its body; any signed-in account qualifies."
+msgstr "访客在列表与正文中都看不到该文章；任何登录账号均可查看。"
+
+msgid "Members only"
+msgstr "仅限会员"
+
+msgid "Only active sponsors (and editors) get past the gate."
+msgstr "仅生效中的赞助者（及编辑）可通过门禁。"
+
 msgid "You are already logged in."
 msgstr "您已登录。"
 
@@ -704,6 +937,9 @@ msgstr "该邮箱地址已被注册。"
 msgid "The account could not be created, please retry."
 msgstr "账户创建失败，请重试。"
 
+msgid "The account was created, but the profile could not be saved."
+msgstr "账号已创建，但资料保存失败。"
+
 msgid "Please provide the email address and the password."
 msgstr "请填写邮箱地址与密码。"
 
@@ -715,6 +951,9 @@ msgstr "未能使现有会话失效；密码未做修改。"
 
 msgid "The reset link is missing required parameters."
 msgstr "重置链接缺少必要参数。"
+
+msgid "Too many requests, try again later."
+msgstr "请求过于频繁，请稍后再试。"
 
 msgid "This password reset link is invalid or has expired."
 msgstr "此密码重置链接无效或已过期。"
@@ -734,6 +973,9 @@ msgstr "请求过于频繁，请稍后再试。"
 msgid "Comments are closed for this content."
 msgstr "该内容的评论已关闭。"
 
+msgid "The comment is too long."
+msgstr "评论过长。"
+
 msgid "The comment must be 1-%d characters long."
 msgstr "评论长度需为 1-%d 个字符。"
 
@@ -742,6 +984,9 @@ msgstr "所回复的评论不存在。"
 
 msgid "Please log in to comment."
 msgstr "请登录后评论。"
+
+msgid "Please provide your name and a valid email address to comment."
+msgstr "评论需要提供昵称与有效邮箱地址。"
 
 msgid "The comment could not be posted."
 msgstr "评论发布失败。"
@@ -758,14 +1003,20 @@ msgstr "密码不正确。"
 msgid "Profile not found."
 msgstr "未找到该用户主页。"
 
-msgid "Too many requests, try again later."
-msgstr "请求过于频繁，请稍后再试。"
+msgid "Please log in to interact."
+msgstr "登录后才能点赞或评分。"
+
+msgid "This account is disabled."
+msgstr "该账号已被禁用。"
 
 msgid "Check-in is not available."
 msgstr "签到功能未开放。"
 
 msgid "Already checked in today."
 msgstr "今天已签到。"
+
+msgid "The Afdian channel is not available."
+msgstr "爱发电渠道当前不可用。"
 
 msgid "The thread could not be read back."
 msgstr "无法读回该线程。"
@@ -779,6 +1030,9 @@ msgstr "板块不存在。"
 msgid "Thread not found."
 msgstr "线程不存在。"
 
+msgid "This tier is not bound to an Afdian plan."
+msgstr "该档位未绑定爱发电方案。"
+
 msgid "No payment gateway is available."
 msgstr "没有可用的支付网关。"
 
@@ -787,6 +1041,9 @@ msgstr "所请求的支付渠道不可用。"
 
 msgid "Unknown membership tier."
 msgstr "会员档位不存在。"
+
+msgid "This membership tier is not available."
+msgstr "该会员档位不可用。"
 
 msgid "The favorite could not be removed."
 msgstr "取消收藏失败。"
@@ -808,6 +1065,90 @@ msgstr "未上传头像图片。"
 
 msgid "The current password is incorrect."
 msgstr "当前密码不正确。"
+
+msgid "Blocks"
+msgstr "页面区块"
+
+msgid "These lists replace the WordPress menu system and feed the shell's dynamic slots: the front end reads them through the `blocks` group of GET /aiya/core/v1/site, rows in listed order."
+msgstr "这些列表替代 WordPress 菜单系统，并填充壳层的动态槽位：前台经 GET /aiya/core/v1/site 的 `blocks` 组按列表顺序读取。"
+
+msgid "Primary menu"
+msgstr "主菜单"
+
+msgid "The main navigation of the front-end shell (site header). Internal targets are front-end paths (/posts/), external ones absolute https URLs."
+msgstr "前台外壳的主导航（页头）。站内目标填前台路径（/posts/），外部目标填完整的 https URL。"
+
+msgid "Secondary menu"
+msgstr "次菜单"
+
+msgid "The auxiliary navigation of the front-end shell (footer, legal links). Same rules as the primary menu."
+msgstr "前台外壳的辅助导航（页脚、法务链接）。规则同主菜单。"
+
+msgid "Page-top advertisements"
+msgstr "页面顶部广告"
+
+msgid "Ad slots rendered at the top of front-end pages, in listed order."
+msgstr "在前台页面顶部按列表顺序渲染的广告位。"
+
+msgid "Page-bottom advertisements"
+msgstr "页面底部广告"
+
+msgid "Ad slots rendered at the bottom of front-end pages, in listed order."
+msgstr "在前台页面底部按列表顺序渲染的广告位。"
+
+msgid "Carousel"
+msgstr "轮播"
+
+msgid "Carousel slides for the front-end banner slot, in listed order."
+msgstr "前台横幅槽位的轮播卡片，按列表顺序渲染。"
+
+msgid "Label"
+msgstr "标签"
+
+msgid "Front-end path (/posts/) or external URL; empty falls back to the home path."
+msgstr "前台路径（/posts/）或外部 URL；留空回退到首页路径。"
+
+msgid "Icon"
+msgstr "图标"
+
+msgid "Optional Lucide icon name for the sidebar (e.g. \"home\", \"image\", \"file-text\")."
+msgstr "侧边栏使用的可选 Lucide 图标名（如 \"home\"、\"image\"、\"file-text\"）。"
+
+msgid "Open in"
+msgstr "打开方式"
+
+msgid "Same window"
+msgstr "当前窗口"
+
+msgid "New window"
+msgstr "新窗口"
+
+msgid "Link"
+msgstr "链接"
+
+msgid "Front-end path or external URL; empty renders the banner without a link."
+msgstr "前台路径或外部 URL；留空则横幅不带链接。"
+
+msgid "Link text"
+msgstr "链接文本"
+
+msgid "Also used as the banner image alt text."
+msgstr "同时用作横幅图的替代文本。"
+
+msgid "Ad image"
+msgstr "广告图"
+
+msgid "The banner artwork from the media library."
+msgstr "来自媒体库的横幅图。"
+
+msgid "Front-end path or external URL; empty renders the slide without a link."
+msgstr "前台路径或外部 URL；留空则轮播卡片不带链接。"
+
+msgid "Slide image"
+msgstr "轮播图"
+
+msgid "The slide artwork from the media library."
+msgstr "来自媒体库的轮播图。"
 
 msgid "Resource"
 msgstr "资源"
@@ -866,6 +1207,12 @@ msgstr "空状态图片"
 msgid "Placeholder shown on empty lists and error cards across the front end."
 msgstr "前台空列表与错误卡片上显示的占位图。"
 
+msgid "Default post cover"
+msgstr "默认文章封面"
+
+msgid "Hero cover shown on article pages when the post has no featured image of its own (auto-cropped to the article banner ratio)."
+msgstr "文章页在文章没有自己的特色图时展示的头部封面（自动裁剪为文章横幅比例）。"
+
 msgid "Header banner"
 msgstr "头部横幅"
 
@@ -899,12 +1246,6 @@ msgstr "页脚展示的备案信息，每行一条，如 ICP 或公安备案。"
 msgid "Text"
 msgstr "文字"
 
-msgid "Link"
-msgstr "链接"
-
-msgid "Icon"
-msgstr "图标"
-
 msgid "Shield (ICP)"
 msgstr "盾牌（ICP）"
 
@@ -932,56 +1273,26 @@ msgstr "账本保留期（天）"
 msgid "How long closed credit history (spent rows, emptied buckets) is kept before the daily cleanup removes it. Live unexpired buckets are never touched."
 msgstr "已关闭的积分历史（消费流水、已扣空的桶）在每日清理前的保留时长。未过期的有效桶不受影响。"
 
-msgid "Navigation"
-msgstr "导航"
-
-msgid "These lists replace the WordPress menu system: the front end reads them through GET /aiya/core/v1/menus/primary and /menus/secondary, rows in listed order."
-msgstr "这些列表取代 WordPress 菜单系统：前端通过 GET /aiya/core/v1/menus/primary 与 /menus/secondary 按列表顺序读取。"
-
-msgid "Primary menu"
-msgstr "主菜单"
-
-msgid "The main navigation of the front-end shell (site header). Internal targets are front-end paths (/posts/), external ones absolute https URLs."
-msgstr "前台外壳的主导航（页头）。站内目标填前台路径（/posts/），外部目标填完整的 https URL。"
-
-msgid "Secondary menu"
-msgstr "次菜单"
-
-msgid "The auxiliary navigation of the front-end shell (footer, legal links). Same rules as the primary menu."
-msgstr "前台外壳的辅助导航（页脚、法务链接）。规则同主菜单。"
-
-msgid "Label"
-msgstr "标签"
-
-msgid "Front-end path (/posts/) or external URL; empty falls back to the home path."
-msgstr "前台路径（/posts/）或外部 URL；留空回退到首页路径。"
-
-msgid "Optional Lucide icon name for the sidebar (e.g. \"home\", \"image\", \"file-text\")."
-msgstr "侧边栏使用的可选 Lucide 图标名（如 \"home\"、\"image\"、\"file-text\"）。"
-
-msgid "Open in"
-msgstr "打开方式"
-
-msgid "Same window"
-msgstr "当前窗口"
-
-msgid "New window"
-msgstr "新窗口"
-
-msgid "SEO fields"
-msgstr "SEO 字段"
+msgid "SEO & analytics"
+msgstr "SEO 与统计"
 
 msgid "SEO keywords"
 msgstr "SEO 关键词"
 
-msgid "Comma-separated keywords projected into the headless API."
-msgstr "以逗号分隔的关键词，输出到无头 API。"
+msgid "Comma-separated keywords for the site home page."
+msgstr "站点首页的关键词，英文逗号分隔。"
 
 msgid "SEO description"
 msgstr "SEO 描述"
 
-msgid "Meta description projected into the headless API."
-msgstr "输出到无头 API 的 meta 描述。"
+msgid "Meta description for the site home page."
+msgstr "站点首页的 meta 描述。"
+
+msgid "Google Analytics ID"
+msgstr "Google Analytics ID"
+
+msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
+msgstr "衡量 ID（如 G-XXXXXXXXXX），前端据此渲染统计脚本；留空则不启用。"
 
 msgid "Slug generation"
 msgstr "别名生成"
@@ -1019,20 +1330,23 @@ msgstr "对所有分类法生效：术语别名为空时，按名称转换为拼
 msgid "Pinyin from the term name"
 msgstr "名称拼音"
 
-msgid "Term SEO and cover"
-msgstr "术语 SEO 与封面"
+msgid "Free-form text; the front end resolves it into an icon."
+msgstr "自由文本，前台将其解析为图标。"
+
+msgid "Custom appearance"
+msgstr "自定义外观"
 
 msgid "Used by the headless front end for this term's archive page."
 msgstr "无头前端在此术语的归档页使用这些信息。"
-
-msgid "Comma-separated keywords for the term archive page."
-msgstr "术语归档页的关键词，以逗号分隔。"
 
 msgid "Cover image"
 msgstr "封面图"
 
 msgid "Upload or pick an image from the media library; it serves as the cover of the term archive page."
 msgstr "上传或从媒体库选择图片，作为术语归档页的封面。"
+
+msgid "Used by the headless front end wherever this term shows up."
+msgstr "前台在该术语出现的任何位置使用。"
 
 msgid "Typography tools"
 msgstr "排版工具"
@@ -1090,6 +1404,24 @@ msgstr "移除所有空标签"
 
 msgid "Remove paragraph indentation"
 msgstr "移除段首缩进"
+
+msgid "Daily check-in"
+msgstr "每日签到"
+
+msgid "Signed-in users claim a small daily credit grant from the front end."
+msgstr "登录用户可在前台每日领取一小笔积分。"
+
+msgid "Check-in grant"
+msgstr "签到发放额"
+
+msgid "Credits added per check-in; 0 disables granting."
+msgstr "每次签到加入的积分；0 表示不发放。"
+
+msgid "Credit validity (days)"
+msgstr "积分有效期（天）"
+
+msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
+msgstr "签到发放的积分可使用的时长。积分是成本计量，不是存款——每笔发放都会过期。"
 
 msgid "The credit amount must be positive."
 msgstr "积分数额必须为正。"
@@ -1643,110 +1975,38 @@ msgstr "内容不存在。"
 msgid "This content does not carry counters."
 msgstr "该内容不支持计数。"
 
-msgid "Resource not found."
-msgstr "资源不存在。"
+msgid "Folder id or share code"
+msgstr "文件夹 ID 或分享码"
 
-msgid "Unsupported mode."
-msgstr "不支持的模式。"
+msgid "The GoFile folder this list shows. Reading it through the API needs a Premium account on the token from the file downloads settings page."
+msgstr "这个列表展示的 GoFile 文件夹。通过 API 读取它需要在「文件下载」设置页填写的令牌属于高级版账号。"
 
-msgid "Unsupported OpenList operation."
-msgstr "不支持的 OpenList 操作。"
+msgid "The GoFile token is not a Premium account, and the API only lists folders for Premium."
+msgstr "该 GoFile 令牌不是高级版账号，而 API 仅对高级版开放文件夹列表。"
 
-msgid "The file service is unreachable."
-msgstr "文件服务不可达。"
+msgid "OpenList search"
+msgstr "OpenList 搜索"
 
-msgid "The file service returned an invalid response."
-msgstr "文件服务返回了无效响应。"
+msgid "OpenList directory"
+msgstr "OpenList 目录"
 
-msgid "OpenList"
-msgstr "OpenList"
+msgid "Keywords"
+msgstr "搜索词"
 
-msgid "Server URL"
-msgstr "服务器地址"
-
-msgid "Base address of the OpenList instance that hosts resource attachments."
-msgstr "承载资源附件的 OpenList 实例基础地址。"
-
-msgid "API username"
-msgstr "API 用户名"
-
-msgid "API password"
-msgstr "API 密码"
-
-msgid "Used to fetch fresh bearer tokens; stored server-side and never exposed."
-msgstr "用于获取新的 Bearer 令牌；仅存于服务端，绝不外泄。"
-
-msgid "Token cache (hours)"
-msgstr "令牌缓存（小时）"
-
-msgid "0 refetches the token on every request. Uses the object cache, so a Redis/memcached drop-in makes it persist."
-msgstr "0 表示每次请求都重新获取令牌。使用对象缓存，装上 Redis/memcached drop-in 即可持久化。"
-
-msgid "Attachment list cache (minutes)"
-msgstr "附件列表缓存（分钟）"
-
-msgid "How long an attachment listing is served from the object cache before OpenList is asked again; 0 disables caching. The box's force-refresh switch always bypasses it."
-msgstr "附件列表在对象缓存中的保留时长，超时才会重新请求 OpenList；0 为禁用缓存。编辑框中的「强制刷新」开关始终绕过缓存。"
-
-msgid "Download link mode"
-msgstr "下载链接模式"
-
-msgid "Plain path"
-msgstr "纯路径"
-
-msgid "Direct (/d/)"
-msgstr "直连（/d/）"
-
-msgid "Proxied (/p/)"
-msgstr "代理（/p/）"
-
-msgid "raw_url from the API"
-msgstr "API 的 raw_url"
-
-msgid "File type icons"
-msgstr "文件类型图标"
-
-msgid "Classify attachments by extension for the front end."
-msgstr "按扩展名为前端分类附件。"
-
-msgid "Default panel description"
-msgstr "默认面板描述"
-
-msgid "Shown when a resource does not describe its attachments."
-msgstr "资源未描述附件时显示。"
-
-msgid "OpenList attachments"
-msgstr "OpenList 附件"
-
-msgid "Surfacing mode"
-msgstr "呈现模式"
-
-msgid "List a directory"
-msgstr "列出目录"
-
-msgid "Single file or directory"
-msgstr "单文件或目录"
-
-msgid "Directory tree"
-msgstr "目录树"
-
-msgid "Search"
-msgstr "搜索"
-
-msgid "Path"
-msgstr "路径"
-
-msgid "Panel description"
-msgstr "面板描述"
+msgid "What this list searches for."
+msgstr "这个列表要搜索的内容。"
 
 msgid "Search root"
 msgstr "搜索根目录"
 
-msgid "Search mode only."
-msgstr "仅搜索模式使用。"
+msgid "The directory the search starts from; empty means the service root."
+msgstr "搜索起始目录；留空表示服务根目录。"
 
-msgid "Search keywords"
-msgstr "搜索关键词"
+msgid "Path password"
+msgstr "路径密码"
+
+msgid "The password of that directory on the OpenList side, if any."
+msgstr "OpenList 侧该目录的密码（如有）。"
 
 msgid "Per page"
 msgstr "每页数量"
@@ -1754,17 +2014,86 @@ msgstr "每页数量"
 msgid "0 lists everything."
 msgstr "0 表示列出全部。"
 
-msgid "OpenList path password"
-msgstr "OpenList 路径密码"
+msgid "Path"
+msgstr "路径"
 
-msgid "The password of the configured path on the OpenList side, if any."
-msgstr "所配置路径在 OpenList 侧的密码（如有）。"
+msgid "The directory whose files this list shows; leave it empty to keep this list off."
+msgstr "要展示其文件的目录；留空则不启用这个列表。"
 
-msgid "Force refresh"
-msgstr "强制刷新"
+msgid "The password of that directory on the OpenList side, if any. Kept readable: every request re-sends it."
+msgstr "OpenList 侧该目录的密码（如有）。因每次请求都要重发，故保持明文可读。"
 
-msgid "Skip the OpenList cache on every listing request."
-msgstr "每次列表请求都跳过 OpenList 缓存。"
+msgid "Drive share"
+msgstr "网盘分享"
+
+msgid "Share link"
+msgstr "分享链接"
+
+msgid "The cloud-drive share a reader opens. A bare domain is read as https at delivery time, so the stored value stays what you typed."
+msgstr "读者打开的网盘分享地址。裸域名会在交付时按 https 读取，因此存储的值保持你填写的原样。"
+
+msgid "Extraction code"
+msgstr "提取码"
+
+msgid "The drive's own code, handed to the reader together with the link."
+msgstr "网盘自己的提取码，与链接一起交给读者。"
+
+msgid "List title"
+msgstr "列表标题"
+
+msgid "Shown above this list on the front end; leave it empty to show the adapter name instead."
+msgstr "显示在前台这个列表的上方；留空则显示适配器名称。"
+
+msgid "Credits per file"
+msgstr "每文件积分"
+
+msgid "Charged for every download from this list; 0 keeps it free."
+msgstr "本列表每次下载扣取的积分；0 表示免费。"
+
+msgid "The file configuration could not be read."
+msgstr "文件配置无法读取。"
+
+msgid "A data group key could not be read."
+msgstr "某个数据组的键无法读取。"
+
+msgid "Data group %s could not be read."
+msgstr "数据组 %s 无法读取。"
+
+msgid "Data group %s names an adapter that is not available."
+msgstr "数据组 %s 指定的适配器不可用。"
+
+msgid "Data group %1$s: %2$s"
+msgstr "数据组 %1$s：%2$s"
+
+msgid "The file service rejected our credentials."
+msgstr "文件服务认证失败，请联系站长。"
+
+msgid "You do not have permission to fetch this file."
+msgstr "没有获取该文件的权限。"
+
+msgid "The file does not exist or has been removed."
+msgstr "文件不存在或已被移除。"
+
+msgid "The file service answered with something unrecognizable."
+msgstr "文件服务返回了无法识别的内容。"
+
+msgid "The file service is temporarily unavailable."
+msgstr "文件服务暂时不可用。"
+
+msgid "File lists"
+msgstr "文件列表"
+
+msgid "List cache (minutes)"
+msgstr "列表缓存（分钟）"
+
+msgid "How long a list is served from the object cache before its source is asked again; 0 disables caching. Editing a post's groups starts a new cache generation on its own."
+msgstr "列表从对象缓存取用的时长，超过后重新向来源请求；0 表示不缓存。编辑文章的任一数据组会自动开启新的缓存世代。"
+
+msgid "File type icons"
+msgstr "文件类型图标"
+
+msgid "Classify each row by extension so the front end can pick an icon."
+msgstr "按扩展名给每一行归类，供前端选择图标。"
 
 msgid "Avatar settings"
 msgstr "头像设置"
@@ -1849,6 +2178,12 @@ msgstr "要关注的用户不存在。"
 
 msgid "The follow could not be stored."
 msgstr "关注保存失败。"
+
+msgid "Disable this account"
+msgstr "禁用此账号"
+
+msgid "A disabled account cannot check in, cannot spend credits and is not treated as a member anywhere. Credits and memberships are left untouched — grants keep landing, they simply cannot be used, and the balance keeps expiring on its own schedule."
+msgstr "被禁用的账号不能签到、不能消耗积分，也不会在任何位置被视为会员。积分与会员权益保持原状——发放照常入账但无法使用，余额按原有节奏自然过期。"
 
 msgid "Password must be at least %d characters long."
 msgstr "密码长度至少 %d 个字符。"
@@ -1937,6 +2272,114 @@ msgstr "无效的通知接收者。"
 msgid "The notification could not be stored."
 msgstr "通知保存失败。"
 
+msgid "Upstream cost per download"
+msgstr "单次下载成本"
+
+msgid "What one metered download costs upstream, in the payment currency. The report derives a month's cost as downloads × this rate and freezes the rate into each month when it closes, so changing it never rewrites past months."
+msgstr "一次计量下载的上游成本，单位与支付币种一致。报告按「下载次数 × 该单价」推算每月成本，并在每月结束时把单价冻结进该月，因此之后修改单价不会改写历史月份。"
+
+msgid "Quick list"
+msgstr "快捷列表"
+
+msgid "Turns lines of text into a list, one item per line."
+msgstr "将文本按行转换为列表，每行一项。"
+
+msgid "Content"
+msgstr "内容"
+
+msgid "Ordered list"
+msgstr "编号列表"
+
+msgid "Quick list (columns)"
+msgstr "快捷列表（分栏）"
+
+msgid "Alternates lines into a description list: first line the term, second the description, and so on."
+msgstr "将文本按行交替转换为描述列表：奇数行为词条，偶数行为描述。"
+
+msgid "Term width"
+msgstr "词条宽度"
+
+msgid "1/4 width terms"
+msgstr "词条占 1/4 宽"
+
+msgid "1/2 width terms"
+msgstr "词条占 1/2 宽"
+
+msgid "3/4 width terms"
+msgstr "词条占 3/4 宽"
+
+msgid "Collapse panel"
+msgstr "折叠面板"
+
+msgid "A panel readers can expand or collapse."
+msgstr "创建一个可展开或收起的内容面板。"
+
+msgid "Notice card"
+msgstr "提示卡片"
+
+msgid "A highlighted notice with a level and a title."
+msgstr "创建一条带级别与标题的醒目提示。"
+
+msgid "Level"
+msgstr "级别"
+
+msgid "Default"
+msgstr "默认"
+
+msgid "Warning"
+msgstr "警告"
+
+msgid "Info"
+msgstr "信息"
+
+msgid "Success"
+msgstr "成功"
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Button link"
+msgstr "按钮链接"
+
+msgid "A styled link button."
+msgstr "创建一个带样式的链接按钮。"
+
+msgid "Opens"
+msgstr "打开方式"
+
+msgid "Same tab"
+msgstr "当前标签页"
+
+msgid "New tab"
+msgstr "新标签页"
+
+msgid "Style"
+msgstr "样式"
+
+msgid "Primary"
+msgstr "主要"
+
+msgid "Outline"
+msgstr "描边"
+
+msgid "Button label"
+msgstr "按钮文字"
+
+msgid "Quick copy"
+msgstr "一键复制"
+
+msgid "A text snippet the reader copies with one click."
+msgstr "供读者一键复制的文本片段。"
+
+msgid "Related post card"
+msgstr "关联文章卡片"
+
+msgid "Shows one post as a card with its cover, category, title and counters. Enter the post ID."
+msgstr "把一篇文章显示为卡片：封面、分类、标题与计数器。填入文章 ID。"
+
+msgid "Post ID"
+msgstr "文章 ID"
+
 msgid "Template parts"
 msgstr "模板零件"
 
@@ -1949,11 +2392,44 @@ msgstr "插入"
 msgid "No template parts are registered yet."
 msgstr "尚未注册任何模板零件。"
 
+msgid "This order has already been activated."
+msgstr "该订单已经激活过。"
+
+msgid "The membership activation failed — try again."
+msgstr "会员激活失败，请重试。"
+
+msgid "The Afdian API is unreachable — try again later."
+msgstr "爱发电接口暂时无法访问，请稍后再试。"
+
+msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
+msgstr "爱发电拒绝了请求（时间戳过期），请检查本服务器时钟。"
+
+msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
+msgstr "爱发电拒绝了请求，请检查支付设置页中的爱发电用户 ID 与 API Token。"
+
+msgid "No matching Afdian order — check the order number."
+msgstr "没有匹配的爱发电订单，请核对订单号。"
+
+msgid "This order is not a paid trade."
+msgstr "该订单不是已支付的交易。"
+
+msgid "This order's Afdian plan is not bound to a membership tier."
+msgstr "该订单对应的爱发电方案未绑定会员档位。"
+
+msgid "This order is bound to another account."
+msgstr "该订单已绑定其他账号。"
+
+msgid "The order carries no account binding — activate it from the account page with the order number."
+msgstr "该订单未携带账号绑定——请在账户页用订单号激活。"
+
 msgid "The membership holder does not exist."
 msgstr "会员归属用户不存在。"
 
 msgid "The order id is required."
 msgstr "订单号不能为空。"
+
+msgid "The membership is being updated — try again."
+msgstr "会员状态正在更新中，请重试。"
 
 msgid "This order was already activated."
 msgstr "该订单已激活过。"
@@ -1985,8 +2461,8 @@ msgstr "该兑换码已被使用。"
 msgid "The membership activation failed — the code was not consumed, try again."
 msgstr "会员激活失败——兑换码未被消耗，请重试。"
 
-msgid "Membership tiers"
-msgstr "会员档位"
+msgid "Membership settings"
+msgstr "会员设置"
 
 msgid "Tiers"
 msgstr "档位"
@@ -1996,6 +2472,9 @@ msgstr "档位列表"
 
 msgid "Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones."
 msgstr "每个档位是一款可购买的会员商品：购买者支付 单价 × 周期数，积分按周期逐期发放（买 12 个周期也不会一次性发完）。档位配置在购买时快照，之后的修改只影响新购买。"
+
+msgid "Disabled tiers stay out of the purchase list; existing holders keep their membership."
+msgstr "停用的档位不出现在购买列表；已有持有者的会员不受影响。"
 
 msgid "Key"
 msgstr "键名"
@@ -2054,11 +2533,50 @@ msgstr "前台回跳地址"
 msgid "Where the browser lands after paying; the headless front end owns this page."
 msgstr "支付完成后浏览器落地的页面；由无头前端提供。"
 
-msgid "Callback log"
-msgstr "回调日志"
+msgid "Afdian (platform push)"
+msgstr "爱发电（平台推送）"
 
-msgid "Append raw gateway callbacks to webhook_logs for debugging."
-msgstr "将原始网关回调追加到 webhook_logs 以便调试。"
+msgid "Afdian integration"
+msgstr "爱发电集成"
+
+msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
+msgstr "从爱发电激活会员：webhook 推送与订单号自助核销。在下方把爱发电方案绑定到站内档位——推送以回查平台的结果结算，绝不信任推送内容本身。"
+
+msgid "Afdian plan bindings"
+msgstr "爱发电方案绑定"
+
+msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
+msgstr "每行把一个爱发电方案（方案页 URL 中的 plan_id 段）绑定到其购买所激活的会员档位。未绑定方案的推送会被忽略。"
+
+msgid "Afdian plan ID"
+msgstr "爱发电方案 ID"
+
+msgid "Membership tier"
+msgstr "会员档位"
+
+msgid "The tier (from the membership settings page) that this plan activates."
+msgstr "该方案所激活的档位（来自会员设置页）。"
+
+msgid "Fallback tier"
+msgstr "兜底档位"
+
+msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
+msgstr "任意金额方案（无 plan_id 的普通充电）的订单将激活此档位。留空则拒绝这类订单。"
+
+msgid "Afdian user id"
+msgstr "爱发电用户 ID"
+
+msgid "Afdian API token"
+msgstr "爱发电 API Token"
+
+msgid "Afdian webhook address"
+msgstr "爱发电 Webhook 地址"
+
+msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
+msgstr "在爱发电创作者后台（开发工具 > WebHook）登记该地址：{site url}/wp-json/aiya/sponsorship/v1/afdian/callback，仅接受 POST。"
+
+msgid "These tiers still have active members and cannot be deleted: %s."
+msgstr "以下档位仍有生效中的会员，无法删除：%s。"
 
 msgid "Optimization"
 msgstr "优化"
@@ -2228,17 +2746,35 @@ msgstr "请求 URI 守卫"
 msgid "Reject logged-out requests with oversized or probe-shaped URIs (414, REST routes excepted)"
 msgstr "拒绝未登录状态下 URI 过长或形如探测的请求（414，REST 路由除外）"
 
+msgid "Uninstall"
+msgstr "卸载"
+
+msgid "Erase data on uninstall"
+msgstr "卸载时删除数据"
+
+msgid "Delete the plugin’s tables, settings and meta along with the plugin files"
+msgstr "删除插件文件时一并删除其数据表、设置与元数据"
+
+msgid "Off by default: deleting the plugin keeps all of its data (tables, settings, meta fields, scheduled events), so reinstalling picks up where it left off. Turn on only to wipe everything on uninstall — the wipe cannot be undone. Deleting via WP-CLI can force the same wipe with AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php."
+msgstr "默认关闭：删除插件会保留其全部数据（数据表、设置、元数据与定时任务），重新安装即可无缝恢复。仅确需彻底清除时开启——清除后无法恢复。经 WP-CLI 删除时，可在 wp-config.php 定义 AIYA_CORE_UNINSTALL_PURGE = true 达到同样效果。"
+
 msgid "Please log in with your email address."
 msgstr "请使用邮箱地址登录。"
 
 msgid "Not found."
 msgstr "未找到。"
 
+msgid "GoFile"
+msgstr "GoFile"
+
+msgid "Account token"
+msgstr "账号令牌"
+
+msgid "From the GoFile profile page. The account lists, folders and search endpoints work for any tier, but reading a folder needs Premium — without it every GoFile list reports that it needs Premium."
+msgstr "取自 GoFile 个人资料页。账户、文件夹与搜索端点在任意档位都可调用，但读取文件夹需要高级版——没有高级版时每个 GoFile 列表都会报告需要高级版。"
+
 msgid "Every five minutes"
 msgstr "每 5 分钟"
-
-msgid "Refresh thumbnail"
-msgstr "刷新缩略图"
 
 msgid "Image processor"
 msgstr "图像处理器"
@@ -2357,6 +2893,45 @@ msgstr "0 = 全透明，100 = 不透明；仅对文字水印生效。"
 msgid "Image processing failed; the upload was cancelled."
 msgstr "图像处理失败，上传已取消。"
 
+msgid "OpenList service"
+msgstr "OpenList 服务"
+
+msgid "Server URL"
+msgstr "服务器地址"
+
+msgid "Base address of the OpenList instance that hosts the listed files."
+msgstr "承载所列文件的 OpenList 实例地址。"
+
+msgid "API username"
+msgstr "API 用户名"
+
+msgid "API password"
+msgstr "API 密码"
+
+msgid "Used to fetch fresh bearer tokens; stored server-side and never exposed."
+msgstr "用于获取新的 Bearer 令牌；仅存于服务端，绝不外泄。"
+
+msgid "Token cache (hours)"
+msgstr "令牌缓存（小时）"
+
+msgid "0 refetches the token on every request. Uses the object cache, so a Redis/memcached drop-in makes it persist."
+msgstr "0 表示每次请求都重新获取令牌。使用对象缓存，装上 Redis/memcached drop-in 即可持久化。"
+
+msgid "Download link mode"
+msgstr "下载链接模式"
+
+msgid "How a delivery link is built. All three are download paths on the OpenList host — none of them sends a reader to its browsing pages."
+msgstr "链接的拼接方式。三档都是 OpenList 主机上的下载路径，都不会把读者送到它的浏览页面。"
+
+msgid "Direct (/d/)"
+msgstr "直连（/d/）"
+
+msgid "Proxied (/p/)"
+msgstr "代理（/p/）"
+
+msgid "Plain path"
+msgstr "纯路径"
+
 msgid "A value is required."
 msgstr "此项必填。"
 
@@ -2382,883 +2957,115 @@ msgid "Select a valid option."
 msgstr "请选择有效选项。"
 
 
-msgid "Refresh thumbnails"
-msgstr "刷新缩略图"
+#: src/Domain/Sponsorship/SponsorshipModule.php:120
+msgid "One-liner shown on the plan card (what the tier includes)."
+msgstr "展示在档位卡片上的一句话说明（包含什么权益）。"
 
-msgid "%d item refreshed."
-msgstr "已刷新 %d 项。"
+#: src/Api/Rest/SponsorshipController.php:210
+msgid "The return URL is not a valid absolute http(s) address."
+msgstr "回跳地址不是有效的绝对 http(s) 地址。"
 
-msgid "%d item skipped (nothing to refresh or not permitted)."
-msgstr "已跳过 %d 项（无可刷新或不具备权限）。"
+msgid "Erase data on scripted uninstalls"
+msgstr "脚本卸载时清除数据"
 
-msgid "No thumbnails were refreshed."
-msgstr "没有刷新任何缩略图。"
+msgid "Wipe the tables, settings and meta on WP-CLI and scripted uninstalls (the Plugins screen always asks)"
+msgstr "WP-CLI 与脚本卸载时同时删除数据表、设置与元数据（后台插件页删除时始终会先询问）"
 
-msgid "Payment audit"
-msgstr "支付查账"
+msgid "Deleting the plugin keeps all of its data (tables, settings, meta fields, scheduled events), so reinstalling picks up where it left off. Deleting from the Plugins screen always stops and asks first; this switch is the standing answer for the uninstalls that have no UI, such as WP-CLI. Off they keep the data, on they wipe it — the wipe cannot be undone. AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php forces the same wipe everywhere and skips the question."
+msgstr "删除插件不会动它的数据（数据表、设置、元数据、定时任务），重装后自动接回原状态。在后台插件页删除时会先停下来询问；本开关是无 UI 卸载（如 WP-CLI）的既定答案：关闭时保留数据，开启时一并清除——清除不可恢复。wp-config.php 中定义 AIYA_CORE_UNINSTALL_PURGE = true 可在所有卸载路径强制清除并跳过询问。"
 
-msgid "You are not allowed to view payments."
-msgstr "您无权查看支付记录。"
+msgid "Delete AIYA Core"
+msgstr "删除 AIYA Core"
 
-msgid "Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue."
-msgstr "记录中的全部网关入账——仅记资金事实；所购权益见会员队列。"
+msgid "WordPress is about to delete the plugin files. Before that happens, choose what to do with the data the plugin wrote."
+msgstr "WordPress 即将删除插件文件。在此之前，请先确认插件写入的数据如何处理。"
 
-msgid "All sources"
-msgstr "全部来源"
+msgid "Keep the data"
+msgstr "保留数据"
 
-msgid "Epay"
-msgstr "易支付"
+msgid "Deletes only the plugin files. The plugin tables, aiya_core_* settings, meta fields and scheduled events survive, so reinstalling picks up where it left off — the safe answer for plugin updates."
+msgstr "只删除插件文件。插件数据表、aiya_core_* 设置、元数据与定时任务全部保留，重装后自动接回原状态——插件更新场景的安全选择。"
 
-msgid "Afdian"
-msgstr "爱发电"
+msgid "Delete plugin only, keep the data"
+msgstr "仅删除插件，保留数据"
 
-msgid "Order"
-msgstr "订单"
+msgid "Erase everything"
+msgstr "全部清除"
 
-msgid "No payments recorded yet."
-msgstr "暂无支付记录。"
+msgid "Also drops the plugin tables (favorites, follows, auth tokens, notifications, credits, memberships, redeem codes, payment orders, stats, discussions) plus the aiya_core_* options, meta residue, transients and scheduled events. This cannot be undone."
+msgstr "同时删除插件数据表（收藏、关注、认证令牌、通知、积分、会员、兑换码、支付流水、运营统计、社区）以及 aiya_core_* 设置、元数据残留、瞬时数据与定时任务。此操作不可恢复。"
 
-msgid "You are not allowed to manage the pic bed."
-msgstr "您无权管理图床。"
+msgid "Delete plugin and erase all data"
+msgstr "删除插件并清除全部数据"
 
-msgid "The %d oldest file is not listed."
-msgstr "最早的 %d 个文件未列出。"
+msgid "Kept either way:"
+msgstr "两种选择均保留："
 
-msgid "You are not allowed to send mail."
-msgstr "您无权发送邮件。"
+msgid "uploaded media and the wp-content/aiya_thumbnail/ tree (generated covers and avatars), and the pic-bed pool."
+msgstr "上传的媒体文件与 wp-content/aiya_thumbnail/ 目录（生成的封面与头像），以及图床文件池。"
 
-msgid "Smilies"
-msgstr "表情包"
+msgid "Cancel, back to the plugin list"
+msgstr "取消，返回插件列表"
 
-msgid "Visibility gate"
-msgstr "可见性门禁"
+#: src/Domain/Sponsorship/SponsorshipModule.php:153
+msgid "Cycles per purchase"
+msgstr "每次购买的周期数"
 
-msgid "The account was created, but the profile could not be saved."
-msgstr "账号已创建，但资料保存失败。"
+#: src/Domain/Sponsorship/SponsorshipModule.php:154
+msgid "One purchase of this tier always queues this many cycles; the front end shows the total, there is no cycle picker."
+msgstr "购买该档位一次即入队这么多周期；前台只展示总数，不再提供周期选择。"
 
-msgid "The Afdian channel is not available."
-msgstr "爱发电渠道当前不可用。"
+msgid "Heavy dependency directories such as vendor/ are moved aside instantly so the deletion never blocks, and a daily cleanup cron removes the staged copy from wp-content/upgrade/ afterwards."
+msgstr "vendor/ 等大型依赖目录会被瞬时移出、避免删除过程长时间阻塞，稍后由每日清理任务从 wp-content/upgrade/ 中移除暂存副本。"
 
-msgid "This tier is not bound to an Afdian plan."
-msgstr "该档位未绑定爱发电方案。"
+#: src/Domain/Identity/FavoriteService.php:185
+msgid "Only published content can be favorited."
+msgstr "只有已发布的内容可以收藏。"
 
-msgid "This membership tier is not available."
-msgstr "该会员档位不可用。"
+#: src/Modules/OpenListModule.php:121
+msgid "Link base URL"
+msgstr "外链地址"
 
-msgid "SEO & analytics"
-msgstr "SEO 与统计"
+#: src/Modules/OpenListModule.php:122
+msgid "Base address the delivery links are built on — the one the visitor's browser must reach. Leave empty to reuse the server URL; split them when WordPress reaches the file service on an internal host."
+msgstr "下载链接使用的基地址——必须是访客浏览器能访问的地址。留空时复用服务地址；当 WordPress 在容器内网访问文件服务时，两者需要分开填写。"
 
-msgid "Comma-separated keywords for the site home page."
-msgstr "站点首页的关键词，英文逗号分隔。"
+#: src/Domain/Content/BlocksModule.php
+msgid "Home sections"
+msgstr "首页区块"
 
-msgid "Meta description for the site home page."
-msgstr "站点首页的 meta 描述。"
+#: src/Domain/Content/BlocksModule.php
+msgid "Query templates for the front page, in listed order: a heading row (icon + title, \"more\" link at the right) over a list of posts. The front end resolves each section against its public list reads; rows without a title are skipped."
+msgstr "按列表顺序生成首页的查询模板：一行标题（图标 + 标题，右侧为「更多」链接）下列出帖子。前端按各区块配置调用公开列表读取自行解析；未填标题的行会被跳过。"
 
-msgid "Google Analytics ID"
-msgstr "Google Analytics ID"
+#: src/Domain/Content/BlocksModule.php
+msgid "Optional Lucide icon name beside the title (e.g. \"newspaper\", \"flame\", \"star\")."
+msgstr "标题旁可选的 Lucide 图标名（如 \"newspaper\"、\"flame\"、\"star\"）。"
 
-msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
-msgstr "衡量 ID（如 G-XXXXXXXXXX），前端据此渲染统计脚本；留空则不启用。"
+#: src/Domain/Content/BlocksModule.php
+msgid "Content type"
+msgstr "内容类型"
 
-msgid "Free-form text; the front end resolves it into an icon."
-msgstr "自由文本，前台将其解析为图标。"
+#: src/Domain/Content/BlocksModule.php
+msgid "Categories"
+msgstr "分类"
 
-msgid "Custom appearance"
-msgstr "自定义外观"
+#: src/Domain/Content/BlocksModule.php
+msgid "Nothing checked shows every category of the type; the listed vocabularies cover posts and resources alike."
+msgstr "全部不勾选即展示该类型的所有分类；所列词法同时覆盖文章与资源。"
 
-msgid "Used by the headless front end wherever this term shows up."
-msgstr "前台在该术语出现的任何位置使用。"
+#: src/Domain/Content/BlocksModule.php
+msgid "Post count"
+msgstr "帖子数量"
 
-msgid "Cloud drive links"
-msgstr "网盘链接"
+#: src/Domain/Content/BlocksModule.php
+msgid "How many posts the section lists (1-20)."
+msgstr "该区块列出的帖子数量（1-20）。"
 
-msgid "Drive links"
-msgstr "网盘链接列表"
+#: src/Domain/Content/BlocksModule.php
+msgid "\"More\" link"
+msgstr "「更多」链接"
 
-msgid "One row per cloud-drive share: a label, the share URL and the extraction code readers must enter."
-msgstr "每行一条网盘分享：名称、分享链接与读者需输入的提取码。"
-
-msgid "Extraction code"
-msgstr "提取码"
-
-msgid "Quick list"
-msgstr "快捷列表"
-
-msgid "Turns lines of text into a list, one item per line."
-msgstr "将文本按行转换为列表，每行一项。"
-
-msgid "Content"
-msgstr "内容"
-
-msgid "Ordered list"
-msgstr "编号列表"
-
-msgid "Quick list (columns)"
-msgstr "快捷列表（分栏）"
-
-msgid "Alternates lines into a description list: first line the term, second the description, and so on."
-msgstr "将文本按行交替转换为描述列表：奇数行为词条，偶数行为描述。"
-
-msgid "Term width"
-msgstr "词条宽度"
-
-msgid "1/4 width terms"
-msgstr "词条占 1/4 宽"
-
-msgid "1/2 width terms"
-msgstr "词条占 1/2 宽"
-
-msgid "3/4 width terms"
-msgstr "词条占 3/4 宽"
-
-msgid "Collapse panel"
-msgstr "折叠面板"
-
-msgid "A panel readers can expand or collapse."
-msgstr "创建一个可展开或收起的内容面板。"
-
-msgid "Notice card"
-msgstr "提示卡片"
-
-msgid "A highlighted notice with a level and a title."
-msgstr "创建一条带级别与标题的醒目提示。"
-
-msgid "Level"
-msgstr "级别"
-
-msgid "Default"
-msgstr "默认"
-
-msgid "Warning"
-msgstr "警告"
-
-msgid "Info"
-msgstr "信息"
-
-msgid "Success"
-msgstr "成功"
-
-msgid "Error"
-msgstr "错误"
-
-msgid "Button link"
-msgstr "按钮链接"
-
-msgid "A styled link button."
-msgstr "创建一个带样式的链接按钮。"
-
-msgid "Opens"
-msgstr "打开方式"
-
-msgid "Same tab"
-msgstr "当前标签页"
-
-msgid "New tab"
-msgstr "新标签页"
-
-msgid "Style"
-msgstr "样式"
-
-msgid "Primary"
-msgstr "主要"
-
-msgid "Outline"
-msgstr "描边"
-
-msgid "Button label"
-msgstr "按钮文字"
-
-msgid "Quick copy"
-msgstr "一键复制"
-
-msgid "A text snippet the reader copies with one click."
-msgstr "供读者一键复制的文本片段。"
-
-msgid "The Afdian API is unreachable — try again later."
-msgstr "爱发电接口暂时无法访问，请稍后再试。"
-
-msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
-msgstr "爱发电拒绝了请求（时间戳过期），请检查本服务器时钟。"
-
-msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
-msgstr "爱发电拒绝了请求，请检查支付设置页中的爱发电用户 ID 与 API Token。"
-
-msgid "No matching Afdian order — check the order number."
-msgstr "没有匹配的爱发电订单，请核对订单号。"
-
-msgid "This order is not a paid trade."
-msgstr "该订单不是已支付的交易。"
-
-msgid "This order's Afdian plan is not bound to a membership tier."
-msgstr "该订单对应的爱发电方案未绑定会员档位。"
-
-msgid "This order is bound to another account."
-msgstr "该订单已绑定其他账号。"
-
-msgid "The membership activation failed — try again."
-msgstr "会员激活失败，请重试。"
-
-msgid "This order has already been activated."
-msgstr "该订单已经激活过。"
-
-msgid "The membership is being updated — try again."
-msgstr "会员状态正在更新中，请重试。"
-
-msgid "Membership settings"
-msgstr "会员设置"
-
-msgid "Disabled tiers stay out of the purchase list; existing holders keep their membership."
-msgstr "停用的档位不出现在购买列表；已有持有者的会员不受影响。"
-
-msgid "Afdian (platform push)"
-msgstr "爱发电（平台推送）"
-
-msgid "Afdian integration"
-msgstr "爱发电集成"
-
-msgid "Activates memberships from Afdian: signed webhook pushes and the order-number self-service check. Bind the Afdian plan below to one local tier."
-msgstr "通过爱发电激活会员：签名 webhook 推送与订单号自助核验。需将下方的爱发电方案绑定到一个本地档位。"
-
-msgid "Afdian plan ID"
-msgstr "爱发电方案 ID"
-
-msgid "The plan_id this membership binds to; orders paid for it auto-activate the bound tier. Leave empty to keep Afdian unbound."
-msgstr "会员绑定的 plan_id；该方案支付的订单会自动激活绑定的档位。留空则不绑定爱发电。"
-
-msgid "Bound membership tier"
-msgstr "绑定的会员档位"
-
-msgid "The tier (from the membership settings page) that the Afdian plan activates."
-msgstr "爱发电方案所激活的档位（来自会员设置页）。"
-
-msgid "Afdian user id"
-msgstr "爱发电用户 ID"
-
-msgid "Afdian API token"
-msgstr "爱发电 API Token"
-
-msgid "Afdian webhook address"
-msgstr "爱发电 Webhook 地址"
-
-msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
-msgstr "在爱发电创作者后台（开发工具 > WebHook）登记该地址：{site url}/wp-json/aiya/sponsorship/v1/afdian/callback，仅接受 POST。"
-
-msgid "These tiers still have active members and cannot be deleted: %s."
-msgstr "以下档位仍有生效中的会员，无法删除：%s。"
-
-msgid "Everyone"
-msgstr "所有人"
-
-msgid "The post reads like any other published post."
-msgstr "与其他已发布文章一样可读。"
-
-msgid "Logged-in users"
-msgstr "登录用户"
-
-msgid "Guests see neither the post in lists nor its body; any signed-in account qualifies."
-msgstr "访客在列表与正文中都看不到该文章；任何登录账号均可查看。"
-
-msgid "Members only"
-msgstr "仅限会员"
-
-msgid "Only active sponsors (and editors) get past the gate."
-msgstr "仅生效中的赞助者（及编辑）可通过门禁。"
-
-msgid "Default post cover"
-msgstr "默认文章封面"
-
-msgid "Hero cover shown on article pages when the post has no featured image of its own (auto-cropped to the article banner ratio)."
-msgstr "文章页在文章没有自己的特色图时展示的头部封面（自动裁剪为文章横幅比例）。"
-
-msgid "Please log in to interact."
-msgstr "登录后才能点赞或评分。"
-
-msgid "Reserved for the front-end resource panel (shown when a resource does not describe its attachments once that wiring lands)."
-msgstr "预留给前台资源面板（待该接线落地后，在资源未描述其附件时显示）。"
-
-msgid "Reserved for the front-end resource panel (B3 wiring)."
-msgstr "预留给前台资源面板（B3 接线）。"
-
-msgid "Some metadata fields were not saved:"
-msgstr "部分元数据字段未保存："
-
-msgid "Blocks"
-msgstr "页面区块"
-
-msgid "These lists replace the WordPress menu system and feed the shell's dynamic slots: the front end reads them through the `blocks` group of GET /aiya/core/v1/site, rows in listed order."
-msgstr "这些列表替代 WordPress 菜单系统，并填充壳层的动态槽位：前台经 GET /aiya/core/v1/site 的 `blocks` 组按列表顺序读取。"
-
-msgid "Page-top advertisements"
-msgstr "页面顶部广告"
-
-msgid "Ad slots rendered at the top of front-end pages, in listed order."
-msgstr "在前台页面顶部按列表顺序渲染的广告位。"
-
-msgid "Page-bottom advertisements"
-msgstr "页面底部广告"
-
-msgid "Ad slots rendered at the bottom of front-end pages, in listed order."
-msgstr "在前台页面底部按列表顺序渲染的广告位。"
-
-msgid "Carousel"
-msgstr "轮播"
-
-msgid "Carousel slides for the front-end banner slot, in listed order."
-msgstr "前台横幅槽位的轮播卡片，按列表顺序渲染。"
-
-msgid "Link"
-msgstr "链接"
-
-msgid "Link text"
-msgstr "链接文本"
-
-msgid "Also used as the banner image alt text."
-msgstr "同时用作横幅图的替代文本。"
-
-msgid "Ad image"
-msgstr "广告图"
-
-msgid "The banner artwork from the media library."
-msgstr "来自媒体库的横幅图。"
-
-msgid "Title"
-msgstr "标题"
-
-msgid "Front-end path or external URL; empty renders the banner without a link."
-msgstr "前台路径或外部 URL；留空则横幅不带链接。"
-
-msgid "Slide image"
-msgstr "轮播图"
-
-msgid "The slide artwork from the media library."
-msgstr "来自媒体库的轮播图。"
-
-msgid "Front-end path or external URL; empty renders the slide without a link."
-msgstr "前台路径或外部 URL；留空则轮播卡片不带链接。"
-
-msgid "The comment is too long."
-msgstr "评论过长。"
-
-msgid "Please provide your name and a valid email address to comment."
-msgstr "评论需要提供昵称与有效邮箱地址。"
-
-msgid "Operations report"
-msgstr "运营统计"
-
-msgid "You are not allowed to view the operations report."
-msgstr "您无权查看运营统计。"
-
-msgid "Monthly credit flow, membership and traffic. Consumption and downloads are reported by the external download domain — they stay at 0 until that endpoint ships. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
-msgstr "按月统计积分流转、会员与流量。消耗与下载次数由外部下载域上报——该端点上线前恒为 0。数据自安装时刻起累积，更早的月份无法从账本重建。"
-
-msgid "Month"
-msgstr "月份"
-
-msgid "View"
-msgstr "查看"
-
-msgid "Indicators — %s"
-msgstr "指标 — %s"
-
-msgid "Credits granted"
-msgstr "发放积分"
-
-msgid "Check-in %1$s · Membership %2$s · Codes %3$s · Manual %4$s"
-msgstr "签到 %1$s · 会员 %2$s · 兑换码 %3$s · 手动 %4$s"
-
-msgid "Credits consumed"
-msgstr "消耗积分"
-
-msgid "Credits expired"
-msgstr "过期积分"
-
-msgid "Downloads"
-msgstr "下载次数"
-
-msgid "Active users"
-msgstr "活跃用户"
-
-msgid "Members"
-msgstr "会员"
-
-msgid "Holders whose membership covers this month, codes included."
-msgstr "该月处于会员有效期内的用户，含兑换码持有者。"
-
-msgid "Paying users"
-msgstr "付费用户"
-
-msgid "Covered holders whose order was actually paid."
-msgstr "有效期内且订单已实付的用户。"
-
-msgid "Cash collected"
-msgstr "实收"
-
-msgid "Recognized revenue (MRR)"
-msgstr "分摊收入（MRR）"
-
-msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once."
-msgstr "订单金额按服务周期分摊确认，多周期购买不会被一次性计入当月。"
-
-msgid "Cost"
-msgstr "成本"
-
-msgid "Downloads × %1$s per download, %2$s"
-msgstr "下载次数 × 单次 %1$s，%2$s"
-
-msgid "rate frozen when the month closed"
-msgstr "单价已于月末冻结"
-
-msgid "at the current rate; frozen when the month closes"
-msgstr "按当前单价计算，月末冻结"
-
-msgid "Outstanding credits"
-msgstr "未消耗积分"
-
-msgid "What every holder could still spend right now — the report's liability figure."
-msgstr "当前所有用户仍可消费的积分总额，即报告的积分负债。"
-
-msgid "Consumption rate"
-msgstr "积分消耗率"
-
-msgid "Expiry rate"
-msgstr "过期率"
-
-msgid "Downloads per active user"
-msgstr "用户平均下载量"
-
-msgid "Downloads per paying user"
-msgstr "付费用户平均下载量"
-
-msgid "Revenue per paying user"
-msgstr "每个付费用户带来的收入"
-
-msgid "Cost per paying user"
-msgstr "每个付费用户的实际成本"
-
-msgid "Trailing 12 months"
-msgstr "近 12 个月趋势"
-
-msgid "Granted"
-msgstr "发放"
-
-msgid "Consumed"
-msgstr "消耗"
-
-msgid "Expired"
-msgstr "过期"
-
-msgid "Cash"
-msgstr "实收"
-
-msgid "MRR"
-msgstr "MRR"
-
-msgid "Grants by source"
-msgstr "发放来源"
-
-msgid "Codes"
-msgstr "兑换码"
-
-msgid "Manual"
-msgstr "手动"
-
-msgid "Total"
-msgstr "合计"
-
-msgid "Upstream cost per download"
-msgstr "单次下载成本"
-
-msgid "What one metered download costs upstream, in the payment currency. The report derives a month's cost as downloads × this rate and freezes the rate into each month when it closes, so changing it never rewrites past months."
-msgstr "一次计量下载的上游成本，单位与支付币种一致。报告按「下载次数 × 该单价」推算每月成本，并在每月结束时把单价冻结进该月，因此之后修改单价不会改写历史月份。"
-
-msgid "This account is disabled."
-msgstr "该账号已被禁用。"
-
-msgid "Disable this account"
-msgstr "禁用此账号"
-
-msgid "A disabled account cannot check in, cannot spend credits and is not treated as a member anywhere. Credits and memberships are left untouched — grants keep landing, they simply cannot be used, and the balance keeps expiring on its own schedule."
-msgstr "被禁用的账号不能签到、不能消耗积分，也不会在任何位置被视为会员。积分与会员权益保持原状——发放照常入账但无法使用，余额按原有节奏自然过期。"
-
-msgid "Related post card"
-msgstr "关联文章卡片"
-
-msgid "Shows one post as a card with its cover, category, title and counters. Enter the post ID."
-msgstr "把一篇文章显示为卡片：封面、分类、标题与计数器。填入文章 ID。"
-
-msgid "Post ID"
-msgstr "文章 ID"
-
-msgid "Paid"
-msgstr "已支付"
-
-msgid "Waiting for payment"
-msgstr "待支付"
-
-msgid "Unpaid"
-msgstr "未支付"
-
-
-#: src/Domain/ExternalFiles/ExternalFilesModule.php:87
-msgid "One row per cloud-drive share: a label, the share URL and the extraction code readers need to open it. Readers see the link and its code together."
-msgstr "每个网盘分享一行：名称、分享链接，以及读者打开它所需的提取码。读者看到的链接与提取码并列显示。"
-
-#: src/Modules/OpenListModule.php:74
-msgid "OpenList service"
-msgstr "OpenList 服务"
-
-#: src/Modules/OpenListModule.php:81
-msgid "Base address of the OpenList instance that hosts the files listed on a post."
-msgstr "承载所列文件的 OpenList 实例地址。"
-
-#: src/Modules/OpenListModule.php:110
-msgid "File list"
-msgstr "文件列表"
-
-#: src/Modules/OpenListModule.php:117
-msgid "Raw URL asks the service per file, so it costs one request per row; the other modes build the link locally."
-msgstr "raw_url 需逐个文件向服务查询，每行一次请求；其他模式在本地拼接链接。"
-
-#: src/Modules/OpenListModule.php:129
-msgid "File list cache (minutes)"
-msgstr "文件列表缓存（分钟）"
-
-#: src/Modules/OpenListModule.php:130
-msgid "How long a listing is served from the object cache before the source is asked again; 0 disables caching. Editing a box, or its force-refresh switch, always bypasses it."
-msgstr "列表从对象缓存取用的时长，超过后重新向来源请求；0 表示不缓存。编辑盒内配置或打开强制刷新时始终绕过缓存。"
-
-#: src/Modules/OpenListModule.php:140
-msgid "Classify each row by extension so the front end can pick an icon."
-msgstr "按扩展名给每一行归类，供前端选择图标。"
-
-#: src/Modules/OpenListModule.php:147
-msgid "Shown above a file list when the post does not describe its own."
-msgstr "当文章没有自己的描述时，显示在文件列表上方。"
-
-#: src/Modules/OpenListModule.php:162
-msgid "OpenList files"
-msgstr "OpenList 文件"
-
-#: src/Modules/OpenListModule.php:166
-msgid "Lists files from the configured OpenList path and adds them to this post's file list."
-msgstr "列出 OpenList 指定路径下的文件，并加入本文的文件列表。"
-
-#: src/Modules/OpenListModule.php:175
-msgid "List the files in a directory"
-msgstr "列出目录中的文件"
-
-#: src/Modules/OpenListModule.php:177
-msgid "List the subfolders"
-msgstr "列出子目录"
-
-#: src/Modules/OpenListModule.php:185
-msgid "The directory to list, or the exact file to point at in \"single file or directory\" mode."
-msgstr "要列出的目录；「单个文件或目录」模式下填要指向的确切文件。"
-
-#: src/Modules/OpenListModule.php:192
-msgid "Shown above the file list on this post. Leave empty to use the page default."
-msgstr "显示在本文文件列表上方。留空则使用页面默认值。"
-
-#: src/Modules/OpenListModule.php:222
-msgid "The password of the configured path on the OpenList side, if any. Kept readable because every request re-sends it."
-msgstr "OpenList 侧该路径的密码（如有）。因每次请求都要重发，故保持明文可读。"
-
-#: src/Admin/FileServeMetabox.php:64
-#: src/Admin/FileServeMetabox.php:270
-#: src/Domain/FileServe/FileServeModule.php:72
-#: src/Domain/FileServe/FileServeModule.php:73
-msgid "File downloads"
-msgstr "文件下载"
-
-#: src/Admin/FileServeMetabox.php:86
-msgid "Each data group becomes its own list on the front end. Readers see the file names and what a download costs; the link itself is handed over when they claim it."
-msgstr "每个数据组在前台各自成为一个列表。读者看到文件名与下载所需积分；链接在领取时才交给读者。"
-
-#: src/Admin/FileServeMetabox.php:91
-msgid "Add a data group"
-msgstr "新增数据组"
-
-#: src/Admin/FileServeMetabox.php:98
-msgid "Add data group"
-msgstr "新增数据组"
-
-#: src/Admin/FileServeMetabox.php:105
-msgid "Save configuration"
-msgstr "保存配置"
-
-#: src/Admin/FileServeMetabox.php:108
-msgid "Preview file lists"
-msgstr "预览文件列表"
-
-#: src/Admin/FileServeMetabox.php:134
-msgid "File configuration saved."
-msgstr "文件配置已保存。"
-
-#: src/Admin/FileServeMetabox.php:163
-msgid "Lists refreshed from their sources."
-msgstr "已从各自来源重新读取列表。"
-
-#: src/Admin/FileServeMetabox.php:212
-msgid "The file configuration was not saved."
-msgstr "文件配置未保存。"
-
-#: src/Admin/FileServeMetabox.php:271
-msgid "Data group"
-msgstr "数据组"
-
-#: src/Admin/FileServeMetabox.php:272
-msgid "Remove this group"
-msgstr "删除此组"
-
-#: src/Admin/FileServeMetabox.php:273
-msgid "Remove this data group? Its settings are dropped when you save."
-msgstr "删除这个数据组？保存后它的设置会被丢弃。"
-
-#: src/Admin/FileServeMetabox.php:274
-msgid "This group has nothing configured yet."
-msgstr "这个数据组还没有任何配置。"
-
-#: src/Admin/FileServeMetabox.php:275
-msgid "No list has anything to show yet."
-msgstr "还没有任何列表有内容可显示。"
-
-#. translators: %d: credits charged for one file.
-#: src/Admin/FileServeMetabox.php:277
-#, php-format
-msgid "%d credits per file"
-msgstr "每文件 %d 积分"
-
-#: src/Admin/FileServeMetabox.php:278
-msgid "Free"
-msgstr "免费"
-
-#: src/Admin/FileServeMetabox.php:280
-msgid "Type"
-msgstr "类型"
-
-#: src/Admin/FileServeMetabox.php:281
-msgid "Size"
-msgstr "大小"
-
-#: src/Admin/FileServeMetabox.php:283
-msgid "Saving…"
-msgstr "保存中…"
-
-#: src/Admin/FileServeMetabox.php:284
-msgid "Reading the sources…"
-msgstr "正在读取来源…"
-
-#: src/Domain/FileServe/Adapters/GofileAdapter.php:33
-#: src/Domain/FileServe/FileServeModule.php:103
-msgid "GoFile"
-msgstr "GoFile"
-
-#: src/Domain/FileServe/Adapters/GofileAdapter.php:43
-msgid "Folder or file id"
-msgstr "文件夹或文件 ID"
-
-#: src/Domain/FileServe/Adapters/GofileAdapter.php:44
-msgid "The GoFile content id this list would read."
-msgstr "这个列表要读取的 GoFile 内容 ID。"
-
-#: src/Domain/FileServe/Adapters/GofileAdapter.php:63
-msgid "GoFile is configured but not wired yet; the list is empty until its requester lands."
-msgstr "GoFile 已配置但尚未接入：在其请求器落地前，这个列表是空的。"
-
-#: src/Domain/FileServe/Adapters/OpenListAdapter.php:44
-msgid "OpenList search"
-msgstr "OpenList 搜索"
-
-#: src/Domain/FileServe/Adapters/OpenListAdapter.php:45
-msgid "OpenList directory"
-msgstr "OpenList 目录"
-
-#: src/Domain/FileServe/Adapters/OpenListAdapter.php:56
-msgid "Keywords"
-msgstr "搜索词"
-
-#: src/Domain/FileServe/Adapters/OpenListAdapter.php:57
-msgid "What this list searches for."
-msgstr "这个列表要搜索的内容。"
-
-#: src/Domain/FileServe/Adapters/OpenListAdapter.php:64
-msgid "The directory the search starts from; empty means the service root."
-msgstr "搜索起始目录；留空表示服务根目录。"
-
-#: src/Domain/FileServe/Adapters/OpenListAdapter.php:70
-#: src/Domain/FileServe/Adapters/OpenListAdapter.php:97
-msgid "Path password"
-msgstr "路径密码"
-
-#: src/Domain/FileServe/Adapters/OpenListAdapter.php:71
-msgid "The password of that directory on the OpenList side, if any."
-msgstr "OpenList 侧该目录的密码（如有）。"
-
-#: src/Domain/FileServe/Adapters/OpenListAdapter.php:91
-msgid "The directory whose files this list shows; leave it empty to keep this list off."
-msgstr "要展示其文件的目录；留空则不启用这个列表。"
-
-#: src/Domain/FileServe/Adapters/OpenListAdapter.php:98
-msgid "The password of that directory on the OpenList side, if any. Kept readable: every request re-sends it."
-msgstr "OpenList 侧该目录的密码（如有）。因每次请求都要重发，故保持明文可读。"
-
-#: src/Domain/FileServe/Adapters/PlatformAdapter.php:31
-msgid "Drive share"
-msgstr "网盘分享"
-
-#: src/Domain/FileServe/Adapters/PlatformAdapter.php:41
-msgid "Share link"
-msgstr "分享链接"
-
-#: src/Domain/FileServe/Adapters/PlatformAdapter.php:42
-msgid "The cloud-drive share a reader opens. A bare domain is read as https at delivery time, so the stored value stays what you typed."
-msgstr "读者打开的网盘分享地址。裸域名会在交付时按 https 读取，因此存储的值保持你填写的原样。"
-
-#: src/Domain/FileServe/Adapters/PlatformAdapter.php:49
-msgid "The drive's own code, handed to the reader together with the link."
-msgstr "网盘自己的提取码，与链接一起交给读者。"
-
-#: src/Domain/FileServe/Config.php:40
-msgid "List title"
-msgstr "列表标题"
-
-#: src/Domain/FileServe/Config.php:41
-msgid "Shown above this list on the front end; leave it empty to show the adapter name instead."
-msgstr "显示在前台这个列表的上方；留空则显示适配器名称。"
-
-#: src/Domain/FileServe/Config.php:47
-msgid "Credits per file"
-msgstr "每文件积分"
-
-#: src/Domain/FileServe/Config.php:48
-msgid "Charged for every download from this list; 0 keeps it free."
-msgstr "本列表每次下载扣取的积分；0 表示免费。"
-
-#: src/Domain/FileServe/Config.php:92
-msgid "The file configuration could not be read."
-msgstr "文件配置无法读取。"
-
-#: src/Domain/FileServe/Config.php:102
-msgid "A data group key could not be read."
-msgstr "某个数据组的键无法读取。"
-
-#. translators: %s: data group id.
-#: src/Domain/FileServe/Config.php:107
-#, php-format
-msgid "Data group %s could not be read."
-msgstr "数据组 %s 无法读取。"
-
-#. translators: %s: data group id.
-#: src/Domain/FileServe/Config.php:114
-#, php-format
-msgid "Data group %s names an adapter that is not available."
-msgstr "数据组 %s 指定的适配器不可用。"
-
-#. translators: 1: data group id, 2: error message.
-#: src/Domain/FileServe/Config.php:126
-#, php-format
-msgid "Data group %1$s: %2$s"
-msgstr "数据组 %1$s：%2$s"
-
-#: src/Domain/FileServe/Failure.php:49
-msgid "The file service rejected our credentials."
-msgstr "文件服务认证失败，请联系站长。"
-
-#: src/Domain/FileServe/Failure.php:50
-msgid "You do not have permission to fetch this file."
-msgstr "没有获取该文件的权限。"
-
-#: src/Domain/FileServe/Failure.php:51
-msgid "The file does not exist or has been removed."
-msgstr "文件不存在或已被移除。"
-
-#: src/Domain/FileServe/Failure.php:52
-msgid "The file service answered with something unrecognizable."
-msgstr "文件服务返回了无法识别的内容。"
-
-#: src/Domain/FileServe/Failure.php:53
-msgid "The file service is temporarily unavailable."
-msgstr "文件服务暂时不可用。"
-
-#: src/Domain/FileServe/FileServeModule.php:80
-msgid "File lists"
-msgstr "文件列表"
-
-#: src/Domain/FileServe/FileServeModule.php:86
-msgid "List cache (minutes)"
-msgstr "列表缓存（分钟）"
-
-#: src/Domain/FileServe/FileServeModule.php:87
-msgid "How long a list is served from the object cache before its source is asked again; 0 disables caching. Editing a post's groups starts a new cache generation on its own."
-msgstr "列表从对象缓存取用的时长，超过后重新向来源请求；0 表示不缓存。编辑文章的任一数据组会自动开启新的缓存世代。"
-
-#: src/Domain/FileServe/FileServeModule.php:109
-msgid "Account token"
-msgstr "账号令牌"
-
-#: src/Domain/FileServe/FileServeModule.php:110
-msgid "Reserved for the GoFile requester: stored now, used once that adapter is wired."
-msgstr "为 GoFile 请求器预留：现在即存储，适配器接入后启用。"
-
-#: src/Modules/OpenListModule.php:70
-msgid "Base address of the OpenList instance that hosts the listed files."
-msgstr "承载所列文件的 OpenList 实例地址。"
-
-#: src/Modules/OpenListModule.php:100
-msgid "How a delivery link is built. All three are download paths on the OpenList host — none of them sends a reader to its browsing pages."
-msgstr "链接的拼接方式。三档都是 OpenList 主机上的下载路径，都不会把读者送到它的浏览页面。"
-
-#: src/Domain/FileServe/Adapters/GofileAdapter.php:53
-msgid "Folder id or share code"
-msgstr "文件夹 ID 或分享码"
-
-#: src/Domain/FileServe/Adapters/GofileAdapter.php:54
-msgid "The GoFile folder this list shows. Reading it through the API needs a Premium account on the token from the file downloads settings page."
-msgstr "这个列表展示的 GoFile 文件夹。通过 API 读取它需要在「文件下载」设置页填写的令牌属于高级版账号。"
-
-#: src/Domain/FileServe/Adapters/GofileAdapter.php:113
-msgid "The GoFile token is not a Premium account, and the API only lists folders for Premium."
-msgstr "该 GoFile 令牌不是高级版账号，而 API 仅对高级版开放文件夹列表。"
-
-#: src/Modules/GofileModule.php:62
-msgid "From the GoFile profile page. The account lists, folders and search endpoints work for any tier, but reading a folder needs Premium — without it every GoFile list reports that it needs Premium."
-msgstr "取自 GoFile 个人资料页。账户、文件夹与搜索端点在任意档位都可调用，但读取文件夹需要高级版——没有高级版时每个 GoFile 列表都会报告需要高级版。"
-
-msgid "Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger's spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
-msgstr "积分流水、会员与流量的月度报表。消耗直接取自账本的 spend 事件，下载由文件下载域计量——每次交付计一次，扣费与免费均算。数据自安装起累计，更早的月份无法从账本重建。"
-
-msgid "Recognized revenue"
-msgstr "确认收入"
-
-msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once and its months sum back to the order total. Booked revenue for the month — not a forward-looking MRR run rate."
-msgstr "订单金额按服务周期摊分，多周期购买不会一次性入账，各月之和回到订单总额。这是当月确认收入，而非前瞻性的 MRR 运行率。"
-
-msgid "Recognized"
-msgstr "确认收入"
-
-msgid "Awaiting payment"
-msgstr "待支付"
-
-msgid "The order carries no account binding — activate it from the account page with the order number."
-msgstr "该订单未携带账号绑定——请在账户页用订单号激活。"
-
-msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
-msgstr "从爱发电激活会员：webhook 推送与订单号自助核销。在下方把爱发电方案绑定到站内档位——推送以回查平台的结果结算，绝不信任推送内容本身。"
-
-msgid "Afdian plan bindings"
-msgstr "爱发电方案绑定"
-
-msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
-msgstr "每行把一个爱发电方案（方案页 URL 中的 plan_id 段）绑定到其购买所激活的会员档位。未绑定方案的推送会被忽略。"
-
-msgid "Membership tier"
-msgstr "会员档位"
-
-msgid "The tier (from the membership settings page) that this plan activates."
-msgstr "该方案所激活的档位（来自会员设置页）。"
-
-msgid "Fallback tier"
-msgstr "兜底档位"
-
-msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
-msgstr "任意金额方案（无 plan_id 的普通充电）的订单将激活此档位。留空则拒绝这类订单。"
+#: src/Domain/Content/BlocksModule.php
+msgid "Optional override for the heading row's link; empty derives the type's own archive path (with the chosen categories)."
+msgstr "可选的标题行链接覆盖值；留空时按类型自动派生归档路径（含所选分类）。"
