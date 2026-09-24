@@ -10,11 +10,11 @@ use Aiya\Core\Settings\Registry;
 /**
  * Owns the front-end page blocks: the two navigation repeaters
  * (primary_items / secondary_items, named for the menu groups they
- * feed), the page-top and page-bottom advertisement lists and the
- * carousel. The row lists ARE the blocks — no WP nav-menu model and no
- * ad-rotation machinery; ContentBlocks projects the rows into the
- * contract DTOs the Astro shell consumes, through `GET /site`'s
- * `blocks` group. Rows render in listed order.
+ * feed) and the page-top and page-bottom advertisement lists. The row
+ * lists ARE the blocks — no WP nav-menu model and no ad-rotation
+ * machinery; ContentBlocks projects the rows into the contract DTOs the
+ * Astro shell consumes, through `GET /site`'s `blocks` group. Rows
+ * render in listed order.
  */
 final class BlocksModule implements Module
 {
@@ -90,12 +90,12 @@ final class BlocksModule implements Module
                     'children' => $this->slotChildren(),
                 ],
                 [
-                    'id' => 'carousel',
+                    'id' => 'home_sections',
                     'type' => 'repeater',
-                    'label' => __('Carousel', 'aiya-core'),
-                    'description' => __('Carousel slides for the front-end banner slot, in listed order.', 'aiya-core'),
+                    'label' => __('Home sections', 'aiya-core'),
+                    'description' => __('Query templates for the front page, in listed order: a heading row (icon + title, "more" link at the right) over a list of posts. The front end resolves each section against its public list reads; rows without a title are skipped.', 'aiya-core'),
                     'default' => [],
-                    'children' => $this->slideChildren(),
+                    'children' => $this->sectionChildren(),
                 ],
             ],
         ]);
@@ -181,11 +181,14 @@ final class BlocksModule implements Module
     }
 
     /**
-     * Row fields for one carousel slide.
+     * Row fields for one homepage section: the heading (icon + title),
+     * the query template (post type + category multi-select, nothing
+     * checked = all), the list size and an optional explicit "more"
+     * target — empty lets the front end derive the type's archive path.
      *
      * @return list<array<string, mixed>>
      */
-    private function slideChildren(): array
+    private function sectionChildren(): array
     {
         return [
             [
@@ -195,18 +198,48 @@ final class BlocksModule implements Module
                 'required' => true,
             ],
             [
-                'id' => 'url',
-                'type' => 'url',
-                'allow_path' => true,
-                'label' => __('Link', 'aiya-core'),
-                'description' => __('Front-end path or external URL; empty renders the slide without a link.', 'aiya-core'),
+                'id' => 'icon',
+                'type' => 'text',
+                'label' => __('Icon', 'aiya-core'),
+                'description' => __('Optional Lucide icon name beside the title (e.g. "newspaper", "flame", "star").', 'aiya-core'),
             ],
             [
-                'id' => 'image',
-                'type' => 'media',
-                'label' => __('Slide image', 'aiya-core'),
-                'description' => __('The slide artwork from the media library.', 'aiya-core'),
-                'default' => 0,
+                'id' => 'type',
+                'type' => 'select',
+                'label' => __('Content type', 'aiya-core'),
+                'default' => 'post',
+                'options' => [
+                    'post' => __('Posts', 'aiya-core'),
+                    'resource' => __('Resources', 'aiya-core'),
+                ],
+            ],
+            [
+                'id' => 'categories',
+                'type' => 'multicheck',
+                'label' => __('Categories', 'aiya-core'),
+                'description' => __('Nothing checked shows every category of the type; the listed vocabularies cover posts and resources alike.', 'aiya-core'),
+                'default' => [],
+                'options_source' => [
+                    'source' => 'terms',
+                    'taxonomy' => ['category', 'resource_category'],
+                    'value_field' => 'slug',
+                ],
+            ],
+            [
+                'id' => 'count',
+                'type' => 'number',
+                'label' => __('Post count', 'aiya-core'),
+                'description' => __('How many posts the section lists (1-20).', 'aiya-core'),
+                'default' => 8,
+                'min' => 1,
+                'max' => 20,
+            ],
+            [
+                'id' => 'more_url',
+                'type' => 'url',
+                'allow_path' => true,
+                'label' => __('"More" link', 'aiya-core'),
+                'description' => __('Optional override for the heading row\'s link; empty derives the type\'s own archive path (with the chosen categories).', 'aiya-core'),
             ],
         ];
     }

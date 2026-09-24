@@ -75,21 +75,16 @@ final class ContentBlocksTest extends TestCase
         self::assertSame('/bare/', $blocks->primary[1]->url);
     }
 
-    public function testAdsAndCarouselDropRowsWithoutImageOrCopy(): void
+    public function testAdsDropRowsWithoutImageOrCopy(): void
     {
         $this->setOption([
             'ads_top' => [
                 ['label' => 'No image', 'url' => '/a/', 'image' => 0],
                 ['label' => 'Kept', 'url' => '/b/', 'image' => 7],
             ],
-            'carousel' => [
-                ['title' => '', 'url' => '/c/', 'image' => 7],
-                ['title' => 'Slide', 'url' => '/d/', 'image' => 9],
-            ],
         ]);
         $GLOBALS['__aiya_test_attachment_images'] = [
             7 => ['url' => 'https://wp.example/a.webp', 'width' => 970, 'height' => 250],
-            9 => ['url' => 'https://wp.example/slide.webp', 'width' => 1600, 'height' => 640],
         ];
 
         $blocks = (new ContentBlocks())->all();
@@ -99,9 +94,6 @@ final class ContentBlocksTest extends TestCase
         self::assertSame('/b/', $blocks->adsTop[0]->url);
         self::assertSame('https://wp.example/a.webp', $blocks->adsTop[0]->image->url);
         self::assertSame(970, $blocks->adsTop[0]->image->width);
-        self::assertCount(1, $blocks->carousel);
-        self::assertSame('Slide', $blocks->carousel[0]->title);
-        self::assertSame('/d/', $blocks->carousel[0]->url);
     }
 
     public function testMissingOrMalformedOptionYieldsEmptyBlocks(): void
@@ -112,6 +104,56 @@ final class ContentBlocksTest extends TestCase
         self::assertSame([], $blocks->secondary);
         self::assertSame([], $blocks->adsTop);
         self::assertSame([], $blocks->adsBottom);
-        self::assertSame([], $blocks->carousel);
+        self::assertSame([], $blocks->sections);
+    }
+
+    public function testHomeSectionsProjectAsQueryTemplates(): void
+    {
+        $this->setOption([
+            'home_sections' => [
+                [
+                    'title' => '最新文章',
+                    'icon' => 'flame',
+                    'type' => 'post',
+                    'categories' => ['news', 'notes'],
+                    'count' => 6,
+                    'more_url' => '',
+                ],
+                ['title' => '', 'type' => 'post'],
+                [
+                    'title' => '壁纸资源',
+                    'type' => 'resource',
+                    'categories' => ['wallpaper'],
+                    'count' => 99,
+                    'more_url' => '/resources/hot/',
+                ],
+                ['title' => '默认行', 'count' => 0],
+                'garbage-row',
+            ],
+        ]);
+
+        $blocks = (new ContentBlocks())->all();
+
+        self::assertCount(3, $blocks->sections);
+        [$first, $second, $third] = $blocks->sections;
+        self::assertSame(1, $first->id);
+        self::assertSame('最新文章', $first->title);
+        self::assertSame('post', $first->type);
+        self::assertSame(['news', 'notes'], $first->categories);
+        self::assertSame(6, $first->count);
+        self::assertSame('flame', $first->icon);
+        self::assertSame('', $first->moreUrl);
+        self::assertSame('resource', $second->type);
+        self::assertSame(['wallpaper'], $second->categories);
+        self::assertSame(20, $second->count);
+        self::assertSame('/resources/hot/', $second->moreUrl);
+        self::assertNull($third->icon);
+        self::assertSame('post', $third->type);
+        self::assertSame([], $third->categories);
+        self::assertSame(8, $third->count);
+        self::assertSame(
+            [['id' => 1, 'title' => '最新文章', 'type' => 'post', 'categories' => ['news', 'notes'], 'count' => 6, 'icon' => 'flame', 'moreUrl' => '']],
+            array_map(static fn ($section): array => $section->toArray(), [$first])
+        );
     }
 }

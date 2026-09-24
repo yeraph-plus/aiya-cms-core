@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Content;
 
 use Aiya\Core\Api\Contract\AdSlot;
-use Aiya\Core\Api\Contract\CarouselSlide;
 use Aiya\Core\Api\Contract\Image;
 use Aiya\Core\Api\Contract\MenuItem;
 use Aiya\Core\Api\Contract\SiteBlocks;
+use Aiya\Core\Api\Contract\HomeSection;
 
 /**
  * Projects the Blocks settings rows into the shell contract's `blocks`
- * group: the two navigation menus plus the advertisement and carousel
- * slot lists. The row list IS the block — no WP nav-menu model, no
- * locations, no ad rotation; rows render in listed order and the
- * 1-based row position doubles as the contract id. A missing label or
- * title drops the row. Primary rows may carry an optional Lucide icon
- * name; secondary rows (footer menu) never project one.
+ * group: the two navigation menus plus the advertisement slot lists.
+ * The row list IS the block — no WP nav-menu model, no locations, no
+ * ad rotation; rows render in listed order and the 1-based row position
+ * doubles as the contract id. A missing label drops the row. Primary
+ * rows may carry an optional Lucide icon name; secondary rows (footer
+ * menu) never project one.
  */
 final class ContentBlocks
 {
@@ -28,11 +28,11 @@ final class ContentBlocks
     public function all(): SiteBlocks
     {
         return new SiteBlocks(
-            $this->menu((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'primary_items', []), true),
-            $this->menu((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'secondary_items', [])),
-            $this->ads((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'ads_top', [])),
-            $this->ads((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'ads_bottom', [])),
-            $this->carousel((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'carousel', [])),
+            $this->menu(array_values((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'primary_items', [])), true),
+            $this->menu(array_values((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'secondary_items', []))),
+            $this->ads(array_values((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'ads_top', []))),
+            $this->ads(array_values((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'ads_bottom', []))),
+            $this->sections(array_values((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'home_sections', []))),
         );
     }
 
@@ -92,10 +92,17 @@ final class ContentBlocks
     }
 
     /**
+     * Homepage section templates. The type is whitelisted against the
+     * bindable public types, category values are slug strings (the
+     * settings save already intersects them with the real vocabularies),
+     * the count is clamped to the read window the front end may ask for,
+     * and a missing title drops the row — a nameless section has no
+     * heading to render.
+     *
      * @param list<mixed> $rows
-     * @return list<CarouselSlide>
+     * @return list<HomeSection>
      */
-    private function carousel(array $rows): array
+    private function sections(array $rows): array
     {
         $items = [];
         foreach ($rows as $row) {
@@ -103,14 +110,28 @@ final class ContentBlocks
                 continue;
             }
             $title = sanitize_text_field((string) ($row['title'] ?? ''));
-            $image = $this->attachmentImage((int) ($row['image'] ?? 0), $title);
-            if ($title === '' || $image === null) {
+            if ($title === '') {
                 continue;
             }
-            $items[] = new CarouselSlide(
+            $type = ($row['type'] ?? '') === 'resource' ? 'resource' : 'post';
+            $categories = array_values(array_filter(
+                array_map(static fn ($slug): string => sanitize_title((string) $slug), (array) ($row['categories'] ?? [])),
+                static fn (string $slug): bool => $slug !== ''
+            ));
+            $count = (int) ($row['count'] ?? 0);
+            $icon = sanitize_text_field((string) ($row['icon'] ?? ''));
+            // An empty override stays empty (the front end derives the
+            // natural archive target); normalizeUrl's '/' fallback must
+            // not leak in as a fake "home" link.
+            $moreUrl = trim((string) ($row['more_url'] ?? ''));
+            $items[] = new HomeSection(
+                count($items) + 1,
                 $title,
-                $this->normalizeUrl((string) ($row['url'] ?? '')),
-                $image
+                $type,
+                $categories,
+                max(1, min(20, $count > 0 ? $count : 8)),
+                $icon !== '' ? $icon : null,
+                $moreUrl === '' ? '' : $this->normalizeUrl($moreUrl)
             );
         }
 

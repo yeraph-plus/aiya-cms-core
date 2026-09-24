@@ -6,7 +6,7 @@ namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Core\Api\Contract\AdSlot;
 use Aiya\Core\Api\Contract\BeianLink;
-use Aiya\Core\Api\Contract\CarouselSlide;
+use Aiya\Core\Api\Contract\HomeSection;
 use Aiya\Core\Api\Contract\Image;
 use Aiya\Core\Api\Contract\MenuItem;
 use Aiya\Core\Api\Contract\Site;
@@ -37,7 +37,7 @@ final class SiteContractTest extends TestCase
                 [new MenuItem(1, '关于本站', '/pages/sample-page/', 'self', null, [])],
                 [new AdSlot('/promote/', '推广', new Image('https://cdn.example.test/ads-top.webp', '推广', 970, 250))],
                 [],
-                [new CarouselSlide('轮播一', '/posts/autocard/', new Image('https://cdn.example.test/slide-1.webp', '轮播一', 1600, 640))],
+                [new HomeSection(1, '最新文章', 'post', ['news'], 6, 'flame', '')],
             ),
         );
 
@@ -81,7 +81,7 @@ final class SiteContractTest extends TestCase
             'secondary' => [['id' => 1, 'label' => '关于本站', 'url' => '/pages/sample-page/', 'target' => 'self', 'icon' => null, 'children' => []]],
             'adsTop' => [['url' => '/promote/', 'label' => '推广', 'image' => ['url' => 'https://cdn.example.test/ads-top.webp', 'alt' => '推广', 'width' => 970, 'height' => 250]]],
             'adsBottom' => [],
-            'carousel' => [['title' => '轮播一', 'url' => '/posts/autocard/', 'image' => ['url' => 'https://cdn.example.test/slide-1.webp', 'alt' => '轮播一', 'width' => 1600, 'height' => 640]]],
+            'sections' => [['id' => 1, 'title' => '最新文章', 'type' => 'post', 'categories' => ['news'], 'count' => 6, 'icon' => 'flame', 'moreUrl' => '']],
         ], $shape['blocks']);
     }
 
