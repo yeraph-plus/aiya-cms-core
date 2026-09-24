@@ -18,8 +18,9 @@ use WP_Term;
  *
  * The ranking itself is one SQL pass — INNER JOIN on term_relationships
  * restricted to the origin's term taxonomy ids, GROUP BY the joined row
- * and ORDER BY that count — installed as a `posts_clauses` filter scoped
- * to this single query via an orderby marker, never globally.
+ * and ORDER BY the distinct shared-term count — installed as a
+ * `posts_clauses` filter scoped to this single query via an orderby
+ * marker, never globally.
  *
  * Visibility mirrors ContentQuery's list reads: `publish` + no password
  * only, plus the login/member gate exclusions (viewer-relative, same
@@ -153,7 +154,12 @@ final class RelatedPostsQuery
         $clauses['where'] .= ' AND aiya_tr.term_taxonomy_id IN (' . implode(',', $ids) . ')';
         $groupby = trim((string) ($clauses['groupby'] ?? ''));
         $clauses['groupby'] = ($groupby !== '' ? $groupby . ', ' : '') . 'aiya_tr.object_id';
-        $clauses['orderby'] = " count(aiya_tr.object_id) DESC, {$table}.ID DESC";
+        // Distinct tt ids, not rows: sibling filters' joins (WP's OR meta
+        // queries LEFT JOIN postmeta without an ON filter) multiply the
+        // row count per post, and the relationship table's primary key
+        // guarantees one row per shared term — so only a DISTINCT count
+        // measures "shared terms" and nothing else.
+        $clauses['orderby'] = " count(DISTINCT aiya_tr.term_taxonomy_id) DESC, {$table}.ID DESC";
 
         return $clauses;
     }

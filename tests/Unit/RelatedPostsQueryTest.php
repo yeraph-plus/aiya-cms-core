@@ -26,7 +26,10 @@ final class RelatedPostsQueryTest extends TestCase
         );
         self::assertSame('AND 1=1 AND aiya_tr.term_taxonomy_id IN (7,3)', $out['where']);
         self::assertSame('aiya_tr.object_id', $out['groupby']);
-        self::assertSame(' count(aiya_tr.object_id) DESC, wp_posts.ID DESC', $out['orderby']);
+        // DISTINCT terms: sibling filters (e.g. gate meta_query LEFT
+        // JOINs) multiply rows per post, and only a distinct tt-id count
+        // measures shared terms rather than the join product.
+        self::assertSame(' count(DISTINCT aiya_tr.term_taxonomy_id) DESC, wp_posts.ID DESC', $out['orderby']);
     }
 
     public function testAppendsToAnExistingGroupBy(): void
