@@ -23,7 +23,7 @@ final class Field
     private const OPTIONS_SOURCES = ['posts', 'terms', 'users', 'option_list'];
 
     private const REPEATER_CHILD_TYPES = [
-        'checkbox', 'color', 'email', 'hidden', 'media', 'number', 'radio', 'select',
+        'checkbox', 'color', 'email', 'hidden', 'media', 'multicheck', 'number', 'radio', 'select',
         'switch', 'text', 'textarea', 'url',
     ];
 

@@ -43,13 +43,18 @@ final class OptionsResolver
      */
     private function terms(array $source): array
     {
-        $taxonomy = (string) ($source['taxonomy'] ?? '');
-        if ($taxonomy === '' || !taxonomy_exists($taxonomy)) {
+        // A single taxonomy keeps bare term names; a list merges several
+        // vocabularies into one option set and prefixes each label with
+        // the taxonomy's singular name so same-named terms stay apart.
+        $taxonomies = (array) ($source['taxonomy'] ?? '');
+        $taxonomies = array_values(array_filter(array_map('strval', $taxonomies), static fn (string $tax): bool => $tax !== '' && taxonomy_exists($tax)));
+        if ($taxonomies === []) {
             return [];
         }
+        $prefix = count($taxonomies) > 1;
 
         $terms = get_terms([
-            'taxonomy' => $taxonomy,
+            'taxonomy' => $taxonomies,
             'hide_empty' => false,
             'number' => self::MAX_TERMS,
         ]);
@@ -60,7 +65,15 @@ final class OptionsResolver
         $bySlug = ($source['value_field'] ?? 'id') === 'slug';
         $options = [];
         foreach ($terms as $term) {
-            $options[$bySlug ? $term->slug : (int) $term->term_id] = $term->name;
+            $label = $term->name;
+            if ($prefix) {
+                $tax = get_taxonomy((string) $term->taxonomy);
+                $singular = is_object($tax) && isset($tax->labels->singular_name)
+                    ? (string) $tax->labels->singular_name
+                    : '';
+                $label = ($singular !== '' ? $singular . ' / ' : '') . $label;
+            }
+            $options[$bySlug ? $term->slug : (int) $term->term_id] = $label;
         }
 
         return $options;

@@ -111,6 +111,30 @@ final class ValueNormalizerTest extends TestCase
         $this->assertTrue(is_wp_error($bad));
     }
 
+    public function testMulticheckWithLazySourceValidatesAgainstResolvedOptions(): void
+    {
+        $GLOBALS['__aiya_test_terms']['category'] = [
+            (object) ['term_id' => 1, 'name' => 'Notes', 'slug' => 'notes', 'taxonomy' => 'category'],
+        ];
+        $GLOBALS['__aiya_test_terms']['resource_category'] = [
+            (object) ['term_id' => 9, 'name' => 'Wallpaper', 'slug' => 'wallpaper', 'taxonomy' => 'resource_category'],
+        ];
+        $fields = [Field::fromArray([
+            'id' => 'picks',
+            'type' => 'multicheck',
+            'options_source' => ['source' => 'terms', 'taxonomy' => ['category', 'resource_category'], 'value_field' => 'slug'],
+        ])];
+
+        $ok = $this->normalizer->normalize($fields, ['picks' => ['notes', 'wallpaper', 'zzz']]);
+        $this->assertSame(['notes', 'wallpaper'], $ok['picks']);
+
+        // Nothing checked stays the empty list (= "all"), never an error.
+        $cleared = $this->normalizer->normalize($fields, ['picks' => []]);
+        $this->assertSame([], $cleared['picks']);
+
+        unset($GLOBALS['__aiya_test_terms']['category'], $GLOBALS['__aiya_test_terms']['resource_category']);
+    }
+
     public function testSwitchNormalizesToBoolean(): void
     {
         $fields = [Field::fromArray(['id' => 'flag', 'type' => 'switch', 'default' => false])];

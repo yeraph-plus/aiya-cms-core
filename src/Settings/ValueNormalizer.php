@@ -59,7 +59,14 @@ final class ValueNormalizer
                 return [];
             }
             $selected = is_array($value) ? array_values(array_filter(array_map('strval', $value), static fn ($item): bool => $item !== '')) : [];
-            $valid = array_map('strval', array_keys($field->options()));
+            // Render and save must validate against the same option set:
+            // fields backed by a lazy option source resolve it here as well
+            // (the same rule choice() applies to select/radio).
+            $options = $field->options();
+            if ($options === [] && $field->optionsSource() !== []) {
+                $options = (new OptionsResolver())->resolve($field);
+            }
+            $valid = array_map('strval', array_keys($options));
 
             return array_values(array_intersect($selected, $valid));
         }
