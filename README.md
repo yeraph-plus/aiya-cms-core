@@ -45,6 +45,29 @@ conversions), defaults permalinks to `/%postname%/` when empty and
 schedules its crons. See `docs/ARCHITECTURE.md` for module wiring and
 `AGENTS.md` (workspace root) for the iteration log.
 
+## Releases
+
+Releases are cut by pushing a version tag — `git tag v0.93.0 && git
+push origin v0.93.0`. The tag must equal the plugin header `Version:`
+and the `AIYA_CORE_VERSION` constant; the workflow's gate step refuses
+to build otherwise. GitHub Actions (`.github/workflows/release.yml`)
+then:
+
+1. installs production dependencies (`composer install --no-dev` — the
+   shipped `vendor/` carries only imagine + pinyin, not the dev
+   toolchain) and compiles the zh_CN `.mo` with `msgfmt` (`*.mo` is
+   gitignored, so the release build is the only place it exists);
+2. stages a slim copy (no `.git`, `.github`, `tests/`, `docs/`, dev
+   configs or root composer files — the packages' own `composer.json`
+   manifests stay, the lazy autoloader reads them) and zips it with the
+   top-level `aiya-core/` folder, plus a matching `aiya-headless.zip`
+   of the companion shell theme;
+3. publishes a GitHub release with both zips, a commit-log changelog
+   since the previous tag and GitHub's generated notes.
+
+`workflow_dispatch` runs the same build without publishing and uploads
+the zips as a workflow artifact for inspection.
+
 ## Deployment
 
 The site is two hosts: this WordPress backend (content, media, users,

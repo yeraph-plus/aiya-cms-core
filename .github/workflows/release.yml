@@ -1,0 +1,143 @@
+name: Release
+
+# Tag a release: `git tag v0.93.0 && git push origin v0.93.0`.
+# The tag must equal the plugin header `Version:` and the
+# AIYA_CORE_VERSION constant — the gate step fails otherwise.
+# workflow_dispatch builds both zips and uploads them as a dry-run
+# artifact without touching the releases page.
+
+on:
+    push:
+        tags:
+            - "v*"
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Resolve the version from the tag
+              id: version
+              run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+            - name: Gate the tag against the plugin version stamps
+              if: github.event_name == 'push'
+              run: |
+                  VERSION="${{ steps.version.outputs.VERSION }}"
+                  HEADER=$(grep -oP '^ \* Version: \K.*' aiya-core.php)
+                  CONST=$(grep -oP "define\('AIYA_CORE_VERSION', '\K[^']+" aiya-core.php)
+                  echo "tag=v$VERSION / header=$HEADER / const=$CONST"
+                  if [ "$VERSION" != "$HEADER" ]; then
+                      echo "::error::tag v$VERSION does not match the plugin header Version: $HEADER"
+                      exit 1
+                  fi
+                  if [ "$VERSION" != "$CONST" ]; then
+                      echo "::error::tag v$VERSION does not match AIYA_CORE_VERSION: $CONST"
+                      exit 1
+                  fi
+
+            - name: Set up PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.4"
+                  tools: composer:v2
+                  coverage: none
+
+            - name: Point composer at the official packagist (the repo pins a CN mirror for local dev)
+              run: composer config repositories.packagist composer https://repo.packagist.org
+
+            - name: Install production dependencies
+              run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+
+            - name: Compile translations
+              run: |
+                  msgfmt --version | head -n1
+                  msgfmt languages/aiya-core-zh_CN.po -o languages/aiya-core-zh_CN.mo
+
+            - name: Stage the plugin package
+              run: |
+                  rm -rf build && mkdir -p build
+                  rsync -a ./ build/aiya-core/ \
+                      --exclude .git \
+                      --exclude .github \
+                      --exclude tests \
+                      --exclude docs \
+                      --exclude node_modules \
+                      --exclude .gitignore \
+                      --exclude .gitattributes \
+                      --exclude composer.json \
+                      --exclude composer.lock \
+                      --exclude phpunit.xml.dist \
+                      --exclude phpcs.xml.dist \
+                      --exclude phpstan.neon.dist \
+                      --exclude phpstan-bootstrap.php \
+                      --exclude '*.zip' \
+                      --exclude '*.log' \
+                      --exclude backend-snap.json
+                  find build/aiya-core -name '.DS_Store' -type f -delete
+
+            - name: Stage the companion shell theme
+              run: |
+                  mkdir -p build/aiya-headless
+                  rsync -a themes/aiya-headless/ build/aiya-headless/
+
+            - name: Zip the packages
+              run: |
+                  cd build
+                  zip -r -q "aiya-core-${{ steps.version.outputs.VERSION }}.zip" aiya-core
+                  zip -r -q "aiya-headless-${{ steps.version.outputs.VERSION }}.zip" aiya-headless
+                  unzip -l "aiya-core-${{ steps.version.outputs.VERSION }}.zip" | tail -n1
+                  unzip -l "aiya-headless-${{ steps.version.outputs.VERSION }}.zip" | tail -n1
+
+            - name: Collect the changelog since the previous tag
+              if: github.event_name == 'push'
+              id: changelog
+              run: |
+                  CURRENT_TAG="$GITHUB_REF_NAME"
+                  PREVIOUS_TAG=$(git tag --sort=-v:refname | grep -Fxv "$CURRENT_TAG" | head -n1 || true)
+                  echo "Current tag: $CURRENT_TAG / previous: ${PREVIOUS_TAG:-none}"
+                  if [ -z "$PREVIOUS_TAG" ]; then
+                      CHANGELOG="- Initial release"
+                  else
+                      CHANGELOG=$(git log "${PREVIOUS_TAG}..${CURRENT_TAG}" --pretty=format:"- %s" --no-merges)
+                  fi
+                  echo "CHANGELOG<<EOF" >> "$GITHUB_OUTPUT"
+                  echo "$CHANGELOG" >> "$GITHUB_OUTPUT"
+                  echo "EOF" >> "$GITHUB_OUTPUT"
+
+            - name: Upload the dry-run artifact (manual builds only)
+              if: github.event_name == 'workflow_dispatch'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: release-packages
+                  path: build/*.zip
+
+            - name: Create the GitHub release (tag builds only)
+              if: github.event_name == 'push'
+              uses: softprops/action-gh-release@v2
+              with:
+                  name: aiya-core ${{ steps.version.outputs.VERSION }}
+                  body: |
+                      AIYA Core ${{ steps.version.outputs.VERSION }} — the headless
+                      WordPress backend plugin plus its companion shell theme.
+
+                      #### Changes
+                      ${{ steps.changelog.outputs.CHANGELOG }}
+
+                      #### Files
+                      - `aiya-core-${{ steps.version.outputs.VERSION }}.zip` → unzip into `wp-content/plugins/` (production `vendor/` and the compiled zh_CN `.mo` are inside; drop the root `composer.json`/`composer.lock` and dev configs)
+                      - `aiya-headless-${{ steps.version.outputs.VERSION }}.zip` → unzip into `wp-content/themes/`
+                  generate_release_notes: true
+                  files: |
+                      build/*.zip
+                  draft: false
+                  prerelease: false
