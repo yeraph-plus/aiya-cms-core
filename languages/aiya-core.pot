@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.93.0\n"
+"Project-Id-Version: AIYA CMS Core 0.93.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-23T15:04:30+00:00\n"
+"POT-Creation-Date: 2026-09-24T19:19:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -17,7 +17,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: aiya-core.php:3
 #: src/Domain/Content/FrontendModule.php:38
-msgid "AIYA Core"
+msgid "AIYA CMS Core"
 msgstr ""
 
 #. Description of the plugin
@@ -3233,7 +3233,7 @@ msgstr ""
 msgid "The favorite could not be stored."
 msgstr ""
 
-#: src/Domain/Identity/FavoriteService.php:188
+#: src/Domain/Identity/FavoriteService.php:191
 msgid "Only published content can be favorited."
 msgstr ""
 
@@ -3571,44 +3571,44 @@ msgstr ""
 msgid "No template parts are registered yet."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:80
+#: src/Domain/Sponsorship/AfdianActivator.php:83
 msgid "This order has already been activated."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:81
-#: src/Domain/Sponsorship/AfdianActivator.php:221
+#: src/Domain/Sponsorship/AfdianActivator.php:84
+#: src/Domain/Sponsorship/AfdianActivator.php:224
 msgid "The membership activation failed — try again."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:144
+#: src/Domain/Sponsorship/AfdianActivator.php:147
 msgid "The Afdian API is unreachable — try again later."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:148
+#: src/Domain/Sponsorship/AfdianActivator.php:151
 msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:149
+#: src/Domain/Sponsorship/AfdianActivator.php:152
 msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:156
+#: src/Domain/Sponsorship/AfdianActivator.php:159
 msgid "No matching Afdian order — check the order number."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:162
+#: src/Domain/Sponsorship/AfdianActivator.php:165
 msgid "This order is not a paid trade."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:171
+#: src/Domain/Sponsorship/AfdianActivator.php:174
 msgid "This order's Afdian plan is not bound to a membership tier."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:179
+#: src/Domain/Sponsorship/AfdianActivator.php:182
 msgid "This order is bound to another account."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:184
+#: src/Domain/Sponsorship/AfdianActivator.php:187
 msgid "The order carries no account binding — activate it from the account page with the order number."
 msgstr ""
 
@@ -3962,7 +3962,7 @@ msgid "Answer 404 for every RSS/RDF/Atom feed URL"
 msgstr ""
 
 #: src/Infrastructure/Headless/HeadlessModule.php:450
-msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA Core > Optimization."
+msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA CMS Core > Optimization."
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:65
@@ -4355,50 +4355,50 @@ msgstr ""
 msgid "Select a valid option."
 msgstr ""
 
-#: uninstall.php:95
-msgid "Delete AIYA Core"
+#: uninstall.php:96
+msgid "Delete AIYA CMS Core"
 msgstr ""
 
-#: uninstall.php:97
+#: uninstall.php:98
 msgid "WordPress is about to delete the plugin files. Before that happens, choose what to do with the data the plugin wrote."
 msgstr ""
 
-#: uninstall.php:108
+#: uninstall.php:109
 msgid "Keep the data"
 msgstr ""
 
-#: uninstall.php:110
+#: uninstall.php:111
 msgid "Deletes only the plugin files. The plugin tables, aiya_core_* settings, meta fields and scheduled events survive, so reinstalling picks up where it left off — the safe answer for plugin updates."
 msgstr ""
 
-#: uninstall.php:111
+#: uninstall.php:112
 msgid "Delete plugin only, keep the data"
 msgstr ""
 
-#: uninstall.php:115
+#: uninstall.php:116
 msgid "Erase everything"
 msgstr ""
 
-#: uninstall.php:117
+#: uninstall.php:118
 msgid "Also drops the plugin tables (favorites, follows, auth tokens, notifications, credits, memberships, redeem codes, payment orders, stats, discussions) plus the aiya_core_* options, meta residue, transients and scheduled events. This cannot be undone."
 msgstr ""
 
-#: uninstall.php:118
+#: uninstall.php:119
 msgid "Delete plugin and erase all data"
 msgstr ""
 
-#: uninstall.php:125
+#: uninstall.php:126
 msgid "Kept either way:"
 msgstr ""
 
-#: uninstall.php:126
+#: uninstall.php:127
 msgid "uploaded media and the wp-content/aiya_thumbnail/ tree (generated covers and avatars), and the pic-bed pool."
 msgstr ""
 
-#: uninstall.php:128
+#: uninstall.php:129
 msgid "Heavy dependency directories such as vendor/ are moved aside instantly so the deletion never blocks, and a daily cleanup cron removes the staged copy from wp-content/upgrade/ afterwards."
 msgstr ""
 
-#: uninstall.php:129
+#: uninstall.php:130
 msgid "Cancel, back to the plugin list"
 msgstr ""

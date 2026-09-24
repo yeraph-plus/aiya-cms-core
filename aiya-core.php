@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: AIYA Core
+ * Plugin Name: AIYA CMS Core
  * Description: Headless-first administration and content framework for AIYA CMS.
  * Version: 0.93.0
  * Requires at least: 6.4

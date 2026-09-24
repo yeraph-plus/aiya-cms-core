@@ -10,7 +10,7 @@ use WP_User;
 use WP_User_Query;
 
 /**
- * Send Mail screen (submenu of the AIYA Core menu): compose an HTML
+ * Send Mail screen (submenu of the AIYA CMS Core menu): compose an HTML
  * email with the classic editor and send it immediately over AJAX.
  *
  * The recipient is a free-text email field — any valid address works,
@@ -33,7 +33,7 @@ final class SendMailPage implements Module
 
     public function register(): void
     {
-        // Priority 35: the parent AIYA Core menu is registered by
+        // Priority 35: the parent AIYA CMS Core menu is registered by
         // SettingsAdmin at 30. add_submenu_page resolves the page hookname
         // from the parent's registered title at call time — running before
         // it degrades the hook to admin_page_* and the request-time access

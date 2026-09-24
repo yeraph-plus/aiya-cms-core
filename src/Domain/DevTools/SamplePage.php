@@ -53,7 +53,7 @@ final class SamplePage implements Module
                     'type' => 'text',
                     'label' => __('Site title', 'aiya-core'),
                     'description' => __('A required text field.', 'aiya-core'),
-                    'default' => 'AIYA Core',
+                    'default' => 'AIYA CMS Core',
                     'required' => true,
                     'attributes' => ['autocomplete' => 'off'],
                 ],
@@ -211,7 +211,7 @@ final class SamplePage implements Module
                     'type' => 'tinymce',
                     'label' => __('Classic editor content', 'aiya-core'),
                     'description' => __('Uses wp_editor and TinyMCE; Gutenberg and React are not required.', 'aiya-core'),
-                    'default' => '<p>AIYA Core classic editor sample.</p>',
+                    'default' => '<p>AIYA CMS Core classic editor sample.</p>',
                 ],
                 [
                     'id' => 'repeater_heading',

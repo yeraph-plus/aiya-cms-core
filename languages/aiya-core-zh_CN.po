@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA Core 0.93.0\n"
+"Project-Id-Version: AIYA CMS Core 0.93.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13,8 +13,8 @@ msgstr ""
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
 
-msgid "AIYA Core"
-msgstr "AIYA Core"
+msgid "AIYA CMS Core"
+msgstr "AIYA CMS Core"
 
 msgid "Headless-first administration and content framework for AIYA CMS."
 msgstr "面向 AIYA CMS 的无头优先管理与内容框架。"
@@ -2671,8 +2671,8 @@ msgstr "Feed 订阅"
 msgid "Answer 404 for every RSS/RDF/Atom feed URL"
 msgstr "所有 RSS/RDF/Atom 订阅地址一律返回 404"
 
-msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA Core > Optimization."
-msgstr "该屏幕因站点以无头模式运行而禁用。请前往 AIYA Core > Optimization 管理。"
+msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA CMS Core > Optimization."
+msgstr "该屏幕因站点以无头模式运行而禁用。请前往 AIYA CMS Core > Optimization 管理。"
 
 msgid "Security hardening"
 msgstr "安全加固"
@@ -2974,8 +2974,8 @@ msgstr "WP-CLI 与脚本卸载时同时删除数据表、设置与元数据（�
 msgid "Deleting the plugin keeps all of its data (tables, settings, meta fields, scheduled events), so reinstalling picks up where it left off. Deleting from the Plugins screen always stops and asks first; this switch is the standing answer for the uninstalls that have no UI, such as WP-CLI. Off they keep the data, on they wipe it — the wipe cannot be undone. AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php forces the same wipe everywhere and skips the question."
 msgstr "删除插件不会动它的数据（数据表、设置、元数据、定时任务），重装后自动接回原状态。在后台插件页删除时会先停下来询问；本开关是无 UI 卸载（如 WP-CLI）的既定答案：关闭时保留数据，开启时一并清除——清除不可恢复。wp-config.php 中定义 AIYA_CORE_UNINSTALL_PURGE = true 可在所有卸载路径强制清除并跳过询问。"
 
-msgid "Delete AIYA Core"
-msgstr "删除 AIYA Core"
+msgid "Delete AIYA CMS Core"
+msgstr "删除 AIYA CMS Core"
 
 msgid "WordPress is about to delete the plugin files. Before that happens, choose what to do with the data the plugin wrote."
 msgstr "WordPress 即将删除插件文件。在此之前，请先确认插件写入的数据如何处理。"

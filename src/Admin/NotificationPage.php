@@ -9,7 +9,7 @@ use Aiya\Core\Domain\Notification\NotificationService;
 use Aiya\Core\Domain\Notification\RoleLevel;
 
 /**
- * Notifications screen (submenu of the AIYA Core menu): publish an
+ * Notifications screen (submenu of the AIYA CMS Core menu): publish an
  * announcement and browse/delete stored rows. The retention setting lives
  * on the Frontend page; this screen only describes the daily cleanup.
  * Deliberately plain — the legacy site-notice settings list it replaces was
@@ -37,7 +37,7 @@ final class NotificationPage implements Module
 
     public function register(): void
     {
-        // Priority 35: the parent AIYA Core menu is registered by
+        // Priority 35: the parent AIYA CMS Core menu is registered by
         // SettingsAdmin at 30 — see SendMailPage for the hookname timing.
         add_action('admin_menu', [$this, 'menu'], 35);
         add_action('admin_post_' . self::ACTION_CREATE, [$this, 'handleCreate']);
