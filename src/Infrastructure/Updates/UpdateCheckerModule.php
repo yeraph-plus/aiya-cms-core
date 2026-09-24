@@ -15,14 +15,17 @@ use Aiya\Core\Contracts\Module;
  * update download. The release tag carries the version (the workflow
  * already gates it against the plugin header).
  *
- * The repository lives in the AIYA_CORE_UPDATE_REPO constant
- * (wp-config.php) or the `aiya_core_update_repo` filter, as
- * `owner/repo`. An empty answer — the default until the repository is
- * published — keeps the checker off entirely; nothing registers, and
+ * The source repository is built in (`owner/repo`); a site may still
+ * repoint it per environment through the AIYA_CORE_UPDATE_REPO constant
+ * (wp-config.php) or the `aiya_core_update_repo` filter — an empty
+ * answer there turns the checker off entirely; nothing registers, and
  * the cron event is never scheduled.
  */
 final class UpdateCheckerModule implements Module
 {
+    /** This repository on GitHub, as `owner/repo` — the update source. */
+    public const UPDATE_REPO = 'yeraph-plus/aiya-cms-core';
+
     /** The checker's WP-Cron event; PUC names it `puc_{tag}-{slug}`. */
     public const CRON_HOOK = 'puc_cron_check_updates-aiya-core';
 
@@ -51,7 +54,7 @@ final class UpdateCheckerModule implements Module
     {
         $repo = (string) apply_filters(
             'aiya_core_update_repo',
-            defined('AIYA_CORE_UPDATE_REPO') ? (string) AIYA_CORE_UPDATE_REPO : ''
+            defined('AIYA_CORE_UPDATE_REPO') ? (string) AIYA_CORE_UPDATE_REPO : self::UPDATE_REPO
         );
         if ($repo === '') {
             return;

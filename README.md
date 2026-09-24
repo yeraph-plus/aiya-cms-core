@@ -73,9 +73,10 @@ The plugin never ships through wordpress.org, so it checks its own
 releases: the bundled Plugin Update Checker library
 (`yahnis-elsts/plugin-update-checker`, composer-installed) watches this
 repository's GitHub Releases and surfaces updates in the normal Plugins
-screen. Point it at the repository once — `define('AIYA_CORE_UPDATE_REPO',
+screen. The update source is built in (`yeraph-plus/aiya-cms-core`);
+a site may repoint it per environment — `define('AIYA_CORE_UPDATE_REPO',
 'owner/repo');` in wp-config.php, or filter `aiya_core_update_repo` —
-an empty value (the default) keeps the checker off. The `Update URI:
+an empty value turns the checker off. The `Update URI:
 false` plugin header keeps wordpress.org out of the picture, and each
 release carries exactly one zip asset: that is the download the checker
 hands the updater. The `aiya-headless` shell theme is deliberately not
