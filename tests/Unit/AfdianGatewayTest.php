@@ -155,13 +155,16 @@ final class AfdianGatewayTest extends TestCase
         self::assertNull($adapter->planForTier('silver'), 'the duplicate row lost, so silver has no plan');
         self::assertSame('silver', $adapter->fallbackTier()['key'] ?? null);
 
-        // The deep link targets the first binding.
-        $primary = $adapter->primaryTier();
-        self::assertSame('gold', $primary['key'] ?? null);
+        // The deep link carries the user binding and the month pre-select.
         $url = $adapter->orderUrl(42, 3);
         self::assertStringContainsString('plan_id=' . self::BOUND_PLAN, $url);
         self::assertStringContainsString('custom_order_id=' . (new IdSlugEncoder(8))->encodeId(42), $url);
         self::assertStringContainsString('month=3', $url);
+
+        // Per-tier links target the tier's own bound plan; a tier with no
+        // binding refuses instead of landing on another plan's page.
+        self::assertStringContainsString('plan_id=' . self::BOUND_PLAN, $adapter->orderUrl(42, 1, 'gold'));
+        self::assertSame('', $adapter->orderUrl(42, 1, 'silver'), 'an unbound tier must not deep-link to the primary plan');
     }
 
     public function testWithoutBindingsTheChannelExistsButNothingIsBound(): void
@@ -175,7 +178,6 @@ final class AfdianGatewayTest extends TestCase
         $adapter = AfdianGateway::fromSettings();
         self::assertNotNull($adapter);
         self::assertFalse($adapter->hasBindings(), 'no binding rows: the plans() channel goes dark');
-        self::assertNull($adapter->primaryTier());
         self::assertNull($adapter->fallbackTier());
         self::assertNull($adapter->tierForPlan(self::BOUND_PLAN));
         self::assertSame('', $adapter->orderUrl(42));

@@ -32,8 +32,6 @@ use WP_REST_Server;
  */
 final class SponsorshipController
 {
-    private const MAX_CYCLES = 60;
-
     public function __construct(
         private MembershipService $membership,
         private EntitlementService $entitlements,
@@ -63,8 +61,9 @@ final class SponsorshipController
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->afdianOrderUrl($request),
             'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
             'args' => [
-                // Optional: pre-selects the months on the Afdian checkout.
-                'month' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 36],
+                // The tier resolves the cycle count; the plan binding still
+                // decides activation at webhook time.
+                'tierKey' => ['type' => 'string', 'required' => true, 'maxLength' => 32],
             ],
         ]);
 
@@ -75,7 +74,7 @@ final class SponsorshipController
             'args' => [
                 'tierKey' => ['type' => 'string', 'required' => true, 'maxLength' => 32],
                 'channel' => ['type' => 'string', 'required' => true, 'enum' => ['alipay', 'wxpay', 'usdt']],
-                'cycles' => ['type' => 'integer', 'minimum' => 1, 'maximum' => self::MAX_CYCLES, 'default' => 1],
+                'returnUrl' => ['type' => 'string', 'maxLength' => 500],
             ],
         ]);
     }
@@ -116,24 +115,30 @@ final class SponsorshipController
             return new WP_Error('aiya_afdian_unavailable', __('The Afdian channel is not available.', 'aiya-core'), ['status' => 502]);
         }
 
-        $month = max(0, min(36, (int) $request->get_param('month')));
+        // The tier decides the cycle count (there is no front-end picker):
+        // the deep link pre-selects it on the platform page and the local
+        // placeholder row queues it until the push replaces both id and
+        // cycles with the queried order's reality.
+        $tier = SponsorshipSettings::tierByKey(
+            SponsorshipSettings::read()['tiers'],
+            sanitize_key((string) $request->get_param('tierKey'))
+        );
+        if ($tier === null) {
+            return new WP_Error('aiya_not_found', __('Unknown membership tier.', 'aiya-core'), ['status' => 404]);
+        }
+        $cycles = (int) $tier['cycles'];
+
         $userId = (int) get_current_user_id();
-        $url = $gateway->orderUrl($userId, $month);
+        $url = $gateway->orderUrl($userId, $cycles, (string) $tier['key']);
         if ($url === '') {
             return new WP_Error('aiya_plan_unbound', __('This tier is not bound to an Afdian plan.', 'aiya-core'), ['status' => 422]);
         }
 
-        // The platform generates the order number, so the checkout record
-        // carries a local placeholder that the push replaces with the real
-        // id (and the cycles the buyer picked there). The placeholder
-        // names the primary binding's tier — the webhook re-resolves the
-        // real plan from the queried order anyway.
-        $primary = $gateway->primaryTier();
         $pending = $this->orders->createPending(
             $userId,
             $gateway->orderId('pending_' . strtoupper(substr(md5(uniqid((string) wp_rand(), true)), 0, 12))),
-            (string) ($primary['key'] ?? ''),
-            max(1, $month),
+            (string) $tier['key'],
+            $cycles,
             0.0,
             'afdian'
         );
@@ -183,15 +188,39 @@ final class SponsorshipController
 
         $settings = SponsorshipSettings::read();
         $tierKey = sanitize_key((string) $request->get_param('tierKey'));
-        $cycles = max(1, min(self::MAX_CYCLES, (int) $request->get_param('cycles')));
         $tier = SponsorshipSettings::tierByKey($settings['tiers'], $tierKey);
         if ($tier === null) {
             return new WP_Error('aiya_not_found', __('Unknown membership tier.', 'aiya-core'), ['status' => 404]);
         }
+        // The tier's own configuration decides the cycle count (and with it
+        // the total price); the buyer picks nothing but the payment channel.
+        $cycles = (int) $tier['cycles'];
         // The purchase list hides disabled tiers client-side; the gate has
         // to hold server-side too, or a hand-crafted POST buys one anyway.
         if (!(bool) ($tier['enabled'] ?? true)) {
             return new WP_Error('aiya_tier_disabled', __('This membership tier is not available.', 'aiya-core'), ['status' => 410]);
+        }
+
+        // The browser return URL is the front end's own call: it knows the
+        // page its payer initiated the checkout on and sends the landing
+        // address with the order. Shape-validated only — the gateway sends
+        // the payer's own browser there, so this is convenience routing,
+        // not an authorization boundary (the notify callback is). The rule
+        // mirrors the front end's own schema: absolute http(s), a host, no
+        // credentials. wp_http_validate_url is deliberately NOT used: it is
+        // a "may the server request this" gate and refuses loopback hosts,
+        // which dev front ends legitimately live on.
+        $returnUrl = (string) $request->get_param('returnUrl');
+        if ($returnUrl !== '') {
+            $parts = wp_parse_url($returnUrl);
+            $valid = isset($parts['scheme'], $parts['host'])
+                && in_array($parts['scheme'], ['http', 'https'], true)
+                && (string) $parts['host'] !== ''
+                && empty($parts['user']) && empty($parts['pass'])
+                && !preg_match('/[\s<>"\']/', $returnUrl);
+            if (!$valid) {
+                return new WP_Error('aiya_invalid_return_url', __('The return URL is not a valid absolute http(s) address.', 'aiya-core'), ['status' => 400]);
+            }
         }
 
         // Entropy beyond the second: two orders in the same second must
@@ -224,6 +253,7 @@ final class SponsorshipController
             'amount' => round($tier['price'] * $cycles, 2),
             'channel' => $channel,
             'binding' => $binding,
+            'returnUrl' => $returnUrl,
         ]);
         if (is_wp_error($url)) {
             return $url;

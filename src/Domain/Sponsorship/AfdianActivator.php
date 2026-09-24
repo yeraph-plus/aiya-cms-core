@@ -32,7 +32,10 @@ use WP_Error;
  */
 final class AfdianActivator
 {
-    private const MAX_CYCLES = 36;
+    // Aligned with the tier settings' cycles ceiling (the repeater field's
+    // max): a queried order that really bought more months must not lose
+    // cycles the tier promises. The clamp only bounds a garbage query row.
+    private const MAX_CYCLES = 60;
 
     public function __construct(
         private Client $client,

@@ -15,7 +15,7 @@ namespace Aiya\Core\Domain\Sponsorship;
 final class SponsorshipSettings
 {
     /**
-     * @return array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,epayReturnUrl:string,afdianEnable:bool,afdianUserId:string,afdianToken:string,afdianBindings:list<array{planId:string,tierKey:string}>,afdianFallbackTier:string,tiers:list<array{key:string,name:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}>}
+     * @return array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,afdianEnable:bool,afdianUserId:string,afdianToken:string,afdianBindings:list<array{planId:string,tierKey:string}>,afdianFallbackTier:string,tiers:list<array{key:string,name:string,description:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}>}
      */
     public static function read(): array
     {
@@ -28,7 +28,6 @@ final class SponsorshipSettings
             'epayKey' => (string) ($payments['epay_key'] ?? ''),
             'epayGateway' => (string) ($payments['epay_gateway'] ?? ''),
             'epayMethods' => self::methods($payments),
-            'epayReturnUrl' => (string) ($payments['epay_return_url'] ?? ''),
             'afdianEnable' => (bool) ($payments['afdian_enable'] ?? false),
             'afdianUserId' => (string) ($payments['afdian_user_id'] ?? ''),
             'afdianToken' => (string) ($payments['afdian_token'] ?? ''),
@@ -66,7 +65,7 @@ final class SponsorshipSettings
      * later edits never rewrite existing queues.
      *
      * @param array<string, mixed> $settings
-     * @return list<array{key:string,name:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}>
+     * @return list<array{key:string,name:string,description:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}>
      */
     public static function tiers(array $settings): array
     {
@@ -82,10 +81,12 @@ final class SponsorshipSettings
             $tiers[] = [
                 'key' => $key,
                 'name' => (string) ($row['name'] ?? ''),
+                'description' => trim(sanitize_textarea_field((string) ($row['description'] ?? ''))),
                 'enabled' => (bool) ($row['enabled'] ?? true),
                 'price' => (float) ($row['price'] ?? 0),
                 'cycleDays' => max(1, (int) ($row['cycle_days'] ?? 30)),
                 'creditsPerCycle' => max(0, (int) ($row['credits_per_cycle'] ?? 0)),
+                'cycles' => max(1, min(60, (int) ($row['cycles'] ?? 1))),
             ];
         }
 
@@ -93,8 +94,8 @@ final class SponsorshipSettings
     }
 
     /**
-     * @param list<array{key:string,name:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}> $tiers
-     * @return array{key:string,name:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}|null
+     * @param list<array{key:string,name:string,description:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}> $tiers
+     * @return array{key:string,name:string,description:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}|null
      */
     public static function tierByKey(array $tiers, string $key): ?array
     {

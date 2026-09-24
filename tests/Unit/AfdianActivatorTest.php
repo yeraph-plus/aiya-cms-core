@@ -233,6 +233,19 @@ final class AfdianActivatorTest extends TestCase
         self::assertSame('aiya_order_used', $used->get_error_code());
     }
 
+    public function testQueriedCyclesClampToTheTierSettingsCeiling(): void
+    {
+        // The queried month is platform truth, but the clamp follows the
+        // tier settings' cycles max (60): a really-bought pile of months
+        // must queue in full, only a garbage row gets bounded.
+        $this->paidOrder('T600', ['month' => 99]);
+
+        self::assertSame(
+            ['tierKey' => 'gold', 'tierName' => 'Gold', 'cycles' => 60],
+            $this->activator()->activate(42, 'T600')
+        );
+    }
+
     // --------------------------------------------- the confirm() pending guard
 
     public function testConfirmFlipsOnlyAPendingRow(): void

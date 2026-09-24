@@ -12,8 +12,9 @@ use WP_Error;
  * The Epay (彩虹易支付) adapter behind PaymentGateway — the WordPress half
  * of the `aiya/payment-epay` package. It owns every WordPress touchpoint:
  * reading the credentials/channels from the payments settings, building
- * the notify URL the platform pushes back to, handing the package the tier
- * keys a callback may activate, and mapping the package's answers onto
+ * the notify URL the platform pushes back to, forwarding the front end's
+ * per-order return URL, handing the package the tier keys a callback may
+ * activate, and mapping the package's answers onto
  * WP_Error plus translated copy. The package never sees WordPress.
  */
 final class EpayGateway implements PaymentGateway
@@ -42,7 +43,6 @@ final class EpayGateway implements PaymentGateway
             new Gateway(
                 $client,
                 (string) get_rest_url(null, '/' . self::GATEWAY_NAMESPACE . '/epay/callback'),
-                $settings['epayReturnUrl'],
                 // Disabled tiers stay in the callback whitelist BY DESIGN
                 // (2026-09-21): enabled gates the storefront buy list only —
                 // SponsorshipController refuses disabled tiers at order

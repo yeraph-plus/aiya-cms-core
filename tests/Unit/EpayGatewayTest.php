@@ -60,7 +60,6 @@ final class EpayGatewayTest extends TestCase
         return new Gateway(
             new Client(self::PID, self::KEY, self::BASE),
             'https://aiya.test/wp-json/aiya/sponsorship/v1/epay/callback',
-            'https://aiya.test/return',
             $tierKeys
         );
     }
@@ -144,7 +143,6 @@ final class EpayGatewayTest extends TestCase
             'epay_key' => self::KEY,
             'epay_gateway' => self::BASE,
             'epay_methods' => ['alipay', 'wxpay'],
-            'epay_return_url' => 'https://aiya.test/return',
         ]);
 
         $adapter = EpayGateway::fromSettings();
@@ -153,15 +151,33 @@ final class EpayGatewayTest extends TestCase
         self::assertTrue($adapter->enabled());
         self::assertSame(['alipay', 'wxpay'], $adapter->channels());
 
+        $binding = (new IdSlugEncoder(8))->encodeId(42) . '|gold|1';
         $url = $adapter->createPayment([
             'orderId' => '20260915002',
             'title' => 'Gold',
             'amount' => 30.0,
             'channel' => 'alipay',
-            'binding' => (new IdSlugEncoder(8))->encodeId(42) . '|gold|1',
+            'binding' => $binding,
         ]);
         self::assertIsString($url);
         self::assertStringStartsWith(self::BASE . '/submit.php?', $url);
+        // The return URL is per-order and optional: absent from the payload,
+        // absent from the submit query (the buyer simply stays on the
+        // gateway page).
+        parse_str((string) wp_parse_url($url, PHP_URL_QUERY), $query);
+        self::assertArrayNotHasKey('return_url', $query);
+
+        $withReturn = $adapter->createPayment([
+            'orderId' => '20260915003',
+            'title' => 'Gold',
+            'amount' => 30.0,
+            'channel' => 'alipay',
+            'binding' => $binding,
+            'returnUrl' => 'https://front.test/membership/',
+        ]);
+        self::assertIsString($withReturn);
+        parse_str((string) wp_parse_url($withReturn, PHP_URL_QUERY), $query);
+        self::assertSame('https://front.test/membership/', $query['return_url'] ?? '');
     }
 
     /**

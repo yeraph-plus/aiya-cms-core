@@ -20,15 +20,12 @@ use Aiya\Infra\PaymentAfdian\Gateway;
  */
 final class AfdianGateway implements PaymentGateway
 {
-    /** @var array<string, array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}> plan id => tier it activates */
+    /** @var array<string, array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}> plan id => tier it activates */
     private array $planTiers;
 
-    /** @var array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}|null the first binding's tier — the deep link's target */
-    private ?array $primaryTier;
-
     /**
-     * @param array<string, array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}> $planTiers
-     * @param array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}|null $fallbackTier
+     * @param array<string, array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}> $planTiers
+     * @param array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}|null $fallbackTier
      */
     public function __construct(
         private Client $client,
@@ -38,7 +35,6 @@ final class AfdianGateway implements PaymentGateway
         private ?array $fallbackTier,
     ) {
         $this->planTiers = $planTiers;
-        $this->primaryTier = $planTiers === [] ? null : $planTiers[(string) array_key_first($planTiers)];
     }
 
     /** Builds the adapter from the domain settings (null when disabled/unconfigured). */
@@ -137,10 +133,22 @@ final class AfdianGateway implements PaymentGateway
         return $this->gateway->createPayment($payment);
     }
 
-    /** The personalized order-create deep link; empty when nothing is bound. */
-    public function orderUrl(int $userId, int $month = 0): string
+    /**
+     * The personalized order-create deep link; empty when nothing is bound.
+     * With a tier key the link targets that tier's bound plan — an unbound
+     * tier refuses (empty), never silently landing on another plan's page.
+     */
+    public function orderUrl(int $userId, int $month = 0, string $tierKey = ''): string
     {
-        return $this->gateway->orderUrl($userId, $month);
+        if ($tierKey === '') {
+            return $this->gateway->orderUrl($userId, $month);
+        }
+        $planId = $this->planForTier($tierKey);
+        if ($planId === null) {
+            return '';
+        }
+
+        return $this->gateway->orderUrl($userId, $month, $planId);
     }
 
     /**
@@ -158,7 +166,7 @@ final class AfdianGateway implements PaymentGateway
     /**
      * The tier a bound plan activates; null for unknown plans.
      *
-     * @return array{key:string, name:string, price:float, cycleDays:int, creditsPerCycle:int}|null
+     * @return array{key:string, name:string, description:string, price:float, cycleDays:int, creditsPerCycle:int, cycles:int}|null
      */
     public function tierForPlan(string $planId): ?array
     {
@@ -181,22 +189,11 @@ final class AfdianGateway implements PaymentGateway
      * The tier the amount-only plan (empty plan_id) falls into; null
      * refuses those orders.
      *
-     * @return array{key:string, name:string, price:float, cycleDays:int, creditsPerCycle:int}|null
+     * @return array{key:string, name:string, description:string, price:float, cycleDays:int, creditsPerCycle:int, cycles:int}|null
      */
     public function fallbackTier(): ?array
     {
         return $this->fallbackTier;
-    }
-
-    /**
-     * The first binding's tier — the checkout placeholder and deep link
-     * target; null when nothing is bound.
-     *
-     * @return array{key:string, name:string, price:float, cycleDays:int, creditsPerCycle:int}|null
-     */
-    public function primaryTier(): ?array
-    {
-        return $this->primaryTier;
     }
 
     /** The purchase channel exists only while at least one plan is bound. */

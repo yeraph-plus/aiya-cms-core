@@ -46,14 +46,14 @@ final class SponsorshipSettingsTest extends TestCase
     {
         $normalized = SponsorshipSettings::tiers([
             'tiers' => [
-                ['key' => 'Gold', 'name' => 'Gold', 'price' => '15.5', 'cycle_days' => '45', 'credits_per_cycle' => '200'],
+                ['key' => 'Gold', 'name' => 'Gold', 'description' => '  Entry plan  ', 'price' => '15.5', 'cycle_days' => '45', 'credits_per_cycle' => '200', 'cycles' => '12'],
                 ['key' => '', 'name' => 'Keyless'],
                 'garbage',
             ],
         ]);
 
         self::assertSame([
-            ['key' => 'gold', 'name' => 'Gold', 'enabled' => true, 'price' => 15.5, 'cycleDays' => 45, 'creditsPerCycle' => 200],
+            ['key' => 'gold', 'name' => 'Gold', 'description' => 'Entry plan', 'enabled' => true, 'price' => 15.5, 'cycleDays' => 45, 'creditsPerCycle' => 200, 'cycles' => 12],
         ], $normalized);
     }
 
@@ -66,5 +66,6 @@ final class SponsorshipSettingsTest extends TestCase
         self::assertSame(0.0, $normalized[0]['price']);
         self::assertSame(30, $normalized[0]['cycleDays']);
         self::assertSame(0, $normalized[0]['creditsPerCycle']);
+        self::assertSame(1, $normalized[0]['cycles'], 'missing cycles falls back to a single cycle');
     }
 }

@@ -12,9 +12,11 @@ use Aiya\Infra\SlugToolkit\IdSlugEncoder;
  * Everything provider-shaped lives here — the out_trade_no/name/money/
  * param/type parameter names, the TRADE_SUCCESS status, the order-id
  * prefix, the user|tier|cycles binding split — and nothing
- * environment-shaped does: the notify/return URLs and the set of
- * acceptable tier keys arrive from the caller, which owns the settings,
- * WordPress and the money/rights writes.
+ * environment-shaped does: the notify URL and the set of acceptable
+ * tier keys arrive from the caller, which owns the settings, WordPress
+ * and the money/rights writes. The browser return URL is per-order: the
+ * caller's front end knows where its payer initiated the checkout and
+ * hands the landing page in with the payment payload.
  *
  * The binding codec is the site's own XDE encoding (the slug-toolkit
  * package, also WordPress-free); it is a wire contract with the platform's
@@ -31,7 +33,6 @@ final class Gateway
     public function __construct(
         private readonly Client $client,
         private readonly string $notifyUrl,
-        private readonly string $returnUrl,
         private readonly array $tierKeys = [],
     ) {
     }
@@ -46,7 +47,7 @@ final class Gateway
      * The signed cashier URL for one order. The caller has already
      * accepted the channel; this only speaks Epay.
      *
-     * @param array{orderId:string, title:string, amount:float, channel:string, binding:string} $payment
+     * @param array{orderId:string, title:string, amount:float, channel:string, binding:string, returnUrl?:string} $payment
      */
     public function createPayment(array $payment): string
     {
@@ -56,7 +57,7 @@ final class Gateway
             'money' => number_format(round((float) $payment['amount'], 2), 2, '.', ''),
             'param' => (string) $payment['binding'],
             'type' => (string) $payment['channel'],
-        ], $this->notifyUrl, $this->returnUrl);
+        ], $this->notifyUrl, (string) ($payment['returnUrl'] ?? ''));
 
         return $this->client->submitUrl($submitQuery);
     }

@@ -62,13 +62,14 @@ final class Gateway
      * plan, custom_order_id carries the user binding, an optional month
      * pre-selects the cycle count (the buyer can still change it there).
      */
-    public function orderUrl(int $userId, int $month = 0): string
+    public function orderUrl(int $userId, int $month = 0, ?string $planId = null): string
     {
-        if ($this->planId === '' || $this->boundTierKey === null) {
+        $planId ??= $this->planId;
+        if ($planId === '' || $this->boundTierKey === null) {
             return '';
         }
 
-        $url = self::ORDER_CREATE_URL . '?plan_id=' . rawurlencode($this->planId)
+        $url = self::ORDER_CREATE_URL . '?plan_id=' . rawurlencode($planId)
             . '&product_type=0'
             . '&custom_order_id=' . rawurlencode($this->client->bindUser($userId))
             . '&remark=' . rawurlencode($this->remark);
