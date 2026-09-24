@@ -69,6 +69,8 @@ final class ProfilePresenter
     /**
      * Published favorites from the relation table, newest first, capped at
      * FAVORITES_LIMIT while `count` is the exact published-favorite total.
+     * Each row projects under its own public type — favorites span
+     * post/page/resource, and the summary's url/taxonomies are per-type.
      *
      * @return array{count: int, posts: list<PostSummary>}
      */
@@ -80,12 +82,12 @@ final class ProfilePresenter
             return ['count' => 0, 'posts' => []];
         }
 
-        $postType = PublicTypes::get('post') ?? PublicTypes::all()['post'];
         $out = [];
         foreach ($result['ids'] as $postId) {
             $post = get_post($postId);
-            if ($post instanceof WP_Post) {
-                $out[] = $this->posts->summary($post, $postType);
+            $type = $post instanceof WP_Post ? PublicTypes::forPostType((string) $post->post_type) : null;
+            if ($post instanceof WP_Post && $type !== null) {
+                $out[] = $this->posts->summary($post, $type);
             }
         }
 

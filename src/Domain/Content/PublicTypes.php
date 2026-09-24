@@ -14,6 +14,34 @@ final class PublicTypes
         return self::all()[$name] ?? null;
     }
 
+    /** The public type a WP post type belongs to, or null when none does. */
+    public static function forPostType(string $wpType): ?PublicType
+    {
+        foreach (self::all() as $type) {
+            if (in_array($wpType, $type->postTypes, true)) {
+                return $type;
+            }
+        }
+
+        return null;
+    }
+
+    /** Every WP post type the public surface reads, flattened.
+     *
+     * @return list<string>
+     */
+    public static function wpPostTypes(): array
+    {
+        $types = [];
+        foreach (self::all() as $type) {
+            foreach ($type->postTypes as $wpType) {
+                $types[] = $wpType;
+            }
+        }
+
+        return $types;
+    }
+
     /** @return array<string, PublicType> */
     public static function all(): array
     {

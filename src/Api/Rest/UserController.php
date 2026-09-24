@@ -163,7 +163,7 @@ final class UserController
         return new WP_REST_Response($this->presenter->present($this->currentUser())->toArray());
     }
 
-    /** The viewer's published favorites, newest first. */
+    /** The viewer's published favorites, newest first, mixed public types. */
     private function listFavorites(WP_REST_Request $request): WP_REST_Response
     {
         $userId = (int) $this->currentUser()->ID;
@@ -171,12 +171,12 @@ final class UserController
         $perPage = (int) $request->get_param('perPage');
         $result = $this->favorites->published($userId, $page, $perPage);
 
-        $postType = PublicTypes::get('post') ?? PublicTypes::all()['post'];
         $items = [];
         foreach ($result['ids'] as $postId) {
             $post = get_post($postId);
-            if ($post !== null) {
-                $items[] = $this->postPresenter->summary($post, $postType)->toArray();
+            $type = $post !== null ? PublicTypes::forPostType((string) $post->post_type) : null;
+            if ($post !== null && $type !== null) {
+                $items[] = $this->postPresenter->summary($post, $type)->toArray();
             }
         }
 

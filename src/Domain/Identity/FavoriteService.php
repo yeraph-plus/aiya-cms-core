@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Identity;
 
+use Aiya\Core\Domain\Content\PublicTypes;
 use WP_Error;
 
 /**
@@ -15,8 +16,9 @@ use WP_Error;
  * or disappeared stay in the table but never surface — every read joins
  * published posts.
  *
- * Scope is the classic `post` type for now; widening to resources is an
- * extra type check away, not a schema change.
+ * Scope is every public type (post/page/resource — the same list the
+ * front end renders detail shells for); unpublished rows are refused on
+ * write and filtered on read.
  */
 final class FavoriteService
 {
@@ -34,11 +36,16 @@ final class FavoriteService
 
         global $wpdb;
         /** @var \wpdb $wpdb */
+        // A re-favorite is the expected duplicate-key path, not a site error:
+        // unsuppressed, wpdb prints its error HTML straight into the JSON
+        // response body and the front end reads the write as a failure.
+        $suppress = $wpdb->suppress_errors(true);
         $inserted = $wpdb->insert(
             $this->table(),
             ['user_id' => $userId, 'post_id' => $postId, 'created_at' => current_time('mysql', true)],
             ['%d', '%d', '%s']
         );
+        $wpdb->suppress_errors($suppress);
 
         // Duplicate-key failures are the expected re-favorite path.
         return $inserted === false && (int) $wpdb->get_var($wpdb->prepare(
@@ -99,8 +106,11 @@ final class FavoriteService
         // is no viewer-relative exclusion here — both gates always apply.
         $gate = "AND NOT EXISTS (SELECT 1 FROM {$wpdb->postmeta} gm
              WHERE gm.post_id = p.ID AND gm.meta_key = 'aiya_core_visibility' AND gm.meta_value <> '')";
+        // The type list comes from the fixed registry, never user input —
+        // same interpolation convention as the table names beside it.
+        $types = implode("','", array_map('esc_sql', PublicTypes::wpPostTypes()));
         $join = "FROM $table f INNER JOIN {$wpdb->posts} p ON p.ID = f.post_id
-             WHERE f.user_id = %d AND p.post_status = 'publish' AND p.post_type = 'post' AND p.post_password = '' $gate";
+             WHERE f.user_id = %d AND p.post_status = 'publish' AND p.post_type IN ('$types') AND p.post_password = '' $gate";
 
         $total = (int) $wpdb->get_var(
             // @phpstan-ignore argument.type (fixed table interpolation)
@@ -151,29 +161,34 @@ final class FavoriteService
     /** How many favorites the author's published posts received in total. */
     public function countForAuthor(int $authorId): int
     {
+        $types = implode("','", array_map('esc_sql', PublicTypes::wpPostTypes()));
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $found = $wpdb->get_var($wpdb->prepare(
-            'SELECT COUNT(f.id) FROM %i f INNER JOIN %i p ON p.ID = f.post_id'
-            . ' WHERE p.post_author = %d AND p.post_status = %s AND p.post_type = %s',
-            $this->table(),
-            $wpdb->posts,
-            $authorId,
-            'publish',
-            'post'
-        ));
+        // Password-protected posts stay out of the count: the public list
+        // reads exclude them, and the author stat must not leak a hidden
+        // post's popularity.
+        $query = 'SELECT COUNT(f.id) FROM %i f INNER JOIN %i p ON p.ID = f.post_id'
+            . " WHERE p.post_author = %d AND p.post_status = %s AND p.post_type IN ('$types') AND p.post_password = ''";
+        $found = $wpdb->get_var(
+            // @phpstan-ignore argument.type (fixed registry interpolation, see published())
+            $wpdb->prepare($query, $this->table(), $wpdb->posts, $authorId, 'publish') // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- fixed registry interpolation; see published()
+        );
 
         return is_numeric($found) ? (int) $found : 0;
     }
 
-    /** Favorites must target an existing published classic post. */
+    /** Favorites must target an existing published row of a public type. */
     private function validatePost(int $postId): int|WP_Error
     {
         $postId = absint((string) $postId);
         $post = $postId > 0 ? get_post($postId) : null;
 
-        if ($post === null || $post->post_type !== 'post' || $post->post_status !== 'publish') {
-            return new WP_Error('aiya_invalid_param', __('Only published posts can be favorited.', 'aiya-core'), ['status' => 400]);
+        if (
+            $post === null
+            || PublicTypes::forPostType((string) $post->post_type) === null
+            || $post->post_status !== 'publish'
+        ) {
+            return new WP_Error('aiya_invalid_param', __('Only published content can be favorited.', 'aiya-core'), ['status' => 400]);
         }
 
         return $postId;
