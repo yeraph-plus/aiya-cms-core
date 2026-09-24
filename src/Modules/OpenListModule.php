@@ -116,6 +116,13 @@ final class OpenListModule implements Module
                 'default' => '',
             ],
             [
+                'id' => 'fileserve_oplist_public_url',
+                'type' => 'url',
+                'label' => __('Link base URL', 'aiya-core'),
+                'description' => __('Base address the delivery links are built on — the one the visitor\'s browser must reach. Leave empty to reuse the server URL; split them when WordPress reaches the file service on an internal host.', 'aiya-core'),
+                'default' => '',
+            ],
+            [
                 'id' => 'fileserve_oplist_server_user',
                 'type' => 'text',
                 'label' => __('API username', 'aiya-core'),
@@ -160,7 +167,8 @@ final class OpenListModule implements Module
         return new Gateway(
             $settings['server'],
             $settings['linkMode'],
-            fn (): Client => $this->client()
+            fn (): Client => $this->client(),
+            $settings['publicUrl'],
         );
     }
 
@@ -202,7 +210,7 @@ final class OpenListModule implements Module
      * The page's stored values, read through the settings facade so a fresh
      * install answers the field defaults.
      *
-     * @return array{server: string, user: string, password: string, tokenHours: int, linkMode: string}
+     * @return array{server: string, publicUrl: string, user: string, password: string, tokenHours: int, linkMode: string}
      */
     private function settings(): array
     {
@@ -210,6 +218,7 @@ final class OpenListModule implements Module
 
         return [
             'server' => rtrim((string) aiya_core_opt(FileServeModule::PAGE_SLUG, 'fileserve_oplist_server_url', ''), '/'),
+            'publicUrl' => rtrim((string) aiya_core_opt(FileServeModule::PAGE_SLUG, 'fileserve_oplist_public_url', ''), '/'),
             'user' => (string) aiya_core_opt(FileServeModule::PAGE_SLUG, 'fileserve_oplist_server_user', ''),
             'password' => (string) aiya_core_opt(FileServeModule::PAGE_SLUG, 'fileserve_oplist_server_password', ''),
             'tokenHours' => max(0, (int) aiya_core_opt(FileServeModule::PAGE_SLUG, 'fileserve_oplist_token_hours', 24)),

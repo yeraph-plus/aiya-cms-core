@@ -26,14 +26,20 @@ use Closure;
 final class Gateway
 {
     /**
-     * @param string $server    OpenList base URL
+     * @param string $server    OpenList base URL the API client talks to
      * @param string $linkMode  d, p or f (anything else falls back to plain)
      * @param Closure(): Client $clientFactory
+     * @param string $linkBase  Base URL the delivery links are built on; the
+     *                          empty string falls back to `$server`. Split
+     *                          from `$server` because a containerized WordPress
+     *                          reaches the file service on an internal host the
+     *                          visitor's browser cannot resolve.
      */
     public function __construct(
         private readonly string $server,
         private readonly string $linkMode,
         private readonly Closure $clientFactory,
+        private readonly string $linkBase = '',
     ) {
     }
 
@@ -192,8 +198,9 @@ final class Gateway
             default => '',
         };
         $encoded = implode('/', array_map('rawurlencode', explode('/', $path)));
+        $base = $this->linkBase !== '' ? $this->linkBase : $this->server;
 
-        return rtrim($this->server, '/') . $prefix . $encoded . ($sign !== '' ? '?sign=' . $sign : '');
+        return rtrim($base, '/') . $prefix . $encoded . ($sign !== '' ? '?sign=' . $sign : '');
     }
 
     /**
