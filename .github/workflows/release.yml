@@ -85,18 +85,15 @@ jobs:
                       --exclude backend-snap.json
                   find build/aiya-core -name '.DS_Store' -type f -delete
 
-            - name: Stage the companion shell theme
-              run: |
-                  mkdir -p build/aiya-headless
-                  rsync -a themes/aiya-headless/ build/aiya-headless/
-
-            - name: Zip the packages
+            # Exactly one zip asset rides every release: the online-update
+            # checker (Plugin Update Checker, GitHub mode) uses the release's
+            # zip as the download, so the shell theme is deliberately not
+            # packaged here.
+            - name: Zip the package
               run: |
                   cd build
                   zip -r -q "aiya-core-${{ steps.version.outputs.VERSION }}.zip" aiya-core
-                  zip -r -q "aiya-headless-${{ steps.version.outputs.VERSION }}.zip" aiya-headless
                   unzip -l "aiya-core-${{ steps.version.outputs.VERSION }}.zip" | tail -n1
-                  unzip -l "aiya-headless-${{ steps.version.outputs.VERSION }}.zip" | tail -n1
 
             - name: Collect the changelog since the previous tag
               if: github.event_name == 'push'
@@ -135,7 +132,8 @@ jobs:
 
                       #### Files
                       - `aiya-core-${{ steps.version.outputs.VERSION }}.zip` → unzip into `wp-content/plugins/` (production `vendor/` and the compiled zh_CN `.mo` are inside; drop the root `composer.json`/`composer.lock` and dev configs)
-                      - `aiya-headless-${{ steps.version.outputs.VERSION }}.zip` → unzip into `wp-content/themes/`
+
+                      The online-update checker consumes this release's zip asset; the `aiya-headless` shell theme is not distributed here.
                   generate_release_notes: true
                   files: |
                       build/*.zip

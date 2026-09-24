@@ -7,6 +7,7 @@
  * Requires PHP: 8.5
  * Author: Yeraph Studio
  * License: GPL-3.0-or-later
+ * Update URI: false
  * Text Domain: aiya-core
  * Domain Path: /languages
  */

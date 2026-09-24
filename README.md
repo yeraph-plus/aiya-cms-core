@@ -60,13 +60,27 @@ then:
 2. stages a slim copy (no `.git`, `.github`, `tests/`, `docs/`, dev
    configs or root composer files — the packages' own `composer.json`
    manifests stay, the lazy autoloader reads them) and zips it with the
-   top-level `aiya-core/` folder, plus a matching `aiya-headless.zip`
-   of the companion shell theme;
-3. publishes a GitHub release with both zips, a commit-log changelog
+   top-level `aiya-core/` folder;
+3. publishes a GitHub release with the zip, a commit-log changelog
    since the previous tag and GitHub's generated notes.
 
 `workflow_dispatch` runs the same build without publishing and uploads
-the zips as a workflow artifact for inspection.
+the zip as a workflow artifact for inspection.
+
+### Online updates
+
+The plugin never ships through wordpress.org, so it checks its own
+releases: the bundled Plugin Update Checker library
+(`yahnis-elsts/plugin-update-checker`, composer-installed) watches this
+repository's GitHub Releases and surfaces updates in the normal Plugins
+screen. Point it at the repository once — `define('AIYA_CORE_UPDATE_REPO',
+'owner/repo');` in wp-config.php, or filter `aiya_core_update_repo` —
+an empty value (the default) keeps the checker off. The `Update URI:
+false` plugin header keeps wordpress.org out of the picture, and each
+release carries exactly one zip asset: that is the download the checker
+hands the updater. The `aiya-headless` shell theme is deliberately not
+distributed in releases — it is a placeholder, mirrored from `themes/`
+by hand.
 
 ## Deployment
 

@@ -6,7 +6,8 @@
     "require": {
         "php": ">=8.4 <8.6",
         "imagine/imagine": "^1.5",
-        "overtrue/pinyin": "^6.0"
+        "overtrue/pinyin": "^6.0",
+        "yahnis-elsts/plugin-update-checker": "^5.7"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
