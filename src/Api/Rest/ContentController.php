@@ -16,6 +16,7 @@ use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\PublicType;
 use Aiya\Core\Domain\Content\PublicTypes;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
+use Aiya\Core\Domain\Sponsorship\MembershipService;
 use WP_Error;
 use WP_Post;
 use WP_REST_Request;
@@ -44,6 +45,7 @@ final class ContentController
         private SitePresenter $site,
         private ProfilePresenter $profiles,
         private RateLimiter $limiter,
+        private MembershipService $membership = new MembershipService(),
     ) {
     }
 
@@ -71,7 +73,7 @@ final class ContentController
     {
         register_rest_route(Contract::API_NAMESPACE, '/site', [
             'methods' => WP_REST_Server::READABLE,
-            'callback' => fn (): WP_REST_Response => new WP_REST_Response($this->site->presentArray()),
+            'callback' => fn (): WP_REST_Response => new WP_REST_Response($this->sitePayload()),
             'permission_callback' => '__return_true',
         ]);
 
@@ -397,6 +399,25 @@ final class ContentController
         }
 
         return new WP_REST_Response($items);
+    }
+
+    /**
+     * The shell payload, viewer-shaped on the membership edge: sponsors
+     * get both advertisement lists withheld. Sponsors are always logged
+     * in and logged-in reads are answered no-store, so the viewer-shaped
+     * copy never displaces (or leaks into) the shared anonymous cache the
+     * other readers — including guests — are served from.
+     *
+     * @return array<string, mixed>
+     */
+    private function sitePayload(): array
+    {
+        $viewer = (int) get_current_user_id();
+        if ($viewer > 0 && $this->membership->isSponsor($viewer)) {
+            return $this->site->presentArrayWithoutAds();
+        }
+
+        return $this->site->presentArray();
     }
 
     private function profile(WP_REST_Request $request): WP_Error|WP_REST_Response

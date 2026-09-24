@@ -89,6 +89,24 @@ final class SitePresenter
     }
 
     /**
+     * The shell payload with both advertisement lists withheld — the shape
+     * a signed-in sponsor gets (membership is the ad gate). Never cached:
+     * it is viewer-shaped, and sponsors are always logged in, whose reads
+     * the HTTP layer answers no-store anyway, so an ad-bearing shared copy
+     * can never reach them.
+     *
+     * @return array<string, mixed>
+     */
+    public function presentArrayWithoutAds(): array
+    {
+        $payload = $this->present()->toArray();
+        $payload['blocks']['adsTop'] = [];
+        $payload['blocks']['adsBottom'] = [];
+
+        return $payload;
+    }
+
+    /**
      * Compliance links from the footer repeater (rows validated by the
      * settings layer) plus the hitokoto switch. Rows without a usable
      * label/url pair are skipped.
