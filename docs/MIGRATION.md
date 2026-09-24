@@ -11,16 +11,17 @@ aiya-core/
 │  ├─ Contracts/
 │  ├─ Runtime/
 │  ├─ Command/
-│  ├─ Command/
 │  ├─ Settings/
 │  │  ├─ Schema/
 │  │  └─ Storage/
 │  ├─ Admin/
 │  ├─ Metadata/
+│  ├─ Modules/
 │  ├─ Infrastructure/
 │  │  ├─ Headless/
 │  │  ├─ Http/
-│  │  └─ Security/
+│  │  ├─ Security/
+│  │  └─ Uninstall/
 │  ├─ Domain/
 │  │  ├─ Content/
 │  │  ├─ Credit/
@@ -28,13 +29,14 @@ aiya-core/
 │  │  ├─ Discussion/
 │  │  ├─ Identity/
 │  │  ├─ Engagement/
+│  │  ├─ FileServe/
 │  │  ├─ Media/
 │  │  ├─ Notification/
+│  │  ├─ Operations/
 │  │  ├─ Parts/
 │  │  ├─ Smilies/
 │  │  ├─ Sponsorship/
-│  │  ├─ ThemeSupport/
-│  │  └─ ExternalFiles/
+│  │  └─ ThemeSupport/
 │  ├─ Api/
 │  │  ├─ Contract/
 │  │  ├─ Presenter/
@@ -55,13 +57,13 @@ Directories are created when their first working tracer slice is implemented; em
 
 | Legacy area | Destination |
 |---|---|
-| `framework-setup.php` | Replace with plugin runtime and explicit modules |
-| option page and fields | Migrate through Settings schema |
+| `framework-setup.php` | ✅ 0.2.0: replaced with the plugin runtime and explicit modules |
+| option page and fields | ✅ migrated through the Settings schema (pages / fields / normalizer — see ARCHITECTURE.md) |
 | `inc/settings/opt-basic.php` (site preferences) | ✅ 0.29.0: rebuilt as `Domain/Content/FrontendModule` + `GET /site` — logo (media field replaces the customizer logo, which the headless strip made unreachable), default color mode, default cover, ICP / public-security filing + footer note feed `defaults`/`footer`; logo caption toggle, list layout and cookie consent are front-end-owned; the global comment kill switch is abolished (comments are permanent, `/wp/v2/comments` retired unconditionally) |
-| post/term meta | Rebuild under Metadata using storage adapters |
-| user meta | Add under Metadata |
-| `plugin/register-theme-post-type.php` | Rebuild as code-first post-type registrar with headless defaults (`show_in_rest`); the sticky-in-archive `the_posts` hack retires with the front end |
-| `plugin/register-theme-taxonomy.php` | Rebuild as code-first taxonomy registrar (`show_in_rest` was already on) |
+| post/term meta | ✅ 0.7.0: rebuilt under Metadata using storage adapters (`Metadata/Storage/*` + `MetaboxAdmin`) |
+| user meta | ✅ 0.7.0: added under Metadata (user fields screens) |
+| `plugin/register-theme-post-type.php` | ✅ 0.7.0: rebuilt as the code-first `Domain/Content/ContentTypeModule` (`show_in_rest` default on); the sticky-in-archive `the_posts` hack retires with the front end |
+| `plugin/register-theme-taxonomy.php` | ✅ 0.7.0 / 0.15.0: code-first taxonomy registrar (`ContentTypeModule`; resource vocabularies 0.15.0, `show_in_rest` on) |
 | TinyMCE and shortcode manager | Shortcode inserter redesigned as "template parts". ✅ 0.34.0 editor-side framework: `Domain/Parts` PartType/PartRegistry/PartModule — wpdialogs dialog (core link-dialog stack), classic toolbar button position kept, insertion via send_to_editor; the 12 legacy shortcode components do NOT carry over (owner decision 2026-09-11: server-rendered Tailwind HTML conflicts with the structured-part semantics; the catalog starts empty and fills via `aiya_core_register_parts`); the structured-parts parser batch was cancelled (2026-09-11): parts WITH renderers register as real shortcodes and render into custom HTML tags server-side; the front end parses those tags into islands TinyMCE itself retires with the classic editor |
 | REST helper | Do not migrate; design new versioned API — auth/user routes rebuilt at ✅ 0.12.0: `aiya/core/v1` AuthController (register with server-side UUID login name, email-only login, password reset via front-end-supplied origin) + UserController (me / profile / avatar / password) with bearer tokens |
 | AJAX helper | Replace per admin use case |
@@ -74,7 +76,7 @@ Directories are created when their first working tracer slice is implemented; em
 | `inc/func-notify.php` (site notice dispatcher) | ✅ 0.23.0: Domain/Notification — custom table `wp_aiya_notifications`; admin screen (create + list + delete + retention); daily WP-Cron cleanup; read state stays client-side. 0.46.0 added the interaction action system (ten kinds, actor/object columns) on the same table |
 | `inc/func-payment.php` (Afdian integration + redemption codes) | ✅ 0.24.0/0.25.0 as the 0.50.0 tier-model rewrite (no legacy inheritance): `wp_aiya_payment_orders` is a pure payment log; membership rights live in the `wp_aiya_memberships` entitlement queue with per-cycle credit grants; redeem codes moved to `wp_aiya_redeem_codes` (0.54.0) and can activate tiers by Afdian order number (0.61.0); the retired `sponsor_expiration`-family meta keys are gone. Live since the 0.55.0 re-enable |
 | `plugins/sponsor-order-compat` (Epay gateway) | ✅ 0.88.0 package split: the provider protocol (signing, submit params, callback shapes) now lives in the WordPress-free packages `packages/payment-epay` and `packages/payment-afdian`, with the core adapters owning settings, notify URLs, WP_Error and copy; the checkout also writes a `pending` order row the push settles. Original port: ✅ 0.25.0: `GET aiya/sponsorship/v1/epay/callback` with legacy-algorithm signature verification; cashier submit built by `POST /sponsorship/orders` returning a signed gateway URL; days come from the plan key carried in signed params (amount matching abolished); legacy template pages retire with the front end |
-| `inc/lib/Afdian_API.php`, `inc/lib/Epay_Core.php` | Third-party API clients rebuilt as WP-free clients (package candidates) — public behavior preserved, code not ported as-is |
+| `inc/lib/Afdian_API.php`, `inc/lib/Epay_Core.php` | ✅ 0.88.0: rebuilt as the WordPress-free packages `packages/payment-afdian` / `packages/payment-epay` — public behavior preserved, code not ported as-is (see the row above) |
 | `inc/func-media.php` | Empty placeholder file (5 lines, no code) — dropped (audit 2026-09-08) |
 | `inc/func-plyr-player.php` (Plyr player shortcodes) | Player shortcodes ride the template-parts plan (same batch as the shortcode inserter): the API exposes structured part data, Astro renders and loads the player; the legacy front-end player retires |
 | `plugins/patch-flow-hub-post` | Retired with the legacy front end; its own-table columns (`like_count` / `diss_count` / `comments_num`) stay in protocol scope as stored data — `diss_count` (downvote) has no counterpart in the new system and is dead data. The payment table was renamed to `wp_aiya_payment_orders` (0.56.0) |

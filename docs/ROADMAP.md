@@ -2,11 +2,13 @@
 
 本文是当前迭代的实施规划：对照旧 `framework-required` 评估完成度，定义目标目录树与里程碑。模块归属的最终裁决仍以 [MIGRATION.md](MIGRATION.md) 为准，注册方式见 [ARCHITECTURE.md](ARCHITECTURE.md)。
 
-基线：v0.8.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活。已落地：完整生命周期（0.2.0）、无头化裁剪（0.3.0 HeadlessModule）、安全加固（0.4.0 SecurityModule）、头像（0.5.0 AvatarModule）、自动别名（0.6.0 SlugModule + slug-toolkit 包）、元数据字段组与内容类型注册（0.7.0）、设置框架收尾与 schema 迁移 runner（0.8.0，M1/M3 关闭）、媒体栈迁移（0.9.0，image-manager → aiya/image-processor 包 + pic-bed 页面化）。**当前里程碑：M4（数据契约与内容读取层）**；M4 按域分批推进，用户域批次（0.12.0）已把 Identity 的 Contract + Presenter + REST 打样提前落地（见 M4 小节）。
+基线：v0.8.0，2026-09-04 评估与结构定稿。运行环境 WP 7.1 / PHP 容器版，插件已激活。已落地：完整生命周期（0.2.0）、无头化裁剪（0.3.0 HeadlessModule）、安全加固（0.4.0 SecurityModule）、头像（0.5.0 AvatarModule）、自动别名（0.6.0 SlugModule + slug-toolkit 包）、元数据字段组与内容类型注册（0.7.0）、设置框架收尾与 schema 迁移 runner（0.8.0，M1/M3 关闭）、媒体栈迁移（0.9.0，image-manager → aiya/image-processor 包 + pic-bed 页面化）。**里程碑状态：M1–M5 全部关闭（M4 于 0.22.0 收口、M5 随 0.18–0.36 各批落地），当前进度以第四节里程碑日志为准**；用户域批次（0.12.0）曾把 Identity 的 Contract + Presenter + REST 打样提前落地（见 M4 小节）。
 
 ## 一、完成度对照（vs framework-required v1.3）
 
 评估口径：旧框架的「选项框架 + Metabox」部分是本插件的重构范围；其 `plugin/` 目录的 16 个辅助模块按 MIGRATION.md 归属 Domain/Infrastructure，不在本表内。
+
+> **冻结声明（2026-09-24）**：本节是 0.8.0 基线评估的快照，此后**不再逐项回填**——表内的 ❌ / 百分比 / 「待译」「待定」「仍 M5」均为当时口径，现状一律以第四节里程碑日志为准（提示伪字段与动态源、元数据字段组、迁移 runner、i18n 全量翻译、内容控制器等均已交付；`register-theme-menu` 的「REST 暴露」机制也已改道为 0.83.0 起并入 `GET /site` 的 blocks 组）。
 
 ### 1. 运行时与模块机制 —— 100%
 
@@ -56,10 +58,12 @@
 
 标注：✅ 已有 / M# 建立的切片。目录仍只在第一段可工作代码落地时创建，禁止空目录占位。
 
+> 树内注记多为各切片落地当时所写、未随后续批次逐项回填；目录与归属的现状以 [MIGRATION.md](MIGRATION.md)「Target tree」与第四节日志为准（下文仅修正会主动误导的个别条目）。
+
 ```text
 aiya-core/
 ├─ aiya-core.php                    # ✅ 常量、autoloader、激活/停用钩子、boot
-├─ uninstall.php                    # ✅ 0.2.0：前缀清理全部选项（多站点覆盖）
+├─ uninstall.php                    # ✅ 0.93.0：默认保留数据——Plugins 屏先弹 keep/purge 确认，CLI/脚本读 Security 开关或常量
 ├─ src/
 │  ├─ Contracts/                    # ✅ Module
 │  ├─ Runtime/                      # ✅ 0.8.0：SchemaVersionRunner（aiya_core_schema_migrations
@@ -75,16 +79,17 @@ aiya-core/
 │  │  ├─ Contract/                  # M4：DTO 契约（纯值对象，零 WP 依赖）；
 │  │  │                             #   ✅ 0.12.0 用户域切片：UserProfile / AvatarImage /
 │  │  │                             #   AuthSession + Contract 版本常量（VERSION / API_NAMESPACE）
-│  │  │                             #   PostSummary / PostDetail / TermDto / AuthorDto /
-│  │  │                             #   ThumbnailDto / MenuTree / MenuItem / Pagination /
-│  │  │                             #   Breadcrumb 待内容批次
+│  │  │                             #   PostSummary / PostDetail / Term / Author / MenuItem /
+│  │  │                             #   Pagination / Breadcrumb 等——✅ 0.18–0.22 内容批次全量
+│  │  │                             #   落地（MenuTree 计划作废：0.83 起菜单由 ContentBlocks
+│  │  │                             #   产出 MenuItem 并入 /site.blocks）
 │  │  ├─ Presenter/                 # M4：唯一允许触碰 WP_Post / WP_Term 的映射层（WP 对象 → DTO）；
 │  │  │                             #   ✅ 0.12.0 UserPresenter（含旧版 role 语义与赞助协议键兼容读）
 │  │  └─ Rest/                      # aiya/core/v1 控制器（只调用读服务与 Presenter，不查询数据）；
 │  │                                #   ✅ 0.12.0 用户域打样：RestController（模块 + rest_api_init）+
 │  │                                #   TokenAuthentication（determine_current_user Bearer）+
 │  │                                #   AuthController + UserController + RateLimiter（transient 固定窗口）；
-│  │                                #   内容控制器仍 M5
+│  │                                #   内容控制器 ✅ 0.18–0.22
 │  ├─ Domain/
 │  │  ├─ Identity/                  # ✅ 0.5.0：AvatarModule——本地头像（协议键 basic_user_avatar）、
 │  │                                #   七牛/WeAvatar 镜像、默认头像 URL；设置追加在 Headless
@@ -114,8 +119,8 @@ aiya-core/
 │  │                                #   0.48.0 纯记账收缩（去 download_cost 报价，
 │  │                                #   spend() 由下游自带数额；保留期移前台页）；
 │  │                                #   后台见 Admin/CreditsPage（一级菜单「会员」）；
-│  │                                #   计划见 docs/credits-membership-plan.md（第二期会员
-│  │                                #   tier 周期队列将向此账本发放）
+│  │                                #   第二期会员 tier 周期队列已随 0.50.0 重写向此账本
+│  │                                #   发放（原计划文档已随执行移除）
 │  │  ├─ Sponsorship/                # ✅ 0.50.0 tier 重写：MembershipScheduler（周期纯函数）+
 │  │                                #   EntitlementService（wp_aiya_memberships 周期队列，
 │  │                                #   starts_at=max(now,队尾) 顺序生效、发放 CAS 推进、
@@ -133,14 +138,12 @@ aiya-core/
 │  │  ├─ Media/                      # ✅ 0.9.0：MediaPaths（URL↔路径/目录规划）+ ThumbnailService
 │  │                                #   （缓存键含质量，只读不写 meta）+ CoverService（封面生成 +
 │  │                                #   `_aya_thumb` 协议键唯一写入方）
-│  │                                # M4 再落 ContentQuery（旧 WP_Query 原型）、
-│  │                                #   NavigationModule + PrimaryMenu（0.28.0：设置驱动自增
-│  │                                #   菜单 primary/secondary 两组，替代旧 WP_Menu 蓝本的
-│  │                                #   MenuService——无头后端弃用 WP 菜单系统后不保留）、
-│  │                                #   FrontendModule（0.29.0：前台壳配置设置页，GET /site 的
-│  │                                #   logo/defaults/footer 数据源）、BreadcrumbService、
-│  │                                #   PaginationService；Discussion/ 域
-│  │                                #   在此扩展（Tweet 已取消）
+│  │                                # ✅ 0.18–0.22 ContentQuery 等内容读取层；0.28.0 前台壳
+│  │                                #   配置（FrontendModule，GET /site 数据源）；0.28.0 的
+│  │                                #   PrimaryMenu 已于 0.83.0 并入 BlocksModule（菜单进
+│  │                                #   /site.blocks）；MenuService/Breadcrumb/Pagination
+│  │                                #   独立服务未建（分页走契约分页字段，面包屑归前端）；
+│  │                                #   Discussion/ 域已独立建目录（Tweet 已取消）
 │  ├─ Modules/                      # ✅ 0.9.0：MediaModule——image-processor 包适配器（接管媒体库、
 │  │                                #   惰性 Imagine 闭包注入、格式支持检查统一化）+「Image processor」
 │  │                                #   设置页（aiya_core_image，13 字段；0.9.1 定名）；后续包适配器
@@ -178,10 +181,10 @@ aiya-core/
 │  └─ Http/                         # （M5 起并入 Api/Rest，不再单独设 Http/）
 ├─ packages/                        # ✅ 基础设施包目录（约定与批次见下节）；slug-toolkit（✅ 0.6.0）、
 │                                   #   image-processor（✅ 0.9.0，含字体/花纹素材）与 typesetting（✅ 0.37.0）已接入；
-│                                   #   opencc-convert（包体就绪，待适配器）；包不随 composer 安装
+│                                   #   opencc-convert（零消费，简繁重建待站长拍板）；包不随 composer 安装
 │                                   #   （0.84.0 起根 composer.json 无 path repository、无 vendor/aiya）
 ├─ assets/                          # ✅ admin.css / admin.js
-├─ languages/                       # ✅ aiya-core.pot 已生成；.po/.mo 待译
+├─ languages/                       # ✅ POT + zh_CN PO/MO（0.36.3 起全量翻译，未翻译 0）
 ├─ tests/
 │  ├─ Unit/                         # ✅ 0.8.0：ValueNormalizer / Field / SchemaVersionRunner；
 │  │                                #   0.9.0 + SaveOptions / WatermarkSpec / CoverSpec / Colors /
@@ -190,7 +193,7 @@ aiya-core/
 │  └─ Integration/                  # M2+：metabox 保存链路（wp-env 或 wp-cli 驱动）
 ├─ composer.json                    # ✅ dev 工具链 + phpunit；三方依赖（imagine/pinyin）直挂，
 │                                   #   php 约束 8.4–8.5（platform 钉 8.4）
-└─ docs/                            # ✅ ARCHITECTURE / MIGRATION / ROADMAP + 迁移评估两份
+└─ docs/                            # ✅ ARCHITECTURE / MIGRATION / ROADMAP
 ```
 
 依赖方向（违反即架构错误）：
@@ -459,7 +462,7 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **resource 编辑屏补全**：`post_seo` box screens + resource（B3 ResourceDetail.seo 数据源）、封面 metabox 默认类型 + resource（`_aya_thumb` 链路）；
 - 验证：单测 115/269（客户端路由/错误分级/登录解析、图标映射、门禁矩阵纯函数）；运行时实测（协议键读写、三视角门禁矩阵 guest/subscriber→null、sponsor→link、链接构造含 sign、端点 404/未配置空列表路径、box 注册 resource 屏），测试数据已清理。
 
-### 赞助域（Domain/Sponsorship）—— ✅ 已完成（0.24.0 核心 + 0.25.0 网关切片）；⏸ 0.29.1 起临时停用
+### 赞助域（Domain/Sponsorship）—— ✅ 已完成（0.24.0 核心 + 0.25.0 网关切片）；⏸ 0.29.1 起临时停用；▶ 0.50.0 起重新启用（tier 周期队列重写，停用解除）
 
 总原则：**保持行为但重构设计**。旧结构 = `inc/lib/Afdian_API.php` + `inc/lib/Epay_Core.php`（三方客户端）、`inc/func-payment.php`（爱发电 webhook + 方案卡片 + 兑换码）、`plugins/sponsor-order-compat`（易支付收银台 + 回调）、`inc/func-user.php` 的订单表与叠加到期计算。
 
@@ -493,9 +496,9 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - ✅ 爱发电订单号当兑换码入 `POST /sponsorship/redeem`（纯数字 → 在线查单激活，source=afdian）；
 - ⏳ 旧 React 群岛（subscribe/activate/dashboard）由 Astro 组件重建（前端批次），消费 plans/orders/redeem/membership/order-url 端点。
 
-### M5 版本化 REST ＋ Astro SSR
+### M5 版本化 REST ＋ Astro SSR —— ✅ 已完成（0.12.0–0.36.0 分批落地，逐批细节见第四节各版本条目）
 
-- `Api/Rest/`：命名空间 `aiya/core/v1`；控制器只调用 M4 的读服务与 Presenter；**认证/用户域骨架已随 M4 用户域批次落地（0.12.0：RestController 模块、Bearer 认证、auth/users 路由、限流）**，本里程碑追加内容资源：内容列表/详情、terms、导航菜单、面包屑/分页（嵌入响应元数据）、站点设置白名单、媒体引用；**评论已落 `aiya/core/v1/content/{id}/comments`（0.20.0 改道，`wp_new_comment` 经典管线全触发——`preprocess_comment`/duplicate/flood/禁词名单/审核决策均有效，`rest_pre_insert_comment` 顾虑随改道消失）＋加固层 ✅（0.34.1：API 限流 5/10min、honeypot 隐藏字段 `website`（前端评论岛建设时需渲染该隐藏输入）、泛洪映射 429、重复 409、WP 讨论设置（comment_registration/require_name_email/comment_max_links/审核与老评论者白名单）全部原生生效），Astro 侧评论系统建立其上；
+- `Api/Rest/`：命名空间 `aiya/core/v1`；控制器只调用 M4 的读服务与 Presenter；**认证/用户域骨架已随 M4 用户域批次落地（0.12.0：RestController 模块、Bearer 认证、auth/users 路由、限流）**，本里程碑追加内容资源：内容列表/详情、terms、导航菜单（0.28.0 设置驱动落地，0.83.0 起并入 `GET /site` 的 blocks 组——独立端点计划作废）、面包屑/分页（嵌入响应元数据）、站点设置白名单、媒体引用；**评论已落 `aiya/core/v1/content/{id}/comments`（0.20.0 改道，`wp_new_comment` 经典管线全触发——`preprocess_comment`/duplicate/flood/禁词名单/审核决策均有效，`rest_pre_insert_comment` 顾虑随改道消失）＋加固层 ✅（0.34.1：API 限流 5/10min、honeypot 隐藏字段 `website`（前端评论岛建设时需渲染该隐藏输入）、泛洪映射 429、重复 409、WP 讨论设置（comment_registration/require_name_email/comment_max_links/审核与老评论者白名单）全部原生生效），Astro 侧评论系统建立其上；
 - 公开读 + 应用密码写；CORS：WP 核心 `rest_send_cors_headers` 现状为回显任意请求 Origin 且 `Allow-Credentials: true`（`wp-includes/rest-api.php`），浏览器直连端点（互动计数、将来评论）因此已跨域可用、无需自写——M5 将其**收紧为 Astro 来源白名单**，与评论加固层同批落地；ETag / Cache-Control；
 - **模板零件**（2026-09-08 拍板计划迁移）：旧经典编辑器短代码输入器重设计——后台保留录入 UI（录入规范化零件数据），API 对短代码类内容输出规范化零件结构（不渲染 HTML），Astro 侧建立逐零件解析渲染；零件契约形状随首个真实零件出现时定；
 - 产出面向前端的类型契约（OpenAPI 或从 Contract 生成 TS 类型脚本）；
@@ -1111,7 +1114,7 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **修复 2：请求 URI 守卫 414 挡住支付回调（继承旧主题的既有缺陷）**。`SecurityModule::guardRequestUri()` 的规则来自旧主题 `basic-optimize`（`strlen($uri) > 255` → 414），在旧站它只覆盖主题前台路径；搬进插件后连 `/wp-json/` 一起挡——一条真实易支付推送是「44 字节路径 + 约 300 字节签名查询串」，**必然 414**（本机实测 `HTTP/1.1 414`，且响应头带 WP 的 `X-Powered-By`/缓存头，说明死在 WP 自己的钩子上）。早前的探针推送 URI 只有 210 余字节，恰好卡在门槛内，缺陷因此一直隐藏。修法：判定抽成纯函数 `SecurityModule::isBlockedUri()` 并**豁免 REST 请求**（`/wp-json/` 前缀与 `?rest_route=` 两种形态都认），其余规则与 255 门槛一字未改；安全页开关文案补「REST 路由除外」。新增 `tests/Unit/SecurityModuleTest`（8 例，含真实易支付推送 URI 的回归用例与两种 REST 形态）；
 - **实测记录**（探针用户 84，事后全部清零）：下单 → 行 `pending` 12.00 → 签名推送（金额改 11.50）→ 200 `success` + 行 `epc_…` `paid` **11.50**（平台金额为准）+ 队列一行 `cycles_total=2` → **重放** 200 `success` 且无第二行（日志「该订单已激活过」）；篡改签名 400 `fail`；有效签名但档位不在售 / 非 `TRADE_SUCCESS` / binding 破损 / 未知单号 → 四种均 200 `success` 且零结算；爱发电：`order-url` 出深链（`custom_order_id` 绑定正确）并落占位行 → 推送命中该行 → 改名 `afd_TESTAFD0001` + `paid` 18.00 + 入队 3 周期，重放幂等，**未持有待支付行的用户推送 → 忽略**，非绑定方案 / 非成功状态推送 → 忽略；`plans` 公开在售（epay+afdian）、未知档位 404、未启用渠道 502、匿名 401；
 - **爱发电手工激活实测（站长给的订单号 `20250620170531984854997221`）**：`ping` ec 200（凭据有效）、查单命中（`status=2` 已付款 5.00、`custom_order_id=FXixPJXa` → 解出 user 1——**用一笔真实生产订单反向验证了 XDE 绑定算法**），但该单 `plan_id` 为空 → 报 422 `aiya_plan_unbound`，**按设计拒绝**：它是「充电」单而非「方案」单，方案→档位反查无从成立。站长若要这类订单也能激活，需要另定规则（现行单绑定模型下，放行等于「任意金额充电都买断一个档位」）；正确的成功路径测试需要一笔来自绑定方案的订单；
-- **附带发现（需站长处置）**：设置里的 `afdian_plan_id = plan-gold` 出自**本仓运行时探针日志**（`webhook-2026-09-14-*.log` 里 `RUNTIME1` + `deadbeef` 那批，09-20 的 `PROBE*` 条目同理），**不是生产推送**，故当前值不能确认为真实方案 ID；`afdian_tier_key = legacy` 同为推断值（`afdian_user_id` / `token` 已由站长重填并实测有效）。**动作**：从爱发电后台方案页取真实 plan id 填回，之后一笔真实方案订单即可验证成功路径；
+- **附带发现（需站长处置）**：设置里的 `afdian_plan_id = plan-gold` 出自**本仓运行时探针日志**（`webhook-2026-09-14-*.log` 里 `RUNTIME1` + `deadbeef` 那批，09-20 的 `PROBE*` 条目同理），**不是生产推送**，故当前值不能确认为真实方案 ID；`afdian_tier_key = legacy` 同为推断值（`afdian_user_id` / `token` 已由站长重填并实测有效）。**动作**：从爱发电后台方案页取真实 plan id 填回，之后一笔真实方案订单即可验证成功路径（**注 2026-09-24**：`afdian_plan_id` 单字段已随 0.92.0 摘除，改随「爱发电方案绑定」repeater 重填——见 0.92.0 已知取舍①）；
 - **门禁**：phpunit 311 / 785（新增 SecurityModuleTest 8 例 + 两个网关回归例）、phpstan、phpcs、parallel-lint 全绿；i18n POT 944 条（改 1 条守卫文案），未翻译 0；版本 0.88.1。**遗留**：PO 里另有 22 条 POT 已不存在的退休串（历批累积、无害），未随本批清理。
 
 ### 网关文档逐条核对（lempay.org/doc.html，同批 0.88.1）—— ✅ 已核对
@@ -1122,7 +1125,7 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - **提交参数一致**：`pid`/`type`/`out_trade_no`/`notify_url`/`return_url`/`name`/`money`/`param`/`sign`/`sign_type` 全数对得上；`money` 两位小数、`param` 原样返回、`type` 不传会进收银台（我们恒传）均符合；
 - **回调形态一致**：文档明确 **GET** 查询串（我们路由就是 GET-only）、`trade_status` 仅 `TRADE_SUCCESS` 为成功、字段集（pid/trade_no/out_trade_no/type/name/money/trade_status/param/sign/sign_type）我们只用其中四个、回调签名同算法；
 - **修复：应答体形态**。文档要求「收到异步通知后，需返回 success」，而 WP REST 会把字符串响应 JSON 编码成 `"success"`——平台若按精确匹配判读就会认为未收到、反复重试。改为：`GatewayController` 挂 `rest_pre_serve_request`，**只对易支付回调路由**自行输出裸文本（状态头在此之前已发出，故签名错的 400 `fail` 原样保留），爱发电路由保持 JSON 信封（该平台解析 `{ec,em}`）。实测：未签名 → `400` + body `fail`（无引号）、签名正确但查无此单 → `200` + body `success`、爱发电 → `{"ec":200,"em":"done"}`、普通契约路由仍 JSON；
-- **待办（需站长处置）**：① `return_url` 文档标注**必填**，而设置里 `epay_return_url` 目前为空（事故恢复时按推断留空），空值会被我们主动省略——需填前台回调页地址（headless 下应是 front-station 的页面），否则买家付完回不到站内；② 文档同时给出 `mapi.php`（POST，返回 JSON 收款链接/二维码）与 `submit.php`（GET 或 POST 均可、推荐 POST 防劫持）两种形态，我们沿旧 SDK 走 `submit.php` GET；若要换成 POST 需改契约（前端改为自动提交表单）；
+- **待办（需站长处置）**：① ~~`return_url` 文档标注**必填**，而设置里 `epay_return_url` 目前为空……需填前台回调页地址~~——**已作废（0.93.0）**：`epay_return_url` 设置字段已删除，returnUrl 改由下单请求按单下发（形状校验 + 随签名提交进收银台），见 0.93.0 批次条目；② 文档同时给出 `mapi.php`（POST，返回 JSON 收款链接/二维码）与 `submit.php`（GET 或 POST 均可、推荐 POST 防劫持）两种形态，我们沿旧 SDK 走 `submit.php` GET；若要换成 POST 需改契约（前端改为自动提交表单）；
 - **另记两点观察**：`name` 超 127 字节平台会截断（我们的 `档位名*周期` 远小于此）；`money` 为 `0.00` 时平台侧若用宽松比较会把它当 `0` 跳过签名，而我们按文档字面只跳字面 `'0'`——**零价档位不要走收银台**（免费档位应从购买列表剔除）。
 
 
@@ -1153,7 +1156,7 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 
 **i18n**：POT 958 条、新增 16 条（两个分区标题 + box 与设置页的改写句），PO 并入后 973 条、未翻译 0（已做 POT/PO 集合比对，规避 `missing` 对「POT 有而 PO 无」的已知假绿）；MO 重编译，实测「文件列表 | OpenList 服务 | 列出子目录」中文生效。版本 0.89.0。
 
-**已知耦合与待办**：① 设置页仍是「provider 连接 + 站点级文件列表旋钮」同页（键名不动以免迁移），第二个 provider 落地时拆页；② 付费领取端点（`POST /content/{id}/attachments/download`）与下载计量 `aiya_core_download_served` 仍待设计，本轮不动；③ `search` 模式在上游不支持时是否要给更响的提示（现在按 404 静默）留待站长定。
+**已知耦合与待办（存档——本节实现已随 0.90.0 整体重写作废：设置页换页、付费领取与下载计量已以 `POST /content/{id}/downloads` 落地）**：① 设置页仍是「provider 连接 + 站点级文件列表旋钮」同页（键名不动以免迁移），第二个 provider 落地时拆页；② 付费领取端点（`POST /content/{id}/attachments/download`）与下载计量 `aiya_core_download_served` 仍待设计，本轮不动；③ `search` 模式在上游不支持时是否要给更响的提示（现在按 404 静默）留待站长定。
 ### FileServe 域：外接下载域从头重写（0.90.0，2026-09-21）—— ✅ 已完成
 
 站长四条指令下的整体重写，**旧 ExternalFiles 域与 `aiya/file-source` 包整体删除**（行为要点留 MIGRATION 附录）：
@@ -1280,7 +1283,21 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 
 **已知取舍与待办**：① 爱发电绑定旧设置数据不迁移，需站长在会员设置页重填 plan 绑定与兜底档位；② 多绑定时 order-url 深链固定指向第一行（webhook 结算不受影响）；③ settle 对已过期 unpaid 行 confirm 被守卫拒绝 → 400 让平台有界重试，行保持 unpaid 供审计；④ GoFile 分页默认值与 getid tier 两处契约假设待真实高级版令牌复验；⑤ capability 字段门在单测中受单开关垫片限制，生产语义由「过滤先于 normalize」结构保证；⑥ PO 中 70 条历史陈旧条目为 .mo 惰性数据，不清理。
 
-### 卸载数据清理确认屏（2026-09-23，并入在途 0.93.0 批次）—— ✅ 已完成
+### 0.93.0 批次：卸载语义重写 + 会员档位定周期 + 首页区块换代（2026-09-23/24 工作树落定，2026-09-24 提交 112e21a..eefb14d）—— ✅ 已完成
+
+七件事一次落地（提交按功能域拆分为十个）：
+
+- **卸载语义重写**：默认保留数据 + Plugins 屏确认屏 + remnant 暂存清扫——细节见下一节子条目（确认屏交互、语义矩阵、41s→1.7s 大目录修复；审查补的 purge 内联清理与 `aiya_core_remnants_cleanup` cron 清单）；
+- **会员档位定周期（站长拍板：无前台周期选择器）**：`Tier` 契约加法增 `cycles`/`description`（repeater 上限 60，总价=price×cycles 由前端展示）；爱发电 order-url 端点参数 `month`→**`tierKey`**——按档位深链其绑定的 plan（未绑定档位拒绝而非回落首行），占位结账行按档位 cycles 入队；epay 下单删 `cycles` 参数、增 `returnUrl` 按单下发（绝对 http(s) 形状校验 + 随签名提交进收银台；**`epay_return_url` 设置字段删除**，旧 option 值成死数据）；`AfdianActivator` 查单钳制 36→60 对齐（见审查条目 P2）；
+- **首页区块换代（v1 基线破坏性修订，站长拍板随批记录于 ARCHITECTURE.md「Contract v1 freeze」）**：Blocks 页 carousel repeater 改 `home_sections`（icon+title 标题行 / post|resource 类型 / 分类多选（terms 源多词法合并）/ count 1-20 / 可选 more 覆盖）；**`CarouselSlide` 删除、`HomeSection` 入契约，`SiteBlocks.carousel`→`sections`**（形状 id/title/type/categories/count/icon/moreUrl——查询模板，文章载荷不进 /site，前端对公共列表读自行解析）；快照与前端 zod 同批（vitest 266 绿）；旧 `aiya_core_blocks.carousel` 选项键成死数据不迁移；
+- **/site 赞助者去广告**：`presentArrayWithoutAds()` 对登录赞助者置空两组广告位（会员即广告门）；缓存安全前提核验——HttpCache 登录态 GET 恒 `private,no-store`，viewer 形状不可能进共享缓存；匿名共享副本恒带广告；
+- **收藏扩全公共类型**：post/page/resource 三类型可收藏（写入口 `PublicTypes::forPostType` 门禁、两条列表读逐行按自身类型投影、SQL 类型清单取自固定注册表插值）；`countForAuthor` 排除密码文对齐 `published()`（审查补）；新 `FavoriteServiceTest`；
+- **OpenList 投放基址分离**：包 `Gateway` 构造增 `linkBase`——投放链接按浏览器可达地址拼，API 客户端继续走容器内网地址；新设置 `fileserve_oplist_public_url`；
+- **设置框架**：multicheck 保存时按惰性 `options_source` 校验（渲染与保存同集合，对齐 select/radio 的 choice 规则）；terms 源支持词法数组（多词法合并、标签带分类法前缀）；repeater 子类型白名单补 multicheck。
+
+**验证**：phpunit 386/1206、phpstan（level 8）、phpcs、parallel-lint（321 文件）全绿（容器 PHP 8.5.10 实测）；i18n POT/PO 随批（卸载确认屏等新串，未翻译 0）。
+
+### 卸载数据清理确认屏（2026-09-23，0.93.0 批次子项，提交 95c6967）—— ✅ 已完成
 
 站长指令：卸载清理数据前先过一道确认，可选择「不清理数据只删插件」用于删除后重装/更新。工作树在途批次已把 uninstall.php 从「无条件全清」改为「默认保留 + Security 页开关/wp-config 常量控制清除」，本批在其上补齐卸载现场的交互确认：
 
@@ -1294,9 +1311,9 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 
 **验证**：phpunit 379/1170、phpstan（level 8）、phpcs、parallel-lint（276 文件）全绿；i18n POT 重建、PO 累计追加 15 条新串，未翻译 0、POT/PO 集合比对 0 差、MO 编译后未激活态 `wp eval` 实测中文。**端到端实测**（完整 robocopy 拷贝 + 探针双路）：确认屏对真实拷贝渲染（含新说明行）→取消=零删除；keep=文件删/数据留且亚秒完成；purge=分支执行；批量回放过滤先行消失插件；`wp plugin delete` 不阻塞默认保数据；残留暂存/清理实测（过期清、新鲜留）。测试残留清零（拷贝、探针、暂存目录、临时管理员全清；13 张真实表原样）。
 
-### 0.93.0 在途批次小规模审查修复（2026-09-24）—— ✅ 已完成
+### 0.93.0 批次小规模审查修复（2026-09-24）—— ✅ 已完成
 
-对 0.92.0 审查批之后工作区在途改动（卸载确认屏 + remnant 暂存、档位定周期/描述、HomeSection 换 CarouselSlide、收藏扩全公共类型、/site 赞助者去广告、epay returnUrl 按单下发、OpenList linkBase 拆分、multicheck 惰性源保存校验）做一轮审查，五点修复：
+对 0.92.0 审查批之后工作区改动（卸载确认屏 + remnant 暂存、档位定周期/描述、HomeSection 换 CarouselSlide、收藏扩全公共类型、/site 赞助者去广告、epay returnUrl 按单下发、OpenList linkBase 拆分、multicheck 惰性源保存校验）做一轮审查，五点修复：
 
 - **P1 purge 卸载残留 + cron 僵尸**：uninstall.php 的 `wp_clear_scheduled_hook` 清单补 `aiya_core_remnants_cleanup`——原清单漏掉 sweeper 自己的 hook，purge 后事件成为无回调的每日僵尸；且暂存副本（含 .git/vendor）随插件删除再无人清理、滞留在 web 可达的 upgrade/ 下。purge 路径新增 `aiya_core_uninstall_remove_remnants()` + `aiya_core_uninstall_rmtree()`（realpath 前缀守卫防 symlink 越界、@ 抑制 best-effort 与 aiya_logs 清理同风格），在删除请求内联清掉 `wp-content/upgrade/aiya-core-remnant-*`（含既往 keep 遗留副本）；keep 模式维持「重装后 cron 收集」。头部文档同步改口径。
 - **P2 爱发电周期钳制与档位上限冲突**：`AfdianActivator::MAX_CYCLES` 36→60，对齐档位 repeater 的 cycles 上限——查单 month 是平台事实，买家真买多个月不得被钳掉（原 36 钳在档位 cycles>36 且经爱发电单笔购买时造成「按档位总价付款、少入队周期」）；钳制仅兜底垃圾查询行。补 `AfdianActivatorTest::testQueriedCyclesClampToTheTierSettingsCeiling`（month=99 → 60）。
@@ -1305,4 +1322,4 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 
 **验证**：容器 PHP 8.5.10 实测 parallel-lint、phpunit（新增 1 例）、phpstan（level 8）、phpcs 全绿。
 
-**遗留（批次收口时处理）**：0.93.0 主批次的 ROADMAP/AGENTS 条目与基线修订记录（CarouselSlide 删除 = v1 基线破坏性修订，按 0.87.0/0.90.0 惯例需拍板记录）尚未写入；旧 `aiya_core_blocks.carousel` 选项键成死数据宜随批次记录。
+**遗留**：已于同日文档清理批闭合——0.93.0 主批次条目与 CarouselSlide 基线修订拍板记录已补入本文件、AGENTS.md 与 ARCHITECTURE.md「Contract v1 freeze」，旧 `carousel` 选项死键已随主条目记录。

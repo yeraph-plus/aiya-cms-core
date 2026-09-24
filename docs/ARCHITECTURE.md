@@ -43,7 +43,7 @@ add_action('aiya_core_register', static function (Aiya\Core\Settings\Registry $s
 });
 ```
 
-Repeater children are intentionally limited to scalar and choice fields in the first release. Nested repeaters and editor/media fields inside repeaters will be added only after their Backbone lifecycle is modelled explicitly.
+Repeater children cover scalar and choice fields plus `media` (0.83.0) and `multicheck` (0.93.0, whose options are validated against their lazy source at save time). Nested repeaters and editor fields inside repeaters remain out until their Backbone lifecycle is modelled explicitly.
 
 ## Lifecycle
 
@@ -61,7 +61,7 @@ The plugin owns a full lifecycle and can be activated normally from `wp-content/
   `aiya_core_` prefix, the plugin-owned tables, meta residue, transients and cron events are removed
   across all sites in multisite; uploaded media, the `aiya_thumbnail/` tree and the pic-bed pool stay.
 
-Schema upgrades run through a future `Runtime/SchemaVersion` migration runner when stored shapes change.
+Schema upgrades run through the `Runtime/SchemaVersionRunner` (in place since 0.8.0) when stored shapes change; migrations register through the `aiya_core_schema_migrations` filter, and a failure holds the stored version back so it retries on the next request.
 
 ## Data and API layer (contract first)
 
@@ -79,8 +79,8 @@ Api/Contract/   pure value objects (PostSummary, PostDetail, Term,
                 Pagination, Breadcrumb, ...) plus a contract version constant;
                 zero WordPress dependency; TS types for the front end
                 are generated from these shapes
-Domain/Content/ read services (ContentQuery, MenuService,
-                BreadcrumbService, PaginationService) wrapping WordPress
+Domain/Content/ read services (ContentQuery, CommentQuery,
+                ContentBlocks, RelatedPostsQuery, …) wrapping WordPress
                 queries; presenters and controllers call them
 ```
 
@@ -103,7 +103,7 @@ assemble DTOs inline:
   uploads). If a projection is reused or converts dates, that is its home.
 - A Domain service may construct Contract value objects when the DTO is the
   service's own natural product and no WP-object mapping is involved:
-  `Domain/Content/PrimaryMenu` emits `MenuItem` and
+  `Domain/Content/ContentBlocks` emits `MenuItem` and
   `Domain/Media/CardThumbnailService` emits `Image` (the file-generation
   metadata — alt/width/height — belongs with the generator that owns the
   derived file). `Api/Contract` is a zero-dependency leaf vocabulary, so
@@ -112,7 +112,7 @@ assemble DTOs inline:
 
 ## Infrastructure packages (`packages/`)
 
-Unit features that used to live in the legacy theme's `plugins/` directory become independent composer packages: `aiya/<slug>`, `type: library`, PSR-4 `Aiya\Infra\<Name>\`. Packages MUST NOT depend on aiya-core, call WordPress functions, or register hooks; a core-side adapter module under `src/Modules/` instantiates the package service, registers its settings into the shared add-ons page, and wires it into the module system. The dependency arrow is one-directional: core -> package.
+Unit features that used to live in the legacy theme's `plugins/` directory become independent composer packages: `aiya/<slug>`, `type: library`, PSR-4 `Aiya\Infra\<Name>\`. Packages MUST NOT depend on aiya-core, call WordPress functions, or register hooks; a core-side adapter — a module under `src/Modules/`, or the owning domain's module for the payment packages — instantiates the package service, registers its settings into that feature's own settings page (the legacy shared add-ons page is deliberately not inherited), and wires it into the module system. The dependency arrow is one-directional: core -> package.
 
 Package -> package is allowed (acyclic, undeclared in `require`) — `payment-afdian` -> `slug-toolkit` uses it. A port does **not** need one: what a remote backend is packaged for is its **request exit** (HTTP, protocol, error categories), not the site's vocabulary. `aiya/openlist` is exactly that — `Client` + `Gateway` answering rows as plain arrays and failures as its own `Error` — while the vocabulary (`Entry`, `Failure`, the `Adapter` contract) lives in core, where the domain and every adapter can reach it without a package depending back on core. Core consumes backends only through `Domain/FileServe/AdapterRegistry`, so it names none of them.
 
@@ -144,7 +144,7 @@ Loading: packages ship in-tree and are **not** composer-installed — there is n
 ## Contract v1 freeze
 
 The `aiya/core/v1` wire shapes are frozen as of 0.36.0 (snapshot
-baseline: `front-station/src/lib/aiya/contracts.snapshot.v1.json`).
+baseline: `front-station/src/lib/core/contracts.snapshot.v1.json`).
 Only additive evolution is allowed — new fields, new endpoints, filling
 reserved fields. Breaking changes require a new namespace or an
 explicit contract-version policy. Enforcement: the front-end vitest
@@ -159,6 +159,13 @@ schemas moved together; the v1 baseline file records the frozen 0.36.0
 state for reference. Update
 endpoints deliberately accept the WP `EDITABLE` verb set
 (POST/PUT/PATCH) — core convention, not accidental redundancy.
+
+2026-09-24 amendment (0.93.0, owner decision): `CarouselSlide` left the
+contract and `HomeSection` took its place — `SiteBlocks.carousel`
+became `sections`, carrying query templates (type / categories / count /
+optional "more" target) that the front end resolves against the public
+list reads; `Tier` gained `cycles` and `description`. The snapshot and
+the front-end zod schemas moved together.
 
 ## HTTP surface policy (CORS and caching)
 
