@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS Core 0.93.0\n"
+"Project-Id-Version: AIYA CMS Core 0.94.0-beta.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-09-23 10:45+0800\n"
+"PO-Revision-Date: 2026-09-25 12:30+0800\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
 
@@ -3069,3 +3069,7 @@ msgstr "「更多」链接"
 #: src/Domain/Content/BlocksModule.php
 msgid "Optional override for the heading row's link; empty derives the type's own archive path (with the chosen categories)."
 msgstr "可选的标题行链接覆盖值；留空时按类型自动派生归档路径（含所选分类）。"
+
+#: src/Admin/CardThumbnailBulkAction.php
+msgid "%d item queued for a thumbnail refresh."
+msgstr "%d 项已加入缩略图刷新队列。"

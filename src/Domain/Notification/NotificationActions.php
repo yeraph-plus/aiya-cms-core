@@ -61,7 +61,7 @@ final class NotificationActions implements Module
         $this->follows = $follows ?? new FollowService();
         $this->favorites = $favorites ?? new FavoriteService();
         $this->threads = $threads ?? new DiscussionService();
-        $this->smilies = $smilies ?? new SmiliesRenderer(new SmiliesRegistry());
+        $this->smilies = $smilies ?? new SmiliesRenderer(SmiliesRegistry::shared());
     }
 
     public function register(): void

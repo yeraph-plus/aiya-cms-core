@@ -1,6 +1,6 @@
 name: Release
 
-# Tag a release: `git tag v0.93.0 && git push origin v0.93.0`.
+# Tag a release: `git tag v0.94.0-beta.1 && git push origin v0.94.0-beta.1`.
 # The tag must equal the plugin header `Version:` and the
 # AIYA_CORE_VERSION constant — the gate step fails otherwise.
 # workflow_dispatch builds both zips and uploads them as a dry-run
@@ -138,4 +138,7 @@ jobs:
                   files: |
                       build/*.zip
                   draft: false
-                  prerelease: false
+                  # Semver pre-release tags (e.g. 0.94.0-beta.1) cut a GitHub
+                  # pre-release, which the update checker skips by default —
+                  # beta channel never rides production auto-updates.
+                  prerelease: ${{ contains(steps.version.outputs.VERSION, '-') }}

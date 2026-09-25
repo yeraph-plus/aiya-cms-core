@@ -305,6 +305,10 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
     // wrote (thumbnail_id/icon, plus the 0.57.0-retired seo_keywords) on the
     // contract taxonomies is plugin-era residue and dies here too.
     $run($wpdb->prepare('DELETE FROM %i WHERE meta_key LIKE %s', $wpdb->postmeta, $optionLike));
+    // The thumbnail cron's failure flag is transient bookkeeping, not a
+    // protocol key — residue would permanently exclude those posts from a
+    // reinstall's batch (pendingIds() skips flagged posts).
+    $run($wpdb->prepare('DELETE FROM %i WHERE meta_key = %s', $wpdb->postmeta, '_thumb_failed'));
     foreach (['thumbnail_id', 'icon', 'seo_keywords'] as $termMetaKey) {
         $run($wpdb->prepare('DELETE FROM %i WHERE meta_key = %s', $wpdb->termmeta, $termMetaKey));
     }
@@ -340,6 +344,14 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
     wp_clear_scheduled_hook('aiya_core_membership_grants');
     wp_clear_scheduled_hook('aiya_core_auth_tokens_cleanup');
     wp_clear_scheduled_hook('aiya_core_thumbnails_generate');
+    // The deferred single-post card events carry [postId, force] args and a
+    // bare clear only matches argless entries — enumerate and revoke each.
+    foreach (_get_cron_array() as $cronHooks) {
+        foreach (($cronHooks['aiya_core_thumbnail_generate_single'] ?? []) as $singleEvent) {
+            $singleArgs = array_values((array) ($singleEvent['args'] ?? []));
+            wp_clear_scheduled_hook('aiya_core_thumbnail_generate_single', $singleArgs);
+        }
+    }
     wp_clear_scheduled_hook('aiya_core_sponsor_expiry_scan');
     wp_clear_scheduled_hook('aiya_core_remnants_cleanup');
     // The self-hosted update checker's own event; PUC names it after the slug.

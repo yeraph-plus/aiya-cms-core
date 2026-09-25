@@ -14,10 +14,12 @@ use Aiya\Core\Api\Contract\Seo;
 use Aiya\Core\Api\Contract\Term;
 use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Content\PublicType;
+use Aiya\Core\Domain\Content\PublicTypes;
 use Aiya\Core\Domain\Content\ReadingTime;
 use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use WP_Post;
+use WP_Query;
 use WP_Term;
 
 /**
@@ -32,6 +34,16 @@ use WP_Term;
  */
 final class PostPresenter
 {
+    /**
+     * Object cache group/TTL for the viewer-independent read-path renders
+     * (auto excerpt, /terms vocabulary). TTL is the freshness contract —
+     * the payloads fold content that changes rarely and has no single
+     * invalidation hook, the same stance as the shell cache; post edits
+     * re-key the excerpt entry through post_modified.
+     */
+    private const CACHE_GROUP = 'aiya_core_content';
+    private const CACHE_TTL = HOUR_IN_SECONDS;
+
     public function __construct(
         private readonly CardThumbnailService $cards,
         private readonly SmiliesRenderer $smilies,
@@ -139,15 +151,74 @@ final class PostPresenter
     }
 
     /**
+     * Summaries for explicit ids, preserving the given order — the
+     * favorites paths read relation-table ids (favorite recency) and must
+     * not re-sort. One WP_Query instead of a per-id get_post loop: the
+     * mass-fill primes the post, meta, term and author caches for the
+     * whole page up front instead of ten-plus cold queries per row.
+     *
+     * @param list<int> $ids
+     * @return list<PostSummary>
+     */
+    public function summariesByIds(array $ids): array
+    {
+        $ids = array_values(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0));
+        if ($ids === []) {
+            return [];
+        }
+
+        $query = new WP_Query([
+            'post__in' => $ids,
+            'post_type' => PublicTypes::wpPostTypes(),
+            'post_status' => 'publish',
+            // Defense in depth: today's callers come from FavoriteService,
+            // whose SQL already excludes password posts — but this is a
+            // public projection API; never let a locked summary leak.
+            'has_password' => false,
+            'orderby' => 'post__in',
+            'posts_per_page' => count($ids),
+            'no_found_rows' => true,
+            // A raw WP_Query would prepend sticky posts beyond the ids and
+            // reorder the page; the favorites order is the relation table's.
+            'ignore_sticky_posts' => true,
+            'suppress_filters' => true,
+        ]);
+        /** @var list<WP_Post> $posts */
+        $posts = array_values(array_filter(is_array($query->posts) ? $query->posts : [], static fn ($post): bool => $post instanceof WP_Post));
+        cache_users(wp_list_pluck($posts, 'post_author'));
+
+        $out = [];
+        foreach ($posts as $post) {
+            $type = PublicTypes::forPostType((string) $post->post_type);
+            if ($type !== null) {
+                $out[] = $this->summary($post, $type);
+            }
+        }
+
+        return $out;
+    }
+
+    /**
      * Every term of the type's vocabularies, flat: one vocabulary per
      * contract group ("category") but possibly several per group ("tag" —
      * the resource type carries five). `$contractTaxonomy` filters to one
      * group; "all" returns every vocabulary of the type.
      *
+     * The vocabulary read is site state with no single invalidation hook
+     * (term rows plus their meta and cover attachments); it mirrors into
+     * the object cache for the shell-cache freshness window instead.
+     *
      * @return array<int, array<string, mixed>>
      */
     public function presentTerms(PublicType $type, string $contractTaxonomy): array
     {
+        $key = 'terms_' . $type->name . '_' . $contractTaxonomy;
+        /** @var array<int, array<string, mixed>>|false $cached */
+        $cached = wp_cache_get($key, self::CACHE_GROUP);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
         $out = [];
         foreach ($type->taxonomies as [$wpTaxonomy, $contract]) {
             if ($contractTaxonomy !== 'all' && $contract !== $contractTaxonomy) {
@@ -168,6 +239,8 @@ final class PostPresenter
                 }
             }
         }
+
+        wp_cache_set($key, $out, self::CACHE_GROUP, 5 * MINUTE_IN_SECONDS);
 
         return $out;
     }
@@ -206,6 +279,30 @@ final class PostPresenter
 
     private function excerpt(WP_Post $post): string
     {
+        // The auto-generated excerpt runs the FULL the_content filter
+        // chain inside wp_trim_excerpt (lightbox tagging, shortcodes, …)
+        // — once per row on every list read when the editor wrote no
+        // manual excerpt. The result is deterministic per post content,
+        // so it mirrors into the object cache under a modified-folded
+        // key; manual excerpt edits bump post_modified like any edit.
+        // Password posts are the exception: get_the_excerpt answers
+        // core's placeholder for locked viewers and the real summary for
+        // holders of a valid postpass cookie — a request-state (visitor)
+        // input, so the value is NOT visitor-independent and must never
+        // enter a shared cache. The 0.73.0 unlock flow keeps the API
+        // cookie-less, but legacy browser cookies are still valid under
+        // the same password, so the guard is code, not a deployment note.
+        $cacheable = (string) $post->post_password === '';
+        $postId = (int) $post->ID;
+        $key = 'excerpt_' . $postId . '_' . md5((string) $post->post_modified_gmt);
+        if ($cacheable) {
+            /** @var string|false $cached */
+            $cached = wp_cache_get($key, self::CACHE_GROUP);
+            if (is_string($cached)) {
+                return $cached;
+            }
+        }
+
         $raw = (string) get_the_excerpt($post);
         $text = trim(wp_strip_all_tags($raw));
         // Registered `::code::` tokens never survive into the plain-text
@@ -217,7 +314,12 @@ final class PostPresenter
         // ThemeSupportModule's excerpt_more filter) both qualify.
         $text = (string) preg_replace('/(?:\[(?:\x{2026}|\.\.\.|&hellip;)\]|\x{2026}|\.{3}|&hellip;)\s*$/u', '', $text);
 
-        return trim($text);
+        $text = trim($text);
+        if ($cacheable) {
+            wp_cache_set($key, $text, self::CACHE_GROUP, self::CACHE_TTL);
+        }
+
+        return $text;
     }
 
     private function rendered(WP_Post $post): string

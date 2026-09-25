@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
-use Aiya\Core\Domain\Media\CardThumbnailService;
+use Closure;
 
 /**
  * Bulk action "Refresh thumbnails" on every list-table post type: re-runs
@@ -19,13 +19,19 @@ use Aiya\Core\Domain\Media\CardThumbnailService;
  * image composites), so the action registers on all show_ui types instead
  * of a contract list. Only published rows composite — the card is a
  * front-end listing asset; anything else counts as skipped.
+ *
+ * Rows are QUEUED, not composited inline: N composites in one request are
+ * Imagine work that can outrun the PHP timeout, so each row fires its own
+ * deferred single event (injected by the composition root, the hook lives
+ * with the media module) and the notice reports the queued count.
  */
 final class CardThumbnailBulkAction implements Module
 {
     private const ACTION = 'aiya_refresh_thumbs';
 
-    public function __construct(private CardThumbnailService $cards)
-    {
+    public function __construct(
+        private readonly Closure $scheduleRefresh,
+    ) {
     }
 
     public function register(): void
@@ -65,8 +71,10 @@ final class CardThumbnailBulkAction implements Module
     }
 
     /**
-     * Runs the composite for the selected rows and reports back through
-     * redirect query args. Core has already verified the bulk nonce.
+     * Queues the composite for the selected rows and reports back through
+     * redirect query args. Core has already verified the bulk nonce; the
+     * permission and status checks stay synchronous so the skip counter
+     * remains exact.
      *
      * @param mixed $redirect
      * @param mixed $action
@@ -78,23 +86,23 @@ final class CardThumbnailBulkAction implements Module
             return is_string($redirect) ? $redirect : '';
         }
 
-        $done = 0;
+        $queued = 0;
         $skipped = 0;
         foreach (is_array($ids) ? $ids : [] as $id) {
             $postId = (int) $id;
             $post = $postId > 0 ? get_post($postId) : null;
             if (!$post instanceof \WP_Post
                 || $post->post_status !== 'publish'
-                || !current_user_can('edit_post', $postId)
-                || !$this->cards->refreshFor($postId, true)) {
+                || !current_user_can('edit_post', $postId)) {
                 ++$skipped;
                 continue;
             }
-            ++$done;
+            ($this->scheduleRefresh)($postId, true);
+            ++$queued;
         }
 
         return (string) add_query_arg([
-            'aiya_thumbs_done' => (string) $done,
+            'aiya_thumbs_done' => (string) $queued,
             'aiya_thumbs_skipped' => (string) $skipped,
         ], $redirect);
     }
@@ -113,8 +121,8 @@ final class CardThumbnailBulkAction implements Module
         $messages = [];
         if ($done > 0) {
             $messages[] = sprintf(
-                /* translators: %d: number of refreshed items */
-                _n('%d item refreshed.', '%d items refreshed.', $done, 'aiya-core'),
+                /* translators: %d: number of queued items */
+                _n('%d item queued for a thumbnail refresh.', '%d items queued for a thumbnail refresh.', $done, 'aiya-core'),
                 $done
             );
         }

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS Core 0.93.0\n"
+"Project-Id-Version: AIYA CMS Core 0.94.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-24T19:19:17+00:00\n"
+"POT-Creation-Date: 2026-09-25T03:32:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -30,27 +30,27 @@ msgstr ""
 msgid "Yeraph Studio"
 msgstr ""
 
-#: src/Admin/CardThumbnailBulkAction.php:62
+#: src/Admin/CardThumbnailBulkAction.php:68
 msgid "Refresh thumbnails"
 msgstr ""
 
-#. translators: %d: number of refreshed items
-#: src/Admin/CardThumbnailBulkAction.php:117
+#. translators: %d: number of queued items
+#: src/Admin/CardThumbnailBulkAction.php:125
 #, php-format
-msgid "%d item refreshed."
-msgid_plural "%d items refreshed."
+msgid "%d item queued for a thumbnail refresh."
+msgid_plural "%d items queued for a thumbnail refresh."
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of skipped items
-#: src/Admin/CardThumbnailBulkAction.php:124
+#: src/Admin/CardThumbnailBulkAction.php:132
 #, php-format
 msgid "%d item skipped (nothing to refresh or not permitted)."
 msgid_plural "%d items skipped (nothing to refresh or not permitted)."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/CardThumbnailBulkAction.php:129
+#: src/Admin/CardThumbnailBulkAction.php:137
 msgid "No thumbnails were refreshed."
 msgstr ""
 
@@ -235,151 +235,151 @@ msgstr ""
 msgid "Cover generated."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:77
-#: src/Admin/CreditsPage.php:78
-#: src/Admin/CreditsPage.php:99
-#: src/Admin/CreditsPage.php:205
+#: src/Admin/CreditsPage.php:122
+#: src/Admin/CreditsPage.php:123
+#: src/Admin/CreditsPage.php:144
+#: src/Admin/CreditsPage.php:250
 #: src/Domain/Content/FrontendModule.php:186
 msgid "Credit ledger"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:89
-#: src/Admin/CreditsPage.php:279
-#: src/Admin/CreditsPage.php:311
+#: src/Admin/CreditsPage.php:134
+#: src/Admin/CreditsPage.php:324
+#: src/Admin/CreditsPage.php:356
 msgid "You are not allowed to manage credits."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:100
+#: src/Admin/CreditsPage.php:145
 msgid "Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:154
+#: src/Admin/CreditsPage.php:199
 msgid "Manual grant"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:161
+#: src/Admin/CreditsPage.php:206
 #: src/Admin/PaymentsAuditPage.php:143
 msgid "User"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:164
-#: src/Admin/CreditsPage.php:210
+#: src/Admin/CreditsPage.php:209
+#: src/Admin/CreditsPage.php:255
 #: src/Admin/PaymentsAuditPage.php:126
 msgid "Type a username or name…"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:170
-#: src/Admin/CreditsPage.php:227
+#: src/Admin/CreditsPage.php:215
+#: src/Admin/CreditsPage.php:272
 #: src/Admin/PaymentsAuditPage.php:146
 msgid "Amount"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:176
+#: src/Admin/CreditsPage.php:221
 msgid "Validity (days)"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:179
+#: src/Admin/CreditsPage.php:224
 msgid "The bucket dies when this expires."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:183
+#: src/Admin/CreditsPage.php:228
 msgid "Note"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:186
+#: src/Admin/CreditsPage.php:231
 msgid "Optional; recorded in the ledger reference."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:190
+#: src/Admin/CreditsPage.php:235
 msgid "Grant credits"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:214
+#: src/Admin/CreditsPage.php:259
 msgid "View ledger"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:218
+#: src/Admin/CreditsPage.php:263
 msgid "Pick a user to browse their grants and spends."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:223
+#: src/Admin/CreditsPage.php:268
 #: src/Admin/PaymentsAuditPage.php:142
 msgid "Time"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:224
+#: src/Admin/CreditsPage.php:269
 msgid "Direction"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:225
+#: src/Admin/CreditsPage.php:270
 #: src/Admin/PaymentsAuditPage.php:149
 #: src/Admin/PicBedPage.php:286
 msgid "Source"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:226
+#: src/Admin/CreditsPage.php:271
 msgid "Reference"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:228
+#: src/Admin/CreditsPage.php:273
 msgid "Bucket left"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:229
+#: src/Admin/CreditsPage.php:274
 msgid "Expires"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:234
+#: src/Admin/CreditsPage.php:279
 msgid "No ledger entries for this user yet."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:285
-#: src/Domain/Credit/LedgerService.php:70
-#: src/Domain/Credit/LedgerService.php:143
+#: src/Admin/CreditsPage.php:330
+#: src/Domain/Credit/LedgerService.php:105
+#: src/Domain/Credit/LedgerService.php:178
 msgid "The credit holder does not exist."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:299
+#: src/Admin/CreditsPage.php:344
 msgid "An admin grant with this exact note already exists for this user."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:357
+#: src/Admin/CreditsPage.php:402
 msgid "Credits"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:394
+#: src/Admin/CreditsPage.php:437
 msgid "Credits granted."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:395
+#: src/Admin/CreditsPage.php:438
 #: src/Admin/DiscussionModerationPage.php:300
 #: src/Admin/DiscussionModerationPage.php:335
 #: src/Admin/DiscussionModerationPage.php:511
 msgid "The operation failed."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:420
+#: src/Admin/CreditsPage.php:463
 #: src/Admin/OperationsPage.php:337
 #: src/Domain/Credit/CreditModule.php:80
 msgid "Check-in"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:421
+#: src/Admin/CreditsPage.php:464
 msgid "Redeem code"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:422
+#: src/Admin/CreditsPage.php:465
 #: src/Admin/OperationsPage.php:338
 #: src/Admin/PaymentsAuditPage.php:236
 #: src/Domain/Sponsorship/SponsorshipModule.php:79
 msgid "Membership"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:423
+#: src/Admin/CreditsPage.php:466
 msgid "Admin grant"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:424
+#: src/Admin/CreditsPage.php:467
 msgid "Download"
 msgstr ""
 
@@ -1428,18 +1428,18 @@ msgid "Registration is currently disabled."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:135
-#: src/Api/Rest/UserController.php:291
+#: src/Api/Rest/UserController.php:290
 msgid "The nickname must be 1-50 characters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:138
 #: src/Api/Rest/AuthController.php:227
-#: src/Api/Rest/UserController.php:314
+#: src/Api/Rest/UserController.php:313
 msgid "The email address is not valid."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:144
-#: src/Api/Rest/UserController.php:316
+#: src/Api/Rest/UserController.php:315
 msgid "This email address is already registered."
 msgstr ""
 
@@ -1461,7 +1461,7 @@ msgid "The email address or the password is incorrect."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:268
-#: src/Api/Rest/UserController.php:406
+#: src/Api/Rest/UserController.php:405
 msgid "Existing sessions could not be invalidated; the password was left unchanged."
 msgstr ""
 
@@ -1482,8 +1482,8 @@ msgstr ""
 #: src/Api/Rest/FileServeController.php:75
 #: src/Api/Rest/SponsorshipController.php:110
 #: src/Api/Rest/SponsorshipController.php:177
-#: src/Api/Rest/UserController.php:197
-#: src/Api/Rest/UserController.php:357
+#: src/Api/Rest/UserController.php:192
+#: src/Api/Rest/UserController.php:356
 msgid "Too many requests, try again later."
 msgstr ""
 
@@ -1505,7 +1505,7 @@ msgstr ""
 #: src/Api/Rest/FileServeController.php:97
 #: src/Api/Rest/SponsorshipController.php:280
 #: src/Api/Rest/UploadsController.php:57
-#: src/Api/Rest/UserController.php:436
+#: src/Api/Rest/UserController.php:435
 msgid "Authentication required."
 msgstr ""
 
@@ -1513,8 +1513,8 @@ msgstr ""
 #: src/Api/Rest/CommentsController.php:149
 #: src/Api/Rest/ContentController.php:337
 #: src/Api/Rest/UploadsController.php:64
-#: src/Api/Rest/UserController.php:251
-#: src/Api/Rest/UserController.php:387
+#: src/Api/Rest/UserController.php:250
+#: src/Api/Rest/UserController.php:386
 msgid "Too many requests, please retry later."
 msgstr ""
 
@@ -1578,7 +1578,7 @@ msgid "Please log in to interact."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:122
-#: src/Domain/Credit/LedgerService.php:140
+#: src/Domain/Credit/LedgerService.php:175
 msgid "This account is disabled."
 msgstr ""
 
@@ -1643,31 +1643,31 @@ msgstr ""
 msgid "The return URL is not a valid absolute http(s) address."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:211
+#: src/Api/Rest/UserController.php:206
 msgid "The favorite could not be removed."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:267
+#: src/Api/Rest/UserController.php:266
 msgid "The follow could not be removed."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:327
+#: src/Api/Rest/UserController.php:326
 msgid "The locale is not supported."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:342
+#: src/Api/Rest/UserController.php:341
 msgid "Changing the email address requires the current password."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:347
+#: src/Api/Rest/UserController.php:346
 msgid "The profile could not be saved."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:363
+#: src/Api/Rest/UserController.php:362
 msgid "No avatar image was uploaded."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:393
+#: src/Api/Rest/UserController.php:392
 msgid "The current password is incorrect."
 msgstr ""
 
@@ -1934,7 +1934,7 @@ msgid "One row per filing shown in the footer, e.g. ICP or public security."
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:139
-#: src/Modules/MediaModule.php:226
+#: src/Modules/MediaModule.php:250
 msgid "Text"
 msgstr ""
 
@@ -2182,34 +2182,34 @@ msgstr ""
 msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:73
-#: src/Domain/Credit/LedgerService.php:146
+#: src/Domain/Credit/LedgerService.php:108
+#: src/Domain/Credit/LedgerService.php:181
 msgid "The credit amount must be positive."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:76
+#: src/Domain/Credit/LedgerService.php:111
 msgid "The credit source is required."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:106
+#: src/Domain/Credit/LedgerService.php:141
 msgid "This credit grant was already recorded."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:109
+#: src/Domain/Credit/LedgerService.php:144
 msgid "The credit grant could not be stored."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:175
+#: src/Domain/Credit/LedgerService.php:210
 msgid "Not enough credits."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:191
-#: src/Domain/Credit/LedgerService.php:198
-#: src/Domain/Credit/LedgerService.php:235
+#: src/Domain/Credit/LedgerService.php:226
+#: src/Domain/Credit/LedgerService.php:233
+#: src/Domain/Credit/LedgerService.php:270
 msgid "The spend could not be recorded."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:232
+#: src/Domain/Credit/LedgerService.php:267
 msgid "This spend was already recorded."
 msgstr ""
 
@@ -3612,25 +3612,25 @@ msgstr ""
 msgid "The order carries no account binding — activate it from the account page with the order number."
 msgstr ""
 
-#: src/Domain/Sponsorship/EntitlementService.php:51
+#: src/Domain/Sponsorship/EntitlementService.php:74
 msgid "The membership holder does not exist."
 msgstr ""
 
-#: src/Domain/Sponsorship/EntitlementService.php:54
+#: src/Domain/Sponsorship/EntitlementService.php:77
 #: src/Domain/Sponsorship/OrderService.php:54
 #: src/Domain/Sponsorship/OrderService.php:105
 msgid "The order id is required."
 msgstr ""
 
-#: src/Domain/Sponsorship/EntitlementService.php:62
+#: src/Domain/Sponsorship/EntitlementService.php:85
 msgid "The membership is being updated — try again."
 msgstr ""
 
-#: src/Domain/Sponsorship/EntitlementService.php:99
+#: src/Domain/Sponsorship/EntitlementService.php:122
 msgid "This order was already activated."
 msgstr ""
 
-#: src/Domain/Sponsorship/EntitlementService.php:102
+#: src/Domain/Sponsorship/EntitlementService.php:125
 msgid "The membership could not be stored."
 msgstr ""
 
@@ -4098,164 +4098,164 @@ msgstr ""
 msgid "From the GoFile profile page. The account lists, folders and search endpoints work for any tier, but reading a folder needs Premium — without it every GoFile list reports that it needs Premium."
 msgstr ""
 
-#: src/Modules/MediaModule.php:72
+#: src/Modules/MediaModule.php:73
 msgid "Every five minutes"
 msgstr ""
 
-#: src/Modules/MediaModule.php:155
+#: src/Modules/MediaModule.php:179
 msgid "Image processor"
 msgstr ""
 
-#: src/Modules/MediaModule.php:156
-#: src/Modules/MediaModule.php:225
+#: src/Modules/MediaModule.php:180
+#: src/Modules/MediaModule.php:249
 msgid "Image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:163
+#: src/Modules/MediaModule.php:187
 msgid "Image processing"
 msgstr ""
 
-#: src/Modules/MediaModule.php:169
+#: src/Modules/MediaModule.php:193
 msgid "Media library takeover"
 msgstr ""
 
-#: src/Modules/MediaModule.php:170
+#: src/Modules/MediaModule.php:194
 msgid "Run uploads through the image processor: scale, watermark, format conversion"
 msgstr ""
 
-#: src/Modules/MediaModule.php:171
+#: src/Modules/MediaModule.php:195
 msgid "WebP/AVIF saving requires the libwebp/libavif PHP libraries; unsupported targets fall back to the source format."
 msgstr ""
 
-#: src/Modules/MediaModule.php:177
+#: src/Modules/MediaModule.php:201
 msgid "Save format"
 msgstr ""
 
-#: src/Modules/MediaModule.php:180
+#: src/Modules/MediaModule.php:204
 msgid "Keep source format"
 msgstr ""
 
-#: src/Modules/MediaModule.php:181
+#: src/Modules/MediaModule.php:205
 msgid "JPG"
 msgstr ""
 
-#: src/Modules/MediaModule.php:182
+#: src/Modules/MediaModule.php:206
 msgid "WebP"
 msgstr ""
 
-#: src/Modules/MediaModule.php:183
+#: src/Modules/MediaModule.php:207
 msgid "AVIF"
 msgstr ""
 
-#: src/Modules/MediaModule.php:189
+#: src/Modules/MediaModule.php:213
 msgid "Max image width"
 msgstr ""
 
-#: src/Modules/MediaModule.php:190
+#: src/Modules/MediaModule.php:214
 msgid "Uploads wider than this are scaled down; 0 disables the limit."
 msgstr ""
 
-#: src/Modules/MediaModule.php:198
+#: src/Modules/MediaModule.php:222
 msgid "Image quality"
 msgstr ""
 
-#: src/Modules/MediaModule.php:199
+#: src/Modules/MediaModule.php:223
 msgid "Save quality from 0 to 100; PNG maps it to the compression level."
 msgstr ""
 
-#: src/Modules/MediaModule.php:208
+#: src/Modules/MediaModule.php:232
 msgid "Font file"
 msgstr ""
 
-#: src/Modules/MediaModule.php:209
+#: src/Modules/MediaModule.php:233
 msgid "Content URL, content-relative path or absolute path for cover titles and text watermarks. Leave empty to use the bundled font."
 msgstr ""
 
-#: src/Modules/MediaModule.php:215
+#: src/Modules/MediaModule.php:239
 msgid "Watermark"
 msgstr ""
 
-#: src/Modules/MediaModule.php:221
+#: src/Modules/MediaModule.php:245
 msgid "Watermark mode"
 msgstr ""
 
-#: src/Modules/MediaModule.php:224
+#: src/Modules/MediaModule.php:248
 msgid "Disabled"
 msgstr ""
 
-#: src/Modules/MediaModule.php:232
+#: src/Modules/MediaModule.php:256
 msgid "Watermark position"
 msgstr ""
 
-#: src/Modules/MediaModule.php:235
+#: src/Modules/MediaModule.php:259
 msgid "Center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:236
+#: src/Modules/MediaModule.php:260
 msgid "Center left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:237
+#: src/Modules/MediaModule.php:261
 msgid "Center right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:238
+#: src/Modules/MediaModule.php:262
 msgid "Center top"
 msgstr ""
 
-#: src/Modules/MediaModule.php:239
+#: src/Modules/MediaModule.php:263
 msgid "Center bottom"
 msgstr ""
 
-#: src/Modules/MediaModule.php:240
+#: src/Modules/MediaModule.php:264
 msgid "Top right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:241
+#: src/Modules/MediaModule.php:265
 msgid "Top left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:242
+#: src/Modules/MediaModule.php:266
 msgid "Top center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:243
+#: src/Modules/MediaModule.php:267
 msgid "Bottom right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:244
+#: src/Modules/MediaModule.php:268
 msgid "Bottom left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:245
+#: src/Modules/MediaModule.php:269
 msgid "Bottom center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:251
+#: src/Modules/MediaModule.php:275
 msgid "Watermark image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:252
+#: src/Modules/MediaModule.php:276
 msgid "Media library attachment used in image mode; its own alpha is kept as-is."
 msgstr ""
 
-#: src/Modules/MediaModule.php:258
+#: src/Modules/MediaModule.php:282
 msgid "Watermark text"
 msgstr ""
 
-#: src/Modules/MediaModule.php:264
+#: src/Modules/MediaModule.php:288
 msgid "Watermark font size"
 msgstr ""
 
-#: src/Modules/MediaModule.php:272
+#: src/Modules/MediaModule.php:296
 msgid "Watermark opacity (text)"
 msgstr ""
 
-#: src/Modules/MediaModule.php:273
+#: src/Modules/MediaModule.php:297
 msgid "0 = fully transparent, 100 = fully opaque; applies to the text watermark only."
 msgstr ""
 
-#: src/Modules/MediaModule.php:367
+#: src/Modules/MediaModule.php:391
 msgid "Image processing failed; the upload was cancelled."
 msgstr ""
 

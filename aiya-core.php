@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AIYA CMS Core
  * Description: Headless-first administration and content framework for AIYA CMS.
- * Version: 0.93.0
+ * Version: 0.94.0-beta.1
  * Requires at least: 6.4
  * Requires PHP: 8.5
  * Author: Yeraph Studio
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AIYA_CORE_VERSION', '0.93.0');
+define('AIYA_CORE_VERSION', '0.94.0-beta.1');
 define('AIYA_CORE_FILE', __FILE__);
 define('AIYA_CORE_PATH', plugin_dir_path(__FILE__));
 define('AIYA_CORE_URL', plugin_dir_url(__FILE__));
@@ -61,9 +61,36 @@ function aiya_core(): Aiya\Core\Plugin
  * Reads a single top-level settings field for a registered page, falling back
  * to the field default and then to the caller-supplied default. Repeater and
  * nested children are not resolved here.
+ *
+ * Resolved values are memoized per request: the registry page lookup plus the
+ * field-default linear scan repeat on every call otherwise (hot paths call
+ * the same key a dozen times per request). The memo holds only values that
+ * resolve independent of the caller's fallback — a missing page or field
+ * answers the caller-supplied fallback and stays unmemoized, because that
+ * answer differs per call site. Any `aiya_core_*` option write drops the
+ * whole memo so a save-then-read sequence inside one request stays truthful.
  */
 function aiya_core_opt(string $page, string $id, mixed $fallback = null): mixed
 {
+    static $memo = [];
+    static $hooks = false;
+    if (!$hooks) {
+        $hooks = true;
+        $clear = static function (string $optionName) use (&$memo): void {
+            if (str_starts_with($optionName, 'aiya_core_')) {
+                $memo = [];
+            }
+        };
+        add_action('added_option', $clear);
+        add_action('updated_option', $clear);
+        add_action('deleted_option', $clear);
+    }
+
+    $key = $page . ':' . $id;
+    if (array_key_exists($key, $memo)) {
+        return $memo[$key];
+    }
+
     $page_schema = aiya_core()->settings()->page($page);
     if ($page_schema === null) {
         return $fallback;
@@ -81,10 +108,18 @@ function aiya_core_opt(string $page, string $id, mixed $fallback = null): mixed
 
     $values = (new Aiya\Core\Settings\Storage\OptionStore($page_schema->optionName(), $page_schema->network()))->all();
     if (array_key_exists($id, $values)) {
-        return $values[$id];
+        $memo[$key] = $values[$id];
+
+        return $memo[$key];
     }
 
-    return $field_found ? $field_default : $fallback;
+    if ($field_found) {
+        $memo[$key] = $field_default;
+
+        return $memo[$key];
+    }
+
+    return $fallback;
 }
 
 register_activation_hook(__FILE__, [aiya_core(), 'activate']);

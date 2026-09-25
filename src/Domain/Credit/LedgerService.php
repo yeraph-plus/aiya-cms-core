@@ -56,6 +56,41 @@ final class LedgerService
     }
 
     /**
+     * Balances of many holders in ONE grouped query, keyed by holder —
+     * the users-list credits column's batch read (balance() is the
+     * per-holder twin). Holders without live buckets are absent; callers
+     * treat missing as zero.
+     *
+     * @param list<int> $userIds
+     * @return array<int, int>
+     */
+    public function balancesFor(array $userIds): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $userIds), static fn (int $id): bool => $id > 0)));
+        if ($ids === []) {
+            return [];
+        }
+
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $in = implode(',', array_fill(0, count($ids), '%d'));
+        $sql = "SELECT user_id, COALESCE(SUM(remaining), 0) AS total FROM %i
+             WHERE direction = 'in' AND remaining > 0 AND (expires_at IS NULL OR expires_at > %s)
+               AND user_id IN ($in) GROUP BY user_id";
+        $rows = $wpdb->get_results(
+            $wpdb->prepare($sql, $this->table(), $this->now(), ...$ids), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- whitelist IN-list over caller ids
+            ARRAY_A
+        );
+
+        $out = [];
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $out[(int) $row['user_id']] = (int) $row['total'];
+        }
+
+        return $out;
+    }
+
+    /**
      * Adds one grant bucket. Idempotent per holder through the derived
      * dedupe key (`source:ref`) — callers surface the duplicate as
      * "already done" rather than double-granting. `ref` itself is only a

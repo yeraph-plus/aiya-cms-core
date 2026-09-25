@@ -90,16 +90,17 @@ final class SitePresenter
 
     /**
      * The shell payload with both advertisement lists withheld — the shape
-     * a signed-in sponsor gets (membership is the ad gate). Never cached:
-     * it is viewer-shaped, and sponsors are always logged in, whose reads
-     * the HTTP layer answers no-store anyway, so an ad-bearing shared copy
-     * can never reach them.
+     * a signed-in sponsor gets (membership is the ad gate). It derives from
+     * the shared cacheable base (the only difference IS the two ad lists),
+     * so sponsors hit the same object-cache path guests do instead of
+     * re-assembling the whole payload per request; the arrays are stripped
+     * on a local copy, never in the cached base.
      *
      * @return array<string, mixed>
      */
     public function presentArrayWithoutAds(): array
     {
-        $payload = $this->present()->toArray();
+        $payload = $this->presentArray();
         $payload['blocks']['adsTop'] = [];
         $payload['blocks']['adsBottom'] = [];
 

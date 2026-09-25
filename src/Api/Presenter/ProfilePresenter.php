@@ -10,10 +10,8 @@ use Aiya\Core\Api\Contract\Profile;
 use Aiya\Core\Api\Contract\ProfileStats;
 use Aiya\Core\Domain\Identity\FollowService;
 use Aiya\Core\Api\Contract\PostSummary;
-use Aiya\Core\Domain\Content\PublicTypes;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
-use WP_Post;
 use WP_User;
 
 /**
@@ -82,16 +80,7 @@ final class ProfilePresenter
             return ['count' => 0, 'posts' => []];
         }
 
-        $out = [];
-        foreach ($result['ids'] as $postId) {
-            $post = get_post($postId);
-            $type = $post instanceof WP_Post ? PublicTypes::forPostType((string) $post->post_type) : null;
-            if ($post instanceof WP_Post && $type !== null) {
-                $out[] = $this->posts->summary($post, $type);
-            }
-        }
-
-        return ['count' => $result['total'], 'posts' => $out];
+        return ['count' => $result['total'], 'posts' => $this->posts->summariesByIds($result['ids'])];
     }
 
     private function avatar(WP_User $user): ?Image

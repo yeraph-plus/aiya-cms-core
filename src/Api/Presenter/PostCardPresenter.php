@@ -7,6 +7,7 @@ namespace Aiya\Core\Api\Presenter;
 use Aiya\Core\Api\Contract\PostSummary;
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\PublicTypes;
+use WP_Post;
 
 /**
  * The related-post card: one post rendered as a small HTML block for
@@ -34,6 +35,18 @@ use Aiya\Core\Domain\Content\PublicTypes;
  */
 final class PostCardPresenter
 {
+    /**
+     * The markup is viewer-independent by the publish-only rule above, so
+     * it mirrors into the object cache keyed by target id + modified time:
+     * content, status and type edits all bump post_modified and re-key the
+     * entry without any invalidation hook. The 600s TTL is the freshness
+     * contract for what the markup bakes in from request-independent state
+     * (counters ride as raw data attributes, gate badges derive from post
+     * fields) — same stance as the shell cache.
+     */
+    private const CACHE_GROUP = 'aiya_core_content';
+    private const CACHE_TTL = 600;
+
     public function __construct(
         private readonly ContentQuery $query,
         private readonly PostPresenter $posts,
@@ -51,6 +64,25 @@ final class PostCardPresenter
             return '';
         }
 
+        // The modified fold covers every state the markup can read; a
+        // missing target keys under a placeholder until it exists.
+        $target = get_post($postId);
+        $modified = $target instanceof WP_Post ? (string) $target->post_modified_gmt : 'missing';
+        $key = 'card_' . $postId . '_' . md5($modified);
+        /** @var string|false $cached */
+        $cached = wp_cache_get($key, self::CACHE_GROUP);
+        if (is_string($cached)) {
+            return $cached;
+        }
+
+        $html = $this->build($postId);
+        wp_cache_set($key, $html, self::CACHE_GROUP, self::CACHE_TTL);
+
+        return $html;
+    }
+
+    private function build(int $postId): string
+    {
         // The id alone does not name a type: first public type wins, the
         // same resolution the detail-by-id routes use.
         foreach (PublicTypes::all() as $type) {

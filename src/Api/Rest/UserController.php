@@ -8,7 +8,6 @@ use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Contract\Pagination;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
-use Aiya\Core\Domain\Content\PublicTypes;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
@@ -172,12 +171,8 @@ final class UserController
         $result = $this->favorites->published($userId, $page, $perPage);
 
         $items = [];
-        foreach ($result['ids'] as $postId) {
-            $post = get_post($postId);
-            $type = $post !== null ? PublicTypes::forPostType((string) $post->post_type) : null;
-            if ($post !== null && $type !== null) {
-                $items[] = $this->postPresenter->summary($post, $type)->toArray();
-            }
+        foreach ($this->postPresenter->summariesByIds($result['ids']) as $summary) {
+            $items[] = $summary->toArray();
         }
 
         return new WP_REST_Response([
@@ -229,6 +224,10 @@ final class UserController
     {
         $userId = (int) $this->currentUser()->ID;
         $result = $this->follows->{$method}($userId, $page, $perPage);
+
+        // One mass user fill for the page instead of a cold user read (and
+        // avatar meta walk) per row.
+        cache_users($result['ids']);
 
         $items = [];
         foreach ($result['ids'] as $id) {

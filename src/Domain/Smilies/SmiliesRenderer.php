@@ -28,6 +28,15 @@ final class SmiliesRenderer
     /** Elements whose bodies must never gain images (parity with convert_smilies). */
     private const SKIPPED_ELEMENTS = 'code|pre|style|script|textarea';
 
+    /**
+     * Per-request pattern memo keyed by the code-set fingerprint: the
+     * alternation over a few hundred file names is the renderer's one
+     * compile cost, and several renderer instances share a request.
+     *
+     * @var array<string, string>
+     */
+    private static array $patterns = [];
+
     public function __construct(private readonly SmiliesRegistry $registry)
     {
     }
@@ -87,12 +96,12 @@ final class SmiliesRenderer
     private function pattern(array $codes): string
     {
         usort($codes, static fn (string $a, string $b): int => strlen($b) <=> strlen($a));
-        $alternation = implode('|', array_map(
+        $key = md5(implode("\x00", $codes));
+
+        return self::$patterns[$key] ??= '/::(' . implode('|', array_map(
             static fn (string $code): string => preg_quote($code, '/'),
             $codes
-        ));
-
-        return '/::(' . $alternation . ')::/u';
+        )) . ')::/u';
     }
 
     /**

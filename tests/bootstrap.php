@@ -1214,6 +1214,79 @@ if (!function_exists('get_the_excerpt')) {
     }
 }
 
+if (!function_exists('get_post_field')) {
+    function get_post_field(string $field, int $postId): string
+    {
+        $post = $GLOBALS['__aiya_test_posts'][$postId] ?? null;
+
+        return $post instanceof WP_Post ? (string) ($post->{$field} ?? '') : '';
+    }
+}
+
+if (!function_exists('cache_users')) {
+    function cache_users(array $userIds): void
+    {
+        // The mass user fill is a performance primitive with no observable
+        // state in these tests; the per-user reads below work regardless.
+    }
+}
+
+if (!function_exists('wp_list_pluck')) {
+    function wp_list_pluck(array $list, string|int $field, string|int|null $indexKey = null): array
+    {
+        $out = [];
+        foreach ($list as $key => $item) {
+            $value = is_object($item) ? ($item->{$field} ?? null) : ($item[$field] ?? null);
+            if ($indexKey !== null) {
+                $index = is_object($item) ? ($item->{$indexKey} ?? null) : ($item[$indexKey] ?? null);
+                $out[$index] = $value;
+
+                continue;
+            }
+            $out[$key] = $value;
+        }
+
+        return $out;
+    }
+}
+
+if (!class_exists('WP_Query')) {
+    /**
+     * Minimal stand-in for the mass-fill reads the API layer issues:
+     * honours `post__in` order, publish-only and the post_type whitelist —
+     * everything else is ignored (no pagination/term/meta support).
+     */
+    class WP_Query
+    {
+        /** @var list<WP_Post> */
+        public array $posts = [];
+
+        public function __construct(array $args = [])
+        {
+            $types = (array) ($args['post_type'] ?? 'any');
+            $wanted = [];
+            foreach ($types as $type) {
+                $wanted[] = (string) $type;
+            }
+            foreach ((array) ($args['post__in'] ?? []) as $id) {
+                $post = $GLOBALS['__aiya_test_posts'][(int) $id] ?? null;
+                if (!$post instanceof WP_Post) {
+                    continue;
+                }
+                if ($args['post_status'] ?? null) {
+                    if (!in_array((string) $post->post_status, (array) $args['post_status'], true)) {
+                        continue;
+                    }
+                }
+                if ($wanted !== [] && !in_array((string) $post->post_type, $wanted, true)) {
+                    continue;
+                }
+                $this->posts[] = $post;
+            }
+        }
+    }
+}
+
 if (!function_exists('is_sticky')) {
     function is_sticky(int $postId = 0): bool
     {

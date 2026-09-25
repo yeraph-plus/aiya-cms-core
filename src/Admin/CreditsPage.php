@@ -30,6 +30,12 @@ final class CreditsPage implements Module
 
     private LedgerService $ledger;
 
+    /** The users-list query captured in pre_user_query, for the batched balance column. */
+    private ?\WP_User_Query $usersQuery = null;
+
+    /** @var array<int, int>|null the page's balances, read once */
+    private ?array $balanceCache = null;
+
     public function __construct(?LedgerService $ledger = null)
     {
         $this->ledger = $ledger ?? new LedgerService();
@@ -47,6 +53,50 @@ final class CreditsPage implements Module
         add_action('wp_ajax_' . self::AJAX_SEARCH, [$this, 'handleSearch']);
         add_filter('manage_users_columns', [$this, 'usersColumn']);
         add_filter('manage_users_custom_column', [$this, 'usersColumnValue'], 10, 3);
+        // The users list runs its query before any cell renders; capture it
+        // so the balance column reads the whole page in one grouped SUM
+        // instead of one per rendered row (the PaymentsAuditPage pattern).
+        add_action('pre_user_query', [$this, 'captureUsersQuery']);
+    }
+
+    /**
+     * Captures the users-list query on users.php so the balance column can
+     * prefetch one grouped read for the whole page. Other screens and REST
+     * requests are ignored; the column falls back to the per-user read when
+     * no capture happened. The count_total guard excludes foreign
+     * get_users() calls (core forces count_total=false there) — capturing
+     * the wrong query would answer holders it doesn't cover with zero.
+     */
+    public function captureUsersQuery(\WP_User_Query $query): void
+    {
+        if (is_admin()
+            && ($GLOBALS['pagenow'] ?? '') === 'users.php'
+            && $this->usersQuery === null
+            && (bool) $query->get('count_total')) {
+            $this->usersQuery = $query;
+        }
+    }
+
+    /**
+     * The page's balances, read once per render from the captured query's
+     * row ids.
+     *
+     * @return array<int, int>
+     */
+    private function pageBalances(): array
+    {
+        if ($this->balanceCache !== null) {
+            return $this->balanceCache;
+        }
+
+        $this->balanceCache = [];
+        $users = $this->usersQuery?->get_results();
+        if (is_array($users) && $users !== []) {
+            $ids = array_values(array_map(static fn ($user): int => (int) $user->ID, $users));
+            $this->balanceCache = $this->ledger->balancesFor($ids);
+        }
+
+        return $this->balanceCache;
     }
 
     /** The shared admin stylesheet carries the card and badge styles. */
@@ -361,8 +411,8 @@ final class CreditsPage implements Module
 
     /**
      * Balance cell: the live bucket sum, linked into the ledger viewer.
-     * Queries once per user per request (the list page is ~20 rows, the
-     * SUM rides the (user_id, expires_at) index).
+     * Prefetched for the whole page in one grouped read; the per-user read
+     * only covers listings that escaped the pre_user_query capture.
      *
      * @param mixed $value
      */
@@ -372,15 +422,19 @@ final class CreditsPage implements Module
             return is_string($value) ? $value : '';
         }
 
-        static $balances = [];
-        if (!array_key_exists($userId, $balances)) {
-            $balances[$userId] = $this->ledger->balance($userId);
-        }
+        // When the page capture succeeded, a missing entry means "no live
+        // buckets" — the batched query answers the same WHERE as
+        // balance(), so absent equals zero and no per-row SUM is owed.
+        // Only listings that escaped the capture pay the per-user read.
+        $balances = $this->pageBalances();
+        $balance = $this->usersQuery !== null
+            ? ($balances[$userId] ?? 0)
+            : $this->ledger->balance($userId);
 
         $url = admin_url('admin.php?page=' . self::MENU_SLUG . '&user=' . $userId);
 
         return (string) wp_kses_post(
-            '<a href="' . esc_url($url) . '"><strong>' . (string) $balances[$userId] . '</strong></a>'
+            '<a href="' . esc_url($url) . '"><strong>' . (string) $balance . '</strong></a>'
         );
     }
 

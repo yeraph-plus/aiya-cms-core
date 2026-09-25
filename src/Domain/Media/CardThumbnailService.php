@@ -42,6 +42,18 @@ final class CardThumbnailService
 
     public const THUMB_KEY = '_thumb';
 
+    /**
+     * Failure marker for the cron batch: a post whose composite cannot be
+     * produced (no source image, external-only source, driver failure)
+     * writes this timestamped flag, and pendingIds() stops listing it.
+     * Without it the newest-first LIMIT keeps the same failing posts
+     * permanently at the queue head, starving everything behind them.
+     * The flag clears on a successful generateFor() — the save hook and
+     * the admin refresh/bulk action both route through it, so editing the
+     * post or an explicit refresh retries cleanly.
+     */
+    public const FAILED_KEY = '_thumb_failed';
+
     private const BATCH_SIZE = 10;
 
     /**
@@ -213,11 +225,23 @@ final class CardThumbnailService
      * Generates (file-reuse semantics) one derived size of an attachment
      * under thumbnail/{w}x{h}/ and returns its URL, or null when the
      * source is unusable or the driver fails.
+     *
+     * Results memoize per request under attachment+size: the outcome is
+     * deterministic for the request (file-reuse generation) and list
+     * reads repeat the same resolution per row, each paying the
+     * generator's stat round-trips.
      */
     private function ensureDerived(int $attachmentId, int $width, int $height): ?string
     {
+        $memoKey = $attachmentId . ':' . $width . 'x' . $height;
+        if (array_key_exists($memoKey, self::$derivedMemo)) {
+            return self::$derivedMemo[$memoKey];
+        }
+
         $source = get_attached_file($attachmentId);
         if (!is_string($source) || $source === '' || !is_file($source)) {
+            self::$derivedMemo[$memoKey] = null;
+
             return null;
         }
 
@@ -234,33 +258,45 @@ final class CardThumbnailService
             $height,
             SaveOptions::for($format, (int) $policy['quality'])
         );
-        if (!is_string($local)) {
-            return null;
-        }
 
-        return $this->paths->localToUrl($local);
+        self::$derivedMemo[$memoKey] = is_string($local) ? $this->paths->localToUrl($local) : null;
+
+        return self::$derivedMemo[$memoKey];
     }
+
+    /**
+     * Per-request derived-URL memo; see ensureDerived().
+     *
+     * @var array<string, string|null>
+     */
+    private static array $derivedMemo = [];
 
     /**
      * Cron worker: composites the card for one post from its source and
      * persists `_thumb`. False means "nothing to do" (no post, no local
-     * source or generation failed); the read side keeps serving the live
-     * source or placeholder meanwhile.
+     * source or generation failed) — the failure is flagged so the batch
+     * stops retrying it, and the read side keeps serving the live source
+     * or placeholder meanwhile.
      */
     public function generateFor(int $postId): bool
-    {        $post = get_post($postId);
+    {
+        $post = get_post($postId);
         if (!$post instanceof \WP_Post) {
             return false;
         }
 
         $source = $this->sourceUrl($post);
         if ($source === null) {
+            $this->flagFailed($postId);
+
             return false;
         }
         $local = $this->paths->urlToLocal($source);
         if ($local === null) {
             // External sources cannot composite locally; the live source
             // URL stays the thumbnail.
+            $this->flagFailed($postId);
+
             return false;
         }
 
@@ -272,13 +308,22 @@ final class CardThumbnailService
         $dest = $this->paths->coverAutoDir() . '/' . wp_date('YmdHis') . '_' . wp_rand(1000, 9999) . '.' . $format;
         $generated = (new ThumbnailGenerator($this->imagine))->generate($local, $dest, self::WIDTH, self::HEIGHT, SaveOptions::for($format, (int) $policy['quality']));
         if (!is_string($generated)) {
+            $this->flagFailed($postId);
+
             return false;
         }
 
         $relative = $this->paths->relativePath($generated);
         update_post_meta($postId, self::THUMB_KEY, wp_slash($relative !== null ? $relative : (string) $this->paths->localToUrl($generated)));
+        delete_post_meta($postId, self::FAILED_KEY);
 
         return true;
+    }
+
+    /** Records (or refreshes) the cron-batch failure flag for one post. */
+    private function flagFailed(int $postId): void
+    {
+        update_post_meta($postId, self::FAILED_KEY, (string) time());
     }
 
     /**
@@ -327,8 +372,11 @@ final class CardThumbnailService
     }
 
     /**
-     * Public posts of the card-bearing types that have no `_thumb` yet —
-     * the cron batch. Newest first, so fresh content is covered first.
+     * Public posts of the card-bearing types that have no `_thumb` yet and
+     * carry no failure flag — the cron batch. Newest first, so fresh
+     * content is covered first; flagged posts (unsourcesable, failed) stay
+     * out until a save or an explicit refresh retries them, otherwise the
+     * same LIMIT window would retry them forever.
      *
      * @return list<int>
      */
@@ -338,16 +386,20 @@ final class CardThumbnailService
         /** @var \wpdb $wpdb */
         $types = ['post', 'page', 'resource'];
         $placeholders = implode(', ', array_fill(0, count($types), '%s'));
-        // phpcs:disable WordPress.DB.PreparedSQL -- fixed posts/postmeta tables and a
-        // whitelist type list; the IN-list interpolation cannot pass through prepare.
+        // phpcs:disable WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders -- fixed posts/postmeta tables and a
+        // whitelist type list; the IN-list interpolation cannot pass through prepare and the spread hides the arg count.
         $rows = $wpdb->get_results($wpdb->prepare(
             // @phpstan-ignore argument.type (fixed posts-table interpolation)
             "SELECT p.ID FROM {$wpdb->posts} p
              LEFT JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = %s
              WHERE p.post_status = 'publish' AND p.post_type IN ($placeholders) AND m.meta_id IS NULL
+               AND NOT EXISTS (
+                   SELECT 1 FROM {$wpdb->postmeta} f
+                   WHERE f.post_id = p.ID AND f.meta_key = %s
+               )
              ORDER BY p.post_date DESC LIMIT %d",
             self::THUMB_KEY,
-            ...array_merge($types, [$limit])
+            ...array_merge($types, [self::FAILED_KEY, $limit])
         ), ARRAY_A);
         // phpcs:enable
         if (!is_array($rows)) {

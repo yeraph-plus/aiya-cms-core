@@ -43,6 +43,7 @@ final class MediaModule implements Module
     public const PAGE_SLUG = 'image';
     public const OPTION_NAME = 'aiya_core_image';
     public const CARD_CRON_HOOK = 'aiya_core_thumbnails_generate';
+    public const CARD_SINGLE_HOOK = 'aiya_core_thumbnail_generate_single';
 
     private MediaPaths|null $paths = null;
     private ThumbnailService|null $thumbnails = null;
@@ -86,20 +87,37 @@ final class MediaModule implements Module
                 $cards->generateFor($postId);
             }
         });
+        add_action(self::CARD_SINGLE_HOOK, function (int $postId, bool $force = false): void {
+            $cards = $this->cards();
+            $cards->refreshFor($postId, $force);
+            // Pre-warm the featured derivatives (640 card + 1000 render)
+            // and the default cover; both reuse an existing file, so
+            // repeats are a cheap is_file.
+            $post = get_post($postId);
+            if ($post instanceof \WP_Post) {
+                $cards->featuredDerivatives($post);
+            }
+            $cards->defaultDerivative();
+        });
         add_filter('aiya_core_scheduled_events', function (array $hooks): array {
             $hooks[] = self::CARD_CRON_HOOK;
+            $hooks[] = self::CARD_SINGLE_HOOK;
 
             return $hooks;
         });
         add_action('save_post', [$this, 'syncCardOnSave'], 100, 2);
-        add_action('delete_post', [$this, 'purgeCardOnDelete'], 10, 1);
+        // before_delete_post, not delete_post: core deletes all post meta
+        // BEFORE firing delete_post (WP 7.1 wp_delete_post), so the purge
+        // would read an already-empty `_thumb` and never remove the file.
+        add_action('before_delete_post', [$this, 'purgeCardOnDelete'], 10, 1);
     }
 
     /**
      * Post deletion removes the postmeta rows but not the generated card
      * file under aiya_thumbnail/cover/ — delete managed files so orphans do
      * not accumulate. Hand-edited or foreign `_thumb` values never match
-     * the managed naming and stay untouched.
+     * the managed naming and stay untouched. Runs on before_delete_post so
+     * `_thumb` is still readable (meta is gone by delete_post, see above).
      */
     public function purgeCardOnDelete(int $postId): void
     {
@@ -122,9 +140,25 @@ final class MediaModule implements Module
     private const CARD_TYPES = ['post', 'page', 'resource'];
 
     /**
-     * Card generation on publish saves: synchronous, so the composite is
-     * in place the moment the editor hits save — the five-minute cron
-     * stays as the fallback for anything a save path missed.
+     * The deferred single-post card worker: any pending event for the post
+     * is replaced, so rapid consecutive saves (or a save right after a
+     * bulk refresh) collapse into the newest one. `$force` rides through to
+     * refreshFor() — the bulk action regenerates existing cards, a save
+     * does not.
+     */
+    public function scheduleCardRefresh(int $postId, bool $force = false): void
+    {
+        wp_clear_scheduled_hook(self::CARD_SINGLE_HOOK, [$postId, $force]);
+        wp_schedule_single_event(time() + 30, self::CARD_SINGLE_HOOK, [$postId, $force]);
+    }
+
+    /**
+     * Card generation on publish saves is DEFERRED, not inline: the
+     * composite (card + hero renders + default cover) is Imagine work that
+     * can run to seconds on a large AVIF source, and the save request must
+     * not pay for it. A single event fires within ~30 seconds; until it
+     * runs, the API serves the live source URL (the same interim state the
+     * five-minute batch already covers).
      */
     public function syncCardOnSave(int $postId, \WP_Post $post): void
     {
@@ -137,15 +171,11 @@ final class MediaModule implements Module
 
         static $synced = [];
         if (isset($synced[$postId])) {
-            return; // meta round-trips re-fire save_post; one composite is enough
+            return; // meta round-trips re-fire save_post; one event is enough
         }
         $synced[$postId] = true;
 
-        $this->cards()->refreshFor($postId);
-        // Pre-warm the featured derivatives (640 card + 1000 render);
-        // both reuse an existing file, so repeats are a cheap is_file.
-        $featured = $this->cards()->featuredDerivatives($post);
-        $this->cards()->defaultDerivative();
+        $this->scheduleCardRefresh($postId);
     }
 
     public function settings(): void

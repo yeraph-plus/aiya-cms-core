@@ -32,6 +32,29 @@ final class EntitlementService
 
     private const MAX_CYCLES = 60;
 
+    /**
+     * Per-request queue memo keyed by holder. The queue read is the
+     * fan-in point of every membership question (isSponsor/isActive/
+     * expiresAt/window) and a single list row can ask it repeatedly —
+     * without the memo each member-gated list row re-runs the full
+     * queue SELECT. Writers drop their holder's entry so a settle-then-
+     * respond sequence inside one request stays truthful.
+     *
+     * @var array<int, list<array{tier_key:string, tier_name:string, cycle_days:int, credits_per_cycle:int, cycles_total:int, cycles_granted:int, starts_at:string, ends_at:string, status:string}>>
+     */
+    private static array $queueMemo = [];
+
+    /** Drops the memo for one holder (or all when no id is given). */
+    public static function forgetQueue(?int $userId = null): void
+    {
+        if ($userId === null) {
+            self::$queueMemo = [];
+
+            return;
+        }
+        unset(self::$queueMemo[$userId]);
+    }
+
     public function __construct(private LedgerService $ledger = new LedgerService())
     {
     }
@@ -101,6 +124,9 @@ final class EntitlementService
 
                 return new WP_Error('aiya_db_error', __('The membership could not be stored.', 'aiya-core'));
             }
+
+            // The queue grew: later reads in this request must see the row.
+            self::forgetQueue($userId);
         } finally {
             $release = $wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock);
             if (is_string($release)) {
@@ -205,6 +231,10 @@ final class EntitlementService
             }
         }
 
+        // Cycle counters moved: window()/nextGrantAt derive from
+        // cycles_granted, so the memo must not survive this run.
+        self::forgetQueue();
+
         return $advanced;
     }
 
@@ -217,6 +247,12 @@ final class EntitlementService
      */
     public function queueFor(int $userId): array
     {
+        if (isset(self::$queueMemo[$userId])) {
+            // Copy on the way out: callers treat the queue as read-only,
+            // and a shared reference would couple them through the memo.
+            return array_map(static fn (array $row): array => $row, self::$queueMemo[$userId]);
+        }
+
         global $wpdb;
         /** @var \wpdb $wpdb */
         $rows = $wpdb->get_results($wpdb->prepare(
@@ -240,6 +276,8 @@ final class EntitlementService
                 'status' => (string) $row['status'],
             ];
         }
+
+        self::$queueMemo[$userId] = $queue;
 
         return $queue;
     }

@@ -131,7 +131,7 @@ final class Plugin
         $this->addModule(new TermMoveBulkAction(new TermTaxonomyMover()));
         $this->addModule(new BlocksModule($this->settings));
         $this->addModule(new PartModule(new PartRegistry()));
-        $this->addModule(new SmiliesPicker(new SmiliesRegistry()));
+        $this->addModule(new SmiliesPicker(SmiliesRegistry::shared()));
         $this->addModule(new EditorPlugins());
         $this->addModule(new MetaboxAdmin($this->metadata));
         $this->addModule(new TypographyModule($this->settings, $this->metadata));
@@ -156,14 +156,16 @@ final class Plugin
         $this->addModule($media);
         $this->addModule(new CoverMetabox($media->covers()));
         $this->addModule(new PicBedPage($media->uploadProcessor(), $media->paths()));
-        $this->addModule(new CardThumbnailBulkAction($media->cards()));
+        $this->addModule(new CardThumbnailBulkAction(static function (int $postId, bool $force = false) use ($media): void {
+            $media->scheduleCardRefresh($postId, $force);
+        }));
 
         // The card part reads a post through the Api-layer projection, so
         // the composition root injects that renderer; it needs the media
         // stack above, hence the late registration.
         $postCards = new PostCardPresenter(
             new ContentQuery($visibility),
-            new PostPresenter($media->cards(), new SmiliesRenderer(new SmiliesRegistry()), $visibility)
+            new PostPresenter($media->cards(), new SmiliesRenderer(SmiliesRegistry::shared()), $visibility)
         );
         $this->addModule(new BuiltinParts(static fn (int $postId): string => $postCards->render($postId)));
 

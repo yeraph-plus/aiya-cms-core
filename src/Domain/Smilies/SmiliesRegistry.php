@@ -38,10 +38,24 @@ final class SmiliesRegistry
      */
     private ?array $packs = null;
 
+    /** The request-wide default instance; custom directories are test fixtures. */
+    private static ?self $shared = null;
+
     public function __construct(
         private readonly ?string $directory = null,
         private readonly ?string $baseUrl = null,
     ) {
+    }
+
+    /**
+     * The one instance every construction site shares: the scan already
+     * memoizes per instance, so separate `new` instances (admin picker,
+     * REST presenters, the card renderer) each rescanned or re-read the
+     * object cache for the same directory.
+     */
+    public static function shared(): self
+    {
+        return self::$shared ??= new self();
     }
 
     /**

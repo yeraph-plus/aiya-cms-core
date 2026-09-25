@@ -71,7 +71,7 @@ final class RestController implements Module
         $authentication = new TokenAuthentication($tokens);
         $authentication->register();
 
-        $smilies = new SmiliesRegistry();
+        $smilies = SmiliesRegistry::shared();
         $smiliesRenderer = new SmiliesRenderer($smilies);
 
         add_action('rest_api_init', function () use ($tokens, $authentication, $smiliesRenderer, $smilies): void {
