@@ -60,6 +60,7 @@ jobs:
 
             - name: Compile translations
               run: |
+                  sudo apt-get update -q && sudo apt-get install -y -q gettext
                   msgfmt --version | head -n1
                   msgfmt languages/aiya-core-zh_CN.po -o languages/aiya-core-zh_CN.mo
 
