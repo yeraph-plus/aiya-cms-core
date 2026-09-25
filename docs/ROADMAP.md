@@ -260,7 +260,7 @@ aiya-core/
 
 ### M4 数据契约与内容读取层（契约优先，前移）
 
-**契约权威与批次计划（2026-09-06 定，2026-09-08 修订）**：DTO 清单以前端契约 `aiya-astro-bulid/src/lib/aiya/contracts.ts`（v1，camelCase + `{data, meta}` 信封）为对照基准，落地语义见 [AIYA-astro DATA-MAP.md](../../../../aiya-astro-bulid/docs/DATA-MAP.md)；批次顺序 A0 契约对齐 ✅（0.13.0：后端信封/camelCase + 前端认证接线完成）→ B1 站点骨架+文章读取层 ✅（0.18.0：ContentQuery/MenuService/PostPresenter + /site /menus/primary /terms /posts /posts/{id}，DTO 与前端契约对齐）→ B5 公开作者页 ✅（0.19.0：GET /profiles/{slug}，favorites/membership 协议键兼容读，无 email/登录名泄漏）
+**契约权威与批次计划（2026-09-06 定，2026-09-08 修订）**：DTO 清单以前端契约 `aiya-astro-bulid/src/lib/aiya/contracts.ts`（v1，camelCase + `{data, meta}` 信封）为对照基准，落地语义原见旧前端仓 `aiya-astro-bulid/docs/DATA-MAP.md`（历史对照；**该仓 2026-09-25 已删除**，契约现以 `Api/Contract` + 快照为准）；批次顺序 A0 契约对齐 ✅（0.13.0：后端信封/camelCase + 前端认证接线完成）→ B1 站点骨架+文章读取层 ✅（0.18.0：ContentQuery/MenuService/PostPresenter + /site /menus/primary /terms /posts /posts/{id}，DTO 与前端契约对齐）→ B5 公开作者页 ✅（0.19.0：GET /profiles/{slug}，favorites/membership 协议键兼容读，无 email/登录名泄漏）
 - **C1 评论端点 ✅（0.20.0）**：GET+POST `aiya/core/v1/content/{id}/comments`——平铺列表（parentId、作者名+头像、纯文本 body、标准分页）+ 走 `wp_new_comment` 经典管线写入（preprocess_comment/flood/去重/审核判定全生效，响应带 approved/held 状态），匿名身份沿讨论设置、登录会话预填，覆盖 post/page/resource 三型；旧计划「评论走 /wp/v2/comments 原生路由」由此改道，wp-json 公开面完成全自有化前置。
 - **C2 页面与资源端点 ✅（0.21.0）**：`PublicType` 配置对象（每类型的 WP post types、前端 URL 形状、WP→契约分类法映射）参数化 ContentQuery/PostPresenter/路由对——`/pages`、`/pages/{id}`、`/resources`、`/resources/{id}` 与 `/posts` 共享同一代码路径；`/terms` 增 `type` 参数（resource_category 对契约答 category、五个扁平资源分类法答 tag）；三型皆仅 publish 可见、越权类型 404。
 - **C3 公开面封锁 ✅（0.22.0）**：Security 设置页新开关（默认开）——`rest_endpoints` 过滤器对无后端会话的访客剥掉 `aiya/core/v1` 之外全部路由（含我们自注册 CPT 在 /wp/v2 的自动展开），`rest_index` 同步收敛命名空间列表；豁免条件 `current_user_can('edit_posts')`（cookie 会话与应用密码 basic 认证保留全量 API，前台 bearer 访客仍限于契约）。**环境前置修复**：wp-config 补 `WP_ENVIRONMENT_TYPE=local`（卷内固化配置），应用密码在 HTTP 下恢复可用——这也是 Astro live 模式 basic 认证的先决条件。wp-json 公开面由此完整闭环：对外只有自有契约 API。——**M4 原生批次至此全部完成**。**2026-09-08 站长拍板**：旧 Tweet 域**取消**（不迁移、不做兼容，旧数据当死数据）；Discussion 域**重启**——以旧 Issue 原型重建为线程形轻社区（见下方 B2 小节，同日二次拍板）；Topic 域取消——「专题」重定义为**分类聚合模板**（无独立域/端点；标签聚合不沿用，计划改标签云页）；资源域数据源拍板为 **resource CPT**（先行重设计该类型 metabox，B3 才开放；重设计范围含 OpenList 嵌入块迁移——配置沿 postmeta 组键协议 `aya_box_oplist_client`、不建表，作用面 post→resource，详见 MIGRATION.md）；`/home` 聚合（B4）回归条件随之只剩 B3。前端契约修订（contracts.ts 移除 Topic/Discussion、`/topics` 改分类聚合、`/community` 退役、新增标签云页）随 B3 前端批执行。用户域批次（0.12.0）已完成。
@@ -502,7 +502,7 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 - 公开读 + 应用密码写；CORS：WP 核心 `rest_send_cors_headers` 现状为回显任意请求 Origin 且 `Allow-Credentials: true`（`wp-includes/rest-api.php`），浏览器直连端点（互动计数、将来评论）因此已跨域可用、无需自写——M5 将其**收紧为 Astro 来源白名单**，与评论加固层同批落地；ETag / Cache-Control；
 - **模板零件**（2026-09-08 拍板计划迁移）：旧经典编辑器短代码输入器重设计——后台保留录入 UI（录入规范化零件数据），API 对短代码类内容输出规范化零件结构（不渲染 HTML），Astro 侧建立逐零件解析渲染；零件契约形状随首个真实零件出现时定；
 - 产出面向前端的类型契约（OpenAPI 或从 Contract 生成 TS 类型脚本）；
-- Astro 侧在 `aiya-astro-bulid/` 初始化：SSR 模式（node adapter，保 SEO），`src/lib/aiya/`（类型化 API client，镜像 Contract、缓存）、`src/pages|components|layouts`；
+- Astro 侧 SSR 模式（node adapter，保 SEO），`src/lib/aiya/`（类型化 API client，镜像 Contract、缓存）、`src/pages|components|layouts`（落地于 `front-station/`，2026-09-19 初始化；初拟的旧 `aiya-astro-bulid/` 路线 2026-09-08 废弃、仓 2026-09-25 删除）；
 - 验收：Astro SSR 拉通首屏真实数据，直接命中 WP 域名时由 `aiya-headless` 空壳主题兜底，旧主题可整体退役。
 
 ### 菜单图标字段 —— ✅ 已完成（0.37.0）
