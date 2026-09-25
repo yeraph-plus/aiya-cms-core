@@ -70,12 +70,16 @@ jobs:
             - name: Stage the plugin package
               run: |
                   rm -rf build && mkdir -p build
-                  rsync -a ./ build/aiya-core/ \
+                  # The root themes/ directory only carries the aiya-headless
+                  # sync source for the working tree — a plugin package never
+                  # contains a theme, so it is stripped here.
+                  rsync -a ./ build/aiya-cms-core/ \
                       --exclude .git \
                       --exclude .github \
                       --exclude tests \
                       --exclude docs \
                       --exclude node_modules \
+                      --exclude themes \
                       --exclude .gitignore \
                       --exclude .gitattributes \
                       --exclude composer.json \
@@ -87,7 +91,7 @@ jobs:
                       --exclude '*.zip' \
                       --exclude '*.log' \
                       --exclude backend-snap.json
-                  find build/aiya-core -name '.DS_Store' -type f -delete
+                  find build/aiya-cms-core -name '.DS_Store' -type f -delete
 
             # Exactly one zip asset rides every release: the online-update
             # checker (Plugin Update Checker, GitHub mode) uses the release's
@@ -96,8 +100,8 @@ jobs:
             - name: Zip the package
               run: |
                   cd build
-                  zip -r -q "aiya-core-${{ steps.version.outputs.VERSION }}.zip" aiya-core
-                  unzip -l "aiya-core-${{ steps.version.outputs.VERSION }}.zip" | tail -n1
+                  zip -r -q "aiya-cms-core-${{ steps.version.outputs.VERSION }}.zip" aiya-cms-core
+                  unzip -l "aiya-cms-core-${{ steps.version.outputs.VERSION }}.zip" | tail -n1
 
             - name: Collect the changelog since the previous tag
               if: github.event_name == 'push'
@@ -135,9 +139,9 @@ jobs:
                       ${{ steps.changelog.outputs.CHANGELOG }}
 
                       #### Files
-                      - `aiya-core-${{ steps.version.outputs.VERSION }}.zip` → unzip into `wp-content/plugins/` (production `vendor/` and the compiled zh_CN `.mo` are inside; drop the root `composer.json`/`composer.lock` and dev configs)
+                      - `aiya-cms-core-${{ steps.version.outputs.VERSION }}.zip` → unzip into `wp-content/plugins/` (production `vendor/` and the compiled zh_CN `.mo` are inside; drop the root `composer.json`/`composer.lock` and dev configs)
 
-                      The online-update checker consumes this release's zip asset; the `aiya-headless` shell theme is not distributed here.
+                      The online-update checker consumes this release's zip asset; the `aiya-headless` shell theme (repo root `themes/`) is not distributed here.
                   generate_release_notes: true
                   files: |
                       build/*.zip
