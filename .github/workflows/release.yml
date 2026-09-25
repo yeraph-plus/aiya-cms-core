@@ -24,6 +24,9 @@ jobs:
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
+                  # Tag builds only receive the single tag being built by
+                  # default; the changelog step needs the previous tag too.
+                  fetch-tags: true
 
             - name: Resolve the version from the tag
               id: version
