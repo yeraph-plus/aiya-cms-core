@@ -33,7 +33,7 @@ final class CropGenerator extends ImagineAware
         }
 
         try {
-            $image = $this->coverCropCenter($this->imagine()->open($sourcePath), $width, $height);
+            $image = $this->coverCropCenter($this->prepareSource($this->imagine()->open($sourcePath), $width, $height), $width, $height);
             $image->save($destPath, SaveOptions::withDefaults(pathinfo($destPath, PATHINFO_EXTENSION), $saveOptions));
         } catch (Throwable) {
             return null;

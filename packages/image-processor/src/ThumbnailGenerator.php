@@ -52,7 +52,7 @@ final class ThumbnailGenerator extends ImagineAware
         }
 
         try {
-            $image = $this->imagine()->open($sourcePath);
+            $image = $this->prepareSource($this->imagine()->open($sourcePath), $width, $height);
             $image = $this->renderFrame($image, $width, $height);
             $image->save($destPath, SaveOptions::withDefaults(pathinfo($destPath, PATHINFO_EXTENSION), $saveOptions));
         } catch (Throwable) {

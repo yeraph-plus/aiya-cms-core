@@ -306,7 +306,23 @@ final class CardThumbnailService
             : 'jpg';
 
         $dest = $this->paths->coverAutoDir() . '/' . wp_date('YmdHis') . '_' . wp_rand(1000, 9999) . '.' . $format;
+
+        // A hard fatal mid-composite (execution timeout on a huge or
+        // animated source, OOM) skips every return path below: arm a
+        // shutdown marker so the post lands in the same _thumb_failed set
+        // the caught failures use — otherwise the cron batch re-picks the
+        // same poison post every five minutes and starves the queue head.
+        $completed = false;
+        register_shutdown_function(function () use ($postId, &$completed): void {
+            $error = error_get_last();
+            // @phpstan-ignore booleanNot.alwaysTrue (the shutdown runs after the caller sets the by-ref flag on every non-fatal path)
+            if (!$completed && is_array($error) && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+                $this->flagFailed($postId);
+            }
+        });
+
         $generated = (new ThumbnailGenerator($this->imagine))->generate($local, $dest, self::WIDTH, self::HEIGHT, SaveOptions::for($format, (int) $policy['quality']));
+        $completed = true;
         if (!is_string($generated)) {
             $this->flagFailed($postId);
 

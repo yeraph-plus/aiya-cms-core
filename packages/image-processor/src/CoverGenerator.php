@@ -58,7 +58,7 @@ final class CoverGenerator extends ImagineAware
         $palette = new RGB();
         $base = null;
         if ($spec->backgroundImage !== '' && is_file($spec->backgroundImage)) {
-            $base = $this->coverCropCenter($this->imagine()->open($spec->backgroundImage), $width, $height);
+            $base = $this->coverCropCenter($this->prepareSource($this->imagine()->open($spec->backgroundImage), $width, $height), $width, $height);
         }
         if ($base === null) {
             $base = $this->imagine()->create(new Box($width, $height), $palette->color('#000000', 100));
