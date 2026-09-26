@@ -47,8 +47,8 @@ schedules its crons. See `docs/ARCHITECTURE.md` for module wiring and
 
 ## Releases
 
-Releases are cut by pushing a version tag — `git tag v0.94.0-beta.1 && git
-push origin v0.94.0-beta.1`. The tag must equal the plugin header `Version:`
+Releases are cut by pushing a version tag — `git tag v0.95.0 && git
+push origin v0.95.0`. The tag must equal the plugin header `Version:`
 and the `AIYA_CORE_VERSION` constant; the workflow's gate step refuses
 to build otherwise. GitHub Actions (`.github/workflows/release.yml`)
 then:
