@@ -47,6 +47,7 @@ use Aiya\Core\Domain\Credit\CreditModule;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Domain\Identity\IdentityModule;
+use Aiya\Core\Domain\Mail\MailModule;
 use Aiya\Core\Domain\Notification\NotificationActions;
 use Aiya\Core\Domain\Notification\NotificationModule;
 use Aiya\Core\Domain\Operations\OperationsModule;
@@ -139,6 +140,7 @@ final class Plugin
 
         $this->addModule(new NotificationModule());
         $this->addModule(new NotificationActions());
+        $this->addModule(new MailModule());
         $this->addModule(new CreditModule($this->settings));
         $this->addModule(new CreditsPage());
         $this->addModule(new PaymentsAuditPage(new OrderService(), new MembershipService()));
