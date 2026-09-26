@@ -1357,3 +1357,9 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 
 **线上热修复**（不等新 release）：把仓库 `packages/*/composer.json` 8 个文件原位传回 `wp-content/plugins/aiya-cms-core/packages/` 各包根目录即恢复（惰性加载每请求重读，无需清缓存）；或整体替换为修好后的构建包。下一个 tag（0.95.0）起构建门禁生效，PUC 自动更新链路随之愈合。
 
+### 卡片生成执行超时修复：有界主图 + 致命错误兜底（2026-09-26，0.95.1 批次）—— ✅ 已完成
+
+**线上报错**：wp-cron 的 `aiya_core_thumbnail_generate_single` 在 Imagine Imagick `Effects->blur(16)` 帧上吃满 60 秒执行时限被杀（源图 `upload-pics/2025/03/19-*.jpg`，0.94.0-beta 后首批 cron 卡片任务）。**根因不在 blur**（blurComposite 第一步已把背景 cover 到 640×360）——60 秒被管线前段吃掉：全尺寸原图 open 解码 + **两次全尺寸 `copy()`**（背景/前景各一）+ **两次全尺寸 resize**（cover + contain），叠加 vendor 实锤：Imagine 的 Imagick `resize()` 遇多帧源 **coalesce 全部帧逐帧 resizeImage**——巨幅静图或动图都会顶穿预算；wp-cron 走 FPM 的 60s 限制。**连带缺陷**：硬致命错误绕过所有返回路径，`_thumb_failed` 标记写不出去，而 5 分钟批量 cron 的 `pendingIds` 只排除带标记帖——同一毒帖每 5 分钟重进队头反复炸，饿死后续 9 篇。
+
+**修复**：① `ImagineAware::prepareSource()`（三生成器共用基类）——动画源合帧到第 0 帧（`layers()->get(0)` 经 `getImage()` 抽出独立单帧对象，try/catch 兜不支持层检测的驱动）+ 长边超出目标 2 倍的源按比例**一次预缩**（2400×1600 之于 640×360 → 预算 1280）；此后全部拷贝/缩放/模糊都在小主图上进行，解码只付一次，任何输入尺寸都进不了执行预算的危险区。三个生成器（卡片/手动封面 `CoverGenerator::photoBackground`/头像 `CropGenerator`）全部接入；② `CardThumbnailService::generateFor` 装配 shutdown 兜底——fatal 型错误（E_ERROR/PARSE/CORE/COMPILE）且生成未完成时补写 `_thumb_failed`，毒帖与捕获型失败同集处理，队头饿死闭环；③ 新增 `ThumbnailGeneratorTest` 3 例（真实 GD 像素：2400×1600 横图 cover、1600×2400 竖图模糊合成、800×600 免预缩，输出一律 640×360）。phpunit 405/1260、phpstan（`booleanNot.alwaysTrue` 按仓库先例带原因豁免——by-ref 闭包时序误判）、phpcs、parallel-lint 全绿。**运行时实测**：4000×2600 探针源 `generateFor` **0.92s** 落盘 6.8KB 无失败标记，删帖 purge 清文件，探针清零；顺手清了 4 个无引用孤儿卡片文件。
+
