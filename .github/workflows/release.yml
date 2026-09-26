@@ -1,6 +1,6 @@
 name: Release
 
-# Tag a release: `git tag v0.94.0-beta.1 && git push origin v0.94.0-beta.1`.
+# Tag a release: `git tag v0.95.0 && git push origin v0.95.0`.
 # The tag must equal the plugin header `Version:` and the
 # AIYA_CORE_VERSION constant — the gate step fails otherwise.
 # workflow_dispatch builds both zips and uploads them as a dry-run
@@ -72,7 +72,14 @@ jobs:
                   rm -rf build && mkdir -p build
                   # The root themes/ directory only carries the aiya-headless
                   # sync source for the working tree — a plugin package never
-                  # contains a theme, so it is stripped here.
+                  # contains a theme, so it is stripped here. The root-only
+                  # dev files are anchored with a leading slash: an unanchored
+                  # rsync pattern matches at every depth, and a bare
+                  # `composer.json` stripped the packages' own manifests —
+                  # the only source the Runtime/Packages lazy autoloader
+                  # reads — so the shipped plugin could not load a single
+                  # Aiya\Infra\* class (caught live: every save under an
+                  # ID-slug mode died on the missing IdSlugEncoder).
                   rsync -a ./ build/aiya-cms-core/ \
                       --exclude .git \
                       --exclude .github \
@@ -82,15 +89,25 @@ jobs:
                       --exclude themes \
                       --exclude .gitignore \
                       --exclude .gitattributes \
-                      --exclude composer.json \
-                      --exclude composer.lock \
-                      --exclude phpunit.xml.dist \
-                      --exclude phpcs.xml.dist \
-                      --exclude phpstan.neon.dist \
-                      --exclude phpstan-bootstrap.php \
+                      --exclude /composer.json \
+                      --exclude /composer.lock \
+                      --exclude /phpunit.xml.dist \
+                      --exclude /phpcs.xml.dist \
+                      --exclude /phpstan.neon.dist \
+                      --exclude /phpstan-bootstrap.php \
+                      --exclude /backend-snap.json \
                       --exclude '*.zip' \
-                      --exclude '*.log' \
-                      --exclude backend-snap.json
+                      --exclude '*.log'
+                  # The package manifests are the lazy autoloader's only
+                  # source of truth; gate the build on them surviving staging.
+                  MANIFESTS=$(find packages -maxdepth 2 -name composer.json | wc -l)
+                  STAGED=$(find build/aiya-cms-core/packages -maxdepth 2 -name composer.json | wc -l)
+                  echo "package manifests: repo=$MANIFESTS staged=$STAGED"
+                  if [ "$MANIFESTS" -eq 0 ] || [ "$MANIFESTS" != "$STAGED" ]; then
+                      echo "::error::package composer.json manifests missing from the staged plugin — the lazy Aiya\\Infra\\* autoloader would ship dead"
+                      exit 1
+                  fi
+                  test -f build/aiya-cms-core/packages/slug-toolkit/src/IdSlugEncoder.php
                   find build/aiya-cms-core -name '.DS_Store' -type f -delete
 
             # Exactly one zip asset rides every release: the online-update

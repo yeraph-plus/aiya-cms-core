@@ -64,8 +64,25 @@ final class Packages
     private static function discover(): array
     {
         $map = [];
-        $manifests = glob(dirname(__DIR__, 2) . '/packages/*/composer.json');
+        $root = dirname(__DIR__, 2) . '/packages';
+        $manifests = glob($root . '/*/composer.json');
         $manifests = is_array($manifests) ? $manifests : [];
+
+        // A shipped plugin whose packages lost their manifests (the 0.95.0
+        // release-build incident: the rsync manifest exclude also matched
+        // inside packages/) leaves every Aiya\Infra\* class unloaded, which
+        // surfaces far from the cause as a bare "class not found" fatal.
+        // Operator diagnostics per ARCHITECTURE's error-handling conventions.
+        $directories = glob($root . '/*');
+        $directories = is_array($directories) ? array_filter($directories, 'is_dir') : [];
+        if ($directories !== [] && $manifests === [] && defined('WP_DEBUG') && WP_DEBUG) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+            error_log(sprintf(
+                '[aiya-core] %d package directories under packages/ but no composer.json manifests found — the lazy Aiya\Infra\* autoloader has nothing to map and every package class will fail to load.',
+                count($directories)
+            ));
+        }
+
         foreach ($manifests as $manifest) {
             if (!is_readable($manifest)) {
                 continue;
