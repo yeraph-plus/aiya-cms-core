@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: AIYA CMS Core
+ * Plugin Name: AIYA CMS - Headless Core
  * Description: Headless-first administration and content framework for AIYA CMS.
  * Version: 0.95.1
  * Requires at least: 6.4
  * Requires PHP: 8.5
- * Author: Yeraph Studio
+ * Author: Yeraph
  * License: GPL-3.0-or-later
  * Update URI: false
  * Text Domain: aiya-core
