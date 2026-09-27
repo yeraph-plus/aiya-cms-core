@@ -3073,3 +3073,106 @@ msgstr "可选的标题行链接覆盖值；留空时按类型自动派生归档
 #: src/Admin/CardThumbnailBulkAction.php
 msgid "%d item queued for a thumbnail refresh."
 msgstr "%d 项已加入缩略图刷新队列。"
+
+#: src/Domain/DevTools/DevToolsModule.php:123
+#: src/Domain/DevTools/DevToolsModule.php:124
+#: src/Domain/DevTools/SearchReplacePage.php:45
+msgid "Search & Replace"
+msgstr "搜索替换"
+
+#: src/Domain/DevTools/SearchReplacePage.php:40
+#: src/Domain/DevTools/SearchReplacePage.php:243
+msgid "You are not allowed to run search and replace."
+msgstr "您无权执行搜索替换。"
+
+#: src/Domain/DevTools/SearchReplacePage.php:46
+msgid "Direct wp_posts search and replace: query first, then execute. Raw SQL — no hooks fire, no revisions, no modified-date bump, meta and options untouched. Back up the database before executing; the match is case-sensitive and cannot be undone."
+msgstr "直接对 wp_posts 做搜索替换：先仅查询预览，再执行。原生 SQL——不触发钩子、不产生修订、不更新修改时间，不碰 meta 与选项。匹配区分大小写且不可撤销，执行前请备份数据库。"
+
+#: src/Domain/DevTools/SearchReplacePage.php:64
+msgid "Search & replace"
+msgstr "搜索替换"
+
+#: src/Domain/DevTools/SearchReplacePage.php:71
+msgid "Search"
+msgstr "搜索"
+
+#: src/Domain/DevTools/SearchReplacePage.php:74
+msgid "Case-sensitive, matched byte-exactly."
+msgstr "区分大小写，按字节精确匹配。"
+
+#: src/Domain/DevTools/SearchReplacePage.php:78
+msgid "Replace with"
+msgstr "替换为"
+
+#: src/Domain/DevTools/SearchReplacePage.php:81
+msgid "Leave empty to remove every occurrence of the search string."
+msgstr "留空则删除搜索串的所有出现。"
+
+#: src/Domain/DevTools/SearchReplacePage.php:85
+msgid "Columns"
+msgstr "目标列"
+
+#: src/Domain/DevTools/SearchReplacePage.php:93
+msgid "At least one; defaults to post_content."
+msgstr "至少选一列；默认 post_content。"
+
+#: src/Domain/DevTools/SearchReplacePage.php:97
+msgid "Post types"
+msgstr "文章类型"
+
+#: src/Domain/DevTools/SearchReplacePage.php:105
+msgid "Empty selection means every public type."
+msgstr "留空表示全部公开类型。"
+
+#: src/Domain/DevTools/SearchReplacePage.php:109
+msgid "Statuses"
+msgstr "状态范围"
+
+#: src/Domain/DevTools/SearchReplacePage.php:112
+msgid "Published only"
+msgstr "仅已发布"
+
+#: src/Domain/DevTools/SearchReplacePage.php:113
+msgid "All real statuses (no trash, no auto-draft)"
+msgstr "全部真实状态（不含回收站与自动草稿）"
+
+#: src/Domain/DevTools/SearchReplacePage.php:118
+msgid "Query only"
+msgstr "仅查询"
+
+#: src/Domain/DevTools/SearchReplacePage.php:160
+msgid "Preview for \"%s\""
+msgstr "“%s” 的预览"
+
+#: src/Domain/DevTools/SearchReplacePage.php:167
+msgid "No matches in the selected columns, types and statuses."
+msgstr "所选列、类型与状态下没有匹配。"
+
+#: src/Domain/DevTools/SearchReplacePage.php:187
+msgid "Sample matches (newest first)"
+msgstr "匹配示例（新到旧）"
+
+#: src/Domain/DevTools/SearchReplacePage.php:216
+msgid "Statement"
+msgstr "执行语句"
+
+#: src/Domain/DevTools/SearchReplacePage.php:233
+msgid "Run the replace on the posts table now? This cannot be undone."
+msgstr "现在就对 posts 表执行替换？此操作不可撤销。"
+
+#: src/Domain/DevTools/SearchReplacePage.php:233
+msgid "Execute replace"
+msgstr "执行替换"
+
+#: src/Domain/DevTools/SearchReplacePage.php:288
+msgid "Updated %d rows in the posts table."
+msgstr "已更新 posts 表 %d 行。"
+
+#: src/Domain/DevTools/SearchReplacePage.php:291
+msgid "Nothing matched — nothing was updated."
+msgstr "没有匹配项——未做任何更新。"
+
+#: src/Domain/DevTools/SearchReplacePage.php:292
+msgid "The search string is empty."
+msgstr "搜索串为空。"

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS Core 0.94.0\n"
+"Project-Id-Version: AIYA CMS Core 0.95.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-25T03:32:06+00:00\n"
+"POT-Creation-Date: 2026-09-27T06:52:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -235,151 +235,151 @@ msgstr ""
 msgid "Cover generated."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:122
-#: src/Admin/CreditsPage.php:123
-#: src/Admin/CreditsPage.php:144
-#: src/Admin/CreditsPage.php:250
+#: src/Admin/CreditsPage.php:127
+#: src/Admin/CreditsPage.php:128
+#: src/Admin/CreditsPage.php:149
+#: src/Admin/CreditsPage.php:255
 #: src/Domain/Content/FrontendModule.php:186
 msgid "Credit ledger"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:134
-#: src/Admin/CreditsPage.php:324
-#: src/Admin/CreditsPage.php:356
+#: src/Admin/CreditsPage.php:139
+#: src/Admin/CreditsPage.php:329
+#: src/Admin/CreditsPage.php:361
 msgid "You are not allowed to manage credits."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:145
+#: src/Admin/CreditsPage.php:150
 msgid "Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:199
+#: src/Admin/CreditsPage.php:204
 msgid "Manual grant"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:206
+#: src/Admin/CreditsPage.php:211
 #: src/Admin/PaymentsAuditPage.php:143
 msgid "User"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:209
-#: src/Admin/CreditsPage.php:255
+#: src/Admin/CreditsPage.php:214
+#: src/Admin/CreditsPage.php:260
 #: src/Admin/PaymentsAuditPage.php:126
 msgid "Type a username or name…"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:215
-#: src/Admin/CreditsPage.php:272
+#: src/Admin/CreditsPage.php:220
+#: src/Admin/CreditsPage.php:277
 #: src/Admin/PaymentsAuditPage.php:146
 msgid "Amount"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:221
+#: src/Admin/CreditsPage.php:226
 msgid "Validity (days)"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:224
+#: src/Admin/CreditsPage.php:229
 msgid "The bucket dies when this expires."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:228
+#: src/Admin/CreditsPage.php:233
 msgid "Note"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:231
+#: src/Admin/CreditsPage.php:236
 msgid "Optional; recorded in the ledger reference."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:235
+#: src/Admin/CreditsPage.php:240
 msgid "Grant credits"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:259
+#: src/Admin/CreditsPage.php:264
 msgid "View ledger"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:263
+#: src/Admin/CreditsPage.php:268
 msgid "Pick a user to browse their grants and spends."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:268
+#: src/Admin/CreditsPage.php:273
 #: src/Admin/PaymentsAuditPage.php:142
 msgid "Time"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:269
+#: src/Admin/CreditsPage.php:274
 msgid "Direction"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:270
+#: src/Admin/CreditsPage.php:275
 #: src/Admin/PaymentsAuditPage.php:149
 #: src/Admin/PicBedPage.php:286
 msgid "Source"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:271
+#: src/Admin/CreditsPage.php:276
 msgid "Reference"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:273
+#: src/Admin/CreditsPage.php:278
 msgid "Bucket left"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:274
+#: src/Admin/CreditsPage.php:279
 msgid "Expires"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:279
+#: src/Admin/CreditsPage.php:284
 msgid "No ledger entries for this user yet."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:330
+#: src/Admin/CreditsPage.php:335
 #: src/Domain/Credit/LedgerService.php:105
 #: src/Domain/Credit/LedgerService.php:178
 msgid "The credit holder does not exist."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:344
+#: src/Admin/CreditsPage.php:349
 msgid "An admin grant with this exact note already exists for this user."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:402
+#: src/Admin/CreditsPage.php:407
 msgid "Credits"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:437
+#: src/Admin/CreditsPage.php:448
 msgid "Credits granted."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:438
+#: src/Admin/CreditsPage.php:449
 #: src/Admin/DiscussionModerationPage.php:300
 #: src/Admin/DiscussionModerationPage.php:335
 #: src/Admin/DiscussionModerationPage.php:511
 msgid "The operation failed."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:463
+#: src/Admin/CreditsPage.php:474
 #: src/Admin/OperationsPage.php:337
 #: src/Domain/Credit/CreditModule.php:80
 msgid "Check-in"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:464
+#: src/Admin/CreditsPage.php:475
 msgid "Redeem code"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:465
+#: src/Admin/CreditsPage.php:476
 #: src/Admin/OperationsPage.php:338
 #: src/Admin/PaymentsAuditPage.php:236
 #: src/Domain/Sponsorship/SponsorshipModule.php:79
 msgid "Membership"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:466
+#: src/Admin/CreditsPage.php:477
 msgid "Admin grant"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:467
+#: src/Admin/CreditsPage.php:478
 msgid "Download"
 msgstr ""
 
@@ -1934,7 +1934,7 @@ msgid "One row per filing shown in the footer, e.g. ICP or public security."
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:139
-#: src/Modules/MediaModule.php:250
+#: src/Modules/MediaModule.php:256
 msgid "Text"
 msgstr ""
 
@@ -2222,8 +2222,8 @@ msgid "You are not allowed to manage scheduled events."
 msgstr ""
 
 #: src/Domain/DevTools/CronsPage.php:45
-#: src/Domain/DevTools/DevToolsModule.php:88
-#: src/Domain/DevTools/DevToolsModule.php:89
+#: src/Domain/DevTools/DevToolsModule.php:91
+#: src/Domain/DevTools/DevToolsModule.php:92
 msgid "Crons"
 msgstr ""
 
@@ -2345,33 +2345,39 @@ msgstr ""
 msgid "Removed %d orphaned events."
 msgstr ""
 
-#: src/Domain/DevTools/DevToolsModule.php:70
-#: src/Domain/DevTools/DevToolsModule.php:71
+#: src/Domain/DevTools/DevToolsModule.php:73
+#: src/Domain/DevTools/DevToolsModule.php:74
 msgid "Dev Tools"
 msgstr ""
 
-#: src/Domain/DevTools/DevToolsModule.php:80
-#: src/Domain/DevTools/DevToolsModule.php:81
+#: src/Domain/DevTools/DevToolsModule.php:83
+#: src/Domain/DevTools/DevToolsModule.php:84
 #: src/Domain/DevTools/ServerStatusPage.php:39
 msgid "Server Status"
 msgstr ""
 
-#: src/Domain/DevTools/DevToolsModule.php:96
-#: src/Domain/DevTools/DevToolsModule.php:97
+#: src/Domain/DevTools/DevToolsModule.php:99
+#: src/Domain/DevTools/DevToolsModule.php:100
 #: src/Domain/DevTools/RewritesPage.php:33
 msgid "Rewrites"
 msgstr ""
 
-#: src/Domain/DevTools/DevToolsModule.php:104
-#: src/Domain/DevTools/DevToolsModule.php:105
+#: src/Domain/DevTools/DevToolsModule.php:107
+#: src/Domain/DevTools/DevToolsModule.php:108
 #: src/Domain/DevTools/ShortcodesPage.php:33
 msgid "Shortcodes"
 msgstr ""
 
-#: src/Domain/DevTools/DevToolsModule.php:112
-#: src/Domain/DevTools/DevToolsModule.php:113
+#: src/Domain/DevTools/DevToolsModule.php:115
+#: src/Domain/DevTools/DevToolsModule.php:116
 #: src/Domain/DevTools/IconsPage.php:27
 msgid "Icons"
+msgstr ""
+
+#: src/Domain/DevTools/DevToolsModule.php:123
+#: src/Domain/DevTools/DevToolsModule.php:124
+#: src/Domain/DevTools/SearchReplacePage.php:45
+msgid "Search & Replace"
 msgstr ""
 
 #: src/Domain/DevTools/IconsPage.php:22
@@ -2656,6 +2662,107 @@ msgstr ""
 #: src/Domain/DevTools/SamplePage.php:251
 #: src/Domain/Sponsorship/SponsorshipModule.php:100
 msgid "Enabled"
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:40
+#: src/Domain/DevTools/SearchReplacePage.php:243
+msgid "You are not allowed to run search and replace."
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:46
+msgid "Direct wp_posts search and replace: query first, then execute. Raw SQL — no hooks fire, no revisions, no modified-date bump, meta and options untouched. Back up the database before executing; the match is case-sensitive and cannot be undone."
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:64
+msgid "Search & replace"
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:71
+msgid "Search"
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:74
+msgid "Case-sensitive, matched byte-exactly."
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:78
+msgid "Replace with"
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:81
+msgid "Leave empty to remove every occurrence of the search string."
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:85
+msgid "Columns"
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:93
+msgid "At least one; defaults to post_content."
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:97
+msgid "Post types"
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:105
+msgid "Empty selection means every public type."
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:109
+msgid "Statuses"
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:112
+msgid "Published only"
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:113
+msgid "All real statuses (no trash, no auto-draft)"
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:118
+msgid "Query only"
+msgstr ""
+
+#. translators: %s: search string.
+#: src/Domain/DevTools/SearchReplacePage.php:160
+#, php-format
+msgid "Preview for \"%s\""
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:167
+msgid "No matches in the selected columns, types and statuses."
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:187
+msgid "Sample matches (newest first)"
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:216
+msgid "Statement"
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:233
+msgid "Run the replace on the posts table now? This cannot be undone."
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:233
+msgid "Execute replace"
+msgstr ""
+
+#. translators: %d: number of updated rows
+#: src/Domain/DevTools/SearchReplacePage.php:288
+#, php-format
+msgid "Updated %d rows in the posts table."
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:291
+msgid "Nothing matched — nothing was updated."
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:292
+msgid "The search string is empty."
 msgstr ""
 
 #: src/Domain/DevTools/ServerStatusPage.php:34
@@ -4102,160 +4209,160 @@ msgstr ""
 msgid "Every five minutes"
 msgstr ""
 
-#: src/Modules/MediaModule.php:179
+#: src/Modules/MediaModule.php:185
 msgid "Image processor"
 msgstr ""
 
-#: src/Modules/MediaModule.php:180
-#: src/Modules/MediaModule.php:249
+#: src/Modules/MediaModule.php:186
+#: src/Modules/MediaModule.php:255
 msgid "Image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:187
+#: src/Modules/MediaModule.php:193
 msgid "Image processing"
 msgstr ""
 
-#: src/Modules/MediaModule.php:193
+#: src/Modules/MediaModule.php:199
 msgid "Media library takeover"
 msgstr ""
 
-#: src/Modules/MediaModule.php:194
+#: src/Modules/MediaModule.php:200
 msgid "Run uploads through the image processor: scale, watermark, format conversion"
 msgstr ""
 
-#: src/Modules/MediaModule.php:195
+#: src/Modules/MediaModule.php:201
 msgid "WebP/AVIF saving requires the libwebp/libavif PHP libraries; unsupported targets fall back to the source format."
 msgstr ""
 
-#: src/Modules/MediaModule.php:201
+#: src/Modules/MediaModule.php:207
 msgid "Save format"
 msgstr ""
 
-#: src/Modules/MediaModule.php:204
+#: src/Modules/MediaModule.php:210
 msgid "Keep source format"
 msgstr ""
 
-#: src/Modules/MediaModule.php:205
+#: src/Modules/MediaModule.php:211
 msgid "JPG"
 msgstr ""
 
-#: src/Modules/MediaModule.php:206
+#: src/Modules/MediaModule.php:212
 msgid "WebP"
 msgstr ""
 
-#: src/Modules/MediaModule.php:207
+#: src/Modules/MediaModule.php:213
 msgid "AVIF"
 msgstr ""
 
-#: src/Modules/MediaModule.php:213
+#: src/Modules/MediaModule.php:219
 msgid "Max image width"
 msgstr ""
 
-#: src/Modules/MediaModule.php:214
+#: src/Modules/MediaModule.php:220
 msgid "Uploads wider than this are scaled down; 0 disables the limit."
 msgstr ""
 
-#: src/Modules/MediaModule.php:222
+#: src/Modules/MediaModule.php:228
 msgid "Image quality"
 msgstr ""
 
-#: src/Modules/MediaModule.php:223
+#: src/Modules/MediaModule.php:229
 msgid "Save quality from 0 to 100; PNG maps it to the compression level."
 msgstr ""
 
-#: src/Modules/MediaModule.php:232
+#: src/Modules/MediaModule.php:238
 msgid "Font file"
 msgstr ""
 
-#: src/Modules/MediaModule.php:233
+#: src/Modules/MediaModule.php:239
 msgid "Content URL, content-relative path or absolute path for cover titles and text watermarks. Leave empty to use the bundled font."
 msgstr ""
 
-#: src/Modules/MediaModule.php:239
+#: src/Modules/MediaModule.php:245
 msgid "Watermark"
 msgstr ""
 
-#: src/Modules/MediaModule.php:245
+#: src/Modules/MediaModule.php:251
 msgid "Watermark mode"
 msgstr ""
 
-#: src/Modules/MediaModule.php:248
+#: src/Modules/MediaModule.php:254
 msgid "Disabled"
 msgstr ""
 
-#: src/Modules/MediaModule.php:256
+#: src/Modules/MediaModule.php:262
 msgid "Watermark position"
 msgstr ""
 
-#: src/Modules/MediaModule.php:259
+#: src/Modules/MediaModule.php:265
 msgid "Center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:260
+#: src/Modules/MediaModule.php:266
 msgid "Center left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:261
+#: src/Modules/MediaModule.php:267
 msgid "Center right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:262
+#: src/Modules/MediaModule.php:268
 msgid "Center top"
 msgstr ""
 
-#: src/Modules/MediaModule.php:263
+#: src/Modules/MediaModule.php:269
 msgid "Center bottom"
 msgstr ""
 
-#: src/Modules/MediaModule.php:264
+#: src/Modules/MediaModule.php:270
 msgid "Top right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:265
+#: src/Modules/MediaModule.php:271
 msgid "Top left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:266
+#: src/Modules/MediaModule.php:272
 msgid "Top center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:267
+#: src/Modules/MediaModule.php:273
 msgid "Bottom right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:268
+#: src/Modules/MediaModule.php:274
 msgid "Bottom left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:269
+#: src/Modules/MediaModule.php:275
 msgid "Bottom center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:275
+#: src/Modules/MediaModule.php:281
 msgid "Watermark image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:276
+#: src/Modules/MediaModule.php:282
 msgid "Media library attachment used in image mode; its own alpha is kept as-is."
 msgstr ""
 
-#: src/Modules/MediaModule.php:282
+#: src/Modules/MediaModule.php:288
 msgid "Watermark text"
 msgstr ""
 
-#: src/Modules/MediaModule.php:288
+#: src/Modules/MediaModule.php:294
 msgid "Watermark font size"
 msgstr ""
 
-#: src/Modules/MediaModule.php:296
+#: src/Modules/MediaModule.php:302
 msgid "Watermark opacity (text)"
 msgstr ""
 
-#: src/Modules/MediaModule.php:297
+#: src/Modules/MediaModule.php:303
 msgid "0 = fully transparent, 100 = fully opaque; applies to the text watermark only."
 msgstr ""
 
-#: src/Modules/MediaModule.php:391
+#: src/Modules/MediaModule.php:397
 msgid "Image processing failed; the upload was cancelled."
 msgstr ""
 

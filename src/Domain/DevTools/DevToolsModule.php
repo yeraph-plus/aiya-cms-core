@@ -28,6 +28,7 @@ final class DevToolsModule implements Module
     private RewritesPage $rewrites;
     private ShortcodesPage $shortcodes;
     private IconsPage $icons;
+    private SearchReplacePage $searchReplace;
     private SamplePage $sample;
 
     public function __construct(Registry $registry)
@@ -37,6 +38,7 @@ final class DevToolsModule implements Module
         $this->rewrites = new RewritesPage();
         $this->shortcodes = new ShortcodesPage();
         $this->icons = new IconsPage();
+        $this->searchReplace = new SearchReplacePage();
         $this->sample = new SamplePage($registry);
     }
 
@@ -54,6 +56,7 @@ final class DevToolsModule implements Module
         $this->rewrites->register();
         $this->shortcodes->register();
         $this->icons->register();
+        $this->searchReplace->register();
         $this->sample->register();
     }
 
@@ -114,6 +117,14 @@ final class DevToolsModule implements Module
             'manage_options',
             'aiya-core-devtools-icons',
             [$this->icons, 'render']
+        );
+        add_submenu_page(
+            self::MENU_SLUG,
+            __('Search & Replace', 'aiya-core'),
+            __('Search & Replace', 'aiya-core'),
+            'manage_options',
+            'aiya-core-devtools-search-replace',
+            [$this->searchReplace, 'render']
         );
     }
 
