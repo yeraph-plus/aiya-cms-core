@@ -1,23 +1,22 @@
-# Copyright (C) 2026 Yeraph Studio
+# Copyright (C) 2026 Yeraph
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS Core 0.95.1\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.96.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-27T07:56:08+00:00\n"
+"POT-Creation-Date: 2026-09-27T10:49:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
 
 #. Plugin Name of the plugin
 #: aiya-core.php:3
-#: src/Domain/Content/FrontendModule.php:38
-msgid "AIYA CMS Core"
+msgid "AIYA CMS - Headless Core"
 msgstr ""
 
 #. Description of the plugin
@@ -27,7 +26,7 @@ msgstr ""
 
 #. Author of the plugin
 #: aiya-core.php:8
-msgid "Yeraph Studio"
+msgid "Yeraph"
 msgstr ""
 
 #: src/Admin/CardThumbnailBulkAction.php:68
@@ -54,120 +53,6 @@ msgstr[1] ""
 msgid "No thumbnails were refreshed."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:43
-#: src/Admin/ConvertCodesPage.php:44
-#: src/Admin/ConvertCodesPage.php:62
-msgid "Redemption codes"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:54
-#: src/Admin/ConvertCodesPage.php:182
-#: src/Admin/ConvertCodesPage.php:209
-msgid "You are not allowed to manage redemption codes."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:63
-msgid "Membership gift codes users redeem themselves on the front end. Codes are single-use; redeeming queues the tier entitlement like a paid order and credits arrive per cycle."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:67
-msgid "Generate codes"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:73
-msgid "Quantity"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:77
-#: src/Admin/ConvertCodesPage.php:126
-#: src/Admin/PaymentsAuditPage.php:145
-msgid "Tier"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:82
-msgid "— define tiers first —"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:91
-msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:95
-#: src/Admin/ConvertCodesPage.php:127
-#: src/Admin/PaymentsAuditPage.php:147
-msgid "Cycles"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:98
-msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:102
-msgid "Generate"
-msgstr ""
-
-#. translators: %s: number of stored codes.
-#: src/Admin/ConvertCodesPage.php:110
-#, php-format
-msgid "Stored codes (%s)"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:115
-msgid "Delete ALL codes? This cannot be undone."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:118
-msgid "Delete all"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:125
-msgid "Code"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:128
-#: src/Admin/DiscussionModerationPage.php:201
-#: src/Admin/PaymentsAuditPage.php:148
-msgid "Status"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:129
-msgid "Redeemed by"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:130
-msgid "Redeemed at"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:131
-#: src/Admin/NotificationPage.php:113
-msgid "Created"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:136
-msgid "No codes stored."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:144
-msgid "Redeemed"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:144
-msgid "Unused"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:222
-msgid "Codes generated."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:223
-msgid "All codes deleted."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:224
-#: src/Admin/NotificationPage.php:217
-msgid "The operation failed — check the values and try again."
-msgstr ""
-
 #: src/Admin/CoverMetabox.php:41
 msgid "Post cover"
 msgstr ""
@@ -191,9 +76,9 @@ msgstr ""
 #: src/Admin/CoverMetabox.php:72
 #: src/Admin/DiscussionModerationPage.php:125
 #: src/Admin/DiscussionModerationPage.php:187
-#: src/Admin/NotificationPage.php:81
-#: src/Admin/NotificationPage.php:109
 #: src/Domain/Content/BlocksModule.php:197
+#: src/Domain/Notification/NotificationPage.php:79
+#: src/Domain/Notification/NotificationPage.php:107
 #: src/Domain/Parts/BuiltinParts.php:118
 #: src/Domain/Parts/BuiltinParts.php:129
 msgid "Title"
@@ -221,8 +106,8 @@ msgstr ""
 
 #: src/Admin/CoverMetabox.php:112
 #: src/Admin/FileServeMetabox.php:294
-#: src/Admin/SendMailPage.php:197
 #: src/Domain/Identity/AvatarModule.php:313
+#: src/Domain/Mail/SendMailPage.php:197
 msgid "Request failed."
 msgstr ""
 
@@ -233,154 +118,6 @@ msgstr ""
 
 #: src/Admin/CoverMetabox.php:143
 msgid "Cover generated."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:127
-#: src/Admin/CreditsPage.php:128
-#: src/Admin/CreditsPage.php:149
-#: src/Admin/CreditsPage.php:255
-#: src/Domain/Content/FrontendModule.php:186
-msgid "Credit ledger"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:139
-#: src/Admin/CreditsPage.php:329
-#: src/Admin/CreditsPage.php:361
-msgid "You are not allowed to manage credits."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:150
-msgid "Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:204
-msgid "Manual grant"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:211
-#: src/Admin/PaymentsAuditPage.php:143
-msgid "User"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:214
-#: src/Admin/CreditsPage.php:260
-#: src/Admin/PaymentsAuditPage.php:126
-msgid "Type a username or name…"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:220
-#: src/Admin/CreditsPage.php:277
-#: src/Admin/PaymentsAuditPage.php:146
-msgid "Amount"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:226
-msgid "Validity (days)"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:229
-msgid "The bucket dies when this expires."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:233
-msgid "Note"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:236
-msgid "Optional; recorded in the ledger reference."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:240
-msgid "Grant credits"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:264
-msgid "View ledger"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:268
-msgid "Pick a user to browse their grants and spends."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:273
-#: src/Admin/PaymentsAuditPage.php:142
-msgid "Time"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:274
-msgid "Direction"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:275
-#: src/Admin/PaymentsAuditPage.php:149
-#: src/Admin/PicBedPage.php:286
-msgid "Source"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:276
-msgid "Reference"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:278
-msgid "Bucket left"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:279
-msgid "Expires"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:284
-msgid "No ledger entries for this user yet."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:335
-#: src/Domain/Credit/LedgerService.php:105
-#: src/Domain/Credit/LedgerService.php:178
-msgid "The credit holder does not exist."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:349
-msgid "An admin grant with this exact note already exists for this user."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:407
-msgid "Credits"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:448
-msgid "Credits granted."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:449
-#: src/Admin/DiscussionModerationPage.php:300
-#: src/Admin/DiscussionModerationPage.php:335
-#: src/Admin/DiscussionModerationPage.php:511
-msgid "The operation failed."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:474
-#: src/Admin/OperationsPage.php:337
-#: src/Domain/Credit/CreditModule.php:80
-msgid "Check-in"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:475
-msgid "Redeem code"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:476
-#: src/Admin/OperationsPage.php:338
-#: src/Admin/PaymentsAuditPage.php:236
-#: src/Domain/Sponsorship/SponsorshipModule.php:79
-msgid "Membership"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:477
-msgid "Admin grant"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:478
-msgid "Download"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:64
@@ -411,10 +148,10 @@ msgid "All statuses"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:118
-#: src/Admin/PaymentsAuditPage.php:136
 #: src/Domain/DevTools/CronsPage.php:163
 #: src/Domain/DevTools/RewritesPage.php:85
 #: src/Domain/DevTools/ShortcodesPage.php:72
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:132
 msgid "Filter"
 msgstr ""
 
@@ -428,8 +165,8 @@ msgid "Excerpt"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:127
-#: src/Admin/NotificationPage.php:243
 #: src/Domain/Content/ContentTypeModule.php:60
+#: src/Domain/Notification/NotificationPage.php:241
 msgid "Author"
 msgstr ""
 
@@ -443,8 +180,8 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:130
 #: src/Admin/DiscussionModerationPage.php:412
-#: src/Admin/NotificationPage.php:114
 #: src/Domain/DevTools/CronsPage.php:172
+#: src/Domain/Notification/NotificationPage.php:112
 msgid "Actions"
 msgstr ""
 
@@ -463,8 +200,8 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:155
 #: src/Admin/DiscussionModerationPage.php:437
-#: src/Admin/NotificationPage.php:143
 #: src/Domain/DevTools/CronsPage.php:189
+#: src/Domain/Notification/NotificationPage.php:141
 msgid "Delete"
 msgstr ""
 
@@ -472,9 +209,15 @@ msgstr ""
 msgid "Board"
 msgstr ""
 
+#: src/Admin/DiscussionModerationPage.php:201
+#: src/Domain/Sponsorship/ConvertCodesPage.php:126
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:144
+msgid "Status"
+msgstr ""
+
 #: src/Admin/DiscussionModerationPage.php:211
-#: src/Admin/NotificationPage.php:96
-#: src/Admin/NotificationPage.php:110
+#: src/Domain/Notification/NotificationPage.php:94
+#: src/Domain/Notification/NotificationPage.php:108
 msgid "Body"
 msgstr ""
 
@@ -495,6 +238,13 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:234
 msgid "Edit thread"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:300
+#: src/Admin/DiscussionModerationPage.php:335
+#: src/Admin/DiscussionModerationPage.php:511
+#: src/Domain/Credit/CreditsPage.php:447
+msgid "The operation failed."
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:333
@@ -525,13 +275,13 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:384
 #: src/Admin/DiscussionModerationPage.php:407
 #: src/Admin/FileServeMetabox.php:288
-#: src/Domain/Sponsorship/SponsorshipModule.php:113
+#: src/Domain/Sponsorship/SponsorshipModule.php:117
 msgid "Name"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:388
 #: src/Admin/DiscussionModerationPage.php:409
-#: src/Domain/Sponsorship/SponsorshipModule.php:119
+#: src/Domain/Sponsorship/SponsorshipModule.php:123
 msgid "Description"
 msgstr ""
 
@@ -693,7 +443,7 @@ msgid "Size"
 msgstr ""
 
 #: src/Admin/FileServeMetabox.php:291
-#: src/Admin/PicBedPage.php:285
+#: src/Domain/Media/PicBedPage.php:283
 msgid "Preview"
 msgstr ""
 
@@ -711,445 +461,6 @@ msgstr ""
 
 #: src/Admin/MetaboxAdmin.php:450
 msgid "Some metadata fields were not saved:"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:51
-#: src/Admin/NotificationPage.php:52
-#: src/Admin/NotificationPage.php:70
-#: src/Domain/Content/FrontendModule.php:171
-msgid "Notifications"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:62
-#: src/Admin/NotificationPage.php:175
-#: src/Admin/NotificationPage.php:197
-msgid "You are not allowed to manage notifications."
-msgstr ""
-
-#: src/Admin/NotificationPage.php:71
-msgid "Site-wide announcements for the headless front end. Rows expire automatically after the retention period; the front end tracks read state itself."
-msgstr ""
-
-#: src/Admin/NotificationPage.php:75
-msgid "Publish announcement"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:85
-msgid "Minimum visible role"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:92
-msgid "Viewers below this role will not see the announcement. Sponsor also requires a valid sponsorship."
-msgstr ""
-
-#: src/Admin/NotificationPage.php:100
-msgid "Publish"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:104
-msgid "Stored notifications"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:111
-msgid "Minimum role"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:112
-msgid "Scope"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:119
-msgid "No notifications stored."
-msgstr ""
-
-#. translators: %d: user ID.
-#: src/Admin/NotificationPage.php:130
-#: src/Admin/PicBedPage.php:329
-#, php-format
-msgid "User #%d"
-msgstr ""
-
-#. translators: %d: user ID.
-#: src/Admin/NotificationPage.php:130
-msgid "Broadcast"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:142
-msgid "Delete this notification?"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:215
-msgid "Notification published."
-msgstr ""
-
-#: src/Admin/NotificationPage.php:216
-msgid "Notification deleted."
-msgstr ""
-
-#: src/Admin/NotificationPage.php:241
-msgid "Subscriber"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:242
-msgid "Sponsor"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:244
-msgid "Administrator"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:245
-msgid "Guest"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:70
-#: src/Admin/OperationsPage.php:71
-#: src/Admin/OperationsPage.php:94
-#: src/Domain/Operations/OperationsModule.php:109
-msgid "Operations report"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:82
-msgid "You are not allowed to view the operations report."
-msgstr ""
-
-#: src/Admin/OperationsPage.php:96
-msgid "Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger's spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
-msgstr ""
-
-#: src/Admin/OperationsPage.php:122
-#: src/Admin/OperationsPage.php:274
-#: src/Admin/OperationsPage.php:336
-msgid "Month"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:130
-msgid "View"
-msgstr ""
-
-#. translators: %s: month key, e.g. 2026-09
-#: src/Admin/OperationsPage.php:145
-#, php-format
-msgid "Indicators — %s"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:149
-msgid "Credits granted"
-msgstr ""
-
-#. translators: 1: check-in credits, 2: membership credits, 3: code credits, 4: manual credits
-#: src/Admin/OperationsPage.php:156
-#, php-format
-msgid "Check-in %1$s · Membership %2$s · Codes %3$s · Manual %4$s"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:167
-msgid "Credits consumed"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:171
-msgid "Credits expired"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:175
-#: src/Admin/OperationsPage.php:278
-msgid "Downloads"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:179
-#: src/Admin/OperationsPage.php:279
-msgid "Active users"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:183
-#: src/Admin/OperationsPage.php:280
-msgid "Members"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:186
-msgid "Holders whose membership covers this month, codes included."
-msgstr ""
-
-#: src/Admin/OperationsPage.php:190
-#: src/Admin/OperationsPage.php:281
-msgid "Paying users"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:193
-msgid "Covered holders whose order was actually paid."
-msgstr ""
-
-#: src/Admin/OperationsPage.php:197
-msgid "Cash collected"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:201
-msgid "Recognized revenue"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:204
-msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once and its months sum back to the order total. Booked revenue for the month — not a forward-looking MRR run rate."
-msgstr ""
-
-#: src/Admin/OperationsPage.php:208
-#: src/Admin/OperationsPage.php:284
-msgid "Cost"
-msgstr ""
-
-#. translators: 1: rate per download, 2: state of the rate
-#: src/Admin/OperationsPage.php:215
-#, php-format
-msgid "Downloads × %1$s per download, %2$s"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:218
-msgid "rate frozen when the month closed"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:219
-msgid "at the current rate; frozen when the month closes"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:226
-msgid "Outstanding credits"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:229
-msgid "What every holder could still spend right now — the report's liability figure."
-msgstr ""
-
-#: src/Admin/OperationsPage.php:233
-#: src/Admin/OperationsPage.php:285
-msgid "Consumption rate"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:237
-msgid "Expiry rate"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:241
-msgid "Downloads per active user"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:245
-msgid "Downloads per paying user"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:249
-msgid "Revenue per paying user"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:253
-msgid "Cost per paying user"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:270
-msgid "Trailing 12 months"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:275
-msgid "Granted"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:276
-msgid "Consumed"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:277
-msgid "Expired"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:282
-msgid "Cash"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:283
-msgid "Recognized"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:332
-msgid "Grants by source"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:339
-msgid "Codes"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:340
-msgid "Manual"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:341
-msgid "Total"
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:63
-#: src/Admin/PaymentsAuditPage.php:64
-#: src/Admin/PaymentsAuditPage.php:118
-msgid "Payment audit"
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:104
-msgid "You are not allowed to view payments."
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:119
-msgid "Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue."
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:131
-msgid "All sources"
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:144
-msgid "Order"
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:154
-msgid "No payments recorded yet."
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:295
-msgid "Epay"
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:296
-msgid "Afdian"
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:332
-msgid "Paid"
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:333
-msgid "Awaiting payment"
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:334
-msgid "Unpaid"
-msgstr ""
-
-#: src/Admin/PicBedPage.php:57
-#: src/Admin/PicBedPage.php:58
-#: src/Admin/PicBedPage.php:75
-msgid "Pic bed"
-msgstr ""
-
-#: src/Admin/PicBedPage.php:70
-msgid "You are not allowed to manage the pic bed."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:77
-msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:80
-msgid "Upload"
-msgstr ""
-
-#: src/Admin/PicBedPage.php:85
-#: src/Admin/PicBedPage.php:160
-msgid "Upload image"
-msgstr ""
-
-#. translators: %d: maximum upload size in megabytes.
-#: src/Admin/PicBedPage.php:90
-#, php-format
-msgid "JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:103
-msgid "Dimensions"
-msgstr ""
-
-#: src/Admin/PicBedPage.php:105
-#: src/Admin/PicBedPage.php:287
-#: src/Domain/Content/BlocksModule.php:124
-#: src/Domain/DevTools/SamplePage.php:237
-#: src/Domain/Parts/BuiltinParts.php:153
-msgid "URL"
-msgstr ""
-
-#: src/Admin/PicBedPage.php:107
-#: src/Admin/PicBedPage.php:288
-msgid "Relative path"
-msgstr ""
-
-#: src/Admin/PicBedPage.php:115
-msgid "Uploaded images"
-msgstr ""
-
-#: src/Admin/PicBedPage.php:130
-msgid "Uploading…"
-msgstr ""
-
-#: src/Admin/PicBedPage.php:149
-msgid "Upload failed."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:181
-msgid "Insufficient permissions."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:187
-#: src/Api/Rest/UploadsController.php:69
-#: src/Domain/Identity/AvatarModule.php:375
-msgid "No file was uploaded."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:190
-#: src/Api/Rest/UploadsController.php:72
-msgid "Invalid upload."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:193
-#: src/Api/Rest/UploadsController.php:75
-#: src/Domain/Identity/AvatarModule.php:498
-msgid "The upload failed with a file error."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:198
-#: src/Api/Rest/UploadsController.php:80
-msgid "The file is too large."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:206
-#: src/Api/Rest/UploadsController.php:88
-msgid "This file type is not supported."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:211
-#: src/Api/Rest/UploadsController.php:94
-msgid "The file could not be written."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:217
-#: src/Api/Rest/UploadsController.php:100
-msgid "Image processing failed."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:224
-#: src/Api/Rest/UploadsController.php:108
-msgid "The image URL could not be resolved."
-msgstr ""
-
-#: src/Admin/PicBedPage.php:247
-#: src/Admin/PicBedPage.php:262
-msgid "No uploads yet."
-msgstr ""
-
-#. translators: %d: number of older files not listed.
-#: src/Admin/PicBedPage.php:279
-#, php-format
-msgid "The %d oldest file is not listed."
-msgid_plural "The %d oldest files are not listed."
-msgstr[0] ""
-msgstr[1] ""
-
-#. translators: 1: user display name or login, 2: user ID.
-#: src/Admin/PicBedPage.php:323
-#, php-format
-msgid "User %1$s (#%2$d)"
 msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:50
@@ -1211,70 +522,6 @@ msgstr[1] ""
 msgid "Nothing was switched."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:52
-#: src/Admin/SendMailPage.php:53
-#: src/Admin/SendMailPage.php:88
-#: src/Admin/SendMailPage.php:106
-msgid "Send Mail"
-msgstr ""
-
-#: src/Admin/SendMailPage.php:96
-msgid "You are not allowed to send mail."
-msgstr ""
-
-#: src/Admin/SendMailPage.php:107
-msgid "Compose an HTML email and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport."
-msgstr ""
-
-#: src/Admin/SendMailPage.php:111
-msgid "Recipient"
-msgstr ""
-
-#: src/Admin/SendMailPage.php:114
-msgid "Any email address works, registered or not. Typing a username or name suggests site users."
-msgstr ""
-
-#: src/Admin/SendMailPage.php:119
-msgid "Subject"
-msgstr ""
-
-#: src/Admin/SendMailPage.php:123
-msgid "Message"
-msgstr ""
-
-#: src/Admin/SendMailPage.php:129
-#: src/Admin/SendMailPage.php:199
-msgid "Send email"
-msgstr ""
-
-#: src/Admin/SendMailPage.php:176
-msgid "Sending…"
-msgstr ""
-
-#: src/Admin/SendMailPage.php:185
-#: src/Admin/SendMailPage.php:297
-msgid "The email could not be sent."
-msgstr ""
-
-#: src/Admin/SendMailPage.php:215
-#: src/Admin/SendMailPage.php:245
-msgid "You are not allowed to send mail to users."
-msgstr ""
-
-#: src/Admin/SendMailPage.php:221
-msgid "Enter a valid recipient email address."
-msgstr ""
-
-#: src/Admin/SendMailPage.php:227
-msgid "A subject and a message body are required."
-msgstr ""
-
-#. translators: %s: recipient email address.
-#: src/Admin/SendMailPage.php:237
-#, php-format
-msgid "Email sent to %s."
-msgstr ""
-
 #: src/Admin/SettingsAdmin.php:93
 msgid "Unknown settings page."
 msgstr ""
@@ -1283,31 +530,31 @@ msgstr ""
 msgid "You are not allowed to update these settings."
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:182
+#: src/Admin/SettingsAdmin.php:185
 msgid "You are not allowed to view these settings."
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:190
+#: src/Admin/SettingsAdmin.php:193
 msgid "Settings saved."
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:192
+#: src/Admin/SettingsAdmin.php:195
 msgid "Settings reset."
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:195
+#: src/Admin/SettingsAdmin.php:198
 msgid "Unable to save settings."
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:201
+#: src/Admin/SettingsAdmin.php:204
 msgid "Save changes"
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:202
+#: src/Admin/SettingsAdmin.php:205
 msgid "Reset all settings on this page?"
 msgstr ""
 
-#: src/Admin/SettingsAdmin.php:202
+#: src/Admin/SettingsAdmin.php:205
 msgid "Reset"
 msgstr ""
 
@@ -1643,6 +890,48 @@ msgstr ""
 msgid "The return URL is not a valid absolute http(s) address."
 msgstr ""
 
+#: src/Api/Rest/UploadsController.php:69
+#: src/Domain/Identity/AvatarModule.php:375
+#: src/Domain/Media/PicBedPage.php:185
+msgid "No file was uploaded."
+msgstr ""
+
+#: src/Api/Rest/UploadsController.php:72
+#: src/Domain/Media/PicBedPage.php:188
+msgid "Invalid upload."
+msgstr ""
+
+#: src/Api/Rest/UploadsController.php:75
+#: src/Domain/Identity/AvatarModule.php:498
+#: src/Domain/Media/PicBedPage.php:191
+msgid "The upload failed with a file error."
+msgstr ""
+
+#: src/Api/Rest/UploadsController.php:80
+#: src/Domain/Media/PicBedPage.php:196
+msgid "The file is too large."
+msgstr ""
+
+#: src/Api/Rest/UploadsController.php:88
+#: src/Domain/Media/PicBedPage.php:204
+msgid "This file type is not supported."
+msgstr ""
+
+#: src/Api/Rest/UploadsController.php:94
+#: src/Domain/Media/PicBedPage.php:209
+msgid "The file could not be written."
+msgstr ""
+
+#: src/Api/Rest/UploadsController.php:100
+#: src/Domain/Media/PicBedPage.php:215
+msgid "Image processing failed."
+msgstr ""
+
+#: src/Api/Rest/UploadsController.php:108
+#: src/Domain/Media/PicBedPage.php:222
+msgid "The image URL could not be resolved."
+msgstr ""
+
 #: src/Api/Rest/UserController.php:206
 msgid "The favorite could not be removed."
 msgstr ""
@@ -1721,8 +1010,16 @@ msgid "Query templates for the front page, in listed order: a heading row (icon 
 msgstr ""
 
 #: src/Domain/Content/BlocksModule.php:117
-#: src/Domain/DevTools/SamplePage.php:231
+#: src/Domain/DevTools/SamplePage.php:235
 msgid "Label"
+msgstr ""
+
+#: src/Domain/Content/BlocksModule.php:124
+#: src/Domain/DevTools/SamplePage.php:241
+#: src/Domain/Media/PicBedPage.php:103
+#: src/Domain/Media/PicBedPage.php:285
+#: src/Domain/Parts/BuiltinParts.php:153
+msgid "URL"
 msgstr ""
 
 #: src/Domain/Content/BlocksModule.php:125
@@ -1831,6 +1128,10 @@ msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:37
 msgid "Frontend"
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:38
+msgid "AIYA CMS Core"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:47
@@ -1958,12 +1259,27 @@ msgstr ""
 msgid "Used when the icon template is set to custom."
 msgstr ""
 
+#: src/Domain/Content/FrontendModule.php:171
+#: src/Domain/Notification/NotificationPage.php:49
+#: src/Domain/Notification/NotificationPage.php:50
+#: src/Domain/Notification/NotificationPage.php:68
+msgid "Notifications"
+msgstr ""
+
 #: src/Domain/Content/FrontendModule.php:177
 msgid "Notification retention (days)"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:178
 msgid "A daily cleanup removes stored notifications older than this many days."
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:186
+#: src/Domain/Credit/CreditsPage.php:125
+#: src/Domain/Credit/CreditsPage.php:126
+#: src/Domain/Credit/CreditsPage.php:147
+#: src/Domain/Credit/CreditsPage.php:253
+msgid "Credit ledger"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:192
@@ -2162,6 +1478,12 @@ msgstr ""
 msgid "Daily check-in"
 msgstr ""
 
+#: src/Domain/Credit/CreditModule.php:80
+#: src/Domain/Credit/CreditsPage.php:472
+#: src/Domain/Operations/OperationsPage.php:332
+msgid "Check-in"
+msgstr ""
+
 #: src/Domain/Credit/CreditModule.php:81
 msgid "Signed-in users claim a small daily credit grant from the front end."
 msgstr ""
@@ -2180,6 +1502,133 @@ msgstr ""
 
 #: src/Domain/Credit/CreditModule.php:98
 msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:137
+#: src/Domain/Credit/CreditsPage.php:327
+#: src/Domain/Credit/CreditsPage.php:359
+msgid "You are not allowed to manage credits."
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:148
+msgid "Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice."
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:202
+msgid "Manual grant"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:209
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:139
+msgid "User"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:212
+#: src/Domain/Credit/CreditsPage.php:258
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:122
+msgid "Type a username or name…"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:218
+#: src/Domain/Credit/CreditsPage.php:275
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:142
+msgid "Amount"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:224
+msgid "Validity (days)"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:227
+msgid "The bucket dies when this expires."
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:231
+msgid "Note"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:234
+msgid "Optional; recorded in the ledger reference."
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:238
+msgid "Grant credits"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:262
+msgid "View ledger"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:266
+msgid "Pick a user to browse their grants and spends."
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:271
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:138
+msgid "Time"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:272
+msgid "Direction"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:273
+#: src/Domain/Media/PicBedPage.php:284
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:145
+msgid "Source"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:274
+msgid "Reference"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:276
+msgid "Bucket left"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:277
+msgid "Expires"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:282
+msgid "No ledger entries for this user yet."
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:333
+#: src/Domain/Credit/LedgerService.php:105
+#: src/Domain/Credit/LedgerService.php:178
+msgid "The credit holder does not exist."
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:347
+msgid "An admin grant with this exact note already exists for this user."
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:405
+msgid "Credits"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:446
+msgid "Credits granted."
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:473
+msgid "Redeem code"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:474
+#: src/Domain/Operations/OperationsPage.php:333
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:232
+#: src/Domain/Sponsorship/SponsorshipModule.php:79
+msgid "Membership"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:475
+msgid "Admin grant"
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:476
+msgid "Download"
 msgstr ""
 
 #: src/Domain/Credit/LedgerService.php:108
@@ -2450,217 +1899,217 @@ msgstr ""
 msgid "You are not allowed to flush the rewrite rules."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:35
-#: src/Domain/DevTools/SamplePage.php:36
+#: src/Domain/DevTools/SamplePage.php:38
+#: src/Domain/DevTools/SamplePage.php:39
 msgid "Sample"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:43
+#: src/Domain/DevTools/SamplePage.php:47
 msgid "Developer sandbox: every persisted field type of the settings framework appears on this page."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:49
+#: src/Domain/DevTools/SamplePage.php:53
 msgid "Text inputs"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:54
+#: src/Domain/DevTools/SamplePage.php:58
 msgid "Site title"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:55
+#: src/Domain/DevTools/SamplePage.php:59
 msgid "A required text field."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:63
+#: src/Domain/DevTools/SamplePage.php:67
 msgid "Site description"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:64
+#: src/Domain/DevTools/SamplePage.php:68
 msgid "Plain multiline text is sanitized before storage."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:70
+#: src/Domain/DevTools/SamplePage.php:74
 msgid "Cache lifetime"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:71
+#: src/Domain/DevTools/SamplePage.php:75
 msgid "Optional numeric field with minimum, maximum and step constraints."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:80
+#: src/Domain/DevTools/SamplePage.php:84
 msgid "Contact email"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:86
+#: src/Domain/DevTools/SamplePage.php:90
 msgid "Public URL"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:87
+#: src/Domain/DevTools/SamplePage.php:91
 msgid "Useful for testing URL validation."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:94
+#: src/Domain/DevTools/SamplePage.php:98
 msgid "Sample API key"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:95
+#: src/Domain/DevTools/SamplePage.php:99
 msgid "Write-only field: a saved value is never rendered back into the page."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:106
+#: src/Domain/DevTools/SamplePage.php:110
 msgid "Choices"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:111
+#: src/Domain/DevTools/SamplePage.php:115
 msgid "Feature flag"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:112
+#: src/Domain/DevTools/SamplePage.php:116
 msgid "Enable the sample feature"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:118
+#: src/Domain/DevTools/SamplePage.php:122
 msgid "Debug mode"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:119
+#: src/Domain/DevTools/SamplePage.php:123
 msgid "Enable debug mode"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:125
+#: src/Domain/DevTools/SamplePage.php:129
 msgid "Content mode"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:128
+#: src/Domain/DevTools/SamplePage.php:132
 msgid "Classic"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:129
+#: src/Domain/DevTools/SamplePage.php:133
 msgid "Hybrid"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:130
+#: src/Domain/DevTools/SamplePage.php:134
 msgid "Headless"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:136
+#: src/Domain/DevTools/SamplePage.php:140
 msgid "Default locale"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:137
+#: src/Domain/DevTools/SamplePage.php:141
 msgid "Radio controls render inline with spacing between options."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:140
+#: src/Domain/DevTools/SamplePage.php:144
 msgid "Simplified Chinese"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:141
+#: src/Domain/DevTools/SamplePage.php:145
 msgid "Traditional Chinese"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:142
+#: src/Domain/DevTools/SamplePage.php:146
 msgid "English"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:148
+#: src/Domain/DevTools/SamplePage.php:152
 msgid "Enabled modules"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:149
+#: src/Domain/DevTools/SamplePage.php:153
 msgid "Multiple checkboxes render inline with spacing between options."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:152
+#: src/Domain/DevTools/SamplePage.php:156
 msgid "SEO"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:153
+#: src/Domain/DevTools/SamplePage.php:157
 msgid "Cache"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:154
+#: src/Domain/DevTools/SamplePage.php:158
 msgid "Translation"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:155
+#: src/Domain/DevTools/SamplePage.php:159
 msgid "CDN"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:161
+#: src/Domain/DevTools/SamplePage.php:165
 msgid "Media and value lists"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:166
+#: src/Domain/DevTools/SamplePage.php:170
 msgid "Stored values only: the password field never echoes back and media fields keep attachment IDs."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:172
+#: src/Domain/DevTools/SamplePage.php:176
 msgid "Accent color"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:178
+#: src/Domain/DevTools/SamplePage.php:182
 msgid "Logo"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:179
+#: src/Domain/DevTools/SamplePage.php:183
 msgid "The field stores a WordPress attachment ID rather than a URL."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:185
+#: src/Domain/DevTools/SamplePage.php:189
 msgid "Allowed hosts"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:186
+#: src/Domain/DevTools/SamplePage.php:190
 msgid "Enter comma-separated values."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:192
+#: src/Domain/DevTools/SamplePage.php:196
 msgid "Custom headers"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:193
+#: src/Domain/DevTools/SamplePage.php:197
 msgid "One \"key: value\" pair per line; keys are normalized through sanitize_key()."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:199
+#: src/Domain/DevTools/SamplePage.php:203
 msgid "Editor content"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:204
+#: src/Domain/DevTools/SamplePage.php:208
 msgid "JSON configuration"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:205
+#: src/Domain/DevTools/SamplePage.php:209
 msgid "Uses the Code Editor bundled with WordPress."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:212
+#: src/Domain/DevTools/SamplePage.php:216
 msgid "Classic editor content"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:213
+#: src/Domain/DevTools/SamplePage.php:217
 msgid "Uses wp_editor and TinyMCE; Gutenberg and React are not required."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:219
+#: src/Domain/DevTools/SamplePage.php:223
 msgid "Dynamic rows"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:224
+#: src/Domain/DevTools/SamplePage.php:228
 msgid "Navigation links"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:225
+#: src/Domain/DevTools/SamplePage.php:229
 msgid "Backbone manages item creation; jQuery UI provides drag sorting."
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:243
+#: src/Domain/DevTools/SamplePage.php:247
 msgid "Priority"
 msgstr ""
 
-#: src/Domain/DevTools/SamplePage.php:251
-#: src/Domain/Sponsorship/SponsorshipModule.php:100
+#: src/Domain/DevTools/SamplePage.php:255
+#: src/Domain/Sponsorship/SponsorshipModule.php:104
 msgid "Enabled"
 msgstr ""
 
@@ -3422,6 +2871,70 @@ msgstr ""
 msgid "The session token could not be stored."
 msgstr ""
 
+#: src/Domain/Mail/SendMailPage.php:52
+#: src/Domain/Mail/SendMailPage.php:53
+#: src/Domain/Mail/SendMailPage.php:88
+#: src/Domain/Mail/SendMailPage.php:106
+msgid "Send Mail"
+msgstr ""
+
+#: src/Domain/Mail/SendMailPage.php:96
+msgid "You are not allowed to send mail."
+msgstr ""
+
+#: src/Domain/Mail/SendMailPage.php:107
+msgid "Compose an HTML email and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport."
+msgstr ""
+
+#: src/Domain/Mail/SendMailPage.php:111
+msgid "Recipient"
+msgstr ""
+
+#: src/Domain/Mail/SendMailPage.php:114
+msgid "Any email address works, registered or not. Typing a username or name suggests site users."
+msgstr ""
+
+#: src/Domain/Mail/SendMailPage.php:119
+msgid "Subject"
+msgstr ""
+
+#: src/Domain/Mail/SendMailPage.php:123
+msgid "Message"
+msgstr ""
+
+#: src/Domain/Mail/SendMailPage.php:129
+#: src/Domain/Mail/SendMailPage.php:199
+msgid "Send email"
+msgstr ""
+
+#: src/Domain/Mail/SendMailPage.php:176
+msgid "Sending…"
+msgstr ""
+
+#: src/Domain/Mail/SendMailPage.php:185
+#: src/Domain/Mail/SendMailPage.php:297
+msgid "The email could not be sent."
+msgstr ""
+
+#: src/Domain/Mail/SendMailPage.php:215
+#: src/Domain/Mail/SendMailPage.php:245
+msgid "You are not allowed to send mail to users."
+msgstr ""
+
+#: src/Domain/Mail/SendMailPage.php:221
+msgid "Enter a valid recipient email address."
+msgstr ""
+
+#: src/Domain/Mail/SendMailPage.php:227
+msgid "A subject and a message body are required."
+msgstr ""
+
+#. translators: %s: recipient email address.
+#: src/Domain/Mail/SendMailPage.php:237
+#, php-format
+msgid "Email sent to %s."
+msgstr ""
+
 #: src/Domain/Media/CoverService.php:62
 msgid "The post does not exist."
 msgstr ""
@@ -3432,6 +2945,86 @@ msgstr ""
 
 #: src/Domain/Media/CoverService.php:113
 msgid "The cover URL could not be resolved."
+msgstr ""
+
+#: src/Domain/Media/PicBedPage.php:55
+#: src/Domain/Media/PicBedPage.php:56
+#: src/Domain/Media/PicBedPage.php:73
+msgid "Pic bed"
+msgstr ""
+
+#: src/Domain/Media/PicBedPage.php:68
+msgid "You are not allowed to manage the pic bed."
+msgstr ""
+
+#: src/Domain/Media/PicBedPage.php:75
+msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk."
+msgstr ""
+
+#: src/Domain/Media/PicBedPage.php:78
+msgid "Upload"
+msgstr ""
+
+#: src/Domain/Media/PicBedPage.php:83
+#: src/Domain/Media/PicBedPage.php:158
+msgid "Upload image"
+msgstr ""
+
+#. translators: %d: maximum upload size in megabytes.
+#: src/Domain/Media/PicBedPage.php:88
+#, php-format
+msgid "JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB."
+msgstr ""
+
+#: src/Domain/Media/PicBedPage.php:101
+msgid "Dimensions"
+msgstr ""
+
+#: src/Domain/Media/PicBedPage.php:105
+#: src/Domain/Media/PicBedPage.php:286
+msgid "Relative path"
+msgstr ""
+
+#: src/Domain/Media/PicBedPage.php:113
+msgid "Uploaded images"
+msgstr ""
+
+#: src/Domain/Media/PicBedPage.php:128
+msgid "Uploading…"
+msgstr ""
+
+#: src/Domain/Media/PicBedPage.php:147
+msgid "Upload failed."
+msgstr ""
+
+#: src/Domain/Media/PicBedPage.php:179
+msgid "Insufficient permissions."
+msgstr ""
+
+#: src/Domain/Media/PicBedPage.php:245
+#: src/Domain/Media/PicBedPage.php:260
+msgid "No uploads yet."
+msgstr ""
+
+#. translators: %d: number of older files not listed.
+#: src/Domain/Media/PicBedPage.php:277
+#, php-format
+msgid "The %d oldest file is not listed."
+msgid_plural "The %d oldest files are not listed."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: user display name or login, 2: user ID.
+#: src/Domain/Media/PicBedPage.php:321
+#, php-format
+msgid "User %1$s (#%2$d)"
+msgstr ""
+
+#. translators: %d: user ID.
+#: src/Domain/Media/PicBedPage.php:327
+#: src/Domain/Notification/NotificationPage.php:128
+#, php-format
+msgid "User #%d"
 msgstr ""
 
 #. translators: %1$s: commenter name.
@@ -3492,6 +3085,91 @@ msgstr ""
 msgid "Your membership expires on %s. Renew to keep the perks."
 msgstr ""
 
+#: src/Domain/Notification/NotificationPage.php:60
+#: src/Domain/Notification/NotificationPage.php:173
+#: src/Domain/Notification/NotificationPage.php:195
+msgid "You are not allowed to manage notifications."
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:69
+msgid "Site-wide announcements for the headless front end. Rows expire automatically after the retention period; the front end tracks read state itself."
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:73
+msgid "Publish announcement"
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:83
+msgid "Minimum visible role"
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:90
+msgid "Viewers below this role will not see the announcement. Sponsor also requires a valid sponsorship."
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:98
+msgid "Publish"
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:102
+msgid "Stored notifications"
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:109
+msgid "Minimum role"
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:110
+msgid "Scope"
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:111
+#: src/Domain/Sponsorship/ConvertCodesPage.php:129
+msgid "Created"
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:117
+msgid "No notifications stored."
+msgstr ""
+
+#. translators: %d: user ID.
+#: src/Domain/Notification/NotificationPage.php:128
+msgid "Broadcast"
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:140
+msgid "Delete this notification?"
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:213
+msgid "Notification published."
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:214
+msgid "Notification deleted."
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:215
+#: src/Domain/Sponsorship/ConvertCodesPage.php:222
+msgid "The operation failed — check the values and try again."
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:239
+msgid "Subscriber"
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:240
+msgid "Sponsor"
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:242
+msgid "Administrator"
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:243
+msgid "Guest"
+msgstr ""
+
 #: src/Domain/Notification/NotificationService.php:94
 msgid "Notification title is required."
 msgstr ""
@@ -3512,12 +3190,189 @@ msgstr ""
 msgid "The notification could not be stored."
 msgstr ""
 
+#: src/Domain/Operations/OperationsModule.php:109
+#: src/Domain/Operations/OperationsPage.php:65
+#: src/Domain/Operations/OperationsPage.php:66
+#: src/Domain/Operations/OperationsPage.php:89
+msgid "Operations report"
+msgstr ""
+
 #: src/Domain/Operations/OperationsModule.php:115
 msgid "Upstream cost per download"
 msgstr ""
 
 #: src/Domain/Operations/OperationsModule.php:116
 msgid "What one metered download costs upstream, in the payment currency. The report derives a month's cost as downloads × this rate and freezes the rate into each month when it closes, so changing it never rewrites past months."
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:77
+msgid "You are not allowed to view the operations report."
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:91
+msgid "Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger's spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:121
+#: src/Domain/Operations/OperationsPage.php:269
+#: src/Domain/Operations/OperationsPage.php:331
+msgid "Month"
+msgstr ""
+
+#. translators: %s: month key, e.g. 2026-09
+#: src/Domain/Operations/OperationsPage.php:140
+#, php-format
+msgid "Indicators — %s"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:144
+msgid "Credits granted"
+msgstr ""
+
+#. translators: 1: check-in credits, 2: membership credits, 3: code credits, 4: manual credits
+#: src/Domain/Operations/OperationsPage.php:151
+#, php-format
+msgid "Check-in %1$s · Membership %2$s · Codes %3$s · Manual %4$s"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:162
+msgid "Credits consumed"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:166
+msgid "Credits expired"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:170
+#: src/Domain/Operations/OperationsPage.php:273
+msgid "Downloads"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:174
+#: src/Domain/Operations/OperationsPage.php:274
+msgid "Active users"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:178
+#: src/Domain/Operations/OperationsPage.php:275
+msgid "Members"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:181
+msgid "Holders whose membership covers this month, codes included."
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:185
+#: src/Domain/Operations/OperationsPage.php:276
+msgid "Paying users"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:188
+msgid "Covered holders whose order was actually paid."
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:192
+msgid "Cash collected"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:196
+msgid "Recognized revenue"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:199
+msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once and its months sum back to the order total. Booked revenue for the month — not a forward-looking MRR run rate."
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:203
+#: src/Domain/Operations/OperationsPage.php:279
+msgid "Cost"
+msgstr ""
+
+#. translators: 1: rate per download, 2: state of the rate
+#: src/Domain/Operations/OperationsPage.php:210
+#, php-format
+msgid "Downloads × %1$s per download, %2$s"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:213
+msgid "rate frozen when the month closed"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:214
+msgid "at the current rate; frozen when the month closes"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:221
+msgid "Outstanding credits"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:224
+msgid "What every holder could still spend right now — the report's liability figure."
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:228
+#: src/Domain/Operations/OperationsPage.php:280
+msgid "Consumption rate"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:232
+msgid "Expiry rate"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:236
+msgid "Downloads per active user"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:240
+msgid "Downloads per paying user"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:244
+msgid "Revenue per paying user"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:248
+msgid "Cost per paying user"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:265
+msgid "Trailing 12 months"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:270
+msgid "Granted"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:271
+msgid "Consumed"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:272
+msgid "Expired"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:277
+msgid "Cash"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:278
+msgid "Recognized"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:327
+msgid "Grants by source"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:334
+msgid "Codes"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:335
+msgid "Manual"
+msgstr ""
+
+#: src/Domain/Operations/OperationsPage.php:336
+msgid "Total"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:82
@@ -3719,6 +3574,104 @@ msgstr ""
 msgid "The order carries no account binding — activate it from the account page with the order number."
 msgstr ""
 
+#: src/Domain/Sponsorship/ConvertCodesPage.php:41
+#: src/Domain/Sponsorship/ConvertCodesPage.php:42
+#: src/Domain/Sponsorship/ConvertCodesPage.php:60
+msgid "Redemption codes"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:52
+#: src/Domain/Sponsorship/ConvertCodesPage.php:180
+#: src/Domain/Sponsorship/ConvertCodesPage.php:207
+msgid "You are not allowed to manage redemption codes."
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:61
+msgid "Membership gift codes users redeem themselves on the front end. Codes are single-use; redeeming queues the tier entitlement like a paid order and credits arrive per cycle."
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:65
+msgid "Generate codes"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:71
+msgid "Quantity"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:75
+#: src/Domain/Sponsorship/ConvertCodesPage.php:124
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:141
+msgid "Tier"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:80
+msgid "— define tiers first —"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:89
+msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:93
+#: src/Domain/Sponsorship/ConvertCodesPage.php:125
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:143
+msgid "Cycles"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:96
+msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:100
+msgid "Generate"
+msgstr ""
+
+#. translators: %s: number of stored codes.
+#: src/Domain/Sponsorship/ConvertCodesPage.php:108
+#, php-format
+msgid "Stored codes (%s)"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:113
+msgid "Delete ALL codes? This cannot be undone."
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:116
+msgid "Delete all"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:123
+msgid "Code"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:127
+msgid "Redeemed by"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:128
+msgid "Redeemed at"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:134
+msgid "No codes stored."
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:142
+msgid "Redeemed"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:142
+msgid "Unused"
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:220
+msgid "Codes generated."
+msgstr ""
+
+#: src/Domain/Sponsorship/ConvertCodesPage.php:221
+msgid "All codes deleted."
+msgstr ""
+
 #: src/Domain/Sponsorship/EntitlementService.php:74
 msgid "The membership holder does not exist."
 msgstr ""
@@ -3761,6 +3714,52 @@ msgstr ""
 msgid "The order could not be stored."
 msgstr ""
 
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:59
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:60
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:114
+msgid "Payment audit"
+msgstr ""
+
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:100
+msgid "You are not allowed to view payments."
+msgstr ""
+
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:115
+msgid "Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue."
+msgstr ""
+
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:127
+msgid "All sources"
+msgstr ""
+
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:140
+msgid "Order"
+msgstr ""
+
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:150
+msgid "No payments recorded yet."
+msgstr ""
+
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:291
+msgid "Epay"
+msgstr ""
+
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:292
+msgid "Afdian"
+msgstr ""
+
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:328
+msgid "Paid"
+msgstr ""
+
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:329
+msgid "Awaiting payment"
+msgstr ""
+
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:330
+msgid "Unpaid"
+msgstr ""
+
 #: src/Domain/Sponsorship/RedeemCodeService.php:38
 #: src/Domain/Sponsorship/RedeemCodeService.php:55
 #: src/Domain/Sponsorship/RedeemCodeService.php:67
@@ -3781,164 +3780,165 @@ msgid "The membership activation failed — the code was not consumed, try again
 msgstr ""
 
 #: src/Domain/Sponsorship/SponsorshipModule.php:78
+#: src/Domain/Sponsorship/SponsorshipModule.php:83
 msgid "Membership settings"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:87
+#: src/Domain/Sponsorship/SponsorshipModule.php:91
 msgid "Tiers"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:93
+#: src/Domain/Sponsorship/SponsorshipModule.php:97
 msgid "Tier list"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:94
+#: src/Domain/Sponsorship/SponsorshipModule.php:98
 msgid "Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:101
+#: src/Domain/Sponsorship/SponsorshipModule.php:105
 msgid "Disabled tiers stay out of the purchase list; existing holders keep their membership."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:107
+#: src/Domain/Sponsorship/SponsorshipModule.php:111
 msgid "Key"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:120
+#: src/Domain/Sponsorship/SponsorshipModule.php:124
 msgid "One-liner shown on the plan card (what the tier includes)."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:126
+#: src/Domain/Sponsorship/SponsorshipModule.php:130
 msgid "Price (per cycle)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:134
+#: src/Domain/Sponsorship/SponsorshipModule.php:138
 msgid "Cycle length (days)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:135
+#: src/Domain/Sponsorship/SponsorshipModule.php:139
 msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:144
+#: src/Domain/Sponsorship/SponsorshipModule.php:148
 msgid "Credits per cycle"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:145
+#: src/Domain/Sponsorship/SponsorshipModule.php:149
 msgid "Credit bucket granted at each cycle start."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:153
+#: src/Domain/Sponsorship/SponsorshipModule.php:157
 msgid "Cycles per purchase"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:154
+#: src/Domain/Sponsorship/SponsorshipModule.php:158
 msgid "One purchase of this tier always queues this many cycles; the front end shows the total, there is no cycle picker."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:169
-#: src/Domain/Sponsorship/SponsorshipModule.php:170
+#: src/Domain/Sponsorship/SponsorshipModule.php:173
+#: src/Domain/Sponsorship/SponsorshipModule.php:174
 msgid "Payments"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:177
+#: src/Domain/Sponsorship/SponsorshipModule.php:181
 msgid "Epay gateway (cashier integration)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:183
+#: src/Domain/Sponsorship/SponsorshipModule.php:187
 msgid "Epay integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:189
+#: src/Domain/Sponsorship/SponsorshipModule.php:193
 msgid "Merchant id (pid)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:195
+#: src/Domain/Sponsorship/SponsorshipModule.php:199
 msgid "Merchant key"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:201
+#: src/Domain/Sponsorship/SponsorshipModule.php:205
 msgid "Gateway submit URL"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:207
+#: src/Domain/Sponsorship/SponsorshipModule.php:211
 msgid "Payment channels"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:208
+#: src/Domain/Sponsorship/SponsorshipModule.php:212
 msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:211
+#: src/Domain/Sponsorship/SponsorshipModule.php:215
 msgid "Alipay"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:212
+#: src/Domain/Sponsorship/SponsorshipModule.php:216
 msgid "WeChat Pay"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:213
+#: src/Domain/Sponsorship/SponsorshipModule.php:217
 msgid "USDT (TRC20)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:219
+#: src/Domain/Sponsorship/SponsorshipModule.php:223
 msgid "Afdian (platform push)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:225
+#: src/Domain/Sponsorship/SponsorshipModule.php:229
 msgid "Afdian integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:226
+#: src/Domain/Sponsorship/SponsorshipModule.php:230
 msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:232
+#: src/Domain/Sponsorship/SponsorshipModule.php:236
 msgid "Afdian plan bindings"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:233
+#: src/Domain/Sponsorship/SponsorshipModule.php:237
 msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:239
+#: src/Domain/Sponsorship/SponsorshipModule.php:243
 msgid "Afdian plan ID"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:245
+#: src/Domain/Sponsorship/SponsorshipModule.php:249
 msgid "Membership tier"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:246
+#: src/Domain/Sponsorship/SponsorshipModule.php:250
 msgid "The tier (from the membership settings page) that this plan activates."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:261
+#: src/Domain/Sponsorship/SponsorshipModule.php:265
 msgid "Fallback tier"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:262
+#: src/Domain/Sponsorship/SponsorshipModule.php:266
 msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:275
+#: src/Domain/Sponsorship/SponsorshipModule.php:279
 msgid "Afdian user id"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:281
+#: src/Domain/Sponsorship/SponsorshipModule.php:285
 msgid "Afdian API token"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:288
+#: src/Domain/Sponsorship/SponsorshipModule.php:292
 msgid "Afdian webhook address"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:289
+#: src/Domain/Sponsorship/SponsorshipModule.php:293
 msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
 msgstr ""
 
 #. translators: %s: tier keys that still have active holders.
-#: src/Domain/Sponsorship/SponsorshipModule.php:392
+#: src/Domain/Sponsorship/SponsorshipModule.php:396
 #, php-format
 msgid "These tiers still have active members and cannot be deleted: %s."
 msgstr ""
