@@ -13,6 +13,7 @@ final class Page
         private string $slug,
         private string $title,
         private string $menuTitle,
+        private string $mirrorTitle,
         private string $capability,
         private string $parentSlug,
         private string $icon,
@@ -36,11 +37,13 @@ final class Page
             array_values(array_filter($definition['fields'] ?? [], 'is_array'))
         );
         $title = (string) ($definition['title'] ?? $slug);
+        $menuTitle = (string) ($definition['menu_title'] ?? $title);
 
         return new self(
             $slug,
             $title,
-            (string) ($definition['menu_title'] ?? $title),
+            $menuTitle,
+            (string) ($definition['mirror_title'] ?? $menuTitle),
             (string) ($definition['capability'] ?? 'manage_options'),
             (string) ($definition['parent'] ?? ''),
             (string) ($definition['icon'] ?? 'dashicons-admin-generic'),
@@ -54,6 +57,14 @@ final class Page
     public function slug(): string { return $this->slug; }
     public function title(): string { return $this->title; }
     public function menuTitle(): string { return $this->menuTitle; }
+
+    /**
+     * The label of the first-level mirror submenu (the core idiom that
+     * makes the top-level menu land on the page itself). Defaults to the
+     * menu title; pages whose outermost menu carries a group name while
+     * another entry leads the group set this apart.
+     */
+    public function mirrorTitle(): string { return $this->mirrorTitle; }
     public function capability(): string { return $this->capability; }
     public function parent(): string { return $this->parentSlug; }
     public function icon(): string { return $this->icon; }

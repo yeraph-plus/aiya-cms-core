@@ -140,7 +140,10 @@ final class SettingsAdmin implements Module
                 // the top-level menu lands on the page itself instead of
                 // being re-parented to the first registered sibling. No
                 // callback: the top-level's own hook renders the page.
-                add_submenu_page($slug, $page->title(), $page->menuTitle(), $page->capability(), $slug, '');
+                // The mirror label defaults to the menu title; a page whose
+                // outermost entry carries a group name (another entry leads
+                // the group instead) splits it via mirror_title.
+                add_submenu_page($slug, $page->title(), $page->mirrorTitle(), $page->capability(), $slug, '');
             }
             if (is_string($hook)) {
                 $this->screens[$hook] = $page->slug();
