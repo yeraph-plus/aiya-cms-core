@@ -30,4 +30,30 @@ final class ServerStatusPageTest extends TestCase
         self::assertSame(0.0, ServerStatusPage::ratioPercent(-5, 100));
         self::assertSame(0.0, ServerStatusPage::ratioPercent(1, 0));
     }
+
+    public function testHardenedHostOpenBasedirGrantsNoProc(): void
+    {
+        // The production incident shape: a BT-panel host allowing only the
+        // site dir and /tmp — every /proc probe warned before returning
+        // false, so the page must skip the probes outright.
+        self::assertFalse(ServerStatusPage::openBasedirGrantsProc('/www/sites/www.catacg.com/index:/tmp/'));
+        self::assertFalse(ServerStatusPage::openBasedirGrantsProc(''));
+        self::assertFalse(ServerStatusPage::openBasedirGrantsProc('::'));
+        // A /proc substring is not a /proc root.
+        self::assertFalse(ServerStatusPage::openBasedirGrantsProc('/www/proc-utils:/tmp'));
+        self::assertFalse(ServerStatusPage::openBasedirGrantsProc('C:\\inetpub;C:\\tmp'));
+    }
+
+    public function testExplicitProcRootsKeepTheProbesAlive(): void
+    {
+        self::assertTrue(ServerStatusPage::openBasedirGrantsProc('/proc'));
+        self::assertTrue(ServerStatusPage::openBasedirGrantsProc('/proc/'));
+        self::assertTrue(ServerStatusPage::openBasedirGrantsProc('/tmp:/proc'));
+        self::assertTrue(ServerStatusPage::openBasedirGrantsProc('/PROC'));
+        // The filesystem root grants everything.
+        self::assertTrue(ServerStatusPage::openBasedirGrantsProc('/'));
+        self::assertTrue(ServerStatusPage::openBasedirGrantsProc('/www/sites/x:/'));
+        // A deeper root like /proc/uptime does not cover cpuinfo/meminfo.
+        self::assertFalse(ServerStatusPage::openBasedirGrantsProc('/proc/uptime:/tmp'));
+    }
 }

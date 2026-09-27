@@ -363,18 +363,51 @@ final class ServerStatusPage
     }
 
     /**
-     * Kernel pseudo-file reads: gated on readability instead of error
-     * silencing, so containers without /proc answers gracefully.
+     * Kernel pseudo-file reads: gated on reachability instead of error
+     * silencing, so containers without /proc answer gracefully.
      */
     private static function readProcFile(string $path): ?string
     {
-        if (!is_readable($path)) {
+        if (!self::procReachable() || !is_readable($path)) {
             return null;
         }
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local kernel pseudo-file, wp_remote_get does not apply
         $raw = file_get_contents($path);
 
         return $raw === false ? null : $raw;
+    }
+
+    /**
+     * Whether /proc reads can succeed at all. When open_basedir is active
+     * without granting /proc, is_readable() emits a warning before it
+     * returns false on every probe (caught live: hardened hosts allow
+     * only the site dir and /tmp) — skip the probes entirely and let the
+     * null path render the graceful fallback.
+     */
+    private static function procReachable(): bool
+    {
+        $openBasedir = ini_get('open_basedir');
+
+        return !is_string($openBasedir) || $openBasedir === '' || self::openBasedirGrantsProc($openBasedir);
+    }
+
+    /**
+     * Pure decision over one open_basedir string (`:`-separated on Linux,
+     * `;` on Windows): only the filesystem root or a /proc root itself can
+     * make these reads reachable — a deeper root like /proc/uptime does
+     * not cover the other pseudo-files this page probes.
+     */
+    public static function openBasedirGrantsProc(string $openBasedir): bool
+    {
+        $entries = preg_split('/[:;]/', $openBasedir) ?: [];
+        foreach ($entries as $entry) {
+            $entry = trim($entry);
+            if ($entry === '/' || strcasecmp(rtrim($entry, '/'), '/proc') === 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
