@@ -9,8 +9,9 @@ use Aiya\Core\Domain\Operations\StatsMath;
 use Aiya\Core\Domain\Operations\StatsQuery;
 
 /**
- * The operations report (submenu of the membership menu): one month's
- * indicators plus the trailing year, and the grant breakdown behind them.
+ * The operations report (top-level menu next to Membership settings): one
+ * month's indicators plus the trailing year, and the grant breakdown
+ * behind them.
  *
  * Read-only by design — the report has no form of its own. Its single
  * input (the upstream cost per download) is a field on the membership
@@ -22,7 +23,7 @@ use Aiya\Core\Domain\Operations\StatsQuery;
 final class OperationsPage implements Module
 {
     private const MENU_SLUG = 'aiya-core-operations';
-    private const PARENT_SLUG = 'aiya-core-membership';
+    private const MENU_POSITION = 28;
     private const TREND_MONTHS = 12;
 
     private StatsQuery $query;
@@ -34,19 +35,17 @@ final class OperationsPage implements Module
 
     public function register(): void
     {
-        // Priority 35: the membership top-level menu is registered by
-        // SettingsAdmin at 30 — add_submenu_page before the parent exists
-        // degrades the page hook to admin_page_* and the request-time access
-        // check denies the screen (the SendMailPage lesson).
-        add_action('admin_menu', [$this, 'menu'], 35);
+        // Top level — no dependency on another module's registration order.
+        add_action('admin_menu', [$this, 'menu'], 30);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
     }
 
     /** The shared admin stylesheet carries the card, filter and meter styles. */
     public function assets(string $hook): void
     {
-        // The parent hook prefix is the localized menu title (percent-encoded
-        // for the Chinese title), so match on the slug suffix only.
+        // Top-level hooks read toplevel_page_<slug>; submenu hooks (if the
+        // page ever moves back) read <parent>_page_<slug> — the suffix is
+        // what both share.
         if (!str_ends_with($hook, '_page_' . self::MENU_SLUG)) {
             return;
         }
@@ -59,20 +58,16 @@ final class OperationsPage implements Module
         wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], $version);
     }
 
-    /**
-     * Priority 35: the membership top-level menu is registered by
-     * SettingsAdmin at 30 — see register() for the hookname timing.
-     */
     public function menu(): void
     {
-        add_submenu_page(
-            self::PARENT_SLUG,
+        add_menu_page(
             __('Operations report', 'aiya-core'),
             __('Operations report', 'aiya-core'),
             'manage_options',
             self::MENU_SLUG,
             [$this, 'render'],
-            3 // after the ledger and the payment log
+            'dashicons-chart-bar',
+            self::MENU_POSITION
         );
     }
 
@@ -104,8 +99,11 @@ final class OperationsPage implements Module
     }
 
     /**
-     * The month picker. Months older than the trend window are not offered
-     * but still render when linked directly.
+     * The month picker as a button group — one link-button per month in
+     * the trend window, the selected month highlighted; no form and no
+     * submit button, every click is a plain GET navigation. Months older
+     * than the window are not offered but still render when linked
+     * directly.
      *
      * @param list<array<string, mixed>> $trend
      */
@@ -116,19 +114,16 @@ final class OperationsPage implements Module
             $months[] = $month;
             sort($months);
         }
+
+        $base = admin_url('admin.php?page=' . self::MENU_SLUG);
         ?>
-        <form method="get" class="aiya-core-filters">
-            <input type="hidden" name="page" value="<?php echo esc_attr(self::MENU_SLUG); ?>">
-            <label for="aiya-operations-month"><?php esc_html_e('Month', 'aiya-core'); ?></label>
-            <select name="month" id="aiya-operations-month">
-                <?php foreach (array_reverse($months) as $option) : ?>
-                    <option value="<?php echo esc_attr($option); ?>" <?php selected($option, $month); ?>>
-                        <?php echo esc_html($option); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <button type="submit" class="button"><?php esc_html_e('View', 'aiya-core'); ?></button>
-        </form>
+        <div class="aiya-core-filters">
+            <span class="description"><?php esc_html_e('Month', 'aiya-core'); ?></span>
+            <?php foreach (array_reverse($months) as $option) : ?>
+                <a class="button<?php echo $option === $month ? ' button-primary' : ''; ?>"
+                   href="<?php echo esc_url(add_query_arg('month', $option, $base)); ?>"><?php echo esc_html($option); ?></a>
+            <?php endforeach; ?>
+        </div>
         <?php
     }
 
