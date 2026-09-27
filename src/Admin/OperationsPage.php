@@ -9,7 +9,7 @@ use Aiya\Core\Domain\Operations\StatsMath;
 use Aiya\Core\Domain\Operations\StatsQuery;
 
 /**
- * The operations report (top-level menu next to Membership settings): one
+ * The operations report (first entry of the membership menu group): one
  * month's indicators plus the trailing year, and the grant breakdown
  * behind them.
  *
@@ -23,7 +23,7 @@ use Aiya\Core\Domain\Operations\StatsQuery;
 final class OperationsPage implements Module
 {
     private const MENU_SLUG = 'aiya-core-operations';
-    private const MENU_POSITION = 28;
+    private const PARENT_SLUG = 'aiya-core-membership';
     private const TREND_MONTHS = 12;
 
     private StatsQuery $query;
@@ -35,17 +35,19 @@ final class OperationsPage implements Module
 
     public function register(): void
     {
-        // Top level — no dependency on another module's registration order.
-        add_action('admin_menu', [$this, 'menu'], 30);
+        // Priority 35: the membership top-level menu is registered by
+        // SettingsAdmin at 30 — add_submenu_page before the parent exists
+        // degrades the page hook to admin_page_* and the request-time access
+        // check denies the screen (the SendMailPage lesson).
+        add_action('admin_menu', [$this, 'menu'], 35);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
     }
 
     /** The shared admin stylesheet carries the card, filter and meter styles. */
     public function assets(string $hook): void
     {
-        // Top-level hooks read toplevel_page_<slug>; submenu hooks (if the
-        // page ever moves back) read <parent>_page_<slug> — the suffix is
-        // what both share.
+        // The parent hook prefix is the localized menu title (percent-encoded
+        // for the Chinese title), so match on the slug suffix only.
         if (!str_ends_with($hook, '_page_' . self::MENU_SLUG)) {
             return;
         }
@@ -60,14 +62,14 @@ final class OperationsPage implements Module
 
     public function menu(): void
     {
-        add_menu_page(
+        add_submenu_page(
+            self::PARENT_SLUG,
             __('Operations report', 'aiya-core'),
             __('Operations report', 'aiya-core'),
             'manage_options',
             self::MENU_SLUG,
             [$this, 'render'],
-            'dashicons-chart-bar',
-            self::MENU_POSITION
+            0 // first in the group — ahead of the mirrored settings form
         );
     }
 
