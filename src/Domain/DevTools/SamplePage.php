@@ -11,7 +11,10 @@ use Aiya\Core\Settings\Registry;
  * Developer sandbox page of the Dev Tools domain: every persisted field
  * type of the settings framework on one screen, detached from the
  * production pages. Loads only when WP_DEBUG is on and renders as a
- * submenu of the Dev Tools menu through the shared settings pipeline.
+ * submenu of the Dev Tools menu through the shared settings pipeline —
+ * the fields are the point (the page exercises the framework's field
+ * renderers and save flow), so it stays a registry page even though the
+ * Dev Tools domain owns its definition, slug family and menu slot.
  */
 final class SamplePage implements Module
 {
@@ -31,10 +34,11 @@ final class SamplePage implements Module
         }
 
         $this->registry->addPage([
-            'slug' => 'sample',
+            'slug' => 'devtools-sample',
             'title' => __('Sample', 'aiya-core'),
             'menu_title' => __('Sample', 'aiya-core'),
             'parent' => 'aiya-core-devtools',
+            'menu_position' => 1, // right after the server status mirror, ahead of the diagnostic pages
             'option_name' => 'aiya_core_sample',
             'fields' => [
                 [

@@ -49,4 +49,13 @@ final class PageTest extends TestCase
         self::assertSame('Membership', $page->menuTitle());
         self::assertSame('Membership settings', $page->mirrorTitle());
     }
+
+    public function testMenuPositionDefaultsToNullAndPassesThrough(): void
+    {
+        // Null appends the page after every positioned sibling; an explicit
+        // slot pins it inside the parent's submenu group.
+        self::assertNull(Page::fromArray(['slug' => 'example'])->menuPosition());
+        self::assertSame(1, Page::fromArray(['slug' => 'example', 'menu_position' => 1])->menuPosition());
+        self::assertSame(0, Page::fromArray(['slug' => 'example', 'menu_position' => 0])->menuPosition());
+    }
 }

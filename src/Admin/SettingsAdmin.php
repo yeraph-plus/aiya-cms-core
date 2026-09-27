@@ -134,7 +134,7 @@ final class SettingsAdmin implements Module
             $slug = 'aiya-core-' . $page->slug();
             $hook = $page->parent() === ''
                 ? add_menu_page($page->title(), $page->menuTitle(), $page->capability(), $slug, $callback, $page->icon(), $page->position())
-                : add_submenu_page($page->parent(), $page->title(), $page->menuTitle(), $page->capability(), $slug, $callback);
+                : add_submenu_page($page->parent(), $page->title(), $page->menuTitle(), $page->capability(), $slug, $callback, $page->menuPosition());
             if ($page->parent() === '') {
                 // Core idiom: the first submenu mirrors the parent slug, so
                 // the top-level menu lands on the page itself instead of

@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Admin;
+namespace Aiya\Core\Domain\Credit;
 
 use Aiya\Core\Contracts\Module;
-use Aiya\Core\Domain\Credit\CreditSettings;
-use Aiya\Core\Domain\Credit\LedgerService;
 
 /**
  * The credit ledger screen (submenu of the membership menu): collapsible

@@ -2,13 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Admin;
+namespace Aiya\Core\Domain\Sponsorship;
 
 use Aiya\Core\Contracts\Module;
-use Aiya\Core\Domain\Sponsorship\AfdianGateway;
-use Aiya\Core\Domain\Sponsorship\EpayGateway;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
-use Aiya\Core\Domain\Sponsorship\OrderService;
 
 /**
  * The payment audit screen (submenu of the membership menu): every

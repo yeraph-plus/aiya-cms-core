@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Admin;
+namespace Aiya\Core\Domain\Media;
 
 use Aiya\Core\Contracts\Module;
-use Aiya\Core\Domain\Media\MediaPaths;
-use Aiya\Core\Domain\Media\MimeType;
 use Closure;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;

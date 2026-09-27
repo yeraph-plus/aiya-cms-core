@@ -18,6 +18,7 @@ final class Page
         private string $parentSlug,
         private string $icon,
         private int $position,
+        private ?int $menuPosition,
         private string $optionName,
         private bool $network,
         private array $fields,
@@ -38,6 +39,7 @@ final class Page
         );
         $title = (string) ($definition['title'] ?? $slug);
         $menuTitle = (string) ($definition['menu_title'] ?? $title);
+        $menuPosition = isset($definition['menu_position']) ? (int) $definition['menu_position'] : null;
 
         return new self(
             $slug,
@@ -48,6 +50,7 @@ final class Page
             (string) ($definition['parent'] ?? ''),
             (string) ($definition['icon'] ?? 'dashicons-admin-generic'),
             (int) ($definition['position'] ?? 81),
+            $menuPosition,
             sanitize_key((string) ($definition['option_name'] ?? 'aiya_core_' . $slug)),
             (bool) ($definition['network'] ?? false),
             $fields,
@@ -69,6 +72,13 @@ final class Page
     public function parent(): string { return $this->parentSlug; }
     public function icon(): string { return $this->icon; }
     public function position(): int { return $this->position; }
+
+    /**
+     * Fixed slot inside the parent's submenu group; null appends the page
+     * after every positioned sibling. Pages that belong to a group family
+     * (the DevTools sandbox) use it instead of trailing the group.
+     */
+    public function menuPosition(): ?int { return $this->menuPosition; }
     public function optionName(): string { return $this->optionName; }
     public function network(): bool { return $this->network; }
 

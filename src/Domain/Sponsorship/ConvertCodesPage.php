@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Admin;
+namespace Aiya\Core\Domain\Sponsorship;
 
 use Aiya\Core\Contracts\Module;
-use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
-use Aiya\Core\Domain\Sponsorship\SponsorshipSettings;
 
 /**
  * Redemption-code manager (submenu of the membership menu): batch-generate

@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Admin;
+namespace Aiya\Core\Domain\Notification;
 
 use Aiya\Core\Contracts\Module;
-use Aiya\Core\Domain\Notification\NotificationService;
-use Aiya\Core\Domain\Notification\RoleLevel;
 
 /**
  * Notifications screen (submenu of the AIYA CMS Core menu): publish an
