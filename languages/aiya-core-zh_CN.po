@@ -3176,3 +3176,31 @@ msgstr "没有匹配项——未做任何更新。"
 #: src/Domain/DevTools/SearchReplacePage.php:292
 msgid "The search string is empty."
 msgstr "搜索串为空。"
+
+#: src/Infrastructure/Security/SecurityModule.php:111
+msgid "Login page countdown gate"
+msgstr "登录页倒计时门禁"
+
+#: src/Infrastructure/Security/SecurityModule.php:112
+msgid "Show a countdown before the wp-login.php form becomes usable"
+msgstr "倒计时结束后 wp-login.php 登录表单才可用"
+
+#: src/Infrastructure/Security/SecurityModule.php:113
+msgid "The login form loads by itself after a short countdown; nothing to configure. Credential-stuffing requests that never wait out the countdown reach a page without a form, and the unlock parameter rotates by itself every 30 minutes."
+msgstr "倒计时结束后登录表单自动出现，无需配置任何参数值。不等倒计时直接提交的撞库请求只会看到一张没有表单的页面，解锁参数每 30 分钟自动轮换。"
+
+#: src/Infrastructure/Security/SecurityModule.php:323
+msgid "Sign in"
+msgstr "登录"
+
+#: src/Infrastructure/Security/SecurityModule.php:338
+msgid "This sign-in page opens automatically."
+msgstr "登录页将自动打开。"
+
+#: src/Infrastructure/Security/SecurityModule.php:340
+msgid "Please wait a moment — the sign-in form loads by itself."
+msgstr "请稍候——登录表单会自行载入。"
+
+#: src/Infrastructure/Security/SecurityModule.php:341
+msgid "Continue to the sign-in form"
+msgstr "继续前往登录表单"

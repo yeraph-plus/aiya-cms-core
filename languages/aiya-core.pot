@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-27T06:52:01+00:00\n"
+"POT-Creation-Date: 2026-09-27T07:56:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -2017,7 +2017,7 @@ msgstr ""
 #: src/Domain/Content/SlugModule.php:69
 #: src/Domain/Content/SlugModule.php:89
 #: src/Domain/Identity/AvatarModule.php:108
-#: src/Infrastructure/Security/SecurityModule.php:132
+#: src/Infrastructure/Security/SecurityModule.php:129
 msgid "Off"
 msgstr ""
 
@@ -4072,125 +4072,129 @@ msgstr ""
 msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA CMS Core > Optimization."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:65
-#: src/Infrastructure/Security/SecurityModule.php:66
+#: src/Infrastructure/Security/SecurityModule.php:70
+#: src/Infrastructure/Security/SecurityModule.php:71
 msgid "Security hardening"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:73
+#: src/Infrastructure/Security/SecurityModule.php:78
 msgid "REST route control"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:79
+#: src/Infrastructure/Security/SecurityModule.php:84
 msgid "REST cross-origin origins"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:80
+#: src/Infrastructure/Security/SecurityModule.php:85
 msgid "Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:86
+#: src/Infrastructure/Security/SecurityModule.php:91
 msgid "Login restrictions"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:92
+#: src/Infrastructure/Security/SecurityModule.php:97
 msgid "Email-address logins"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:93
+#: src/Infrastructure/Security/SecurityModule.php:98
 msgid "Only accept email addresses as the login field"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:99
+#: src/Infrastructure/Security/SecurityModule.php:104
 msgid "Password-reset link hosts"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:100
+#: src/Infrastructure/Security/SecurityModule.php:105
 msgid "Host names the reset link may point at besides this site (the front-end host, comma-separated). Requests naming any other host fall back to this site, so a forged domain can never receive a live reset link."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:106
-msgid "Login page parameter gate"
+#: src/Infrastructure/Security/SecurityModule.php:111
+msgid "Login page countdown gate"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:107
-msgid "wp-login.php only loads with the secret parameter below"
+#: src/Infrastructure/Security/SecurityModule.php:112
+msgid "Show a countdown before the wp-login.php form becomes usable"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:108
-msgid "Obscurity, not authentication: keep the value long and treat it as a compliment to credentials, never a replacement."
+#: src/Infrastructure/Security/SecurityModule.php:113
+msgid "The login form loads by itself after a short countdown; nothing to configure. Credential-stuffing requests that never wait out the countdown reach a page without a form, and the unlock parameter rotates by itself every 30 minutes."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:114
-msgid "Login gate parameter value"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:115
-msgid "Reach the login screen via /wp-login.php?auth=<value>; the pass persists for 10 minutes as a cookie and covers the full flow including password reset. Leave empty to disable the gate regardless of the switch above."
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:122
+#: src/Infrastructure/Security/SecurityModule.php:119
 msgid "Admin protection"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:128
+#: src/Infrastructure/Security/SecurityModule.php:125
 msgid "Admin back end minimum role"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:129
+#: src/Infrastructure/Security/SecurityModule.php:126
 msgid "Users below the selected role are redirected away from wp-admin. Off by default."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:133
+#: src/Infrastructure/Security/SecurityModule.php:130
 msgid "Subscriber and above"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:134
+#: src/Infrastructure/Security/SecurityModule.php:131
 msgid "Contributor and above"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:135
+#: src/Infrastructure/Security/SecurityModule.php:132
 msgid "Author and above"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:136
+#: src/Infrastructure/Security/SecurityModule.php:133
 msgid "Editor and above"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:137
+#: src/Infrastructure/Security/SecurityModule.php:134
 msgid "Administrator only"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:143
+#: src/Infrastructure/Security/SecurityModule.php:140
 msgid "Request URI guard"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:144
+#: src/Infrastructure/Security/SecurityModule.php:141
 msgid "Reject logged-out requests with oversized or probe-shaped URIs (414, REST routes excepted)"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:150
+#: src/Infrastructure/Security/SecurityModule.php:147
 msgid "Uninstall"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:156
+#: src/Infrastructure/Security/SecurityModule.php:153
 msgid "Erase data on scripted uninstalls"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:157
+#: src/Infrastructure/Security/SecurityModule.php:154
 msgid "Wipe the tables, settings and meta on WP-CLI and scripted uninstalls (the Plugins screen always asks)"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:158
+#: src/Infrastructure/Security/SecurityModule.php:155
 msgid "Deleting the plugin keeps all of its data (tables, settings, meta fields, scheduled events), so reinstalling picks up where it left off. Deleting from the Plugins screen always stops and asks first; this switch is the standing answer for the uninstalls that have no UI, such as WP-CLI. Off they keep the data, on they wipe it — the wipe cannot be undone. AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php forces the same wipe everywhere and skips the question."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:178
+#: src/Infrastructure/Security/SecurityModule.php:175
 msgid "Please log in with your email address."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:240
-msgid "Not found."
+#: src/Infrastructure/Security/SecurityModule.php:323
+msgid "Sign in"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:338
+msgid "This sign-in page opens automatically."
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:340
+msgid "Please wait a moment — the sign-in form loads by itself."
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:341
+msgid "Continue to the sign-in form"
 msgstr ""
 
 #: src/Modules/GofileModule.php:61

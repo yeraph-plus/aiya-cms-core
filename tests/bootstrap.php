@@ -647,6 +647,14 @@ if (!function_exists('wp_salt')) {
     }
 }
 
+if (!function_exists('wp_hash')) {
+    /** Core semantics: keyed md5 over the salt for the given scheme. */
+    function wp_hash(string $data, string $scheme = 'session'): string
+    {
+        return hash_hmac('md5', $data, wp_salt($scheme));
+    }
+}
+
 $GLOBALS['__aiya_test_current_user_id'] = 0;
 
 if (!function_exists('get_current_user_id')) {

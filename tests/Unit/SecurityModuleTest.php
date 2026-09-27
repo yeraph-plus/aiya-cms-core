@@ -28,6 +28,27 @@ final class SecurityModuleTest extends TestCase
         self::assertFalse(SecurityModule::isBlockedUri('/wp-login.php'));
     }
 
+    public function testGateTokenIsStableInsideAWindowAndRotatesAcross(): void
+    {
+        $token = SecurityModule::gateToken(5000);
+
+        self::assertSame($token, SecurityModule::gateToken(5000));
+        self::assertSame(20, strlen($token));
+        self::assertNotSame($token, SecurityModule::gateToken(5001));
+    }
+
+    public function testGateCookieDerivationTracksItsWindowToken(): void
+    {
+        // The cookie is a salted hash of the accepted window token, so a
+        // cookie minted late in one window stays bound to that window.
+        $tokenA = SecurityModule::gateToken(9000);
+        $tokenB = SecurityModule::gateToken(9001);
+
+        self::assertSame(SecurityModule::gateCookieValue($tokenA), SecurityModule::gateCookieValue($tokenA));
+        self::assertNotSame(SecurityModule::gateCookieValue($tokenA), SecurityModule::gateCookieValue($tokenB));
+        self::assertStringNotContainsString($tokenA, SecurityModule::gateCookieValue($tokenA));
+    }
+
     public function testOversizedFrontEndUrisAreBlocked(): void
     {
         self::assertTrue(SecurityModule::isBlockedUri('/search/' . str_repeat('a', 260)));

@@ -16,7 +16,9 @@ use Aiya\Core\Settings\Registry;
  * current batch — the API lock now lives with the other headless strips):
  *  - force email-address logins for wp-admin;
  *  - optional role gate for the admin back end;
- *  - optional secret-parameter gate for wp-login.php;
+ *  - optional countdown gate for wp-login.php (self-rotating unlock
+ *    parameter — the login form only appears after the countdown, no
+ *    shared secret to configure);
  *  - cheap request-URI sanity guard against probe traffic;
  *  - CORS origin allowlist for the contract API (rest_allowed_origins).
  *
@@ -30,6 +32,9 @@ final class SecurityModule implements Module
     private const PAGE_SLUG = 'security';
     private const GATE_COOKIE = 'aiya_core_login_gate';
     private const GATE_COOKIE_TTL = 10 * MINUTE_IN_SECONDS;
+    private const GATE_PARAM = 'login_open';
+    private const GATE_WINDOW = 30 * MINUTE_IN_SECONDS;
+    private const GATE_DELAY_DEFAULT = 8;
 
     private const CAPABILITY_BY_ROLE = [
         'subscriber' => 'read',
@@ -103,18 +108,10 @@ final class SecurityModule implements Module
                 [
                     'id' => 'login_param_gate_enable',
                     'type' => 'switch',
-                    'label' => __('Login page parameter gate', 'aiya-core'),
-                    'checkbox_label' => __('wp-login.php only loads with the secret parameter below', 'aiya-core'),
-                    'description' => __('Obscurity, not authentication: keep the value long and treat it as a compliment to credentials, never a replacement.', 'aiya-core'),
+                    'label' => __('Login page countdown gate', 'aiya-core'),
+                    'checkbox_label' => __('Show a countdown before the wp-login.php form becomes usable', 'aiya-core'),
+                    'description' => __('The login form loads by itself after a short countdown; nothing to configure. Credential-stuffing requests that never wait out the countdown reach a page without a form, and the unlock parameter rotates by itself every 30 minutes.', 'aiya-core'),
                     'default' => false,
-                ],
-                [
-                    'id' => 'login_param_gate_value',
-                    'type' => 'password',
-                    'label' => __('Login gate parameter value', 'aiya-core'),
-                    'description' => __('Reach the login screen via /wp-login.php?auth=<value>; the pass persists for 10 minutes as a cookie and covers the full flow including password reset. Leave empty to disable the gate regardless of the switch above.', 'aiya-core'),
-                    'default' => '',
-                    'attributes' => ['autocomplete' => 'off'],
                 ],
                 [
                     'id' => 'heading_admin',
@@ -203,60 +200,168 @@ final class SecurityModule implements Module
     }
 
     /**
-     * wp-login.php only loads for visitors holding the secret. The presented
-     * secret (query string or form field) exchanges for a short-lived cookie
-     * that unlocks the whole flow — the form POST back to wp-login.php never
-     * carries the original query parameter, and lost-password / reset forms
-     * are separate submissions as well.
+     * wp-login.php is hijacked for everyone who arrives without the
+     * rotating unlock parameter or a fresh unlock cookie: the page renders
+     * as a bare countdown (no login form at all — nothing for credential
+     * stuffers to submit against) and the browser jumps to the same URL
+     * with a time-derived token once the countdown ends. The token is
+     * HMAC-derived from a time window, so nothing needs to be configured
+     * or remembered: it rotates on its own, accepts the previous window as
+     * grace, and a direct POST (the credential-stuffing shape) never
+     * carries it.
      */
     public function gateLoginPage(): void
     {
-        $expected = $this->gateSecret();
-        if ($expected === null) {
+        if (!$this->gateEnabled()) {
             return;
         }
 
-        $presented = isset($_REQUEST['auth']) ? wp_unslash((string) $_REQUEST['auth']) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the secret itself is the gate; its value is only compared, never stored or rendered.
-        if ($presented !== '' && hash_equals($expected, $presented)) {
-            if (!isset($_COOKIE[self::GATE_COOKIE]) || !hash_equals($this->gateCookieValue($expected), (string) $_COOKIE[self::GATE_COOKIE])) {
-                setcookie(self::GATE_COOKIE, $this->gateCookieValue($expected), [
-                    'expires' => time() + self::GATE_COOKIE_TTL,
-                    'path' => COOKIEPATH,
-                    'domain' => COOKIE_DOMAIN,
-                    'secure' => is_ssl(),
-                    'httponly' => true,
-                    'samesite' => 'Lax',
-                ]);
-            }
+        if ($this->gateUnlocked()) {
             return;
+        }
+
+        $this->renderCountdownPage();
+    }
+
+    private function gateEnabled(): bool
+    {
+        return (bool) aiya_core_opt(self::PAGE_SLUG, 'login_param_gate_enable', false);
+    }
+
+    /** The rotating window token; pure in the slot so tests can pin it. */
+    public static function gateToken(int $slot): string
+    {
+        return substr(wp_hash('aiya-core-login-gate|' . $slot, 'nonce'), 0, 20);
+    }
+
+    /** The current time window slot (and its immediate predecessor). */
+    private function gateSlots(): array
+    {
+        $slot = (int) floor(time() / self::GATE_WINDOW);
+
+        return [$slot, $slot - 1];
+    }
+
+    /**
+     * The unlock cookie carries a salted hash of the accepted window
+     * token, never the token itself; validation accepts the current and
+     * previous window so a cookie minted late in one window survives its
+     * own TTL across the boundary.
+     */
+    private function gateUnlocked(): bool
+    {
+        $presented = isset($_REQUEST[self::GATE_PARAM]) ? wp_unslash((string) $_REQUEST[self::GATE_PARAM]) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the derived token itself is the gate; its value is only compared, never stored or rendered.
+        if ($presented !== '') {
+            foreach ($this->gateSlots() as $slot) {
+                if (hash_equals(self::gateToken($slot), $presented)) {
+                    $this->setGateCookie($this->gateCookieValue(self::gateToken($slot)));
+                    return true;
+                }
+            }
         }
 
         $cookie = isset($_COOKIE[self::GATE_COOKIE]) ? (string) $_COOKIE[self::GATE_COOKIE] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above.
-        if ($cookie !== '' && hash_equals($this->gateCookieValue($expected), $cookie)) {
+        if ($cookie !== '') {
+            foreach ($this->gateSlots() as $slot) {
+                if (hash_equals($this->gateCookieValue(self::gateToken($slot)), $cookie)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private function setGateCookie(string $value): void
+    {
+        if (isset($_COOKIE[self::GATE_COOKIE]) && hash_equals((string) $_COOKIE[self::GATE_COOKIE], $value)) {
             return;
         }
 
-        wp_die(
-            esc_html__('Not found.', 'aiya-core'),
-            '',
-            ['response' => 404]
-        );
+        setcookie(self::GATE_COOKIE, $value, [
+            'expires' => time() + self::GATE_COOKIE_TTL,
+            'path' => COOKIEPATH,
+            'domain' => COOKIE_DOMAIN,
+            'secure' => is_ssl(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
     }
 
-    private function gateSecret(): ?string
+    /** The cookie carries a salted hash of the window token, never the token itself. */
+    public static function gateCookieValue(string $token): string
     {
-        if (!(bool) aiya_core_opt(self::PAGE_SLUG, 'login_param_gate_enable', false)) {
-            return null;
+        return hash('sha256', 'aiya_core_login_gate|' . $token);
+    }
+
+    /**
+     * The hijacked login screen: a bare countdown card, no form, no
+     * username field — after the delay the browser re-enters the same URL
+     * carrying the current window token. A noscript anchor keeps the page
+     * usable without JS; the token is in the page either way, the wait is
+     * the friction.
+     */
+    private function renderCountdownPage(): never
+    {
+        $delay = (int) apply_filters('aiya_core_login_gate_delay', self::GATE_DELAY_DEFAULT);
+        $delay = min(60, max(3, $delay));
+        $slots = $this->gateSlots();
+
+        $uri = isset($_SERVER['REQUEST_URI']) ? (string) $_SERVER['REQUEST_URI'] : '/wp-login.php'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- embedded through add_query_arg + esc_js below, never echoed raw
+        $unlockUrl = add_query_arg([self::GATE_PARAM => self::gateToken($slots[0])], home_url($uri));
+
+        status_header(200);
+        nocache_headers();
+        header('Content-Type: text/html; charset=utf-8');
+        $site = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
+        ?>
+<!doctype html>
+<html <?php language_attributes(); ?>>
+<head>
+<meta charset="<?php bloginfo('charset'); ?>">
+<meta name="viewport" content="width=device-width">
+<title><?php echo esc_html($site); ?> &rsaquo; <?php esc_html_e('Sign in', 'aiya-core'); ?></title>
+<style>
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+           background: #f0f0f1; color: #3c434a; font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .card { width: 320px; padding: 26px 24px; background: #fff; border: 1px solid #c3c4c7;
+            box-shadow: 0 1px 3px rgba(0,0,0,.04); text-align: center; }
+    .card h1 { font-size: 20px; margin: 0 0 12px; }
+    .count { font-size: 34px; font-weight: 600; margin: 10px 0; }
+    p { margin: 8px 0; }
+    a { color: #2271b1; }
+</style>
+</head>
+<body>
+<div class="card">
+    <h1><?php echo esc_html($site); ?></h1>
+    <p><?php esc_html_e('This sign-in page opens automatically.', 'aiya-core'); ?></p>
+    <div class="count" id="aiya-gate-count"><?php echo (int) $delay; ?></div>
+    <p><?php esc_html_e('Please wait a moment — the sign-in form loads by itself.', 'aiya-core'); ?></p>
+    <noscript><p><a href="<?php echo esc_url($unlockUrl); ?>"><?php esc_html_e('Continue to the sign-in form', 'aiya-core'); ?></a></p></noscript>
+</div>
+<script>
+(function () {
+    var left = <?php echo (int) $delay; ?>,
+        url = <?php echo wp_json_encode((string) $unlockUrl); ?>,
+        node = document.getElementById('aiya-gate-count');
+    var timer = setInterval(function () {
+        left -= 1;
+        if (left <= 0) {
+            clearInterval(timer);
+            window.location.replace(url);
+            return;
         }
-        $expected = trim((string) aiya_core_opt(self::PAGE_SLUG, 'login_param_gate_value', ''));
-
-        return $expected !== '' ? $expected : null;
-    }
-
-    /** The cookie carries a salted hash of the secret, never the secret itself. */
-    private function gateCookieValue(string $expected): string
-    {
-        return hash('sha256', 'aiya_core_login_gate|' . $expected);
+        if (node) {
+            node.textContent = String(left);
+        }
+    }, 1000);
+})();
+</script>
+</body>
+</html>
+        <?php
+        exit;
     }
 
     /**
