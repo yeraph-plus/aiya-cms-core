@@ -78,10 +78,12 @@ a site may repoint it per environment — `define('AIYA_CORE_UPDATE_REPO',
 'owner/repo');` in wp-config.php, or filter `aiya_core_update_repo` —
 an empty value turns the checker off. The `Update URI:
 false` plugin header keeps wordpress.org out of the picture, and each
-release carries exactly one zip asset: that is the download the checker
-hands the updater. The `aiya-headless` shell theme is deliberately not
-distributed in releases — it is a placeholder, mirrored from `themes/`
-by hand.
+release carries exactly one zip asset: the checker requires that zip and
+hands it to the updater — a release cut without it offers no update at
+all, never GitHub's source archive for the tag (which carries no
+composer `vendor/` tree and no compiled `.mo` files). The `aiya-headless`
+shell theme is deliberately not distributed in releases — it is a
+placeholder, mirrored from `themes/` by hand.
 
 ## Deployment
 

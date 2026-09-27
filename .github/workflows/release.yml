@@ -111,9 +111,10 @@ jobs:
                   find build/aiya-cms-core -name '.DS_Store' -type f -delete
 
             # Exactly one zip asset rides every release: the online-update
-            # checker (Plugin Update Checker, GitHub mode) uses the release's
-            # zip as the download, so the shell theme is deliberately not
-            # packaged here.
+            # checker (Plugin Update Checker, GitHub mode) requires the
+            # release's zip as the download — a release without it is
+            # skipped, never served as GitHub's source archive — so the
+            # shell theme is deliberately not packaged here.
             - name: Zip the package
               run: |
                   cd build

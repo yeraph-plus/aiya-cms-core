@@ -12,8 +12,13 @@ use Aiya\Core\Contracts\Module;
  * yahnis-elsts/plugin-update-checker) watches this repository's GitHub
  * Releases, and the release workflow attaches exactly one zip asset per
  * release — the plugin package — which the GitHub check uses as the
- * update download. The release tag carries the version (the workflow
- * already gates it against the plugin header).
+ * update download. The asset is required, not merely preferred: release
+ * assets are opt-in in PUC, whose untouched default download is GitHub's
+ * source archive for the tag (no composer `vendor/` tree, no compiled
+ * `.mo` files), and even an asset-aware check would fall back to that
+ * archive rather than refuse a release that lacks one. The release tag
+ * carries the version (the workflow already gates it against the plugin
+ * header).
  *
  * The source repository is built in (`owner/repo`); a site may still
  * repoint it per environment through the AIYA_CORE_UPDATE_REPO constant
@@ -28,6 +33,14 @@ final class UpdateCheckerModule implements Module
 
     /** The checker's WP-Cron event; PUC names it `puc_{tag}-{slug}`. */
     public const CRON_HOOK = 'puc_cron_check_updates-aiya-core';
+
+    /**
+     * Name pattern of the release's one zip asset, as the workflow builds
+     * it (`.github/workflows/release.yml`: `aiya-cms-core-<version>.zip`);
+     * anchored so a future sidecar asset (checksum, theme) can never win
+     * the pick.
+     */
+    private const RELEASE_ASSET_PATTERN = '/^aiya-cms-core-.*\.zip$/';
 
     public function register(): void
     {
@@ -72,10 +85,45 @@ final class UpdateCheckerModule implements Module
             return;
         }
 
-        \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+        $checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
             'https://github.com/' . $repo,
             AIYA_CORE_FILE,
             'aiya-core'
+        );
+
+        $this->requireReleaseAsset($checker);
+    }
+
+    /**
+     * Points the checker at the release's zip asset. PUC only considers
+     * assets when asked, and without the REQUIRE preference a release
+     * whose assets don't match still falls back to GitHub's source
+     * archive — the vendor-less tree this check exists to keep off
+     * production; a release cut without the asset must offer no update at
+     * all instead.
+     *
+     * The calls are shape-checked because the library is discovered by
+     * pattern (see boot()): a PUC shaped differently leaves the check on
+     * the library default rather than fataling.
+     */
+    private function requireReleaseAsset(object $checker): void
+    {
+        if (!method_exists($checker, 'getVcsApi')) {
+            return;
+        }
+
+        $api = $checker->getVcsApi();
+        if (
+            !is_object($api)
+            || !method_exists($api, 'enableReleaseAssets')
+            || !defined($api::class . '::REQUIRE_RELEASE_ASSETS')
+        ) {
+            return;
+        }
+
+        $api->enableReleaseAssets(
+            self::RELEASE_ASSET_PATTERN,
+            (int) constant($api::class . '::REQUIRE_RELEASE_ASSETS')
         );
     }
 }
