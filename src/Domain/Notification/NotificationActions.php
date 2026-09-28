@@ -92,6 +92,14 @@ final class NotificationActions implements Module
      * silent until approved (they re-fire wp_insert_comment on approval
      * through wp_transition_comment_status → wp_insert_comment is NOT
      * re-fired; approved-only keeps this simple and honest).
+     *
+     * Guest comments (comment user_id 0) never notify, in BOTH directions
+     * (0.96.0 audit): a guest comment on a post stays silent toward the
+     * author, a guest reply stays silent toward the parent commenter, and
+     * a logged-in reply to a GUEST comment stays silent too — the parent
+     * guest has no account, and `user_id = 0` is the broadcast shape, so
+     * materializing that recipient would have broadcast the reply to
+     * every visitor. Notifications only flow between signed-in accounts.
      */
     public function onCommentInserted(int $commentId, WP_Comment $comment): void
     {
@@ -100,6 +108,10 @@ final class NotificationActions implements Module
         }
 
         $actorId = (int) $comment->user_id;
+        if ($actorId <= 0) {
+            return;
+        }
+
         $postId = (int) $comment->comment_post_ID;
         $post = get_post($postId);
         if ($post === null) {

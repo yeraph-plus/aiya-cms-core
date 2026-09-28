@@ -6,8 +6,9 @@ namespace Aiya\Core\Api\Contract;
 
 /**
  * Front-end presentation defaults from the Frontend settings page: the
- * initial color mode, the site-wide fallback cover used when a post has
- * neither a featured image nor a generated one, the empty/error state
+ * initial color mode, the site-wide fallback cover (list card
+ * thumbnails, category cards, and the article hero — the backend derives
+ * each crop, see PostPresenter::featured()), the empty/error state
  * placeholder image, the brand color that drives the front end's
  * palette, and the site-level SEO/analytics head values (keywords, meta
  * description, the Google Analytics measurement id — the front end

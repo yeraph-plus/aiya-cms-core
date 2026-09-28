@@ -28,6 +28,7 @@ use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Rest\RestController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
+use Aiya\Core\Domain\Content\ContentManagementModule;
 use Aiya\Core\Domain\Content\ContentTypeModule;
 use Aiya\Core\Domain\Content\ContentTypeRegistry;
 use Aiya\Core\Domain\Content\FrontendModule;
@@ -112,6 +113,7 @@ final class Plugin
         $this->addModule(new SettingsAdmin($this->settings));
         $this->addModule(new DevToolsModule($this->settings));
         $this->addModule(new FrontendModule($this->settings));
+        $this->addModule(new ContentManagementModule($this->settings));
         $this->addModule(new HeadlessModule($this->settings));
         $this->addModule(new SecurityModule($this->settings));
         $this->addModule(new TrustedProxy());

@@ -31,7 +31,9 @@ final class MailModule implements Module
 {
     public function register(): void
     {
-        add_filter('notify_post_author', static fn (mixed $maybeNotify): bool => false);
-        add_filter('notify_moderator', static fn (mixed $maybeNotify): bool => false);
+        // $maybeNotify rides WP's filter signature only — this hook is the
+        // final veto gate (WP 4.4+), it never reads the proposed value.
+        add_filter('notify_post_author', static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
+        add_filter('notify_moderator', static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
     }
 }

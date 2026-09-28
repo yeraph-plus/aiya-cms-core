@@ -126,6 +126,70 @@ if (!class_exists('WP_Term')) {
     }
 }
 
+// --- WP_Comment -----------------------------------------------------------
+
+if (!class_exists('WP_Comment')) {
+    class WP_Comment
+    {
+        /** @var array<string, mixed> */
+        private array $aiya_test_props = [];
+
+        public function __construct(?object $row = null)
+        {
+            foreach (get_object_vars($row ?? new \stdClass()) as $key => $value) {
+                $this->aiya_test_props[$key] = $value;
+            }
+        }
+
+        public function __get(string $name): mixed
+        {
+            return $this->aiya_test_props[$name] ?? '';
+        }
+
+        public function __set(string $name, mixed $value): void
+        {
+            $this->aiya_test_props[$name] = $value;
+        }
+
+        public function __isset(string $name): bool
+        {
+            return isset($this->aiya_test_props[$name]);
+        }
+    }
+}
+
+if (!function_exists('get_comment')) {
+    function get_comment(mixed $comment = null): WP_Comment|array|null
+    {
+        if ($comment instanceof WP_Comment) {
+            return $comment;
+        }
+
+        return $GLOBALS['__aiya_test_comments'][(int) $comment] ?? null;
+    }
+}
+
+if (!function_exists('wp_trim_words')) {
+    function wp_trim_words(string $text, int $numWords = 55, string $more = '…'): string
+    {
+        $words = preg_split('/\s+/u', trim($text)) ?: [];
+        if (count($words) <= $numWords) {
+            return trim($text);
+        }
+
+        return implode(' ', array_slice($words, 0, $numWords)) . $more;
+    }
+}
+
+if (!function_exists('get_the_author_meta')) {
+    function get_the_author_meta(string $field = '', int $userId = 0): string
+    {
+        $value = $GLOBALS['__aiya_test_user_meta'][$userId][$field] ?? '';
+
+        return is_scalar($value) ? (string) $value : '';
+    }
+}
+
 // --- WP_User --------------------------------------------------------------
 
 if (!class_exists('WP_User')) {
@@ -664,6 +728,13 @@ if (!function_exists('get_current_user_id')) {
     }
 }
 
+if (!function_exists('is_user_logged_in')) {
+    function is_user_logged_in(): bool
+    {
+        return get_current_user_id() > 0;
+    }
+}
+
 if (!function_exists('wp_is_post_revision')) {
     function wp_is_post_revision(int|WP_Post $post): int|false
     {
@@ -892,6 +963,9 @@ if (!class_exists('wpdb')) {
 
         public int $rows_affected = 0;
 
+        /** Last auto-increment id the stand-in "issued" (row count per table). */
+        public int $insert_id = 0;
+
         public string $last_error = '';
 
         /**
@@ -918,6 +992,7 @@ if (!class_exists('wpdb')) {
 
             $this->last_error = '';
             $this->aiya_test_rows[$table][] = $data;
+            $this->insert_id = count($this->aiya_test_rows[$table]);
 
             return true;
         }
@@ -1260,37 +1335,103 @@ if (!function_exists('wp_list_pluck')) {
 
 if (!class_exists('WP_Query')) {
     /**
-     * Minimal stand-in for the mass-fill reads the API layer issues:
-     * honours `post__in` order, publish-only and the post_type whitelist —
-     * everything else is ignored (no pagination/term/meta support).
+     * Minimal stand-in for the read queries the API layer issues: honours
+     * `post__in` order, publish-only and the post_type whitelist. The
+     * 0.96.0 list tests need the real query's window semantics too, so
+     * this also implements `post__not_in`, `offset`/`paged`+limit
+     * slicing, `fields => ids`, `found_posts` and the `get()` accessor —
+     * searches, tax and meta legs stay ignored (no SQL layer here).
      */
     class WP_Query
     {
-        /** @var list<WP_Post> */
+        /** @var list<WP_Post|int> */
         public array $posts = [];
+
+        public int $found_posts = 0;
+
+        /** @var array<string, mixed> */
+        private array $args = [];
 
         public function __construct(array $args = [])
         {
+            $this->args = $args;
             $types = (array) ($args['post_type'] ?? 'any');
             $wanted = [];
             foreach ($types as $type) {
                 $wanted[] = (string) $type;
             }
-            foreach ((array) ($args['post__in'] ?? []) as $id) {
-                $post = $GLOBALS['__aiya_test_posts'][(int) $id] ?? null;
-                if (!$post instanceof WP_Post) {
-                    continue;
-                }
-                if ($args['post_status'] ?? null) {
-                    if (!in_array((string) $post->post_status, (array) $args['post_status'], true)) {
+            $notIn = array_map('intval', (array) ($args['post__not_in'] ?? []));
+
+            $matched = [];
+            if (($args['post__in'] ?? []) !== []) {
+                foreach ((array) ($args['post__in'] ?? []) as $id) {
+                    $post = $GLOBALS['__aiya_test_posts'][(int) $id] ?? null;
+                    if (!$post instanceof WP_Post) {
                         continue;
                     }
+                    if ($args['post_status'] ?? null) {
+                        if (!in_array((string) $post->post_status, (array) $args['post_status'], true)) {
+                            continue;
+                        }
+                    }
+                    if ($wanted !== [] && !in_array((string) $post->post_type, $wanted, true)) {
+                        continue;
+                    }
+                    $matched[] = $post;
                 }
-                if ($wanted !== [] && !in_array((string) $post->post_type, $wanted, true)) {
-                    continue;
+            } else {
+                foreach (($GLOBALS['__aiya_test_posts'] ?? []) as $post) {
+                    if (!$post instanceof WP_Post) {
+                        continue;
+                    }
+                    if ($args['post_status'] ?? null) {
+                        if (!in_array((string) $post->post_status, (array) $args['post_status'], true)) {
+                            continue;
+                        }
+                    }
+                    if ($wanted !== [] && !in_array((string) $post->post_type, $wanted, true)) {
+                        continue;
+                    }
+                    $matched[] = $post;
                 }
-                $this->posts[] = $post;
+                // Default date listing: newest first, id tiebreak (the
+                // direction follows `order`).
+                $direction = strtolower((string) ($args['order'] ?? 'desc')) === 'asc' ? 1 : -1;
+                usort($matched, static fn (WP_Post $a, WP_Post $b): int => $direction * (
+                    [$a->post_date, (int) $a->ID] <=> [$b->post_date, (int) $b->ID]
+                ));
             }
+
+            $matched = array_values(array_filter(
+                $matched,
+                static fn (WP_Post $post): bool => !in_array((int) $post->ID, $notIn, true)
+            ));
+            $this->found_posts = count($matched);
+
+            // posts_per_page 0 / -1 mean "no limit" in real WP — keep that.
+            $perPage = isset($args['posts_per_page']) && (int) $args['posts_per_page'] > 0
+                ? (int) $args['posts_per_page']
+                : null;
+            $offset = 0;
+            if (isset($args['offset'])) {
+                $offset = max(0, (int) $args['offset']);
+            } elseif ($perPage !== null && isset($args['paged'])) {
+                $offset = (max(1, (int) $args['paged']) - 1) * $perPage;
+            }
+            if ($perPage !== null) {
+                $matched = array_slice($matched, $offset, $perPage);
+            } elseif ($offset > 0) {
+                $matched = array_slice($matched, $offset);
+            }
+
+            $this->posts = (($args['fields'] ?? '') === 'ids')
+                ? array_map(static fn (WP_Post $post): int => (int) $post->ID, $matched)
+                : $matched;
+        }
+
+        public function get(string $key, mixed $default = ''): mixed
+        {
+            return $this->args[$key] ?? $default;
         }
     }
 }
@@ -1534,6 +1675,51 @@ if (!function_exists('add_action')) {
     function add_action(string $hook, callable $callback, int $priority = 10, int $acceptedArgs = 1): true
     {
         return add_filter($hook, $callback, $priority, $acceptedArgs);
+    }
+}
+
+if (!function_exists('remove_filter')) {
+    function remove_filter(string $hook, callable $callback, int $priority = 10): bool
+    {
+        foreach ($GLOBALS['__aiya_test_filters'][$hook][$priority] ?? [] as $index => $entry) {
+            if ($entry['callback'] === $callback) {
+                unset($GLOBALS['__aiya_test_filters'][$hook][$priority][$index]);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('remove_action')) {
+    function remove_action(string $hook, callable $callback, int $priority = 10): bool
+    {
+        return remove_filter($hook, $callback, $priority);
+    }
+}
+
+if (!function_exists('get_term')) {
+    function get_term(mixed $term = null, string $taxonomy = ''): WP_Term|null
+    {
+        if ($term instanceof WP_Term) {
+            return $term;
+        }
+        // Like core: a taxonomy argument narrows the lookup (an id shared
+        // across taxonomies answers the one asked for, not an ambiguity).
+        foreach (($GLOBALS['__aiya_test_terms'] ?? []) as $ownTaxonomy => $terms) {
+            if ($taxonomy !== '' && (string) $ownTaxonomy !== $taxonomy) {
+                continue;
+            }
+            foreach ((array) $terms as $candidate) {
+                if ($candidate instanceof WP_Term && (int) $candidate->term_id === (int) $term) {
+                    return $candidate;
+                }
+            }
+        }
+
+        return null;
     }
 }
 

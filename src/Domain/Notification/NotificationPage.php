@@ -9,7 +9,7 @@ use Aiya\Core\Contracts\Module;
 /**
  * Notifications screen (submenu of the AIYA CMS Core menu): publish an
  * announcement and browse/delete stored rows. The retention setting lives
- * on the Frontend page; this screen only describes the daily cleanup.
+ * on the content-management page; this screen only describes the daily cleanup.
  * Deliberately plain — the legacy site-notice settings list it replaces was
  * itself nothing more than a hidden-input repeater.
  *

@@ -13,6 +13,7 @@ use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\ProfilePresenter;
 use Aiya\Core\Api\Presenter\SitePresenter;
 use Aiya\Core\Domain\Content\ContentQuery;
+use Aiya\Core\Domain\Content\NsfwFilter;
 use Aiya\Core\Domain\Content\PublicType;
 use Aiya\Core\Domain\Content\PublicTypes;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
@@ -45,6 +46,7 @@ final class ContentController
         private SitePresenter $site,
         private ProfilePresenter $profiles,
         private RateLimiter $limiter,
+        private NsfwFilter $nsfw = new NsfwFilter(),
         private MembershipService $membership = new MembershipService(),
     ) {
     }
@@ -86,6 +88,14 @@ final class ContentController
                 // to the contract groups; category/tag keep filtering.
                 'taxonomy' => ['type' => 'string', 'default' => 'all', 'enum' => ['all', 'category', 'tag']],
                 'type' => ['type' => 'string', 'default' => 'post', 'enum' => ['post', 'page', 'resource']],
+                // 0-count terms leave the published list (the native count
+                // never includes child-term posts); sitemap walkers and
+                // direct archive resolution ask for the full set.
+                'hideEmpty' => ['type' => 'boolean', 'default' => true],
+                // Withholds the NSFW-configured terms of the type when the
+                // read asks for the filter; the viewer's "always show"
+                // override resolves in NsfwFilter, no session needed.
+                'excludeNsfw' => ['type' => 'boolean', 'default' => false],
             ],
         ]);
 
@@ -111,6 +121,10 @@ final class ContentController
                 'id' => ['type' => 'integer', 'required' => true, 'minimum' => 1],
                 'number' => ['type' => 'integer', 'default' => RelatedPostsQuery::DEFAULT_NUMBER, 'minimum' => 1, 'maximum' => RelatedPostsQuery::MAX_NUMBER],
                 'days' => ['type' => 'integer', 'default' => 0, 'minimum' => 0, 'maximum' => RelatedPostsQuery::MAX_DAYS],
+                // The related read honors the same NSFW request as the
+                // lists: shared-term neighbours carrying an excluded term
+                // drop out for visitors who asked to hide them.
+                'excludeNsfw' => ['type' => 'boolean', 'default' => false],
             ],
         ]);
 
@@ -134,6 +148,7 @@ final class ContentController
                 'type' => ['type' => 'string', 'enum' => ['post', 'page', 'resource']],
                 'page' => ['type' => 'integer', 'default' => 1, 'minimum' => 1],
                 'perPage' => ['type' => 'integer', 'default' => 10, 'minimum' => 1, 'maximum' => 50],
+                'excludeNsfw' => ['type' => 'boolean', 'default' => false],
             ],
         ]);
     }
@@ -190,7 +205,17 @@ final class ContentController
                 return new WP_Error('aiya_invalid_param', __('Content not found.', 'aiya-core'), ['status' => 400]);
             }
 
-            $result = $this->query->list($type, $page, $perPage, $q, '', 'relevance');
+            $result = $this->query->list(
+                $type,
+                $page,
+                $perPage,
+                $q,
+                '',
+                'relevance',
+                '',
+                '',
+                $this->nsfw->excludedTermTaxonomyIds($type, (bool) $request->get_param('excludeNsfw'))
+            );
 
             return new WP_REST_Response([
                 'data' => array_map(
@@ -207,7 +232,17 @@ final class ContentController
 
         $groups = [];
         foreach (PublicTypes::all() as $name => $type) {
-            $result = $this->query->list($type, 1, $perPage, $q, '', 'relevance');
+            $result = $this->query->list(
+                $type,
+                1,
+                $perPage,
+                $q,
+                '',
+                'relevance',
+                '',
+                '',
+                $this->nsfw->excludedTermTaxonomyIds($type, (bool) $request->get_param('excludeNsfw'))
+            );
             $groups[$name] = new SearchGroup($summarize($result['items'], $type), $result['total']);
         }
 
@@ -238,6 +273,10 @@ final class ContentController
                 'tag' => ['type' => 'string', 'default' => '', 'maxLength' => 200],
                 'author' => ['type' => 'string', 'default' => '', 'maxLength' => 100],
                 'sort' => ['type' => 'string', 'default' => 'newest', 'enum' => ['newest', 'oldest', 'rand']],
+                // NSFW exclusion request: rows carrying any configured NSFW
+                // term of this type drop out (no session required; a
+                // signed-in "always show" viewer overrides it server-side).
+                'excludeNsfw' => ['type' => 'boolean', 'default' => false],
             ],
         ]);
 
@@ -258,7 +297,16 @@ final class ContentController
             return new WP_REST_Response([]);
         }
 
-        return new WP_REST_Response($this->posts->presentTerms($type, (string) $request->get_param('taxonomy')));
+        $exclude = (bool) $request->get_param('excludeNsfw') && $this->nsfw->withholdsTerms($type)
+            ? $this->nsfw->configuredTermIds($type)
+            : [];
+
+        return new WP_REST_Response($this->posts->presentTerms(
+            $type,
+            (string) $request->get_param('taxonomy'),
+            $exclude,
+            (bool) $request->get_param('hideEmpty')
+        ));
     }
 
     private function list(WP_REST_Request $request, string $typeName): WP_REST_Response
@@ -281,7 +329,8 @@ final class ContentController
             sanitize_text_field((string) $request->get_param('category')),
             (string) $request->get_param('sort'),
             sanitize_title((string) $request->get_param('author')),
-            sanitize_text_field((string) $request->get_param('tag'))
+            sanitize_text_field((string) $request->get_param('tag')),
+            $this->nsfw->excludedTermTaxonomyIds($type, (bool) $request->get_param('excludeNsfw'))
         );
 
         $items = [];
@@ -393,7 +442,8 @@ final class ContentController
             $post,
             $type,
             (int) $request->get_param('number'),
-            (int) $request->get_param('days')
+            (int) $request->get_param('days'),
+            $this->nsfw->excludedTermTaxonomyIds($type, (bool) $request->get_param('excludeNsfw'))
         ) as $row) {
             $items[] = $this->posts->summary($row, $type)->toArray();
         }

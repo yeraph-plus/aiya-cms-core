@@ -29,6 +29,7 @@ final class AuthSessionContractTest extends TestCase
                 '2026-09-06T08:00:00+00:00',
                 'subscriber',
                 false,
+                false,
                 new AvatarImage('https://wp.example.com/a.jpg', 'https://wp.example.com/a.jpg')
             )
         );
@@ -66,6 +67,7 @@ final class AuthSessionContractTest extends TestCase
             'en_US',
             gmdate('c', $now),
             'subscriber',
+            false,
             false,
             new AvatarImage('', '')
         );

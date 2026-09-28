@@ -43,6 +43,9 @@ final class PostPresenter
      */
     private const CACHE_GROUP = 'aiya_core_content';
     private const CACHE_TTL = HOUR_IN_SECONDS;
+    /** Vocabulary cache shape version: the 0.96.0 filtering changed the
+        default key's content, so old cached shapes must not answer. */
+    private const TERMS_CACHE_VERSION = 'v2';
 
     public function __construct(
         private readonly CardThumbnailService $cards,
@@ -204,15 +207,29 @@ final class PostPresenter
      * the resource type carries five). `$contractTaxonomy` filters to one
      * group; "all" returns every vocabulary of the type.
      *
+     * Output filtering (0.96.0): terms whose native count is 0 drop out of
+     * the published list — WordPress maintains the count per term (direct
+     * relationships only, never children), so an empty category leaves the
+     * list while a parent whose posts all live in its children stays out
+     * too (direct archive visits still resolve — callers that need the
+     * full set ask with `$hideEmpty`). `$excludeTermIds` withholds the
+     * NSFW-configured terms (term ids) when the read asked for the filter;
+     * the caller resolved the viewer override (NsfwFilter), this method
+     * only subtracts.
+     *
      * The vocabulary read is site state with no single invalidation hook
      * (term rows plus their meta and cover attachments); it mirrors into
-     * the object cache for the shell-cache freshness window instead.
+     * the object cache for the shell-cache freshness window instead. The
+     * cache key folds both filters.
      *
+     * @param list<int> $excludeTermIds
      * @return array<int, array<string, mixed>>
      */
-    public function presentTerms(PublicType $type, string $contractTaxonomy): array
+    public function presentTerms(PublicType $type, string $contractTaxonomy, array $excludeTermIds = [], bool $hideEmpty = true): array
     {
-        $key = 'terms_' . $type->name . '_' . $contractTaxonomy;
+        $key = 'terms_' . self::TERMS_CACHE_VERSION . '_' . $type->name . '_' . $contractTaxonomy
+            . ($excludeTermIds !== [] ? '_nsfw' : '')
+            . ($hideEmpty ? '' : '_full');
         /** @var array<int, array<string, mixed>>|false $cached */
         $cached = wp_cache_get($key, self::CACHE_GROUP);
         if (is_array($cached)) {
@@ -234,9 +251,16 @@ final class PostPresenter
             }
 
             foreach ($terms as $term) {
-                if ($term instanceof WP_Term) {
-                    $out[] = $this->term($term, $contract)->toArray();
+                if (!$term instanceof WP_Term) {
+                    continue;
                 }
+                if ($hideEmpty && (int) $term->count <= 0) {
+                    continue;
+                }
+                if (in_array((int) $term->term_id, $excludeTermIds, true)) {
+                    continue;
+                }
+                $out[] = $this->term($term, $contract)->toArray();
             }
         }
 
@@ -348,9 +372,9 @@ final class PostPresenter
 
     /**
      * The detail hero image. POSTS get the always-valued chain: the
-     * featured image first (1000x240 banner crop), then the site-level
-     * default post cover, then the site fallback cover — all through the
-     * same crop pipeline — and finally the card thumbnail chain; the
+     * featured image first (1000x240 banner crop), then the site fallback
+     * cover through the same crop pipeline — one image, each surface
+     * deriving its own ratio — and finally the card thumbnail chain; the
      * front end renders the posts hero without any fallback logic of its
      * own. PAGES and RESOURCES never ride the site defaults (the type
      * keeps no hero settings): they answer only their own featured image,
@@ -363,8 +387,7 @@ final class PostPresenter
             return $own;
         }
 
-        return $this->cards->featuredForAttachment((int) aiya_core_opt('frontend', 'default_post_cover', 0))
-            ?? $this->cards->featuredForAttachment((int) aiya_core_opt('frontend', 'default_thumb', 0))
+        return $this->cards->featuredForAttachment((int) aiya_core_opt('frontend', 'default_thumb', 0))
             ?? $this->cards->resolveFor($post);
     }
 

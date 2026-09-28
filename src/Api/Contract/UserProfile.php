@@ -15,6 +15,9 @@ namespace Aiya\Core\Api\Contract;
  * `banned` is the account-level disable switch (0.86.0) — it rides beside
  * the role rather than replacing a level, because a disabled editor is
  * still staff while a disabled sponsor is no longer a sponsor.
+ * `showNsfw` is the "always show NSFW content" preference (0.96.0): when
+ * true the read path ignores NSFW exclusions for this account, overriding
+ * the front end's per-browser soft switch.
  */
 final class UserProfile
 {
@@ -32,6 +35,8 @@ final class UserProfile
         public readonly string $role,
         /** Account disabled (`aiya_core_banned` user meta). */
         public readonly bool $banned,
+        /** Always show NSFW content (`aiya_core_show_nsfw` user meta). */
+        public readonly bool $showNsfw,
         public readonly AvatarImage $avatar,
         public readonly ?ProfileStats $stats = null,
     ) {
@@ -52,6 +57,7 @@ final class UserProfile
             'registeredAt' => $this->registeredAt,
             'role' => $this->role,
             'banned' => $this->banned,
+            'showNsfw' => $this->showNsfw,
             'avatar' => $this->avatar->toArray(),
             'stats' => $this->stats?->toArray(),
         ];

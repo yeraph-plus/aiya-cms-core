@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-09-27 10:55+0800\n"
+"PO-Revision-Date: 2026-09-28 12:15+0800\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
 
@@ -702,6 +702,60 @@ msgstr "「更多」链接"
 msgid "Optional override for the heading row's link; empty derives the type's own archive path (with the chosen categories)."
 msgstr "可选的标题行链接覆盖值；留空时按类型自动派生归档路径（含所选分类）。"
 
+msgid "Operational content settings: retention periods, the site-level SEO head values served through GET /aiya/core/v1/site, and the NSFW vocabularies the read path can exclude on request."
+msgstr "内容运营设置：保留期限、经 GET /aiya/core/v1/site 供前台使用的站点级 SEO 头部信息，以及读路径可按要求排除的 NSFW 词法。"
+
+msgid "Retention policy"
+msgstr "保留策略"
+
+msgid "Notification retention (days)"
+msgstr "通知保留期（天）"
+
+msgid "A daily cleanup removes stored notifications older than this many days."
+msgstr "每日清理任务会删除超过该天数的站内通知。"
+
+msgid "Ledger retention (days)"
+msgstr "账本保留期（天）"
+
+msgid "How long closed credit history (spent rows, emptied buckets) is kept before the daily cleanup removes it. Live unexpired buckets are never touched."
+msgstr "已关闭的积分历史（消费流水、已扣空的桶）在每日清理前的保留时长。未过期的有效桶不受影响。"
+
+msgid "SEO & analytics"
+msgstr "SEO 与统计"
+
+msgid "SEO keywords"
+msgstr "SEO 关键词"
+
+msgid "Comma-separated keywords for the site home page."
+msgstr "站点首页的关键词，英文逗号分隔。"
+
+msgid "SEO description"
+msgstr "SEO 描述"
+
+msgid "Meta description for the site home page."
+msgstr "站点首页的 meta 描述。"
+
+msgid "Google Analytics ID"
+msgstr "Google Analytics ID"
+
+msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
+msgstr "衡量 ID（如 G-XXXXXXXXXX），前端据此渲染统计脚本；留空则不启用。"
+
+msgid "NSFW filter"
+msgstr "NSFW 过滤"
+
+msgid "Terms picked here count as NSFW: the front end asks for them to be dropped from listings (any matching category excludes the post). Untouched by default — detail pages and direct archive visits stay reachable, and a signed-in user with \"always show NSFW content\" ignores the filter."
+msgstr "勾选的术语即视为 NSFW：前台可要求把它们从列表中排除（命中任意一个分类即排除该文章）。默认不生效——详情页与直接访问的分类页仍可达，开启「始终显示 NSFW 内容」的登录用户不受过滤影响。"
+
+msgid "NSFW terms — %s"
+msgstr "NSFW 术语——%s"
+
+msgid "Every picked term is treated as NSFW content for this type; posts carrying any of them drop out of requested listings."
+msgstr "勾选的术语将按该内容类型的 NSFW 内容处理；命中其中任意一个的文章都会从按要求过滤的列表中排除。"
+
+msgid "Content management"
+msgstr "内容管理"
+
 msgid "Resource"
 msgstr "资源"
 
@@ -750,23 +804,17 @@ msgstr "深色"
 msgid "Light"
 msgstr "浅色"
 
-msgid "Default cover image"
-msgstr "默认封面图"
+msgid "Site fallback cover"
+msgstr "站级兜底封面"
 
-msgid "Fallback cover for posts without a featured image or a generated one."
-msgstr "文章既无特色图也无生成封面时的兜底封面。"
+msgid "Used wherever a cover is missing: list card thumbnails, category cards and the article hero — each surface derives its own crop from this one image."
+msgstr "凡缺图处统一用它兜底：列表卡片缩略图、分类卡片与文章头图——各界面从这同一张图派生自己的裁剪。"
 
 msgid "Empty state image"
 msgstr "空状态图片"
 
 msgid "Placeholder shown on empty lists and error cards across the front end."
 msgstr "前台空列表与错误卡片上显示的占位图。"
-
-msgid "Default post cover"
-msgstr "默认文章封面"
-
-msgid "Hero cover shown on article pages when the post has no featured image of its own (auto-cropped to the article banner ratio)."
-msgstr "文章页在文章没有自己的特色图时展示的头部封面（自动裁剪为文章横幅比例）。"
 
 msgid "Header banner"
 msgstr "头部横幅"
@@ -815,45 +863,6 @@ msgstr "自定义图标地址"
 
 msgid "Used when the icon template is set to custom."
 msgstr "图标模板选择自定义时使用。"
-
-msgid "Notifications"
-msgstr "通知"
-
-msgid "Notification retention (days)"
-msgstr "通知保留期（天）"
-
-msgid "A daily cleanup removes stored notifications older than this many days."
-msgstr "每日清理任务会删除超过该天数的站内通知。"
-
-msgid "Credit ledger"
-msgstr "积分账本"
-
-msgid "Ledger retention (days)"
-msgstr "账本保留期（天）"
-
-msgid "How long closed credit history (spent rows, emptied buckets) is kept before the daily cleanup removes it. Live unexpired buckets are never touched."
-msgstr "已关闭的积分历史（消费流水、已扣空的桶）在每日清理前的保留时长。未过期的有效桶不受影响。"
-
-msgid "SEO & analytics"
-msgstr "SEO 与统计"
-
-msgid "SEO keywords"
-msgstr "SEO 关键词"
-
-msgid "Comma-separated keywords for the site home page."
-msgstr "站点首页的关键词，英文逗号分隔。"
-
-msgid "SEO description"
-msgstr "SEO 描述"
-
-msgid "Meta description for the site home page."
-msgstr "站点首页的 meta 描述。"
-
-msgid "Google Analytics ID"
-msgstr "Google Analytics ID"
-
-msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
-msgstr "衡量 ID（如 G-XXXXXXXXXX），前端据此渲染统计脚本；留空则不启用。"
 
 msgid "Slug generation"
 msgstr "别名生成"
@@ -986,6 +995,9 @@ msgstr "积分有效期（天）"
 
 msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
 msgstr "签到发放的积分可使用的时长。积分是成本计量，不是存款——每笔发放都会过期。"
+
+msgid "Credit ledger"
+msgstr "积分账本"
 
 msgid "You are not allowed to manage credits."
 msgstr "您无权管理积分。"
@@ -1908,6 +1920,12 @@ msgstr "禁用此账号"
 msgid "A disabled account cannot check in, cannot spend credits and is not treated as a member anywhere. Credits and memberships are left untouched — grants keep landing, they simply cannot be used, and the balance keeps expiring on its own schedule."
 msgstr "被禁用的账号不能签到、不能消耗积分，也不会在任何位置被视为会员。积分与会员权益保持原状——发放照常入账但无法使用，余额按原有节奏自然过期。"
 
+msgid "Always show NSFW content"
+msgstr "始终显示 NSFW 内容"
+
+msgid "NSFW terms configured on the content-management page drop out of listings on request. This switch makes the account ignore that filter everywhere, including the per-browser preference of the front end (0.96.0)."
+msgstr "内容管理页配置的 NSFW 术语会按请求从列表中排除。开启此开关后，该账户在任何位置都忽略该过滤，包括前台按浏览器记录的偏好设置。"
+
 msgid "Password must be at least %d characters long."
 msgstr "密码长度至少 %d 个字符。"
 
@@ -2069,6 +2087,9 @@ msgstr "你的会员有效期至 %s。感谢支持！"
 
 msgid "Your membership expires on %s. Renew to keep the perks."
 msgstr "你的会员将于 %s 到期。续期以保留权益。"
+
+msgid "Notifications"
+msgstr "通知"
 
 msgid "You are not allowed to manage notifications."
 msgstr "您无权管理通知。"

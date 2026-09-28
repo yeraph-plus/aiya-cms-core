@@ -291,10 +291,10 @@ final class ReadPathCacheTest extends TestCase
         $this->assertSame('announcements', $first[0]['slug']);
 
         /** @var mixed $cached */
-        $cached = wp_cache_get('terms_post_category', 'aiya_core_content');
+        $cached = wp_cache_get('terms_v2_post_category', 'aiya_core_content');
         $this->assertSame($first, $cached, 'the vocabulary payload must be mirrored');
 
-        wp_cache_set('terms_post_category', [['slug' => 'SERVED-FROM-CACHE']], 'aiya_core_content');
+        wp_cache_set('terms_v2_post_category', [['slug' => 'SERVED-FROM-CACHE']], 'aiya_core_content');
         $this->assertSame(
             [['slug' => 'SERVED-FROM-CACHE']],
             $presenter->presentTerms(\Aiya\Core\Domain\Content\PublicTypes::get('post'), 'category')

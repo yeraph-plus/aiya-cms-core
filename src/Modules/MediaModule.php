@@ -91,7 +91,7 @@ final class MediaModule implements Module
             $cards = $this->cards();
             $cards->refreshFor($postId, $force);
             // Pre-warm the featured derivatives (640 card + 1000 render)
-            // and the default cover; both reuse an existing file, so
+            // and the site fallback cover; both reuse an existing file, so
             // repeats are a cheap is_file.
             $post = get_post($postId);
             if ($post instanceof \WP_Post) {
@@ -154,7 +154,7 @@ final class MediaModule implements Module
 
     /**
      * Card generation on publish saves is DEFERRED, not inline: the
-     * composite (card + hero renders + default cover) is Imagine work that
+     * composite (card + hero renders + site fallback cover) is Imagine work that
      * can run to seconds on a large AVIF source, and the save request must
      * not pay for it. A single event fires within ~30 seconds; until it
      * runs, the API serves the live source URL (the same interim state the

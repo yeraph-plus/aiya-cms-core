@@ -56,6 +56,7 @@ abstract class ImagineAware
         } catch (Throwable) {
             // A driver that cannot inspect layers keeps the image as
             // opened; the generators' own try/catch still bounds failures.
+            return $image;
         }
 
         $size = $image->getSize();

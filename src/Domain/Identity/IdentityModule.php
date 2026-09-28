@@ -78,6 +78,16 @@ final class IdentityModule implements Module
                 // see MetaboxAdmin::editableUserFields().
                 'capability' => 'manage_options',
             ],
+            [
+                'id' => ShowNsfw::META_KEY,
+                'type' => 'switch',
+                'label' => __('Always show NSFW content', 'aiya-core'),
+                'description' => __('NSFW terms configured on the content-management page drop out of listings on request. This switch makes the account ignore that filter everywhere, including the per-browser preference of the front end (0.96.0).', 'aiya-core'),
+                'default' => false,
+                // Self-serviceable: no capability gate, so the holder edits
+                // it on their own profile screen and the REST profile
+                // update mirrors the same representation.
+            ],
         ]);
     }
 

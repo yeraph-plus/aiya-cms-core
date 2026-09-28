@@ -121,7 +121,7 @@ final class OperationsPage implements Module
             <span class="description"><?php esc_html_e('Month', 'aiya-core'); ?></span>
             <?php foreach (array_reverse($months) as $option) : ?>
                 <a class="button<?php echo $option === $month ? ' button-primary' : ''; ?>"
-                   href="<?php echo esc_url(add_query_arg('month', $option, $base)); ?>"><?php echo esc_html($option); ?></a>
+                    href="<?php echo esc_url(add_query_arg('month', $option, $base)); ?>"><?php echo esc_html($option); ?></a>
             <?php endforeach; ?>
         </div>
         <?php

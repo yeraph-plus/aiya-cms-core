@@ -38,9 +38,13 @@ final class RelatedPostsQuery
     }
 
     /**
+     * @param list<int> $excludeTermTaxonomyIds Opaque term exclusion
+     * (0.96.0, NSFW): rows carrying any of these term taxonomy ids drop
+     * out of the ranking — the same clause the lists inject, composed
+     * after the shared-term join.
      * @return list<WP_Post>
      */
-    public function forPost(WP_Post $post, PublicType $type, int $number, int $days): array
+    public function forPost(WP_Post $post, PublicType $type, int $number, int $days, array $excludeTermTaxonomyIds = []): array
     {
         $ttIds = $this->termTaxonomyIds($post, $type);
         if ($ttIds === []) {
@@ -74,11 +78,14 @@ final class RelatedPostsQuery
             ];
         }
 
-        $filter = static function (array $clauses, WP_Query $query) use ($ttIds): array {
+        $filter = static function (array $clauses, WP_Query $query) use ($ttIds, $excludeTermTaxonomyIds): array {
             // Nested queries can run inside our window; only the marked
             // one (same origin id) takes the ranking clauses.
             if ($query->get('orderby') === 'related' && $query->get('term_taxonomy_ids') === $ttIds) {
                 $clauses = self::applyClauses($clauses, $ttIds);
+                if ($excludeTermTaxonomyIds !== []) {
+                    $clauses = ContentQuery::applyTermExclusion($clauses, $excludeTermTaxonomyIds);
+                }
             }
 
             return $clauses;

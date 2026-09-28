@@ -45,7 +45,7 @@ final class NotificationService
         self::TYPE_PASSWORD_RESET,
     ];
 
-    /** The retention setting lives on the Frontend page (0.45.0 move). */
+    /** The retention setting lives on the content-management page (0.96.0 move). */
     public const DEFAULT_RETENTION_DAYS = 30;
     private const MAX_RETENTION_DAYS = 3650;
 
@@ -284,13 +284,13 @@ final class NotificationService
     }
 
     /**
-     * The retention days configured on the Frontend page
+     * The retention days configured on the content-management page
      * (`notification_retention` field, clamped to the same range the
      * settings field enforces).
      */
     public function retentionDays(): int
     {
-        $days = absint((string) aiya_core_opt('frontend', 'notification_retention', self::DEFAULT_RETENTION_DAYS));
+        $days = absint((string) aiya_core_opt('content', 'notification_retention', self::DEFAULT_RETENTION_DAYS));
 
         return $days > 0 ? min($days, self::MAX_RETENTION_DAYS) : self::DEFAULT_RETENTION_DAYS;
     }

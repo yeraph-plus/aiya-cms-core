@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-27T10:49:25+00:00\n"
+"POT-Creation-Date: 2026-09-28T05:38:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -470,17 +470,20 @@ msgstr ""
 #: src/Admin/PostTypeSwitchBulkAction.php:70
 #: src/Admin/PostTypeSwitchBulkAction.php:109
 #: src/Domain/Content/BlocksModule.php:212
+#: src/Domain/Content/ContentManagementModule.php:138
 msgid "Posts"
 msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:71
 #: src/Admin/PostTypeSwitchBulkAction.php:110
+#: src/Domain/Content/ContentManagementModule.php:139
 msgid "Pages"
 msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:72
 #: src/Admin/PostTypeSwitchBulkAction.php:111
 #: src/Domain/Content/BlocksModule.php:213
+#: src/Domain/Content/ContentManagementModule.php:140
 msgid "Resources"
 msgstr ""
 
@@ -675,18 +678,18 @@ msgid "Registration is currently disabled."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:135
-#: src/Api/Rest/UserController.php:290
+#: src/Api/Rest/UserController.php:292
 msgid "The nickname must be 1-50 characters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:138
 #: src/Api/Rest/AuthController.php:227
-#: src/Api/Rest/UserController.php:313
+#: src/Api/Rest/UserController.php:315
 msgid "The email address is not valid."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:144
-#: src/Api/Rest/UserController.php:315
+#: src/Api/Rest/UserController.php:317
 msgid "This email address is already registered."
 msgstr ""
 
@@ -708,7 +711,7 @@ msgid "The email address or the password is incorrect."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:268
-#: src/Api/Rest/UserController.php:405
+#: src/Api/Rest/UserController.php:415
 msgid "Existing sessions could not be invalidated; the password was left unchanged."
 msgstr ""
 
@@ -717,7 +720,7 @@ msgid "The reset link is missing required parameters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:293
-#: src/Api/Rest/ContentController.php:157
+#: src/Api/Rest/ContentController.php:172
 #: src/Api/Rest/CounterController.php:82
 #: src/Api/Rest/CounterController.php:97
 #: src/Api/Rest/CounterController.php:117
@@ -729,8 +732,8 @@ msgstr ""
 #: src/Api/Rest/FileServeController.php:75
 #: src/Api/Rest/SponsorshipController.php:110
 #: src/Api/Rest/SponsorshipController.php:177
-#: src/Api/Rest/UserController.php:192
-#: src/Api/Rest/UserController.php:356
+#: src/Api/Rest/UserController.php:194
+#: src/Api/Rest/UserController.php:366
 msgid "Too many requests, try again later."
 msgstr ""
 
@@ -752,16 +755,16 @@ msgstr ""
 #: src/Api/Rest/FileServeController.php:97
 #: src/Api/Rest/SponsorshipController.php:280
 #: src/Api/Rest/UploadsController.php:57
-#: src/Api/Rest/UserController.php:435
+#: src/Api/Rest/UserController.php:445
 msgid "Authentication required."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:339
 #: src/Api/Rest/CommentsController.php:149
-#: src/Api/Rest/ContentController.php:337
+#: src/Api/Rest/ContentController.php:387
 #: src/Api/Rest/UploadsController.php:64
-#: src/Api/Rest/UserController.php:250
-#: src/Api/Rest/UserController.php:386
+#: src/Api/Rest/UserController.php:252
+#: src/Api/Rest/UserController.php:396
 msgid "Too many requests, please retry later."
 msgstr ""
 
@@ -802,21 +805,21 @@ msgid "You are commenting too quickly. Slow down."
 msgstr ""
 
 #: src/Api/Rest/CommentsController.php:271
-#: src/Api/Rest/ContentController.php:190
-#: src/Api/Rest/ContentController.php:306
-#: src/Api/Rest/ContentController.php:311
-#: src/Api/Rest/ContentController.php:352
-#: src/Api/Rest/ContentController.php:388
+#: src/Api/Rest/ContentController.php:205
+#: src/Api/Rest/ContentController.php:356
+#: src/Api/Rest/ContentController.php:361
+#: src/Api/Rest/ContentController.php:402
+#: src/Api/Rest/ContentController.php:438
 #: src/Domain/FileServe/DownloadService.php:108
 #: src/Domain/FileServe/FileService.php:51
 msgid "Content not found."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:362
+#: src/Api/Rest/ContentController.php:412
 msgid "Incorrect password."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:427
+#: src/Api/Rest/ContentController.php:478
 msgid "Profile not found."
 msgstr ""
 
@@ -932,31 +935,31 @@ msgstr ""
 msgid "The image URL could not be resolved."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:206
+#: src/Api/Rest/UserController.php:208
 msgid "The favorite could not be removed."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:266
+#: src/Api/Rest/UserController.php:268
 msgid "The follow could not be removed."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:326
+#: src/Api/Rest/UserController.php:328
 msgid "The locale is not supported."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:341
+#: src/Api/Rest/UserController.php:351
 msgid "Changing the email address requires the current password."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:346
+#: src/Api/Rest/UserController.php:356
 msgid "The profile could not be saved."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:362
+#: src/Api/Rest/UserController.php:372
 msgid "No avatar image was uploaded."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:392
+#: src/Api/Rest/UserController.php:402
 msgid "The current password is incorrect."
 msgstr ""
 
@@ -1028,7 +1031,7 @@ msgstr ""
 
 #: src/Domain/Content/BlocksModule.php:132
 #: src/Domain/Content/BlocksModule.php:203
-#: src/Domain/Content/FrontendModule.php:151
+#: src/Domain/Content/FrontendModule.php:153
 #: src/Domain/Content/TermExtrasModule.php:59
 msgid "Icon"
 msgstr ""
@@ -1050,7 +1053,7 @@ msgid "New window"
 msgstr ""
 
 #: src/Domain/Content/BlocksModule.php:164
-#: src/Domain/Content/FrontendModule.php:145
+#: src/Domain/Content/FrontendModule.php:147
 msgid "Link"
 msgstr ""
 
@@ -1106,6 +1109,81 @@ msgstr ""
 msgid "Optional override for the heading row's link; empty derives the type's own archive path (with the chosen categories)."
 msgstr ""
 
+#: src/Domain/Content/ContentManagementModule.php:65
+msgid "Operational content settings: retention periods, the site-level SEO head values served through GET /aiya/core/v1/site, and the NSFW vocabularies the read path can exclude on request."
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:71
+msgid "Retention policy"
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:77
+msgid "Notification retention (days)"
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:78
+msgid "A daily cleanup removes stored notifications older than this many days."
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:86
+msgid "Ledger retention (days)"
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:87
+msgid "How long closed credit history (spent rows, emptied buckets) is kept before the daily cleanup removes it. Live unexpired buckets are never touched."
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:95
+msgid "SEO & analytics"
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:101
+msgid "SEO keywords"
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:102
+msgid "Comma-separated keywords for the site home page."
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:108
+msgid "SEO description"
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:109
+msgid "Meta description for the site home page."
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:115
+msgid "Google Analytics ID"
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:116
+msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:122
+msgid "NSFW filter"
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:129
+msgid "Terms picked here count as NSFW: the front end asks for them to be dropped from listings (any matching category excludes the post). Untouched by default — detail pages and direct archive visits stay reachable, and a signed-in user with \"always show NSFW content\" ignores the filter."
+msgstr ""
+
+#. translators: %s: content type label (e.g. Posts).
+#: src/Domain/Content/ContentManagementModule.php:157
+#, php-format
+msgid "NSFW terms — %s"
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:158
+msgid "Every picked term is treated as NSFW content for this type; posts carrying any of them drop out of requested listings."
+msgstr ""
+
+#: src/Domain/Content/ContentManagementModule.php:169
+#: src/Domain/Content/ContentManagementModule.php:170
+msgid "Content management"
+msgstr ""
+
 #: src/Domain/Content/ContentTypeModule.php:46
 msgid "Resource"
 msgstr ""
@@ -1126,196 +1204,129 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:37
+#: src/Domain/Content/FrontendModule.php:46
 msgid "Frontend"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:38
+#: src/Domain/Content/FrontendModule.php:47
 msgid "AIYA CMS Core"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:47
+#: src/Domain/Content/FrontendModule.php:56
 msgid "These fields feed the front-end shell through GET /aiya/core/v1/site; leave a footer string empty to keep it out of the footer."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:53
+#: src/Domain/Content/FrontendModule.php:62
 msgid "Presentation defaults"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:59
+#: src/Domain/Content/FrontendModule.php:68
 msgid "Theme color"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:60
+#: src/Domain/Content/FrontendModule.php:69
 msgid "Buttons, links and active states across the front end derive from this color."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:66
+#: src/Domain/Content/FrontendModule.php:75
 msgid "Default color mode"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:67
+#: src/Domain/Content/FrontendModule.php:76
 msgid "Color scheme a first-time visitor starts with."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:70
+#: src/Domain/Content/FrontendModule.php:79
 msgid "Follow the system"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:71
+#: src/Domain/Content/FrontendModule.php:80
 msgid "Dark"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:72
+#: src/Domain/Content/FrontendModule.php:81
 msgid "Light"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:78
-msgid "Default cover image"
+#: src/Domain/Content/FrontendModule.php:87
+msgid "Site fallback cover"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:79
-msgid "Fallback cover for posts without a featured image or a generated one."
+#: src/Domain/Content/FrontendModule.php:88
+msgid "Used wherever a cover is missing: list card thumbnails, category cards and the article hero — each surface derives its own crop from this one image."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:85
+#: src/Domain/Content/FrontendModule.php:94
 msgid "Empty state image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:86
+#: src/Domain/Content/FrontendModule.php:95
 msgid "Placeholder shown on empty lists and error cards across the front end."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:92
-msgid "Default post cover"
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:93
-msgid "Hero cover shown on article pages when the post has no featured image of its own (auto-cropped to the article banner ratio)."
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:99
+#: src/Domain/Content/FrontendModule.php:101
 msgid "Header banner"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:105
+#: src/Domain/Content/FrontendModule.php:107
 msgid "Show the header banner"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:106
+#: src/Domain/Content/FrontendModule.php:108
 msgid "Turns the compact top bar into a tall header backed by the banner image."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:112
+#: src/Domain/Content/FrontendModule.php:114
 msgid "Banner image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:113
+#: src/Domain/Content/FrontendModule.php:115
 msgid "Wide image shown behind the top navigation while the banner is on."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:119
+#: src/Domain/Content/FrontendModule.php:121
 msgid "Compliance footer"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:125
+#: src/Domain/Content/FrontendModule.php:127
 msgid "Footer hitokoto"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:126
+#: src/Domain/Content/FrontendModule.php:128
 msgid "Show a random one-liner quote as the footer sign-off."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:132
+#: src/Domain/Content/FrontendModule.php:134
 msgid "Compliance links"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:133
+#: src/Domain/Content/FrontendModule.php:135
 msgid "One row per filing shown in the footer, e.g. ICP or public security."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:139
+#: src/Domain/Content/FrontendModule.php:141
 #: src/Modules/MediaModule.php:256
 msgid "Text"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:154
+#: src/Domain/Content/FrontendModule.php:156
 msgid "Shield (ICP)"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:155
+#: src/Domain/Content/FrontendModule.php:157
 msgid "Police badge"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:156
+#: src/Domain/Content/FrontendModule.php:158
 msgid "Custom image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:162
+#: src/Domain/Content/FrontendModule.php:164
 msgid "Custom icon URL"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:163
+#: src/Domain/Content/FrontendModule.php:165
 msgid "Used when the icon template is set to custom."
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:171
-#: src/Domain/Notification/NotificationPage.php:49
-#: src/Domain/Notification/NotificationPage.php:50
-#: src/Domain/Notification/NotificationPage.php:68
-msgid "Notifications"
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:177
-msgid "Notification retention (days)"
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:178
-msgid "A daily cleanup removes stored notifications older than this many days."
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:186
-#: src/Domain/Credit/CreditsPage.php:125
-#: src/Domain/Credit/CreditsPage.php:126
-#: src/Domain/Credit/CreditsPage.php:147
-#: src/Domain/Credit/CreditsPage.php:253
-msgid "Credit ledger"
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:192
-msgid "Ledger retention (days)"
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:193
-msgid "How long closed credit history (spent rows, emptied buckets) is kept before the daily cleanup removes it. Live unexpired buckets are never touched."
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:201
-msgid "SEO & analytics"
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:207
-msgid "SEO keywords"
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:208
-msgid "Comma-separated keywords for the site home page."
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:214
-msgid "SEO description"
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:215
-msgid "Meta description for the site home page."
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:221
-msgid "Google Analytics ID"
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:222
-msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
 msgstr ""
 
 #: src/Domain/Content/SlugModule.php:60
@@ -1502,6 +1513,13 @@ msgstr ""
 
 #: src/Domain/Credit/CreditModule.php:98
 msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
+msgstr ""
+
+#: src/Domain/Credit/CreditsPage.php:125
+#: src/Domain/Credit/CreditsPage.php:126
+#: src/Domain/Credit/CreditsPage.php:147
+#: src/Domain/Credit/CreditsPage.php:253
+msgid "Credit ledger"
 msgstr ""
 
 #: src/Domain/Credit/CreditsPage.php:137
@@ -2817,6 +2835,14 @@ msgstr ""
 msgid "A disabled account cannot check in, cannot spend credits and is not treated as a member anywhere. Credits and memberships are left untouched — grants keep landing, they simply cannot be used, and the balance keeps expiring on its own schedule."
 msgstr ""
 
+#: src/Domain/Identity/IdentityModule.php:84
+msgid "Always show NSFW content"
+msgstr ""
+
+#: src/Domain/Identity/IdentityModule.php:85
+msgid "NSFW terms configured on the content-management page drop out of listings on request. This switch makes the account ignore that filter everywhere, including the per-browser preference of the front end (0.96.0)."
+msgstr ""
+
 #. translators: %d: minimum password length.
 #: src/Domain/Identity/PasswordPolicy.php:26
 #, php-format
@@ -3083,6 +3109,12 @@ msgstr ""
 #: src/Domain/Notification/NotificationActions.php:352
 #, php-format
 msgid "Your membership expires on %s. Renew to keep the perks."
+msgstr ""
+
+#: src/Domain/Notification/NotificationPage.php:49
+#: src/Domain/Notification/NotificationPage.php:50
+#: src/Domain/Notification/NotificationPage.php:68
+msgid "Notifications"
 msgstr ""
 
 #: src/Domain/Notification/NotificationPage.php:60
@@ -4181,19 +4213,19 @@ msgstr ""
 msgid "Please log in with your email address."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:323
+#: src/Infrastructure/Security/SecurityModule.php:326
 msgid "Sign in"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:338
+#: src/Infrastructure/Security/SecurityModule.php:341
 msgid "This sign-in page opens automatically."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:340
+#: src/Infrastructure/Security/SecurityModule.php:343
 msgid "Please wait a moment — the sign-in form loads by itself."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:341
+#: src/Infrastructure/Security/SecurityModule.php:344
 msgid "Continue to the sign-in form"
 msgstr ""
 

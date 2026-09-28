@@ -16,7 +16,7 @@ use Imagine\Image\ImagineInterface;
  * one 640x360 card stored under the `_thumb` meta key so reads never
  * re-derive from the content. Sources, in order: the generated cover
  * (editor or cron), the featured image, the first content image, the
- * Frontend settings' default-cover placeholder. Reads and writes share
+ * Frontend settings' site fallback cover. Reads and writes share
  * this one logic; the cron worker provides the async half (see
  * MediaModule), so listing requests serve the live source URL until the
  * composite exists instead of generating inline.
@@ -69,7 +69,7 @@ final class CardThumbnailService
     /**
      * Presenter-facing resolution — never generates: a persisted composite,
      * else the live source URL (the cron worker will replace it), else the
-     * configured default placeholder.
+     * site fallback cover from the Frontend settings.
      */
     public function resolveFor(\WP_Post $post): ?Image
     {
@@ -99,9 +99,11 @@ final class CardThumbnailService
     }
 
     /**
-     * The site-wide default post cover, derived through the SAME hero
-     * crop as post featured images — the front end falls back to it for
-     * posts without one, so every article hero shares one geometry.
+     * The hero-crop render of a site-level cover attachment, through the
+     * SAME crop as post featured images — the front end falls back to it
+     * for posts without one, so every article hero shares one geometry.
+     * The card pipeline derives its own 640x360 crop from the same
+     * attachment (see defaultDerivative()).
      */
     public function featuredForAttachment(int $attachmentId): ?Image
     {
@@ -206,7 +208,7 @@ final class CardThumbnailService
         return $out;
     }
 
-    /** The 640x360 card derivative of the default placeholder, if configured. */
+    /** The 640x360 card derivative of the site fallback cover, if configured. */
     public function defaultDerivative(): ?Image
     {
         $attachmentId = (int) aiya_core_opt('frontend', 'default_thumb', 0);
@@ -438,7 +440,7 @@ final class CardThumbnailService
         return $local !== null ? $this->paths->localToUrl($local) : null;
     }
 
-    /** The Frontend settings' default-cover placeholder, or null. */
+    /** The Frontend settings' site fallback cover, or null. */
     private function defaultImage(): ?Image
     {
         $attachmentId = (int) aiya_core_opt('frontend', 'default_thumb', 0);

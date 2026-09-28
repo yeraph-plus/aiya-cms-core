@@ -259,15 +259,15 @@ final class SearchReplacePage
         /** @var \wpdb $wpdb */
 
         [$where, $params] = self::buildWhere($columns, $types, $statuses, $like);
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see buildWhere
-        $rows = $wpdb->get_results($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE {$where}", $params));
+        // @phpstan-ignore-next-line argument.type (whitelist interpolation)
+        $rows = $wpdb->get_results($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE {$where}", $params)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see buildWhere
         $ids = array_map(static fn ($row): int => (int) $row->ID, is_array($rows) ? $rows : []);
         if ($ids === []) {
             $this->redirectBack(['aiya_devtools_note' => 'replace_none']);
         }
 
         [$updateSql, $updateParams] = self::buildUpdateSql($columns, $search, $replace, $ids, $wpdb->posts);
-        // @phpstan-ignore argument.type (whitelist interpolation)
+        // @phpstan-ignore argument.type, argument.type (whitelist interpolation; prepare() answers string here)
         $wpdb->query($wpdb->prepare($updateSql, $updateParams)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see buildUpdateSql
         foreach ($ids as $id) {
             clean_post_cache($id);
@@ -399,7 +399,7 @@ final class SearchReplacePage
         }
 
         $where = sprintf(
-            "post_type IN (%s) AND post_status IN (%s) AND (%s)",
+            'post_type IN (%s) AND post_status IN (%s) AND (%s)',
             implode(',', array_map(static fn (string $type): string => "'" . $type . "'", $types)),
             implode(',', array_map(static fn (string $status): string => "'" . $status . "'", $statuses)),
             implode(' OR ', $match)

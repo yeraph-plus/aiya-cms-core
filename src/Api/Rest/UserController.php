@@ -11,6 +11,7 @@ use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
+use Aiya\Core\Domain\Identity\ShowNsfw;
 use Aiya\Core\Domain\Identity\TokenStore;
 use Aiya\Core\Domain\Identity\AvatarModule;
 use RuntimeException;
@@ -126,6 +127,7 @@ final class UserController
 				'url' => ['type' => 'string', 'required' => false, 'maxLength' => 300],
 				'email' => ['type' => 'string', 'required' => false, 'format' => 'email'],
 				'locale' => ['type' => 'string', 'required' => false],
+				'showNsfw' => ['type' => 'boolean', 'required' => false],
 				'currentPassword' => ['type' => 'string', 'required' => false, 'maxLength' => 200],
 			],
         ]);
@@ -329,6 +331,16 @@ final class UserController
             }
         }
 
+        // The NSFW preference is a user meta switch, not a wp_users column:
+        // the same field id the profile screen registers writes it through
+        // the domain's canonical setter (delete = follow the soft switch).
+        // Buffered like the sibling fields — nothing lands before the
+        // validation and re-auth gates pass.
+        $showNsfw = $request->get_param('showNsfw');
+        if ($showNsfw !== null) {
+            $showNsfw = filter_var($showNsfw, FILTER_VALIDATE_BOOLEAN);
+        }
+
         if ($errors !== []) {
             return new WP_Error('aiya_validation_failed', implode(' ', $errors), ['status' => 400]);
         }
@@ -344,6 +356,10 @@ final class UserController
 
         if (count($userdata) > 1 && is_wp_error(wp_update_user($userdata))) {
             return new WP_Error('aiya_update_failed', __('The profile could not be saved.', 'aiya-core'), ['status' => 500]);
+        }
+
+        if ($showNsfw !== null) {
+            ShowNsfw::set((int) $user->ID, $showNsfw);
         }
 
         // Re-read: the memoized current-user object predates the update.

@@ -9,6 +9,7 @@ use Aiya\Core\Api\Contract\UserProfile;
 use Aiya\Core\Api\Contract\ProfileStats;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
+use Aiya\Core\Domain\Identity\ShowNsfw;
 use Aiya\Core\Domain\Identity\UserBan;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use WP_User;
@@ -43,6 +44,7 @@ final class UserPresenter
             $this->registeredAt($user),
             $this->role($user),
             UserBan::isBanned((int) $user->ID),
+            ShowNsfw::always((int) $user->ID),
             $this->avatar((int) $user->ID),
             $this->stats((int) $user->ID)
         );

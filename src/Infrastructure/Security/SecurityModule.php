@@ -234,7 +234,10 @@ final class SecurityModule implements Module
         return substr(wp_hash('aiya-core-login-gate|' . $slot, 'nonce'), 0, 20);
     }
 
-    /** The current time window slot (and its immediate predecessor). */
+    /** The current time window slot (and its immediate predecessor).
+     *
+     * @return list<int>
+     */
     private function gateSlots(): array
     {
         $slot = (int) floor(time() / self::GATE_WINDOW);
@@ -323,7 +326,7 @@ final class SecurityModule implements Module
 <title><?php echo esc_html($site); ?> &rsaquo; <?php esc_html_e('Sign in', 'aiya-core'); ?></title>
 <style>
     body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
-           background: #f0f0f1; color: #3c434a; font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+            background: #f0f0f1; color: #3c434a; font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     .card { width: 320px; padding: 26px 24px; background: #fff; border: 1px solid #c3c4c7;
             box-shadow: 0 1px 3px rgba(0,0,0,.04); text-align: center; }
     .card h1 { font-size: 20px; margin: 0 0 12px; }

@@ -10,7 +10,7 @@ namespace Aiya\Core\Domain\Credit;
  * `aiya_core_sponsorship` (deliberately different; aiya_core_opt() keys on
  * the SLUG, so passing the option's own suffix here reads nothing and
  * every value silently falls back to its default). The ledger retention
- * lives on the Frontend page next to the notification retention. The
+ * lives on the content-management page next to the notification retention. The
  * credit domain is bookkeeping only — it never prices a downstream
  * action; the caller passes the amount into LedgerService::spend().
  */
@@ -31,10 +31,10 @@ final class CreditSettings
         ];
     }
 
-    /** Ledger retention, configured on the Frontend page (`credit_retention`). */
+    /** Ledger retention, configured on the content-management page (`credit_retention`). */
     public static function retentionDays(): int
     {
-        $days = absint((string) aiya_core_opt('frontend', 'credit_retention', self::DEFAULT_RETENTION_DAYS));
+        $days = absint((string) aiya_core_opt('content', 'credit_retention', self::DEFAULT_RETENTION_DAYS));
 
         return $days > 0 ? min($days, self::MAX_RETENTION_DAYS) : self::DEFAULT_RETENTION_DAYS;
     }

@@ -13,6 +13,15 @@ use Aiya\Core\Settings\Registry;
  * site-wide fallback cover, the header banner switch + image) and the
  * compliance footer strings. Media fields store attachment IDs;
  * SitePresenter resolves them to URLs.
+ *
+ * One cover setting serves every surface that has to supply an image —
+ * list cards, category cards and the article hero. Each consumer derives
+ * its own crop from that single attachment (640x360 for cards, 1000x240
+ * for the hero), so the surfaces never drift apart.
+ *
+ * This page is the presentation/media half of the old shell settings; the
+ * operational half (retention periods, SEO head values, NSFW vocabularies)
+ * lives on the content-management page since 0.96.0.
  */
 final class FrontendModule implements Module
 {
@@ -75,8 +84,8 @@ final class FrontendModule implements Module
                 [
                     'id' => 'default_thumb',
                     'type' => 'media',
-                    'label' => __('Default cover image', 'aiya-core'),
-                    'description' => __('Fallback cover for posts without a featured image or a generated one.', 'aiya-core'),
+                    'label' => __('Site fallback cover', 'aiya-core'),
+                    'description' => __('Used wherever a cover is missing: list card thumbnails, category cards and the article hero — each surface derives its own crop from this one image.', 'aiya-core'),
                     'default' => 0,
                 ],
                 [
@@ -84,13 +93,6 @@ final class FrontendModule implements Module
                     'type' => 'media',
                     'label' => __('Empty state image', 'aiya-core'),
                     'description' => __('Placeholder shown on empty lists and error cards across the front end.', 'aiya-core'),
-                    'default' => 0,
-                ],
-                [
-                    'id' => 'default_post_cover',
-                    'type' => 'media',
-                    'label' => __('Default post cover', 'aiya-core'),
-                    'description' => __('Hero cover shown on article pages when the post has no featured image of its own (auto-cropped to the article banner ratio).', 'aiya-core'),
                     'default' => 0,
                 ],
                 [
@@ -164,63 +166,6 @@ final class FrontendModule implements Module
                             'default' => '',
                         ],
                     ],
-                ],
-                [
-                    'id' => 'heading_notifications',
-                    'type' => 'heading',
-                    'label' => __('Notifications', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'notification_retention',
-                    'type' => 'number',
-                    'label' => __('Notification retention (days)', 'aiya-core'),
-                    'description' => __('A daily cleanup removes stored notifications older than this many days.', 'aiya-core'),
-                    'default' => 30,
-                    'min' => 1,
-                    'max' => 3650,
-                ],
-                [
-                    'id' => 'heading_credit_ledger',
-                    'type' => 'heading',
-                    'label' => __('Credit ledger', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'credit_retention',
-                    'type' => 'number',
-                    'label' => __('Ledger retention (days)', 'aiya-core'),
-                    'description' => __('How long closed credit history (spent rows, emptied buckets) is kept before the daily cleanup removes it. Live unexpired buckets are never touched.', 'aiya-core'),
-                    'default' => 30,
-                    'min' => 1,
-                    'max' => 3650,
-                ],
-                [
-                    'id' => 'heading_seo',
-                    'type' => 'heading',
-                    'label' => __('SEO & analytics', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'seo_keywords',
-                    'type' => 'text',
-                    'label' => __('SEO keywords', 'aiya-core'),
-                    'description' => __('Comma-separated keywords for the site home page.', 'aiya-core'),
-                    'default' => '',
-                ],
-                [
-                    'id' => 'seo_description',
-                    'type' => 'textarea',
-                    'label' => __('SEO description', 'aiya-core'),
-                    'description' => __('Meta description for the site home page.', 'aiya-core'),
-                    'default' => '',
-                ],
-                [
-                    'id' => 'ga_measurement_id',
-                    'type' => 'text',
-                    'label' => __('Google Analytics ID', 'aiya-core'),
-                    'description' => __('Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable.', 'aiya-core'),
-                    'default' => '',
                 ],
             ],
         ]);

@@ -11,7 +11,7 @@ use Aiya\Core\Settings\Registry;
  * Wires the credit ledger into the runtime: the table migration through
  * the schema migration runner and the daily hygiene cron (dead buckets
  * drop at once, closed history ages out after the retention window the
- * Frontend page configures). The admin surface is the bespoke
+ * content-management page configures). The admin surface is the bespoke
  * Admin/CreditsPage under the top-level membership menu.
  *
  * The credit domain is the cost-accounting layer the 2026-09-13 plan
