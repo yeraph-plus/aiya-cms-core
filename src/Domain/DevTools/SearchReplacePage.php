@@ -149,7 +149,7 @@ final class SearchReplacePage
         foreach ($columns as $column) {
             [$where, $params] = self::buildWhere([$column], $types, $statuses, $like);
             // @phpstan-ignore argument.type (whitelist interpolation)
-            $count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->posts} WHERE {$where}", $params)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see buildWhere
+            $count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->posts} WHERE {$where}", $params)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- whitelist-built SQL, see buildWhere
             $counts[$column] = $count;
             $total += $count;
         }
@@ -181,7 +181,7 @@ final class SearchReplacePage
 
         [$where, $params] = self::buildWhere($columns, $types, $statuses, $like);
         // @phpstan-ignore argument.type (whitelist interpolation)
-        $samples = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_content, post_excerpt FROM {$wpdb->posts} WHERE {$where} ORDER BY ID DESC LIMIT " . self::SAMPLE_LIMIT, $params)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see buildWhere
+        $samples = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_content, post_excerpt FROM {$wpdb->posts} WHERE {$where} ORDER BY ID DESC LIMIT " . self::SAMPLE_LIMIT, $params)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- whitelist-built SQL, see buildWhere
         $sampleRows = is_array($samples) ? $samples : [];
         if ($sampleRows !== []) {
             echo '<h3 style="margin-top:16px;">' . esc_html__('Sample matches (newest first)', 'aiya-core') . '</h3>';
@@ -201,7 +201,7 @@ final class SearchReplacePage
                 '<tr><td>#%d</td><td><strong>%s</strong></td><td>%s</td></tr>',
                 (int) $row->ID,
                 esc_html((string) $row->post_title),
-                $snippet // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- snippet escapes every fragment before assembly
+                $snippet // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- snippet escapes every fragment before assembly
             );
         }
         if ($sampleRows !== []) {
@@ -209,7 +209,7 @@ final class SearchReplacePage
         }
 
         // @phpstan-ignore argument.type (whitelist interpolation)
-        $idRows = $wpdb->get_results($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE {$where}", $params)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see buildWhere
+        $idRows = $wpdb->get_results($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE {$where}", $params)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- whitelist-built SQL, see buildWhere
         $ids = array_map(static fn ($row): int => (int) $row->ID, is_array($idRows) ? $idRows : []);
 
         [$updateSql] = self::buildUpdateSql($columns, $search, $replace, $ids, $wpdb->posts);
@@ -260,7 +260,7 @@ final class SearchReplacePage
 
         [$where, $params] = self::buildWhere($columns, $types, $statuses, $like);
         // @phpstan-ignore-next-line argument.type (whitelist interpolation)
-        $rows = $wpdb->get_results($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE {$where}", $params)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see buildWhere
+        $rows = $wpdb->get_results($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE {$where}", $params)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- whitelist-built SQL, see buildWhere
         $ids = array_map(static fn ($row): int => (int) $row->ID, is_array($rows) ? $rows : []);
         if ($ids === []) {
             $this->redirectBack(['aiya_devtools_note' => 'replace_none']);
@@ -268,7 +268,7 @@ final class SearchReplacePage
 
         [$updateSql, $updateParams] = self::buildUpdateSql($columns, $search, $replace, $ids, $wpdb->posts);
         // @phpstan-ignore argument.type, argument.type (whitelist interpolation; prepare() answers string here)
-        $wpdb->query($wpdb->prepare($updateSql, $updateParams)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see buildUpdateSql
+        $wpdb->query($wpdb->prepare($updateSql, $updateParams)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see buildUpdateSql
         foreach ($ids as $id) {
             clean_post_cache($id);
         }
@@ -309,10 +309,11 @@ final class SearchReplacePage
         exit;
     }
 
-    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- all reads are sanitized again by the whitelist helpers
-    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only form repopulation; the preview query itself is nonce-gated
     private function getInput(string $key): string
     {
+        // Sanitized again by the whitelist helpers; read-only form
+        // repopulation, and the preview query itself is nonce-gated.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         return sanitize_text_field(wp_unslash((string) ($_GET[$key] ?? '')));
     }
 

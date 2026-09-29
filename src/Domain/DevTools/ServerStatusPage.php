@@ -399,7 +399,8 @@ final class ServerStatusPage
      */
     public static function openBasedirGrantsProc(string $openBasedir): bool
     {
-        $entries = preg_split('/[:;]/', $openBasedir) ?: [];
+        $split = preg_split('/[:;]/', $openBasedir);
+        $entries = is_array($split) ? $split : [];
         foreach ($entries as $entry) {
             $entry = trim($entry);
             if ($entry === '/' || strcasecmp(rtrim($entry, '/'), '/proc') === 0) {

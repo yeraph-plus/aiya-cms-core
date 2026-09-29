@@ -63,7 +63,7 @@ final class NsfwFilterTest extends TestCase
         // The request flag itself is the controller's gate (excluded above);
         // this answer is the viewer-eligibility half only — a guest may be
         // withheld, so true.
-        self::assertTrue($filter->withholdsTerms(PublicTypes::get('post') ?? throw new \RuntimeException()));
+        self::assertTrue($filter->withholdsTerms());
     }
 
     public function testResolvesTaxonomyIdsForTheRequestedTypeOnly(): void
@@ -80,7 +80,7 @@ final class NsfwFilterTest extends TestCase
         $type = PublicTypes::get('post') ?? throw new \RuntimeException();
 
         self::assertSame([103, 107], $filter->excludedTermTaxonomyIds($type, true));
-        self::assertTrue($filter->withholdsTerms($type));
+        self::assertTrue($filter->withholdsTerms());
     }
 
     public function testDropsConfiguredIdsThatNoLongerResolve(): void
@@ -104,7 +104,7 @@ final class NsfwFilterTest extends TestCase
         $type = PublicTypes::get('post') ?? throw new \RuntimeException();
 
         self::assertSame([], $filter->excludedTermTaxonomyIds($type, true));
-        self::assertFalse($filter->withholdsTerms($type));
+        self::assertFalse($filter->withholdsTerms());
     }
 
     public function testAPlainSignedInViewerKeepsTheExclusion(): void

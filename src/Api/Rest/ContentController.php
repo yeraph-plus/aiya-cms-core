@@ -297,7 +297,7 @@ final class ContentController
             return new WP_REST_Response([]);
         }
 
-        $exclude = (bool) $request->get_param('excludeNsfw') && $this->nsfw->withholdsTerms($type)
+        $exclude = (bool) $request->get_param('excludeNsfw') && $this->nsfw->withholdsTerms()
             ? $this->nsfw->configuredTermIds($type)
             : [];
 

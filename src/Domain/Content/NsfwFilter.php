@@ -78,11 +78,11 @@ final class NsfwFilter
     }
 
     /**
-     * Whether the /terms vocabulary should withhold the NSFW terms of the
-     * type — true unless the signed-in viewer's "always show" override is
-     * set (the request flag itself is checked by the caller).
+     * Whether the /terms vocabulary should withhold the NSFW terms —
+     * true unless the signed-in viewer's "always show" override is set
+     * (the request flag itself is checked by the caller).
      */
-    public function withholdsTerms(PublicType $type): bool
+    public function withholdsTerms(): bool
     {
         $viewer = get_current_user_id();
 
