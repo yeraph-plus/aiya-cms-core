@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core;
 
 use Aiya\Core\Admin\CoverMetabox;
+use Aiya\Core\Admin\AdminBarFrontendLink;
 use Aiya\Core\Admin\CardThumbnailBulkAction;
 use Aiya\Core\Domain\Sponsorship\ConvertCodesPage;
 use Aiya\Core\Admin\DiscussionModerationPage;
@@ -125,6 +126,7 @@ final class Plugin
         // controllers and the related-post card's summary projection.
         $visibility = new PostVisibility(fn (int $userId): bool => (new MembershipService())->isSponsor($userId));
         $this->addModule(new SendMailPage());
+        $this->addModule(new AdminBarFrontendLink());
         $this->addModule(new SlugModule($this->settings));
         $this->addModule(new ThemeSupportModule());
         $this->addModule(new SmiliesModule());

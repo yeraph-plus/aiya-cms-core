@@ -1,0 +1,77 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Aiya\Core\Domain\Content;
+
+/**
+ * The canonical front-end origin: the Frontend page's "frontend domain"
+ * (frontend_domain, 0.97.0). The back end names the front end itself in
+ * a growing set of places — password-reset links, the admin-bar shortcut
+ * — and every consumer must resolve the SAME value the same way, so the
+ * normalization lives here and nowhere else.
+ *
+ * A configured value reduces to scheme + host + optional port; scheme-less
+ * input reads as https, credentials/paths/queries are rejected (not
+ * stripped), and unusable input answers null — callers fall back to their
+ * own site-local default.
+ */
+final class FrontendDomain
+{
+    /**
+     * The configured front-end origin, or null when unset or unusable.
+     */
+    public static function origin(): ?string
+    {
+        return self::normalize((string) aiya_core_opt('frontend', 'frontend_domain', ''));
+    }
+
+    /**
+     * Reduces an origin to scheme + host (no path, no query, no
+     * credentials); null when it is not a usable web origin. Scheme-less
+     * input reads as https. The explicit port survives: local dev front
+     * ends always carry one.
+     */
+    public static function normalize(string $raw): ?string
+    {
+        $raw = trim($raw);
+        if ($raw === '') {
+            return null;
+        }
+
+        if (!preg_match('#^https?://#i', $raw)) {
+            $raw = 'https://' . $raw;
+        }
+
+        $parts = wp_parse_url($raw);
+        if (!is_array($parts)) {
+            return null;
+        }
+
+        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+        $host = strtolower((string) ($parts['host'] ?? ''));
+        if (!in_array($scheme, ['http', 'https'], true) || $host === '') {
+            return null;
+        }
+
+        // parse_url is a lenient splitter, not a validator — a host like
+        // '::' or 'not a host' passes straight through. A front-end
+        // origin is a hostname or a bracketed IPv6 literal; anything
+        // else is rejected wholesale.
+        if (!preg_match('/^\[[0-9a-f:.]+\]$/', $host)
+            && !preg_match('/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*$/', $host)
+        ) {
+            return null;
+        }
+
+        // Userinfo in the origin is never legitimate for a front-end host.
+        if (isset($parts['user']) || isset($parts['pass'])) {
+            return null;
+        }
+
+        // Keep the explicit port: local dev front ends always carry one.
+        $port = isset($parts['port']) && is_int($parts['port']) ? ':' . $parts['port'] : '';
+
+        return $scheme . '://' . $host . $port;
+    }
+}

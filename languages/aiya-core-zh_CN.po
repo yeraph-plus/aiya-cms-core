@@ -1,7 +1,7 @@
 # aiya-core 简体中文翻译。
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.96.1\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.97.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3117,3 +3117,27 @@ msgstr "vendor/ 等大型依赖目录会被瞬时移出、避免删除过程长�
 msgid "Cancel, back to the plugin list"
 msgstr "取消，返回插件列表"
 
+
+#: src/Domain/Content/FrontendModule.php:76
+msgid "Basic settings"
+msgstr "基础设置"
+
+#: src/Domain/Content/FrontendModule.php:82
+msgid "Frontend domain"
+msgstr "前台域名"
+
+#: src/Domain/Content/FrontendModule.php:83
+msgid "The canonical front-end origin including the scheme, for example https://www.example.com. When set, password-reset links always point here; more front-end-facing features will reuse this value. Leave empty to keep reset links on this site address."
+msgstr "前台站点的完整来源地址（含协议，例如 https://www.example.com）。设置后密码重置链接一律指向此处，后续前台相关功能也会复用该值；留空则重置链接回退到本站点地址。"
+
+#: src/Admin/AdminBarFrontendLink.php:39
+msgid "Front end"
+msgstr "前台"
+
+#: src/Admin/AdminBarFrontendLink.php:44
+msgid "Open the front-end site in a new tab"
+msgstr "在新标签页打开前台站点"
+
+#: src/Admin/AdminBarFrontendLink.php:40
+msgid "View front end"
+msgstr "查看前台"

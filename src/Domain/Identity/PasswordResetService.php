@@ -4,21 +4,20 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Identity;
 
+use Aiya\Core\Domain\Content\FrontendDomain;
 use WP_Error;
 use WP_User;
 
 /**
  * Password reset mail for the headless front end. The reset key is the
  * native WordPress key (get_password_reset_key), but the link points at
- * the Astro front end: the requesting client passes its own origin, and
- * the service concatenates origin + /reset-password so the whole flow
- * stays on the front end instead of wp-login.php.
- *
- * A malformed or unapproved origin falls back to the site URL rather than
- * failing — the mail must always contain a working link. The site's own
- * host is the only default target; extra front-end hosts are configured
- * on the Security settings page or pinned down with the
- * `aiya_core_password_reset_allowed_hosts` filter.
+ * the Astro front end. The link origin is site-owned since 0.97.0: the
+ * Frontend page's "frontend domain" (frontend_domain) is authoritative
+ * when set, so a client-reported origin can never steer a live reset
+ * link anywhere the site owner did not choose. Without the setting a
+ * client-reported origin is honored only while it names this site's own
+ * host, and everything else falls back to the site URL — the mail must
+ * always contain a working link.
  */
 final class PasswordResetService
 {
@@ -76,10 +75,7 @@ final class PasswordResetService
      */
     public function buildResetUrl(string $frontendOrigin, string $login, string $key): string
     {
-        $origin = $this->normalizeOrigin($frontendOrigin);
-        if ($origin === null || !$this->originAllowed($origin)) {
-            $origin = home_url();
-        }
+        $origin = $this->resolveOrigin($frontendOrigin);
 
         return add_query_arg(
             ['login' => $login, 'key' => $key],
@@ -88,70 +84,38 @@ final class PasswordResetService
     }
 
     /**
-     * The site's own host is always acceptable. Any other front-end host
-     * must be configured on the Security settings page or through the
-     * `aiya_core_password_reset_allowed_hosts` filter — an anonymous
-     * client never gets to point a live reset link at an arbitrary host.
+     * Resolves the link origin: the configured frontend domain wins
+     * outright, a client-reported origin is honored only while it names
+     * this site's own host, and the site URL is the last resort. The
+     * configured value survives the same normalization as the reported
+     * one (scheme-less input reads as https; the port is kept).
      */
-    private function originAllowed(string $origin): bool
+    private function resolveOrigin(string $frontendOrigin): string
     {
-        $host = wp_parse_url($origin, PHP_URL_HOST);
-        if (!is_string($host) || $host === '') {
-            return false;
+        $origin = FrontendDomain::origin();
+        if ($origin !== null) {
+            return $origin;
         }
 
-        $homeHost = wp_parse_url((string) home_url(), PHP_URL_HOST);
-        if (is_string($homeHost) && strcasecmp($host, $homeHost) === 0) {
-            return true;
+        $origin = FrontendDomain::normalize($frontendOrigin);
+        if ($origin !== null && $this->namesSiteHost($origin)) {
+            return $origin;
         }
 
-        $configured = (array) aiya_core_opt('security', 'password_reset_allowed_hosts', []);
-        $allowed = array_map(
-            'strtolower',
-            array_merge(
-                array_map('strval', $configured),
-                array_map('strval', (array) apply_filters('aiya_core_password_reset_allowed_hosts', []))
-            )
-        );
-
-        return in_array(strtolower($host), $allowed, true);
+        return (string) home_url();
     }
 
     /**
-     * Reduces the client-supplied origin to scheme + host (no path, no
-     * query, no credentials); null when it is not a usable web origin.
+     * Host-only comparison on purpose: the site's own host on any port
+     * is still the site. A distinct front-end host goes through the
+     * configured frontend domain instead of a client report.
      */
-    private function normalizeOrigin(string $raw): ?string
+    private function namesSiteHost(string $origin): bool
     {
-        $raw = trim($raw);
-        if ($raw === '') {
-            return null;
-        }
+        $host = wp_parse_url($origin, PHP_URL_HOST);
+        $siteHost = wp_parse_url((string) home_url(), PHP_URL_HOST);
 
-        if (!preg_match('#^https?://#i', $raw)) {
-            $raw = 'https://' . $raw;
-        }
-
-        $parts = wp_parse_url($raw);
-        if (!is_array($parts)) {
-            return null;
-        }
-
-        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
-        $host = strtolower((string) ($parts['host'] ?? ''));
-        if (!in_array($scheme, ['http', 'https'], true) || $host === '') {
-            return null;
-        }
-
-        // Userinfo in the origin is never legitimate for a front-end host.
-        if (isset($parts['user']) || isset($parts['pass'])) {
-            return null;
-        }
-
-        // Keep the explicit port: local dev front ends always carry one.
-        $port = isset($parts['port']) && is_int($parts['port']) ? ':' . $parts['port'] : '';
-
-        return $scheme . '://' . $host . $port;
+        return is_string($host) && is_string($siteHost) && strcasecmp($host, $siteHost) === 0;
     }
 
     private function validityHours(): int

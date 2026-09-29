@@ -22,10 +22,18 @@ use Aiya\Core\Settings\Registry;
  * This page is the presentation/media half of the old shell settings; the
  * operational half (retention periods, SEO head values, NSFW vocabularies)
  * lives on the content-management page since 0.96.0.
+ *
+ * The basic-settings group carries the front-end domain: the canonical
+ * origin the back end uses when it has to name the front end itself
+ * (password-reset links and the admin-bar shortcut since 0.97.0, more
+ * consumers planned). It lives here rather than on the Security page,
+ * whose host allowlist it replaces.
  */
 final class FrontendModule implements Module
 {
     public const OPTION_NAME = 'aiya_core_frontend';
+
+    public const MIGRATION_VERSION = '0.97.0';
 
     public function __construct(private Registry $settings)
     {
@@ -34,6 +42,12 @@ final class FrontendModule implements Module
     public function register(): void
     {
         add_action('aiya_core_register', [$this, 'settings'], 10, 0);
+
+        add_filter('aiya_core_schema_migrations', static function (array $migrations): array {
+            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'migrateResetHostAllowlist']];
+
+            return $migrations;
+        });
     }
 
     public function settings(): void
@@ -55,6 +69,19 @@ final class FrontendModule implements Module
                     'variant' => 'info',
                     'label' => __('These fields feed the front-end shell through GET /aiya/core/v1/site; leave a footer string empty to keep it out of the footer.', 'aiya-core'),
                     'default' => null,
+                ],
+                [
+                    'id' => 'heading_basic',
+                    'type' => 'heading',
+                    'label' => __('Basic settings', 'aiya-core'),
+                    'level' => '2',
+                ],
+                [
+                    'id' => 'frontend_domain',
+                    'type' => 'text',
+                    'label' => __('Frontend domain', 'aiya-core'),
+                    'description' => __('The canonical front-end origin including the scheme, for example https://www.example.com. When set, password-reset links always point here; more front-end-facing features will reuse this value. Leave empty to keep reset links on this site address.', 'aiya-core'),
+                    'default' => '',
                 ],
                 [
                     'id' => 'heading_appearance',
@@ -169,5 +196,52 @@ final class FrontendModule implements Module
                 ],
             ],
         ]);
+    }
+
+    /**
+     * 0.97.0: the Security page's password-reset host allowlist became
+     * this page's single frontend domain. The first non-empty allowlist
+     * entry carries over — the documented use was the one front-end
+     * host, and the multi-host slack has no place in the canonical-domain
+     * model — unless the new field already holds a value. The old key
+     * leaves the security option either way.
+     */
+    public static function migrateResetHostAllowlist(): void
+    {
+        $security = get_option('aiya_core_security');
+        $security = is_array($security) ? $security : [];
+        if (!array_key_exists('password_reset_allowed_hosts', $security)) {
+            return;
+        }
+
+        $hosts = $security['password_reset_allowed_hosts'];
+        if (is_string($hosts)) {
+            $hosts = [$hosts];
+        }
+        $first = '';
+        foreach ((array) $hosts as $host) {
+            $host = trim((string) $host);
+            if ($host !== '') {
+                $first = $host;
+                break;
+            }
+        }
+
+        unset($security['password_reset_allowed_hosts']);
+
+        if ($first !== '') {
+            $frontend = get_option('aiya_core_frontend');
+            $frontend = is_array($frontend) ? $frontend : [];
+            if (!array_key_exists('frontend_domain', $frontend)) {
+                $frontend['frontend_domain'] = $first;
+            }
+            update_option('aiya_core_frontend', $frontend, false);
+        }
+
+        if ($security === []) {
+            delete_option('aiya_core_security');
+        } else {
+            update_option('aiya_core_security', $security, false);
+        }
     }
 }

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.96.0\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.97.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-28T05:38:01+00:00\n"
+"POT-Creation-Date: 2026-09-28T20:07:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -27,6 +27,14 @@ msgstr ""
 #. Author of the plugin
 #: aiya-core.php:8
 msgid "Yeraph"
+msgstr ""
+
+#: src/Admin/AdminBarFrontendLink.php:40
+msgid "View front end"
+msgstr ""
+
+#: src/Admin/AdminBarFrontendLink.php:45
+msgid "Open the front-end site in a new tab"
 msgstr ""
 
 #: src/Admin/CardThumbnailBulkAction.php:68
@@ -470,20 +478,20 @@ msgstr ""
 #: src/Admin/PostTypeSwitchBulkAction.php:70
 #: src/Admin/PostTypeSwitchBulkAction.php:109
 #: src/Domain/Content/BlocksModule.php:212
-#: src/Domain/Content/ContentManagementModule.php:138
+#: src/Domain/Content/ContentManagementModule.php:146
 msgid "Posts"
 msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:71
 #: src/Admin/PostTypeSwitchBulkAction.php:110
-#: src/Domain/Content/ContentManagementModule.php:139
+#: src/Domain/Content/ContentManagementModule.php:147
 msgid "Pages"
 msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:72
 #: src/Admin/PostTypeSwitchBulkAction.php:111
 #: src/Domain/Content/BlocksModule.php:213
-#: src/Domain/Content/ContentManagementModule.php:140
+#: src/Domain/Content/ContentManagementModule.php:148
 msgid "Resources"
 msgstr ""
 
@@ -711,7 +719,7 @@ msgid "The email address or the password is incorrect."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:268
-#: src/Api/Rest/UserController.php:415
+#: src/Api/Rest/UserController.php:421
 msgid "Existing sessions could not be invalidated; the password was left unchanged."
 msgstr ""
 
@@ -733,7 +741,7 @@ msgstr ""
 #: src/Api/Rest/SponsorshipController.php:110
 #: src/Api/Rest/SponsorshipController.php:177
 #: src/Api/Rest/UserController.php:194
-#: src/Api/Rest/UserController.php:366
+#: src/Api/Rest/UserController.php:372
 msgid "Too many requests, try again later."
 msgstr ""
 
@@ -755,16 +763,16 @@ msgstr ""
 #: src/Api/Rest/FileServeController.php:97
 #: src/Api/Rest/SponsorshipController.php:280
 #: src/Api/Rest/UploadsController.php:57
-#: src/Api/Rest/UserController.php:445
+#: src/Api/Rest/UserController.php:451
 msgid "Authentication required."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:339
 #: src/Api/Rest/CommentsController.php:149
-#: src/Api/Rest/ContentController.php:387
+#: src/Api/Rest/ContentController.php:386
 #: src/Api/Rest/UploadsController.php:64
 #: src/Api/Rest/UserController.php:252
-#: src/Api/Rest/UserController.php:396
+#: src/Api/Rest/UserController.php:402
 msgid "Too many requests, please retry later."
 msgstr ""
 
@@ -806,20 +814,20 @@ msgstr ""
 
 #: src/Api/Rest/CommentsController.php:271
 #: src/Api/Rest/ContentController.php:205
-#: src/Api/Rest/ContentController.php:356
-#: src/Api/Rest/ContentController.php:361
-#: src/Api/Rest/ContentController.php:402
-#: src/Api/Rest/ContentController.php:438
+#: src/Api/Rest/ContentController.php:355
+#: src/Api/Rest/ContentController.php:360
+#: src/Api/Rest/ContentController.php:401
+#: src/Api/Rest/ContentController.php:437
 #: src/Domain/FileServe/DownloadService.php:108
 #: src/Domain/FileServe/FileService.php:51
 msgid "Content not found."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:412
+#: src/Api/Rest/ContentController.php:411
 msgid "Incorrect password."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:478
+#: src/Api/Rest/ContentController.php:477
 msgid "Profile not found."
 msgstr ""
 
@@ -947,19 +955,19 @@ msgstr ""
 msgid "The locale is not supported."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:351
+#: src/Api/Rest/UserController.php:353
 msgid "Changing the email address requires the current password."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:356
+#: src/Api/Rest/UserController.php:358
 msgid "The profile could not be saved."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:372
+#: src/Api/Rest/UserController.php:378
 msgid "No avatar image was uploaded."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:402
+#: src/Api/Rest/UserController.php:408
 msgid "The current password is incorrect."
 msgstr ""
 
@@ -1031,7 +1039,7 @@ msgstr ""
 
 #: src/Domain/Content/BlocksModule.php:132
 #: src/Domain/Content/BlocksModule.php:203
-#: src/Domain/Content/FrontendModule.php:153
+#: src/Domain/Content/FrontendModule.php:180
 #: src/Domain/Content/TermExtrasModule.php:59
 msgid "Icon"
 msgstr ""
@@ -1053,7 +1061,7 @@ msgid "New window"
 msgstr ""
 
 #: src/Domain/Content/BlocksModule.php:164
-#: src/Domain/Content/FrontendModule.php:147
+#: src/Domain/Content/FrontendModule.php:174
 msgid "Link"
 msgstr ""
 
@@ -1109,78 +1117,78 @@ msgstr ""
 msgid "Optional override for the heading row's link; empty derives the type's own archive path (with the chosen categories)."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:65
+#: src/Domain/Content/ContentManagementModule.php:73
 msgid "Operational content settings: retention periods, the site-level SEO head values served through GET /aiya/core/v1/site, and the NSFW vocabularies the read path can exclude on request."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:71
+#: src/Domain/Content/ContentManagementModule.php:79
 msgid "Retention policy"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:77
+#: src/Domain/Content/ContentManagementModule.php:85
 msgid "Notification retention (days)"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:78
+#: src/Domain/Content/ContentManagementModule.php:86
 msgid "A daily cleanup removes stored notifications older than this many days."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:86
+#: src/Domain/Content/ContentManagementModule.php:94
 msgid "Ledger retention (days)"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:87
+#: src/Domain/Content/ContentManagementModule.php:95
 msgid "How long closed credit history (spent rows, emptied buckets) is kept before the daily cleanup removes it. Live unexpired buckets are never touched."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:95
+#: src/Domain/Content/ContentManagementModule.php:103
 msgid "SEO & analytics"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:101
+#: src/Domain/Content/ContentManagementModule.php:109
 msgid "SEO keywords"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:102
+#: src/Domain/Content/ContentManagementModule.php:110
 msgid "Comma-separated keywords for the site home page."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:108
+#: src/Domain/Content/ContentManagementModule.php:116
 msgid "SEO description"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:109
+#: src/Domain/Content/ContentManagementModule.php:117
 msgid "Meta description for the site home page."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:115
+#: src/Domain/Content/ContentManagementModule.php:123
 msgid "Google Analytics ID"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:116
+#: src/Domain/Content/ContentManagementModule.php:124
 msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:122
+#: src/Domain/Content/ContentManagementModule.php:130
 msgid "NSFW filter"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:129
+#: src/Domain/Content/ContentManagementModule.php:137
 msgid "Terms picked here count as NSFW: the front end asks for them to be dropped from listings (any matching category excludes the post). Untouched by default — detail pages and direct archive visits stay reachable, and a signed-in user with \"always show NSFW content\" ignores the filter."
 msgstr ""
 
 #. translators: %s: content type label (e.g. Posts).
-#: src/Domain/Content/ContentManagementModule.php:157
+#: src/Domain/Content/ContentManagementModule.php:165
 #, php-format
 msgid "NSFW terms — %s"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:158
+#: src/Domain/Content/ContentManagementModule.php:166
 msgid "Every picked term is treated as NSFW content for this type; posts carrying any of them drop out of requested listings."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:169
-#: src/Domain/Content/ContentManagementModule.php:170
+#: src/Domain/Content/ContentManagementModule.php:177
+#: src/Domain/Content/ContentManagementModule.php:178
 msgid "Content management"
 msgstr ""
 
@@ -1204,128 +1212,140 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:46
+#: src/Domain/Content/FrontendModule.php:60
 msgid "Frontend"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:47
+#: src/Domain/Content/FrontendModule.php:61
 msgid "AIYA CMS Core"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:56
+#: src/Domain/Content/FrontendModule.php:70
 msgid "These fields feed the front-end shell through GET /aiya/core/v1/site; leave a footer string empty to keep it out of the footer."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:62
+#: src/Domain/Content/FrontendModule.php:76
+msgid "Basic settings"
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:82
+msgid "Frontend domain"
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:83
+msgid "The canonical front-end origin including the scheme, for example https://www.example.com. When set, password-reset links always point here; more front-end-facing features will reuse this value. Leave empty to keep reset links on this site address."
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:89
 msgid "Presentation defaults"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:68
+#: src/Domain/Content/FrontendModule.php:95
 msgid "Theme color"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:69
+#: src/Domain/Content/FrontendModule.php:96
 msgid "Buttons, links and active states across the front end derive from this color."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:75
+#: src/Domain/Content/FrontendModule.php:102
 msgid "Default color mode"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:76
+#: src/Domain/Content/FrontendModule.php:103
 msgid "Color scheme a first-time visitor starts with."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:79
+#: src/Domain/Content/FrontendModule.php:106
 msgid "Follow the system"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:80
+#: src/Domain/Content/FrontendModule.php:107
 msgid "Dark"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:81
+#: src/Domain/Content/FrontendModule.php:108
 msgid "Light"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:87
+#: src/Domain/Content/FrontendModule.php:114
 msgid "Site fallback cover"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:88
+#: src/Domain/Content/FrontendModule.php:115
 msgid "Used wherever a cover is missing: list card thumbnails, category cards and the article hero — each surface derives its own crop from this one image."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:94
+#: src/Domain/Content/FrontendModule.php:121
 msgid "Empty state image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:95
+#: src/Domain/Content/FrontendModule.php:122
 msgid "Placeholder shown on empty lists and error cards across the front end."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:101
+#: src/Domain/Content/FrontendModule.php:128
 msgid "Header banner"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:107
+#: src/Domain/Content/FrontendModule.php:134
 msgid "Show the header banner"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:108
+#: src/Domain/Content/FrontendModule.php:135
 msgid "Turns the compact top bar into a tall header backed by the banner image."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:114
+#: src/Domain/Content/FrontendModule.php:141
 msgid "Banner image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:115
+#: src/Domain/Content/FrontendModule.php:142
 msgid "Wide image shown behind the top navigation while the banner is on."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:121
+#: src/Domain/Content/FrontendModule.php:148
 msgid "Compliance footer"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:127
+#: src/Domain/Content/FrontendModule.php:154
 msgid "Footer hitokoto"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:128
+#: src/Domain/Content/FrontendModule.php:155
 msgid "Show a random one-liner quote as the footer sign-off."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:134
+#: src/Domain/Content/FrontendModule.php:161
 msgid "Compliance links"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:135
+#: src/Domain/Content/FrontendModule.php:162
 msgid "One row per filing shown in the footer, e.g. ICP or public security."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:141
+#: src/Domain/Content/FrontendModule.php:168
 #: src/Modules/MediaModule.php:256
 msgid "Text"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:156
+#: src/Domain/Content/FrontendModule.php:183
 msgid "Shield (ICP)"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:157
+#: src/Domain/Content/FrontendModule.php:184
 msgid "Police badge"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:158
+#: src/Domain/Content/FrontendModule.php:185
 msgid "Custom image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:164
+#: src/Domain/Content/FrontendModule.php:191
 msgid "Custom icon URL"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:165
+#: src/Domain/Content/FrontendModule.php:192
 msgid "Used when the icon template is set to custom."
 msgstr ""
 
@@ -1344,7 +1364,7 @@ msgstr ""
 #: src/Domain/Content/SlugModule.php:69
 #: src/Domain/Content/SlugModule.php:89
 #: src/Domain/Identity/AvatarModule.php:108
-#: src/Infrastructure/Security/SecurityModule.php:129
+#: src/Infrastructure/Security/SecurityModule.php:122
 msgid "Off"
 msgstr ""
 
@@ -2858,34 +2878,34 @@ msgid "The two passwords do not match."
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Domain/Identity/PasswordResetService.php:45
+#: src/Domain/Identity/PasswordResetService.php:44
 #, php-format
 msgid "[%s] Password reset"
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Domain/Identity/PasswordResetService.php:51
+#: src/Domain/Identity/PasswordResetService.php:50
 #, php-format
 msgid "Someone requested a password reset for your account at %s."
 msgstr ""
 
 #. translators: %s: login email address.
-#: src/Domain/Identity/PasswordResetService.php:56
+#: src/Domain/Identity/PasswordResetService.php:55
 #, php-format
 msgid "Login email: %s"
 msgstr ""
 
-#: src/Domain/Identity/PasswordResetService.php:59
+#: src/Domain/Identity/PasswordResetService.php:58
 msgid "If this was not you, ignore this email and your password will stay unchanged."
 msgstr ""
 
 #. translators: %d: number of hours the reset link stays valid.
-#: src/Domain/Identity/PasswordResetService.php:62
+#: src/Domain/Identity/PasswordResetService.php:61
 #, php-format
 msgid "Open the link below within %d hours to choose a new password:"
 msgstr ""
 
-#: src/Domain/Identity/PasswordResetService.php:68
+#: src/Domain/Identity/PasswordResetService.php:67
 msgid "The password reset email could not be sent."
 msgstr ""
 
@@ -3054,59 +3074,59 @@ msgid "User #%d"
 msgstr ""
 
 #. translators: %1$s: commenter name.
-#: src/Domain/Notification/NotificationActions.php:129
+#: src/Domain/Notification/NotificationActions.php:141
 #, php-format
 msgid "%1$s replied to your comment."
 msgstr ""
 
 #. translators: 1: commenter name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:151
+#: src/Domain/Notification/NotificationActions.php:163
 #, php-format
 msgid "%1$s commented on your article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: author name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:176
+#: src/Domain/Notification/NotificationActions.php:188
 #, php-format
 msgid "%1$s published a new article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: post title.
-#: src/Domain/Notification/NotificationActions.php:198
+#: src/Domain/Notification/NotificationActions.php:210
 #, php-format
 msgid "A post you favorited was updated: \"%1$s\"."
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:214
+#: src/Domain/Notification/NotificationActions.php:226
 msgid "Your account password was reset. If this was not you, please contact the administrator."
 msgstr ""
 
 #. translators: 1: replier name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:235
+#: src/Domain/Notification/NotificationActions.php:247
 #, php-format
 msgid "%1$s replied to your thread \"%2$s\"."
 msgstr ""
 
 #. translators: 1: author name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:257
+#: src/Domain/Notification/NotificationActions.php:269
 #, php-format
 msgid "%1$s published a new thread \"%2$s\"."
 msgstr ""
 
 #. translators: %1$s: follower name.
-#: src/Domain/Notification/NotificationActions.php:275
+#: src/Domain/Notification/NotificationActions.php:287
 #, php-format
 msgid "%1$s followed you."
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:303
+#: src/Domain/Notification/NotificationActions.php:315
 #, php-format
 msgid "Your membership is active until %s. Thank you for the support!"
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:352
+#: src/Domain/Notification/NotificationActions.php:364
 #, php-format
 msgid "Your membership expires on %s. Renew to keep the perks."
 msgstr ""
@@ -4134,98 +4154,90 @@ msgid "Only accept email addresses as the login field"
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:104
-msgid "Password-reset link hosts"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:105
-msgid "Host names the reset link may point at besides this site (the front-end host, comma-separated). Requests naming any other host fall back to this site, so a forged domain can never receive a live reset link."
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:111
 msgid "Login page countdown gate"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:112
+#: src/Infrastructure/Security/SecurityModule.php:105
 msgid "Show a countdown before the wp-login.php form becomes usable"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:113
+#: src/Infrastructure/Security/SecurityModule.php:106
 msgid "The login form loads by itself after a short countdown; nothing to configure. Credential-stuffing requests that never wait out the countdown reach a page without a form, and the unlock parameter rotates by itself every 30 minutes."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:119
+#: src/Infrastructure/Security/SecurityModule.php:112
 msgid "Admin protection"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:125
+#: src/Infrastructure/Security/SecurityModule.php:118
 msgid "Admin back end minimum role"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:126
+#: src/Infrastructure/Security/SecurityModule.php:119
 msgid "Users below the selected role are redirected away from wp-admin. Off by default."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:130
+#: src/Infrastructure/Security/SecurityModule.php:123
 msgid "Subscriber and above"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:131
+#: src/Infrastructure/Security/SecurityModule.php:124
 msgid "Contributor and above"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:132
+#: src/Infrastructure/Security/SecurityModule.php:125
 msgid "Author and above"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:133
+#: src/Infrastructure/Security/SecurityModule.php:126
 msgid "Editor and above"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:134
+#: src/Infrastructure/Security/SecurityModule.php:127
 msgid "Administrator only"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:140
+#: src/Infrastructure/Security/SecurityModule.php:133
 msgid "Request URI guard"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:141
+#: src/Infrastructure/Security/SecurityModule.php:134
 msgid "Reject logged-out requests with oversized or probe-shaped URIs (414, REST routes excepted)"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:147
+#: src/Infrastructure/Security/SecurityModule.php:140
 msgid "Uninstall"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:153
+#: src/Infrastructure/Security/SecurityModule.php:146
 msgid "Erase data on scripted uninstalls"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:154
+#: src/Infrastructure/Security/SecurityModule.php:147
 msgid "Wipe the tables, settings and meta on WP-CLI and scripted uninstalls (the Plugins screen always asks)"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:155
+#: src/Infrastructure/Security/SecurityModule.php:148
 msgid "Deleting the plugin keeps all of its data (tables, settings, meta fields, scheduled events), so reinstalling picks up where it left off. Deleting from the Plugins screen always stops and asks first; this switch is the standing answer for the uninstalls that have no UI, such as WP-CLI. Off they keep the data, on they wipe it — the wipe cannot be undone. AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php forces the same wipe everywhere and skips the question."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:175
+#: src/Infrastructure/Security/SecurityModule.php:168
 msgid "Please log in with your email address."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:326
+#: src/Infrastructure/Security/SecurityModule.php:319
 msgid "Sign in"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:341
+#: src/Infrastructure/Security/SecurityModule.php:334
 msgid "This sign-in page opens automatically."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:343
+#: src/Infrastructure/Security/SecurityModule.php:336
 msgid "Please wait a moment — the sign-in form loads by itself."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:344
+#: src/Infrastructure/Security/SecurityModule.php:337
 msgid "Continue to the sign-in form"
 msgstr ""
 

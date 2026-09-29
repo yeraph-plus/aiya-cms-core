@@ -94,6 +94,25 @@ if (!class_exists('WP_Post')) {
     }
 }
 
+// --- WP_Admin_Bar ----------------------------------------------------------
+
+if (!class_exists('WP_Admin_Bar')) {
+    /**
+     * Minimal recorder double: captures add_node() payloads so tests can
+     * assert toolbar nodes without a full admin chrome.
+     */
+    class WP_Admin_Bar
+    {
+        /** @var array<int, array<string, mixed>> */
+        public array $nodes = [];
+
+        public function add_node(array $args): void
+        {
+            $this->nodes[] = $args;
+        }
+    }
+}
+
 // --- WP_Term --------------------------------------------------------------
 
 if (!class_exists('WP_Term')) {
@@ -517,6 +536,23 @@ if (!function_exists('wp_parse_url')) {
     function wp_parse_url(string $url, int $component = -1): mixed
     {
         return parse_url($url, $component);
+    }
+}
+
+if (!function_exists('add_query_arg')) {
+    /**
+     * Array-first form only: the suite's callers hand the query args as
+     * an array plus the target URL, and the real function keeps the
+     * array order.
+     */
+    function add_query_arg(array $args, string $uri = ''): string
+    {
+        $query = http_build_query($args);
+        if ($query === '') {
+            return $uri;
+        }
+
+        return $uri . (str_contains($uri, '?') ? '&' : '?') . $query;
     }
 }
 

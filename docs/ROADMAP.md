@@ -101,9 +101,10 @@ aiya-core/
 │  │                                #   ✅ 0.12.0：PasswordPolicy（≥8 位 + 字母数字，注册/改密/重置
 │  │                                #   共用）、TokenStore（不透明 Bearer 令牌 `{userId}.{secret}`，
 │  │                                #   HMAC 哈希落 user meta，14/2 天 TTL，上限 10 枚，改密全吊销）、
-│  │                                #   PasswordResetService（WP 原生 reset key + 前台自报域名拼接
-│  │                                #   `/reset-password?login=&key=`，来源归一化仅 scheme+host+port，
-│  │                                #   `aiya_core_password_reset_allowed_hosts` 过滤器可加白名单）
+│  │                                #   PasswordResetService（WP 原生 reset key + 链接来源拼接
+│  │                                #   `/reset-password?login=&key=`，来源归一化仅 scheme+host+port；
+│  │                                #   0.97.0 起链接来源站点自持——前台设置页 frontend_domain
+│  │                                #   权威，未配置时仅认站点自身 host，伪造域永收不到活链接）
 │  │  ├─ Discussion/                  # ✅ 0.26.0：ThreadType/ThreadStatus（词表 + 状态机）
 │  │                                #   + DiscussionService（wp_aiya_discussions/_replies
 │  │                                #   自建表唯一写入方，平铺回复 + postRef 绑定工单）
@@ -1433,3 +1434,13 @@ B3 前置批，落定 resource 编辑屏与附件消费链路（2026-09-09 拍�
 四面并行审查（安全与 REST / 查询与数据正确性 / 设置与生命周期 / 前端 Astro-React）对 0.95.1 后至本批的全部未提交变更；核心语义比对全部过线（offset 压过 paged、SQL_CALC_FOUND_ROWS 计入 post__not_in 与排除子查询、fields=ids 携带 found_rows、core 置顶前置被 is_home+ignore_sticky 双挡、WP 7.1 add_submenu_page position 1 落镜像项之后、autoload 显式 false 对已存在行生效、POT/PO 集合双向 0 差、uninstall LIKE 面覆盖新 option 与 usermeta）。**修复 4 项**：P1 一处——`PATCH /users/me/profile` 的 showNsfw 原在校验/重认证门之前落库（失败请求部分写入），移到 wp_update_user 之后与其余字段同批提交；P2 三处——`NsfwFilter::withholdsTerms` 摘除恒真的死参数（请求旗标归控制器门）、`resolveTaxonomyIds` 改按候选词法逐个 `get_term($id, $taxonomy)` 消歧义（共享 term_id 时裸 get_term 会答 ambiguous_term_id 使该 NSFW 词静默失效，垫片同步按词法收窄）、置顶块内排序跟随列表方向（oldest 列表的置顶块不再恒按最新优先）；另加两处缓存卫生——`presentTerms` 缓存键加 v2 版本段（0 计数过滤改变了默认键的内容，部署后旧形状不再作答）+ 内容管理页保存钩子 `update_option_aiya_core_content` 清 `aiya_core_content` 缓存组（NSFW 配置即时反映到 /terms，列表路径本就读活值）。**接受现状（记录在案）**：/terms 原生 count 含门禁/密码帖（点进可能为空——WP 原生语义即如此，按站长「遵循此设计」拍板保留）；空父项过滤产生的孤儿子树（parentId 指向列表外的词）为既定产品行为；WP_Query 替身不触发 posts_clauses 的结构性覆盖缺口由运行时探针兜底。前端面审查（front-station）另修复 6 项 P2——PostLoop「全部」chip 单选态归一（空 slug 点击不再产生 `['']` 幽灵选中态）、NSFW cookie 按 https 补 `secure`、通知代理分页钳制（perPage ≤ 50、page 取整）、NotificationFeed 加载更多重入守卫 + 失败分支显式化、账户硬开关切换失败经 flashToast 反馈、chip 计数口径注释（WP 原生未过滤总量）。前端 astro check 0 错、vitest 277/277、build 全绿。
 
 验证：phpunit 461/1382、phpstan、phpcs、parallel-lint 全绿。
+
+### 密码重置链接来源收归前台域名（2026-09-29，0.97.0 批次）—— ✅ 已完成
+
+**背景**：站长本地实测发现两封重置邮件链接均回落 WP 壳地址——Security 页 `password_reset_allowed_hosts` 白名单未生效。根因是配置形态与比对逻辑互斥：`originAllowed()` 用**不带端口的主机名**（`wp_parse_url(..., PHP_URL_HOST)`）与配置项比对，而配置值带端口（`localhost:4321`）永不匹配；字段描述又写「Host names」（裸主机名），`normalizeOrigin()` 却刻意保留端口用于拼链接——同一端口在「拼链接」与「准入判定」两侧语义分裂，配置错也无任何信号（静默回落 home_url）。站长拍板整体换模型：**干净移除白名单设置，改为前台设置页单一「前台域名」**。
+
+**落地**：① Security 页 `password_reset_allowed_hosts` 字段摘除；② 前台设置页新增「基础设置」组置顶 + `frontend_domain` 字段（text，描述含协议完整来源如 `https://www.example.com`，留空回退本站地址；站长定性为基础设置，备后续前台相关功能复用）；③ `PasswordResetService` 重写来源解析——`frontend_domain` **权威**（配置即生效，自报 domain 仅在未配置时参与，且仅当其 host 为站点自身 host 时保留——host-only 比对本站 host 任意端口仍是本站，独立前台 host 一律走配置值），`aiya_core_password_reset_allowed_hosts` 过滤器随白名单模型一并删除，`domain` 参数与契约零变化（快照零 diff）；④ SchemaVersionRunner `0.97.0` 迁移——`aiya_core_security.password_reset_allowed_hosts` 首个非空项搬入 `aiya_core_frontend.frontend_domain`（新侧已有值不覆盖、多宿主只取首项、空白名单不搬），旧键无论去向均删除，security option 搬空即 delete_option。
+
+**验证**：phpunit 474/1401（+`PasswordResetServiceTest` 7 例（配置权威/裸域补 https 保端口/凭据形态整体拒绝回落/未配置时站点 host 保端口/异域与垃圾输入回落站点地址）+`FrontendModuleMigrationTest` 6 例；垫片补 `add_query_arg`）、phpstan、phpcs、parallel-lint 297 文件全绿；i18n POT 1037 条（+3 新串：基础设置/前台域名/描述，-2 旧白名单串成 PO 惰性数据），POT/PO 集合双向 0 差、未翻译 0；契约快照重生成与 front-station 基线零 diff。**运行时实测**：dev 库（旧白名单 `localhost:4321` 在存储）请求触发迁移——`frontend_domain` 得 `localhost:4321`、旧键删除、`login_param_gate_enable` 保留；`wp eval` 探针四场景（配置压过异域自报/配置与自报一致/未配置异域回落 home_url/未配置本站 host 保端口）全符合；`pre_wp_mail` 捕获正文确认链接行为 `http://localhost:4321/reset-password?login=<uuid>&key=<key>`；真实找回请求 SMTP2GO 受理 `succeeded:1`，站长收件箱收到指向 localhost:4321 的活链接。
+
+**同批追加：site-name 下拉「查看前台」入口（0.97.0）**——新 `Admin/AdminBarFrontendLink`（`admin_bar_menu` 优先级 50，跑在 `wp_admin_bar_site_menu` 30 之后即落在下拉尾部、紧邻「查看站点」）：初版为一级 redo 按钮，站长复核改定单一形态——**site-name 下拉内 `View front end`（查看前台）子项，一级入口撤销**；`target=_blank` + `rel=noopener noreferrer` + tooltip「在新标签页打开前台站点」；**仅当前台域名已配置才渲染**（未配置时前台就是本安装，site-name 链接已覆盖，入口纯属冗余）。归一化收编进新值助手 `Domain/Content/FrontendDomain`（`origin()`/`normalize()`；parse_url 是宽容切分器，`https://:::` 这类垃圾 host 会被原样收下——补 hostname / 方括号 IPv6 双正则闸门，凭据形态整体拒绝），`PasswordResetService` 同批改为委托它，归一化单一事实源、零漂移。验证：phpunit 489/1422（+FrontendDomainTest 11 例 + AdminBarFrontendLinkTest 4 例，垫片补 `WP_Admin_Bar` 录制替身）、phpstan、phpcs、parallel-lint 301 文件全绿；i18n POT 1039（+「查看前台」/tooltip 两新串，集合双向 0 差）；**真实 HTTP 会话渲染验证**（wp-cli 上下文 `is_admin()`=false，core 不走 view-site 分支，eval 渲染失真——探针管理员走 wp-login 邮箱登录抓 `/wp-admin/`，用后即删）：`wp-admin-bar-aiya-frontend` 落在 site-name 下拉、view-site 之后，`href=http://localhost:4321 target='_blank' title='在新标签页打开前台站点'`，一级按钮零残留。
