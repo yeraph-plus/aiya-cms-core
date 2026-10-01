@@ -33,6 +33,7 @@ use Aiya\Core\Domain\Identity\FollowService;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
 use Aiya\Core\Domain\Identity\TokenStore;
+use Aiya\Core\Domain\Integrations\TicketService;
 use Aiya\Core\Domain\Notification\NotificationService;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
@@ -113,6 +114,10 @@ final class RestController implements Module
             $ledger = new LedgerService();
             $entitlements = new EntitlementService($ledger);
             (new CreditController($ledger, new RedeemCodeService($entitlements), new RateLimiter()))->registerRoutes();
+
+            // Companion-service machine endpoints (GatewayController-style:
+            // outside the contract namespace, bare JSON, route-level auth).
+            (new IntegrationsController(new TicketService(), $ledger, new RateLimiter()))->registerRoutes();
 
             // The membership domain is live again since the 0.50.0 tier
             // rewrite; Admin surfaces live under the membership menu.

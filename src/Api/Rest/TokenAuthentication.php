@@ -51,10 +51,13 @@ final class TokenAuthentication
     /**
      * Tokens only authenticate requests to the plugin's own namespaces —
      * everywhere else (admin-ajax, /wp/v2, xmlrpc) the header is ignored,
-     * so a leaked token gains nothing outside the contract API. Matching
-     * runs against the URL PATH only: the raw REQUEST_URI includes the
-     * query string, and a stray `?x=/aiya/core/v1/` marker must not
-     * re-enable token resolution outside the namespaces.
+     * so a leaked token gains nothing outside the contract API. The
+     * integrations namespace is in the list for the companion-service
+     * ticket flow: minting a ticket IS the bearer's one job there. A
+     * presented service key never matches (no `{userId}.{secret}` shape).
+     * Matching runs against the URL PATH only: the raw REQUEST_URI
+     * includes the query string, and a stray `?x=/aiya/core/v1/` marker
+     * must not re-enable token resolution outside the namespaces.
      */
     private function tokenAppliesHere(): bool
     {
@@ -65,7 +68,9 @@ final class TokenAuthentication
 
         $path = (string) wp_parse_url($uri, PHP_URL_PATH);
 
-        return str_contains($path, '/aiya/core/v1/') || str_contains($path, '/aiya/sponsorship/v1/');
+        return str_contains($path, '/aiya/core/v1/')
+            || str_contains($path, '/aiya/sponsorship/v1/')
+            || str_contains($path, '/aiya/integrations/v1/');
     }
 
     /** The presented bearer token, or null when the header is absent/malformed. */
