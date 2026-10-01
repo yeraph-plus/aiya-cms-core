@@ -78,7 +78,8 @@ final class RestController implements Module
         add_action('rest_api_init', function () use ($tokens, $authentication, $smiliesRenderer, $smilies): void {
             $presenter = new UserPresenter();
             $policy = new PasswordPolicy();
-            $postPresenter = new PostPresenter($this->cards, $smiliesRenderer, $this->visibility);
+            $favorites = new FavoriteService();
+            $postPresenter = new PostPresenter($this->cards, $smiliesRenderer, $this->visibility, $favorites, new CounterService());
 
             (new AuthController(
                 $tokens,
@@ -89,7 +90,6 @@ final class RestController implements Module
                 $presenter
             ))->registerRoutes();
 
-            $favorites = new FavoriteService();
             (new UserController($presenter, $this->avatars, $tokens, $policy, $postPresenter, $favorites, new FollowService(), new RateLimiter()))->registerRoutes();
 
             (new CounterController(new CounterService(), new RateLimiter()))->registerRoutes();

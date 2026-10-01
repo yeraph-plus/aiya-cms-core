@@ -13,10 +13,12 @@ use Aiya\Core\Api\Contract\PostSummary;
 use Aiya\Core\Api\Contract\Seo;
 use Aiya\Core\Api\Contract\Term;
 use Aiya\Core\Domain\Content\PostVisibility;
+use Aiya\Core\Domain\Content\ReadingTime;
+use Aiya\Core\Domain\Engagement\CounterService;
+use Aiya\Core\Domain\Identity\FavoriteService;
+use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Shared\PublicType;
 use Aiya\Core\Domain\Shared\PublicTypes;
-use Aiya\Core\Domain\Content\ReadingTime;
-use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use WP_Post;
 use WP_Query;
@@ -51,6 +53,8 @@ final class PostPresenter
         private readonly CardThumbnailService $cards,
         private readonly SmiliesRenderer $smilies,
         private readonly PostVisibility $visibility,
+        private readonly FavoriteService $favorites,
+        private readonly CounterService $counters,
     ) {
     }
 
@@ -135,6 +139,22 @@ final class PostPresenter
         // names the value 'public' (front-end enum).
         $visibility = $this->visibility->level($post);
 
+        // The viewer's own interaction state (0.99.1): computed only for a
+        // logged-in reader, so a logged-out detail is a constant
+        // false/false/null and stays safely share-cacheable — logged-in
+        // reads are `private, no-store` (HttpCache) and never land in a
+        // shared cache with these fields baked in.
+        $viewerId = get_current_user_id();
+        $viewerLiked = false;
+        $viewerFavorited = false;
+        $viewerRating = null;
+        if ($viewerId > 0) {
+            $hash = $this->counters->visitorHash();
+            $viewerLiked = $this->counters->hasLike((int) $post->ID, $hash);
+            $viewerRating = $this->counters->ratingVote((int) $post->ID, $hash);
+            $viewerFavorited = $this->favorites->has($viewerId, (int) $post->ID);
+        }
+
         return new PostDetail(
             $summary,
             $content,
@@ -151,7 +171,10 @@ final class PostPresenter
                 : null,
             isset($neighbors['next']) && $neighbors['next'] instanceof WP_Post
                 ? $this->summary($neighbors['next'], $type)
-                : null
+                : null,
+            $viewerLiked,
+            $viewerFavorited,
+            $viewerRating
         );
     }
 

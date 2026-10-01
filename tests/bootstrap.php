@@ -1044,6 +1044,12 @@ if (!class_exists('wpdb')) {
 
         public string $usermeta = 'wp_usermeta';
 
+        public string $postmeta = 'wp_postmeta';
+
+        public string $posts = 'wp_posts';
+
+        public string $term_relationships = 'wp_term_relationships';
+
         /** @var array<string, list<array<string, mixed>>> */
         public array $aiya_test_rows = [];
 
@@ -1296,6 +1302,26 @@ if (!class_exists('wpdb')) {
         private function aiya_test_match(string $sql): ?array
         {
             $table = $this->aiya_test_table($sql);
+
+            // The favorites existence read (presenter viewer state): match
+            // the prepared user and post ids against the seeded rows.
+            if ($table !== null && str_contains($table, 'user_favorites')) {
+                preg_match('/user_id = (\d+)/', $sql, $user);
+                preg_match('/post_id = (\d+)/', $sql, $post);
+                if ($user === [] || $post === []) {
+                    return null;
+                }
+                foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
+                    if ((int) ($row['user_id'] ?? 0) === (int) $user[1]
+                        && (int) ($row['post_id'] ?? 0) === (int) $post[1]
+                    ) {
+                        return $row;
+                    }
+                }
+
+                return null;
+            }
+
             preg_match("/token_hash = '([^']+)'/", $sql, $hash);
             if ($table === null || $hash === []) {
                 return null;
@@ -1337,6 +1363,20 @@ if (!function_exists('update_post_meta')) {
         // Mirrors core: the meta API unslashes incoming (slashed) values
         // before persisting them.
         $GLOBALS['__aiya_test_post_meta'][$objectId][$key] = wp_unslash($value);
+        return true;
+    }
+}
+
+if (!function_exists('add_post_meta')) {
+    function add_post_meta(int $objectId, string $key, mixed $value, bool $unique = false): bool
+    {
+        // Core inserts a second row for a non-unique add; the counter's
+        // baseline row rides $unique=true, so the store keeps one value.
+        if ($unique && isset($GLOBALS['__aiya_test_post_meta'][$objectId][$key])) {
+            return false;
+        }
+        $GLOBALS['__aiya_test_post_meta'][$objectId][$key] = wp_unslash($value);
+
         return true;
     }
 }

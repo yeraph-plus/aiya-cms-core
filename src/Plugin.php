@@ -47,7 +47,9 @@ use Aiya\Core\Domain\Content\TermExtrasModule;
 use Aiya\Core\Domain\Content\TermTaxonomyMover;
 use Aiya\Core\Domain\Credit\CreditModule;
 use Aiya\Core\Domain\Credit\LedgerService;
+use Aiya\Core\Domain\Engagement\CounterService;
 use Aiya\Core\Domain\Identity\AvatarModule;
+use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\IdentityModule;
 use Aiya\Core\Domain\Integrations\IntegrationsModule;
 use Aiya\Core\Domain\Mail\MailModule;
@@ -173,7 +175,7 @@ final class Plugin
         // stack above, hence the late registration.
         $postCards = new PostCardPresenter(
             new ContentQuery($visibility),
-            new PostPresenter($media->cards(), new SmiliesRenderer(SmiliesRegistry::shared()), $visibility)
+            new PostPresenter($media->cards(), new SmiliesRenderer(SmiliesRegistry::shared()), $visibility, new FavoriteService(), new CounterService())
         );
         $this->addModule(new BuiltinParts(static fn (int $postId): string => $postCards->render($postId)));
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
+use Aiya\Core\Domain\Engagement\CounterService;
+use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Domain\Content\CommentQuery;
 use Aiya\Core\Domain\Content\PostVisibility;
@@ -81,7 +83,7 @@ final class ContentGateTest extends TestCase
         // paths never render, and the control cases render plain HTML.
         $smilies = new SmiliesRenderer(new SmiliesRegistry('/nonexistent-smilies', '/nonexistent-smilies'));
 
-        return new PostPresenter($cards, $smilies, $this->visibility($viewerIsMember));
+        return new PostPresenter($cards, $smilies, $this->visibility($viewerIsMember), new FavoriteService(), new CounterService());
     }
 
     private function type(): PublicType

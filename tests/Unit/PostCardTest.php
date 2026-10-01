@@ -104,7 +104,7 @@ final class PostCardTest extends TestCase
             static fn (): array => ['format' => 'webp', 'quality' => 82]
         );
         $smilies = new SmiliesRenderer(new SmiliesRegistry('/nonexistent-smilies', '/nonexistent-smilies'));
-        $posts = new \Aiya\Core\Api\Presenter\PostPresenter($cards, $smilies, $visibility);
+        $posts = new \Aiya\Core\Api\Presenter\PostPresenter($cards, $smilies, $visibility, new \Aiya\Core\Domain\Identity\FavoriteService(), new \Aiya\Core\Domain\Engagement\CounterService());
 
         return [
             'card' => new \Aiya\Core\Api\Presenter\PostCardPresenter(

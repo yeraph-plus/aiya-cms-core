@@ -28,6 +28,16 @@ namespace Aiya\Core\Api\Contract;
  * auto-generated one the summary carries (cards describe with the auto
  * text; the detail page shows the excerpt strip only when the author
  * actually wrote one).
+ *
+ * The `viewer*` fields are the logged-in viewer's own interaction state
+ * (additive, 0.99.1): whether their like and favorite exist and their own
+ * rating vote within the dedupe window. They are computed only for a
+ * logged-in reader — a detail served to a logged-out viewer always
+ * answers false/false/null, which is safe to share-cache because
+ * logged-in reads are never cached (`private, no-store`). `viewerRating`
+ * carries the visitor's own 1-10 vote value; the like flag follows the
+ * dedupe-window semantics (it dies with the 30-day window, exactly when
+ * a re-like starts counting again), favorites persist until removed.
  */
 final class PostDetail
 {
@@ -47,6 +57,9 @@ final class PostDetail
         public readonly ?Image $featured,
         public readonly ?PostSummary $previous,
         public readonly ?PostSummary $next,
+        public readonly bool $viewerLiked = false,
+        public readonly bool $viewerFavorited = false,
+        public readonly ?int $viewerRating = null,
     ) {
     }
 
@@ -65,6 +78,9 @@ final class PostDetail
             'breadcrumbs' => array_map(static fn (Breadcrumb $breadcrumb): array => $breadcrumb->toArray(), $this->breadcrumbs),
             'previous' => $this->previous?->toArray(),
             'next' => $this->next?->toArray(),
+            'viewerLiked' => $this->viewerLiked,
+            'viewerFavorited' => $this->viewerFavorited,
+            'viewerRating' => $this->viewerRating,
         ]);
     }
 }

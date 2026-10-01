@@ -124,8 +124,7 @@ final class CounterService
      * @return array{likes: int, already: bool}|WP_Error
      */
     public function registerLike(int $postId, string $visitorHash): array|WP_Error
-    {
-        $error = $this->ensureTarget($postId, 'like');
+    {        $error = $this->ensureTarget($postId, 'like');
         if ($error !== null) {
             return $error;
         }
@@ -169,7 +168,9 @@ final class CounterService
         }
 
         $ttl = (int) apply_filters('aiya_core_rating_dedupe_ttl', self::RATING_DEDUPE_TTL);
-        set_transient($key, 1, max(1, $ttl));
+        // The vote value rides the dedupe entry so the detail projection can
+        // answer "what did I rate" without a per-vote store of its own.
+        set_transient($key, $value, max(1, $ttl));
 
         $count = $this->bump($postId, self::RATING_COUNT_KEY);
         $storedScore = $this->ratingScore($postId);
@@ -190,6 +191,30 @@ final class CounterService
         wp_cache_delete($postId, 'post_meta');
 
         return ['score' => $average, 'count' => $count, 'already' => false];
+    }
+
+    /**
+     * Whether the visitor's like dedupe entry exists — the read side of the
+     * 30-day like window, feeding the detail projection's `viewerLiked`.
+     * Note the semantics: the flag dies with the window (the counted like
+     * stays counted), so the detail button re-enables after 30 days by
+     * design, exactly when a re-like counts again.
+     */
+    public function hasLike(int $postId, string $visitorHash): bool
+    {
+        return get_transient('aiya_core_like_' . md5($postId . '|' . $visitorHash)) !== false;
+    }
+
+    /**
+     * The visitor's own rating vote within the dedupe window (the dedupe
+     * entry stores the vote value), or null when this visitor has not
+     * rated — the read side of the detail projection's `viewerRating`.
+     */
+    public function ratingVote(int $postId, string $visitorHash): ?int
+    {
+        $value = get_transient('aiya_core_rating_' . md5($postId . '|' . $visitorHash));
+
+        return $value === false ? null : (int) $value;
     }
 
     /**

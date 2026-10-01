@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
+use Aiya\Core\Domain\Engagement\CounterService;
+use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Api\Presenter\DiscussionPresenter;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\PostCardPresenter;
@@ -83,7 +85,7 @@ final class ReadPathCacheTest extends TestCase
             static fn (): array => ['format' => 'webp', 'quality' => 82]
         );
 
-        return new PostPresenter($cards, new SmiliesRenderer(new SmiliesRegistry('/none', '/none')), $visibility);
+        return new PostPresenter($cards, new SmiliesRenderer(new SmiliesRegistry('/none', '/none')), $visibility, new FavoriteService(), new CounterService());
     }
 
     // ------------------------------------------------------- entitlement memo
