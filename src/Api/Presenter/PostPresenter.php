@@ -139,7 +139,7 @@ final class PostPresenter
         // names the value 'public' (front-end enum).
         $visibility = $this->visibility->level($post);
 
-        // The viewer's own interaction state (0.99.1): computed only for a
+        // The viewer's own interaction state (0.100.0): computed only for a
         // logged-in reader, so a logged-out detail is a constant
         // false/false/null and stays safely share-cacheable — logged-in
         // reads are `private, no-store` (HttpCache) and never land in a

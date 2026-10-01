@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * The read side of the like/rating dedupe entries: the transients the
  * write path records double as the visitor's own state, feeding the
- * detail projection's viewerLiked/viewerRating (0.99.1). The rating
+ * detail projection's viewerLiked/viewerRating (0.100.0). The rating
  * entry stores the vote value, not a flag.
  */
 final class CounterViewerStateTest extends TestCase

@@ -124,7 +124,8 @@ final class CounterService
      * @return array{likes: int, already: bool}|WP_Error
      */
     public function registerLike(int $postId, string $visitorHash): array|WP_Error
-    {        $error = $this->ensureTarget($postId, 'like');
+    {
+        $error = $this->ensureTarget($postId, 'like');
         if ($error !== null) {
             return $error;
         }

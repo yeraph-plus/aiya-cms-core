@@ -30,7 +30,7 @@ namespace Aiya\Core\Api\Contract;
  * actually wrote one).
  *
  * The `viewer*` fields are the logged-in viewer's own interaction state
- * (additive, 0.99.1): whether their like and favorite exist and their own
+ * (additive, 0.100.0): whether their like and favorite exist and their own
  * rating vote within the dedupe window. They are computed only for a
  * logged-in reader — a detail served to a logged-out viewer always
  * answers false/false/null, which is safe to share-cache because

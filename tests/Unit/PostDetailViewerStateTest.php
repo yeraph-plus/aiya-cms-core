@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 use WP_Post;
 
 /**
- * The detail projection's viewer state (0.99.1): a logged-out detail
+ * The detail projection's viewer state (0.100.0): a logged-out detail
  * answers constant false/false/null (shared-cache safe), a logged-in
  * reader's own like, favorite and rating ride the payload. The like/rating
  * reads key on the same dedupe entries the write path records; the
