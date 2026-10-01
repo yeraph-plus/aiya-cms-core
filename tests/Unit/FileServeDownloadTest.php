@@ -58,15 +58,15 @@ final class FileServeDownloadTest extends TestCase
         unset($GLOBALS['wpdb']);
     }
 
-    /** @param list<Entry> $entries */
-    private function world(int $price, array $entries, string $postType = 'post'): DownloadService
+    /** @param list<Entry> $entries @param array<string, mixed> $postFields */
+    private function world(int $price, array $entries, string $postType = 'post', array $postFields = []): DownloadService
     {
-        $post = new WP_Post((object) [
+        $post = new WP_Post((object) array_merge([
             'ID' => 1,
             'post_type' => $postType,
             'post_status' => 'publish',
             'post_title' => 'Resource',
-        ]);
+        ], $postFields));
         $GLOBALS['__aiya_test_posts'][1] = $post;
 
         $stub = new class ($entries) implements Adapter {
@@ -284,6 +284,24 @@ final class FileServeDownloadTest extends TestCase
     {
         $downloads = $this->world(0, [$this->paidRow()]);
         update_post_meta(1, PostVisibility::META_KEY, PostVisibility::MEMBER);
+
+        $result = $downloads->claim(1, '1', FileService::ref($this->paidRow()), 7);
+
+        self::assertInstanceOf(WP_Error::class, $result);
+        self::assertSame('aiya_not_found', $result->get_error_code());
+        self::assertSame(404, $result->get_error_data()['status']);
+        self::assertSame([], $this->metered);
+    }
+
+    /**
+     * A password unlocks the post's content, never its files: a list
+     * configured on a password post would otherwise hand the files to
+     * anyone holding the URL, so the whole file surface answers "not
+     * there" — the same verdict the comment area gives.
+     */
+    public function testAPasswordPostAnswersLikeOneThatIsNotThere(): void
+    {
+        $downloads = $this->world(0, [$this->paidRow()], postFields: ['post_password' => 'secret']);
 
         $result = $downloads->claim(1, '1', FileService::ref($this->paidRow()), 7);
 

@@ -200,7 +200,9 @@ final class Gateway
         $encoded = implode('/', array_map('rawurlencode', explode('/', $path)));
         $base = $this->linkBase !== '' ? $this->linkBase : $this->server;
 
-        return rtrim($base, '/') . $prefix . $encoded . ($sign !== '' ? '?sign=' . $sign : '');
+        // The sign token is a query value, not query syntax: one carrying
+        // '&', '+' or a space must not read as more query string.
+        return rtrim($base, '/') . $prefix . $encoded . ($sign !== '' ? '?sign=' . rawurlencode($sign) : '');
     }
 
     /**

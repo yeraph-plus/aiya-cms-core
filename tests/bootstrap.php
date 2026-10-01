@@ -727,7 +727,9 @@ if (!function_exists('get_user_meta')) {
 if (!function_exists('update_user_meta')) {
     function update_user_meta(int $userId, string $key, mixed $value): bool
     {
-        $GLOBALS['__aiya_test_user_meta'][$userId][$key] = $value;
+        // Mirrors core: the meta API unslashes incoming (slashed) values
+        // before persisting them.
+        $GLOBALS['__aiya_test_user_meta'][$userId][$key] = wp_unslash($value);
         return true;
     }
 }
@@ -1087,6 +1089,21 @@ if (!class_exists('wpdb')) {
             return $rows;
         }
 
+        public function get_row(string $sql, mixed $output = null): ?object
+        {
+            $this->aiya_test_reads++;
+            $table = $this->aiya_test_table($sql);
+            if ($table === null || !isset($this->aiya_test_rows[$table])) {
+                return null;
+            }
+
+            // First seeded row of the table wins — the readers this serves
+            // (thread lookups) run against a one-row fixture.
+            $row = $this->aiya_test_rows[$table][0] ?? null;
+
+            return $row === null ? null : (object) $row;
+        }
+
         public function prepare(string $sql, mixed ...$args): string
         {
             // Like core, %s substitutes quoted; %i and %d go in bare (the
@@ -1107,6 +1124,13 @@ if (!class_exists('wpdb')) {
         public function get_var(string $sql): mixed
         {
             $this->aiya_test_reads++;
+
+            // Advisory locks answer granted — the double has no concurrency
+            // to serialize (the schema runner and the entitlement queue both
+            // take one).
+            if (str_contains($sql, 'GET_LOCK(') || str_contains($sql, 'RELEASE_LOCK(')) {
+                return 1;
+            }
 
             // The ledger's balance read: one SUM over the holder's live
             // buckets, filtered exactly like the bucket read above — the
@@ -1286,6 +1310,17 @@ if (!function_exists('delete_post_meta')) {
     {
         unset($GLOBALS['__aiya_test_post_meta'][$objectId][$key]);
         return true;
+    }
+}
+
+if (!function_exists('wp_unique_post_slug')) {
+    function wp_unique_post_slug(string $slug, int $postId, string $postStatus, string $postType, int $postParent): string
+    {
+        // Collision-free double: the suite holds no competing slug space,
+        // and the real function never sanitizes its input — it only queries
+        // for conflicts (case-insensitive collation) — so a pass-through is
+        // faithful for the case semantics the slug tests pin.
+        return $slug;
     }
 }
 
@@ -1546,6 +1581,24 @@ if (!function_exists('get_term_meta')) {
     }
 }
 
+if (!function_exists('update_term_meta')) {
+    function update_term_meta(int $termId, string $key, mixed $value): bool
+    {
+        // Mirrors core: the meta API unslashes incoming (slashed) values
+        // before persisting them.
+        $GLOBALS['__aiya_test_term_meta'][$termId][$key] = wp_unslash($value);
+        return true;
+    }
+}
+
+if (!function_exists('delete_term_meta')) {
+    function delete_term_meta(int $termId, string $key): bool
+    {
+        unset($GLOBALS['__aiya_test_term_meta'][$termId][$key]);
+        return true;
+    }
+}
+
 if (!function_exists('get_date_from_gmt')) {
     function get_date_from_gmt(string $date, string $format = 'Y-m-d H:i:s'): string
     {
@@ -1665,6 +1718,41 @@ if (!function_exists('add_theme_support')) {
     }
 }
 
+if (!function_exists('remove_theme_support')) {
+    function remove_theme_support(string $feature): bool
+    {
+        unset($GLOBALS['__aiya_test_theme_features'][$feature]);
+        return true;
+    }
+}
+
+if (!function_exists('get_post_types')) {
+    // Registry-free double: the strips only iterate the list to unhook
+    // per-type support, so an empty registry is a faithful no-op.
+    function get_post_types(array $args = [], string $output = 'names', string $operator = 'and'): array
+    {
+        return [];
+    }
+}
+
+if (!function_exists('remove_post_type_support')) {
+    function remove_post_type_support(string $post_type, string $feature): void
+    {
+    }
+}
+
+if (!function_exists('wp_deregister_script')) {
+    function wp_deregister_script(string $handle): void
+    {
+    }
+}
+
+if (!function_exists('wp_dequeue_style')) {
+    function wp_dequeue_style(string $handle): void
+    {
+    }
+}
+
 if (!function_exists('get_option')) {
     function get_option(string $name, mixed $default = false): mixed
     {
@@ -1700,7 +1788,7 @@ if (!function_exists('delete_option')) {
 }
 
 if (!function_exists('add_filter')) {
-    function add_filter(string $hook, callable $callback, int $priority = 10, int $acceptedArgs = 1): true
+    function add_filter(string $hook, callable|string $callback, int $priority = 10, int $acceptedArgs = 1): true
     {
         $GLOBALS['__aiya_test_filters'][$hook][$priority][] = ['callback' => $callback, 'args' => $acceptedArgs];
         return true;
@@ -1708,14 +1796,37 @@ if (!function_exists('add_filter')) {
 }
 
 if (!function_exists('add_action')) {
-    function add_action(string $hook, callable $callback, int $priority = 10, int $acceptedArgs = 1): true
+    function add_action(string $hook, callable|string $callback, int $priority = 10, int $acceptedArgs = 1): true
     {
         return add_filter($hook, $callback, $priority, $acceptedArgs);
     }
 }
 
+// Core's canned response helpers: src wires several filters by their
+// string names, which only resolve as callables when the functions exist.
+if (!function_exists('__return_false')) {
+    function __return_false(): bool
+    {
+        return false;
+    }
+}
+
+if (!function_exists('__return_true')) {
+    function __return_true(): bool
+    {
+        return true;
+    }
+}
+
+if (!function_exists('__return_empty_array')) {
+    function __return_empty_array(): array
+    {
+        return [];
+    }
+}
+
 if (!function_exists('remove_filter')) {
-    function remove_filter(string $hook, callable $callback, int $priority = 10): bool
+    function remove_filter(string $hook, callable|string $callback, int $priority = 10): bool
     {
         foreach ($GLOBALS['__aiya_test_filters'][$hook][$priority] ?? [] as $index => $entry) {
             if ($entry['callback'] === $callback) {
@@ -1730,7 +1841,7 @@ if (!function_exists('remove_filter')) {
 }
 
 if (!function_exists('remove_action')) {
-    function remove_action(string $hook, callable $callback, int $priority = 10): bool
+    function remove_action(string $hook, callable|string $callback, int $priority = 10): bool
     {
         return remove_filter($hook, $callback, $priority);
     }

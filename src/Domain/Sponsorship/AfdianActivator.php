@@ -156,6 +156,16 @@ final class AfdianActivator
 
         $order = $this->client->queryOrder($orderNo);
         if ($order === null) {
+            // Null covers both "no such order" and a platform/transport
+            // failure mid-conversation. A second ping tells those apart:
+            // an API that answered the first ping and now fails it is an
+            // outage, not a missing purchase — answer 502 so the caller
+            // (and the webhook log) reads a retryable condition instead
+            // of writing a real order off as never seen.
+            if ($this->client->ping() !== 200) {
+                return new WP_Error('aiya_afdian_unavailable', __('The Afdian API is unreachable — try again later.', 'aiya-core'), ['status' => 502]);
+            }
+
             return new WP_Error('aiya_order_not_found', __('No matching Afdian order — check the order number.', 'aiya-core'), ['status' => 404]);
         }
 
@@ -207,6 +217,13 @@ final class AfdianActivator
      * keys, so replays from the webhook and the manual path converge on
      * one settled row and one activation.
      *
+     * The booking is unconditional: when the settle loses the row to a
+     * concurrent push (two orders, one latest-pending slot) or the write
+     * fails, re-reading by this order's own id decides — found means the
+     * money is already in, missing means this push must book it directly.
+     * Confirming a shared row is an optimization for the buyer's audit
+     * trail, never a precondition for the money to land.
+     *
      * @param array{orderId:string, userId:int, tier:array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}, cycles:int, amount:float} $resolved
      * @return true|WP_Error aiya_duplicate_order = already activated
      */
@@ -214,11 +231,12 @@ final class AfdianActivator
     {
         $pending = $this->orders->pendingForUser($resolved['userId'], 'afdian');
         if ($pending !== null) {
-            // A false return here means the real order id is already
-            // booked (a concurrent settle or the manual path won the
-            // race) — the queue step below is the idempotent one either way.
+            // A false return here means a concurrent settle won the row or
+            // the write failed — the re-read below settles which.
             $this->orders->confirm($pending['id'], $resolved['amount'], $resolved['orderId'], $resolved['cycles'], $resolved['tier']['key']);
-        } else {
+        }
+
+        if ($this->orders->orderRow($resolved['orderId']) === null) {
             $recorded = $this->orders->addPayment($resolved['userId'], $resolved['orderId'], $resolved['tier']['key'], $resolved['amount'], 'afdian');
             if (is_wp_error($recorded) && $recorded->get_error_code() !== 'aiya_duplicate_order') {
                 return new WP_Error('aiya_activation_failed', __('The membership activation failed — try again.', 'aiya-core'), ['status' => 502]);

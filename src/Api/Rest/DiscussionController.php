@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
-use Aiya\Core\Api\Contract\DiscussionBoard;
 use Aiya\Core\Api\Contract\Pagination;
 use Aiya\Core\Api\Presenter\DiscussionPresenter;
 use Aiya\Core\Domain\Discussion\DiscussionService;
@@ -136,19 +135,8 @@ final class DiscussionController
     /** The public board list with thread counts, menu order. */
     private function boards(): WP_REST_Response
     {
-        $items = [];
-        foreach ($this->threads->boards() as $board) {
-            $items[] = (new DiscussionBoard(
-                (int) $board->id,
-                (string) $board->slug,
-                (string) $board->name,
-                (string) $board->description,
-                (int) $board->threads,
-            ))->toArray();
-        }
-
         return new WP_REST_Response([
-            'data' => $items,
+            'data' => $this->presenter->boards($this->threads->boards()),
             'meta' => [
                 'apiVersion' => Contract::VERSION,
                 'requestId' => Envelope::meta()['requestId'],
@@ -345,8 +333,18 @@ final class DiscussionController
         return new WP_REST_Response(['deleted' => true]);
     }
 
+    /**
+     * Deletes one reply. The route carries both ids; the pair must match,
+     * same contract as the edit above — a reply is never reachable through
+     * a foreign thread path.
+     */
     private function deleteReply(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
+        $reply = $this->threads->replyById((int) $request->get_param('replyId'));
+        if ($reply === null || (int) $reply->thread_id !== (int) $request->get_param('id')) {
+            return $this->notFound();
+        }
+
         $deleted = $this->threads->deleteReply((int) $request->get_param('replyId'), (int) get_current_user_id());
         if (is_wp_error($deleted)) {
             return $deleted;

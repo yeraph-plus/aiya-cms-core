@@ -36,6 +36,13 @@ final class CropGenerator extends ImagineAware
             $image = $this->coverCropCenter($this->prepareSource($this->imagine()->open($sourcePath), $width, $height), $width, $height);
             $image->save($destPath, SaveOptions::withDefaults(pathinfo($destPath, PATHINFO_EXTENSION), $saveOptions));
         } catch (Throwable) {
+            // Same contract as ThumbnailGenerator: a mid-write failure
+            // leaves a truncated file a later read would serve — delete
+            // the partial output.
+            if (is_file($destPath)) {
+                @unlink($destPath); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink -- WordPress-free package
+            }
+
             return null;
         }
 

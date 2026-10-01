@@ -53,8 +53,11 @@ final class Packages
             }
 
             $path = $directory . str_replace('\\', '/', substr($className, strlen($prefix))) . '.php';
-
-            return is_readable($path) ? $path : null;
+            if (is_readable($path)) {
+                return $path;
+            }
+            // A prefix hit without a readable file is not final: a longer
+            // registered prefix may still carry the class.
         }
 
         return null;
@@ -83,19 +86,22 @@ final class Packages
             ));
         }
 
+        $broken = [];
         foreach ($manifests as $manifest) {
             if (!is_readable($manifest)) {
+                $broken[] = $manifest;
                 continue;
             }
 
             // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- a package manifest on local disk, not a remote URL.
             $decoded = json_decode((string) file_get_contents($manifest), true);
-            if (!is_array($decoded)) {
-                continue;
-            }
-
-            $psr4 = $decoded['autoload']['psr-4'] ?? null;
-            if (!is_array($psr4)) {
+            $psr4 = is_array($decoded) ? ($decoded['autoload']['psr-4'] ?? null) : null;
+            if (!is_array($psr4) || $psr4 === []) {
+                // A manifest that parses but maps nothing (corrupt JSON, a
+                // stripped autoload section) silently drops that whole
+                // package — the same far-from-cause failure shape as the
+                // missing-manifest case above, so it gets the same report.
+                $broken[] = $manifest;
                 continue;
             }
 
@@ -107,6 +113,15 @@ final class Packages
 
                 $map[$prefix] = $base . ltrim($relative, '/');
             }
+        }
+
+        if ($broken !== [] && defined('WP_DEBUG') && WP_DEBUG) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+            error_log(sprintf(
+                '[aiya-core] %d package manifest(s) are unreadable or carry no psr-4 map — their classes will fail to load: %s',
+                count($broken),
+                implode(', ', $broken)
+            ));
         }
 
         return $map;

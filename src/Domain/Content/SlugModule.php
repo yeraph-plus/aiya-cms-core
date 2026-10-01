@@ -18,7 +18,12 @@ use Aiya\Infra\SlugToolkit\PinyinConverter;
  *
  * Slugs inherit the legacy site's output: pinyin slugs come from
  * overtrue/pinyin (same library), ID slugs from the inherited XDE_code
- * algorithm, so old and new posts share one slug space.
+ * algorithm. 0.98.0, site-owner call: the ID candidate no longer runs
+ * through sanitize_title, so the XDE output's native mixed case ships as
+ * generated (the 62-char alphabet is the algorithm's strength) — legacy
+ * byte-identity is abandoned, and the case-insensitive post_name
+ * collation keeps old lowercase URLs resolving. Pinyin candidates stay
+ * lowercased exactly as before.
  *
  * ID slugs apply on updates through wp_unique_post_slug; on first insert
  * the post ID does not exist yet, so wp_insert_post writes the generated
@@ -247,7 +252,18 @@ final class SlugModule implements Module
             ? $prefix . str_pad((string) $postId, 8, '0', STR_PAD_LEFT)
             : $prefix . $this->encoder()->encodeId($postId);
 
-        return sanitize_title($generated);
+        // Case-preserving whitelist, not sanitize_title: the XDE output is
+        // natively mixed-case (the frozen 62-char alphabet) and the case IS
+        // the algorithm's strength — lowercasing collapses the table to 36
+        // symbols and breaks reversibility (site-owner call, 0.98.0; legacy
+        // byte-identity is abandoned, while the case-insensitive post_name
+        // collation keeps old lowercase URLs resolving). The candidate is
+        // pure algorithm output — prefix plus encoding, no prose — so the
+        // URL-safe unreserved set is the whole job, and uniqueness still
+        // runs through wp_unique_post_slug.
+        $clean = preg_replace('/[^A-Za-z0-9\-._~]/', '', $generated);
+
+        return is_string($clean) ? $clean : '';
     }
 
     private function pinyinCandidate(string $title): string

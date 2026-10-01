@@ -109,6 +109,19 @@ docker compose run --rm wpcli plugin activate aiya-core
   - behind a CDN/reverse proxy, bridge the real client IP through the
     `aiya_core_client_ip` filter (rate limiting and guest dedup key on
     it — `REMOTE_ADDR` would collapse everyone onto the proxy IP);
+  - narrow the web server's forwarded-header trust to the real front
+    proxy only. The official `wordpress:*-apache` image ships mod_remoteip
+    trusting every RFC1918 range, so any client that can reach WP directly
+    rewrites `REMOTE_ADDR` with a bare `X-Forwarded-For` header — no
+    `AIYA_PROXY_SECRET` needed — and forges a fresh identity per request.
+    Override `/etc/apache2/conf-available/remoteip.conf` (bind-mount a
+    replacement) with `RemoteIPHeader X-Forwarded-For` +
+    `RemoteIPInternalProxy <real proxy segment>` only; the secret bridge
+    is evaluated in PHP after Apache has already decided what
+    `REMOTE_ADDR` is, so a wide server-level trust defeats it. In front of
+    nginx keep `$proxy_add_x_forwarded_for` (appending) — spoofed entries
+    always end up left of the real IP and mod_remoteip's rightmost
+    resolution ignores them;
   - leave `WP_DEBUG` undefined (webhook logs stay off);
   - `/wp/v2` is gated to logged-in editors automatically; first-party
     namespaces self-announce via `aiya_core_firstparty_rest_namespaces`.

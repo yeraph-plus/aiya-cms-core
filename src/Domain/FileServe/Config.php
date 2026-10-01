@@ -129,6 +129,12 @@ final class Config
 
             $normalized['adapter'] = $adapter->id();
             $normalized['price'] = max(0, (int) ($normalized['price'] ?? 0));
+            if (isset($config[$id])) {
+                // Two raw keys reduced to the same id ("1" and "1!"): first
+                // wins, so which one survives does not depend on key order
+                // in hand-edited meta.
+                continue;
+            }
             $config[$id] = $normalized;
         }
 
@@ -146,8 +152,11 @@ final class Config
     }
 
     /**
-     * The next free short id: one past the highest numeric key, so creating a
-     * group needs no name from the editor and a deleted id is never reused.
+     * The next free short id: one past the highest numeric key, so creating
+     * a group needs no name from the editor. Deleting the highest-numbered
+     * group lets its id come back on the next create — harmless, because a
+     * claim re-derives its ref against the list it resolves, so a stale
+     * reference to the deleted group can never address the new one.
      *
      * @param array<int|string, array<string, mixed>> $config
      */

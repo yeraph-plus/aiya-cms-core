@@ -85,7 +85,12 @@ final class FileService
 
     /**
      * The post a listing or a claim hangs off, or null when this viewer may not
-     * read it: unknown id, a type outside the set, unpublished, or gated.
+     * read it: unknown id, a type outside the set, unpublished, gated, or
+     * password-protected. A password unlocks the post's content — the file
+     * surface stays closed, the same answer the comment area gives (the
+     * post does not exist for this viewer), because a list configured on a
+     * password post would otherwise hand its files to anyone holding the
+     * URL.
      */
     public function readablePost(int $postId, int $viewerId): ?WP_Post
     {
@@ -94,6 +99,9 @@ final class FileService
             return null;
         }
         if (!PostTypes::supports((string) $post->post_type) || $post->post_status !== 'publish') {
+            return null;
+        }
+        if ((string) $post->post_password !== '') {
             return null;
         }
         if (!$this->visibility->satisfied($this->visibility->level($post), $viewerId)) {

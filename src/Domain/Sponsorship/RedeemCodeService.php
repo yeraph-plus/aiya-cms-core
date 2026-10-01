@@ -73,7 +73,7 @@ final class RedeemCodeService
              WHERE code = %s AND status = 0 AND user_id IS NULL',
             $table,
             $userId,
-            current_time('mysql'),
+            current_time('mysql', true),
             $code
         );
         if (is_string($claimSql)) {

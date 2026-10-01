@@ -14,6 +14,14 @@ final class SchemaVersionRunnerTest extends TestCase
     {
         $GLOBALS['__aiya_test_options'] = [];
         $GLOBALS['__aiya_test_filters'] = [];
+        // The runner takes an advisory lock around the run; the wpdb double
+        // answers it granted.
+        $GLOBALS['wpdb'] = new \wpdb();
+    }
+
+    protected function tearDown(): void
+    {
+        unset($GLOBALS['wpdb']);
     }
 
     public function testRunsPendingMigrationsInAscendingOrder(): void

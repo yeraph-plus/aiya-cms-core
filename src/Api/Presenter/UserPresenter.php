@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Presenter;
 
 use Aiya\Core\Api\Contract\AvatarImage;
+use Aiya\Core\Api\Contract\AuthSession;
 use Aiya\Core\Api\Contract\UserProfile;
 use Aiya\Core\Api\Contract\ProfileStats;
 use Aiya\Core\Domain\Identity\FavoriteService;
@@ -74,6 +75,15 @@ final class UserPresenter
         }
 
         return 'subscriber';
+    }
+
+    /**
+     * The login response's session envelope: the fresh token pair over the
+     * same profile projection every other user payload carries.
+     */
+    public function session(WP_User $user, string $token, int $expiresAt): AuthSession
+    {
+        return new AuthSession($token, $expiresAt, $this->present($user));
     }
 
     private function avatar(int $userId): AvatarImage

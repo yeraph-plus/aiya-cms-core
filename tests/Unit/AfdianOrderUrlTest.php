@@ -19,9 +19,14 @@ if (!class_exists('WP_REST_Request')) {
     // needs an inert request object that satisfies the controller's hint.
     final class FakeRestRequest
     {
+        /** @param array<string, mixed> $params */
+        public function __construct(private array $params = [])
+        {
+        }
+
         public function get_param(string $key): mixed
         {
-            return null;
+            return $this->params[$key] ?? null;
         }
     }
     class_alias(FakeRestRequest::class, 'WP_REST_Request');
@@ -95,6 +100,31 @@ final class AfdianOrderUrlTest extends TestCase
         $limited = $method->invoke($this->controller(), $request);
         self::assertInstanceOf(WP_Error::class, $limited);
         self::assertSame('aiya_rate_limited', $limited->get_error_code());
+    }
+
+    /**
+     * The deep link obeys the same server-side gate as the checkout POST:
+     * a hand-crafted order-url request must not pre-select a tier the
+     * site pulled from sale (its placeholder row would otherwise buy one).
+     */
+    public function testOrderUrlRefusesADisabledTierServerSide(): void
+    {
+        update_option('aiya_core_sponsorship_payments', [
+            'afdian_enable' => true,
+            'afdian_user_id' => 'user-1',
+            'afdian_token' => 't',
+            'afdian_bindings' => [['plan_id' => 'plan-gold', 'tier_key' => 'gold']],
+        ]);
+        update_option('aiya_core_sponsorship', [
+            'tiers' => [['key' => 'gold', 'name' => 'Gold', 'price' => 30, 'cycle_days' => 30, 'credits_per_cycle' => 100, 'enabled' => false]],
+        ]);
+
+        $method = new \ReflectionMethod($this->controller(), 'afdianOrderUrl');
+        $result = $method->invoke($this->controller(), new FakeRestRequest(['tierKey' => 'gold']));
+
+        self::assertInstanceOf(WP_Error::class, $result);
+        self::assertSame('aiya_tier_disabled', $result->get_error_code());
+        self::assertSame(410, $result->get_error_data()['status'] ?? 0);
     }
 }
 

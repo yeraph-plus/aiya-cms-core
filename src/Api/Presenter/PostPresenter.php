@@ -54,9 +54,10 @@ final class PostPresenter
     ) {
     }
 
-    public function summary(WP_Post $post, PublicType $type): PostSummary
+    public function summary(WP_Post $post, PublicType $type, bool $ignoreLock = false): PostSummary
     {
         $gated = $this->visibility->gated($post);
+        $withheld = $gated || (!$ignoreLock && $this->isLocked($post));
 
         return new PostSummary(
             (int) $post->ID,
@@ -65,9 +66,13 @@ final class PostPresenter
             $type->name,
             (string) get_the_title($post),
             // A withheld body must not leak its first words either — core
-            // blanks protected-post excerpts for the same reason. The
-            // front end owns the placeholder copy.
-            $gated ? '' : $this->excerpt($post),
+            // blanks protected-post excerpts for the same reason, and to a
+            // locked viewer get_the_excerpt answers with its own placeholder
+            // sentence, which is not ours to forward. The front end owns the
+            // placeholder copy. The unlock response passes ignoreLock: the
+            // password was proven in-request, so the real excerpt ships even
+            // though no postpass cookie exists in the headless topology.
+            $withheld ? '' : $this->excerpt($post, $ignoreLock),
             $this->isoDate($post, 'date'),
             $this->isoDate($post, 'modified'),
             // Raw post content, not the filtered render: ReadingTime
@@ -114,7 +119,10 @@ final class PostPresenter
      */
     private function buildDetail(WP_Post $post, array $neighbors, PublicType $type, bool $locked): PostDetail
     {
-        $summary = $this->summary($post, $type);
+        // ignoreLock rides the caller's verdict: the unlock response has
+        // already proven the password in-request, so its summary ships the
+        // real excerpt instead of the locked blank.
+        $summary = $this->summary($post, $type, !$locked);
         $gated = $this->visibility->gated($post);
         $content = ($locked || $gated)
             ? ''
@@ -301,7 +309,7 @@ final class PostPresenter
         return $badges;
     }
 
-    private function excerpt(WP_Post $post): string
+    private function excerpt(WP_Post $post, bool $assumeUnlocked = false): string
     {
         // The auto-generated excerpt runs the FULL the_content filter
         // chain inside wp_trim_excerpt (lightbox tagging, shortcodes, …)
@@ -327,7 +335,13 @@ final class PostPresenter
             }
         }
 
-        $raw = (string) get_the_excerpt($post);
+        // assumeUnlocked (the unlock response, password proven in-request):
+        // core answers its placeholder off the cookie the request never
+        // holds, so the excerpt is read from a clone that forgot the
+        // password — the real summary, still kept out of the shared cache.
+        $raw = $assumeUnlocked && (string) $post->post_password !== ''
+            ? (string) get_the_excerpt($this->unlockedClone($post))
+            : (string) get_the_excerpt($post);
         $text = trim(wp_strip_all_tags($raw));
         // Registered `::code::` tokens never survive into the plain-text
         // excerpt — cards show neither the token nor a broken image.
@@ -357,6 +371,20 @@ final class PostPresenter
         $timestamp = (int) get_post_timestamp($post, $field === 'modified' ? 'modified' : 'date');
 
         return $timestamp > 0 ? (string) wp_date('c', $timestamp) : '';
+    }
+
+    /**
+     * A shallow clone that forgot the password: the unlock response has
+     * already proven it in-request, and core's get_the_excerpt answers its
+     * placeholder from the cookie the headless flow never holds. No cookie
+     * is set, no global state touched — the clone only feeds the call.
+     */
+    private function unlockedClone(WP_Post $post): WP_Post
+    {
+        $clone = clone $post;
+        $clone->post_password = '';
+
+        return $clone;
     }
 
     /**

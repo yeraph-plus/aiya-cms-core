@@ -1,4 +1,5 @@
 # aiya-core 简体中文翻译。
+
 msgid ""
 msgstr ""
 "Project-Id-Version: AIYA CMS - Headless Core 0.97.0\n"
@@ -8,6 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "PO-Revision-Date: 2026-09-28 12:15+0800\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -25,10 +27,12 @@ msgid "Refresh thumbnails"
 msgstr "刷新缩略图"
 
 msgid "%d item queued for a thumbnail refresh."
-msgstr "%d 项已加入缩略图刷新队列。"
+msgid_plural "%d items queued for a thumbnail refresh."
+msgstr[0] "%d 项已加入缩略图刷新队列。"
 
 msgid "%d item skipped (nothing to refresh or not permitted)."
-msgstr "已跳过 %d 项（无可刷新或不具备权限）。"
+msgid_plural "%d items skipped (nothing to refresh or not permitted)."
+msgstr[0] "已跳过 %d 项（无可刷新或不具备权限）。"
 
 msgid "No thumbnails were refreshed."
 msgstr "没有刷新任何缩略图。"
@@ -319,13 +323,16 @@ msgid "Move"
 msgstr "移动"
 
 msgid "Move %d selected item to:"
-msgstr "将选中的 %d 项移动到："
+msgid_plural "Move %d selected items to:"
+msgstr[0] "将选中的 %d 项移动到："
 
 msgid "%d item switched to the new post type."
-msgstr "已切换 %d 项到新文章类型。"
+msgid_plural "%d items switched to the new post type."
+msgstr[0] "已切换 %d 项到新文章类型。"
 
 msgid "%d item skipped (unchanged or not permitted)."
-msgstr "跳过 %d 项（类型未变或无权限）。"
+msgid_plural "%d items skipped (unchanged or not permitted)."
+msgstr[0] "跳过 %d 项（类型未变或无权限）。"
 
 msgid "Nothing was switched."
 msgstr "没有切换任何内容。"
@@ -367,7 +374,8 @@ msgid "Move to another taxonomy"
 msgstr "移动到其他分类法"
 
 msgid "Move %d selected term to:"
-msgstr "将选中的 %d 个术语移动到："
+msgid_plural "Move %d selected terms to:"
+msgstr[0] "将选中的 %d 个术语移动到："
 
 msgid "Post categories"
 msgstr "文章分类"
@@ -397,10 +405,12 @@ msgid "Resource tags — other"
 msgstr "资源标签（其他）"
 
 msgid "%d term moved to the new taxonomy."
-msgstr "已移动 %d 个术语到新分类法。"
+msgid_plural "%d terms moved to the new taxonomy."
+msgstr[0] "已移动 %d 个术语到新分类法。"
 
 msgid "%d term skipped (unchanged or not permitted)."
-msgstr "跳过 %d 个术语（未变化或无权限）。"
+msgid_plural "%d terms skipped (unchanged or not permitted)."
+msgstr[0] "跳过 %d 个术语（未变化或无权限）。"
 
 msgid "Nothing was moved."
 msgstr "没有移动任何内容。"
@@ -1800,21 +1810,6 @@ msgstr "数据组 %s 指定的适配器不可用。"
 msgid "Data group %1$s: %2$s"
 msgstr "数据组 %1$s：%2$s"
 
-msgid "The file service rejected our credentials."
-msgstr "文件服务认证失败，请联系站长。"
-
-msgid "You do not have permission to fetch this file."
-msgstr "没有获取该文件的权限。"
-
-msgid "The file does not exist or has been removed."
-msgstr "文件不存在或已被移除。"
-
-msgid "The file service answered with something unrecognizable."
-msgstr "文件服务返回了无法识别的内容。"
-
-msgid "The file service is temporarily unavailable."
-msgstr "文件服务暂时不可用。"
-
 msgid "File lists"
 msgstr "文件列表"
 
@@ -2050,7 +2045,8 @@ msgid "No uploads yet."
 msgstr "还没有上传记录。"
 
 msgid "The %d oldest file is not listed."
-msgstr "最早的 %d 个文件未列出。"
+msgid_plural "The %d oldest files are not listed."
+msgstr[0] "最早的 %d 个文件未列出。"
 
 msgid "User %1$s (#%2$d)"
 msgstr "用户 %1$s（#%2$d）"
@@ -2691,9 +2687,6 @@ msgstr "爱发电 Webhook 地址"
 msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
 msgstr "在爱发电创作者后台（开发工具 > WebHook）登记该地址：{site url}/wp-json/aiya/sponsorship/v1/afdian/callback，仅接受 POST。"
 
-msgid "These tiers still have active members and cannot be deleted: %s."
-msgstr "以下档位仍有生效中的会员，无法删除：%s。"
-
 msgid "Optimization"
 msgstr "优化"
 
@@ -2810,12 +2803,6 @@ msgstr "邮箱登录"
 
 msgid "Only accept email addresses as the login field"
 msgstr "登录字段仅接受邮箱地址"
-
-msgid "Password-reset link hosts"
-msgstr "密码重置链接主机"
-
-msgid "Host names the reset link may point at besides this site (the front-end host, comma-separated). Requests naming any other host fall back to this site, so a forged domain can never receive a live reset link."
-msgstr "除本站外，重置链接可指向的主机名（即前端主机，逗号分隔）。请求中指向其他主机的链接一律回退到本站，伪造域名永远收不到有效的重置链接。"
 
 msgid "Login page countdown gate"
 msgstr "登录页倒计时门禁"
@@ -3117,27 +3104,59 @@ msgstr "vendor/ 等大型依赖目录会被瞬时移出、避免删除过程长�
 msgid "Cancel, back to the plugin list"
 msgstr "取消，返回插件列表"
 
-
 #: src/Domain/Content/FrontendModule.php:76
+
 msgid "Basic settings"
 msgstr "基础设置"
 
 #: src/Domain/Content/FrontendModule.php:82
+
 msgid "Frontend domain"
 msgstr "前台域名"
 
 #: src/Domain/Content/FrontendModule.php:83
+
 msgid "The canonical front-end origin including the scheme, for example https://www.example.com. When set, password-reset links always point here; more front-end-facing features will reuse this value. Leave empty to keep reset links on this site address."
 msgstr "前台站点的完整来源地址（含协议，例如 https://www.example.com）。设置后密码重置链接一律指向此处，后续前台相关功能也会复用该值；留空则重置链接回退到本站点地址。"
 
 #: src/Admin/AdminBarFrontendLink.php:39
-msgid "Front end"
-msgstr "前台"
 
 #: src/Admin/AdminBarFrontendLink.php:44
+
 msgid "Open the front-end site in a new tab"
 msgstr "在新标签页打开前台站点"
 
 #: src/Admin/AdminBarFrontendLink.php:40
+
 msgid "View front end"
 msgstr "查看前台"
+
+#: src/Infrastructure/Headless/HeadlessModule.php:126
+
+msgid "Post revisions"
+msgstr "文章修订版本"
+
+#: src/Infrastructure/Headless/HeadlessModule.php:127
+
+msgid "Stop saving revisions and editor autosave snapshots for every post type"
+msgstr "对所有文章类型停用修订版本与编辑器自动保存快照"
+
+#: src/Infrastructure/Headless/HeadlessModule.php:128
+
+msgid "Revisions already in the database stay untouched; nothing consumes them on the contract API."
+msgstr "数据库中已有的修订版本原样保留；契约 API 没有任何消费方。"
+
+msgid "Amount and validity are required."
+msgstr "金额与有效期必填。"
+
+msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
+msgstr "以下档位仍有生效成员或进行中的订单，无法删除：%s。"
+
+msgid "Too many emails sent in a short time — wait a few minutes."
+msgstr "短时间内发送的邮件过多——请稍等几分钟再试。"
+
+msgid "%s replied to your thread."
+msgstr "%s 回复了你的帖子。"
+
+msgid "%s published a new thread."
+msgstr "%s 发布了新帖子。"

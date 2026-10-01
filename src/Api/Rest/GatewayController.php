@@ -124,6 +124,9 @@ final class GatewayController
      *
      * - a pending row (the normal case): confirm flips it paid, then the
      *   entitlement queues;
+     * - an `unpaid` row (the sweep aged the checkout out before the buyer
+     *   finally paid): confirm settles it all the same — the push is
+     *   signature-verified, so its money is real at any age;
      * - confirm() false: the row was settled between our read and the
      *   write (a concurrent replay — fall through to the activation, whose
      *   order-id unique key is the idempotency backstop), or the write
@@ -150,12 +153,14 @@ final class GatewayController
         if ($row['status'] !== OrderService::STATUS_PAID) {
             // Money first: the row settles even when the tier has since
             // been deleted — paid money must never silently vanish from
-            // the books. Rights are refused further down instead.
+            // the books. Rights are refused further down instead. An
+            // `unpaid` row (the sweep aged it out) settles all the same:
+            // a verified push is the money truth at any age.
             $settled = $this->orders->confirm($row['id'], $payment['amount']);
             if (!$settled) {
                 $row = $this->orders->orderRow($orderId) ?? $row;
                 if ($row['status'] !== OrderService::STATUS_PAID) {
-                    // Still pending: the write failed, not a lost race.
+                    // Still not paid: the write failed, not a lost race.
                     WebhookLogger::write("The order {$orderId} could not be settled — answering retry.", '');
 
                     return new WP_REST_Response('fail', 400);

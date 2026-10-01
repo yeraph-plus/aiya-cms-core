@@ -46,7 +46,9 @@ final class CounterController
             'permission_callback' => '__return_true',
             'args' => [
                 'id' => ['type' => 'integer', 'minimum' => 1],
-                'value' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 10],
+                // Required: a missing value must not silently become the
+                // worst possible rating downstream.
+                'value' => ['type' => 'integer', 'required' => true, 'minimum' => 1, 'maximum' => 10],
             ],
         ]);
     }

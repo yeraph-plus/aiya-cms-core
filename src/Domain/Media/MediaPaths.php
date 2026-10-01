@@ -97,7 +97,18 @@ final class MediaPaths
     /** Month-sharded directory for generated covers, created on demand. */
     public function coverDir(): string
     {
-        return $this->ensureDir($this->contentDir() . '/aiya_thumbnail/cover/' . wp_date('Y/m'));
+        return $this->ensureDir($this->coverTreeDir() . '/' . wp_date('Y/m'));
+    }
+
+    /**
+     * The stable cover tree root, without date shard and without creating
+     * it: the prefix every "is this a managed cover file?" check matches
+     * against — it must not carry the current month, or stale files from
+     * earlier months would survive their replacement forever.
+     */
+    public function coverTreeDir(): string
+    {
+        return $this->contentDir() . '/aiya_thumbnail/cover';
     }
 
     /**

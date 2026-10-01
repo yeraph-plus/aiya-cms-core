@@ -17,6 +17,7 @@ use Aiya\Core\Domain\FileServe\FileService;
 use Aiya\Core\Domain\FileServe\PostTypes;
 use Aiya\Core\Domain\FileServe\SourceLog;
 use Aiya\Infra\OpenList\Client;
+use Aiya\Infra\OpenList\Error;
 use Aiya\Infra\OpenList\Gateway;
 use PHPUnit\Framework\TestCase;
 use WP_Post;
@@ -466,6 +467,33 @@ final class FileServeTest extends TestCase
         self::assertSame('/docs/report.pdf', $entries[0]->path);
         self::assertSame('https://files.example.com/d/docs/report.pdf?sign=sig-1', $entries[0]->url);
         self::assertSame(strtotime('2026-09-19T08:15:16.197349297Z'), $entries[0]->modified);
+    }
+
+    /**
+     * A refused token is a dead token: the failure seam fires with the
+     * package error so the module can drop the cached credential and let
+     * the next read re-login, instead of every read re-paying the same
+     * 401 until the token TTL runs out.
+     */
+    public function testAFailedCallReachesTheFailureSeam(): void
+    {
+        $responses = [['status' => 401, 'body' => (string) json_encode(['code' => 401, 'message' => 'session expired'])]];
+        $client = new Client('https://files.example.com', 'stale', function (string $method, string $url, ?string $body, string $token) use (&$responses): ?array {
+            return array_shift($responses);
+        });
+        $gateway = static fn (): Gateway => new Gateway('https://files.example.com', 'd', static fn (): Client => $client);
+
+        /** @var list<string> $seen */
+        $seen = [];
+        $list = new OpenListAdapter(OpenListAdapter::LIST_ID, $gateway, null, static function (Error $error) use (&$seen): void {
+            $seen[] = $error->code;
+        });
+
+        $entries = $list->entries(['path' => '/docs', 'password' => '', 'per_page' => 0]);
+
+        self::assertInstanceOf(Failure::class, $entries);
+        self::assertSame(Failure::UNAUTHORIZED, $entries->code);
+        self::assertSame([Error::UNAUTHORIZED], $seen);
     }
 
     public function testThePlatformGroupCarriesItsCodeBesideItsLink(): void

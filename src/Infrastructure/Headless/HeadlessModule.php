@@ -11,8 +11,8 @@ use Aiya\Core\Settings\Registry;
 /**
  * Strips WordPress surfaces that are meaningless for a headless backend
  * (block editor, nav menus, block widgets, font library, block patterns,
- * pingbacks/trackbacks, XML-RPC, emoji, oEmbed discovery, XML sitemaps,
- * feeds, the native /wp/v2 API)
+ * post revisions, pingbacks/trackbacks, XML-RPC, emoji, oEmbed discovery,
+ * XML sitemaps, feeds, the native /wp/v2 API)
  * and cleans the remaining front-end head output.
  *
  * Comment storage and moderation stay in WordPress (the classic
@@ -121,6 +121,14 @@ final class HeadlessModule implements Module
                     'default' => true,
                 ],
                 [
+                    'id' => 'disable_revisions',
+                    'type' => 'switch',
+                    'label' => __('Post revisions', 'aiya-core'),
+                    'checkbox_label' => __('Stop saving revisions and editor autosave snapshots for every post type', 'aiya-core'),
+                    'description' => __('Revisions already in the database stay untouched; nothing consumes them on the contract API.', 'aiya-core'),
+                    'default' => true,
+                ],
+                [
                     'id' => 'disable_pings',
                     'type' => 'switch',
                     'label' => __('Pingbacks and trackbacks', 'aiya-core'),
@@ -210,6 +218,26 @@ final class HeadlessModule implements Module
         if ($this->enabled('disable_block_patterns')) {
             remove_theme_support('core-block-patterns');
             add_filter('should_load_remote_block_patterns', '__return_false');
+        }
+
+        if ($this->enabled('disable_revisions')) {
+            // The one gate every save-time revision and the revisions
+            // browser flow through (wp_revisions_enabled reads it). Editor
+            // autosaves do NOT: wp_create_post_autosave writes its snapshot
+            // through _wp_put_post_revision / wp_update_post without ever
+            // consulting wp_revisions_enabled (WP 7.1 wp-admin/includes/
+            // post.php), so the switch needs a second gate for them.
+            add_filter('wp_revisions_to_keep', static fn (): int => 0);
+
+            // The autosave gate: both autosave paths land in wp_insert_post
+            // with post_type 'revision', and declining them as "empty
+            // content" is the one abort both share. Revision rows only —
+            // every real post type passes through untouched. An autosave
+            // that cannot store answers 0/error to the editor, which is
+            // the switch working as its label promises.
+            add_filter('wp_insert_post_empty_content', static function (bool $maybeEmpty, array $postarr): bool {
+                return ($postarr['post_type'] ?? '') === 'revision' ? true : $maybeEmpty;
+            }, 10, 2);
         }
 
         if ($this->enabled('disable_pings')) {

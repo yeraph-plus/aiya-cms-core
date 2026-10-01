@@ -21,6 +21,9 @@ final class SchemaVersionRunner implements Module
 {
     public const OPTION_NAME = 'aiya_core_schema_version';
 
+    /** Advisory lock serialising concurrent migration runs across requests. */
+    private const LOCK_NAME = 'aiya_core_schema_migration';
+
     public function register(): void
     {
         add_action('init', [$this, 'maybeRun'], 1);
@@ -39,33 +42,51 @@ final class SchemaVersionRunner implements Module
             return;
         }
 
-        $pending = [];
-        foreach ((array) apply_filters('aiya_core_schema_migrations', []) as $migration) {
-            if (!is_array($migration) || !isset($migration['version'], $migration['callback']) || !is_callable($migration['callback'])) {
-                continue;
-            }
-            if (version_compare($stored, (string) $migration['version'], '<')) {
-                $pending[] = $migration;
-            }
+        // Activation can land on concurrent requests; serialize the run the
+        // way the domain's own concurrent surfaces do. A loser of the lock
+        // returns at once — the winner advances the stored version, so the
+        // loser's next request finds nothing pending.
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $locked = (int) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 5)', self::LOCK_NAME));
+        if ($locked !== 1) {
+            return;
         }
 
-        usort($pending, static fn (array $a, array $b): int => version_compare((string) $a['version'], (string) $b['version']));
+        try {
+            $pending = [];
+            foreach ((array) apply_filters('aiya_core_schema_migrations', []) as $migration) {
+                if (!is_array($migration) || !isset($migration['version'], $migration['callback']) || !is_callable($migration['callback'])) {
+                    continue;
+                }
+                if (version_compare($stored, (string) $migration['version'], '<')) {
+                    $pending[] = $migration;
+                }
+            }
 
-        foreach ($pending as $migration) {
-            try {
-                call_user_func($migration['callback']);
-            } catch (\Throwable $error) {
-                update_option(
-                    'aiya_core_last_migration_error',
-                    sprintf('[%s] %s', (string) $migration['version'], $error->getMessage()),
-                    false
-                );
+            usort($pending, static fn (array $a, array $b): int => version_compare((string) $a['version'], (string) $b['version']));
 
-                return; // abort without advancing the stored version
+            foreach ($pending as $migration) {
+                try {
+                    call_user_func($migration['callback']);
+                } catch (\Throwable $error) {
+                    update_option(
+                        'aiya_core_last_migration_error',
+                        sprintf('[%s] %s', (string) $migration['version'], $error->getMessage()),
+                        false
+                    );
+
+                    return; // abort without advancing the stored version
+                }
+            }
+
+            update_option(self::OPTION_NAME, AIYA_CORE_VERSION, false);
+            delete_option('aiya_core_last_migration_error');
+        } finally {
+            $release = $wpdb->prepare('SELECT RELEASE_LOCK(%s)', self::LOCK_NAME);
+            if (is_string($release)) {
+                $wpdb->query($release);
             }
         }
-
-        update_option(self::OPTION_NAME, AIYA_CORE_VERSION, false);
-        delete_option('aiya_core_last_migration_error');
     }
 }

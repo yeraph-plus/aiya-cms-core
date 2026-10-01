@@ -58,7 +58,7 @@ final class SearchReplacePage
         $replace = $this->getInput('sr_replace');
         $columns = self::sanitizeColumns($_GET['sr_cols'] ?? []); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only form repopulation, the query itself is gated below
         $types = self::sanitizeTypes($_GET['sr_types'] ?? []); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above
-        $status = $this->getInput('sr_status');
+        $status = sanitize_key($this->getInput('sr_status'));
         ?>
         <details class="aiya-core-card" open>
             <summary><?php esc_html_e('Search & replace', 'aiya-core'); ?></summary>
@@ -137,7 +137,7 @@ final class SearchReplacePage
 
         $columns = self::sanitizeColumns($_GET['sr_cols'] ?? []); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above
         $types = self::sanitizeTypes($_GET['sr_types'] ?? []); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above
-        $statuses = self::statusesFor($this->getInput('sr_status'));
+        $statuses = self::statusesFor(sanitize_key($this->getInput('sr_status')));
         $replace = $this->getInput('sr_replace');
         $like = '%' . self::escLike($search) . '%';
 
@@ -249,7 +249,9 @@ final class SearchReplacePage
             $this->redirectBack(['aiya_devtools_note' => 'replace_missing_search']);
         }
 
-        $replace = sanitize_text_field(wp_unslash((string) ($_POST['sr_replace'] ?? '')));
+        // Byte-exact by contract, same as the preview: raw input, escaping
+        // happens in SQL (prepare + escLike) only.
+        $replace = wp_unslash((string) ($_POST['sr_replace'] ?? ''));
         $columns = self::sanitizeColumns(is_array($_POST['sr_cols'] ?? null) ? $_POST['sr_cols'] : []); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- elements re-validated by the whitelist in sanitizeColumns
         $types = self::sanitizeTypes(is_array($_POST['sr_types'] ?? null) ? $_POST['sr_types'] : []); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- see above
         $statuses = self::statusesFor(sanitize_key((string) ($_POST['sr_status'] ?? '')));
@@ -311,10 +313,14 @@ final class SearchReplacePage
 
     private function getInput(string $key): string
     {
-        // Sanitized again by the whitelist helpers; read-only form
-        // repopulation, and the preview query itself is nonce-gated.
+        // Deliberately raw (wp_unslash only): the search/replace pair is
+        // byte-exact by contract, and sanitize_text_field would strip tag
+        // shapes and fold whitespace out of the needle before it ever
+        // reaches the LIKE. SQL-side the values only travel through
+        // prepare()+escLike; output-side every echo is esc_attr'd. Status
+        // keys are sanitized by their callers.
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        return sanitize_text_field(wp_unslash((string) ($_GET[$key] ?? '')));
+        return wp_unslash((string) ($_GET[$key] ?? ''));
     }
 
     /**

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
-use Aiya\Core\Api\Contract\AuthSession;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
@@ -320,9 +319,7 @@ final class AuthController
             return new WP_Error('aiya_server_error', __('The session could not be started.', 'aiya-core'), ['status' => 500]);
         }
 
-        $session = new AuthSession($token->token, $token->expiresAt, $this->presenter->present($user));
-
-        return new WP_REST_Response($session->toArray());
+        return new WP_REST_Response($this->presenter->session($user, $token->token, $token->expiresAt)->toArray());
     }
 
     private function requireLoggedIn(): bool|WP_Error

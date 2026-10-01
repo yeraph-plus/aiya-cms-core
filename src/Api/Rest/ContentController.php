@@ -26,13 +26,13 @@ use WP_REST_Server;
 use WP_User;
 
 /**
- * Public read routes of the content batch (`/site`, `/menus/primary`,
- * `/menus/secondary`, `/terms`, `/posts`, `/posts/{slug}`, `/pages`,
- * `/pages/{slug}`, `/resources`, `/resources/{slug}`, `/profiles/{slug}`)
- * plus the password gate (`POST /content/{id}/unlock`) for locked
- * bodies and the shared-term related reads (`GET /content/{id}/related`).
- * Controllers only orchestrate: queries run in Domain, mapping in the
- * presenter, envelope in the dispatcher.
+ * Public read routes of the content batch (`/site`, `/terms`, `/posts`,
+ * `/posts/{slug}`, `/pages`, `/pages/{slug}`, `/resources`,
+ * `/resources/{slug}`, `/profiles/{slug}`) plus the password gate
+ * (`POST /content/{id}/unlock`) for locked bodies and the shared-term
+ * related reads (`GET /content/{id}/related`). Controllers only
+ * orchestrate: queries run in Domain, mapping in the presenter, envelope
+ * in the dispatcher.
  */
 final class ContentController
 {
@@ -423,6 +423,13 @@ final class ContentController
      */
     private function related(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
+        // The related scan is the heaviest content read after search
+        // (shared-term counting over a second JOIN) and lands on
+        // max-age=0, so it carries the search budget too.
+        if (!$this->limiter->hit('content_related', 30, 60)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        }
+
         $post = null;
         $type = null;
         foreach (PublicTypes::all() as $candidate) {

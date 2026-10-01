@@ -8,6 +8,7 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\FileServe\AdapterRegistry;
 use Aiya\Core\Domain\FileServe\Adapters\GofileAdapter;
 use Aiya\Core\Domain\FileServe\FileServeModule;
+use Aiya\Core\Domain\FileServe\SourceLog;
 use Aiya\Core\Settings\Registry;
 use Aiya\Infra\Gofile\Client;
 use Aiya\Infra\Gofile\Gateway;
@@ -91,6 +92,12 @@ final class GofileModule implements Module
 
             $response = wp_remote_get($url, ['timeout' => 15, 'headers' => $headers]);
             if (is_wp_error($response)) {
+                // Same wire-failure logging as the OpenList transport: the
+                // DNS/TLS/timeout detail dies with the null otherwise.
+                if (SourceLog::active()) {
+                    SourceLog::writeOnce('aiya_core_gofile_wire_' . md5($url), 300, 'GoFile request failed', $url . "\n" . (string) $response->get_error_message());
+                }
+
                 return null;
             }
 

@@ -179,22 +179,39 @@ final class NotificationActions implements Module
         }
 
         if ($oldStatus !== 'publish') {
-            $this->fanOutToFollowers(
-                (int) $post->post_author,
-                'post',
-                (int) $post->ID,
-                sprintf(
-                    /* translators: 1: author name, 2: post title. */
-                    __('%1$s published a new article "%2$s".', 'aiya-core'),
-                    $this->displayName((int) $post->post_author),
-                    (string) $post->post_title
-                )
-            );
+            // Followers follow writing: only article publications fan out.
+            // A page or a resource going live is not news to them, and the
+            // object type below is 'post' — broadcasting other types would
+            // stamp rows whose object can never resolve.
+            if ($post->post_type === 'post') {
+                $this->fanOutToFollowers(
+                    (int) $post->post_author,
+                    'post',
+                    (int) $post->ID,
+                    sprintf(
+                        /* translators: 1: author name, 2: post title. */
+                        __('%1$s published a new article "%2$s".', 'aiya-core'),
+                        $this->displayName((int) $post->post_author),
+                        (string) $post->post_title
+                    )
+                );
+            }
 
             return;
         }
 
-        // Update of a published post: notify everyone who favorited it.
+        // Update of a published post: notify everyone who favorited it —
+        // at most one round per post per window, so a run of small edits
+        // (typo fixes) never spam-fans the whole favorite list. The
+        // watermark is a GMT epoch on a plugin-prefixed meta key, so the
+        // uninstall sweep takes it with the rest.
+        $watermark = 'aiya_core_fav_notified_at';
+        $lastNotified = (int) get_post_meta((int) $post->ID, $watermark, true);
+        if ($lastNotified > 0 && (time() - $lastNotified) < DAY_IN_SECONDS) {
+            return;
+        }
+        update_post_meta((int) $post->ID, $watermark, (string) time());
+
         foreach ($this->favorites->favoritedUserIds((int) $post->ID) as $userId) {
             if ($userId === (int) $post->post_author) {
                 continue;
@@ -236,19 +253,33 @@ final class NotificationActions implements Module
             return;
         }
 
+        // Social-style threads may carry no title at all (the front end
+        // renders them as content-only cards), so the message falls back to
+        // a title-less copy and the thread's own excerpt rides in the body
+        // — the same treatment the comment notifications give their post.
+        $title = trim((string) $thread->title);
+        $excerpt = $this->threadExcerpt((string) $thread->content);
+        $message = $title === ''
+            ? sprintf(
+                /* translators: %s: replier name. */
+                __('%s replied to your thread.', 'aiya-core'),
+                $this->displayName($replierId)
+            )
+            : sprintf(
+                /* translators: 1: replier name, 2: thread title. */
+                __('%1$s replied to your thread "%2$s".', 'aiya-core'),
+                $this->displayName($replierId),
+                $title
+            );
+
         $this->notify(
             (int) $thread->user_id,
             NotificationService::TYPE_THREAD_REPLIED,
             $replierId,
             'discussion',
             $threadId,
-            sprintf(
-                /* translators: 1: replier name, 2: thread title. */
-                __('%1$s replied to your thread "%2$s".', 'aiya-core'),
-                $this->displayName($replierId),
-                (string) $thread->title
-            ),
-            ''
+            $message,
+            $excerpt
         );
     }
 
@@ -260,16 +291,26 @@ final class NotificationActions implements Module
             return;
         }
 
+        $title = trim((string) $thread->title);
+        $message = $title === ''
+            ? sprintf(
+                /* translators: %s: author name. */
+                __('%s published a new thread.', 'aiya-core'),
+                $this->displayName($authorId)
+            )
+            : sprintf(
+                /* translators: 1: author name, 2: thread title. */
+                __('%1$s published a new thread "%2$s".', 'aiya-core'),
+                $this->displayName($authorId),
+                $title
+            );
+
         $this->fanOutToFollowers(
             $authorId,
             'discussion',
             $threadId,
-            sprintf(
-                /* translators: 1: author name, 2: thread title. */
-                __('%1$s published a new thread "%2$s".', 'aiya-core'),
-                $this->displayName($authorId),
-                (string) $thread->title
-            )
+            $message,
+            $this->threadExcerpt((string) $thread->content)
         );
     }
 
@@ -399,7 +440,7 @@ final class NotificationActions implements Module
         }
     }
 
-    private function fanOutToFollowers(int $authorId, string $objectType, int $objectId, string $title): void
+    private function fanOutToFollowers(int $authorId, string $objectType, int $objectId, string $title, string $excerpt = ''): void
     {
         // First follower page only: the fanout is a best-effort window
         // capped at 100 — authors past that size need a queued fanout,
@@ -417,7 +458,7 @@ final class NotificationActions implements Module
                 $objectType,
                 $objectId,
                 $title,
-                ''
+                $excerpt
             );
         }
     }
@@ -428,6 +469,17 @@ final class NotificationActions implements Module
     private function threadById(int $threadId): ?object
     {
         return $this->threads->byId($threadId);
+    }
+
+    /**
+     * A thread's plain-text excerpt for the notification body — same
+     * treatment as the comment notifications: smilies codes off, tags off,
+     * 16 words. Title-less threads lean on this entirely (their message
+     * copy carries no title to scan).
+     */
+    private function threadExcerpt(string $content): string
+    {
+        return (string) wp_trim_words(wp_strip_all_tags($this->smilies->strip($content)), 16);
     }
 
     private function displayName(int $userId): string

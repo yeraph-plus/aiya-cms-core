@@ -34,11 +34,16 @@ final class FollowService
 
         global $wpdb;
         /** @var \wpdb $wpdb */
+        // Same suppression contract as FavoriteService::add: a duplicate
+        // key is the expected re-follow path, and an unsuppressed wpdb
+        // would print its error HTML straight into the JSON response.
+        $suppress = $wpdb->suppress_errors(true);
         $inserted = $wpdb->insert(
             $this->table(),
             ['follower_id' => $followerId, 'followed_id' => $followedId, 'created_at' => current_time('mysql', true)],
             ['%d', '%d', '%s']
         );
+        $wpdb->suppress_errors($suppress);
 
         if ($inserted !== false) {
             do_action('aiya_core_user_followed', $followerId, $followedId);

@@ -61,6 +61,14 @@ final class FileServeController
 
     private function lists(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
+        // The read is public but not free: a cache miss pays one upstream
+        // round-trip per group, and the cache keys per post — an anonymous
+        // walk over post ids would turn into an upstream flood. Same budget
+        // shape as the search endpoint.
+        if (!$this->limiter->hit('fileserve_list', 30, 60)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        }
+
         $result = $this->files->forPost((int) $request->get_param('id'), (int) get_current_user_id());
         if (is_wp_error($result)) {
             return $result;

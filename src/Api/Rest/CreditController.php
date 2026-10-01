@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
-use Aiya\Core\Api\Contract\CreditBalance;
-use Aiya\Core\Api\Contract\CreditEntry;
 use Aiya\Core\Api\Contract\CreditGrant;
 use Aiya\Core\Api\Contract\MembershipCodeGrant;
 use Aiya\Core\Api\Contract\Pagination;
+use Aiya\Core\Api\Presenter\CreditPresenter;
 use Aiya\Core\Domain\Credit\CreditSettings;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Identity\UserBan;
@@ -34,6 +33,7 @@ final class CreditController
         private LedgerService $ledger,
         private RedeemCodeService $codes,
         private RateLimiter $limiter,
+        private CreditPresenter $presenter = new CreditPresenter(),
     ) {
     }
 
@@ -79,7 +79,7 @@ final class CreditController
     {
         $balance = $this->ledger->balance((int) get_current_user_id());
 
-        return new WP_REST_Response((new CreditBalance($balance))->toArray());
+        return new WP_REST_Response($this->presenter->balance($balance)->toArray());
     }
 
     private function entries(WP_REST_Request $request): WP_REST_Response
@@ -88,22 +88,8 @@ final class CreditController
         $perPage = max(1, min(100, (int) $request->get_param('perPage')));
         $result = $this->ledger->entries((int) get_current_user_id(), $page, $perPage);
 
-        $items = [];
-        foreach ($result['items'] as $row) {
-            $items[] = (new CreditEntry(
-                $row['id'],
-                $row['direction'],
-                $row['source'],
-                $row['ref'],
-                $row['amount'],
-                $row['remaining'],
-                $this->iso($row['createdAt']),
-                $row['expiresAt'] !== null ? $this->iso($row['expiresAt']) : null,
-            ))->toArray();
-        }
-
         return new WP_REST_Response([
-            'data' => $items,
+            'data' => $this->presenter->entries($result['items']),
             'meta' => [
                 'apiVersion' => Contract::VERSION,
                 'requestId' => Envelope::meta()['requestId'],
@@ -199,13 +185,5 @@ final class CreditController
         }
 
         return new WP_Error('aiya_not_logged_in', __('Authentication required.', 'aiya-core'), ['status' => 401]);
-    }
-
-    /** GMT DATETIME ledger value → ISO 8601 for the wire. */
-    private function iso(string $mysqlGmt): string
-    {
-        $timestamp = (int) get_date_from_gmt($mysqlGmt, 'U');
-
-        return $timestamp > 0 ? (string) wp_date('c', $timestamp) : '';
     }
 }

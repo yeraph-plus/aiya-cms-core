@@ -9,6 +9,8 @@ use Aiya\Core\Domain\Sponsorship\AfdianGateway;
 use Aiya\Core\Domain\Sponsorship\EntitlementService;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use Aiya\Core\Domain\Sponsorship\OrderService;
+use Aiya\Core\Domain\Sponsorship\SponsorshipModule;
+use Aiya\Core\Settings\Registry;
 use Aiya\Infra\PaymentAfdian\Client;
 use Aiya\Infra\PaymentAfdian\Gateway;
 use Aiya\Infra\SlugToolkit\IdSlugEncoder;
@@ -262,6 +264,76 @@ final class AfdianActivatorTest extends TestCase
         $row = $orders->orderRow('epc_T600');
         self::assertSame('paid', $row['status']);
         self::assertSame(28.0, $row['amount']);
+        self::assertNotSame('', (string) ($this->db->rows[$this->db->paymentTable][0]['paid_at'] ?? ''), 'the settle stamps when the money actually landed');
+    }
+
+    /**
+     * The aged-out checkout must not dead-end a verified payment: a buyer
+     * who sat on the cashier page past the pending TTL still pays, the
+     * push still arrives, and the row — `unpaid` by then — still settles.
+     */
+    public function testConfirmSettlesARowTheSweepAlreadyAgedOut(): void
+    {
+        $orders = new OrderService();
+        $orders->createPending(42, 'epc_T700', 'gold', 1, 30.0, 'epay');
+        $pending = $orders->pendingForUser(42, 'epay');
+        $this->db->rows[$this->db->paymentTable][0]['status'] = 'unpaid';
+
+        self::assertTrue($orders->confirm((int) $pending['id'], 28.0), 'an aged `unpaid` row settles like a waiting one');
+
+        $row = $orders->orderRow('epc_T700');
+        self::assertSame('paid', $row['status']);
+        self::assertSame(28.0, $row['amount']);
+    }
+
+    public function testWebhookSettlesACheckoutTheSweepAlreadyAgedOut(): void
+    {
+        $orders = new OrderService();
+        $orders->createPending(42, 'afd_pending_AB12', 'gold', 1, 0.0, 'afdian');
+        $this->db->rows[$this->db->paymentTable][0]['status'] = 'unpaid';
+        $this->paidOrder('T750', ['month' => 3, 'total_amount' => '84.00']);
+
+        $outcome = $this->activator()->settlePush($this->push('T750'));
+
+        self::assertStringContainsString('activated order T750', $outcome);
+        $row = $orders->orderRow('afd_T750');
+        self::assertNotNull($row);
+        self::assertSame('paid', $row['status']);
+        self::assertSame(84.0, $row['amount']);
+        self::assertSame(3, $row['cycles']);
+        self::assertCount(1, $this->db->rows[$this->db->paymentTable]);
+        self::assertCount(1, $this->db->rows[$this->db->queueTable]);
+    }
+
+    /**
+     * Two orders, one latest-pending slot: when the confirm loses the
+     * shared row to a concurrent push, the losing push must still book
+     * its own money — rights without a payment row are how revenue goes
+     * missing from the books.
+     */
+    public function testAPushThatLosesTheSharedPendingRowStillBooksItsMoney(): void
+    {
+        $orders = new OrderService();
+        $orders->createPending(42, 'afd_pending_AB12', 'gold', 1, 0.0, 'afdian');
+        $this->paidOrder('T760'); // the push that, unseen, wins the shared row mid-air
+        $this->paidOrder('T761'); // the push under test
+
+        $this->db->stealConfirmTo = 'afd_T760';
+        $outcome = $this->activator()->settlePush($this->push('T761'));
+        self::assertStringContainsString('activated order T761', $outcome);
+
+        // The stolen placeholder carries the other push; this push's money
+        // landed as its own booked row anyway.
+        $orderIds = array_column($this->db->rows[$this->db->paymentTable], 'order_id');
+        self::assertSame('afd_T760', $this->db->rows[$this->db->paymentTable][0]['order_id']);
+        self::assertContains('afd_T761', $orderIds, 'the losing push booked its money directly');
+        self::assertSame('afd_T761', $this->db->rows[$this->db->queueTable][0]['order_id']);
+
+        // And the push that won mid-air still settles when it arrives: its
+        // row is already paid, so it just queues.
+        $outcomeWinner = $this->activator()->settlePush($this->push('T760'));
+        self::assertStringContainsString('activated order T760', $outcomeWinner);
+        self::assertCount(2, $this->db->rows[$this->db->queueTable]);
     }
 
     // ------------------------------------------ the users-list batched tier read
@@ -292,6 +364,33 @@ final class AfdianActivatorTest extends TestCase
         self::assertSame('silver', $single['tierKey'] ?? null);
         self::assertNull($service->currentTier(7));
     }
+
+    // ------------------------------------------------- the tier deletion guard
+
+    /**
+     * A live checkout pins its tier: deleting the tier under a buyer who
+     * is mid-payment means their verified money later settles into a tier
+     * that no longer activates. An aged `unpaid` row is an abandoned
+     * cart, not money — it never blocks.
+     */
+    public function testDeletingATierWithALiveCheckoutIsRefused(): void
+    {
+        $module = new SponsorshipModule(new Registry());
+        $values = ['tiers' => [['key' => 'gold', 'name' => 'Gold']]];
+        $old = ['tiers' => [['key' => 'gold'], ['key' => 'silver']]];
+
+        // The live checkout pins the tier it was written against — here the
+        // one being deleted, not the one being kept.
+        (new OrderService())->createPending(42, 'epc_LIVE', 'silver', 1, 10.0, 'epay');
+
+        $refused = $module->guardTierDeletion($values, 'membership', $old);
+        self::assertInstanceOf(WP_Error::class, $refused);
+        self::assertSame('aiya_tier_in_use', $refused->get_error_code());
+        self::assertStringContainsString('silver', $refused->get_error_message());
+
+        $this->db->rows[$this->db->paymentTable][0]['status'] = 'unpaid';
+        self::assertSame($values, $module->guardTierDeletion($values, 'membership', $old), 'an abandoned cart does not pin the tier');
+    }
 }
 
 /**
@@ -316,6 +415,9 @@ final class SponsorshipTestWpdb
     public string $paymentTable = 'wp_aiya_payment_orders';
 
     public string $queueTable = 'wp_aiya_memberships';
+
+    /** When set, the next pending-row confirm loses to the named order id (a scripted settle race). */
+    public ?string $stealConfirmTo = null;
 
     /** Seeds one queue row; relative day offsets keep the windows valid. */
     public function seedQueueRow(int $userId, string $tierKey, string $tierName, string $starts, string $ends): void
@@ -382,6 +484,23 @@ final class SponsorshipTestWpdb
 
     public function update(string $table, array $data, array $where, array $formats = [], array $whereFormats = []): int
     {
+        // Scripted race: the next pending-row confirm loses — the shared
+        // row settles to another push's order id mid-air and reports 0
+        // updated rows, exactly what a concurrent webhook pair produces.
+        if ($this->stealConfirmTo !== null && $table === $this->paymentTable && ($where['status'] ?? '') === 'pending') {
+            $stolenTo = $this->stealConfirmTo;
+            $this->stealConfirmTo = null;
+            foreach ($this->rows[$table] ?? [] as $index => $row) {
+                if ((int) ($row['id'] ?? 0) === (int) ($where['id'] ?? 0)) {
+                    $this->rows[$table][$index]['status'] = 'paid';
+                    $this->rows[$table][$index]['order_id'] = $stolenTo;
+                }
+            }
+            $this->last_error = '';
+
+            return 0;
+        }
+
         $count = 0;
         foreach ($this->rows[$table] ?? [] as $index => $row) {
             foreach ($where as $key => $value) {
@@ -488,6 +607,12 @@ final class SponsorshipTestWpdb
         if (preg_match('/user_id IN \(([0-9, ]+)\)/', $sql, $in) === 1) {
             $ids = array_map('intval', array_map('trim', explode(',', $in[1])));
             if (!in_array((int) ($row['user_id'] ?? 0), $ids, true)) {
+                return false;
+            }
+        }
+        if (preg_match("/([a-z_]+) IN \(([^)]+)\)/", $sql, $list) === 1) {
+            $values = array_map(static fn (string $value): string => trim($value, "' "), explode(',', $list[2]));
+            if (!in_array((string) ($row[$list[1]] ?? ''), $values, true)) {
                 return false;
             }
         }

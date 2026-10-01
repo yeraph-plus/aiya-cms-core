@@ -125,13 +125,13 @@ final class MediaModule implements Module
             return;
         }
 
-        $thumb = get_post_meta($postId, '_thumb', true);
+        $thumb = get_post_meta($postId, CardThumbnailService::THUMB_KEY, true);
         if (!is_string($thumb) || $thumb === '') {
             return;
         }
 
         $local = $this->paths()->urlToLocal($thumb);
-        if ($local !== null && str_starts_with($local, $this->paths()->contentDir() . '/aiya_thumbnail/cover/')
+        if ($local !== null && str_starts_with($local, $this->paths()->coverTreeDir() . '/')
             && preg_match('/\/\d{14}_\d{4}\.(?:jpg|webp|avif)$/', $local) === 1) {
             wp_delete_file($local);
         }

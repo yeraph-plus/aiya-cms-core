@@ -266,6 +266,18 @@ final class Plugin
         foreach ((array) apply_filters('aiya_core_scheduled_events', []) as $hook) {
             wp_clear_scheduled_hook((string) $hook);
         }
+
+        // Args-carrying single events (the per-post card worker) need the
+        // args enumeration — a bare clear only matches argless entries, so
+        // a pending refresh would survive deactivation and fire once into
+        // the void. Same sweep uninstall.php runs. Reference the hook
+        // through the owning module's constant so a rename travels.
+        foreach (_get_cron_array() as $cronHooks) {
+            foreach (($cronHooks[MediaModule::CARD_SINGLE_HOOK] ?? []) as $singleEvent) {
+                $singleArgs = array_values((array) ($singleEvent['args'] ?? []));
+                wp_clear_scheduled_hook(MediaModule::CARD_SINGLE_HOOK, $singleArgs);
+            }
+        }
     }
 
     public function settings(): Registry

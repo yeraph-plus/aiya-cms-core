@@ -23,10 +23,10 @@ use WP_Error;
  * (user, tier, cycles and amount frozen at that moment) and the gateway
  * push finds that row and settles it to `paid`. The row is the authority
  * for WHAT was bought — a callback only reports that money arrived — and
- * untouched pendings age to `unpaid` on the daily sweep. Callers holding
- * an independently verified payment — the Afdian chain, which re-reads
- * the order from the platform's own API — settle a matching pending row
- * when the buyer used the deep link and otherwise insert the paid row
+ * untouched pendings age to `unpaid` on the daily sweep, which stays
+ * settleable: an independently verified payment — the Afdian chain, which
+ * re-reads the order from the platform's own API, or a late Epay push —
+ * settles a matching row at any age and otherwise inserts the paid row
  * directly; both writes are idempotent on the order-id unique key.
  */
 final class OrderService
@@ -136,17 +136,21 @@ final class OrderService
     }
 
     /**
-     * Settles a pending row: `paid`, with the amount the platform actually
-     * reported (the money truth) and — for a gateway whose order number the
-     * platform generates — the final order id the entitlement will carry,
-     * the cycle count the buyer actually bought there, and the tier the
-     * queried plan resolves to (a deep link can only pre-select; the
-     * platform's own checkout owns the final choice).
+     * Settles a not-yet-paid row: `paid`, with the amount the platform
+     * actually reported (the money truth) and — for a gateway whose order
+     * number the platform generates — the final order id the entitlement
+     * will carry, the cycle count the buyer actually bought there, and the
+     * tier the queried plan resolves to (a deep link can only pre-select;
+     * the platform's own checkout owns the final choice).
      *
-     * The WHERE pins the pending status, so the answer's meaning is
-     * exactly "this call flipped the row": false = it was not pending
-     * (a concurrent settle won, or the row aged out) or the write failed.
-     * Callers re-read the row to tell those apart.
+     * Both settleable states flip: a waiting `pending` checkout, and one
+     * the daily sweep already aged to `unpaid` — a verified push may
+     * arrive at any age (a buyer who sat on the cashier page for a week),
+     * and the money is real either way, so an aged row must not dead-end
+     * the settlement. Each attempt is a single-row CAS on one status, so
+     * the answer's meaning is exactly "this call flipped the row": false
+     * = the row was already paid (a concurrent settle won) or the write
+     * failed. Callers re-read the row to tell those apart.
      */
     public function confirm(int $rowId, float $amount, string $orderId = '', ?int $cycles = null, ?string $tierKey = null): bool
     {
@@ -156,8 +160,8 @@ final class OrderService
 
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $data = ['status' => self::STATUS_PAID, 'amount' => $amount];
-        $formats = ['%s', '%f'];
+        $data = ['status' => self::STATUS_PAID, 'amount' => $amount, 'paid_at' => current_time('mysql', true)];
+        $formats = ['%s', '%f', '%s'];
         if ($orderId !== '') {
             $data['order_id'] = substr($orderId, 0, 64);
             $formats[] = '%s';
@@ -171,16 +175,67 @@ final class OrderService
             $formats[] = '%s';
         }
 
+        // wpdb::update() has no IN, so the two settleable states are two
+        // sequential CAS attempts on one status each.
         $suppress = $wpdb->suppress_errors(true);
         $updated = $wpdb->update($this->table(), $data, ['id' => $rowId, 'status' => self::STATUS_PENDING], $formats, ['%d', '%s']);
+        if ($updated !== 1) {
+            $updated = $wpdb->update($this->table(), $data, ['id' => $rowId, 'status' => self::STATUS_UNPAID], $formats, ['%d', '%s']);
+        }
         $wpdb->suppress_errors($suppress);
 
         return $updated === 1;
     }
 
     /**
+     * Tiers with live checkouts among the given keys: a buyer sitting on
+     * the cashier page right now is not yet a holder, but deleting the
+     * tier under them means their verified payment later settles into a
+     * tier that no longer activates. Aged `unpaid` rows are abandoned
+     * carts, not money — they never block a deletion.
+     *
+     * @param list<string> $tierKeys
+     * @return array<string, int> keyed by tier key, live checkouts only
+     */
+    public function countPendingByTier(array $tierKeys): array
+    {
+        $tierKeys = array_values(array_filter(array_map(
+            static fn (string $key): string => substr(sanitize_key($key), 0, 32),
+            $tierKeys
+        )));
+        if ($tierKeys === []) {
+            return [];
+        }
+
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $placeholders = implode(', ', array_fill(0, count($tierKeys), '%s'));
+        $sql = $wpdb->prepare(
+            "SELECT tier_key FROM %i WHERE status = %s AND tier_key IN ($placeholders)",
+            $this->table(),
+            self::STATUS_PENDING,
+            ...$tierKeys
+        );
+        if (!is_string($sql)) {
+            return [];
+        }
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
+        $rows = $wpdb->get_results($sql, ARRAY_A);
+        $counts = [];
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $key = (string) $row['tier_key'];
+            $counts[$key] = ($counts[$key] ?? 0) + 1;
+        }
+
+        return $counts;
+    }
+
+    /**
      * Ages untouched checkouts: `pending` rows older than the TTL turn
-     * `unpaid`, so the log tells "never paid" apart from "waiting".
+     * `unpaid`, so the log tells "never paid" apart from "waiting". The
+     * flip is bookkeeping, not a refusal — confirm() settles an aged row
+     * all the same when the money shows up later.
      *
      * @return int rows flipped
      */
@@ -233,8 +288,11 @@ final class OrderService
     }
 
     /**
-     * The holder's most recent pending checkout — how an Afdian push (whose
-     * order number the platform generates) finds the checkout it settles.
+     * The holder's most recent unsettled checkout — `pending` at the
+     * cashier or `unpaid` aged out — which is how an Afdian push (whose
+     * order number the platform generates) finds the checkout it settles:
+     * the aged deep-link row is settled into itself, keeping one row per
+     * purchase and the frozen snapshot instead of a duplicate booking.
      *
      * @return array{id:int, user_id:int, tier_key:string, cycles:int, amount:float, source:string, status:string}|null
      */
@@ -247,12 +305,11 @@ final class OrderService
         global $wpdb;
         /** @var \wpdb $wpdb */
         $sql = $wpdb->prepare(
-            'SELECT id, user_id, tier_key, cycles, amount, source, status FROM %i
-             WHERE user_id = %d AND source = %s AND status = %s ORDER BY id DESC LIMIT 1',
+            "SELECT id, user_id, tier_key, cycles, amount, source, status FROM %i
+             WHERE user_id = %d AND source = %s AND status IN ('pending', 'unpaid') ORDER BY id DESC LIMIT 1",
             $this->table(),
             $userId,
-            sanitize_text_field($source),
-            self::STATUS_PENDING
+            sanitize_text_field($source)
         );
         if (!is_string($sql)) {
             return null;

@@ -11,7 +11,7 @@ use WP_REST_Server;
 /**
  * Tiered HTTP caching for the contract API (2026-09-11 plan):
  *
- * - shell reads (/site, /menus/*, /terms):        public, max-age=300
+ * - shell reads (/site, /terms, /smilies):        public, max-age=300
  * - lists (/posts, /pages, /resources):           public, max-age=60
  * - other public GETs (details, discussions, ...): public, max-age=0, must-revalidate
  * - session GETs (/users/*, /notifications):       private, no-store
@@ -68,7 +68,7 @@ final class HttpCache
             return $served;
         }
 
-        if (preg_match('#^(site|menus/.+|terms|smilies)$#', $route) === 1) {
+        if (preg_match('#^(site|terms|smilies)$#', $route) === 1) {
             $maxAge = self::SHELL_MAX_AGE;
         } elseif (preg_match('#^(posts|pages|resources)$#', $route) === 1) {
             $maxAge = self::LIST_MAX_AGE;

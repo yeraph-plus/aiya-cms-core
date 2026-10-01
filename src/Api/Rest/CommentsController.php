@@ -220,7 +220,12 @@ final class CommentsController
         // non-privileged authors and would strip the uploaded-image markup
         // right after our stricter whitelist already sanitized it. It
         // steps aside for this one write and is restored immediately.
+        // A viewer with unfiltered_html runs the post-level filter
+        // instead (kses_init switches by capability) — it steps aside too,
+        // or an admin's own comment would be re-filtered by a whitelist
+        // that carries no data-* attributes.
         $coreKsesActive = remove_filter('pre_comment_content', 'wp_filter_kses');
+        $corePostKsesActive = remove_filter('pre_comment_content', 'wp_filter_post_kses');
 
         $commentId = wp_new_comment([
             'comment_post_ID' => $postId,
@@ -237,6 +242,9 @@ final class CommentsController
 
         if ($coreKsesActive) {
             add_filter('pre_comment_content', 'wp_filter_kses');
+        }
+        if ($corePostKsesActive) {
+            add_filter('pre_comment_content', 'wp_filter_post_kses');
         }
 
         if (is_wp_error($commentId)) {

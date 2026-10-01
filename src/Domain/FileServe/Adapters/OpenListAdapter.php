@@ -31,11 +31,15 @@ final class OpenListAdapter implements Adapter
      * @param Closure(): array<string, mixed>|null $siteConfig the site-level
      *        settings the rows depend on (server, link mode, credentials),
      *        folded into the listing's cache key; null when the caller has none
+     * @param Closure(Error): void|null $onFailure the one seam for reacting to a
+     *        failed call at its source (e.g. a refused token dying loudly);
+     *        null when the caller has no reaction
      */
     public function __construct(
         private readonly string $id,
         private readonly Closure $gatewayFactory,
         private readonly ?Closure $siteConfig = null,
+        private readonly ?Closure $onFailure = null,
     ) {
     }
 
@@ -145,6 +149,10 @@ final class OpenListAdapter implements Adapter
 
         $rows = $this->isSearch() ? $gateway->search($config) : $gateway->list($config);
         if ($rows instanceof Error) {
+            if ($this->onFailure !== null) {
+                ($this->onFailure)($rows);
+            }
+
             return self::failure($rows);
         }
 

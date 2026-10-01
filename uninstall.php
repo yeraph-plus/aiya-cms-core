@@ -34,9 +34,11 @@
  * files under wp-content/aiya_thumbnail/ tree (generated covers and
  * avatars), the pic-bed pool). The payment log moved to the plugin-owned
  * aiya_payment_orders table (0.56.0) and is dropped with the rest; the
- * codes table moved to aiya_redeem_codes in 0.54.0 (the superseded
- * wp_aya_convert_codes is dropped by the migration, with a fallback here
- * for never-migrated installs).
+ * codes table moved to aiya_redeem_codes in 0.54.0 — its superseded
+ * predecessor wp_aya_convert_codes has no DROP here because no install
+ * this file can run against still carries it: the 0.80.0 clean-release
+ * rewrite ships CREATE-only migrations, so there is no never-migrated
+ * state to fall back for.
  *
  * @package AIYA_Core
  */
@@ -264,6 +266,9 @@ $run = static function (?string $sql) use ($wpdb): void {
 
 $delete_site_options = static function () use ($wpdb, $optionLike, $run): void {
     $run($wpdb->prepare('DELETE FROM %i WHERE option_name LIKE %s', $wpdb->options, $optionLike));
+    // The self-hosted update checker caches update metadata under its own
+    // unprefixed name — plugin-owned data all the same.
+    delete_option('external_updates-aiya-core');
     wp_cache_flush();
 };
 

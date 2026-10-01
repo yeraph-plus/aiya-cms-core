@@ -233,11 +233,28 @@ final class CounterService
         // Baseline row so the atomic UPDATE below always has a target.
         add_post_meta($postId, $key, 0, true);
 
-        $wpdb->query($wpdb->prepare(
+        $updated = $wpdb->query($wpdb->prepare(
             "UPDATE {$wpdb->postmeta} SET meta_value = meta_value + 1 WHERE post_id = %d AND meta_key = %s",
             $postId,
             $key
         ));
+
+        // add_post_meta's check-then-insert has no unique index behind it,
+        // so two truly simultaneous first hits can both land — and from
+        // then on every increment would move two rows while reads take
+        // the first: a permanent 2× count. The affected-rows total is a
+        // free detector (one row in the healthy case); more means twins,
+        // keep the first and drop the rest.
+        if (is_int($updated) && $updated > 1) {
+            $wpdb->query($wpdb->prepare(
+                "DELETE p FROM {$wpdb->postmeta} p
+                 JOIN {$wpdb->postmeta} keep ON keep.post_id = p.post_id AND keep.meta_key = p.meta_key AND keep.meta_id < p.meta_id
+                 WHERE p.post_id = %d AND p.meta_key = %s",
+                $postId,
+                $key
+            ));
+        }
+
         wp_cache_delete($postId, 'post_meta');
 
         return absint((string) get_post_meta($postId, $key, true));

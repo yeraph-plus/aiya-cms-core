@@ -9,6 +9,8 @@ use Aiya\Core\Metadata\PostBox;
 use Aiya\Core\Metadata\Registry;
 use Aiya\Core\Metadata\TermBox;
 use Aiya\Core\Metadata\Storage\PostMetaStore;
+use Aiya\Core\Metadata\Storage\TermMetaStore;
+use Aiya\Core\Metadata\Storage\UserMetaStore;
 use Aiya\Core\Settings\Schema\Field;
 use Aiya\Core\Settings\ValueNormalizer;
 use WP_Error;
@@ -240,7 +242,7 @@ final class MetaboxAdmin implements Module
         echo '</td></tr>';
 
         foreach ($box->fields() as $field) {
-            $value = get_term_meta($term->term_id, $field->id(), true);
+            $value = (new TermMetaStore((int) $term->term_id, $field->id()))->read();
             if ($value === '' || $value === null) {
                 $value = $field->defaultValue() ?? '';
             }
@@ -277,16 +279,17 @@ final class MetaboxAdmin implements Module
         }
 
         foreach ($values as $fieldId => $value) {
-            // Term protocol shape: per-field meta keys with scalars. Values
-            // are unslashed; the meta API expects slashed data. Empties
-            // (including an unticked switch) delete their key — absent is
-            // the one representation of "no value", and the read side
-            // falls back to the field default.
+            // Term protocol shape: per-field meta keys with scalars, through
+            // the shared TermMetaStore (write() does the slash round-trip).
+            // Empties (including an unticked switch) delete their key —
+            // absent is the one representation of "no value", and the read
+            // side falls back to the field default.
+            $store = new TermMetaStore($termId, (string) $fieldId);
             if ($value === '' || $value === null || $value === [] || $value === false) {
-                delete_term_meta($termId, $fieldId);
+                $store->delete();
                 continue;
             }
-            update_term_meta($termId, $fieldId, wp_slash($value));
+            $store->write($value);
         }
     }
 
@@ -302,7 +305,7 @@ final class MetaboxAdmin implements Module
         echo '<h2>' . esc_html__('Additional fields', 'aiya-core') . '</h2>';
         echo '<table class="form-table aiya-core-fieldgroup" role="presentation"><tbody>';
         foreach ($fields as $field) {
-            $value = get_user_meta($user->ID, $field->id(), true);
+            $value = (new UserMetaStore((int) $user->ID, $field->id()))->read();
             if ($value === '') {
                 $value = $field->defaultValue();
             }
@@ -377,12 +380,14 @@ final class MetaboxAdmin implements Module
         foreach ($values as $fieldId => $value) {
             // Empties — including an unticked switch (false) — delete their
             // key: absent is the one representation of "no value", and the
-            // read side falls back to the field default.
+            // read side falls back to the field default. Writes go through
+            // the shared UserMetaStore (write() does the slash round-trip).
+            $store = new UserMetaStore($userId, (string) $fieldId);
             if ($value === '' || $value === null || $value === [] || $value === false) {
-                delete_user_meta($userId, $fieldId);
+                $store->delete();
                 continue;
             }
-            update_user_meta($userId, $fieldId, wp_slash($value));
+            $store->write($value);
         }
     }
 

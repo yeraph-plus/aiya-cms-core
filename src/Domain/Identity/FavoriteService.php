@@ -177,7 +177,12 @@ final class FavoriteService
         return is_numeric($found) ? (int) $found : 0;
     }
 
-    /** Favorites must target an existing published row of a public type. */
+    /**
+     * Favorites must target an existing published row of a public type —
+     * password posts included in the ban: every read path drops password
+     * rows, so accepting one here would only mint a favorite that can
+     * never display.
+     */
     private function validatePost(int $postId): int|WP_Error
     {
         $postId = absint((string) $postId);
@@ -187,6 +192,7 @@ final class FavoriteService
             $post === null
             || PublicTypes::forPostType((string) $post->post_type) === null
             || $post->post_status !== 'publish'
+            || (string) $post->post_password !== ''
         ) {
             return new WP_Error('aiya_invalid_param', __('Only published content can be favorited.', 'aiya-core'), ['status' => 400]);
         }

@@ -266,7 +266,11 @@ final class StatsQuery
     /**
      * Cash collected per month: the paid orders whose payment landed in
      * it (a multi-cycle purchase reads as one spike here and is spread
-     * over its service period in the recognized column).
+     * over its service period in the recognized column). The payment
+     * moment is paid_at when the settle wrote it, falling back to
+     * created_at for rows that predate the column — checkout time and
+     * payment time are the same day in the overwhelmingly normal case,
+     * and the fallback keeps those rows attributed at all.
      *
      * @param list<string> $keys
      * @return array<string, float>
@@ -277,7 +281,8 @@ final class StatsQuery
         /** @var \wpdb $wpdb */
         /** @var list<array<string, mixed>>|null $rows */
         $rows = $wpdb->get_results($wpdb->prepare(
-            'SELECT amount, created_at FROM %i WHERE status = \'paid\' AND created_at >= %s AND created_at < %s',
+            'SELECT amount, COALESCE(paid_at, created_at) AS paid_at FROM %i'
+            . ' WHERE status = \'paid\' AND COALESCE(paid_at, created_at) >= %s AND COALESCE(paid_at, created_at) < %s',
             $this->ordersTable(),
             $from,
             $to
@@ -285,13 +290,13 @@ final class StatsQuery
 
         $cash = [];
         foreach (is_array($rows) ? $rows : [] as $row) {
-            $createdAt = (string) ($row['created_at'] ?? '');
-            if ($createdAt === '') {
+            $paidAt = (string) ($row['paid_at'] ?? '');
+            if ($paidAt === '') {
                 continue;
             }
             // GMT fact, local bucket: an order paid at 07:00 local on the
             // first is the first's revenue, whatever the stored GMT says.
-            $month = get_date_from_gmt($createdAt, 'Y-m');
+            $month = get_date_from_gmt($paidAt, 'Y-m');
             if (!in_array($month, $keys, true)) {
                 continue;
             }

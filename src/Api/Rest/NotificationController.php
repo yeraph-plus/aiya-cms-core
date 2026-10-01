@@ -10,6 +10,7 @@ use Aiya\Core\Api\Presenter\NotificationPresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Domain\Notification\NotificationService;
 use Aiya\Core\Domain\Notification\RoleLevel;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -32,6 +33,7 @@ final class NotificationController
         private NotificationService $notifications,
         private UserPresenter $users,
         private NotificationPresenter $presenter,
+        private RateLimiter $limiter = new RateLimiter(),
     ) {
     }
 
@@ -39,7 +41,7 @@ final class NotificationController
     {
         register_rest_route(Contract::API_NAMESPACE, '/notifications', [
             'methods' => WP_REST_Server::READABLE,
-            'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->list($request),
+            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->list($request),
             'permission_callback' => '__return_true',
             'args' => [
                 'page' => ['type' => 'integer', 'default' => 1, 'minimum' => 1],
@@ -53,10 +55,20 @@ final class NotificationController
         ]);
     }
 
-    private function list(WP_REST_Request $request): WP_REST_Response
+    private function list(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         $user = wp_get_current_user();
         $loggedIn = $user->exists() && (int) $user->ID > 0;
+
+        // Anonymous reads are the broadcast slice — the session-prefix
+        // cache rule keeps them no-store, so every hit is two live
+        // queries. Give unauthenticated traffic a budget like the other
+        // public reads; logged-in readers are authenticated polling and
+        // stay unmetered.
+        if (!$loggedIn && !$this->limiter->hit('notifications_read', 120, 60)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        }
+
         $rank = RoleLevel::rank($loggedIn ? $this->users->role($user) : RoleLevel::GUEST);
         $viewerId = $loggedIn ? (int) $user->ID : 0;
 

@@ -35,7 +35,11 @@ final class CommentPresenter
         'blockquote' => [],
         'code' => [],
         'span' => ['data-spoiler' => true],
-        'img' => ['src' => true, 'alt' => true, 'class' => true, 'loading' => true],
+        // class carries exactly one value, via kses's own `values` rule (an
+        // attribute spec array is a rule table — maxlen/maxval/values —, the
+        // rule parameter a plain value list): the smilies renderer's class,
+        // and nothing else, so a comment cannot borrow arbitrary site styles.
+        'img' => ['src' => true, 'alt' => true, 'class' => ['values' => ['aiya-smilie']], 'loading' => true],
     ];
 
     public function __construct(private readonly SmiliesRenderer $smilies)

@@ -51,8 +51,16 @@ final class OpenListModule implements Module
         // same token cache.
         $gateway = fn (): Gateway => $this->gateway();
         $siteConfig = fn (): array => $this->settings();
-        $this->adapters->register(new OpenListAdapter(OpenListAdapter::LIST_ID, $gateway, $siteConfig));
-        $this->adapters->register(new OpenListAdapter(OpenListAdapter::SEARCH_ID, $gateway, $siteConfig));
+        // A refused token is a dead token: dropping it from the cache makes
+        // the next read re-login, instead of every read re-paying the same
+        // 401 until the token cache TTL (default 24h) runs out.
+        $onFailure = function (Error $error): void {
+            if ($error->code === Error::UNAUTHORIZED) {
+                wp_cache_delete(self::TOKEN_CACHE_KEY, FileService::CACHE_GROUP);
+            }
+        };
+        $this->adapters->register(new OpenListAdapter(OpenListAdapter::LIST_ID, $gateway, $siteConfig, $onFailure));
+        $this->adapters->register(new OpenListAdapter(OpenListAdapter::SEARCH_ID, $gateway, $siteConfig, $onFailure));
 
         // The package stays WordPress-free, so the caller logs its failures:
         // one throttled debug line per source failure, beside the error hook
@@ -228,9 +236,13 @@ final class OpenListModule implements Module
 
     /**
      * The pure HTTP exit: one request in, one answer out. No hooks, no
-     * logging, no retries and no login side effects live here — login and
-     * its error reporting are the module's business above, and a failure is
-     * reported once per listing read, never per wire call.
+     * retries and no login side effects live here — login and its error
+     * reporting are the module's business above, and a failure is
+     * reported once per listing read, never per wire call. One exception,
+     * documented on purpose: a wire-level failure (DNS, TLS, timeout) is
+     * invisible to the package's error taxonomy — upstream it collapses
+     * into a generic "unreachable" — so the one detail an operator needs
+     * is written to the throttled debug log right here, before the null.
      *
      * GET carries the Authorization header too: harmless today, and it keeps
      * a future read that needs the token from silently missing it.
@@ -249,6 +261,10 @@ final class OpenListModule implements Module
                 ? wp_remote_get($url, ['timeout' => 15, 'headers' => $headers])
                 : wp_remote_post($url, ['timeout' => 15, 'headers' => $headers, 'body' => (string) $body]);
             if (is_wp_error($response)) {
+                if (SourceLog::active()) {
+                    SourceLog::writeOnce('aiya_core_oplist_wire_' . md5($url), 300, 'OpenList request failed', $url . "\n" . (string) $response->get_error_message());
+                }
+
                 return null;
             }
 

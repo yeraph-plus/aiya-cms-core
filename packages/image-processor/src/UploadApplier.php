@@ -35,7 +35,13 @@ final class UploadApplier extends ImagineAware
     ): string|false {
         // WordPress-free package: direct file calls and silence are
         // intentional here; a false return is handled below.
-        if ($sourcePath === '' || !is_file($sourcePath) || @exif_imagetype($sourcePath) === false) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        // getimagesize (ext/standard, always present) is the fallback for
+        // hosts compiled without ext-exif — the probe must exist, or every
+        // upload would die with an undefined-function error, not a false.
+        $probe = function_exists('exif_imagetype')
+            ? static fn (string $path): bool => @exif_imagetype($path) !== false // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+            : static fn (string $path): bool => @getimagesize($path) !== false; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        if ($sourcePath === '' || !is_file($sourcePath) || !$probe($sourcePath)) {
             return false;
         }
 

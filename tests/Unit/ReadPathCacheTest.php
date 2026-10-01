@@ -162,18 +162,21 @@ final class ReadPathCacheTest extends TestCase
     {
         // get_the_excerpt() answers the request-state postpass cookie for
         // password posts — the value is visitor-shaped, so no cache write
-        // (nor read) may happen for one, whatever the cookie state is.
+        // (nor read) may happen for one, whatever the cookie state is. And
+        // the headless topology never holds that cookie at all (see the
+        // shim): a locked viewer gets the blank excerpt, never core's
+        // placeholder sentence and never the protected text.
         $post = $this->post(12, ['post_password' => 'secret', 'post_excerpt' => 'A protected excerpt.']);
         $key = 'excerpt_12_' . md5((string) $post->post_modified_gmt);
 
         $excerpt = $this->postPresenter()->summary($post, \Aiya\Core\Domain\Content\PublicTypes::get('post'))->excerpt;
-        $this->assertSame('A protected excerpt.', $excerpt);
+        $this->assertSame('', $excerpt, 'a locked viewer gets no excerpt and no placeholder leak');
 
         $this->assertFalse(wp_cache_get($key, 'aiya_core_content'), 'a password post excerpt must never be cached');
 
         wp_cache_set($key, 'POISONED', 'aiya_core_content');
         $this->assertSame(
-            'A protected excerpt.',
+            '',
             $this->postPresenter()->summary($post, \Aiya\Core\Domain\Content\PublicTypes::get('post'))->excerpt,
             'a password post excerpt must never be read from the cache either'
         );

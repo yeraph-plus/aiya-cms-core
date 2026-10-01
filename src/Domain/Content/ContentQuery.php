@@ -483,9 +483,22 @@ final class ContentQuery
             'orderby' => ['date' => 'ASC', 'ID' => 'ASC'],
         ]));
 
-        $pick = static function (WP_Query $query, WP_Post $current): ?WP_Post {
+        $pick = static function (WP_Query $query, WP_Post $current, bool $older): ?WP_Post {
             foreach (is_array($query->posts) ? $query->posts : [] as $found) {
-                if ($found instanceof WP_Post && (int) $found->ID !== (int) $current->ID) {
+                if (!$found instanceof WP_Post || (int) $found->ID === (int) $current->ID) {
+                    continue;
+                }
+                // Same-second publications (a batch import) share a date, and
+                // the inclusive date window still returns the ones on the
+                // wrong side — there the ID tiebreak decides the direction,
+                // so a candidate that is not strictly behind/ahead of the
+                // current post is not its neighbor.
+                $foundDate = (string) $found->post_date;
+                $currentDate = (string) $current->post_date;
+                $inDirection = $older
+                    ? $foundDate < $currentDate || ($foundDate === $currentDate && (int) $found->ID < (int) $current->ID)
+                    : $foundDate > $currentDate || ($foundDate === $currentDate && (int) $found->ID > (int) $current->ID);
+                if ($inDirection) {
                     return $found;
                 }
             }
@@ -493,7 +506,7 @@ final class ContentQuery
             return null;
         };
 
-        return ['previous' => $pick($previousQuery, $post), 'next' => $pick($nextQuery, $post)];
+        return ['previous' => $pick($previousQuery, $post, true), 'next' => $pick($nextQuery, $post, false)];
     }
 
     /**

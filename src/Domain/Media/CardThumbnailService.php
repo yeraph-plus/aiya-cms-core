@@ -378,9 +378,11 @@ final class CardThumbnailService
         $fresh = get_post_meta($postId, self::THUMB_KEY, true);
         if (is_string($previous) && $previous !== '' && $previous !== $fresh) {
             $previousLocal = $this->paths->urlToLocal($previous);
-            $coverRoot = $this->paths->coverDir();
+            $coverRoot = $this->paths->coverTreeDir();
             // Only managed card files under the cover tree are removed —
-            // hand-edited or foreign values never lose their files.
+            // hand-edited or foreign values never lose their files. The
+            // tree root is month-agnostic: a replacement after a month
+            // rollover still finds the stale file.
             if ($previousLocal !== null && str_starts_with($previousLocal, $coverRoot . '/')) {
                 wp_delete_file($previousLocal);
             }

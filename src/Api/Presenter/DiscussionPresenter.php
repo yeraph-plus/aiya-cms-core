@@ -104,6 +104,30 @@ final class DiscussionPresenter
         );
     }
 
+    /**
+     * The public board list with thread counts, menu order preserved —
+     * the service returns raw board rows, the wire shape is built here
+     * like every other payload.
+     *
+     * @param list<object{id:int|string,slug:string,name:string,description:string,threads:int|string}> $rows
+     * @return list<array<string, mixed>>
+     */
+    public function boards(array $rows): array
+    {
+        $items = [];
+        foreach ($rows as $board) {
+            $items[] = (new DiscussionBoard(
+                (int) $board->id,
+                (string) $board->slug,
+                (string) $board->name,
+                (string) $board->description,
+                (int) $board->threads,
+            ))->toArray();
+        }
+
+        return $items;
+    }
+
     /** @param object{board_id:int,board_slug:string|null,board_name:string|null} $row */
     private function board(object $row): ?DiscussionBoard
     {

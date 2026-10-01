@@ -49,10 +49,14 @@ final class ContentManagementModule implements Module
         add_action('aiya_core_register', [$this, 'settings'], 10, 0);
 
         // The /terms vocabulary withholds NSFW terms through the object
-        // cache (TTL 5 minutes); a settings save drops the group so the
-        // new configuration shows immediately — the list queries read the
-        // option live either way.
+        // cache (TTL 5 minutes); a settings save — or a Reset, which goes
+        // through delete_option — drops the group so the new configuration
+        // shows immediately — the list queries read the option live either
+        // way.
         add_action('update_option_aiya_core_content', static function (): void {
+            wp_cache_flush_group('aiya_core_content');
+        }, 10, 0);
+        add_action('delete_option_aiya_core_content', static function (): void {
             wp_cache_flush_group('aiya_core_content');
         }, 10, 0);
 

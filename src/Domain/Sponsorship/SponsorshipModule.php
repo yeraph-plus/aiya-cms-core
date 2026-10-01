@@ -28,7 +28,10 @@ final class SponsorshipModule implements Module
     public const PAYMENTS_PAGE_SLUG = 'sponsorship-payments';
     public const PAYMENTS_OPTION_NAME = 'aiya_core_sponsorship_payments';
     public const CRON_HOOK = 'aiya_core_membership_grants';
-    private const MIGRATION_VERSION = '0.80.0';
+    // 0.98.0 re-runs installTables so dbDelta adds the payment rows'
+    // paid_at column to databases that predate it (fresh installs get it
+    // from the CREATE itself).
+    private const MIGRATION_VERSION = '0.98.0';
 
     public function __construct(private Registry $settings)
     {
@@ -40,6 +43,10 @@ final class SponsorshipModule implements Module
         // Runs after the framework's normalization, before the save lands:
         // a tier with active holders cannot be deleted.
         add_filter('aiya_core_settings_validate', [$this, 'guardTierDeletion'], 10, 3);
+
+        // Same gate, different concern: the tier name must survive the
+        // Epay signature round-trip (see the method for the byte-level why).
+        add_filter('aiya_core_settings_validate', [$this, 'sanitizeTierNames'], 10, 2);
 
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
             $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'installTables']];
@@ -329,6 +336,7 @@ final class SponsorshipModule implements Module
                 source VARCHAR(32) NOT NULL DEFAULT '',
                 status VARCHAR(16) NOT NULL DEFAULT 'paid',
                 created_at DATETIME NOT NULL,
+                paid_at DATETIME DEFAULT NULL,
                 PRIMARY KEY  (id),
                 UNIQUE KEY order_id (order_id),
                 KEY user_id (user_id)
@@ -350,10 +358,13 @@ final class SponsorshipModule implements Module
     }
 
     /**
-     * Save-time guard: a tier with active holders cannot be deleted —
-     * the entitlement queue snapshots reference the tier key and the
-     * running grants are live business facts. Removed-but-unused tiers
-     * pass; the veto lists the offending keys on the settings page.
+     * Save-time guard: a tier with active holders — or a live checkout —
+     * cannot be deleted. The entitlement queue snapshots reference the
+     * tier key, the running grants are live business facts, and a pending
+     * checkout is a buyer mid-payment whose verified money would
+     * otherwise settle into a tier that no longer activates.
+     * Removed-but-unused tiers pass; the veto lists the offending keys on
+     * the settings page.
      *
      * @param mixed $values normalized settings payload for the page
      * @param mixed $slug   settings page slug being saved
@@ -384,6 +395,7 @@ final class SponsorshipModule implements Module
         }
 
         $counts = (new EntitlementService())->activeCountByTier($removed);
+        $counts += (new OrderService())->countPendingByTier($removed);
         $blocked = array_keys($counts);
         if ($blocked === []) {
             return $values;
@@ -392,11 +404,35 @@ final class SponsorshipModule implements Module
         return new WP_Error(
             'aiya_tier_in_use',
             sprintf(
-                // translators: %s: tier keys that still have active holders.
-                __('These tiers still have active members and cannot be deleted: %s.', 'aiya-core'),
+                // translators: %s: tier keys that still have active holders or live checkouts.
+                __('These tiers still have active members or live checkouts and cannot be deleted: %s.', 'aiya-core'),
                 implode('、', $blocked)
             ),
             ['status' => 409]
         );
+    }
+
+    /**
+     * Save-time normalization: the tier name rides the Epay cashier as the
+     * `name` order parameter and comes back inside the signed callback
+     * query — which the REST layer hands over wp_unslash()d. A backslash
+     * in the name would therefore verify against different bytes than the
+     * push carries and fail every signature, so names are stripped of
+     * backslashes before they ever land. (The binding param is unaffected:
+     * the XDE alphabet is alphanumeric.)
+     */
+    public function sanitizeTierNames(mixed $values, mixed $slug): mixed
+    {
+        if ($slug !== 'membership' || !is_array($values)) {
+            return $values;
+        }
+
+        foreach (($values['tiers'] ?? []) as $index => $row) {
+            if (is_array($row) && isset($row['name'])) {
+                $values['tiers'][$index]['name'] = str_replace('\\', '', (string) $row['name']);
+            }
+        }
+
+        return $values;
     }
 }

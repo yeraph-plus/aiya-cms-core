@@ -126,6 +126,13 @@ final class SponsorshipController
         if ($tier === null) {
             return new WP_Error('aiya_not_found', __('Unknown membership tier.', 'aiya-core'), ['status' => 404]);
         }
+        // The deep link obeys the same server-side gate as the checkout
+        // POST: a hand-crafted order-url request must not pre-select — and
+        // through the placeholder row eventually buy — a tier the site
+        // pulled from sale.
+        if (!(bool) ($tier['enabled'] ?? true)) {
+            return new WP_Error('aiya_tier_disabled', __('This membership tier is not available.', 'aiya-core'), ['status' => 410]);
+        }
         $cycles = (int) $tier['cycles'];
 
         $userId = (int) get_current_user_id();

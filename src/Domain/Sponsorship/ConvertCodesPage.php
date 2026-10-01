@@ -8,10 +8,11 @@ use Aiya\Core\Contracts\Module;
 
 /**
  * Redemption-code manager (submenu of the membership menu): batch-generate
- * codes, browse and delete them. Codes carry a credit amount and their
- * bucket validity (the 2026-09-13 credits plan; the legacy prefix field
- * and the day-based semantics are retired) — redeeming on the front end
- * grants straight into the user's credit ledger.
+ * membership codes (one tier × cycles each), browse and delete them.
+ * Redeeming on the front end queues the purchase like any paid order —
+ * the credits arrive through the per-cycle grant cron, never up front
+ * (0.54.0 rewrite; the 0.49.0 credit-amount codes and their legacy prefix
+ * field are retired).
  */
 final class ConvertCodesPage implements Module
 {

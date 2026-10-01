@@ -333,8 +333,17 @@ final class CreditsPage implements Module
             $this->redirectBack(['aiya_credit_note' => 'failed', 'aiya_credit_message' => rawurlencode((string) __('The credit holder does not exist.', 'aiya-core'))]);
         }
 
-        $amount = min(100000, max(1, absint((string) ($_POST['amount'] ?? '0'))));
-        $days = min(3650, max(1, absint((string) ($_POST['days'] ?? (string) CreditSettings::read()['validityDays']))));
+        // An emptied field is an operator mistake, not "the minimum": a
+        // cleared amount must not silently grant 1 credit, a cleared
+        // validity must not mint a one-day bucket. Refuse with a note.
+        $amountRaw = (string) ($_POST['amount'] ?? '');
+        $daysRaw = (string) ($_POST['days'] ?? '');
+        if ($amountRaw === '' || $daysRaw === '') {
+            $this->redirectBack(['aiya_credit_note' => 'failed', 'aiya_credit_message' => rawurlencode((string) __('Amount and validity are required.', 'aiya-core'))]);
+        }
+
+        $amount = min(100000, max(1, absint($amountRaw)));
+        $days = min(3650, max(1, absint($daysRaw)));
         $note = sanitize_text_field(wp_unslash((string) ($_POST['note'] ?? '')));
         // The note IS the ledger reference now — the dedupe key is derived
         // from (source, ref), so the same note for the same holder is

@@ -28,6 +28,11 @@ final class SendMailPage implements Module
     private const AJAX_SEARCH = 'aiya_core_mail_search';
     private const NONCE_ACTION = 'aiya_core_send_mail';
     private const EDITOR_ID = 'aiyacoremailbody';
+
+    /** Fixed per-user send window: a stolen edit_users session must not be an open relay to arbitrary addresses. */
+    private const SEND_LIMIT = 20;
+    private const SEND_WINDOW_SECONDS = 600;
+    private const SEND_TRANSIENT_PREFIX = 'aiya_core_sendmail_w_';
     private const MIN_SEARCH_LENGTH = 2;
     private const MAX_SUGGESTIONS = 8;
 
@@ -216,6 +221,21 @@ final class SendMailPage implements Module
         }
         check_ajax_referer(self::NONCE_ACTION, 'nonce');
 
+        // Fixed per-user window over actual sends (same shape as the REST
+        // limiter's budgets): the gate above is capability, this is rate —
+        // the two answer different threats.
+        $windowKey = self::SEND_TRANSIENT_PREFIX . (string) get_current_user_id();
+        $state = get_transient($windowKey);
+        $count = is_array($state) ? (int) ($state['c'] ?? 0) : 0;
+        $since = is_array($state) ? (int) ($state['t'] ?? 0) : 0;
+        if ($since > 0 && (time() - $since) >= self::SEND_WINDOW_SECONDS) {
+            $count = 0;
+            $since = 0;
+        }
+        if ($count >= self::SEND_LIMIT) {
+            wp_send_json_error(['message' => __('Too many emails sent in a short time — wait a few minutes.', 'aiya-core')], 429);
+        }
+
         $recipient = sanitize_text_field(wp_unslash((string) ($_POST['recipient'] ?? '')));
         if (!is_email($recipient)) {
             wp_send_json_error(['message' => __('Enter a valid recipient email address.', 'aiya-core')]);
@@ -231,6 +251,12 @@ final class SendMailPage implements Module
         if (is_wp_error($result)) {
             wp_send_json_error(['message' => $result->get_error_message()]);
         }
+
+        // Only a delivered mail burns budget; validation failures do not.
+        if ($since === 0) {
+            $since = time();
+        }
+        set_transient($windowKey, ['c' => $count + 1, 't' => $since], self::SEND_WINDOW_SECONDS);
 
         wp_send_json_success([
             /* translators: %s: recipient email address. */
