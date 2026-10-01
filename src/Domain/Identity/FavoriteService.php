@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Identity;
 
-use Aiya\Core\Domain\Content\PublicTypes;
+use Aiya\Core\Domain\Shared\PublicTypes;
 use WP_Error;
 
 /**

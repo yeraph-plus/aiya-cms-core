@@ -13,7 +13,7 @@ use Aiya\Core\Contracts\Module;
  */
 final class DiscussionModule implements Module
 {
-    private const MIGRATION_VERSION = '0.80.0';
+    private const MIGRATION_VERSION = '1.0.0';
 
     public function register(): void
     {

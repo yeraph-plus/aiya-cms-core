@@ -83,7 +83,10 @@ final class SponsorshipSettings
                 'name' => (string) ($row['name'] ?? ''),
                 'description' => trim(sanitize_textarea_field((string) ($row['description'] ?? ''))),
                 'enabled' => (bool) ($row['enabled'] ?? true),
-                'price' => (float) ($row['price'] ?? 0),
+                // Two decimals at the read edge too — rows saved before the
+                // 500-cap field constraint cannot smuggle in extra precision
+                // that the gateways would round differently.
+                'price' => min(500.0, round((float) ($row['price'] ?? 0), 2)),
                 'cycleDays' => max(1, (int) ($row['cycle_days'] ?? 30)),
                 'creditsPerCycle' => max(0, (int) ($row['credits_per_cycle'] ?? 0)),
                 'cycles' => max(1, min(60, (int) ($row['cycles'] ?? 1))),

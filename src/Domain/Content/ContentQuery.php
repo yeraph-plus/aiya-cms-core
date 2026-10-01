@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Content;
 
+use Aiya\Core\Domain\Shared\PublicType;
 use WP_Post;
 use WP_Query;
 

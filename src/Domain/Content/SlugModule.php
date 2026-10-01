@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Content;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Shared\PublicTypes;
 use Aiya\Core\Settings\Registry;
 use Aiya\Infra\SlugToolkit\IdSlugEncoder;
 use Aiya\Infra\SlugToolkit\PinyinConverter;

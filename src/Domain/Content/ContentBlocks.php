@@ -129,7 +129,7 @@ final class ContentBlocks
                 $title,
                 $type,
                 $categories,
-                max(1, min(20, $count > 0 ? $count : 8)),
+                max(1, min(100, $count > 0 ? $count : 8)),
                 $icon !== '' ? $icon : null,
                 $moreUrl === '' ? '' : $this->normalizeUrl($moreUrl)
             );

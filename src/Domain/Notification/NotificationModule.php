@@ -15,7 +15,7 @@ use Aiya\Core\Contracts\Module;
 final class NotificationModule implements Module
 {
     public const CRON_HOOK = 'aiya_core_notifications_cleanup';
-    private const MIGRATION_VERSION = '0.80.0';
+    private const MIGRATION_VERSION = '1.0.0';
 
     public function register(): void
     {

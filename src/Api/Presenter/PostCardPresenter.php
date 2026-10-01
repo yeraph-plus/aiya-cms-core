@@ -6,7 +6,7 @@ namespace Aiya\Core\Api\Presenter;
 
 use Aiya\Core\Api\Contract\PostSummary;
 use Aiya\Core\Domain\Content\ContentQuery;
-use Aiya\Core\Domain\Content\PublicTypes;
+use Aiya\Core\Domain\Shared\PublicTypes;
 use WP_Post;
 
 /**

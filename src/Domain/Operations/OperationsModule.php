@@ -6,7 +6,6 @@ namespace Aiya\Core\Domain\Operations;
 
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Credit\CreditModule;
-use Aiya\Core\Settings\Registry;
 
 /**
  * Wires the operations report into the runtime: the two report tables
@@ -19,28 +18,23 @@ use Aiya\Core\Settings\Registry;
  * registered at the default priority 10, so the same tick always books
  * expiries before deleting the buckets that carry them.
  *
- * The download rate (the one thing the report prices) is contributed to
- * the membership settings page next to the tier list and the check-in
- * policy: the report is read-only, the operator configures the inputs
- * where the rest of the money is configured.
+ * The download rate (the one thing the report prices) lives on the
+ * report's own page — OperationsPage renders its form and stores it in
+ * the `aiya_core_operations` option; StatsSettings reads it.
  */
 final class OperationsModule implements Module
 {
-    private const MIGRATION_VERSION = '0.85.0';
-
-    public function __construct(private Registry $settings)
-    {
-    }
+    // Both entries ride the flattened 1.0.0 chain: installTables creates
+    // the report tables fresh and lets dbDelta reconcile any pre-1.0
+    // database; migrateUnitCost carries the rate across from the
+    // membership option on databases that predate the move.
+    private const MIGRATION_VERSION = '1.0.0';
 
     public function register(): void
     {
-        // Priority 12: the membership page is registered by the
-        // sponsorship module at 10 and the credit module appends the
-        // check-in fields at 11 — the report's rate lands after both.
-        add_action('aiya_core_register', [$this, 'settings'], 12, 0);
-
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
             $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [StatsRecorder::class, 'installTables']];
+            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'migrateUnitCost']];
 
             return $migrations;
         });
@@ -98,31 +92,36 @@ final class OperationsModule implements Module
     }
 
     /**
-     * The report's one setting, appended to the membership settings page.
+     * The report's rate moved off the membership settings page (the
+     * sponsorship option) onto the report's own page (the operations
+     * option). A numeric source value moves across unless the target
+     * already holds one; anything else drops and the operator re-enters
+     * it in place. An emptied sponsorship option is deleted.
      */
-    public function settings(): void
+    public static function migrateUnitCost(): void
     {
-        $this->settings->addFields('membership', [
-            [
-                'id' => 'heading_operations',
-                'type' => 'heading',
-                'label' => __('Operations report', 'aiya-core'),
-                'level' => '2',
-            ],
-            [
-                'id' => 'ops_unit_cost',
-                'type' => 'number',
-                'label' => __('Upstream cost per download', 'aiya-core'),
-                'description' => __('What one metered download costs upstream, in the payment currency. The report derives a month\'s cost as downloads × this rate and freezes the rate into each month when it closes, so changing it never rewrites past months.', 'aiya-core'),
-                'default' => 0,
-                'min' => 0,
-                // The month-frozen rate lands in a DECIMAL(10,4) column —
-                // beyond 999999.9999 the freeze would silently round and
-                // the closed month would keep a rate the operator never
-                // entered.
-                'max' => 999999.9999,
-                'step' => 0.0001,
-            ],
-        ]);
+        $sponsorship = get_option('aiya_core_sponsorship');
+        $sponsorship = is_array($sponsorship) ? $sponsorship : [];
+        if (!array_key_exists('ops_unit_cost', $sponsorship)) {
+            return;
+        }
+
+        $legacy = $sponsorship['ops_unit_cost'];
+        unset($sponsorship['ops_unit_cost']);
+        $operations = get_option('aiya_core_operations');
+        $operations = is_array($operations) ? $operations : [];
+        $moved = false;
+        if (is_numeric($legacy) && !array_key_exists('ops_unit_cost', $operations)) {
+            $operations['ops_unit_cost'] = (float) $legacy;
+            $moved = true;
+        }
+        if ($moved) {
+            update_option('aiya_core_operations', $operations, false);
+        }
+        if ($sponsorship === []) {
+            delete_option('aiya_core_sponsorship');
+        } else {
+            update_option('aiya_core_sponsorship', $sponsorship, false);
+        }
     }
 }

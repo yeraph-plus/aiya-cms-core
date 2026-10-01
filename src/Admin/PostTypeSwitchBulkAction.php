@@ -6,7 +6,7 @@ namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\PostTypeSwitcher;
-use Aiya\Core\Domain\Content\PublicTypes;
+use Aiya\Core\Domain\Shared\PublicTypes;
 
 /**
  * Bulk action "Switch post type" on the public types' list screens

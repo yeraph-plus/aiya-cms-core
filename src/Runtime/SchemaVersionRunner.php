@@ -85,6 +85,7 @@ final class SchemaVersionRunner implements Module
         } finally {
             $release = $wpdb->prepare('SELECT RELEASE_LOCK(%s)', self::LOCK_NAME);
             if (is_string($release)) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
                 $wpdb->query($release);
             }
         }

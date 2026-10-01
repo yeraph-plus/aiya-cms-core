@@ -210,7 +210,9 @@ final class OrderService
         global $wpdb;
         /** @var \wpdb $wpdb */
         $placeholders = implode(', ', array_fill(0, count($tierKeys), '%s'));
+        // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the spread feeds the $placeholders list; the sniff cannot count it.
         $sql = $wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is itself a placeholder list.
             "SELECT tier_key FROM %i WHERE status = %s AND tier_key IN ($placeholders)",
             $this->table(),
             self::STATUS_PENDING,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Content;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Shared\PublicTypes;
 use Aiya\Core\Settings\Registry;
 
 /**
@@ -25,7 +26,7 @@ use Aiya\Core\Settings\Registry;
  */
 final class ContentManagementModule implements Module
 {
-    public const MIGRATION_VERSION = '0.96.0';
+    public const MIGRATION_VERSION = '1.0.0';
 
     /**
      * The field ids that moved from the Frontend page option to this

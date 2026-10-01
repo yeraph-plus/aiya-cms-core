@@ -28,10 +28,11 @@ final class SponsorshipModule implements Module
     public const PAYMENTS_PAGE_SLUG = 'sponsorship-payments';
     public const PAYMENTS_OPTION_NAME = 'aiya_core_sponsorship_payments';
     public const CRON_HOOK = 'aiya_core_membership_grants';
-    // 0.98.0 re-runs installTables so dbDelta adds the payment rows'
-    // paid_at column to databases that predate it (fresh installs get it
-    // from the CREATE itself).
-    private const MIGRATION_VERSION = '0.98.0';
+    // installTables doubles as the schema reconciler in the flattened 1.0.0
+    // chain: dbDelta adds the payment rows' paid_at / cycles columns (and
+    // anything else the final CREATE carries) to databases that predate
+    // them; fresh installs get everything from the CREATE itself.
+    private const MIGRATION_VERSION = '1.0.0';
 
     public function __construct(private Registry $settings)
     {
@@ -135,8 +136,10 @@ final class SponsorshipModule implements Module
                             'id' => 'price',
                             'type' => 'number',
                             'label' => __('Price (per cycle)', 'aiya-core'),
+                            'description' => __('Up to 500, two decimals.', 'aiya-core'),
                             'default' => 0,
                             'min' => 0,
+                            'max' => 500,
                             'step' => 0.01,
                         ],
                         [

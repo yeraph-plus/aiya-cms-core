@@ -41,6 +41,14 @@ final class BlocksModule implements Module
             'option_name' => self::OPTION_NAME,
             'fields' => [
                 [
+                    'id' => 'home_sections',
+                    'type' => 'repeater',
+                    'label' => __('Home sections', 'aiya-core'),
+                    'description' => __('Query templates for the front page, in listed order: a heading row (icon + title, "more" link at the right) over a list of posts. The front end resolves each section against its public list reads; rows without a title are skipped.', 'aiya-core'),
+                    'default' => [],
+                    'children' => $this->sectionChildren(),
+                ],
+                [
                     'id' => 'note_source',
                     'type' => 'note',
                     'variant' => 'info',
@@ -88,14 +96,6 @@ final class BlocksModule implements Module
                     'description' => __('Ad slots rendered at the bottom of front-end pages, in listed order.', 'aiya-core'),
                     'default' => [],
                     'children' => $this->slotChildren(),
-                ],
-                [
-                    'id' => 'home_sections',
-                    'type' => 'repeater',
-                    'label' => __('Home sections', 'aiya-core'),
-                    'description' => __('Query templates for the front page, in listed order: a heading row (icon + title, "more" link at the right) over a list of posts. The front end resolves each section against its public list reads; rows without a title are skipped.', 'aiya-core'),
-                    'default' => [],
-                    'children' => $this->sectionChildren(),
                 ],
             ],
         ]);
@@ -205,7 +205,7 @@ final class BlocksModule implements Module
             ],
             [
                 'id' => 'type',
-                'type' => 'select',
+                'type' => 'radio',
                 'label' => __('Content type', 'aiya-core'),
                 'default' => 'post',
                 'options' => [
@@ -229,10 +229,10 @@ final class BlocksModule implements Module
                 'id' => 'count',
                 'type' => 'number',
                 'label' => __('Post count', 'aiya-core'),
-                'description' => __('How many posts the section lists (1-20).', 'aiya-core'),
+                'description' => __('How many posts the section lists (1-100).', 'aiya-core'),
                 'default' => 8,
                 'min' => 1,
-                'max' => 20,
+                'max' => 100,
             ],
             [
                 'id' => 'more_url',

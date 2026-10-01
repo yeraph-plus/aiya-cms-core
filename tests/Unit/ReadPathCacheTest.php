@@ -143,7 +143,7 @@ final class ReadPathCacheTest extends TestCase
         $post = $this->post(11, ['post_excerpt' => 'A manual excerpt.']);
         $key = 'excerpt_11_' . md5((string) $post->post_modified_gmt);
 
-        $this->postPresenter()->summary($post, \Aiya\Core\Domain\Content\PublicTypes::get('post'));
+        $this->postPresenter()->summary($post, \Aiya\Core\Domain\Shared\PublicTypes::get('post'));
 
         /** @var mixed $cached */
         $cached = wp_cache_get($key, 'aiya_core_content');
@@ -153,7 +153,7 @@ final class ReadPathCacheTest extends TestCase
         $fresh = $this->postPresenter();
         $this->assertSame(
             'SERVED-FROM-CACHE',
-            $fresh->summary($post, \Aiya\Core\Domain\Content\PublicTypes::get('post'))->excerpt,
+            $fresh->summary($post, \Aiya\Core\Domain\Shared\PublicTypes::get('post'))->excerpt,
             'a second presenter instance (later request) must read the cached excerpt'
         );
     }
@@ -169,7 +169,7 @@ final class ReadPathCacheTest extends TestCase
         $post = $this->post(12, ['post_password' => 'secret', 'post_excerpt' => 'A protected excerpt.']);
         $key = 'excerpt_12_' . md5((string) $post->post_modified_gmt);
 
-        $excerpt = $this->postPresenter()->summary($post, \Aiya\Core\Domain\Content\PublicTypes::get('post'))->excerpt;
+        $excerpt = $this->postPresenter()->summary($post, \Aiya\Core\Domain\Shared\PublicTypes::get('post'))->excerpt;
         $this->assertSame('', $excerpt, 'a locked viewer gets no excerpt and no placeholder leak');
 
         $this->assertFalse(wp_cache_get($key, 'aiya_core_content'), 'a password post excerpt must never be cached');
@@ -177,7 +177,7 @@ final class ReadPathCacheTest extends TestCase
         wp_cache_set($key, 'POISONED', 'aiya_core_content');
         $this->assertSame(
             '',
-            $this->postPresenter()->summary($post, \Aiya\Core\Domain\Content\PublicTypes::get('post'))->excerpt,
+            $this->postPresenter()->summary($post, \Aiya\Core\Domain\Shared\PublicTypes::get('post'))->excerpt,
             'a password post excerpt must never be read from the cache either'
         );
     }
@@ -289,7 +289,7 @@ final class ReadPathCacheTest extends TestCase
         ];
 
         $presenter = $this->postPresenter();
-        $first = $presenter->presentTerms(\Aiya\Core\Domain\Content\PublicTypes::get('post'), 'category');
+        $first = $presenter->presentTerms(\Aiya\Core\Domain\Shared\PublicTypes::get('post'), 'category');
         $this->assertCount(1, $first);
         $this->assertSame('announcements', $first[0]['slug']);
 
@@ -300,7 +300,7 @@ final class ReadPathCacheTest extends TestCase
         wp_cache_set('terms_v2_post_category', [['slug' => 'SERVED-FROM-CACHE']], 'aiya_core_content');
         $this->assertSame(
             [['slug' => 'SERVED-FROM-CACHE']],
-            $presenter->presentTerms(\Aiya\Core\Domain\Content\PublicTypes::get('post'), 'category')
+            $presenter->presentTerms(\Aiya\Core\Domain\Shared\PublicTypes::get('post'), 'category')
         );
     }
 }

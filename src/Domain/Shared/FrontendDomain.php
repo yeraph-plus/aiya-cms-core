@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Content;
+namespace Aiya\Core\Domain\Shared;
 
 /**
  * The canonical front-end origin: the Frontend page's "frontend domain"

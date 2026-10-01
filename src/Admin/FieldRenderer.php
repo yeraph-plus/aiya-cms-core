@@ -136,8 +136,14 @@ final class FieldRenderer
         if ($type === 'password') {
             $hasValue = (string) $value !== '';
             echo '<input class="regular-text" type="password" autocomplete="new-password" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '" value="" placeholder="' . esc_attr($hasValue ? __('A value is stored; leave blank to keep it', 'aiya-core') : '') . '">';
+            if ((bool) $field->setting('generate', false)) {
+                // Client-side key minting: the browser's own CSPRNG fills the
+                // control, the admin copies it before saving, and the standard
+                // save round-trip persists it — no server endpoint involved.
+                echo ' <button type="button" class="button aiya-core-key-generate" data-target="' . esc_attr($id) . '">' . esc_html__('Generate a random key', 'aiya-core') . '</button>';
+            }
             if ($hasValue) {
-                echo '<br><label><input type="checkbox" name="clear_secrets[' . esc_attr($field->id()) . ']" value="1"> ' . esc_html__('Clear the stored value', 'aiya-core') . '</label>';
+                echo '<label class="aiya-core-secret-clear"><input type="checkbox" name="clear_secrets[' . esc_attr($field->id()) . ']" value="1"> ' . esc_html__('Clear the stored value', 'aiya-core') . '</label>';
             }
             return;
         }

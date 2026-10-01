@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Content\FrontendDomain;
+use Aiya\Core\Domain\Shared\FrontendDomain;
 use PHPUnit\Framework\TestCase;
 
 /**

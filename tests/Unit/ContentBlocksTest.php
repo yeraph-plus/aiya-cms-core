@@ -124,7 +124,7 @@ final class ContentBlocksTest extends TestCase
                     'title' => '壁纸资源',
                     'type' => 'resource',
                     'categories' => ['wallpaper'],
-                    'count' => 99,
+                    'count' => 150,
                     'more_url' => '/resources/hot/',
                 ],
                 ['title' => '默认行', 'count' => 0],
@@ -145,7 +145,7 @@ final class ContentBlocksTest extends TestCase
         self::assertSame('', $first->moreUrl);
         self::assertSame('resource', $second->type);
         self::assertSame(['wallpaper'], $second->categories);
-        self::assertSame(20, $second->count);
+        self::assertSame(100, $second->count);
         self::assertSame('/resources/hot/', $second->moreUrl);
         self::assertNull($third->icon);
         self::assertSame('post', $third->type);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\DevTools;
 
-use Aiya\Core\Domain\Content\PublicTypes;
+use Aiya\Core\Domain\Shared\PublicTypes;
 
 /**
  * Search & replace across wp_posts text columns with raw SQL — a query

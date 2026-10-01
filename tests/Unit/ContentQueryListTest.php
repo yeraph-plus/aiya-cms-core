@@ -6,7 +6,7 @@ namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\PostVisibility;
-use Aiya\Core\Domain\Content\PublicTypes;
+use Aiya\Core\Domain\Shared\PublicTypes;
 use PHPUnit\Framework\TestCase;
 use WP_Post;
 

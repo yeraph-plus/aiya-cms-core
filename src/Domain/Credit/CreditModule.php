@@ -25,7 +25,7 @@ use Aiya\Core\Settings\Registry;
 final class CreditModule implements Module
 {
     public const CRON_HOOK = 'aiya_core_credits_cleanup';
-    private const MIGRATION_VERSION = '0.80.0';
+    private const MIGRATION_VERSION = '1.0.0';
 
     public function __construct(private Registry $settings)
     {

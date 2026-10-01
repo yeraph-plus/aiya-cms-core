@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Identity;
 
-use Aiya\Core\Domain\Content\FrontendDomain;
+use Aiya\Core\Domain\Shared\FrontendDomain;
 use WP_Error;
 use WP_User;
 

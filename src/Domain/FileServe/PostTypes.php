@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\FileServe;
 
-use Aiya\Core\Domain\Content\PublicTypes;
+use Aiya\Core\Domain\Shared\PublicTypes;
 
 /**
  * The content types a file list hangs off: the public content types — post,

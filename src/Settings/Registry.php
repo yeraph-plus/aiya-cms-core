@@ -49,6 +49,25 @@ final class Registry
         ));
     }
 
+    /**
+     * The prepend twin of addFields(): same lookup and validation, but
+     * the fields land at the top of the page's field list.
+     *
+     * @param list<array<string, mixed>> $fields
+     */
+    public function prependFields(string $page, array $fields): void
+    {
+        $existing = $this->page($page);
+        if ($existing === null) {
+            throw new InvalidArgumentException(sprintf('Settings page "%s" is not registered.', $page));
+        }
+
+        $existing->prependFields(array_map(
+            static fn (array $field): Field => Field::fromArray($field),
+            array_values(array_filter($fields, 'is_array'))
+        ));
+    }
+
     /** @return list<Page> */
     public function pages(): array
     {

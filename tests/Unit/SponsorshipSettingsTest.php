@@ -68,4 +68,17 @@ final class SponsorshipSettingsTest extends TestCase
         self::assertSame(0, $normalized[0]['creditsPerCycle']);
         self::assertSame(1, $normalized[0]['cycles'], 'missing cycles falls back to a single cycle');
     }
+
+    public function testTierPriceClampsToTwoDecimalsAndCap(): void
+    {
+        $normalized = SponsorshipSettings::tiers([
+            'tiers' => [
+                ['key' => 'precise', 'name' => 'Precise', 'price' => '12.3456'],
+                ['key' => 'greedy', 'name' => 'Greedy', 'price' => '999'],
+            ],
+        ]);
+
+        self::assertSame(12.35, $normalized[0]['price'], 'extra precision folds to two decimals');
+        self::assertSame(500.0, $normalized[1]['price'], 'rows saved before the cap cannot exceed 500');
+    }
 }

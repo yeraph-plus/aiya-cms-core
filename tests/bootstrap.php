@@ -532,6 +532,31 @@ if (!function_exists('wp_get_attachment_image_src')) {
     }
 }
 
+// --- Attachment URL plumbing (avatar default migration + resolution) ------
+//
+// Fixtures assign $GLOBALS['__aiya_test_attachment_urls'] (URL → id, for
+// attachment_url_to_postid) and $GLOBALS['__aiya_test_attachment_files']
+// (id → URL, for wp_get_attachment_url); missing entries answer WP's
+// "nothing there" shapes (0 and false).
+
+if (!function_exists('attachment_url_to_postid')) {
+    function attachment_url_to_postid(string $url): int
+    {
+        $map = $GLOBALS['__aiya_test_attachment_urls'] ?? [];
+
+        return isset($map[$url]) ? (int) $map[$url] : 0;
+    }
+}
+
+if (!function_exists('wp_get_attachment_url')) {
+    function wp_get_attachment_url(int $attachment_id): string|false
+    {
+        $map = $GLOBALS['__aiya_test_attachment_files'] ?? [];
+
+        return isset($map[$attachment_id]) ? (string) $map[$attachment_id] : false;
+    }
+}
+
 if (!function_exists('wp_parse_url')) {
     function wp_parse_url(string $url, int $component = -1): mixed
     {
@@ -665,6 +690,26 @@ if (!function_exists('wp_cache_set')) {
     }
 }
 
+if (!function_exists('wp_cache_add')) {
+    /**
+     * The atomic twin the integration ticket's single-use guard rides:
+     * fails when the key already holds an unexpired value, claims the
+     * slot otherwise.
+     */
+    function wp_cache_add(string|int $key, mixed $value, string $group = '', int $expires = 0): bool
+    {
+        $existing = $GLOBALS['__aiya_test_object_cache'][$group][$key] ?? null;
+        if ($existing !== null && ($existing['expires'] <= 0 || $existing['expires'] > time())) {
+            return false;
+        }
+        $GLOBALS['__aiya_test_object_cache'][$group][$key] = [
+            'value' => $value,
+            'expires' => $expires > 0 ? time() + $expires : 0,
+        ];
+        return true;
+    }
+}
+
 if (!function_exists('wp_cache_delete')) {
     function wp_cache_delete(string|int $key, string $group = ''): bool
     {
@@ -690,7 +735,15 @@ $GLOBALS['__aiya_test_user_meta'] = [];
 if (!function_exists('get_userdata')) {
     function get_userdata(int $userId): object|false
     {
-        return isset($GLOBALS['__aiya_test_users'][$userId]) ? (object) ['ID' => $userId] : false;
+        if (!isset($GLOBALS['__aiya_test_users'][$userId])) {
+            return false;
+        }
+        // Fixtures may store field overrides (e.g. display_name) as an
+        // array; anything else is just an existence marker.
+        $stored = $GLOBALS['__aiya_test_users'][$userId];
+        $fields = is_array($stored) ? $stored : [];
+
+        return (object) array_merge(['ID' => $userId], $fields);
     }
 }
 

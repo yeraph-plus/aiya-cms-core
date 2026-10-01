@@ -109,4 +109,32 @@ final class Page
             $this->fields[] = $field;
         }
     }
+
+    /**
+     * The prepend twin of appendFields(): same duplicate guard, but the
+     * fields land at the very top of the page — for contributions that
+     * are a page's primary subject rather than an add-on section.
+     *
+     * @param list<Field> $fields
+     */
+    public function prependFields(array $fields): void
+    {
+        $known = [];
+        foreach ($this->fields as $field) {
+            $known[$field->id()] = true;
+        }
+
+        $prepended = [];
+        foreach ($fields as $field) {
+            if (!$field instanceof Field) {
+                throw new InvalidArgumentException('prependFields expects Field instances.');
+            }
+            if (isset($known[$field->id()])) {
+                throw new InvalidArgumentException(sprintf('The field "%s" already exists on page "%s".', $field->id(), $this->slug));
+            }
+            $known[$field->id()] = true;
+            $prepended[] = $field;
+        }
+        array_unshift($this->fields, ...$prepended);
+    }
 }

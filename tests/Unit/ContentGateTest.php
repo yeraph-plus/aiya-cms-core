@@ -7,7 +7,7 @@ namespace Aiya\Core\Tests\Unit;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Domain\Content\CommentQuery;
 use Aiya\Core\Domain\Content\PostVisibility;
-use Aiya\Core\Domain\Content\PublicType;
+use Aiya\Core\Domain\Shared\PublicType;
 use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Media\MediaPaths;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;

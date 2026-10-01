@@ -18,7 +18,7 @@ use Aiya\Core\Metadata\Registry as MetadataRegistry;
 final class IdentityModule implements Module
 {
     public const CRON_HOOK = 'aiya_core_auth_tokens_cleanup';
-    private const MIGRATION_VERSION = '0.80.0';
+    private const MIGRATION_VERSION = '1.0.0';
 
     public function __construct(private MetadataRegistry $metadata)
     {

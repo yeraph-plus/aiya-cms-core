@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Content;
+namespace Aiya\Core\Domain\Shared;
 
 /**
  * Configuration of one public content type: the WP post types it reads,

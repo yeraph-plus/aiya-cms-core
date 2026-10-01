@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
-use Aiya\Core\Domain\Content\FrontendDomain;
+use Aiya\Core\Domain\Shared\FrontendDomain;
 use WP_Admin_Bar;
 
 /**

@@ -69,7 +69,7 @@ final class TermListFilterTest extends TestCase
         $this->term(2, 'empty', 0);
 
         $out = $this->presenter()->presentTerms(
-            \Aiya\Core\Domain\Content\PublicTypes::get('post') ?? throw new \RuntimeException(),
+            \Aiya\Core\Domain\Shared\PublicTypes::get('post') ?? throw new \RuntimeException(),
             'all'
         );
 
@@ -83,7 +83,7 @@ final class TermListFilterTest extends TestCase
         $this->term(2, 'nsfw', 5);
 
         $out = $this->presenter()->presentTerms(
-            \Aiya\Core\Domain\Content\PublicTypes::get('post') ?? throw new \RuntimeException(),
+            \Aiya\Core\Domain\Shared\PublicTypes::get('post') ?? throw new \RuntimeException(),
             'all',
             [2]
         );
@@ -97,7 +97,7 @@ final class TermListFilterTest extends TestCase
         $this->term(2, 'empty', 0);
 
         $out = $this->presenter()->presentTerms(
-            \Aiya\Core\Domain\Content\PublicTypes::get('post') ?? throw new \RuntimeException(),
+            \Aiya\Core\Domain\Shared\PublicTypes::get('post') ?? throw new \RuntimeException(),
             'all',
             [],
             false
@@ -114,7 +114,7 @@ final class TermListFilterTest extends TestCase
         $this->term(2, 'nsfw', 5);
         $this->term(3, 'ghost', 0);
         $presenter = $this->presenter();
-        $type = \Aiya\Core\Domain\Content\PublicTypes::get('post') ?? throw new \RuntimeException();
+        $type = \Aiya\Core\Domain\Shared\PublicTypes::get('post') ?? throw new \RuntimeException();
 
         $published = $presenter->presentTerms($type, 'all');
         $full = $presenter->presentTerms($type, 'all', [], false);

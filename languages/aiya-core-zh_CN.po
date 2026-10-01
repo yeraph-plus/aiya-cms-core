@@ -1,8 +1,7 @@
 # aiya-core 简体中文翻译。
-
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.97.0\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.98.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,16 +22,20 @@ msgstr "面向 AIYA CMS 的无头优先管理与内容框架。"
 msgid "Yeraph"
 msgstr "Yeraph"
 
+msgid "View front end"
+msgstr "查看前台"
+
+msgid "Open the front-end site in a new tab"
+msgstr "在新标签页打开前台站点"
+
 msgid "Refresh thumbnails"
 msgstr "刷新缩略图"
 
 msgid "%d item queued for a thumbnail refresh."
-msgid_plural "%d items queued for a thumbnail refresh."
-msgstr[0] "%d 项已加入缩略图刷新队列。"
+msgstr "%d 项已加入缩略图刷新队列。"
 
 msgid "%d item skipped (nothing to refresh or not permitted)."
-msgid_plural "%d items skipped (nothing to refresh or not permitted)."
-msgstr[0] "已跳过 %d 项（无可刷新或不具备权限）。"
+msgstr "已跳过 %d 项（无可刷新或不具备权限）。"
 
 msgid "No thumbnails were refreshed."
 msgstr "没有刷新任何缩略图。"
@@ -229,6 +232,9 @@ msgstr "cache_ttl: 3600"
 msgid "A value is stored; leave blank to keep it"
 msgstr "已存有值；留空即保持不变"
 
+msgid "Generate a random key"
+msgstr "生成随机密钥"
+
 msgid "Clear the stored value"
 msgstr "清除已存值"
 
@@ -323,16 +329,13 @@ msgid "Move"
 msgstr "移动"
 
 msgid "Move %d selected item to:"
-msgid_plural "Move %d selected items to:"
-msgstr[0] "将选中的 %d 项移动到："
+msgstr "将选中的 %d 项移动到："
 
 msgid "%d item switched to the new post type."
-msgid_plural "%d items switched to the new post type."
-msgstr[0] "已切换 %d 项到新文章类型。"
+msgstr "已切换 %d 项到新文章类型。"
 
 msgid "%d item skipped (unchanged or not permitted)."
-msgid_plural "%d items skipped (unchanged or not permitted)."
-msgstr[0] "跳过 %d 项（类型未变或无权限）。"
+msgstr "跳过 %d 项（类型未变或无权限）。"
 
 msgid "Nothing was switched."
 msgstr "没有切换任何内容。"
@@ -374,8 +377,7 @@ msgid "Move to another taxonomy"
 msgstr "移动到其他分类法"
 
 msgid "Move %d selected term to:"
-msgid_plural "Move %d selected terms to:"
-msgstr[0] "将选中的 %d 个术语移动到："
+msgstr "将选中的 %d 个术语移动到："
 
 msgid "Post categories"
 msgstr "文章分类"
@@ -405,12 +407,10 @@ msgid "Resource tags — other"
 msgstr "资源标签（其他）"
 
 msgid "%d term moved to the new taxonomy."
-msgid_plural "%d terms moved to the new taxonomy."
-msgstr[0] "已移动 %d 个术语到新分类法。"
+msgstr "已移动 %d 个术语到新分类法。"
 
 msgid "%d term skipped (unchanged or not permitted)."
-msgid_plural "%d terms skipped (unchanged or not permitted)."
-msgstr[0] "跳过 %d 个术语（未变化或无权限）。"
+msgstr "跳过 %d 个术语（未变化或无权限）。"
 
 msgid "Nothing was moved."
 msgstr "没有移动任何内容。"
@@ -547,8 +547,14 @@ msgstr "板块不存在。"
 msgid "Thread not found."
 msgstr "线程不存在。"
 
+msgid "The credit holder does not exist."
+msgstr "积分账户用户不存在。"
+
 msgid "Unknown membership tier."
 msgstr "会员档位不存在。"
+
+msgid "This membership tier is not available."
+msgstr "该会员档位不可用。"
 
 msgid "This tier is not bound to an Afdian plan."
 msgstr "该档位未绑定爱发电方案。"
@@ -558,9 +564,6 @@ msgstr "没有可用的支付网关。"
 
 msgid "The requested payment channel is not available."
 msgstr "所请求的支付渠道不可用。"
-
-msgid "This membership tier is not available."
-msgstr "该会员档位不可用。"
 
 msgid "The return URL is not a valid absolute http(s) address."
 msgstr "回跳地址不是有效的绝对 http(s) 地址。"
@@ -613,6 +616,12 @@ msgstr "当前密码不正确。"
 msgid "Blocks"
 msgstr "页面区块"
 
+msgid "Home sections"
+msgstr "首页区块"
+
+msgid "Query templates for the front page, in listed order: a heading row (icon + title, \"more\" link at the right) over a list of posts. The front end resolves each section against its public list reads; rows without a title are skipped."
+msgstr "按列表顺序生成首页的查询模板：一行标题（图标 + 标题，右侧为「更多」链接）下列出帖子。前端按各区块配置调用公开列表读取自行解析；未填标题的行会被跳过。"
+
 msgid "These lists replace the WordPress menu system and feed the shell's dynamic slots: the front end reads them through the `blocks` group of GET /aiya/core/v1/site, rows in listed order."
 msgstr "这些列表替代 WordPress 菜单系统，并填充壳层的动态槽位：前台经 GET /aiya/core/v1/site 的 `blocks` 组按列表顺序读取。"
 
@@ -639,12 +648,6 @@ msgstr "页面底部广告"
 
 msgid "Ad slots rendered at the bottom of front-end pages, in listed order."
 msgstr "在前台页面底部按列表顺序渲染的广告位。"
-
-msgid "Home sections"
-msgstr "首页区块"
-
-msgid "Query templates for the front page, in listed order: a heading row (icon + title, \"more\" link at the right) over a list of posts. The front end resolves each section against its public list reads; rows without a title are skipped."
-msgstr "按列表顺序生成首页的查询模板：一行标题（图标 + 标题，右侧为「更多」链接）下列出帖子。前端按各区块配置调用公开列表读取自行解析；未填标题的行会被跳过。"
 
 msgid "Label"
 msgstr "标签"
@@ -703,8 +706,8 @@ msgstr "全部不勾选即展示该类型的所有分类；所列词法同时覆
 msgid "Post count"
 msgstr "帖子数量"
 
-msgid "How many posts the section lists (1-20)."
-msgstr "该区块列出的帖子数量（1-20）。"
+msgid "How many posts the section lists (1-100)."
+msgstr "该区块列出的帖子数量（1-100）。"
 
 msgid "\"More\" link"
 msgstr "「更多」链接"
@@ -789,6 +792,15 @@ msgstr "AIYA CMS Core"
 
 msgid "These fields feed the front-end shell through GET /aiya/core/v1/site; leave a footer string empty to keep it out of the footer."
 msgstr "这些字段通过 GET /aiya/core/v1/site 提供给前台外壳；页脚字符串留空即不在页脚显示。"
+
+msgid "Basic settings"
+msgstr "基础设置"
+
+msgid "Frontend domain"
+msgstr "前台域名"
+
+msgid "The canonical front-end origin including the scheme, for example https://www.example.com. When set, password-reset links always point here; more front-end-facing features will reuse this value. Leave empty to keep reset links on this site address."
+msgstr "前台站点的完整来源地址（含协议，例如 https://www.example.com）。设置后密码重置链接一律指向此处，后续前台相关功能也会复用该值；留空则重置链接回退到本站点地址。"
 
 msgid "Presentation defaults"
 msgstr "外观默认值"
@@ -1069,8 +1081,8 @@ msgstr "过期"
 msgid "No ledger entries for this user yet."
 msgstr "该用户暂无账本记录。"
 
-msgid "The credit holder does not exist."
-msgstr "积分账户用户不存在。"
+msgid "Amount and validity are required."
+msgstr "金额与有效期必填。"
 
 msgid "An admin grant with this exact note already exists for this user."
 msgstr "该用户已存在一条完全相同备注的手动发放。"
@@ -1840,11 +1852,11 @@ msgstr "七牛（dn-qiniu-avatar.qbox.me）"
 msgid "WeAvatar (weavatar.com)"
 msgstr "WeAvatar（weavatar.com）"
 
-msgid "Default avatar URL"
-msgstr "默认头像 URL"
+msgid "Default avatar"
+msgstr "默认头像"
 
-msgid "Used whenever a user has neither a local avatar nor a gravatar. Overrides the Discussion settings choice while non-empty."
-msgstr "用户既无本地头像也无 Gravatar 时使用。非空时覆盖讨论设置中的选择。"
+msgid "Uploaded image shown whenever a user has neither a local avatar nor a gravatar. Overrides the Discussion settings choice while set."
+msgstr "用户既无本地头像也无 Gravatar 时显示的上传图片。设置后覆盖讨论设置中的选择。"
 
 msgid "Custom default"
 msgstr "自定义默认"
@@ -1954,6 +1966,24 @@ msgstr "没有可签发令牌的用户。"
 msgid "The session token could not be stored."
 msgstr "会话令牌保存失败。"
 
+msgid "Service integrations"
+msgstr "服务集成"
+
+msgid "Service key"
+msgstr "服务密钥"
+
+msgid "One shared key for every self-hosted companion service that binds site sign-in and credit spending. Generate a random key with the button (or paste your own) and configure it in each service; leave empty to switch the integration endpoints off. Rotating the key means updating every bound service."
+msgstr "供所有自托管伴生服务共用的单一密钥，用于绑定站点登录与积分扣费。点击按钮生成随机密钥（或粘贴自有密钥）并填入各服务；留空即关闭集成端点。轮换密钥后需同步更新每个已绑定的服务。"
+
+msgid "The service integration is not configured."
+msgstr "服务集成尚未配置。"
+
+msgid "Service authentication failed."
+msgstr "服务密钥验证失败。"
+
+msgid "This sign-in ticket is not valid."
+msgstr "该登录票据无效。"
+
 msgid "Send Mail"
 msgstr "发送邮件"
 
@@ -1986,6 +2016,9 @@ msgstr "邮件发送失败。"
 
 msgid "You are not allowed to send mail to users."
 msgstr "您无权向用户发送邮件。"
+
+msgid "Too many emails sent in a short time — wait a few minutes."
+msgstr "短时间内发送的邮件过多——请稍等几分钟再试。"
 
 msgid "Enter a valid recipient email address."
 msgstr "请输入有效的收件人邮箱地址。"
@@ -2045,8 +2078,7 @@ msgid "No uploads yet."
 msgstr "还没有上传记录。"
 
 msgid "The %d oldest file is not listed."
-msgid_plural "The %d oldest files are not listed."
-msgstr[0] "最早的 %d 个文件未列出。"
+msgstr "最早的 %d 个文件未列出。"
 
 msgid "User %1$s (#%2$d)"
 msgstr "用户 %1$s（#%2$d）"
@@ -2069,8 +2101,14 @@ msgstr "你收藏的文章有更新：「%1$s」。"
 msgid "Your account password was reset. If this was not you, please contact the administrator."
 msgstr "你的账号密码已被重置。如果不是本人操作，请联系管理员。"
 
+msgid "%s replied to your thread."
+msgstr "%s 回复了你的帖子。"
+
 msgid "%1$s replied to your thread \"%2$s\"."
 msgstr "%1$s 回复了你的帖子「%2$s」。"
+
+msgid "%s published a new thread."
+msgstr "%s 发布了新帖子。"
 
 msgid "%1$s published a new thread \"%2$s\"."
 msgstr "%1$s 发布了新帖子「%2$s」。"
@@ -2165,17 +2203,26 @@ msgstr "通知保存失败。"
 msgid "Operations report"
 msgstr "运营统计"
 
-msgid "Upstream cost per download"
-msgstr "单次下载成本"
-
-msgid "What one metered download costs upstream, in the payment currency. The report derives a month's cost as downloads × this rate and freezes the rate into each month when it closes, so changing it never rewrites past months."
-msgstr "一次计量下载的上游成本，单位与支付币种一致。报告按「下载次数 × 该单价」推算每月成本，并在每月结束时把单价冻结进该月，因此之后修改单价不会改写历史月份。"
-
 msgid "You are not allowed to view the operations report."
 msgstr "您无权查看运营统计。"
 
 msgid "Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger's spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
 msgstr "积分流水、会员与流量的月度报表。消耗直接取自账本的 spend 事件，下载由文件下载域计量——每次交付计一次，扣费与免费均算。数据自安装起累计，更早的月份无法从账本重建。"
+
+msgid "Cost per download saved."
+msgstr "单次下载成本已保存。"
+
+msgid "Enter a valid number."
+msgstr "请输入有效数字。"
+
+msgid "Upstream cost per download"
+msgstr "单次下载成本"
+
+msgid "In the payment currency; the month's cost derives as downloads × this rate and freezes when the month closes."
+msgstr "以支付货币计；当月成本 = 下载次数 × 此单价，月份关闭时冻结。"
+
+msgid "You are not allowed to configure the operations report."
+msgstr "您无权配置运营统计。"
 
 msgid "Month"
 msgstr "月份"
@@ -2594,6 +2641,9 @@ msgstr "展示在档位卡片上的一句话说明（包含什么权益）。"
 msgid "Price (per cycle)"
 msgstr "单价（每周期）"
 
+msgid "Up to 500, two decimals."
+msgstr "最高 500，保留两位小数。"
+
 msgid "Cycle length (days)"
 msgstr "周期长度（天）"
 
@@ -2687,6 +2737,9 @@ msgstr "爱发电 Webhook 地址"
 msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
 msgstr "在爱发电创作者后台（开发工具 > WebHook）登记该地址：{site url}/wp-json/aiya/sponsorship/v1/afdian/callback，仅接受 POST。"
 
+msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
+msgstr "以下档位仍有生效成员或进行中的订单，无法删除：%s。"
+
 msgid "Optimization"
 msgstr "优化"
 
@@ -2728,6 +2781,15 @@ msgstr "区块样板与区块目录"
 
 msgid "Drop core block patterns, remote patterns and their REST routes"
 msgstr "移除核心区块样板、远程样板及其 REST 路由"
+
+msgid "Post revisions"
+msgstr "文章修订版本"
+
+msgid "Stop saving revisions and editor autosave snapshots for every post type"
+msgstr "对所有文章类型停用修订版本与编辑器自动保存快照"
+
+msgid "Revisions already in the database stay untouched; nothing consumes them on the contract API."
+msgstr "数据库中已有的修订版本原样保留；契约 API 没有任何消费方。"
 
 msgid "Pingbacks and trackbacks"
 msgstr "Pingback 与 Trackback"
@@ -2846,14 +2908,17 @@ msgstr "拒绝未登录状态下 URI 过长或形如探测的请求（414，REST
 msgid "Uninstall"
 msgstr "卸载"
 
+msgid "Deleting the plugin keeps all of its data — reinstalling picks up where it left off. The Plugins screen always asks before erasing; the switch below is the standing answer for WP-CLI and scripted uninstalls, and wiping cannot be undone."
+msgstr "删除插件默认保留其全部数据，重装后可原样恢复。从插件列表删除时总会先询问；下方开关是 WP-CLI 与脚本化卸载的既定答案，清除操作不可撤销。"
+
 msgid "Erase data on scripted uninstalls"
 msgstr "脚本卸载时清除数据"
 
-msgid "Wipe the tables, settings and meta on WP-CLI and scripted uninstalls (the Plugins screen always asks)"
-msgstr "WP-CLI 与脚本卸载时同时删除数据表、设置与元数据（后台插件页删除时始终会先询问）"
+msgid "Wipe everything on WP-CLI / scripted uninstalls"
+msgstr "WP-CLI / 脚本化卸载时清除全部数据"
 
-msgid "Deleting the plugin keeps all of its data (tables, settings, meta fields, scheduled events), so reinstalling picks up where it left off. Deleting from the Plugins screen always stops and asks first; this switch is the standing answer for the uninstalls that have no UI, such as WP-CLI. Off they keep the data, on they wipe it — the wipe cannot be undone. AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php forces the same wipe everywhere and skips the question."
-msgstr "删除插件不会动它的数据（数据表、设置、元数据、定时任务），重装后自动接回原状态。在后台插件页删除时会先停下来询问；本开关是无 UI 卸载（如 WP-CLI）的既定答案：关闭时保留数据，开启时一并清除——清除不可恢复。wp-config.php 中定义 AIYA_CORE_UNINSTALL_PURGE = true 可在所有卸载路径强制清除并跳过询问。"
+msgid "Off (default) keeps the data. AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php forces the wipe everywhere and skips the question."
+msgstr "关闭（默认）保留数据。在 wp-config.php 定义 AIYA_CORE_UNINSTALL_PURGE = true 可强制所有路径直接清除并跳过询问。"
 
 msgid "Please log in with your email address."
 msgstr "请使用邮箱地址登录。"
@@ -3047,9 +3112,6 @@ msgstr "纯路径"
 msgid "A value is required."
 msgstr "此项必填。"
 
-msgid "Enter a valid number."
-msgstr "请输入有效数字。"
-
 msgid "The minimum value is %s."
 msgstr "最小值为 %s。"
 
@@ -3104,59 +3166,3 @@ msgstr "vendor/ 等大型依赖目录会被瞬时移出、避免删除过程长�
 msgid "Cancel, back to the plugin list"
 msgstr "取消，返回插件列表"
 
-#: src/Domain/Content/FrontendModule.php:76
-
-msgid "Basic settings"
-msgstr "基础设置"
-
-#: src/Domain/Content/FrontendModule.php:82
-
-msgid "Frontend domain"
-msgstr "前台域名"
-
-#: src/Domain/Content/FrontendModule.php:83
-
-msgid "The canonical front-end origin including the scheme, for example https://www.example.com. When set, password-reset links always point here; more front-end-facing features will reuse this value. Leave empty to keep reset links on this site address."
-msgstr "前台站点的完整来源地址（含协议，例如 https://www.example.com）。设置后密码重置链接一律指向此处，后续前台相关功能也会复用该值；留空则重置链接回退到本站点地址。"
-
-#: src/Admin/AdminBarFrontendLink.php:39
-
-#: src/Admin/AdminBarFrontendLink.php:44
-
-msgid "Open the front-end site in a new tab"
-msgstr "在新标签页打开前台站点"
-
-#: src/Admin/AdminBarFrontendLink.php:40
-
-msgid "View front end"
-msgstr "查看前台"
-
-#: src/Infrastructure/Headless/HeadlessModule.php:126
-
-msgid "Post revisions"
-msgstr "文章修订版本"
-
-#: src/Infrastructure/Headless/HeadlessModule.php:127
-
-msgid "Stop saving revisions and editor autosave snapshots for every post type"
-msgstr "对所有文章类型停用修订版本与编辑器自动保存快照"
-
-#: src/Infrastructure/Headless/HeadlessModule.php:128
-
-msgid "Revisions already in the database stay untouched; nothing consumes them on the contract API."
-msgstr "数据库中已有的修订版本原样保留；契约 API 没有任何消费方。"
-
-msgid "Amount and validity are required."
-msgstr "金额与有效期必填。"
-
-msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
-msgstr "以下档位仍有生效成员或进行中的订单，无法删除：%s。"
-
-msgid "Too many emails sent in a short time — wait a few minutes."
-msgstr "短时间内发送的邮件过多——请稍等几分钟再试。"
-
-msgid "%s replied to your thread."
-msgstr "%s 回复了你的帖子。"
-
-msgid "%s published a new thread."
-msgstr "%s 发布了新帖子。"

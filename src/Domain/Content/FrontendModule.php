@@ -33,7 +33,7 @@ final class FrontendModule implements Module
 {
     public const OPTION_NAME = 'aiya_core_frontend';
 
-    public const MIGRATION_VERSION = '0.97.0';
+    public const MIGRATION_VERSION = '1.0.0';
 
     public function __construct(private Registry $settings)
     {

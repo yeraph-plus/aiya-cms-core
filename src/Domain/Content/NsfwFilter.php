@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Content;
 
 use Aiya\Core\Domain\Identity\ShowNsfw;
+use Aiya\Core\Domain\Shared\PublicType;
 
 /**
  * Resolves the NSFW exclusion for one read. The configured term lists live

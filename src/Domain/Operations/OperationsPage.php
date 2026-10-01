@@ -11,9 +11,10 @@ use Aiya\Core\Contracts\Module;
  * month's indicators plus the trailing year, and the grant breakdown
  * behind them.
  *
- * Read-only by design — the report has no form of its own. Its single
- * input (the upstream cost per download) is a field on the membership
- * settings page, where the rest of the money is configured.
+ * The report owns exactly one input — the upstream cost per download —
+ * rendered as a one-row form above the tables and stored in the
+ * `aiya_core_operations` option (StatsSettings reads it). Everything
+ * else on the page is read-only.
  *
  * Charts are the house kind: native tables and CSS meter bars for the
  * ratios (the ServerStatusPage policy — no external charting library).
@@ -22,6 +23,7 @@ final class OperationsPage implements Module
 {
     private const MENU_SLUG = 'aiya-core-operations';
     private const PARENT_SLUG = 'aiya-core-membership';
+    private const ACTION_COST = 'aiya_core_ops_cost';
     private const TREND_MONTHS = 12;
 
     private StatsQuery $query;
@@ -39,6 +41,7 @@ final class OperationsPage implements Module
         // check denies the screen (the SendMailPage lesson).
         add_action('admin_menu', [$this, 'menu'], 35);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
+        add_action('admin_post_' . self::ACTION_COST, [$this, 'handleCost']);
     }
 
     /** The shared admin stylesheet carries the card, filter and meter styles. */
@@ -90,12 +93,64 @@ final class OperationsPage implements Module
             <p class="description">
                 <?php esc_html_e('Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger\'s spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger.', 'aiya-core'); ?>
             </p>
+            <?php $this->costForm(); ?>
             <?php $this->monthFilter($month, $trend); ?>
             <?php $this->summary($row, $this->query->outstandingCredits()); ?>
             <?php $this->trend($trend, $month); ?>
             <?php $this->sources($trend); ?>
         </div>
         <?php
+    }
+
+    /**
+     * The report's one input as a one-row form above the tables: what one
+     * metered download costs upstream. Closed months keep the rate they
+     * were frozen with, so edits only price the open month.
+     */
+    private function costForm(): void
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only status flag
+        $status = sanitize_key((string) ($_GET['cost'] ?? ''));
+        if ($status === 'saved') {
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Cost per download saved.', 'aiya-core') . '</p></div>';
+        } elseif ($status === 'invalid') {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Enter a valid number.', 'aiya-core') . '</p></div>';
+        }
+        ?>
+        <form class="aiya-core-ops-cost" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+            <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_COST); ?>">
+            <?php wp_nonce_field(self::ACTION_COST); ?>
+            <label for="aiya-core-ops-unit-cost"><strong><?php esc_html_e('Upstream cost per download', 'aiya-core'); ?></strong></label>
+            <input type="number" id="aiya-core-ops-unit-cost" name="unit_cost" min="0" max="999999.9999" step="0.0001"
+                value="<?php echo esc_attr((string) StatsSettings::unitCost()); ?>" class="small-text">
+            <?php submit_button(__('Save', 'aiya-core'), 'secondary', 'submit', false); ?>
+            <span class="description"><?php esc_html_e('In the payment currency; the month\'s cost derives as downloads × this rate and freezes when the month closes.', 'aiya-core'); ?></span>
+        </form>
+        <?php
+    }
+
+    /** Stores the cost form: manage_options, nonce, clamped to the DECIMAL(10,4) window the month freeze writes into. */
+    public function handleCost(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You are not allowed to configure the operations report.', 'aiya-core'));
+        }
+        check_admin_referer(self::ACTION_COST);
+
+        $raw = wp_unslash((string) ($_POST['unit_cost'] ?? ''));
+        $redirect = ['page' => self::MENU_SLUG];
+        if (is_numeric($raw)) {
+            $option = get_option(StatsSettings::OPTION_NAME);
+            $option = is_array($option) ? $option : [];
+            $option['ops_unit_cost'] = round(min(999999.9999, max(0.0, (float) $raw)), 4);
+            update_option(StatsSettings::OPTION_NAME, $option, false);
+            $redirect['cost'] = 'saved';
+        } else {
+            $redirect['cost'] = 'invalid';
+        }
+
+        wp_safe_redirect(add_query_arg($redirect, admin_url('admin.php')));
+        exit;
     }
 
     /**

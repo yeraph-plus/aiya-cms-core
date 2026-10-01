@@ -74,6 +74,21 @@
             $scope.find('.aiya-core-color').not('[data-aiya-ready]').each(function () {
                 $(this).attr('data-aiya-ready', '1').wpColorPicker();
             });
+            $scope.find('.aiya-core-key-generate').not('[data-aiya-ready]').each(function () {
+                $(this).attr('data-aiya-ready', '1').on('click', function () {
+                    const input = document.getElementById($(this).attr('data-target'));
+                    if (!input) {
+                        return;
+                    }
+                    const bytes = new Uint8Array(32);
+                    window.crypto.getRandomValues(bytes);
+                    const key = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+                    input.setAttribute('type', 'text');
+                    input.value = key;
+                    input.focus();
+                    input.select();
+                });
+            });
             if (wp.codeEditor && window.aiyaCoreAdmin?.codeEditors) {
                 $scope.find('.aiya-core-code').not('[data-aiya-ready]').each(function () {
                     const mime = $(this).data('code-mime') || 'text/css';
