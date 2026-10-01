@@ -109,6 +109,7 @@ final class IdentityModule implements Module
                 created_at DATETIME NOT NULL,
                 PRIMARY KEY  (id),
                 UNIQUE KEY user_post (user_id, post_id),
+                KEY user_created (user_id, created_at),
                 KEY post_id (post_id)
             ) $charset;"
         );

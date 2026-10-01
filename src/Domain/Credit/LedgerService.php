@@ -393,6 +393,7 @@ final class LedgerService
                 PRIMARY KEY  (id),
                 UNIQUE KEY dedupe_key (dedupe, user_id),
                 KEY fifo (user_id, expires_at),
+                KEY direction_expires (direction, expires_at),
                 KEY created_at (created_at)
             ) $charset;"
         );

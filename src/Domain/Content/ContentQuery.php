@@ -108,7 +108,7 @@ final class ContentQuery
         }
 
         if ($q !== '') {
-            $args['s'] = $q;
+            $args['s'] = self::searchTerms($q);
         }
         if ($author !== '') {
             // author_name keys on user_nicename — the public profile slug.
@@ -520,5 +520,52 @@ final class ContentQuery
         $slugs = array_map('sanitize_title', explode(',', $commaSeparated));
 
         return array_values(array_filter($slugs, static fn (string $slug): bool => $slug !== ''));
+    }
+
+    /**
+     * The search box's terms, prepared for WP's AND-split LIKE search
+     * (0.100.0). Latin/digit runs stay whole; a run of CJK characters
+     * becomes overlapping bigrams — `壁纸资源` searches `壁纸 纸资 资源` —
+     * because one unsplit CJK phrase otherwise only matches rows carrying
+     * it as a contiguous substring. Every bigram present still bounds the
+     * match far tighter than an OR, and a single CJK character stays
+     * itself. Terms cap at eight so a paste attack cannot inflate the LIKE
+     * set; punctuation never forms a term (WP's own search drops it too).
+     * A query with no CJK runs passes through normalized to
+     * whitespace-separated runs.
+     */
+    public static function searchTerms(string $query): string
+    {
+        preg_match_all('/([A-Za-z0-9]+)|([\x{4E00}-\x{9FFF}]+)/u', $query, $runs, PREG_SET_ORDER);
+
+        $terms = [];
+        $cjkSeen = false;
+        foreach ($runs as $run) {
+            $latin = $run[1] ?? '';
+            $cjk = $run[2] ?? '';
+            if ($latin !== '') {
+                $terms[] = $latin;
+                continue;
+            }
+            $cjkSeen = true;
+            $length = mb_strlen($cjk);
+            if ($length === 1) {
+                $terms[] = $cjk;
+                continue;
+            }
+            for ($start = 0; $start + 2 <= $length; $start++) {
+                $terms[] = mb_substr($cjk, $start, 2);
+            }
+        }
+
+        if ($terms === []) {
+            return trim($query);
+        }
+
+        if (!$cjkSeen) {
+            return implode(' ', $terms);
+        }
+
+        return implode(' ', array_slice($terms, 0, 8));
     }
 }

@@ -1088,8 +1088,28 @@ if (!class_exists('wpdb')) {
             }
 
             $this->last_error = '';
-            $this->aiya_test_rows[$table][] = $data;
+            // Rows carry their auto-increment id like a real table, so
+            // write-through updates can address them by primary key.
+            $this->aiya_test_rows[$table][] = ['id' => count($this->aiya_test_rows[$table] ?? []) + 1] + $data;
             $this->insert_id = count($this->aiya_test_rows[$table]);
+
+            return true;
+        }
+
+        /** Write-through UPDATE: every seeded row matching the where pairs
+         *  merges the data set. No affected-rows semantics — callers in the
+         *  suite only need the merge to land. */
+        public function update(string $table, array $data, array $where, array $formats = [], array $whereFormats = []): bool
+        {
+            foreach (($this->aiya_test_rows[$table] ?? []) as $index => $row) {
+                foreach ($where as $key => $value) {
+                    if ((string) ($row[$key] ?? '') !== (string) $value) {
+                        continue 2;
+                    }
+                }
+                $this->aiya_test_rows[$table][$index] = array_merge($row, $data);
+            }
+            $this->last_error = '';
 
             return true;
         }
@@ -1156,6 +1176,20 @@ if (!class_exists('wpdb')) {
                 return null;
             }
 
+            // The last-reply lookup behind syncReplyStats: the newest seeded
+            // reply of the prepared thread.
+            if (str_contains($sql, 'ORDER BY id DESC') && str_contains($sql, 'thread_id')) {
+                preg_match('/thread_id = (\d+)/', $sql, $thread);
+                $last = null;
+                foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
+                    if ((int) ($row['thread_id'] ?? 0) === (int) $thread[1]) {
+                        $last = $row;
+                    }
+                }
+
+                return $last === null ? null : (object) $last;
+            }
+
             // First seeded row of the table wins — the readers this serves
             // (thread lookups) run against a one-row fixture.
             $row = $this->aiya_test_rows[$table][0] ?? null;
@@ -1219,6 +1253,36 @@ if (!class_exists('wpdb')) {
                 }
 
                 return $sum;
+            }
+
+            // The discussion replies count behind syncReplyStats: seeded
+            // rows of the replies table filtered by the prepared thread id.
+            if (str_contains($sql, 'COUNT(id)') && str_contains($sql, 'thread_id')) {
+                $table = $this->aiya_test_table($sql);
+                preg_match('/thread_id = (\d+)/', $sql, $thread);
+                $count = 0;
+                foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
+                    if ((int) ($row['thread_id'] ?? 0) === (int) $thread[1]) {
+                        $count++;
+                    }
+                }
+
+                return $count;
+            }
+
+            // The thread creation read behind syncReplyStats' deletion
+            // fallback (activity falls back to creation when the last reply
+            // goes away).
+            if (str_contains($sql, 'SELECT created_at FROM') && str_contains($this->aiya_test_table($sql) ?? '', 'aiya_discussions')) {
+                $table = $this->aiya_test_table($sql);
+                preg_match('/WHERE id = (\d+)/', $sql, $id);
+                foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
+                    if ((int) ($row['id'] ?? 0) === (int) $id[1]) {
+                        return $row['created_at'] ?? null;
+                    }
+                }
+
+                return null;
             }
 
             $row = $this->aiya_test_match($sql);

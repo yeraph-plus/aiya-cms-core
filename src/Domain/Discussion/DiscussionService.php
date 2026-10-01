@@ -71,10 +71,11 @@ final class DiscussionService
                 'title' => mb_substr(trim($title), 0, self::TITLE_LENGTH),
                 'content' => $content,
                 'post_id' => $postId,
+                'bumped_at' => $now,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
-            ['%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s']
+            ['%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s']
         );
 
         if ($inserted === false) {
@@ -139,7 +140,9 @@ final class DiscussionService
             $params = array_merge($params, $tagParams);
         }
 
-        $order = $sort === 'newest' ? 'd.created_at DESC, d.id DESC' : 'COALESCE(d.last_reply_at, d.created_at) DESC, d.id DESC';
+        // bumped_at is the materialized activity stamp (creation, refreshed
+        // to the latest reply); sorting hits the (status, bumped_at) index.
+        $order = $sort === 'newest' ? 'd.created_at DESC, d.id DESC' : 'd.bumped_at DESC, d.id DESC';
         $whereSql = implode(' AND ', $where);
         // Every where fragment and the order clause come exclusively from
         // the internal whitelists above; the interpolation is safe but
@@ -672,16 +675,28 @@ final class DiscussionService
         ));
         $count = (int) $wpdb->get_var($wpdb->prepare('SELECT COUNT(id) FROM %i WHERE thread_id = %d', $replies, $threadId));
 
+        // With the last reply gone (deletion), activity falls back to the
+        // thread's own creation.
+        $bumped = $last !== null
+            ? (string) $last->created_at
+            : (string) $wpdb->get_var($wpdb->prepare('SELECT created_at FROM %i WHERE id = %d', $this->threadsTable(), $threadId));
+        if ($bumped === '') {
+            // A read that answered nothing (thread vanishing mid-reply)
+            // still needs a stamp for the NOT NULL column.
+            $bumped = current_time('mysql', true);
+        }
+
         $wpdb->update(
             $this->threadsTable(),
             [
                 'reply_count' => $count,
                 'last_reply_user_id' => $last !== null ? (int) $last->user_id : 0,
                 'last_reply_at' => $last !== null ? (string) $last->created_at : null,
+                'bumped_at' => $bumped,
                 'updated_at' => current_time('mysql', true),
             ],
             ['id' => $threadId],
-            ['%d', '%d', '%s', '%s'],
+            ['%d', '%d', '%s', '%s', '%s'],
             ['%d']
         );
     }
@@ -775,6 +790,7 @@ final class DiscussionService
                 reply_count BIGINT UNSIGNED NOT NULL DEFAULT 0,
                 last_reply_user_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
                 last_reply_at DATETIME DEFAULT NULL,
+                bumped_at DATETIME NOT NULL DEFAULT '1970-01-01 00:00:01',
                 created_at DATETIME NOT NULL,
                 updated_at DATETIME NOT NULL,
                 PRIMARY KEY  (id),
@@ -782,8 +798,14 @@ final class DiscussionService
                 KEY board_id (board_id),
                 KEY status (status),
                 KEY post_id (post_id),
-                KEY last_reply_at (last_reply_at)
+                KEY activity (status, bumped_at)
             ) $charset;"
+        );
+
+        // Legacy rows predate bumped_at: activity = the last reply, else
+        // creation. The WHERE keeps the statement a no-op once filled.
+        $wpdb->query(
+            "UPDATE {$threads} SET bumped_at = COALESCE(last_reply_at, created_at) WHERE bumped_at < '2000-01-01 00:00:01'"
         );
 
         $replies = $wpdb->prefix . 'aiya_discussion_replies';

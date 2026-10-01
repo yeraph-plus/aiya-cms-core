@@ -145,18 +145,40 @@ final class NotificationService
         $limit = max(1, $limit);
 
         if ($viewerId > 0) {
+            // Two disjoint arms (broadcast rows carry user_id 0, personal
+            // rows the holder) fetched through the (user_id, created_at, id)
+            // index in its own order and merged outside — an OR over both
+            // arms would lose the index order and filesort every page.
+            // Each arm fetches offset + limit so the outer slice has the
+            // full window from both sides.
+            $fetch = $limit + max(0, $offset);
             // phpcs:disable WordPress.DB.PreparedSQL -- the IN fragment is a whitelist
             // literal (IN_CLAUSES_BY_RANK): it cannot travel through prepare, and
             // the multi-line string cannot carry a per-line ignore.
             /** @var list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>|null $rows */
             $rows = $wpdb->get_results($wpdb->prepare(
-                "SELECT id, type, user_id, min_role, title, body, created_at
-                 FROM %i
-                 WHERE (user_id = 0 AND min_role IN ($levels)) OR (user_id = %d)
-                 ORDER BY created_at DESC, id DESC
-                 LIMIT %d OFFSET %d",
+                "SELECT * FROM (
+                    (SELECT id, type, user_id, min_role, title, body, created_at
+                     FROM %i
+                     WHERE user_id = %d
+                     ORDER BY created_at DESC, id DESC
+                     LIMIT %d OFFSET %d)
+                    UNION ALL
+                    (SELECT id, type, user_id, min_role, title, body, created_at
+                     FROM %i
+                     WHERE user_id = 0 AND min_role IN ($levels)
+                     ORDER BY created_at DESC, id DESC
+                     LIMIT %d OFFSET %d)
+                ) merged
+                ORDER BY created_at DESC, id DESC
+                LIMIT %d OFFSET %d",
                 $table,
                 $viewerId,
+                $fetch,
+                max(0, $offset),
+                $table,
+                $fetch,
+                max(0, $offset),
                 $limit,
                 max(0, $offset)
             ));
@@ -191,9 +213,11 @@ final class NotificationService
         if ($viewerId > 0) {
             // phpcs:disable WordPress.DB.PreparedSQL -- whitelist IN fragment, as above
             $total = $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM %i WHERE (user_id = 0 AND min_role IN ($levels)) OR (user_id = %d)",
+                "SELECT (SELECT COUNT(*) FROM %i WHERE user_id = %d)
+                    + (SELECT COUNT(*) FROM %i WHERE user_id = 0 AND min_role IN ($levels))",
                 $table,
-                $viewerId
+                $viewerId,
+                $table
             ));
             // phpcs:enable
         } else {
@@ -318,12 +342,26 @@ final class NotificationService
                 body TEXT NOT NULL,
                 created_at DATETIME NOT NULL,
                 PRIMARY KEY  (id),
-                KEY user_id (user_id),
                 KEY actor_id (actor_id),
                 KEY object_ref (object_type, object_id),
-                KEY created_at (created_at)
+                KEY created_at (created_at),
+                KEY user_created (user_id, created_at, id)
             ) $charset;"
         );
+
+        // dbDelta adds indexes but never retires one: the single-column
+        // user_id key is fully covered by user_created — drop it once the
+        // composite exists (idempotent; installs after 0.100.0 never have
+        // it).
+        if ($wpdb->get_var($wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $table, 'user_created')) !== null
+            && $wpdb->get_var($wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $table, 'user_id')) !== null
+        ) {
+            $drop = $wpdb->prepare('DROP INDEX user_id ON %i', $table);
+            if (is_string($drop)) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
+                $wpdb->query($drop);
+            }
+        }
 
         if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
             throw new \RuntimeException(sprintf('Table %s was not created.', $table));
