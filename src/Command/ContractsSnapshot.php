@@ -64,6 +64,9 @@ final class ContractsSnapshot
             ['name' => 'breadcrumbs', 'type' => 'array', 'nullable' => false],
             ['name' => 'previous', 'type' => 'PostSummary', 'nullable' => true],
             ['name' => 'next', 'type' => 'PostSummary', 'nullable' => true],
+            ['name' => 'viewerLiked', 'type' => 'bool', 'nullable' => false],
+            ['name' => 'viewerFavorited', 'type' => 'bool', 'nullable' => false],
+            ['name' => 'viewerRating', 'type' => 'int', 'nullable' => true],
         ],
         'DiscussionDetail' => [
             ['name' => 'id', 'type' => 'int', 'nullable' => false],
