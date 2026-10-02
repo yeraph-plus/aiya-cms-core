@@ -18,7 +18,6 @@ final class DiscussionContractTest extends TestCase
     {
         return new Discussion(
             42,
-            '/community/42/',
             '资源下载失败',
             new DiscussionBoard(2, 'question', '问答'),
             'open',
@@ -39,7 +38,6 @@ final class DiscussionContractTest extends TestCase
         $shape = $this->thread()->toArray();
 
         self::assertSame(42, $shape['id']);
-        self::assertSame('/community/42/', $shape['url']);
         self::assertSame(['id' => 2, 'slug' => 'question', 'name' => '问答', 'description' => '', 'threads' => 0], $shape['board']);
         self::assertSame(['下载', 'AVIF'], $shape['tags']);
         self::assertSame([['url' => 'https://cdn.example.test/shot.webp', 'alt' => '', 'width' => 800, 'height' => 600]], $shape['images']);
@@ -71,7 +69,7 @@ final class DiscussionContractTest extends TestCase
     public function testStandaloneThreadKeepsTheEmptyShape(): void
     {
         $thread = new Discussion(
-            1, '/community/1/', '问个问题', null, 'closed',
+            1, '问个问题', null, 'closed',
             new Author(1, 'a', 'a', null), 0, [], [], '', '2026-09-09T00:00:00+08:00',
             false, false, false,
         );

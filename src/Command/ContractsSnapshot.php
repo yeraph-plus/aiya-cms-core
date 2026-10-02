@@ -40,7 +40,6 @@ final class ContractsSnapshot
         'PostDetail' => [
             ['name' => 'id', 'type' => 'int', 'nullable' => false],
             ['name' => 'slug', 'type' => 'string', 'nullable' => false],
-            ['name' => 'url', 'type' => 'string', 'nullable' => false],
             ['name' => 'type', 'type' => 'string', 'nullable' => false],
             ['name' => 'title', 'type' => 'string', 'nullable' => false],
             ['name' => 'excerpt', 'type' => 'string', 'nullable' => false],
@@ -70,7 +69,6 @@ final class ContractsSnapshot
         ],
         'DiscussionDetail' => [
             ['name' => 'id', 'type' => 'int', 'nullable' => false],
-            ['name' => 'url', 'type' => 'string', 'nullable' => false],
             ['name' => 'title', 'type' => 'string', 'nullable' => false],
             ['name' => 'board', 'type' => 'DiscussionBoard', 'nullable' => true],
             ['name' => 'status', 'type' => 'string', 'nullable' => false],

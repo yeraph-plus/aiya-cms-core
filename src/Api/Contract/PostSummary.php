@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Contract;
 
 /**
- * List projection of a content item. `url` is the front-end route shape
- * (`/posts/{id}/`), never a WordPress permalink. `type` only carries
+ * List projection of a content item. No route fields: the front end owns
+ * every route template and builds its own from `type` + `slug`
+ * (zero-routing rule, see ARCHITECTURE). `type` only carries
  * vocabularies whose listing routes exist; page/tweet/issue join when
  * their batches land.
  *
@@ -25,7 +26,6 @@ final class PostSummary
     public function __construct(
         public readonly int $id,
         public readonly string $slug,
-        public readonly string $url,
         public readonly string $type,
         public readonly string $title,
         public readonly string $excerpt,
@@ -47,7 +47,6 @@ final class PostSummary
         return [
             'id' => $this->id,
             'slug' => $this->slug,
-            'url' => $this->url,
             'type' => $this->type,
             'title' => $this->title,
             'excerpt' => $this->excerpt,

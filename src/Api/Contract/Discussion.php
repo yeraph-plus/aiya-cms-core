@@ -14,7 +14,9 @@ namespace Aiya\Core\Api\Contract;
  * no longer a field: a thread bound to one renders that post's card into
  * contentHtml instead (0.87.0), so the card and a hand-embedded
  * `[post_id]` shortcode cannot drift apart. Community likes were dropped by decision — the reply count is
- * the only interaction metric.
+ * the only interaction metric. Threads carry no self-page field by design
+ * (the front end expands them inline; zero-routing rule,
+ * ARCHITECTURE, zero-routing section).
  */
 final class Discussion
 {
@@ -24,7 +26,6 @@ final class Discussion
      */
     public function __construct(
         public readonly int $id,
-        public readonly string $url,
         public readonly string $title,
         public readonly ?DiscussionBoard $board,
         public readonly string $status,
@@ -46,7 +47,6 @@ final class Discussion
     {
         return [
             'id' => $this->id,
-            'url' => $this->url,
             'title' => $this->title,
             'board' => $this->board?->toArray(),
             'status' => $this->status,

@@ -2428,12 +2428,6 @@ msgstr "一键复制"
 msgid "A text snippet the reader copies with one click."
 msgstr "供读者一键复制的文本片段。"
 
-msgid "Related post card"
-msgstr "关联文章卡片"
-
-msgid "Shows one post as a card with its cover, category, title and counters. Enter the post ID."
-msgstr "把一篇文章显示为卡片：封面、分类、标题与计数器。填入文章 ID。"
-
 msgid "Post ID"
 msgstr "文章 ID"
 
@@ -3190,3 +3184,30 @@ msgstr "作者未设置特色图片的文章，其头图使用本图的横幅裁
 
 msgid "Used wherever a card cover is missing: list card thumbnails and category cards — each surface derives its own crop from this one image. The article hero has its own default below."
 msgstr "卡片封面缺失时使用：列表卡片缩略图与分类卡片——各表面从这一张图派生自己的裁剪。文章头图在下方有独立默认值。"
+
+msgid "Emits one semantic reference marker for the front end to resolve into a link. Fill exactly one of the fields below; when several are filled the first (post, user, term, search, comment, thread) wins."
+msgstr "输出一个语义引用标记，由前台解析为链接。以下字段只填一个；若填写多个，按（文章、用户、分类法、搜索、评论、社区帖）顺序取第一个生效。"
+
+msgid "User ID"
+msgstr "用户 ID"
+
+msgid "Term ID"
+msgstr "分类法术语 ID"
+
+msgid "Search keywords"
+msgstr "搜索关键词"
+
+msgid "Comment ID"
+msgstr "评论 ID"
+
+msgid "Thread ID"
+msgstr "社区帖 ID"
+
+msgid "%1$s mentioned you in a comment on \"%2$s\"."
+msgstr "%1$s 在评论「%2$s」中提到了你。"
+
+msgid "%1$s mentioned you in the thread \"%2$s\"."
+msgstr "%1$s 在帖子「%2$s」中提到了你。"
+
+msgid "%s mentioned you in a community thread."
+msgstr "%s 在社区帖子中提到了你。"

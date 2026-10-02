@@ -30,6 +30,10 @@ use WP_Post;
  * mirrors the detail route: cover, category, title and counters are
  * visible to everyone; the body is the part that withholds.
  *
+ * Zero-routing rule (ARCHITECTURE, "Zero-routing rule and reference markers"): the card carries a
+ * semantic post reference (type + slug data attributes) instead of a
+ * baked front-end path; the front end's ref resolver renders the anchors.
+ *
  * Counters are emitted as raw numbers (formatting is the front end's job)
  * in a visible fallback plus `data-*` attributes for a richer treatment.
  */
@@ -108,8 +112,14 @@ final class PostCardPresenter
     private function card(PostSummary $summary): string
     {
         $title = $summary->title;
-        $url = $summary->url;
         $cover = $summary->thumbnail;
+
+        // Zero-routing rule (ARCHITECTURE, "Zero-routing rule and reference markers"): the card carries
+        // a semantic reference (type + slug) instead of a baked front-end
+        // path — the front end's ref resolver turns it into an anchor.
+        $ref = 'data-aiya-ref="post"'
+            . ' data-aiya-type="' . esc_attr($summary->type) . '"'
+            . ' data-aiya-slug="' . esc_attr($summary->slug) . '"';
 
         $html = '<div data-post-card="' . esc_attr((string) $summary->id) . '"'
             . ' data-card-type="' . esc_attr($summary->type) . '"';
@@ -120,7 +130,7 @@ final class PostCardPresenter
 
         // The cover is a link, not a zoom target: the lightbox pass runs
         // before shortcodes and never sees this markup.
-        $html .= '<a href="' . esc_url($url) . '" title="' . esc_attr($title) . '">';
+        $html .= '<a ' . $ref . ' title="' . esc_attr($title) . '">';
         if ($cover !== null) {
             $html .= '<img src="' . esc_url($cover->url) . '"'
                 . ' alt="' . esc_attr($cover->alt !== '' ? $cover->alt : $title) . '">';
@@ -134,7 +144,7 @@ final class PostCardPresenter
             $html .= '<span data-post-card-part="category">' . esc_html($category->name) . '</span>';
         }
 
-        $html .= '<a href="' . esc_url($url) . '"><span data-post-card-part="title">'
+        $html .= '<a ' . $ref . '><span data-post-card-part="title">'
             . esc_html($title) . '</span></a>';
 
         $metrics = $summary->metrics;

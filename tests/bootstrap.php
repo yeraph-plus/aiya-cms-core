@@ -854,10 +854,54 @@ if (!function_exists('get_rest_url')) {
     }
 }
 
+if (!function_exists('wp_timezone')) {
+    function wp_timezone(): DateTimeZone
+    {
+        return new DateTimeZone('UTC');
+    }
+}
+
+if (!function_exists('get_avatar_url')) {
+    function get_avatar_url(mixed $idOrEmail, array $args = []): string|false
+    {
+        $key = is_int($idOrEmail) ? (string) $idOrEmail : (string) $idOrEmail;
+
+        return $GLOBALS['__aiya_test_avatar_urls'][$key] ?? false;
+    }
+}
+
+if (!function_exists('get_user_by')) {
+    function get_user_by(string $field, mixed $value): WP_User|false
+    {
+        foreach (($GLOBALS['__aiya_test_users'] ?? []) as $user) {
+            $match = match ($field) {
+                'id' => (int) $user->ID === (int) $value,
+                'slug' => (string) $user->user_nicename === (string) $value,
+                'login' => (string) $user->user_login === (string) $value,
+                'email' => (string) $user->user_email === (string) $value,
+                default => false,
+            };
+            if ($match) {
+                return $user;
+            }
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('get_locale')) {
+    function get_locale(): string
+    {
+        return (string) ($GLOBALS['__aiya_test_locale'] ?? 'zh_CN');
+    }
+}
+
 if (!function_exists('get_bloginfo')) {
     function get_bloginfo(string $show = '', string $filter = 'raw'): string
     {
-        return $show === 'name' ? 'AIYA 测试站' : '';
+        // Overridable per test: $GLOBALS['__aiya_test_bloginfo'][$show].
+        return (string) ($GLOBALS['__aiya_test_bloginfo'][$show] ?? ($show === 'name' ? 'AIYA 测试站' : ''));
     }
 }
 
@@ -1050,6 +1094,8 @@ if (!class_exists('wpdb')) {
 
         public string $term_relationships = 'wp_term_relationships';
 
+        public string $users = 'wp_users';
+
         /** @var array<string, list<array<string, mixed>>> */
         public array $aiya_test_rows = [];
 
@@ -1143,6 +1189,11 @@ if (!class_exists('wpdb')) {
                 if (str_contains($sql, "direction = 'in'") && ($row['direction'] ?? '') !== 'in') {
                     continue;
                 }
+                if (preg_match("/display_name = '([^']*)'/", $sql, $name) === 1
+                    && ($row['display_name'] ?? '') !== $name[1]
+                ) {
+                    continue;
+                }
                 if (preg_match('/user_id = (\d+)/', $sql, $user) === 1
                     && (int) ($row['user_id'] ?? 0) !== (int) $user[1]
                 ) {
@@ -1159,10 +1210,14 @@ if (!class_exists('wpdb')) {
                     continue;
                 }
 
-                $rows[] = [
-                    'id' => is_numeric($row['id'] ?? null) ? (int) $row['id'] : $index + 1,
-                    'remaining' => (int) ($row['remaining'] ?? 0),
-                ];
+                $rows[] = $output === ARRAY_A
+                    ? [
+                        'id' => is_numeric($row['id'] ?? null) ? (int) $row['id'] : $index + 1,
+                        'remaining' => (int) ($row['remaining'] ?? 0),
+                    ]
+                    // Core's default output shape: object rows carrying
+                    // every stored field.
+                    : (object) $row;
             }
 
             return $rows;

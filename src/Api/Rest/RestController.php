@@ -20,6 +20,7 @@ use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\CommentQuery;
 use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Content\HotPostsQuery;
+use Aiya\Core\Domain\Content\Mentions;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
@@ -97,7 +98,8 @@ final class RestController implements Module
 
             (new CounterController(new CounterService(), new RateLimiter()))->registerRoutes();
 
-            (new CommentsController(new RateLimiter(), new CommentQuery($this->visibility), new CommentPresenter($smiliesRenderer)))->registerRoutes();
+            $mentions = new Mentions();
+            (new CommentsController(new RateLimiter(), new CommentQuery($this->visibility), new CommentPresenter($smiliesRenderer, $mentions)))->registerRoutes();
 
             (new UploadsController($this->processUpload, $this->paths, new RateLimiter(), new UploadPresenter()))->registerRoutes();
 
@@ -132,7 +134,7 @@ final class RestController implements Module
             (new GatewayController(new OrderService(), $entitlements))->registerRoutes();
 
             $threads = new DiscussionService();
-            (new DiscussionController($threads, new DiscussionPresenter($smiliesRenderer, $threads), new RateLimiter()))->registerRoutes();
+            (new DiscussionController($threads, new DiscussionPresenter($smiliesRenderer, $threads, $mentions), new RateLimiter()))->registerRoutes();
 
             (new FileServeController($this->files, $this->downloads, new FilePresenter(), new RateLimiter()))->registerRoutes();
         });

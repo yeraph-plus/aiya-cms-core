@@ -87,7 +87,7 @@ final class NsfwFilter
             if ($term instanceof \WP_Term) {
                 $children = get_term_children($termId, $taxonomy);
 
-                return is_array($children) ? array_map('intval', $children) : [];
+                return is_array($children) ? array_values(array_map('intval', $children)) : [];
             }
         }
 

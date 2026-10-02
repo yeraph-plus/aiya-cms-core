@@ -25,6 +25,7 @@ use Aiya\Core\Admin\TermMoveBulkAction;
 use Aiya\Core\Admin\VisibilityMetabox;
 use Aiya\Core\Api\Presenter\FilePresenter;
 use Aiya\Core\Api\Presenter\PostCardPresenter;
+use Aiya\Core\Api\Presenter\RefPresenter;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Rest\RestController;
 use Aiya\Core\Contracts\Module;
@@ -39,6 +40,7 @@ use Aiya\Core\Domain\Content\BlocksModule;
 use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Content\PostTypeSwitcher;
 use Aiya\Core\Domain\Discussion\DiscussionModule;
+use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\DevTools\DevToolsModule;
 use Aiya\Core\Domain\FileServe\AdapterRegistry;
 use Aiya\Core\Domain\FileServe\FileServeModule;
@@ -177,7 +179,11 @@ final class Plugin
             new ContentQuery($visibility),
             new PostPresenter($media->cards(), new SmiliesRenderer(SmiliesRegistry::shared()), $visibility, new FavoriteService(), new CounterService())
         );
-        $this->addModule(new BuiltinParts(static fn (int $postId): string => $postCards->render($postId)));
+        $refPresenter = new RefPresenter(
+            static fn (int $postId): string => $postCards->render($postId),
+            new DiscussionService()
+        );
+        $this->addModule(new BuiltinParts(static fn (array $attrs): string => $refPresenter->render($attrs)));
 
         // File downloads: the domain registers the adapters it ships and the
         // settings page they hang off, the OpenList module adds its own

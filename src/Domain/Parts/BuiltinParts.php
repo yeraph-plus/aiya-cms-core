@@ -41,15 +41,15 @@ final class BuiltinParts implements Module
     private const ALERT_LEVELS = ['default', 'warning', 'info', 'success', 'error'];
     private const RATIOS = ['1', '2', '3'];
 
-    /** The related-post card's shortcode contract. */
-    public const POST_CARD_TAG = 'post_id';
-    public const POST_CARD_ATTRIBUTE = 'id';
+    /** The reference shortcode's contract (one kind per tag, see render). */
+    public const REF_TAG = 'ref';
 
     /**
-     * @param Closure(int): string|null $postCard post id → card markup ('' when nothing resolves);
-     *                                               null leaves the card an editor declaration only
+     * @param Closure(array<string, string>): string|null $ref reference attributes → marker
+     *                                                     markup ('' when nothing resolves); null
+     *                                                     leaves the ref an editor declaration only
      */
-    public function __construct(private readonly ?Closure $postCard = null)
+    public function __construct(private readonly ?Closure $ref = null)
     {
     }
 
@@ -186,50 +186,41 @@ final class BuiltinParts implements Module
                 fn (array $attrs, string $content): string => $this->renderClipBoard($attrs, $content),
             ),
             new PartType(
-                self::POST_CARD_TAG,
-                __('Related post card', 'aiya-core'),
-                __('Shows one post as a card with its cover, category, title and counters. Enter the post ID.', 'aiya-core'),
-                '[' . self::POST_CARD_TAG . '{{attributes}}]',
+                self::REF_TAG,
+                __('Reference', 'aiya-core'),
+                __('Emits one semantic reference marker for the front end to resolve into a link. Fill exactly one of the fields below; when several are filled the first (post, user, term, search, comment, thread) wins.', 'aiya-core'),
+                '[' . self::REF_TAG . '{{attributes}}]',
                 [
-                    [
-                        'id' => self::POST_CARD_ATTRIBUTE,
-                        'type' => 'text',
-                        'label' => __('Post ID', 'aiya-core'),
-                        'default' => '',
-                    ],
+                    ['id' => 'post', 'type' => 'text', 'label' => __('Post ID', 'aiya-core'), 'default' => ''],
+                    ['id' => 'user', 'type' => 'text', 'label' => __('User ID', 'aiya-core'), 'default' => ''],
+                    ['id' => 'term', 'type' => 'text', 'label' => __('Term ID', 'aiya-core'), 'default' => ''],
+                    ['id' => 'search', 'type' => 'text', 'label' => __('Search keywords', 'aiya-core'), 'default' => ''],
+                    ['id' => 'comment', 'type' => 'text', 'label' => __('Comment ID', 'aiya-core'), 'default' => ''],
+                    ['id' => 'thread', 'type' => 'text', 'label' => __('Thread ID', 'aiya-core'), 'default' => ''],
                 ],
-                $this->postCard === null
+                $this->ref === null
                     ? null
-                    : fn (array $attrs, string $content): string => $this->renderPostCard($attrs, $content),
+                    : fn (array $attrs, string $content): string => $this->renderRef($attrs),
             ),
         ];
     }
 
     /**
-     * Hands the id to the injected card renderer. The attribute is the
-     * only id source — the inserter writes `[post_id id="7"]`, and the
-     * hand-typed enclosing spelling `[post_id]7[/post_id]` deliberately
-     * renders nothing instead of quietly inheriting its enclosed text.
-     * Note also that WordPress cannot parse `[post_id="7"]` at all — the
-     * quotes read as part of the shortcode name — and that a bare
-     * `[post_id 7]` is dropped by `shortcode_atts()`, so neither spelling
-     * reaches this method.
+     * Hands the attributes to the injected ref renderer; the fixed
+     * precedence (post, user, term, search, comment, thread — the first
+     * non-empty attribute wins) lives there, so authoring order never
+     * changes what a tag resolves to.
      *
      * @param array<string, string> $attrs
      */
-    private function renderPostCard(array $attrs, string $content): string
+    private function renderRef(array $attrs): string
     {
-        $renderer = $this->postCard;
+        $renderer = $this->ref;
         if ($renderer === null) {
             return '';
         }
 
-        $id = (int) ($attrs[self::POST_CARD_ATTRIBUTE] ?? 0);
-        if ($id <= 0) {
-            return '';
-        }
-
-        return $renderer($id);
+        return $renderer($attrs);
     }
 
     /** @param array<string, string> $attrs */

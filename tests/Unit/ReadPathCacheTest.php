@@ -207,7 +207,7 @@ final class ReadPathCacheTest extends TestCase
     {
         $this->post(7);
         $renders = 0;
-        add_shortcode('post_id', function () use (&$renders): string {
+        add_shortcode('ref', function (array $atts) use (&$renders): string {
             ++$renders;
 
             return '<div data-card></div>';

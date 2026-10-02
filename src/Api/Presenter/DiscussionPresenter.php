@@ -11,6 +11,7 @@ use Aiya\Core\Api\Contract\DiscussionDetail;
 use Aiya\Core\Api\Contract\DiscussionReply;
 use Aiya\Core\Api\Contract\Image;
 use Aiya\Core\Domain\Discussion\DiscussionContent;
+use Aiya\Core\Domain\Content\Mentions;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Discussion\ThreadStatus;
 use Aiya\Core\Domain\Parts\BuiltinParts;
@@ -50,6 +51,7 @@ final class DiscussionPresenter
     public function __construct(
         private readonly SmiliesRenderer $smilies,
         private readonly DiscussionService $threads,
+        private readonly ?Mentions $mentions = null,
     )
     {
     }
@@ -61,7 +63,6 @@ final class DiscussionPresenter
 
         return new Discussion(
             (int) $row->id,
-            '/community/' . (int) $row->id . '/',
             (string) $row->title,
             $this->board($row),
             (string) $row->status,
@@ -193,7 +194,7 @@ final class DiscussionPresenter
         $html = $this->bodyHtml($raw);
         if ($postId > 0) {
             $card = do_shortcode(
-                '[' . BuiltinParts::POST_CARD_TAG . ' ' . BuiltinParts::POST_CARD_ATTRIBUTE . '="' . $postId . '"]'
+                '[' . BuiltinParts::REF_TAG . ' post="' . $postId . '"]'
             );
             if ($card !== '') {
                 $html .= "\n" . $card;
@@ -206,10 +207,15 @@ final class DiscussionPresenter
         return $html;
     }
 
-    /** A body with smilies and shortcodes expanded — replies included. */
+    /** A body with mentions, smilies and shortcodes expanded — replies
+     * included. Mentions resolve before the shortcode pass so their anchors
+     * never ride a shortcode's own output; the ref part's enclosed content
+     * is ignored anyway, so the two passes cannot nest. */
     private function bodyHtml(string $raw): string
     {
-        return do_shortcode($this->smilies->render($raw));
+        $mentioned = $this->mentions?->linkify($this->smilies->render($raw)) ?? $this->smilies->render($raw);
+
+        return do_shortcode($mentioned);
     }
 
     private function author(int $userId): Author

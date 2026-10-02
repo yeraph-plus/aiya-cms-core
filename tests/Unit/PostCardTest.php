@@ -14,8 +14,7 @@ use PHPUnit\Framework\TestCase;
 use WP_Post;
 
 /**
- * The related-post card: the shortcode contract (including the literal
- * `[post_id="7"]` spelling readers type, which WordPress cannot parse),
+ * The related-post card: the `[ref post="7"]` shortcode contract,
  * the card markup built from the summary projection, and the discussion
  * integration that hangs a bound thread's card at the bottom of its body.
  *
@@ -87,7 +86,7 @@ final class PostCardTest extends TestCase
 
     private function card(): \Aiya\Core\Api\Presenter\PostCardPresenter
     {
-        $presenter = $this->presenter(new BuiltinParts(static fn (int $id): string => ''));
+        $presenter = $this->presenter(new BuiltinParts(static fn (array $attrs): string => ''));
 
         return $presenter['card'];
     }
@@ -118,21 +117,19 @@ final class PostCardTest extends TestCase
 
     // ---------------------------------------------------------------- the id
 
-    public function testTheIdComesFromTheAttributeOnly(): void
+    public function testTheRefForwardsItsAttributesToTheInjectedRenderer(): void
     {
         $seen = [];
-        $render = (new BuiltinParts(function (int $id) use (&$seen): string {
-            $seen[] = $id;
+        $render = (new BuiltinParts(function (array $attrs) use (&$seen): string {
+            $seen[] = $attrs;
 
-            return 'CARD';
-        }))->registerParts([])[BuiltinParts::POST_CARD_TAG]->render;
+            return 'REF';
+        }))->registerParts([])[BuiltinParts::REF_TAG]->render;
 
         self::assertNotNull($render);
-        self::assertSame('CARD', $render(['id' => '7'], ''));
-        self::assertSame('', $render(['id' => ''], '12'), 'the enclosing form is retired: the enclosed text never becomes the id');
-        self::assertSame('', $render(['id' => '0'], '9'), 'no attribute, no card — and still no content fallback');
+        self::assertSame('REF', $render(['post' => '7'], ''));
 
-        self::assertSame([7], $seen, 'the renderer only ever sees the attribute form');
+        self::assertSame([['post' => '7']], $seen, 'the renderer only ever sees the attribute form');
     }
 
     // --------------------------------------------------------------- the card
@@ -141,7 +138,7 @@ final class PostCardTest extends TestCase
     {
         $this->post(31);
         $this->cover(31);
-        $GLOBALS['__aiya_test_post_terms'][31]['category'] = [new \WP_Term((object) [
+        $term = new \WP_Term((object) [
             'term_id' => 5,
             'slug' => 'notes',
             'name' => '随笔',
@@ -149,14 +146,18 @@ final class PostCardTest extends TestCase
             'parent' => 0,
             'count' => 3,
             'taxonomy' => 'category',
-        ])];
+        ]);
+        $GLOBALS['__aiya_test_post_terms'][31]['category'] = [$term];
         $GLOBALS['__aiya_test_post_meta'][31]['view_count'] = 1200;
         $GLOBALS['__aiya_test_post_meta'][31]['like_count'] = 8;
 
         $html = $this->card()->render(31);
 
         self::assertStringContainsString('data-post-card="31"', $html);
-        self::assertStringContainsString('href="/posts/slug-31/"', $html);
+        self::assertStringContainsString('data-aiya-ref="post"', $html);
+        self::assertStringContainsString('data-aiya-type="post"', $html);
+        self::assertStringContainsString('data-aiya-slug="slug-31"', $html);
+        self::assertStringNotContainsString('href=', $html);
         self::assertStringContainsString('aiya_thumbnail/card/cover.jpg', $html);
         self::assertStringContainsString('data-post-card-part="title">Title 31<', $html);
         self::assertStringContainsString('data-post-card-part="category"', $html);
@@ -243,33 +244,30 @@ final class PostCardTest extends TestCase
 
     // -------------------------------------------------------------- the part
 
-    public function testPartDeclaresTheShortcodeAndForwardsTheId(): void
+    public function testPartDeclaresTheShortcodeAndForwardsTheAttributes(): void
     {
         $seen = null;
-        $parts = new BuiltinParts(static function (int $postId) use (&$seen): string {
-            $seen = $postId;
+        $parts = new BuiltinParts(static function (array $attrs) use (&$seen): string {
+            $seen = $attrs;
 
-            return 'CARD';
+            return 'REF';
         });
         $parts->register();
 
         $registered = (new PartRegistry())->all();
-        self::assertArrayHasKey(BuiltinParts::POST_CARD_TAG, $registered);
-        self::assertSame('[post_id{{attributes}}]', $registered[BuiltinParts::POST_CARD_TAG]->template);
+        self::assertArrayHasKey(BuiltinParts::REF_TAG, $registered);
+        self::assertSame('[ref{{attributes}}]', $registered[BuiltinParts::REF_TAG]->template);
 
-        $render = $registered[BuiltinParts::POST_CARD_TAG]->render;
+        $render = $registered[BuiltinParts::REF_TAG]->render;
         self::assertNotNull($render);
-        self::assertSame('CARD', $render(['id' => '42'], ''));
-        self::assertSame(42, $seen, 'the closure receives the parsed id');
-
-        self::assertSame('', $render(['id' => 'not-a-number'], ''), 'garbage ids degrade to "no card"');
-        self::assertSame(42, $seen, 'an id-less card never reaches the renderer');
+        self::assertSame('REF', $render(['post' => '42'], ''));
+        self::assertSame(['post' => '42'], $seen, 'the closure receives the attribute form');
     }
 
     public function testTheShortcodeExpandsInPostContent(): void
     {
         $this->post(36);
-        $parts = new BuiltinParts(fn (int $id): string => $this->card()->render($id));
+        $parts = new BuiltinParts(fn (array $attrs): string => $this->card()->render((int) $attrs['post']));
         $parts->register();
         foreach ((new PartRegistry())->all() as $type) {
             if ($type->render !== null) {
@@ -278,11 +276,12 @@ final class PostCardTest extends TestCase
             }
         }
 
-        $rendered = do_shortcode('<p>看看这张卡</p>[post_id id="36"]');
+        $rendered = do_shortcode('<p>看看这张卡</p>[ref post="36"]');
 
         self::assertStringContainsString('看看这张卡', $rendered);
         self::assertStringContainsString('data-post-card="36"', $rendered);
-        self::assertStringNotContainsString('[post_id', $rendered, 'no shortcode text survives');
+        self::assertStringContainsString('data-aiya-ref="post"', $rendered);
+        self::assertStringNotContainsString('[ref', $rendered, 'no shortcode text survives');
     }
 
     // --------------------------------------------------------- the discussion
@@ -311,10 +310,15 @@ final class PostCardTest extends TestCase
     public function testThreadBodyExpandsShortcodes(): void
     {
         $this->post(38);
-        $html = $this->thread(['[post_id id="38"]'], 0)['contentHtml'];
+        $html = $this->thread(['[ref post="38"]'], 0)['contentHtml'];
 
         self::assertStringContainsString('data-post-card="38"', $html);
-        self::assertStringNotContainsString('[post_id', $html);
+        self::assertStringNotContainsString('[ref', $html);
+
+        // The legacy spelling is retired: it no longer expands, but it also
+        // never silently vanishes — stored text survives verbatim.
+        $legacy = $this->thread(['[post_id id="38"]'], 0)['contentHtml'];
+        self::assertStringContainsString('[post_id id="38"]', $legacy);
     }
 
     /**
@@ -323,7 +327,7 @@ final class PostCardTest extends TestCase
      */
     private function thread(array $extraContent, int $boundPostId): array
     {
-        $parts = new BuiltinParts(fn (int $id): string => $this->card()->render($id));
+        $parts = new BuiltinParts(fn (array $attrs): string => $this->card()->render((int) $attrs['post']));
         $parts->register();
         $registered = (new PartRegistry())->all();
         foreach ($registered as $type) {

@@ -24,6 +24,8 @@ final class NotificationService
     public const TYPE_POST_COMMENTED = 'post_commented';
     public const TYPE_COMMENT_REPLIED = 'comment_replied';
     public const TYPE_THREAD_REPLIED = 'thread_replied';
+    public const TYPE_COMMENT_MENTIONED = 'comment_mentioned';
+    public const TYPE_THREAD_MENTIONED = 'thread_mentioned';
     public const TYPE_FOLLOWED_PUBLISHED = 'followed_published';
     public const TYPE_NEW_FOLLOWER = 'new_follower';
     public const TYPE_SPONSOR_EXPIRING = 'sponsor_expiring';
@@ -37,6 +39,8 @@ final class NotificationService
         self::TYPE_POST_COMMENTED,
         self::TYPE_COMMENT_REPLIED,
         self::TYPE_THREAD_REPLIED,
+        self::TYPE_COMMENT_MENTIONED,
+        self::TYPE_THREAD_MENTIONED,
         self::TYPE_FOLLOWED_PUBLISHED,
         self::TYPE_NEW_FOLLOWER,
         self::TYPE_SPONSOR_EXPIRING,

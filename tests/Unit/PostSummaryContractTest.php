@@ -18,7 +18,6 @@ final class PostSummaryContractTest extends TestCase
         $summary = new PostSummary(
             42,
             'hello-world',
-            '/posts/42/',
             'post',
             '你好，世界',
             'Excerpt text',
@@ -36,7 +35,6 @@ final class PostSummaryContractTest extends TestCase
         self::assertSame([
             'id' => 42,
             'slug' => 'hello-world',
-            'url' => '/posts/42/',
             'type' => 'post',
             'title' => '你好，世界',
             'excerpt' => 'Excerpt text',

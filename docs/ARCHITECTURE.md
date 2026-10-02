@@ -124,6 +124,41 @@ package's only concern is the contract's outbound text (the exit filter runs on
 `rest_post_dispatch` after the envelope, converting string leaves for
 Traditional-variant viewers of `aiya/core/v1` only).
 
+## Zero-routing rule and reference markers
+
+The back end never bakes front-end paths into any output — JSON payloads,
+rich-text HTML and template-part markup carry *semantic references*
+(kind + handle) only, and every route template lives in the front end.
+Verified surfaces: `PostSummary` still ships a legacy `url` (deprecated,
+pre-dating the rule — the front end builds routes from `type` + `slug`
+instead), threads carry no self-page field at all, and the related-post
+card emits `data-aiya-ref` markers instead of anchors.
+
+The marker vocabulary (compliant tags + `data-aiya-*` attributes; no
+`href` — unresolved environments degrade to readable, inert text; the
+front end's ref-resolution pass turns them into real anchors during SSR
+or after the client-side sanitizer):
+
+| kind | attributes | front-end route |
+|---|---|---|
+| post | type, slug | /posts\|pages\|resources/{slug}/ |
+| user | nicename | /profile/{nicename}/ |
+| term | taxonomy, slug | /categories/{slug}/ |
+| search | q | /search/{q}/ |
+| comment | post, comment | post route + #comment-{id} |
+| thread | id | no self page — the front end decides the presentation (inline expansion) |
+
+Exempt surfaces (deliberate): the FrontendDomain origin consumers
+(password-reset links, admin-bar shortcut, gate redirects), the wp-login
+gate's own URL, the muted core mails, and admin-authored link content
+(navigation repeater, ad slots, beian links — the operator knows the
+front end when configuring them).
+
+Status: the post card and breadcrumbs are converted; mentions are
+designed (docs/mentions-design.md, marker form) and pending; term /
+search / comment references are reserved vocabulary without usage
+surfaces yet.
+
 ## Error handling conventions
 
 - **REST layer** (`Api/Rest/`): every failure is a `WP_Error` with an

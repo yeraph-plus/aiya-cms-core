@@ -66,7 +66,6 @@ final class PostPresenter
         return new PostSummary(
             (int) $post->ID,
             (string) $post->post_name,
-            $type->url((string) $post->post_name),
             $type->name,
             (string) get_the_title($post),
             // A withheld body must not leak its first words either — core
@@ -164,7 +163,7 @@ final class PostPresenter
             comments_open($post),
             (string) $post->post_excerpt !== '',
             new Seo($summary->title, $summary->excerpt, false),
-            [new Breadcrumb($summary->title, null)],
+            [new Breadcrumb($summary->title)],
             $this->featured($post, $type),
             isset($neighbors['previous']) && $neighbors['previous'] instanceof WP_Post
                 ? $this->summary($neighbors['previous'], $type)

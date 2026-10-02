@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-02T17:08:06+00:00\n"
+"POT-Creation-Date: 2026-10-02T22:16:18+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -738,8 +738,9 @@ msgid "The reset link is missing required parameters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:309
-#: src/Api/Rest/ContentController.php:172
-#: src/Api/Rest/ContentController.php:430
+#: src/Api/Rest/ContentController.php:190
+#: src/Api/Rest/ContentController.php:453
+#: src/Api/Rest/ContentController.php:480
 #: src/Api/Rest/CounterController.php:84
 #: src/Api/Rest/CounterController.php:99
 #: src/Api/Rest/CounterController.php:119
@@ -785,7 +786,7 @@ msgstr ""
 
 #: src/Api/Rest/AuthController.php:353
 #: src/Api/Rest/CommentsController.php:149
-#: src/Api/Rest/ContentController.php:386
+#: src/Api/Rest/ContentController.php:404
 #: src/Api/Rest/UploadsController.php:64
 #: src/Api/Rest/UserController.php:252
 #: src/Api/Rest/UserController.php:406
@@ -829,21 +830,22 @@ msgid "You are commenting too quickly. Slow down."
 msgstr ""
 
 #: src/Api/Rest/CommentsController.php:279
-#: src/Api/Rest/ContentController.php:205
-#: src/Api/Rest/ContentController.php:355
-#: src/Api/Rest/ContentController.php:360
-#: src/Api/Rest/ContentController.php:401
-#: src/Api/Rest/ContentController.php:444
+#: src/Api/Rest/ContentController.php:223
+#: src/Api/Rest/ContentController.php:373
+#: src/Api/Rest/ContentController.php:378
+#: src/Api/Rest/ContentController.php:419
+#: src/Api/Rest/ContentController.php:458
+#: src/Api/Rest/ContentController.php:494
 #: src/Domain/FileServe/DownloadService.php:108
 #: src/Domain/FileServe/FileService.php:51
 msgid "Content not found."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:411
+#: src/Api/Rest/ContentController.php:429
 msgid "Incorrect password."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:484
+#: src/Api/Rest/ContentController.php:534
 msgid "Profile not found."
 msgstr ""
 
@@ -1657,6 +1659,7 @@ msgid "Source"
 msgstr ""
 
 #: src/Domain/Credit/CreditsPage.php:274
+#: src/Domain/Parts/BuiltinParts.php:190
 msgid "Reference"
 msgstr ""
 
@@ -3120,71 +3123,89 @@ msgid "User #%d"
 msgstr ""
 
 #. translators: %1$s: commenter name.
-#: src/Domain/Notification/NotificationActions.php:141
+#: src/Domain/Notification/NotificationActions.php:153
 #, php-format
 msgid "%1$s replied to your comment."
 msgstr ""
 
 #. translators: 1: commenter name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:163
+#: src/Domain/Notification/NotificationActions.php:171
 #, php-format
 msgid "%1$s commented on your article \"%2$s\"."
 msgstr ""
 
+#. translators: 1: commenter name, 2: post title.
+#: src/Domain/Notification/NotificationActions.php:190
+#, php-format
+msgid "%1$s mentioned you in a comment on \"%2$s\"."
+msgstr ""
+
 #. translators: 1: author name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:193
+#: src/Domain/Notification/NotificationActions.php:242
 #, php-format
 msgid "%1$s published a new article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: post title.
-#: src/Domain/Notification/NotificationActions.php:227
+#: src/Domain/Notification/NotificationActions.php:276
 #, php-format
 msgid "A post you favorited was updated: \"%1$s\"."
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:243
+#: src/Domain/Notification/NotificationActions.php:292
 msgid "Your account password was reset. If this was not you, please contact the administrator."
 msgstr ""
 
 #. translators: %s: replier name.
-#: src/Domain/Notification/NotificationActions.php:265
+#: src/Domain/Notification/NotificationActions.php:314
 #, php-format
 msgid "%s replied to your thread."
 msgstr ""
 
 #. translators: 1: replier name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:270
+#: src/Domain/Notification/NotificationActions.php:319
 #, php-format
 msgid "%1$s replied to your thread \"%2$s\"."
 msgstr ""
 
+#. translators: %s: actor name.
+#: src/Domain/Notification/NotificationActions.php:359
+#, php-format
+msgid "%s mentioned you in a community thread."
+msgstr ""
+
+#. translators: 1: actor name, 2: thread title.
+#: src/Domain/Notification/NotificationActions.php:364
+#, php-format
+msgid "%1$s mentioned you in the thread \"%2$s\"."
+msgstr ""
+
 #. translators: %s: author name.
-#: src/Domain/Notification/NotificationActions.php:298
+#: src/Domain/Notification/NotificationActions.php:382
 #, php-format
 msgid "%s published a new thread."
 msgstr ""
 
 #. translators: 1: author name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:303
+#: src/Domain/Notification/NotificationActions.php:387
 #, php-format
 msgid "%1$s published a new thread \"%2$s\"."
 msgstr ""
 
 #. translators: %1$s: follower name.
-#: src/Domain/Notification/NotificationActions.php:328
+#: src/Domain/Notification/NotificationActions.php:430
 #, php-format
 msgid "%1$s followed you."
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:356
+#: src/Domain/Notification/NotificationActions.php:458
 #, php-format
 msgid "Your membership is active until %s. Thank you for the support!"
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:405
+#: src/Domain/Notification/NotificationActions.php:507
 #, php-format
 msgid "Your membership expires on %s. Renew to keep the perks."
 msgstr ""
@@ -3280,23 +3301,23 @@ msgstr ""
 msgid "Guest"
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:94
+#: src/Domain/Notification/NotificationService.php:98
 msgid "Notification title is required."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:97
+#: src/Domain/Notification/NotificationService.php:101
 msgid "Unknown notification role level."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:100
+#: src/Domain/Notification/NotificationService.php:104
 msgid "Unknown notification type."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:103
+#: src/Domain/Notification/NotificationService.php:107
 msgid "Invalid notification recipient."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:125
+#: src/Domain/Notification/NotificationService.php:129
 msgid "The notification could not be stored."
 msgstr ""
 
@@ -3625,16 +3646,32 @@ msgstr ""
 msgid "A text snippet the reader copies with one click."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:190
-msgid "Related post card"
+#: src/Domain/Parts/BuiltinParts.php:191
+msgid "Emits one semantic reference marker for the front end to resolve into a link. Fill exactly one of the fields below; when several are filled the first (post, user, term, search, comment, thread) wins."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:191
-msgid "Shows one post as a card with its cover, category, title and counters. Enter the post ID."
+#: src/Domain/Parts/BuiltinParts.php:194
+msgid "Post ID"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:195
+msgid "User ID"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:196
+msgid "Term ID"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:197
-msgid "Post ID"
+msgid "Search keywords"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:198
+msgid "Comment ID"
+msgstr ""
+
+#: src/Domain/Parts/BuiltinParts.php:199
+msgid "Thread ID"
 msgstr ""
 
 #: src/Domain/Parts/PartModule.php:90

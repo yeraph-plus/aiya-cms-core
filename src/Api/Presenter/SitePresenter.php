@@ -45,7 +45,7 @@ final class SitePresenter
     public function present(): Site
     {
         return new Site(
-            (string) get_bloginfo('name'),
+            $this->siteName(),
             (string) get_bloginfo('description'),
             FrontendModule::anonymousLocale(),
             wp_timezone()->getName(),
@@ -172,7 +172,47 @@ final class SitePresenter
      * batch): false lets the front end offer guests the native name/email
      * composer; the write route enforces the same switch.
      */
-    private function commentsSettings(): SiteComments
+    /**
+     * HISTORY #26 ①: an empty site title must never reach the contract —
+     * the front end reads an unusable /site payload as a backend outage
+     * and gates the whole site. The chain walks title → tagline → domain.
+     */
+    public function siteName(): string
+    {
+        $name = trim((string) get_bloginfo('name'));
+        if ($name !== '') {
+            return $name;
+        }
+
+        $description = trim((string) get_bloginfo('description'));
+        if ($description !== '') {
+            return $description;
+        }
+
+        $host = (string) wp_parse_url((string) home_url(), PHP_URL_HOST);
+
+        return $host !== '' ? $host : 'AIYA CMS';
+    }
+
+    /** HISTORY #26 ②: the two discussion options are whitelisted on read —
+     * a hand-edited or stale option value must not ship an off-contract
+     * enum into the payload. */
+    private static function commentPage(mixed $value): string
+    {
+        $value = (string) $value;
+
+        return in_array($value, ['newest', 'oldest'], true) ? $value : 'newest';
+    }
+
+    private static function commentOrder(mixed $value): string
+    {
+        $value = (string) $value;
+
+        return in_array($value, ['asc', 'desc'], true) ? $value : 'asc';
+    }
+
+    /** Public for the whitelist contract tests (pure assembly otherwise). */
+    public function commentsSettings(): SiteComments
     {
         return new SiteComments(
             (bool) get_option('require_name_email', true),
@@ -183,8 +223,8 @@ final class SitePresenter
             max(1, (int) get_option('thread_comments_depth', 5)),
             (bool) get_option('page_comments', false),
             max(1, (int) get_option('comments_per_page', 20)),
-            (string) get_option('default_comments_page', 'newest'),
-            (string) get_option('comment_order', 'asc'),
+            self::commentPage(get_option('default_comments_page')),
+            self::commentOrder(get_option('comment_order')),
             (bool) get_option('comment_registration', false)
         );
     }

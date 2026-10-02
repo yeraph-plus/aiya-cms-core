@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Notification;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Content\Mentions;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
@@ -50,18 +51,22 @@ final class NotificationActions implements Module
     private DiscussionService $threads;
     private SmiliesRenderer $smilies;
 
+    private Mentions $mentions;
+
     public function __construct(
         ?NotificationService $notifications = null,
         ?FollowService $follows = null,
         ?FavoriteService $favorites = null,
         ?DiscussionService $threads = null,
-        ?SmiliesRenderer $smilies = null
+        ?SmiliesRenderer $smilies = null,
+        ?Mentions $mentions = null
     ) {
         $this->notifications = $notifications ?? new NotificationService();
         $this->follows = $follows ?? new FollowService();
         $this->favorites = $favorites ?? new FavoriteService();
         $this->threads = $threads ?? new DiscussionService();
         $this->smilies = $smilies ?? new SmiliesRenderer(SmiliesRegistry::shared());
+        $this->mentions = $mentions ?? new Mentions();
     }
 
     public function register(): void
@@ -123,49 +128,93 @@ final class NotificationActions implements Module
         $excerpt = wp_trim_words(wp_strip_all_tags($this->smilies->strip((string) $comment->comment_content)), 16);
         $parentCommentId = (int) $comment->comment_parent;
 
+        // Everyone this comment already notified — actor and post author
+        // on both shapes, the parent commenter on the reply shape. The
+        // mention fanout below drops them so one comment is one row per
+        // viewer.
+        $already = array_values(array_filter([$actorId, (int) $post->post_author]));
+
         if ($parentCommentId > 0) {
             // Reply to a comment: the parent commenter is the recipient.
+            // A guest or self parent stays silent on this leg, but the
+            // reply's own mentions still fan out below.
             $parent = get_comment($parentCommentId);
             $recipient = $parent !== null ? (int) $parent->user_id : 0;
-            if ($recipient <= 0 || $recipient === $actorId) {
-                return;
+            if ($recipient > 0 && $recipient !== $actorId) {
+                $already[] = $recipient;
+                $this->notify(
+                    $recipient,
+                    NotificationService::TYPE_COMMENT_REPLIED,
+                    $actorId,
+                    'comment',
+                    $commentId,
+                    sprintf(
+                        /* translators: %1$s: commenter name. */
+                        __('%1$s replied to your comment.', 'aiya-core'),
+                        $this->displayName($actorId)
+                    ),
+                    $excerpt
+                );
             }
-            $this->notify(
-                $recipient,
-                NotificationService::TYPE_COMMENT_REPLIED,
-                $actorId,
-                'comment',
-                $commentId,
-                sprintf(
-                    /* translators: %1$s: commenter name. */
-                    __('%1$s replied to your comment.', 'aiya-core'),
-                    $this->displayName($actorId)
-                ),
-                $excerpt
-            );
-
-            return;
+        } else {
+            // Top-level comment: the post author is the recipient.
+            $recipient = (int) $post->post_author;
+            if ($recipient > 0 && $recipient !== $actorId) {
+                $this->notify(
+                    $recipient,
+                    NotificationService::TYPE_POST_COMMENTED,
+                    $actorId,
+                    'post',
+                    $postId,
+                    sprintf(
+                        /* translators: 1: commenter name, 2: post title. */
+                        __('%1$s commented on your article "%2$s".', 'aiya-core'),
+                        $this->displayName($actorId),
+                        (string) $post->post_title
+                    ),
+                    $excerpt
+                );
+            }
         }
 
-        // Top-level comment: the post author is the recipient.
-        $recipient = (int) $post->post_author;
-        if ($recipient <= 0 || $recipient === $actorId) {
-            return;
-        }
-        $this->notify(
-            $recipient,
-            NotificationService::TYPE_POST_COMMENTED,
+        // Mention fanout on both shapes: a nested reply can mention
+        // someone just as a top-level comment can.
+        $this->notifyMentioned(
+            NotificationService::TYPE_COMMENT_MENTIONED,
+            (string) $comment->comment_content,
             $actorId,
-            'post',
-            $postId,
+            'comment',
+            $commentId,
             sprintf(
                 /* translators: 1: commenter name, 2: post title. */
-                __('%1$s commented on your article "%2$s".', 'aiya-core'),
+                __('%1$s mentioned you in a comment on "%2$s".', 'aiya-core'),
                 $this->displayName($actorId),
                 (string) $post->post_title
             ),
-            $excerpt
+            $excerpt,
+            array_values(array_unique($already))
         );
+    }
+
+    /**
+     * Mention fanout for one content piece: resolve @tokens, exclude the
+     * already-notified viewers, cap at the service limit, notify the rest.
+     *
+     * @param list<int> $exclude
+     */
+    private function notifyMentioned(
+        string $type,
+        string $content,
+        int $actorId,
+        string $objectType,
+        int $objectId,
+        string $title,
+        string $excerpt,
+        array $exclude
+    ): void {
+        foreach ($this->mentions->resolve($content, $exclude) as $recipientId) {
+            $this->notify($recipientId, $type, $actorId, $objectType, $objectId, $title, $excerpt);
+        }
     }
 
     /**
@@ -281,6 +330,41 @@ final class NotificationActions implements Module
             $message,
             $excerpt
         );
+
+        // Reply-body mentions: everyone @-referenced minus the replier
+        // and the 楼主 (who just received the reply row itself) — a
+        // self-mention never notifies.
+        $reply = $this->threads->replyById($replyId);
+        if ($reply !== null) {
+            $this->notifyMentioned(
+                NotificationService::TYPE_THREAD_MENTIONED,
+                (string) $reply->content,
+                $replierId,
+                'discussion',
+                $threadId,
+                self::threadMentionCopy($this->displayName($replierId), $title),
+                wp_trim_words(wp_strip_all_tags($this->smilies->strip((string) $reply->content)), 16),
+                [$replierId, (int) $thread->user_id]
+            );
+        }
+    }
+
+    /** The community mention title: a titled thread names the thread, a
+     * title-less one falls back to the community string. */
+    private static function threadMentionCopy(string $actor, string $title): string
+    {
+        return $title === ''
+            ? sprintf(
+                /* translators: %s: actor name. */
+                __('%s mentioned you in a community thread.', 'aiya-core'),
+                $actor
+            )
+            : sprintf(
+                /* translators: 1: actor name, 2: thread title. */
+                __('%1$s mentioned you in the thread "%2$s".', 'aiya-core'),
+                $actor,
+                $title
+            );
     }
 
     /** A followed user published a community thread. */
@@ -305,12 +389,30 @@ final class NotificationActions implements Module
                 $title
             );
 
+        // Mention fanout before the follower sweep: a mentioned follower is
+        // covered by the mention row and dropped from the follower sweep.
+        // Mentioned users read a "mentioned you" row, not the follower
+        // sweep's "published" copy.
+        $mentioned = $this->mentions->resolve((string) $thread->content, [$authorId]);
+        foreach ($mentioned as $recipientId) {
+            $this->notify(
+                $recipientId,
+                NotificationService::TYPE_THREAD_MENTIONED,
+                $authorId,
+                'discussion',
+                $threadId,
+                self::threadMentionCopy($this->displayName($authorId), $title),
+                $this->threadExcerpt((string) $thread->content)
+            );
+        }
+
         $this->fanOutToFollowers(
             $authorId,
             'discussion',
             $threadId,
             $message,
-            $this->threadExcerpt((string) $thread->content)
+            $this->threadExcerpt((string) $thread->content),
+            $mentioned
         );
     }
 
@@ -440,7 +542,11 @@ final class NotificationActions implements Module
         }
     }
 
-    private function fanOutToFollowers(int $authorId, string $objectType, int $objectId, string $title, string $excerpt = ''): void
+    /**
+     * @param list<int> $exclude viewer ids already notified by an earlier
+     *                            fanout of the same event
+     */
+    private function fanOutToFollowers(int $authorId, string $objectType, int $objectId, string $title, string $excerpt = '', array $exclude = []): void
     {
         // First follower page only: the fanout is a best-effort window
         // capped at 100 — authors past that size need a queued fanout,
@@ -448,7 +554,7 @@ final class NotificationActions implements Module
         $result = $this->follows->followerIds($authorId, 1, 100);
         foreach ($result['ids'] as $followerId) {
             $followerId = (int) $followerId;
-            if ($followerId <= 0 || $followerId === $authorId) {
+            if ($followerId <= 0 || $followerId === $authorId || in_array($followerId, $exclude, true)) {
                 continue;
             }
             $this->notify(

@@ -6,6 +6,7 @@ namespace Aiya\Core\Api\Presenter;
 
 use Aiya\Core\Api\Contract\Comment;
 use Aiya\Core\Api\Contract\CommentAuthor;
+use Aiya\Core\Domain\Content\Mentions;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use WP_Comment;
 
@@ -42,11 +43,22 @@ final class CommentPresenter
         'img' => ['src' => true, 'alt' => true, 'class' => ['values' => ['aiya-smilie']], 'loading' => true],
     ];
 
-    public function __construct(private readonly SmiliesRenderer $smilies)
-    {
+    public function __construct(
+        private readonly SmiliesRenderer $smilies,
+        private readonly ?Mentions $mentions = null,
+    ) {
     }
 
-    /** @return array<string, mixed> */
+    /** The kses-clean body with mention anchors injected (renderer-side
+     * only — stored content stays anchor-free). */
+    private function bodySource(WP_Comment $comment): string
+    {
+        $clean = wp_kses((string) $comment->comment_content, self::ALLOWED_TAGS);
+
+        return $this->mentions?->linkify($clean) ?? $clean;
+    }
+
+    /** @return array<string, mixed> the contract-ready comment shape */
     public function present(WP_Comment $comment): array
     {
         $authorId = (int) $comment->user_id;
@@ -68,7 +80,9 @@ final class CommentPresenter
             // and lets the renderer inject exactly its whitelisted smilies
             // imgs — the state machine only touches text nodes. `body`
             // stays the source form.
-            $this->smilies->render(wp_kses((string) $comment->comment_content, self::ALLOWED_TAGS)),
+            // Mentions resolve against the kses-clean body (the anchor is
+            // renderer-injected, never stored), then smilies ride on top.
+            $this->smilies->render($this->bodySource($comment)),
             is_string($publishedAt) ? $publishedAt : '',
         ))->toArray();
     }
