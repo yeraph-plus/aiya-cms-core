@@ -41,7 +41,7 @@ final class UserPresenter
             (string) $user->user_email,
             (string) $user->user_url,
             (string) get_user_meta((int) $user->ID, 'description', true),
-            get_user_locale((int) $user->ID),
+            (string) get_user_meta((int) $user->ID, 'locale', true),
             $this->registeredAt($user),
             $this->role($user),
             UserBan::isBanned((int) $user->ID),

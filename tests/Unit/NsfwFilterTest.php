@@ -23,6 +23,7 @@ final class NsfwFilterTest extends TestCase
     {
         $GLOBALS['__aiya_test_options'] = [];
         $GLOBALS['__aiya_test_terms'] = [];
+        $GLOBALS['__aiya_test_term_children'] = [];
         $GLOBALS['__aiya_test_user_meta'] = [];
         $GLOBALS['__aiya_test_current_user_id'] = 0;
     }
@@ -50,6 +51,36 @@ final class NsfwFilterTest extends TestCase
         $ids = (new NsfwFilter())->configuredTermIds(PublicTypes::get('post') ?? throw new \RuntimeException());
 
         self::assertSame([3, 7], $ids);
+    }
+
+    public function testAConfiguredParentKicksItsWholeSubtree(): void
+    {
+        // r18 (configured) with child r18-games and grandchild r18-doujin;
+        // a sibling term stays out. Posts under the children never carry
+        // the parent's term row — the expansion is what keeps them kicked.
+        $this->term(11, 111, 'category');
+        $this->term(12, 112, 'category');
+        $this->term(13, 113, 'category');
+        $this->term(14, 114, 'category');
+        $GLOBALS['__aiya_test_options']['content']['nsfw_post'] = [11];
+        $GLOBALS['__aiya_test_term_children'][11] = [12, 13, 14];
+        $GLOBALS['__aiya_test_term_children'][12] = [13];
+
+        $ids = (new NsfwFilter())->configuredTermIds(PublicTypes::get('post') ?? throw new \RuntimeException());
+
+        self::assertSame([11, 12, 13, 14], $ids);
+
+        $ttIds = (new NsfwFilter())->excludedTermTaxonomyIds(PublicTypes::get('post') ?? throw new \RuntimeException(), true);
+        self::assertSame([111, 112, 113, 114], $ttIds);
+    }
+
+    public function testUnresolvableConfiguredTermsExpandToNothing(): void
+    {
+        $GLOBALS['__aiya_test_options']['content']['nsfw_post'] = [99];
+
+        $ids = (new NsfwFilter())->configuredTermIds(PublicTypes::get('post') ?? throw new \RuntimeException());
+
+        self::assertSame([99], $ids, 'a since-deleted term contributes itself only, no taxonomy is guessed');
     }
 
     public function testAnswersNothingWithoutTheRequestFlag(): void

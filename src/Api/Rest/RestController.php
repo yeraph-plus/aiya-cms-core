@@ -19,6 +19,7 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\CommentQuery;
 use Aiya\Core\Domain\Content\PostVisibility;
+use Aiya\Core\Domain\Content\HotPostsQuery;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
@@ -41,6 +42,7 @@ use Aiya\Core\Domain\Sponsorship\EntitlementService;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use Aiya\Core\Domain\Sponsorship\OrderService;
 use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
+use Aiya\Infra\OpenCc\Converter;
 use Closure;
 
 /**
@@ -65,6 +67,7 @@ final class RestController implements Module
     public function register(): void
     {
         Envelope::register();
+        (new ScriptVariant(new Converter()))->register();
         (new CorsHeaders(fn (): array => array_values(array_map('strval', (array) aiya_core_opt('security', 'rest_allowed_origins', [])))))->register();
         (new HttpCache())->register();
 
@@ -101,6 +104,7 @@ final class RestController implements Module
             (new ContentController(
                 new ContentQuery($this->visibility),
                 new RelatedPostsQuery($this->visibility),
+                new HotPostsQuery($this->visibility),
                 $postPresenter,
                 new SitePresenter(),
                 new ProfilePresenter($postPresenter, $favorites, $presenter, new FollowService()),

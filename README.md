@@ -4,8 +4,20 @@ Headless-first WordPress plugin for AIYA CMS (WP 6.4+, developed and
 running against WP 7.1, runtime PHP 8.5, `Requires PHP: 8.5`): the
 admin half of a decoupled site — settings, content domains, media
 pipeline, community, notifications and a versioned REST contract
-(`aiya/core/v1`) consumed by the Astro front end (`front-station/`).
-No Gutenberg, no React in the admin; native admin styles only.
+(`aiya/core/v1`) consumed by the Astro front end. No Gutenberg, no
+React in the admin; native admin styles only.
+
+## Ecosystem
+
+- **this repository** — WordPress backend: content domains, settings,
+  the versioned `aiya/core/v1` contract
+- **[`aiya-cms-station`](https://github.com/yeraph-plus/aiya-cms-station)**
+  — the Astro SSR front end that consumes the contract; its README is
+  the authoritative deployment doc (nginx topology, environment
+  variables, the siteurl-origin rule)
+- **[`aiya-cms-resource-publisher`](https://github.com/yeraph-plus/aiya-cms-resource-publisher)**
+  — local desktop publisher for resource posts; the companion
+  `aiya-publish/v1` WP plugin ships from that same repo
 
 ## Layout
 
@@ -43,7 +55,7 @@ After activation the plugin runs its five clean-install migrations
 (0.80.0 pure CREATE TABLE statements — no upgrade steps, no data
 conversions), defaults permalinks to `/%postname%/` when empty and
 schedules its crons. See `docs/ARCHITECTURE.md` for module wiring and
-`AGENTS.md` (workspace root) for the iteration log.
+`docs/ROADMAP.md` for the milestone-by-milestone iteration log.
 
 ## Releases
 
@@ -126,14 +138,18 @@ docker compose run --rm wpcli plugin activate aiya-core
   - `/wp/v2` is gated to logged-in editors automatically; first-party
     namespaces self-announce via `aiya_core_firstparty_rest_namespaces`.
 
-### 2. Frontend (front-station)
+### 2. Frontend ([aiya-cms-station](https://github.com/yeraph-plus/aiya-cms-station))
+
+The Astro SSR application (`front-station/` in the dev workspace).
+Its README is the authoritative deployment doc; the short version:
 
 ```bash
 cd front-station
 npm install
-cp .env.example .env        # AIYA_SITE_URL / AIYA_WP_API_URL / AIYA_API_TIMEOUT_MS /
-                            # AIYA_ALLOW_LOCAL_HTTP / AIYA_PROXY_SECRET / AIYA_CLIENT_IP_HEADER
-npm run verify              # astro check + vitest + build
+cp .env.example .env        # server-side only: AIYA_SITE_URL / AIYA_WP_API_URL /
+                            # AIYA_PROXY_SECRET (+ optional timeout / visitor-IP
+                            # header / session cookie domain)
+npm run verify              # astro check + vitest + prettier + build
 npm start                   # node dist/server/entry.mjs (env-file aware)
 ```
 

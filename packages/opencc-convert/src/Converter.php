@@ -46,6 +46,11 @@ final class Converter
 
         $this->engine ??= new OpenCC();
 
-        return $this->engine->convert($content, $strategy);
+        // The underlying engine accepts string|array input and mirrors the
+        // input type in its output; a string input always answers a string.
+        /** @var string $converted */
+        $converted = $this->engine->convert($content, $strategy);
+
+        return $converted;
     }
 }

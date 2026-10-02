@@ -82,7 +82,7 @@ final class NotificationController
         );
 
         return new WP_REST_Response([
-            'items' => $items,
+            'data' => $items,
             'meta' => [
                 'apiVersion' => Contract::VERSION,
                 'requestId' => Envelope::meta()['requestId'],

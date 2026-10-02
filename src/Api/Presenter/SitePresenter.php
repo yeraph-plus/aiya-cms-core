@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Presenter;
 
 use Aiya\Core\Api\Contract\BeianLink;
+use Aiya\Core\Domain\Content\FrontendModule;
 use Aiya\Core\Api\Contract\Image;
 use Aiya\Core\Api\Contract\Site;
 use Aiya\Core\Domain\Content\ContentBlocks;
@@ -46,7 +47,7 @@ final class SitePresenter
         return new Site(
             (string) get_bloginfo('name'),
             (string) get_bloginfo('description'),
-            (string) get_locale(),
+            FrontendModule::anonymousLocale(),
             wp_timezone()->getName(),
             $this->attachmentImage((int) get_option('site_icon')),
             $this->banner(),

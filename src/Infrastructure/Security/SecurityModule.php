@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Infrastructure\Security;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Shared\FrontendDomain;
 use Aiya\Core\Settings\Registry;
 
 /**
@@ -15,7 +16,10 @@ use Aiya\Core\Settings\Registry;
  * surface lock and the sitemap toggles moved to HeadlessModule in the
  * current batch — the API lock now lives with the other headless strips):
  *  - force email-address logins for wp-admin;
- *  - optional role gate for the admin back end;
+ *  - optional role gate for the admin back end — the one access level both
+ *    guarded surfaces read: wp-admin redirects below-gate sessions to the
+ *    front-end site here, and HeadlessModule uses the same level to decide
+ *    which sessions keep the native /wp/v2 API;
  *  - optional countdown gate for wp-login.php (self-rotating unlock
  *    parameter — the login form only appears after the countdown, no
  *    shared secret to configure);
@@ -116,7 +120,7 @@ final class SecurityModule implements Module
                     'id' => 'admin_backend_min_role',
                     'type' => 'select',
                     'label' => __('Admin back end minimum role', 'aiya-core'),
-                    'description' => __('Users below the selected role are redirected away from wp-admin. Off by default.', 'aiya-core'),
+                    'description' => __('Users below the selected role are redirected to the front-end site. The same level unlocks the native /wp/v2 API for their sessions (see Optimization). Off by default.', 'aiya-core'),
                     'default' => 'off',
                     'options' => [
                         'off' => __('Off', 'aiya-core'),
@@ -187,16 +191,30 @@ final class SecurityModule implements Module
             return;
         }
 
-        $minimum = (string) aiya_core_opt(self::PAGE_SLUG, 'admin_backend_min_role', 'off');
-        if ($minimum === 'off' || !isset(self::CAPABILITY_BY_ROLE[$minimum])) {
-            return;
-        }
-        if (current_user_can(self::CAPABILITY_BY_ROLE[$minimum])) {
+        $capability = self::backendGateCapability();
+        if ($capability === null || current_user_can($capability)) {
             return;
         }
 
-        wp_safe_redirect(home_url('/'));
+        // wp_redirect, not the safe variant: the front end lives on another
+        // host by design, and the target is the admin-configured normalized
+        // origin (or the local shell when none is set).
+        wp_redirect(esc_url_raw(FrontendDomain::origin() ?? home_url('/')), 302); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- the front-end origin is another host by design
         exit;
+    }
+
+    /**
+     * The unified back-end access level: the capability of the Security
+     * page's minimum role, or null when the gate is off / the stored value
+     * is not a known role. Both guarded surfaces — wp-admin here and the
+     * native /wp/v2 API in HeadlessModule — read the same level from this
+     * one decision, so the settings page stays the single source of truth.
+     */
+    public static function backendGateCapability(): ?string
+    {
+        $minimum = (string) aiya_core_opt(self::PAGE_SLUG, 'admin_backend_min_role', 'off');
+
+        return self::CAPABILITY_BY_ROLE[$minimum] ?? null;
     }
 
     /**

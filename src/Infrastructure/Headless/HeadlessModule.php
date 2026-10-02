@@ -6,6 +6,8 @@ namespace Aiya\Core\Infrastructure\Headless;
 
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Shared\FrontendDomain;
+use Aiya\Core\Infrastructure\Security\SecurityModule;
 use Aiya\Core\Settings\Registry;
 
 /**
@@ -168,7 +170,7 @@ final class HeadlessModule implements Module
                     'type' => 'switch',
                     'label' => __('Native /wp/v2 REST API', 'aiya-core'),
                     'checkbox_label' => __('Answer 404 for the whole /wp/v2 API — only the aiya contract routes stay public', 'aiya-core'),
-                    'description' => __('The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Backend sessions (administrator, editor, author) keep the full /wp/v2 for admin screens such as the media picker.', 'aiya-core'),
+                    'description' => __('The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Sessions meeting the Security page\'s back-end minimum role keep the full /wp/v2 for admin screens such as the media picker — author level and above while that gate is off; signed-in sessions below the level are redirected to the front-end site.', 'aiya-core'),
                     'default' => true,
                 ],
                 [
@@ -268,18 +270,25 @@ final class HeadlessModule implements Module
     }
 
     /**
-     * Whole /wp/v2 answers 404 unless the session belongs to an author-
-     * level backend user (cookie or application password with
-     * publish_posts); one capability check, no per-route nuance. The
-     * contract routes stay public next to the gateway pushes, which are
-     * always anonymous and authenticated by their own signatures.
+     * Whole /wp/v2 answers 404 unless the session clears the unified back-end
+     * gate — the Security page's minimum role, falling back to the author-
+     * level posture while that gate is off. One capability check, no
+     * per-route nuance. The contract routes stay public next to the gateway
+     * pushes, which are always anonymous and authenticated by their own
+     * signatures.
+     *
+     * A signed-in session below the gate that hand-types a locked namespace
+     * is bounced to the front-end site instead of the bare 404 — the gate's
+     * verdict is "the back end is not for you", and the front end is where
+     * that session belongs. Anonymous requests keep the dark 404: no session
+     * to redirect, and probes learn nothing.
      *
      * @param array<string, mixed> $endpoints
      * @return array<string, mixed>
      */
     public function lockWpV2(array $endpoints): array
     {
-        if (!$this->enabled('lock_wp_v2') || current_user_can('publish_posts')) {
+        if (!$this->enabled('lock_wp_v2') || current_user_can(SecurityModule::backendGateCapability() ?? 'publish_posts')) {
             return $endpoints;
         }
 
@@ -295,6 +304,23 @@ final class HeadlessModule implements Module
             static fn ($candidate): bool => is_string($candidate) && $candidate !== ''
         ));
 
+        $restRoute = '';
+        $requestPath = '';
+        if (isset($_GET['rest_route']) && is_string($_GET['rest_route'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- routing hint read at dispatch, not form processing
+            $restRoute = (string) wp_unslash($_GET['rest_route']); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- routing hint read at dispatch, not form processing
+        } else {
+            $parsed = wp_parse_url((string) ($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH);
+            $requestPath = is_string($parsed) ? $parsed : '';
+        }
+
+        if (is_user_logged_in() && !self::requestHitsNamespace($allowed, $requestPath, $restRoute)) {
+            // wp_redirect, not the safe variant: the front end lives on
+            // another host by design, and the target is the admin-configured
+            // normalized origin (or the local shell when none is set).
+            wp_redirect(esc_url_raw(FrontendDomain::origin() ?? home_url('/')), 302); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- the front-end origin is another host by design
+            exit;
+        }
+
         foreach (array_keys($endpoints) as $route) {
             if (!is_string($route)) {
                 unset($endpoints[$route]);
@@ -309,6 +335,39 @@ final class HeadlessModule implements Module
         }
 
         return $endpoints;
+    }
+
+    /**
+     * Whether a REST request path targets one of the allowed namespaces —
+     * pure so the redirect-vs-strip decision is testable without the exit.
+     * The plain-permalink REST form (?rest_route=/wp/v2/…) carries the route
+     * in the query and nothing usable in the path, so it overrides; the
+     * pretty form is cut at the REST prefix, which folds sub-directory
+     * installs away. Both shapes compare with a leading slash.
+     *
+     * @param list<string> $allowedPrefixes
+     */
+    public static function requestHitsNamespace(array $allowedPrefixes, string $requestPath, string $restRoute = ''): bool
+    {
+        $path = '';
+        if ($restRoute !== '') {
+            $path = '/' . ltrim($restRoute, '/');
+        } elseif ($requestPath !== '') {
+            $marker = '/' . trim(rest_get_url_prefix(), '/') . '/';
+            $position = stripos($requestPath, $marker);
+            if ($position === false) {
+                return false;
+            }
+            $path = '/' . substr($requestPath, $position + strlen($marker));
+        }
+
+        foreach ($allowedPrefixes as $prefix) {
+            if (str_starts_with($path, $prefix)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** Kills the sitemap index, every provider and the robots.txt sitemap line in one switch. */

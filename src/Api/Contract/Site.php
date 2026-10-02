@@ -6,7 +6,8 @@ namespace Aiya\Core\Api\Contract;
 
 /**
  * Site identity and shell configuration for the front end. `language` is
- * the WP locale (e.g. zh_CN), `timezone` the IANA identifier configured
+ * the front end's default locale (the Frontend page's setting, falling
+ * back to the WP site locale), `timezone` the IANA identifier configured
  * in Settings; `favicon` mirrors the WP site icon, `banner` is the header
  * banner from the Frontend settings page (null when the switch is off),
  * `registrationOpen` mirrors the WP membership setting

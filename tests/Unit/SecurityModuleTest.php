@@ -102,4 +102,34 @@ final class SecurityModuleTest extends TestCase
         $_GET = ['rest_route' => ''];
         self::assertTrue(SecurityModule::isBlockedUri('/?rest_route=&search=' . str_repeat('c', 280)), 'an empty rest_route is not a REST request');
     }
+
+    /**
+     * The unified back-end gate: one setting, one capability — wp-admin
+     * (guardBackend) and the native /wp/v2 lock (HeadlessModule) read the
+     * same decision. Unknown stored values read as off, never as a role.
+     */
+    public function testBackendGateCapabilityFollowsTheSecuritySetting(): void
+    {
+        $expected = [
+            'off' => null,
+            'subscriber' => 'read',
+            'contributor' => 'edit_posts',
+            'author' => 'publish_posts',
+            'editor' => 'publish_pages',
+            'administrator' => 'manage_options',
+            'bogus' => null,
+        ];
+
+        $stored = &$GLOBALS['__aiya_test_options']['security']['admin_backend_min_role'];
+        try {
+            foreach ($expected as $value => $capability) {
+                $stored = $value;
+                self::assertSame($capability, SecurityModule::backendGateCapability(), "gate value '{$value}'");
+            }
+            unset($GLOBALS['__aiya_test_options']['security']['admin_backend_min_role']);
+            self::assertNull(SecurityModule::backendGateCapability(), 'an unset gate reads as off');
+        } finally {
+            unset($GLOBALS['__aiya_test_options']['security']);
+        }
+    }
 }

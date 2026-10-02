@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Domain\Shared\FrontendLocales;
 use Aiya\Core\Api\Contract\Pagination;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
@@ -29,7 +30,6 @@ use WP_User;
  */
 final class UserController
 {
-    private const ALLOWED_LOCALES = ['zh_CN', 'zh_TW', 'zh_HK', 'en_US'];
     private const MAX_NICKNAME_LENGTH = 50;
 
     public function __construct(
@@ -322,9 +322,13 @@ final class UserController
         }
 
         $locale = $request->get_param('locale');
-        if ($locale !== null) {
+        // An empty string is "no choice" — members who never picked a locale
+        // legitimately carry one (the front end falls back to the site
+        // default for them), so it must skip validation instead of 400ing
+        // every profile save that round-trips the field untouched.
+        if ($locale !== null && $locale !== '') {
             $locale = sanitize_text_field((string) $locale);
-            if (!in_array($locale, self::ALLOWED_LOCALES, true)) {
+            if (!in_array($locale, FrontendLocales::ALL, true)) {
                 $errors[] = __('The locale is not supported.', 'aiya-core');
             } else {
                 $userdata['locale'] = $locale;

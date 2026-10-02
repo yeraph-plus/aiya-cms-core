@@ -3166,3 +3166,27 @@ msgstr "vendor/ 等大型依赖目录会被瞬时移出、避免删除过程长�
 msgid "Cancel, back to the plugin list"
 msgstr "取消，返回插件列表"
 
+
+msgid "Users below the selected role are redirected to the front-end site. The same level unlocks the native /wp/v2 API for their sessions (see Optimization). Off by default."
+msgstr "低于所选角色的用户将被重定向到前台站点。同一级别也会为其会话解锁原生 /wp/v2 API（见「优化」）。默认关闭。"
+
+msgid "The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Sessions meeting the Security page's back-end minimum role keep the full /wp/v2 for admin screens such as the media picker — author level and above while that gate is off; signed-in sessions below the level are redirected to the front-end site."
+msgstr "前端只消费 aiya/core/v1，原生 API 已无公开消费方，用户枚举也随之消失。达到「安全加固」页后台最低角色的会话保留完整 /wp/v2，供媒体选择器等管理界面使用——该门禁关闭时为作者及以上；登录态会话低于该级别时将被重定向到前台站点。"
+
+msgid "Front-end language"
+msgstr "前台语言"
+
+msgid "The interface language signed-out visitors start with; signed-in members override it from their account settings. Auto follows the WordPress site language."
+msgstr "未登录访客的默认界面语言；已登录成员可在账户设置中另行选择。Auto 跟随 WordPress 站点语言。"
+
+msgid "Auto (site language)"
+msgstr "自动（跟随站点语言）"
+
+msgid "Default article hero"
+msgstr "文章头图默认图"
+
+msgid "The banner crop served as the article hero for posts whose author did not set a featured image. Leave unset to let those heroes fall back to the card cover chain instead."
+msgstr "作者未设置特色图片的文章，其头图使用本图的横幅裁剪。留空则这些文章的头图回落到卡片封面链。"
+
+msgid "Used wherever a card cover is missing: list card thumbnails and category cards — each surface derives its own crop from this one image. The article hero has its own default below."
+msgstr "卡片封面缺失时使用：列表卡片缩略图与分类卡片——各表面从这一张图派生自己的裁剪。文章头图在下方有独立默认值。"

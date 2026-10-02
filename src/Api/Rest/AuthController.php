@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Domain\Shared\FrontendLocales;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
@@ -58,6 +59,7 @@ final class AuthController
                 'email' => ['type' => 'string', 'required' => true, 'format' => 'email'],
                 'password' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
                 'passwordConfirm' => ['type' => 'string', 'required' => true],
+                'locale' => ['type' => 'string', 'required' => false],
             ],
         ]);
 
@@ -158,16 +160,31 @@ final class AuthController
             return new WP_Error('aiya_registration_failed', __('The account could not be created, please retry.', 'aiya-core'), ['status' => 500]);
         }
 
+        // Optional interface language: lands on WP's native per-user locale
+        // field, so the viewer's first render — and the script-variant exit
+        // filter — resolve to it without a settings detour.
+        $locale = $request->get_param('locale');
+        if ($locale !== null) {
+            $locale = sanitize_text_field((string) $locale);
+            if (!in_array($locale, FrontendLocales::ALL, true)) {
+                return $this->invalidParam(__('The locale is not supported.', 'aiya-core'));
+            }
+        }
+
         $userId = wp_create_user($username, $password, $email);
         if (is_wp_error($userId)) {
             return new WP_Error('aiya_registration_failed', __('The account could not be created, please retry.', 'aiya-core'), ['status' => 500]);
         }
 
-        $updated = wp_update_user([
+        $userdata = [
             'ID' => $userId,
             'nickname' => $nickname,
             'display_name' => $nickname,
-        ]);
+        ];
+        if ($locale !== null) {
+            $userdata['locale'] = $locale;
+        }
+        $updated = wp_update_user($userdata);
         if ($updated instanceof WP_Error) {
             // The account row exists but the profile write failed — the
             // client must not read a clean 200 as "fully registered".

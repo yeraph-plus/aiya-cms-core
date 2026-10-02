@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Content;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Shared\FrontendLocales;
 use Aiya\Core\Settings\Registry;
 
 /**
@@ -32,6 +33,25 @@ use Aiya\Core\Settings\Registry;
 final class FrontendModule implements Module
 {
     public const OPTION_NAME = 'aiya_core_frontend';
+
+    /**
+     * The configured front-end default locale, or null when the setting is
+     * auto/unset/unusable — callers fall back to the WP site language. The
+     * front end reads the same value through GET /site's `language` field,
+     * so its dictionaries and this conversion trigger can never disagree.
+     */
+    public static function defaultLanguage(): ?string
+    {
+        $value = (string) aiya_core_opt('frontend', 'default_language', 'auto');
+
+        return in_array($value, FrontendLocales::ALL, true) ? $value : null;
+    }
+
+    /** The locale a viewer starts from without an explicit choice of their own. */
+    public static function anonymousLocale(): string
+    {
+        return self::defaultLanguage() ?? (string) get_locale();
+    }
 
     public const MIGRATION_VERSION = '1.0.0';
 
@@ -84,6 +104,20 @@ final class FrontendModule implements Module
                     'default' => '',
                 ],
                 [
+                    'id' => 'default_language',
+                    'type' => 'select',
+                    'label' => __('Front-end language', 'aiya-core'),
+                    'description' => __('The interface language signed-out visitors start with; signed-in members override it from their account settings. Auto follows the WordPress site language.', 'aiya-core'),
+                    'default' => 'auto',
+                    'options' => [
+                        'auto' => __('Auto (site language)', 'aiya-core'),
+                        'zh_CN' => '简体中文',
+                        'zh_TW' => '繁體中文',
+                        'zh_HK' => '繁體中文（香港）',
+                        'en_US' => 'English',
+                    ],
+                ],
+                [
                     'id' => 'heading_appearance',
                     'type' => 'heading',
                     'label' => __('Presentation defaults', 'aiya-core'),
@@ -112,7 +146,14 @@ final class FrontendModule implements Module
                     'id' => 'default_thumb',
                     'type' => 'media',
                     'label' => __('Site fallback cover', 'aiya-core'),
-                    'description' => __('Used wherever a cover is missing: list card thumbnails, category cards and the article hero — each surface derives its own crop from this one image.', 'aiya-core'),
+                    'description' => __('Used wherever a card cover is missing: list card thumbnails and category cards — each surface derives its own crop from this one image. The article hero has its own default below.', 'aiya-core'),
+                    'default' => 0,
+                ],
+                [
+                    'id' => 'default_hero',
+                    'type' => 'media',
+                    'label' => __('Default article hero', 'aiya-core'),
+                    'description' => __('The banner crop served as the article hero for posts whose author did not set a featured image. Leave unset to let those heroes fall back to the card cover chain instead.', 'aiya-core'),
                     'default' => 0,
                 ],
                 [

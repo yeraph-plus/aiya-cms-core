@@ -30,6 +30,7 @@ final class UserProfile
         public readonly string $email,
         public readonly string $url,
         public readonly string $description,
+        /** The member's explicit interface locale; empty when they never chose one (callers fall back to the site default). */
         public readonly string $locale,
         public readonly string $registeredAt,
         public readonly string $role,

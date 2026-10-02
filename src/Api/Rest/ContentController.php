@@ -16,6 +16,7 @@ use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\NsfwFilter;
 use Aiya\Core\Domain\Shared\PublicType;
 use Aiya\Core\Domain\Shared\PublicTypes;
+use Aiya\Core\Domain\Content\HotPostsQuery;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use WP_Error;
@@ -42,6 +43,7 @@ final class ContentController
     public function __construct(
         private ContentQuery $query,
         private RelatedPostsQuery $related,
+        private HotPostsQuery $hot,
         private PostPresenter $posts,
         private SitePresenter $site,
         private ProfilePresenter $profiles,
@@ -110,6 +112,22 @@ final class ContentController
             'args' => [
                 'id' => ['type' => 'integer', 'required' => true, 'minimum' => 1],
                 'password' => ['type' => 'string', 'required' => true, 'maxLength' => 255],
+            ],
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/content/hot', [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->hot($request),
+            'permission_callback' => '__return_true',
+            'args' => [
+                'type' => ['type' => 'string', 'default' => 'post', 'enum' => array_keys(PublicTypes::all())],
+                // The window is the publish date: the counters carry no
+                // interaction timestamps, so 0 ranks the all-time table.
+                'days' => ['type' => 'integer', 'default' => HotPostsQuery::DEFAULT_DAYS, 'minimum' => 0, 'maximum' => HotPostsQuery::MAX_DAYS],
+                'number' => ['type' => 'integer', 'default' => HotPostsQuery::DEFAULT_NUMBER, 'minimum' => 1, 'maximum' => HotPostsQuery::MAX_NUMBER],
+                // Same NSFW request as the lists and related: excluded-term
+                // rows drop out of the ranking for visitors who asked.
+                'excludeNsfw' => ['type' => 'boolean', 'default' => false],
             ],
         ]);
 
@@ -421,6 +439,38 @@ final class ContentController
      * through the same visibility rules as the detail route (first
      * matching type wins), results present as PostSummary rows.
      */
+    /**
+     * The popularity leaderboard: publish-window rows ranked by the
+     * per-type engagement score (HotPostsQuery). Cost sits between a plain
+     * list and related — four indexed postmeta LEFT JOINs, no second
+     * taxonomy JOIN — so it carries the related budget too. Answers the
+     * /related shape: PostSummary rows as a bare array under the central
+     * envelope.
+     */
+    private function hot(WP_REST_Request $request): WP_Error|WP_REST_Response
+    {
+        if (!$this->limiter->hit('content_hot', 30, 60)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        }
+
+        $type = PublicTypes::get((string) $request->get_param('type')) ?? PublicTypes::get('post');
+        if ($type === null) {
+            return $this->notFound(__('Content not found.', 'aiya-core'));
+        }
+
+        $items = [];
+        foreach ($this->hot->query(
+            $type,
+            (int) $request->get_param('number'),
+            (int) $request->get_param('days'),
+            $this->nsfw->excludedTermTaxonomyIds($type, (bool) $request->get_param('excludeNsfw'))
+        ) as $row) {
+            $items[] = $this->posts->summary($row, $type)->toArray();
+        }
+
+        return new WP_REST_Response($items);
+    }
+
     private function related(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         // The related scan is the heaviest content read after search

@@ -17,16 +17,17 @@ parameters:
         - packages/gofile-api/src
         - packages/image-processor/src
         - packages/openlist/src
+        - packages/opencc-convert/src
         - packages/payment-epay/src
         - packages/payment-afdian/src
 
     # The bundled packages are not composer-installed, so PHPStan cannot
     # discover Aiya\Infra\* symbols from the vendor autoload map — scan them.
-    # (Five wired packages' src/ are analysed in paths above — gofile-api,
-    # image-processor, openlist, payment-epay, payment-afdian. slug-toolkit
-    # and typesetting are wired too — SlugModule and TypographyModule consume
-    # them — but only symbol-scanned, their APIs being small and stable.
-    # opencc-convert is the one not-yet-wired package.)
+    # (Six wired packages' src/ are analysed in paths above — gofile-api,
+    # image-processor, openlist, opencc-convert, payment-epay, payment-afdian.
+    # slug-toolkit and typesetting are wired too — SlugModule and
+    # TypographyModule consume them — but only symbol-scanned, their APIs
+    # being small and stable.)
     scanDirectories:
         - packages
 

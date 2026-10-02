@@ -423,13 +423,15 @@ final class PostPresenter
 
     /**
      * The detail hero image. POSTS get the always-valued chain: the
-     * featured image first (1000x240 banner crop), then the site fallback
-     * cover through the same crop pipeline — one image, each surface
-     * deriving its own ratio — and finally the card thumbnail chain; the
-     * front end renders the posts hero without any fallback logic of its
-     * own. PAGES and RESOURCES never ride the site defaults (the type
-     * keeps no hero settings): they answer only their own featured image,
-     * usually unset.
+     * featured image first (1000x240 banner crop), then the dedicated
+     * default-hero setting through the same crop pipeline — one image,
+     * each surface deriving its own ratio — and finally the card thumbnail
+     * chain (which also covers the setting being unset); the front end
+     * renders the posts hero without any fallback logic of its own. The
+     * hero carries its own default attachment (default_hero) so the banner
+     * no longer reuses the card covers' fallback source. PAGES and
+     * RESOURCES never ride the site defaults (the type keeps no hero
+     * settings): they answer only their own featured image, usually unset.
      */
     private function featured(WP_Post $post, PublicType $type): ?Image
     {
@@ -438,7 +440,7 @@ final class PostPresenter
             return $own;
         }
 
-        return $this->cards->featuredForAttachment((int) aiya_core_opt('frontend', 'default_thumb', 0))
+        return $this->cards->featuredForAttachment((int) aiya_core_opt('frontend', 'default_hero', 0))
             ?? $this->cards->resolveFor($post);
     }
 

@@ -2004,6 +2004,15 @@ if (!function_exists('remove_action')) {
     }
 }
 
+if (!function_exists('get_term_children')) {
+    function get_term_children(int $termId, string $taxonomy): array
+    {
+        // Core answers every descendant (flat, recursive) from the
+        // taxonomy hierarchy; the fixture is that flat list per term id.
+        return array_map('intval', $GLOBALS['__aiya_test_term_children'][$termId] ?? []);
+    }
+}
+
 if (!function_exists('get_term')) {
     function get_term(mixed $term = null, string $taxonomy = ''): WP_Term|null
     {

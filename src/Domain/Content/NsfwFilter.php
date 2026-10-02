@@ -34,9 +34,14 @@ final class NsfwFilter
     }
 
     /**
-     * The configured NSFW term ids (term_id) of one public type. This is
-     * the list the /terms vocabulary withholding uses (terms are
-     * identified by term_id there).
+     * The configured NSFW term ids (term_id) of one public type, expanded
+     * with every descendant term. This is the list the /terms vocabulary
+     * withholding uses (terms are identified by term_id there). The
+     * subtree expansion is the point: posts filed under a child term do
+     * not carry the parent's term row, so the exact list would let them
+     * resurface through the child — a configured parent kicks its whole
+     * subtree, wherever the viewer enters from (the unfiltered list, the
+     * parent category, or the child itself).
      *
      * @return list<int>
      */
@@ -55,7 +60,51 @@ final class NsfwFilter
             }
         }
 
-        return array_values(array_unique($ids));
+        $expanded = [];
+        $vocabularies = $this->categoryVocabularies($type);
+        foreach (array_values(array_unique($ids)) as $id) {
+            $expanded[] = $id;
+            foreach ($this->descendantTermIds($id, $vocabularies) as $descendant) {
+                $expanded[] = $descendant;
+            }
+        }
+
+        return array_values(array_unique($expanded));
+    }
+
+    /**
+     * Every descendant term_id of one configured term, resolved in the
+     * first category vocabulary the term lives in (core answers the flat,
+     * recursive list).
+     *
+     * @param list<string> $vocabularies
+     * @return list<int>
+     */
+    private function descendantTermIds(int $termId, array $vocabularies): array
+    {
+        foreach ($vocabularies as $taxonomy) {
+            $term = get_term($termId, $taxonomy);
+            if ($term instanceof \WP_Term) {
+                $children = get_term_children($termId, $taxonomy);
+
+                return is_array($children) ? array_map('intval', $children) : [];
+            }
+        }
+
+        return [];
+    }
+
+    /** @return list<string> */
+    private function categoryVocabularies(PublicType $type): array
+    {
+        $vocabularies = [];
+        foreach ($type->taxonomies as [$wpTaxonomy, $contract]) {
+            if ($contract === 'category') {
+                $vocabularies[] = $wpTaxonomy;
+            }
+        }
+
+        return $vocabularies;
     }
 
     /**
@@ -104,12 +153,7 @@ final class NsfwFilter
      */
     private function resolveTaxonomyIds(PublicType $type, array $termIds): array
     {
-        $vocabularies = [];
-        foreach ($type->taxonomies as [$wpTaxonomy, $contract]) {
-            if ($contract === 'category') {
-                $vocabularies[] = $wpTaxonomy;
-            }
-        }
+        $vocabularies = $this->categoryVocabularies($type);
 
         $ids = [];
         foreach ($termIds as $termId) {

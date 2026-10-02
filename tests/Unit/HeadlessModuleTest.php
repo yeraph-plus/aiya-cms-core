@@ -93,4 +93,97 @@ final class HeadlessModuleTest extends TestCase
         self::assertSame('switch', $fields['disable_revisions']->type());
         self::assertTrue($fields['disable_revisions']->defaultValue());
     }
+
+    /**
+     * The namespace match is the redirect-vs-strip hinge: a first-party
+     * target keeps the request on the API (public for every session), a
+     * locked target lets a signed-in below-gate session bounce to the front
+     * end. Both request shapes fold to the same leading-slash path.
+     */
+    public function testTheNamespaceMatchFoldsBothRequestShapes(): void
+    {
+        $allowed = ['/aiya/core/v1'];
+
+        self::assertTrue(HeadlessModule::requestHitsNamespace($allowed, '/wp-json/aiya/core/v1/content/9'));
+        self::assertTrue(
+            HeadlessModule::requestHitsNamespace($allowed, '', '/aiya/core/v1/content/9'),
+            'the plain-permalink REST form carries the route in the query'
+        );
+        self::assertTrue(
+            HeadlessModule::requestHitsNamespace($allowed, '/blog/wp-json/aiya/core/v1/site'),
+            'a sub-directory install is folded away at the REST prefix'
+        );
+        self::assertTrue(HeadlessModule::requestHitsNamespace(['/aiya-publish/v1'], '/wp-json/aiya-publish/v1/users'));
+
+        self::assertFalse(HeadlessModule::requestHitsNamespace($allowed, '/wp-json/wp/v2/posts'));
+        self::assertFalse(
+            HeadlessModule::requestHitsNamespace($allowed, '', '/wp/v2/users'),
+            'the query form answers for locked namespaces too'
+        );
+        self::assertFalse(
+            HeadlessModule::requestHitsNamespace($allowed, '/wp-json/aiya/core/vX/content'),
+            'the match is the full namespace, not a loose prefix'
+        );
+        self::assertFalse(
+            HeadlessModule::requestHitsNamespace($allowed, '/wp-json/'),
+            'the bare index belongs to nobody'
+        );
+        self::assertFalse(HeadlessModule::requestHitsNamespace($allowed, '/wp-json'));
+        self::assertFalse(HeadlessModule::requestHitsNamespace($allowed, ''));
+    }
+
+    /**
+     * The lock reads the Security page's back-end minimum role: while the
+     * gate is off the author-level posture holds (author+ keeps /wp/v2,
+     * everyone else keeps only the first-party routes), and raising the
+     * gate to contributor hands contributor sessions the full API. The
+     * redirect branch (signed-in below the gate on a locked target) exits,
+     * so these fixtures keep the session anonymous or on a first-party
+     * target — the pure decision above covers the bounce itself.
+     */
+    public function testTheLockFollowsTheUnifiedBackendGate(): void
+    {
+        $GLOBALS['__aiya_test_current_user_id'] = 0;
+        $endpoints = ['/wp/v2/posts' => [], '/aiya/core/v1/content' => []];
+
+        // Gate off: the fallback posture is author-level, anonymous keeps
+        // the first-party routes only.
+        $GLOBALS['__aiya_test_options']['security']['admin_backend_min_role'] = 'off';
+        $GLOBALS['__aiya_test_caps'] = false;
+        $locked = $this->module->lockWpV2($endpoints);
+        self::assertArrayNotHasKey('/wp/v2/posts', $locked);
+        self::assertArrayHasKey('/aiya/core/v1/content', $locked);
+
+        $GLOBALS['__aiya_test_caps'] = true;
+        self::assertArrayHasKey(
+            '/wp/v2/posts',
+            $this->module->lockWpV2($endpoints),
+            'an author-level session clears the off-gate fallback'
+        );
+
+        // Gate at contributor: a session below it stays stripped even signed
+        // in — the first-party target keeps the request off the redirect
+        // branch, which is exactly the shape a front-end call carries.
+        $GLOBALS['__aiya_test_options']['security']['admin_backend_min_role'] = 'contributor';
+        $GLOBALS['__aiya_test_caps'] = false;
+        $GLOBALS['__aiya_test_current_user_id'] = 7;
+        $_SERVER['REQUEST_URI'] = '/wp-json/aiya/core/v1/content';
+        try {
+            $locked = $this->module->lockWpV2($endpoints);
+        } finally {
+            unset($_SERVER['REQUEST_URI']);
+            $GLOBALS['__aiya_test_current_user_id'] = 0;
+        }
+
+        self::assertArrayNotHasKey('/wp/v2/posts', $locked);
+        self::assertArrayHasKey('/aiya/core/v1/content', $locked);
+
+        // The same session level clears the raised gate and keeps the whole API.
+        $GLOBALS['__aiya_test_caps'] = true;
+        self::assertArrayHasKey(
+            '/wp/v2/posts',
+            $this->module->lockWpV2($endpoints),
+            'a contributor-level session clears the contributor gate'
+        );
+    }
 }
