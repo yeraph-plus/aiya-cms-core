@@ -1,10 +1,377 @@
 /*
 Theme Name: AIYA Headless Shell
-Description: Minimal shell theme for the headless AIYA CMS stack. Boots nothing, hides the toolbar and provides only a fallback page; the public frontend is served by the Astro application.
+Description: Classic shell theme for the headless AIYA CMS stack. Renders WordPress's native routes (lists, singular pages, comments, previews) with stock admin stylesheets; the public frontend is served by the Astro application.
 Author: Yeraph Studio
-Version: 0.2.0
+Version: 0.3.0
 Requires at least: 6.4
 Requires PHP: 8.5
 License: GPL-3.0-or-later
-Text Domain: aiya-headless
 */
+
+/*
+ * Incremental overrides on top of the enqueued admin stylesheets (common,
+ * forms, buttons, list-tables — see functions.php). Accent colors reuse
+ * admin's own CSS variable with its stock fallback, so no color-scheme
+ * stylesheet is needed.
+ */
+
+/* common.css sets min-width: 600px for the admin viewport; the shell is a
+   centered reading column and must collapse on narrow screens. */
+body {
+	min-width: 0;
+}
+
+/* Shell layout */
+.aiya-shell {
+	max-width: 960px;
+	margin: 0 auto;
+	padding: 32px 20px 48px;
+}
+
+.aiya-shell .wrap {
+	margin: 0;
+}
+
+/* Contextual page heading (archives, search, 404); the admin rule pads
+   it, the shell gives it a clean bottom margin instead. */
+.aiya-shell .wrap > h1 {
+	margin: 0 0 24px;
+	padding: 0;
+}
+
+/* Brand row */
+.aiya-brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0 0 28px;
+}
+
+.aiya-brand img {
+	flex: none;
+	width: 40px;
+	height: 40px;
+	object-fit: contain;
+	border-radius: 8px;
+}
+
+.aiya-site-title {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+.aiya-brand a {
+	color: #1d2327;
+	text-decoration: none;
+}
+
+.aiya-brand a:hover {
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+/* Entry list (index.php): one card per entry */
+.aiya-entry {
+	margin: 0 0 20px;
+	padding: 24px 28px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 3px;
+	box-shadow: 0 1px 1px rgb(0 0 0 / 4%);
+}
+
+.aiya-entry .entry-title {
+	margin: 0 0 10px;
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+.aiya-entry .entry-title a {
+	color: #1d2327;
+	text-decoration: none;
+}
+
+.aiya-entry .entry-title a:hover {
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+.aiya-entry .aiya-meta {
+	margin-bottom: 12px;
+}
+
+.aiya-entry .entry-summary {
+	color: #50575e;
+	font-size: 13px;
+	line-height: 1.8;
+}
+
+.aiya-entry .entry-summary p {
+	margin: 0;
+}
+
+/* Pagination (post and comment archives) */
+.aiya-shell .nav-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin: 24px 0;
+}
+
+.aiya-shell .nav-links .page-numbers {
+	display: inline-block;
+	min-width: 28px;
+	padding: 2px 8px;
+	border: 1px solid #c3c4c7;
+	border-radius: 3px;
+	background: #f6f7f7;
+	color: #2271b1;
+	font-size: 13px;
+	line-height: 1.8;
+	text-align: center;
+	text-decoration: none;
+}
+
+.aiya-shell .nav-links .page-numbers.dots {
+	border: none;
+	background: none;
+}
+
+.aiya-shell .nav-links a.page-numbers:hover {
+	border-color: var(--wp-admin-theme-color, #3858e9);
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+.aiya-shell .nav-links .page-numbers.current {
+	border-color: var(--wp-admin-theme-color, #3858e9);
+	color: #3c434a;
+	font-weight: 600;
+}
+
+/* Meta lines (entries and singular) */
+.aiya-meta {
+	color: #646970;
+	font-size: 12px;
+}
+
+.aiya-meta a {
+	color: #2271b1;
+	text-decoration: none;
+}
+
+/* Singular: plain reading typography, no card */
+.aiya-singular .entry-title {
+	margin: 0 0 8px;
+	padding: 0;
+}
+
+.aiya-singular .aiya-meta {
+	margin: 0 0 24px;
+}
+
+/* Entry content typography */
+.entry-content {
+	max-width: 720px;
+	font-size: 15px;
+	line-height: 1.9;
+	overflow-wrap: break-word;
+}
+
+.entry-content a {
+	color: #2271b1;
+}
+
+.entry-content a:hover {
+	color: #135e96;
+}
+
+.entry-content p {
+	margin: 0 0 14px;
+}
+
+.entry-content h2 {
+	margin: 28px 0 12px;
+	font-size: 20px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+.entry-content h3 {
+	margin: 24px 0 10px;
+	font-size: 17px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+.entry-content h4 {
+	margin: 20px 0 8px;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.entry-content ul,
+.entry-content ol {
+	margin: 0 0 14px;
+	padding-left: 24px;
+}
+
+.entry-content li {
+	margin: 0 0 6px;
+}
+
+.entry-content img {
+	max-width: 100%;
+	height: auto;
+}
+
+.entry-content hr {
+	margin: 24px 0;
+	border: none;
+	border-top: 1px solid #dcdcde;
+}
+
+.entry-content table {
+	margin: 0 0 14px;
+	border-collapse: collapse;
+}
+
+.entry-content th,
+.entry-content td {
+	border: 1px solid #c3c4c7;
+	padding: 6px 10px;
+}
+
+.entry-content pre {
+	padding: 12px;
+	background: #f6f7f7;
+	border: 1px solid #c3c4c7;
+	border-radius: 3px;
+	overflow-x: auto;
+}
+
+.entry-content code {
+	padding: 1px 5px;
+	background: #f0f0f1;
+	border-radius: 3px;
+}
+
+.entry-content pre code {
+	padding: 0;
+	background: none;
+}
+
+.entry-content blockquote {
+	margin: 1em 0;
+	padding: 4px 16px;
+	border-left: 4px solid #c3c4c7;
+	color: #646970;
+}
+
+.aiya-page-links {
+	margin-top: 16px;
+}
+
+.aiya-page-links a {
+	color: #2271b1;
+}
+
+/* Search form on empty states (core's legacy searchform markup — the
+   theme declares no html5 support) */
+.aiya-search {
+	max-width: 320px;
+	margin: 16px 0;
+}
+
+.aiya-search .searchform > div {
+	display: flex;
+	gap: 4px;
+}
+
+.aiya-search #s {
+	flex: 1;
+}
+
+.aiya-search #searchsubmit {
+	padding: 0 12px;
+	border: 1px solid var(--wp-admin-theme-color, #3858e9);
+	border-radius: 3px;
+	background: var(--wp-admin-theme-color, #3858e9);
+	color: #fff;
+	cursor: pointer;
+}
+
+/* Comments (display-only) */
+.aiya-comments {
+	max-width: 720px;
+	margin-top: 32px;
+	padding-top: 20px;
+	border-top: 1px solid #dcdcde;
+}
+
+.aiya-comments h2 {
+	margin: 0 0 12px;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.comment-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.comment-list ol.children {
+	margin: 0 0 0 24px;
+	padding: 0;
+	list-style: none;
+}
+
+.comment-list li {
+	padding: 14px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.comment-list .comment-meta {
+	margin-bottom: 6px;
+	color: #646970;
+	font-size: 12px;
+}
+
+.comment-list .avatar {
+	margin-right: 6px;
+	border-radius: 4px;
+	vertical-align: middle;
+}
+
+.comment-list .fn {
+	font-style: normal;
+	font-weight: 600;
+}
+
+.comment-list .says {
+	color: #646970;
+}
+
+.comment-list .commentmetadata a {
+	color: #646970;
+	text-decoration: none;
+}
+
+.comment-list .comment-content {
+	font-size: 13px;
+}
+
+.comment-list .reply {
+	margin-top: 4px;
+	font-size: 12px;
+}
+
+/* Footer */
+.aiya-footer {
+	margin-top: 48px;
+	padding-top: 16px;
+	border-top: 1px solid #dcdcde;
+	color: #646970;
+	font-size: 12px;
+}
