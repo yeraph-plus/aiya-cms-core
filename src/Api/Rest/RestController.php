@@ -6,6 +6,7 @@ namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Presenter\CommentPresenter;
 use Aiya\Core\Api\Presenter\FilePresenter;
+use Aiya\Core\Api\Presenter\NotificationLinker;
 use Aiya\Core\Api\Presenter\NotificationPresenter;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\ProfilePresenter;
@@ -115,7 +116,7 @@ final class RestController implements Module
 
             (new SmiliesController($smilies, new SmiliesPresenter()))->registerRoutes();
 
-            (new NotificationController(new NotificationService(), $presenter, new NotificationPresenter()))->registerRoutes();
+            (new NotificationController(new NotificationService(), $presenter, new NotificationPresenter(new NotificationLinker())))->registerRoutes();
 
             $ledger = new LedgerService();
             $entitlements = new EntitlementService($ledger);

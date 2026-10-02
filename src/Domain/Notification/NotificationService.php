@@ -165,16 +165,16 @@ final class NotificationService
             // phpcs:disable WordPress.DB.PreparedSQL -- the IN fragment is a whitelist
             // literal (IN_CLAUSES_BY_RANK): it cannot travel through prepare, and
             // the multi-line string cannot carry a per-line ignore.
-            /** @var list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>|null $rows */
+            /** @var list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,actor_id:int,object_type:string,object_id:int,created_at:string}>|null $rows */
             $rows = $wpdb->get_results($wpdb->prepare(
                 "SELECT * FROM (
-                    (SELECT id, type, user_id, min_role, title, body, created_at
+                    (SELECT id, type, user_id, min_role, title, body, actor_id, object_type, object_id, created_at
                      FROM %i
                      WHERE user_id = %d
                      ORDER BY created_at DESC, id DESC
                      LIMIT %d OFFSET %d)
                     UNION ALL
-                    (SELECT id, type, user_id, min_role, title, body, created_at
+                    (SELECT id, type, user_id, min_role, title, body, actor_id, object_type, object_id, created_at
                      FROM %i
                      WHERE user_id = 0 AND min_role IN ($levels)
                      ORDER BY created_at DESC, id DESC
@@ -195,9 +195,9 @@ final class NotificationService
             // phpcs:enable
         } else {
             // phpcs:disable WordPress.DB.PreparedSQL -- whitelist IN fragment, as above
-            /** @var list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>|null $rows */
+            /** @var list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,actor_id:int,object_type:string,object_id:int,created_at:string}>|null $rows */
             $rows = $wpdb->get_results($wpdb->prepare(
-                "SELECT id, type, user_id, min_role, title, body, created_at
+                "SELECT id, type, user_id, min_role, title, body, actor_id, object_type, object_id, created_at
                  FROM %i
                  WHERE user_id = 0 AND min_role IN ($levels)
                  ORDER BY created_at DESC, id DESC

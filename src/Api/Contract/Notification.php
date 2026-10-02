@@ -8,10 +8,14 @@ namespace Aiya\Core\Api\Contract;
  * One notification row as the front end receives it. `type` names one of
  * the interaction kinds the 0.46.0 action system writes (announcement,
  * comment, reply, follow, sponsor, ...) — the front end renders per-kind
- * copy and never branches on it structurally. The role level that gated
- * visibility is intentionally not part of the contract: it is server-side
- * routing, not visitor-facing data. Read state lives on the client: it
- * compares `createdAt` against its own last-seen marker.
+ * copy and never branches on it structurally. `title` is notification
+ * HTML: the escaped message, wrapped in the row's soft reference anchor
+ * (`data-aiya-ref`, zero-routing) when the target resolves — the front
+ * end's content sanitizer is the consumer, exactly like the `bodyHtml`
+ * fields. `body` stays a plain-text excerpt. The role level that gated
+ * visibility is intentionally not part of the contract: it is
+ * server-side routing, not visitor-facing data. Read state lives on the
+ * client: it compares `createdAt` against its own last-seen marker.
  */
 final class Notification
 {
