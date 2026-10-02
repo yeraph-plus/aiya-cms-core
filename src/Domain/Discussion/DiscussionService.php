@@ -82,9 +82,13 @@ final class DiscussionService
             return new WP_Error('aiya_db_error', __('The thread could not be stored.', 'aiya-core'));
         }
 
-        do_action('aiya_core_thread_published', (int) $wpdb->insert_id, $userId, $boardId);
+        // Capture the id before the action runs: a listener that inserts
+        // (the notification fanout does) overwrites $wpdb->insert_id, and
+        // the caller must get the thread's id, not the listener's row.
+        $threadId = (int) $wpdb->insert_id;
+        do_action('aiya_core_thread_published', $threadId, $userId, $boardId);
 
-        return (int) $wpdb->insert_id;
+        return $threadId;
     }
 
     /**
@@ -499,9 +503,12 @@ final class DiscussionService
         }
 
         $this->syncReplyStats($threadId);
-        do_action('aiya_core_thread_replied', $threadId, (int) $wpdb->insert_id, $userId);
+        // Same guard as create(): the reply id is read before the action,
+        // whose notification listeners write rows of their own.
+        $replyId = (int) $wpdb->insert_id;
+        do_action('aiya_core_thread_replied', $threadId, $replyId, $userId);
 
-        return (int) $wpdb->insert_id;
+        return $replyId;
     }
 
     /**

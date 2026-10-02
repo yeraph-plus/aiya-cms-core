@@ -95,4 +95,46 @@ final class DiscussionBumpTest extends TestCase
         );
         self::assertStringContainsString('d.bumped_at DESC', $sql);
     }
+
+    /** Regression: the ids are read before the publish/reply actions run —
+     * a listener that writes its own rows (the notification fanout does)
+     * overwrites $wpdb->insert_id, and the caller must still get the
+     * thread's and the reply's ids. */
+    public function testCreateAndReplyReturnTheirOwnIdsWhenListenersWrite(): void
+    {
+        $seen = ['writes' => 0];
+        $writeNotification = static function (string $type, int $userId, int $objectId) use (&$seen): void {
+            global $wpdb;
+            $wpdb->insert('wp_aiya_notifications', [
+                'type' => $type,
+                'user_id' => $userId,
+                'min_role' => 'guest',
+                'title' => 't',
+                'body' => '',
+                'actor_id' => 0,
+                'object_type' => 'discussion',
+                'object_id' => $objectId,
+                'created_at' => '2026-01-01 00:00:00',
+            ]);
+            ++$seen['writes'];
+        };
+        add_action('aiya_core_thread_published', static function (int $threadId) use ($writeNotification, &$seen): void {
+            $seen['threadId'] = $threadId;
+            $writeNotification('thread_mentioned', 9, $threadId);
+        }, 10, 1);
+        add_action('aiya_core_thread_replied', static function (int $threadId, int $replyId) use ($writeNotification, &$seen): void {
+            $seen['replyId'] = $replyId;
+            $writeNotification('thread_replied', 7, $threadId);
+        }, 10, 3);
+
+        $threadId = $this->service->create(7, 'Hello', '<p>Body</p>', 1);
+        $replyId = $this->service->reply($threadId, 9, '<p>+1</p>');
+
+        global $wpdb;
+        self::assertSame((int) $wpdb->aiya_test_rows['wp_aiya_discussions'][0]['id'], $threadId, 'create() returns the thread id, not a listener row id');
+        self::assertSame((int) $wpdb->aiya_test_rows['wp_aiya_discussion_replies'][0]['id'], $replyId, 'reply() returns the reply id, not a listener row id');
+        self::assertSame($threadId, $seen['threadId'], 'the publish action still carries the real thread id');
+        self::assertSame($replyId, $seen['replyId'], 'the replied action still carries the real reply id');
+        self::assertSame(2, $seen['writes'], 'both listeners actually wrote — the regression needs the contention');
+    }
 }
