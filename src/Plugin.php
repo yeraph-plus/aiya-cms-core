@@ -34,6 +34,7 @@ use Aiya\Core\Domain\Content\ContentManagementModule;
 use Aiya\Core\Domain\Content\ContentTypeModule;
 use Aiya\Core\Domain\Content\ContentTypeRegistry;
 use Aiya\Core\Domain\Content\FrontendModule;
+use Aiya\Core\Domain\Content\Mentions;
 use Aiya\Core\Domain\Content\LightboxModule;
 use Aiya\Core\Domain\Content\TypographyModule;
 use Aiya\Core\Domain\Content\BlocksModule;
@@ -177,7 +178,7 @@ final class Plugin
         // stack above, hence the late registration.
         $postCards = new PostCardPresenter(
             new ContentQuery($visibility),
-            new PostPresenter($media->cards(), new SmiliesRenderer(SmiliesRegistry::shared()), $visibility, new FavoriteService(), new CounterService())
+            new PostPresenter($media->cards(), new SmiliesRenderer(SmiliesRegistry::shared()), $visibility, new FavoriteService(), new CounterService(), new Mentions())
         );
         $refPresenter = new RefPresenter(
             static fn (int $postId): string => $postCards->render($postId),

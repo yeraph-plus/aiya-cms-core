@@ -83,7 +83,8 @@ final class RestController implements Module
             $presenter = new UserPresenter();
             $policy = new PasswordPolicy();
             $favorites = new FavoriteService();
-            $postPresenter = new PostPresenter($this->cards, $smiliesRenderer, $this->visibility, $favorites, new CounterService());
+            $mentions = new Mentions();
+            $postPresenter = new PostPresenter($this->cards, $smiliesRenderer, $this->visibility, $favorites, new CounterService(), $mentions);
 
             (new AuthController(
                 $tokens,
@@ -98,7 +99,6 @@ final class RestController implements Module
 
             (new CounterController(new CounterService(), new RateLimiter()))->registerRoutes();
 
-            $mentions = new Mentions();
             (new CommentsController(new RateLimiter(), new CommentQuery($this->visibility), new CommentPresenter($smiliesRenderer, $mentions)))->registerRoutes();
 
             (new UploadsController($this->processUpload, $this->paths, new RateLimiter(), new UploadPresenter()))->registerRoutes();

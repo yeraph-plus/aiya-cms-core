@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-02T22:16:18+00:00\n"
+"POT-Creation-Date: 2026-10-02T23:08:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -882,14 +882,14 @@ msgstr ""
 
 #: src/Api/Rest/DiscussionController.php:371
 #: src/Domain/Discussion/DiscussionService.php:48
-#: src/Domain/Discussion/DiscussionService.php:543
+#: src/Domain/Discussion/DiscussionService.php:550
 msgid "Unknown board."
 msgstr ""
 
 #: src/Api/Rest/DiscussionController.php:388
-#: src/Domain/Discussion/DiscussionService.php:466
-#: src/Domain/Discussion/DiscussionService.php:518
-#: src/Domain/Discussion/DiscussionService.php:575
+#: src/Domain/Discussion/DiscussionService.php:470
+#: src/Domain/Discussion/DiscussionService.php:525
+#: src/Domain/Discussion/DiscussionService.php:582
 msgid "Thread not found."
 msgstr ""
 
@@ -2476,12 +2476,12 @@ msgid "The thread author does not exist."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:51
-#: src/Domain/Discussion/DiscussionService.php:532
+#: src/Domain/Discussion/DiscussionService.php:539
 msgid "The thread body is required."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:55
-#: src/Domain/Discussion/DiscussionService.php:536
+#: src/Domain/Discussion/DiscussionService.php:543
 msgid "A thread can carry at most nine images."
 msgstr ""
 
@@ -2489,112 +2489,112 @@ msgstr ""
 msgid "The thread could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:331
+#: src/Domain/Discussion/DiscussionService.php:335
 msgid "The board slug must be lowercase letters, digits, dashes or underscores."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:334
-#: src/Domain/Discussion/DiscussionService.php:377
+#: src/Domain/Discussion/DiscussionService.php:338
+#: src/Domain/Discussion/DiscussionService.php:381
 msgid "The board name is required."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:337
+#: src/Domain/Discussion/DiscussionService.php:341
 msgid "A board with this slug already exists."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:355
+#: src/Domain/Discussion/DiscussionService.php:359
 msgid "The board could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:370
-#: src/Domain/Discussion/DiscussionService.php:411
+#: src/Domain/Discussion/DiscussionService.php:374
+#: src/Domain/Discussion/DiscussionService.php:415
 msgid "Board not found."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:396
+#: src/Domain/Discussion/DiscussionService.php:400
 msgid "The board could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:424
+#: src/Domain/Discussion/DiscussionService.php:428
 msgid "The last board cannot be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:437
+#: src/Domain/Discussion/DiscussionService.php:441
 msgid "The board threads could not be moved."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:441
+#: src/Domain/Discussion/DiscussionService.php:445
 msgid "The board could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:469
+#: src/Domain/Discussion/DiscussionService.php:473
 msgid "This thread is closed to new replies."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:472
+#: src/Domain/Discussion/DiscussionService.php:476
 msgid "The replying user does not exist."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:475
-#: src/Domain/Discussion/DiscussionService.php:612
+#: src/Domain/Discussion/DiscussionService.php:479
+#: src/Domain/Discussion/DiscussionService.php:619
 msgid "The reply body is required."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:479
-#: src/Domain/Discussion/DiscussionService.php:616
+#: src/Domain/Discussion/DiscussionService.php:483
+#: src/Domain/Discussion/DiscussionService.php:623
 msgid "A reply can carry at most nine images."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:498
+#: src/Domain/Discussion/DiscussionService.php:502
 msgid "The reply could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:521
+#: src/Domain/Discussion/DiscussionService.php:528
 msgid "You are not allowed to edit this thread."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:550
+#: src/Domain/Discussion/DiscussionService.php:557
 msgid "Unknown thread status."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:564
+#: src/Domain/Discussion/DiscussionService.php:571
 msgid "The thread could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:578
+#: src/Domain/Discussion/DiscussionService.php:585
 msgid "You are not allowed to delete this thread."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:585
+#: src/Domain/Discussion/DiscussionService.php:592
 msgid "The thread replies could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:589
+#: src/Domain/Discussion/DiscussionService.php:596
 msgid "The thread could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:606
-#: src/Domain/Discussion/DiscussionService.php:638
+#: src/Domain/Discussion/DiscussionService.php:613
+#: src/Domain/Discussion/DiscussionService.php:645
 msgid "Reply not found."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:609
+#: src/Domain/Discussion/DiscussionService.php:616
 msgid "You are not allowed to edit this reply."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:627
+#: src/Domain/Discussion/DiscussionService.php:634
 msgid "The reply could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:641
+#: src/Domain/Discussion/DiscussionService.php:648
 msgid "You are not allowed to delete this reply."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:648
+#: src/Domain/Discussion/DiscussionService.php:655
 msgid "The reply could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:714
+#: src/Domain/Discussion/DiscussionService.php:721
 msgid "The bound content does not exist or cannot carry discussions."
 msgstr ""
 
@@ -3123,89 +3123,107 @@ msgid "User #%d"
 msgstr ""
 
 #. translators: %1$s: commenter name.
-#: src/Domain/Notification/NotificationActions.php:153
+#: src/Domain/Notification/NotificationActions.php:155
 #, php-format
 msgid "%1$s replied to your comment."
 msgstr ""
 
 #. translators: 1: commenter name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:171
+#: src/Domain/Notification/NotificationActions.php:173
 #, php-format
 msgid "%1$s commented on your article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: commenter name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:190
+#: src/Domain/Notification/NotificationActions.php:192
 #, php-format
 msgid "%1$s mentioned you in a comment on \"%2$s\"."
 msgstr ""
 
+#. translators: %s: post title.
+#: src/Domain/Notification/NotificationActions.php:245
+#, php-format
+msgid "Your submission \"%1$s\" was approved and published."
+msgstr ""
+
 #. translators: 1: author name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:242
+#: src/Domain/Notification/NotificationActions.php:266
+#, php-format
+msgid "%1$s mentioned you in the article \"%2$s\"."
+msgstr ""
+
+#. translators: 1: author name, 2: post title.
+#: src/Domain/Notification/NotificationActions.php:285
 #, php-format
 msgid "%1$s published a new article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: post title.
-#: src/Domain/Notification/NotificationActions.php:276
+#: src/Domain/Notification/NotificationActions.php:321
 #, php-format
 msgid "A post you favorited was updated: \"%1$s\"."
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:292
+#: src/Domain/Notification/NotificationActions.php:337
 msgid "Your account password was reset. If this was not you, please contact the administrator."
 msgstr ""
 
+#. translators: %d: credit amount.
+#: src/Domain/Notification/NotificationActions.php:362
+#, php-format
+msgid "Your account was granted +%1$d credits."
+msgstr ""
+
 #. translators: %s: replier name.
-#: src/Domain/Notification/NotificationActions.php:314
+#: src/Domain/Notification/NotificationActions.php:386
 #, php-format
 msgid "%s replied to your thread."
 msgstr ""
 
 #. translators: 1: replier name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:319
+#: src/Domain/Notification/NotificationActions.php:391
 #, php-format
 msgid "%1$s replied to your thread \"%2$s\"."
 msgstr ""
 
 #. translators: %s: actor name.
-#: src/Domain/Notification/NotificationActions.php:359
+#: src/Domain/Notification/NotificationActions.php:431
 #, php-format
 msgid "%s mentioned you in a community thread."
 msgstr ""
 
 #. translators: 1: actor name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:364
+#: src/Domain/Notification/NotificationActions.php:436
 #, php-format
 msgid "%1$s mentioned you in the thread \"%2$s\"."
 msgstr ""
 
 #. translators: %s: author name.
-#: src/Domain/Notification/NotificationActions.php:382
+#: src/Domain/Notification/NotificationActions.php:454
 #, php-format
 msgid "%s published a new thread."
 msgstr ""
 
 #. translators: 1: author name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:387
+#: src/Domain/Notification/NotificationActions.php:459
 #, php-format
 msgid "%1$s published a new thread \"%2$s\"."
 msgstr ""
 
 #. translators: %1$s: follower name.
-#: src/Domain/Notification/NotificationActions.php:430
+#: src/Domain/Notification/NotificationActions.php:502
 #, php-format
 msgid "%1$s followed you."
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:458
+#: src/Domain/Notification/NotificationActions.php:530
 #, php-format
 msgid "Your membership is active until %s. Thank you for the support!"
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:507
+#: src/Domain/Notification/NotificationActions.php:579
 #, php-format
 msgid "Your membership expires on %s. Renew to keep the perks."
 msgstr ""
@@ -3301,23 +3319,23 @@ msgstr ""
 msgid "Guest"
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:98
+#: src/Domain/Notification/NotificationService.php:104
 msgid "Notification title is required."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:101
+#: src/Domain/Notification/NotificationService.php:107
 msgid "Unknown notification role level."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:104
+#: src/Domain/Notification/NotificationService.php:110
 msgid "Unknown notification type."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:107
+#: src/Domain/Notification/NotificationService.php:113
 msgid "Invalid notification recipient."
 msgstr ""
 
-#: src/Domain/Notification/NotificationService.php:129
+#: src/Domain/Notification/NotificationService.php:135
 msgid "The notification could not be stored."
 msgstr ""
 

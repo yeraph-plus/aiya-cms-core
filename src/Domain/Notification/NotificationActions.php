@@ -6,6 +6,7 @@ namespace Aiya\Core\Domain\Notification;
 
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\Mentions;
+use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
@@ -78,6 +79,7 @@ final class NotificationActions implements Module
         add_action('aiya_core_thread_published', [$this, 'onThreadPublished'], 10, 3);
         add_action('aiya_core_user_followed', [$this, 'onUserFollowed'], 10, 2);
         add_action('aiya_core_membership_activated', [$this, 'onMembershipActivated'], 10, 2);
+        add_action('aiya_core_credit_granted', [$this, 'onCreditGranted'], 10, 3);
 
         add_action('init', function (): void {
             if (!wp_next_scheduled(self::EXPIRY_SCAN_CRON_HOOK)) {
@@ -228,11 +230,52 @@ final class NotificationActions implements Module
         }
 
         if ($oldStatus !== 'publish') {
-            // Followers follow writing: only article publications fan out.
-            // A page or a resource going live is not news to them, and the
-            // object type below is 'post' — broadcasting other types would
-            // stamp rows whose object can never resolve.
+            // Approval: an editor greenlit a pending submission, so its
+            // author learns the piece went live. A direct draft publish is
+            // the author's own doing and stays silent.
+            if ($post->post_type === 'post' && $oldStatus === 'pending') {
+                $this->notify(
+                    (int) $post->post_author,
+                    NotificationService::TYPE_POST_APPROVED,
+                    0,
+                    'post',
+                    (int) $post->ID,
+                    sprintf(
+                        /* translators: %s: post title. */
+                        __('Your submission "%1$s" was approved and published.', 'aiya-core'),
+                        (string) $post->post_title
+                    ),
+                    ''
+                );
+            }
+
+            // Body mentions on first publication: a directed row beats the
+            // broad one — a mentioned follower takes the mention row and is
+            // dropped from the sweep below (the community-thread shape).
+            // The author can never mention themselves.
+            $mentioned = $this->mentions->resolve((string) $post->post_content, [(int) $post->post_author]);
+            foreach ($mentioned as $recipientId) {
+                $this->notify(
+                    $recipientId,
+                    NotificationService::TYPE_POST_MENTIONED,
+                    (int) $post->post_author,
+                    'post',
+                    (int) $post->ID,
+                    sprintf(
+                        /* translators: 1: author name, 2: post title. */
+                        __('%1$s mentioned you in the article "%2$s".', 'aiya-core'),
+                        $this->displayName((int) $post->post_author),
+                        (string) $post->post_title
+                    ),
+                    wp_trim_words(wp_strip_all_tags($this->smilies->strip((string) $post->post_content)), 16)
+                );
+            }
+
             if ($post->post_type === 'post') {
+                // Followers follow writing: only article publications fan out.
+                // A page or a resource going live is not news to them, and the
+                // object type below is 'post' — broadcasting other types would
+                // stamp rows whose object can never resolve.
                 $this->fanOutToFollowers(
                     (int) $post->post_author,
                     'post',
@@ -242,7 +285,9 @@ final class NotificationActions implements Module
                         __('%1$s published a new article "%2$s".', 'aiya-core'),
                         $this->displayName((int) $post->post_author),
                         (string) $post->post_title
-                    )
+                    ),
+                    '',
+                    $mentioned
                 );
             }
 
@@ -290,6 +335,33 @@ final class NotificationActions implements Module
             'account',
             (int) $user->ID,
             __('Your account password was reset. If this was not you, please contact the administrator.', 'aiya-core'),
+            ''
+        );
+    }
+
+    /**
+     * A credit top-up tells its holder — but only the operator's hand does:
+     * the automatic sources (check-in, membership cycles, redeem codes) are
+     * routine bookkeeping the holder already sees in the wallet, and a row
+     * per check-in would be noise.
+     */
+    public function onCreditGranted(int $userId, int $amount, string $source): void
+    {
+        if ($source !== LedgerService::SOURCE_ADMIN) {
+            return;
+        }
+
+        $this->notify(
+            $userId,
+            NotificationService::TYPE_CREDIT_GRANTED,
+            0,
+            'credit',
+            $userId,
+            sprintf(
+                /* translators: %d: credit amount. */
+                __('Your account was granted +%1$d credits.', 'aiya-core'),
+                $amount
+            ),
             ''
         );
     }

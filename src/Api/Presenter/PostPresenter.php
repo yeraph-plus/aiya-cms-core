@@ -12,6 +12,7 @@ use Aiya\Core\Api\Contract\PostMetrics;
 use Aiya\Core\Api\Contract\PostSummary;
 use Aiya\Core\Api\Contract\Seo;
 use Aiya\Core\Api\Contract\Term;
+use Aiya\Core\Domain\Content\Mentions;
 use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Content\ReadingTime;
 use Aiya\Core\Domain\Engagement\CounterService;
@@ -55,6 +56,7 @@ final class PostPresenter
         private readonly PostVisibility $visibility,
         private readonly FavoriteService $favorites,
         private readonly CounterService $counters,
+        private readonly ?Mentions $mentions = null,
     ) {
     }
 
@@ -384,7 +386,12 @@ final class PostPresenter
 
     private function rendered(WP_Post $post): string
     {
-        return $this->smilies->render((string) apply_filters('the_content', $post->post_content));
+        // Mentions resolve against the finished render: their anchors never
+        // ride back through the content filters, and the reference anchors
+        // a `[ref]` part already emitted are fences the scan never enters.
+        $html = (string) apply_filters('the_content', $post->post_content);
+
+        return $this->smilies->render($this->mentions?->linkify($html) ?? $html);
     }
 
     private function isoDate(WP_Post $post, string $field): string

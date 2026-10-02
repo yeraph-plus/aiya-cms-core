@@ -3211,3 +3211,12 @@ msgstr "%1$s 在帖子「%2$s」中提到了你。"
 
 msgid "%s mentioned you in a community thread."
 msgstr "%s 在社区帖子中提到了你。"
+
+msgid "%1$s mentioned you in the article \"%2$s\"."
+msgstr "%1$s 在文章「%2$s」中提到了你。"
+
+msgid "Your account was granted +%1$d credits."
+msgstr "你的账户入账 +%1$d 积分。"
+
+msgid "Your submission \"%1$s\" was approved and published."
+msgstr "你的投稿「%1$s」已通过审核并发布。"

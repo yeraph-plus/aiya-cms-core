@@ -1210,11 +1210,18 @@ if (!class_exists('wpdb')) {
                     continue;
                 }
 
+                // A `col AS alias` select projects one column (the follow
+                // sweep's target ids); honour it the way MySQL would.
+                $projected = $row;
+                if (preg_match('/SELECT\s+(\w+)\s+AS\s+(\w+)/i', $sql, $alias) === 1) {
+                    $projected = [$alias[2] => $row[$alias[1]] ?? null];
+                }
+
                 $rows[] = $output === ARRAY_A
-                    ? [
-                        'id' => is_numeric($row['id'] ?? null) ? (int) $row['id'] : $index + 1,
-                        'remaining' => (int) ($row['remaining'] ?? 0),
-                    ]
+                    // Core's ARRAY_A shape: the stored row as an assoc array
+                    // (bucket sweeps, follower pages and history reads each
+                    // pick their own columns off it).
+                    ? $projected
                     // Core's default output shape: object rows carrying
                     // every stored field.
                     : (object) $row;
@@ -1318,6 +1325,21 @@ if (!class_exists('wpdb')) {
                 $count = 0;
                 foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
                     if ((int) ($row['thread_id'] ?? 0) === (int) $thread[1]) {
+                        $count++;
+                    }
+                }
+
+                return $count;
+            }
+
+            // The follower sweep's page count: rows of the follows table
+            // filtered by the prepared followed id.
+            if (str_contains($sql, 'COUNT(id)') && str_contains($sql, 'followed_id')) {
+                $table = $this->aiya_test_table($sql);
+                preg_match('/followed_id = (\d+)/', $sql, $followed);
+                $count = 0;
+                foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
+                    if ((int) ($row['followed_id'] ?? 0) === (int) $followed[1]) {
                         $count++;
                     }
                 }
