@@ -338,10 +338,12 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
     // above misses their _transient_ wrapper, so they are removed
     // explicitly (live values, not only the expired sweep's scope).
     $run($wpdb->prepare(
-        'DELETE FROM %i WHERE option_name LIKE %s OR option_name LIKE %s',
+        'DELETE FROM %i WHERE option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s',
         $wpdb->options,
         $wpdb->esc_like('_transient_aiya_core_') . '%',
-        $wpdb->esc_like('_transient_timeout_aiya_core_') . '%'
+        $wpdb->esc_like('_transient_timeout_aiya_core_') . '%',
+        $wpdb->esc_like('_transient_aiya_svc_ticket_') . '%',
+        $wpdb->esc_like('_transient_timeout_aiya_svc_ticket_') . '%'
     ));
 
     wp_clear_scheduled_hook('aiya_core_notifications_cleanup');

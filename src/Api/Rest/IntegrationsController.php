@@ -58,14 +58,27 @@ final class IntegrationsController
             'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
         ]);
 
-        $serviceGuard = static fn (WP_REST_Request $request): bool|WP_Error => ServiceKey::guard(
-            (string) $request->get_header('authorization')
-        ) ?? true;
+        $serviceGuard = function (WP_REST_Request $request): bool|WP_Error {
+            $error = ServiceKey::guard((string) $request->get_header('authorization'));
+            if ($error === null) {
+                return true;
+            }
+            // Wrong-key retries are throttled per presented credential: a
+            // fat-fingered or probed key burns its own bucket, the valid
+            // key never shares it.
+            if (!$this->limiter->hitFor('integrations_key', md5((string) $request->get_header('authorization')), 30, 600)) {
+                return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            }
+            return $error;
+        };
 
         register_rest_route(self::API_NAMESPACE, '/auth/tickets/redeem', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->redeemTicket($request),
             'permission_callback' => $serviceGuard,
+            'args' => [
+                'ticket' => ['type' => 'string', 'required' => true, 'maxLength' => 64],
+            ],
         ]);
 
         register_rest_route(self::API_NAMESPACE, '/credits/spend', [
@@ -134,7 +147,7 @@ final class IntegrationsController
         $result = $this->ledger->spend(
             $userId,
             (int) $request->get_param('amount'),
-            (string) $request->get_param('source'),
+            sanitize_key((string) $request->get_param('source')),
             $ref,
             is_string($dedupe) && $dedupe !== '' ? $dedupe : null
         );
