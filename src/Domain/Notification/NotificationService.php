@@ -352,12 +352,24 @@ final class NotificationService
                 body TEXT NOT NULL,
                 created_at DATETIME NOT NULL,
                 PRIMARY KEY  (id),
-                KEY actor_id (actor_id),
-                KEY object_ref (object_type, object_id),
                 KEY created_at (created_at),
                 KEY user_created (user_id, created_at, id)
             ) $charset;"
         );
+
+        // dbDelta adds indexes but never retires one. Two dead indexes from
+        // the 0.46.0 actor columns: no query filters on actor_id or the
+        // object pair (they are SELECT-list output only), so upgrade
+        // databases drop both here; fresh installs never create them.
+        foreach (['actor_id', 'object_ref'] as $deadIndex) {
+            if ($wpdb->get_var($wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $table, $deadIndex)) !== null) {
+                $drop = $wpdb->prepare('DROP INDEX %i ON %i', $deadIndex, $table);
+                if (is_string($drop)) {
+                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
+                    $wpdb->query($drop);
+                }
+            }
+        }
 
         // dbDelta adds indexes but never retires one: the single-column
         // user_id key is fully covered by user_created — drop it once the

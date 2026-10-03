@@ -33,7 +33,7 @@
 | 批次 | 主题 | 覆盖发现 | 验证门槛 | 状态 |
 |---|---|---|---|---|
 | B1 | P0 修正与测试防线 | R-01、C-02、H-01、H-02 | 原生盘 phpunit 全绿 + 手工时间/换图抽查 | ✅ 2026-10-03 |
-| B2 | SQL 收尾窗（1.0 冻结前唯一机会） | S-01～S-08、H-07 | MigrationChainTest 同步 + 旧库幂等演练 | ☐ |
+| B2 | SQL 收尾窗（1.0 冻结前唯一机会） | S-01～S-08、H-07 | MigrationChainTest 同步 + 旧库幂等演练 | ◐ DDL 面 ✅ 0.102.0 |
 | B3 | REST 面收敛 | R-02、R-03、R-07、R-10、C-04、C-05、L-08 | 快照零 diff + 全路由冒烟 | ☐ |
 | B4 | 媒体与杂项收敛 | R-04、R-05、R-06、R-08、R-12、R-13、R-14、R-15、L-07、L-09 | 上传/封面/文件服务手工回归 | ☐ |
 | B5 | 卫生与测试补强 | H-03、H-04、H-05、H-06 | 新测试入套件、死代码零引用复核 | ☐ |
@@ -311,25 +311,25 @@
 
 > 全库约 110 处 `$wpdb->` 逐一核对：prepare/%i/IN 占位/esc_like/列名白名单全覆盖，无注入面。结构性前提：迁移链压平为 CREATE-only 幂等安装器后 dbDelta 只加不减，**1.0 冻结是清死列死索引的最后窗口**。
 
-**S-01 [P1] 死索引：aiya_notifications 的 actor_id + object_ref 无查询消费者** ☐
+**S-01 [P1] 死索引：aiya_notifications 的 actor_id + object_ref 无查询消费者** ✅ 0.102.0
 - 位置：`src/Domain/Notification/NotificationService.php:355-356`（DDL）。
 - 证据：全库无 `actor_id=`/`object_id=`/`object_type=` 的 WHERE/JOIN（仅 SELECT 列输出）；每次 INSERT 白维护两个二级索引。
 - 方向：1.0 前从 CREATE 摘掉；升级库仿同文件 user_id 索引先例（:366-374）补幂等 DROP。
 - 复核：DDL 无此二键；旧库重跑迁移后 `SHOW INDEX` 无此二键。
 
-**S-02 [P1] 社区列表 newest 排序缺索引、单键 status 冗余** ☐
+**S-02 [P1] 社区列表 newest 排序缺索引、单键 status 冗余** ✅ 0.102.0
 - 位置：`src/Domain/Discussion/DiscussionService.php:149,804-808`。
 - 证据：真实查询 `WHERE status=? [AND …] ORDER BY d.created_at DESC, d.id DESC`（newest 分支）无 (status,created_at) 复合键→全程 filesort；`KEY status` 是 (status,bumped_at) 左前缀，纯冗余。
 - 方向：加 `KEY status_created (status, created_at)`、删 `KEY status`。
 - 复核：EXPLAIN newest 查询不用 filesort。
 
-**S-03 [P1] 死列：aiya_discussion_replies.updated_at 写不读** ☐
+**S-03 [P1] 死列：aiya_discussion_replies.updated_at 写不读** ✅ 0.102.0
 - 位置：`DiscussionService.php:496,630,826`（写）。
 - 证据：replies()/replyById()/syncReplyStats() 的 SELECT 全不取该列；threads.updated_at 有读，此列没有。
 - 方向：从 CREATE 摘掉（升级库死列留存，正是最后窗口的原因）。
 - 复核：DDL 无此列。
 
-**S-04 [P1] 死列：aiya_stats_active.first_seen 写不读** ☐
+**S-04 [P1] 死列：aiya_stats_active.first_seen 写不读** ✅ 0.102.0
 - 位置：`src/Domain/Operations/StatsRecorder.php:111,213`（写）。
 - 证据：唯一写方 INSERT IGNORE，MAU 只 `COUNT(*)`（StatsQuery.php:177-182），零读取。
 - 方向：删列，或让月报输出首活跃时间用起来（二选一，1.0 前裁决）。
@@ -500,6 +500,8 @@
 | 未测试域 | RedeemCodeService、LedgerService 过期边界（H-04） |
 
 > **B1 后更新（2026-10-03）**：phpunit 原生盘 641 tests / 1863 assertions 全绿（+16 来自邮件域并行批 MailShellTest/MailRewritesTest）；phpstan 0 errors；phpcs 规则集内除 H-07（1E+2W）外，邮件域在途文件 CoreMailRewrites/MailTemplate 另有 5E+4W（归彼侧批次，不计入本台账基线）。H-01/H-02/R-01/C-02 已 ✅。
+>
+> **0.102.0 后更新（2026-10-03）**：S-01～S-04 随 DL 批次落地（死索引/死列幂等 DROP 内嵌安装器、开发库实测自愈零手工 SQL）；phpunit 基线升至 648 tests / 1898 assertions（+DiscussionLikeTest）；phpcs 规则集内剩余 = H-07（1E，DiscussionService 迁移 SQL 误报性命中）+ 邮件域文件。SQL 压平缺口最后一项（点赞表）已由批次 DL 关闭，见 docs/discussion-likes-design.md。
 
 ## 附录 A：1.0 发布动作清单（B6 执行）
 

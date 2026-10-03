@@ -13,9 +13,11 @@ namespace Aiya\Core\Api\Contract;
  * server-derived permission flags round the shape out. The bound post is
  * no longer a field: a thread bound to one renders that post's card into
  * contentHtml instead (0.87.0), so the card and a hand-embedded
- * `[post_id]` shortcode cannot drift apart. Community likes were dropped by decision — the reply count is
- * the only interaction metric. Threads carry no self-page field by design
- * (the front end expands them inline; zero-routing rule,
+ * `[post_id]` shortcode cannot drift apart. Likes returned with 0.102.0
+ * on a dedicated relation table (docs/discussion-likes-design.md):
+ * `likes` is the materialized thread count, `viewerLiked` the current
+ * reader's state — false for guests. Threads carry no self-page field by
+ * design (the front end expands them inline; zero-routing rule,
  * ARCHITECTURE, zero-routing section).
  */
 final class Discussion
@@ -39,6 +41,8 @@ final class Discussion
         public readonly bool $canDelete,
         public readonly bool $canReply,
         public readonly string $contentHtml = '',
+        public readonly int $likes = 0,
+        public readonly bool $viewerLiked = false,
     ) {
     }
 
@@ -60,6 +64,8 @@ final class Discussion
             'canDelete' => $this->canDelete,
             'canReply' => $this->canReply,
             'contentHtml' => $this->contentHtml,
+            'likes' => $this->likes,
+            'viewerLiked' => $this->viewerLiked,
         ];
     }
 }

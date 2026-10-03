@@ -82,6 +82,8 @@ final class ContractsSnapshot
             ['name' => 'canDelete', 'type' => 'bool', 'nullable' => false],
             ['name' => 'canReply', 'type' => 'bool', 'nullable' => false],
             ['name' => 'contentHtml', 'type' => 'string', 'nullable' => false],
+            ['name' => 'likes', 'type' => 'int', 'nullable' => false],
+            ['name' => 'viewerLiked', 'type' => 'bool', 'nullable' => false],
             ['name' => 'content', 'type' => 'object', 'nullable' => false],
         ],
     ];

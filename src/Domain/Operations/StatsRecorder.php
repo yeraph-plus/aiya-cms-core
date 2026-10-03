@@ -108,10 +108,20 @@ final class StatsRecorder
             "CREATE TABLE $active (
                 month CHAR(7) NOT NULL,
                 user_id BIGINT UNSIGNED NOT NULL,
-                first_seen DATETIME NOT NULL,
                 PRIMARY KEY  (month, user_id)
             ) $charset;"
         );
+
+        // The per-holder first-seen stamp was written and never read (the
+        // MAU count is a row total) — retired with the 0.102.0 cleanup.
+        // Upgrade databases drop it here; fresh installs never create it.
+        if ($wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $active, 'first_seen')) !== null) {
+            $drop = $wpdb->prepare('ALTER TABLE %i DROP COLUMN first_seen', $active);
+            if (is_string($drop)) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
+                $wpdb->query($drop);
+            }
+        }
 
         foreach ([$monthly, $active] as $table) {
             $found = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table)));
@@ -210,11 +220,10 @@ final class StatsRecorder
         global $wpdb;
         /** @var \wpdb $wpdb */
         $this->quiet($wpdb->prepare(
-            'INSERT IGNORE INTO %i (month, user_id, first_seen) VALUES (%s, %d, %s)',
+            'INSERT IGNORE INTO %i (month, user_id) VALUES (%s, %d)',
             $this->activeTable(),
             $this->localMonth(),
-            $userId,
-            $this->now()
+            $userId
         ));
     }
 

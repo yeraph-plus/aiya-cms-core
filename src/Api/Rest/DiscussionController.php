@@ -7,6 +7,7 @@ namespace Aiya\Core\Api\Rest;
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Contract\Pagination;
 use Aiya\Core\Api\Presenter\DiscussionPresenter;
+use Aiya\Core\Domain\Discussion\DiscussionLikeService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Discussion\ThreadStatus;
 use WP_Error;
@@ -17,10 +18,10 @@ use WP_REST_Server;
 /**
  * Community thread routes of the versioned API: public reads with
  * board/status/post/user filters plus keyword and #tag search, and
- * bearer-session writes throttled by the shared rate limiter. The reply
- * counter is the only interaction metric — community likes do not exist
- * by decision. Boards are the customizable classification (0.45.0); a
- * thread's board is addressed by slug on create/update.
+ * bearer-session writes throttled by the shared rate limiter. Likes ride
+ * a dedicated relation table (0.102.0) beside the reply counter; closed
+ * threads refuse new likes. Boards are the customizable classification
+ * (0.45.0); a thread's board is addressed by slug on create/update.
  */
 final class DiscussionController
 {
@@ -29,6 +30,7 @@ final class DiscussionController
     public function __construct(
         private DiscussionService $threads,
         private DiscussionPresenter $presenter,
+        private DiscussionLikeService $likes,
         private RateLimiter $limiter,
     ) {
     }
@@ -110,6 +112,20 @@ final class DiscussionController
             'args' => ['id' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
         ]);
 
+        register_rest_route(Contract::API_NAMESPACE, '/discussions/(?P<id>\d+)/like', [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->like($request),
+            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'args' => ['id' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/discussions/(?P<id>\d+)/like', [
+            'methods' => WP_REST_Server::DELETABLE,
+            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->unlike($request),
+            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'args' => ['id' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
+        ]);
+
         register_rest_route(Contract::API_NAMESPACE, '/discussions/(?P<id>\d+)/replies/(?P<replyId>\d+)', [
             'methods' => WP_REST_Server::EDITABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->updateReply($request),
@@ -164,8 +180,8 @@ final class DiscussionController
 
         $viewer = (int) get_current_user_id();
         $items = [];
-        foreach ($result['items'] as $row) {
-            $items[] = $this->presenter->present($row, $viewer)->toArray();
+        foreach ($this->presenter->presentAll($result['items'], $viewer) as $thread) {
+            $items[] = $thread->toArray();
         }
 
         return new WP_REST_Response([
@@ -351,6 +367,34 @@ final class DiscussionController
         }
 
         return new WP_REST_Response(['deleted' => true]);
+    }
+
+    private function like(WP_REST_Request $request): WP_Error|WP_REST_Response
+    {
+        if (!$this->limiter->hit('discussion_like', 30, 60)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        }
+
+        $result = $this->likes->like((int) $request->get_param('id'), (int) get_current_user_id());
+        if (is_wp_error($result)) {
+            return $result;
+        }
+
+        return new WP_REST_Response($result);
+    }
+
+    private function unlike(WP_REST_Request $request): WP_Error|WP_REST_Response
+    {
+        if (!$this->limiter->hit('discussion_like', 30, 60)) {
+            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        }
+
+        $result = $this->likes->unlike((int) $request->get_param('id'), (int) get_current_user_id());
+        if (is_wp_error($result)) {
+            return $result;
+        }
+
+        return new WP_REST_Response($result);
     }
 
     /**

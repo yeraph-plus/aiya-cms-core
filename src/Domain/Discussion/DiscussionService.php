@@ -493,9 +493,8 @@ final class DiscussionService
                 'user_id' => $userId,
                 'content' => $content,
                 'created_at' => $now,
-                'updated_at' => $now,
             ],
-            ['%d', '%d', '%s', '%s', '%s']
+            ['%d', '%d', '%s', '%s']
         );
 
         if ($inserted === false) {
@@ -596,6 +595,8 @@ final class DiscussionService
             return new WP_Error('aiya_db_error', __('The thread could not be deleted.', 'aiya-core'));
         }
 
+        (new DiscussionLikeService())->purgeForThread($threadId);
+
         return true;
     }
 
@@ -627,7 +628,7 @@ final class DiscussionService
         /** @var \wpdb $wpdb */
         $updated = $wpdb->update(
             $this->repliesTable(),
-            ['content' => $content, 'updated_at' => current_time('mysql', true)],
+            ['content' => $content],
             ['id' => $replyId]
         );
         if ($updated === false) {
@@ -795,6 +796,7 @@ final class DiscussionService
                 content TEXT NOT NULL,
                 post_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
                 reply_count BIGINT UNSIGNED NOT NULL DEFAULT 0,
+                like_count BIGINT UNSIGNED NOT NULL DEFAULT 0,
                 last_reply_user_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
                 last_reply_at DATETIME DEFAULT NULL,
                 bumped_at DATETIME NOT NULL DEFAULT '1970-01-01 00:00:01',
@@ -803,11 +805,25 @@ final class DiscussionService
                 PRIMARY KEY  (id),
                 KEY user_id (user_id),
                 KEY board_id (board_id),
-                KEY status (status),
+                KEY status_created (status, created_at),
                 KEY post_id (post_id),
                 KEY activity (status, bumped_at)
             ) $charset;"
         );
+
+        // dbDelta adds indexes but never retires one: the bare status key is
+        // a left prefix of both status_created and activity — drop it once
+        // the composite exists (idempotent; installs after 0.102.0 never
+        // have it).
+        if ($wpdb->get_var($wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $threads, 'status_created')) !== null
+            && $wpdb->get_var($wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $threads, 'status')) !== null
+        ) {
+            $drop = $wpdb->prepare('DROP INDEX status ON %i', $threads);
+            if (is_string($drop)) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
+                $wpdb->query($drop);
+            }
+        }
 
         // Legacy rows predate bumped_at: activity = the last reply, else
         // creation. The WHERE keeps the statement a no-op once filled.
@@ -823,14 +839,37 @@ final class DiscussionService
                 user_id BIGINT UNSIGNED NOT NULL,
                 content TEXT NOT NULL,
                 created_at DATETIME NOT NULL,
-                updated_at DATETIME NOT NULL,
                 PRIMARY KEY  (id),
                 KEY thread_id (thread_id),
                 KEY user_id (user_id)
             ) $charset;"
         );
 
-        foreach ([$boards, $threads, $replies] as $table) {
+        // The reply mtime was written and never read (the thread's
+        // bumped_at carries the activity stamp) — retired with the
+        // 0.102.0 likes batch. Upgrade databases drop it here; fresh
+        // installs never create it (dbDelta only adds).
+        if ($wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $replies, 'updated_at')) !== null) {
+            $drop = $wpdb->prepare('ALTER TABLE %i DROP COLUMN updated_at', $replies);
+            if (is_string($drop)) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
+                $wpdb->query($drop);
+            }
+        }
+
+        $likes = $wpdb->prefix . 'aiya_discussion_likes';
+        dbDelta(
+            "CREATE TABLE $likes (
+                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                thread_id BIGINT UNSIGNED NOT NULL,
+                user_id BIGINT UNSIGNED NOT NULL,
+                created_at DATETIME NOT NULL,
+                PRIMARY KEY  (id),
+                UNIQUE KEY actor (thread_id, user_id)
+            ) $charset;"
+        );
+
+        foreach ([$boards, $threads, $replies, $likes] as $table) {
             if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
                 throw new \RuntimeException(sprintf('Table %s was not created.', $table));
             }

@@ -24,6 +24,7 @@ use Aiya\Core\Domain\Content\HotPostsQuery;
 use Aiya\Core\Domain\Content\Mentions;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
 use Aiya\Core\Domain\Credit\LedgerService;
+use Aiya\Core\Domain\Discussion\DiscussionLikeService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Media\MediaPaths;
@@ -135,7 +136,7 @@ final class RestController implements Module
             (new GatewayController(new OrderService(), $entitlements))->registerRoutes();
 
             $threads = new DiscussionService();
-            (new DiscussionController($threads, new DiscussionPresenter($smiliesRenderer, $threads, $mentions), new RateLimiter()))->registerRoutes();
+            (new DiscussionController($threads, new DiscussionPresenter($smiliesRenderer, $threads, new DiscussionLikeService(), $mentions), new DiscussionLikeService(), new RateLimiter()))->registerRoutes();
 
             (new FileServeController($this->files, $this->downloads, new FilePresenter(), new RateLimiter()))->registerRoutes();
         });

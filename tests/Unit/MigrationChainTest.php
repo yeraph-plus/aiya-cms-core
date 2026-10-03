@@ -19,11 +19,13 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * The flattened chain: every migration entry lives at the single version
- * '1.0.0' — six dbDelta table installers (idempotent by construction: they
- * create fresh and reconcile pre-1.0 databases) plus four idempotent data
- * carriers (option moves and the avatar value conversion). A post-1.0
- * migration landing at a new version is a conscious act that updates this
- * test, never an accident of copying an old constant.
+ * '1.0.0' — six dbDelta table installer entries (idempotent by
+ * construction: they create fresh and reconcile pre-1.0 databases; the
+ * discussion entry alone installs boards, threads, replies and likes)
+ * plus four idempotent data carriers (option moves and the avatar value
+ * conversion). A post-1.0 migration landing at a new version is a
+ * conscious act that updates this test, never an accident of copying an
+ * old constant.
  */
 final class MigrationChainTest extends TestCase
 {

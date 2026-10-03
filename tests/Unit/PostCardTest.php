@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Core\Api\Presenter\DiscussionPresenter;
+use Aiya\Core\Domain\Discussion\DiscussionLikeService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Parts\BuiltinParts;
 use Aiya\Core\Domain\Parts\PartRegistry;
@@ -37,11 +38,16 @@ final class PostCardTest extends TestCase
         // by an earlier test cannot win the "first declaration" race.
         $GLOBALS['__aiya_test_filters'] = [];
         $GLOBALS['__aiya_test_current_user_id'] = 0;
+        // The like projection reads the discussions table; an empty double
+        // answers zero likes and no viewer rows.
+        global $wpdb;
+        $wpdb = new \wpdb();
         $GLOBALS['__aiya_test_caps'] = true;
     }
 
     protected function tearDown(): void
     {
+        unset($GLOBALS['wpdb']);
         $cover = WP_CONTENT_DIR . '/aiya_thumbnail/card/cover.jpg';
         if (is_file($cover)) {
             // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- test fixture cleanup
@@ -338,7 +344,7 @@ final class PostCardTest extends TestCase
         }
 
         $smilies = new SmiliesRenderer(new SmiliesRegistry('/nonexistent-smilies', '/nonexistent-smilies'));
-        $presenter = new DiscussionPresenter($smilies, new DiscussionService());
+        $presenter = new DiscussionPresenter($smilies, new DiscussionService(), new DiscussionLikeService());
 
         $row = (object) [
             'id' => 9,

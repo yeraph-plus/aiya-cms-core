@@ -11,6 +11,7 @@ use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\PostCardPresenter;
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\PostVisibility;
+use Aiya\Core\Domain\Discussion\DiscussionLikeService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Media\MediaPaths;
@@ -45,12 +46,17 @@ final class ReadPathCacheTest extends TestCase
         $GLOBALS['__aiya_test_filters'] = [];
         $GLOBALS['__aiya_test_current_user_id'] = 0;
         $GLOBALS['__aiya_test_caps'] = true;
+        // The like projection reads the discussions table; an empty double
+        // answers zero likes and no viewer rows.
+        global $wpdb;
+        $wpdb = new \wpdb();
         EntitlementService::forgetQueue();
         wp_cache_flush();
     }
 
     protected function tearDown(): void
     {
+        unset($GLOBALS['wpdb']);
         EntitlementService::forgetQueue();
     }
 
@@ -214,7 +220,7 @@ final class ReadPathCacheTest extends TestCase
         });
 
         $smilies = new SmiliesRenderer(new SmiliesRegistry('/none', '/none'));
-        $presenter = new DiscussionPresenter($smilies, new DiscussionService());
+        $presenter = new DiscussionPresenter($smilies, new DiscussionService(), new DiscussionLikeService());
 
         $row = (object) [
             'id' => 9,

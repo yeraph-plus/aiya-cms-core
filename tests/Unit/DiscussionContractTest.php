@@ -44,6 +44,8 @@ final class DiscussionContractTest extends TestCase
         self::assertSame('open', $shape['status']);
         self::assertSame(['id' => 7, 'slug' => 'zhan-zhang', 'name' => '站长', 'avatar' => null], $shape['author']);
         self::assertSame(3, $shape['replies']);
+        self::assertSame(0, $shape['likes'], 'the like count defaults without a constructor arg');
+        self::assertFalse($shape['viewerLiked']);
         self::assertTrue($shape['canReply']);
     }
 
@@ -71,7 +73,7 @@ final class DiscussionContractTest extends TestCase
         $thread = new Discussion(
             1, '问个问题', null, 'closed',
             new Author(1, 'a', 'a', null), 0, [], [], '', '2026-09-09T00:00:00+08:00',
-            false, false, false,
+            false, false, false, '', 4, true,
         );
 
         $shape = $thread->toArray();
@@ -83,5 +85,7 @@ final class DiscussionContractTest extends TestCase
         self::assertSame('', $shape['lastReplyAt']);
         self::assertFalse($shape['canEdit']);
         self::assertFalse($shape['canReply'], 'closed threads refuse replies');
+        self::assertSame(4, $thread->likes);
+        self::assertTrue($thread->viewerLiked);
     }
 }

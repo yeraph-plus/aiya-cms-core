@@ -11,6 +11,7 @@ use Aiya\Core\Api\Contract\DiscussionDetail;
 use Aiya\Core\Api\Contract\DiscussionReply;
 use Aiya\Core\Api\Contract\Image;
 use Aiya\Core\Domain\Discussion\DiscussionContent;
+use Aiya\Core\Domain\Discussion\DiscussionLikeService;
 use Aiya\Core\Domain\Content\Mentions;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Discussion\ThreadStatus;
@@ -51,14 +52,17 @@ final class DiscussionPresenter
     public function __construct(
         private readonly SmiliesRenderer $smilies,
         private readonly DiscussionService $threads,
+        private readonly DiscussionLikeService $likes,
         private readonly ?Mentions $mentions = null,
     )
     {
     }
 
     /** @param object{id:int,user_id:int,board_id:int,board_slug:string|null,board_name:string|null,status:string,title:string,content:string,post_id:int,reply_count:int,last_reply_user_id:int,last_reply_at:string|null,created_at:string} $row */
-    public function present(object $row, int $viewerId): Discussion
+    public function present(object $row, int $viewerId, ?int $likeCount = null, ?bool $viewerLiked = null): Discussion
     {
+        $likeCount ??= $this->likes->counts([(int) $row->id])[(int) $row->id] ?? 0;
+        $viewerLiked ??= $this->likes->has((int) $row->id, $viewerId);
         $canModerate = $this->canModerate((int) $row->user_id, $viewerId);
 
         return new Discussion(
@@ -76,7 +80,32 @@ final class DiscussionPresenter
             $canModerate,
             $viewerId > 0 && !ThreadStatus::locksReplies((string) $row->status),
             $this->contentHtml($row),
+            $likeCount,
+            $viewerLiked,
         );
+    }
+
+    /**
+     * A page of threads: the like projection batches — one counts read and
+     * one viewer-liked read per page instead of two queries per row, the
+     * same list-path discipline as the user cache warmup.
+     *
+     * @param list<object{id:int,user_id:int,board_id:int,board_slug:string|null,board_name:string|null,status:string,title:string,content:string,post_id:int,reply_count:int,last_reply_user_id:int,last_reply_at:string|null,created_at:string}> $rows
+     * @return list<Discussion>
+     */
+    public function presentAll(array $rows, int $viewerId): array
+    {
+        $ids = array_map(static fn (object $row): int => (int) $row->id, $rows);
+        $counts = $this->likes->counts($ids);
+        $liked = $this->likes->likedBy($viewerId, $ids);
+
+        $out = [];
+        foreach ($rows as $row) {
+            $id = (int) $row->id;
+            $out[] = $this->present($row, $viewerId, $counts[$id] ?? 0, isset($liked[$id]));
+        }
+
+        return $out;
     }
 
     /**
