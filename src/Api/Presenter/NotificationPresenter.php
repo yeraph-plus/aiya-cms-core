@@ -32,7 +32,7 @@ final class NotificationPresenter
             (string) $row->type,
             $this->linker?->wrap($row, (string) $row->title) ?? esc_html((string) $row->title),
             (string) $row->body,
-            $this->isoCreatedAt((string) $row->created_at)
+            WireDates::fromGmt((string) $row->created_at)
         ))->toArray();
     }
 
@@ -56,11 +56,4 @@ final class NotificationPresenter
         return $out;
     }
 
-    /** created_at is stored GMT; the contract wants offset ISO 8601. */
-    private function isoCreatedAt(string $mysqlGmt): string
-    {
-        $timestamp = (int) get_date_from_gmt($mysqlGmt, 'U');
-
-        return $timestamp > 0 ? (string) wp_date('c', $timestamp) : '';
-    }
 }

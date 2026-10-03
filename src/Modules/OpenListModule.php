@@ -12,6 +12,7 @@ use Aiya\Core\Domain\FileServe\Failure;
 use Aiya\Core\Domain\FileServe\FileServeModule;
 use Aiya\Core\Domain\FileServe\FileService;
 use Aiya\Core\Domain\FileServe\SourceLog;
+use Aiya\Core\Domain\FileServe\WireTransport;
 use Aiya\Core\Settings\Registry;
 use Aiya\Infra\OpenList\Client;
 use Aiya\Infra\OpenList\Error;
@@ -251,24 +252,8 @@ final class OpenListModule implements Module
      */
     private function transport(): Closure
     {
-        return static function (string $method, string $url, ?string $body, string $token): ?array {
-            $headers = ['Content-Type' => 'application/json'];
-            if ($token !== '') {
-                $headers['Authorization'] = $token;
-            }
-
-            $response = 'GET' === $method
-                ? wp_remote_get($url, ['timeout' => 15, 'headers' => $headers])
-                : wp_remote_post($url, ['timeout' => 15, 'headers' => $headers, 'body' => (string) $body]);
-            if (is_wp_error($response)) {
-                if (SourceLog::active()) {
-                    SourceLog::writeOnce('aiya_core_oplist_wire_' . md5($url), 300, 'OpenList request failed', $url . "\n" . (string) $response->get_error_message());
-                }
-
-                return null;
-            }
-
-            return ['status' => (int) wp_remote_retrieve_response_code($response), 'body' => (string) wp_remote_retrieve_body($response)];
-        };
+        // The shared wire transport; OpenList's token rides the raw
+        // Authorization value (no Bearer prefix) by protocol.
+        return WireTransport::make('aiya_core_oplist_wire', 'OpenList', ['Content-Type' => 'application/json'], false);
     }
 }

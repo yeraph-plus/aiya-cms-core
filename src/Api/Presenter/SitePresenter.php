@@ -12,6 +12,7 @@ use Aiya\Core\Domain\Content\ContentBlocks;
 use Aiya\Core\Api\Contract\SiteDefaults;
 use Aiya\Core\Api\Contract\SiteFooter;
 use Aiya\Core\Api\Contract\SiteComments;
+use Aiya\Core\Api\Contract\SiteBlocks;
 use Aiya\Core\Api\Contract\SiteTheme;
 
 /**
@@ -102,8 +103,12 @@ final class SitePresenter
     public function presentArrayWithoutAds(): array
     {
         $payload = $this->presentArray();
-        $payload['blocks']['adsTop'] = [];
-        $payload['blocks']['adsBottom'] = [];
+        // Key names owned by SiteBlocks; the stripping stays on a local
+        // copy so the cached sponsor-free base is never touched.
+        if (is_array($payload['blocks'] ?? null)) {
+            $payload['blocks'][SiteBlocks::KEY_AD_TOP] = [];
+            $payload['blocks'][SiteBlocks::KEY_AD_BOTTOM] = [];
+        }
 
         return $payload;
     }

@@ -36,7 +36,6 @@ use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 final class DiscussionPresenter
 {
     /** Object cache group/TTL for the viewer-independent content render. */
-    private const CACHE_GROUP = 'aiya_core_content';
     private const CACHE_TTL = 600;
 
     /**
@@ -74,8 +73,8 @@ final class DiscussionPresenter
             (int) $row->reply_count,
             DiscussionContent::tags((string) $row->content),
             $this->images((string) $row->content),
-            $this->iso((string) ($row->last_reply_at ?? '')),
-            $this->iso((string) $row->created_at),
+            WireDates::fromGmt((string) ($row->last_reply_at ?? '')),
+            WireDates::fromGmt((string) $row->created_at),
             $canModerate,
             $canModerate,
             $viewerId > 0 && !ThreadStatus::locksReplies((string) $row->status),
@@ -138,7 +137,7 @@ final class DiscussionPresenter
             $this->author((int) $row->user_id),
             $this->bodyHtml((string) $row->content),
             $this->images((string) $row->content),
-            $this->iso((string) $row->created_at),
+            WireDates::fromGmt((string) $row->created_at),
             $this->canModerate((int) $row->user_id, $viewerId),
         );
     }
@@ -222,7 +221,7 @@ final class DiscussionPresenter
         // any chosen-prefix daydream against the object cache.
         $key = 'content_' . $threadId . '_' . substr(hash('sha256', $raw . '|' . $postModified), 0, 24);
         /** @var string|false $cached */
-        $cached = wp_cache_get($key, self::CACHE_GROUP);
+        $cached = wp_cache_get($key, PresenterCache::GROUP);
         if (is_string($cached)) {
             $this->contentHtmlMemo[$threadId] = $cached;
 
@@ -239,7 +238,7 @@ final class DiscussionPresenter
             }
         }
 
-        wp_cache_set($key, $html, self::CACHE_GROUP, self::CACHE_TTL);
+        wp_cache_set($key, $html, PresenterCache::GROUP, self::CACHE_TTL);
         $this->contentHtmlMemo[$threadId] = $html;
 
         return $html;
@@ -279,14 +278,4 @@ final class DiscussionPresenter
         return $this->threads->canModerate($ownerId, $viewerId);
     }
 
-    private function iso(string $mysqlGmt): string
-    {
-        if ($mysqlGmt === '' || $mysqlGmt === '0000-00-00 00:00:00') {
-            return '';
-        }
-
-        $timestamp = (int) get_date_from_gmt($mysqlGmt, 'U');
-
-        return $timestamp > 0 ? (string) wp_date('c', $timestamp) : '';
-    }
 }

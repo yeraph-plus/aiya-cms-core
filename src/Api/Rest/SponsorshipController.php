@@ -14,6 +14,7 @@ use Aiya\Core\Domain\Sponsorship\EntitlementService;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
 use Aiya\Core\Domain\Sponsorship\OrderService;
 use Aiya\Core\Domain\Sponsorship\PaymentGateway;
+use Aiya\Core\Domain\Sponsorship\RandomToken;
 use Aiya\Core\Domain\Sponsorship\SponsorshipSettings;
 use Aiya\Infra\SlugToolkit\IdSlugEncoder;
 use WP_Error;
@@ -143,7 +144,7 @@ final class SponsorshipController
 
         $pending = $this->orders->createPending(
             $userId,
-            $gateway->orderId('pending_' . strtoupper(substr(md5(uniqid((string) wp_rand(), true)), 0, 12))),
+            $gateway->orderId('pending_' . RandomToken::suffix(12)),
             (string) $tier['key'],
             $cycles,
             0.0,
@@ -233,7 +234,7 @@ final class SponsorshipController
         // Entropy beyond the second: two orders in the same second must
         // never collide on the platform's out_trade_no.
         $orderId = gmdate('Ymd') . str_pad((string) $userId, 5, '0', STR_PAD_LEFT) . time()
-            . strtoupper(substr(md5(uniqid((string) wp_rand(), true)), 0, 6));
+            . RandomToken::suffix(6);
         $binding = (new IdSlugEncoder(8))->encodeId($userId) . '|' . $tier['key'] . '|' . $cycles;
 
         // The checkout's own record of what is about to be paid for: the

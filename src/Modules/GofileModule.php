@@ -8,7 +8,7 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\FileServe\AdapterRegistry;
 use Aiya\Core\Domain\FileServe\Adapters\GofileAdapter;
 use Aiya\Core\Domain\FileServe\FileServeModule;
-use Aiya\Core\Domain\FileServe\SourceLog;
+use Aiya\Core\Domain\FileServe\WireTransport;
 use Aiya\Core\Settings\Registry;
 use Aiya\Infra\Gofile\Client;
 use Aiya\Infra\Gofile\Gateway;
@@ -84,27 +84,9 @@ final class GofileModule implements Module
     /** @return Closure(string, string): (array{status:int, body:string}|null) */
     private function transport(): Closure
     {
-        return static function (string $url, string $token): ?array {
-            $headers = ['Accept' => 'application/json'];
-            if ($token !== '') {
-                $headers['Authorization'] = 'Bearer ' . $token;
-            }
+        // The shared wire transport behind the client's two-argument shape.
+        $shared = WireTransport::make('aiya_core_gofile_wire', 'GoFile', ['Accept' => 'application/json'], true);
 
-            $response = wp_remote_get($url, ['timeout' => 15, 'headers' => $headers]);
-            if (is_wp_error($response)) {
-                // Same wire-failure logging as the OpenList transport: the
-                // DNS/TLS/timeout detail dies with the null otherwise.
-                if (SourceLog::active()) {
-                    SourceLog::writeOnce('aiya_core_gofile_wire_' . md5($url), 300, 'GoFile request failed', $url . "\n" . (string) $response->get_error_message());
-                }
-
-                return null;
-            }
-
-            return [
-                'status' => (int) wp_remote_retrieve_response_code($response),
-                'body' => (string) wp_remote_retrieve_body($response),
-            ];
-        };
+        return static fn (string $url, string $token): ?array => $shared('GET', $url, null, $token);
     }
 }

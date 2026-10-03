@@ -333,7 +333,7 @@ final class CardThumbnailService
             ? strtolower((string) $policy['format'])
             : 'jpg';
 
-        $dest = $this->paths->coverAutoDir() . '/' . wp_date('YmdHis') . '_' . wp_rand(1000, 9999) . '.' . $format;
+        $dest = $this->paths->coverAutoDir() . '/' . $this->paths->coverFilename($format);
 
         // A hard fatal mid-composite (execution timeout on a huge or
         // animated source, OOM) skips every return path below: arm a

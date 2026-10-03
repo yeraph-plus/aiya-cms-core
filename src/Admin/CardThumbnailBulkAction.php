@@ -109,37 +109,15 @@ final class CardThumbnailBulkAction implements Module
 
     public function notice(): void
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
-        if (!isset($_GET['aiya_thumbs_done']) && !isset($_GET['aiya_thumbs_skipped'])) {
-            return;
-        }
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect counters
-        $done = absint((string) ($_GET['aiya_thumbs_done'] ?? '0'));
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ditto
-        $skipped = absint((string) ($_GET['aiya_thumbs_skipped'] ?? '0'));
-
-        $messages = [];
-        if ($done > 0) {
-            $messages[] = sprintf(
-                /* translators: %d: number of queued items */
-                _n('%d item queued for a thumbnail refresh.', '%d items queued for a thumbnail refresh.', $done, 'aiya-core'),
-                $done
-            );
-        }
-        if ($skipped > 0) {
-            $messages[] = sprintf(
-                /* translators: %d: number of skipped items */
-                _n('%d item skipped (nothing to refresh or not permitted).', '%d items skipped (nothing to refresh or not permitted).', $skipped, 'aiya-core'),
-                $skipped
-            );
-        }
-        if ($messages === []) {
-            $messages[] = __('No thumbnails were refreshed.', 'aiya-core');
-        }
-
-        printf(
-            '<div class="notice notice-info is-dismissible"><p>%s</p></div>',
-            esc_html(implode(' ', $messages))
-        );
+        BulkActionNotice::render([
+            'aiya_thumbs_done' => [
+                '%d item queued for a thumbnail refresh.',
+                '%d items queued for a thumbnail refresh.',
+            ],
+            'aiya_thumbs_skipped' => [
+                '%d item skipped (nothing to refresh or not permitted).',
+                '%d items skipped (nothing to refresh or not permitted).',
+            ],
+        ], __('No thumbnails were refreshed.', 'aiya-core'));
     }
 }

@@ -40,7 +40,7 @@ final class CommentPresenter
         // attribute spec array is a rule table — maxlen/maxval/values —, the
         // rule parameter a plain value list): the smilies renderer's class,
         // and nothing else, so a comment cannot borrow arbitrary site styles.
-        'img' => ['src' => true, 'alt' => true, 'class' => ['values' => ['aiya-smilie']], 'loading' => true],
+        'img' => ['src' => true, 'alt' => true, 'class' => ['values' => [SmiliesRenderer::IMG_CLASS]], 'loading' => true],
     ];
 
     public function __construct(

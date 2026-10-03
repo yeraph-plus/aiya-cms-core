@@ -101,6 +101,23 @@ final class MediaPaths
     }
 
     /**
+     * The generated-cover filename recipe: timestamp + random suffix.
+     * Single author for the recipe AND its recognition pattern — a
+     * change here moves both the writers and the managed-file check
+     * together, instead of silently breaking the cover swap's delete.
+     */
+    public function coverFilename(string $format): string
+    {
+        return wp_date('YmdHis') . '_' . wp_rand(1000, 9999) . '.' . $format;
+    }
+
+    /** Whether a local path is a managed generated cover (the recipe above). */
+    public function isManagedCoverFile(string $localPath): bool
+    {
+        return preg_match('/\/\d{14}_\d{4}\.(?:jpg|webp|avif)$/', $localPath) === 1;
+    }
+
+    /**
      * The stable cover tree root, without date shard and without creating
      * it: the prefix every "is this a managed cover file?" check matches
      * against — it must not carry the current month, or stale files from

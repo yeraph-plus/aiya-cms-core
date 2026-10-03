@@ -167,37 +167,15 @@ final class TermMoveBulkAction implements Module
 
     public function notice(): void
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
-        if (!isset($_GET['aiya_term_moved'])) {
-            return;
-        }
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect counters
-        $moved = absint((string) ($_GET['aiya_term_moved'] ?? '0'));
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ditto
-        $skipped = absint((string) ($_GET['aiya_term_skipped'] ?? '0'));
-
-        $messages = [];
-        if ($moved > 0) {
-            $messages[] = sprintf(
-                /* translators: %d: number of moved terms */
-                _n('%d term moved to the new taxonomy.', '%d terms moved to the new taxonomy.', $moved, 'aiya-core'),
-                $moved
-            );
-        }
-        if ($skipped > 0) {
-            $messages[] = sprintf(
-                /* translators: %d: number of skipped terms */
-                _n('%d term skipped (unchanged or not permitted).', '%d terms skipped (unchanged or not permitted).', $skipped, 'aiya-core'),
-                $skipped
-            );
-        }
-        if ($messages === []) {
-            $messages[] = __('Nothing was moved.', 'aiya-core');
-        }
-
-        printf(
-            '<div class="notice notice-info is-dismissible"><p>%s</p></div>',
-            esc_html(implode(' ', $messages))
-        );
+        BulkActionNotice::render([
+            'aiya_term_moved' => [
+                '%d term moved to the new taxonomy.',
+                '%d terms moved to the new taxonomy.',
+            ],
+            'aiya_term_skipped' => [
+                '%d term skipped (unchanged or not permitted).',
+                '%d terms skipped (unchanged or not permitted).',
+            ],
+        ], __('Nothing was moved.', 'aiya-core'));
     }
 }

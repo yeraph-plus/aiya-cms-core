@@ -48,7 +48,6 @@ final class PostCardPresenter
      * (counters ride as raw data attributes, gate badges derive from post
      * fields) — same stance as the shell cache.
      */
-    private const CACHE_GROUP = 'aiya_core_content';
     private const CACHE_TTL = 600;
 
     public function __construct(
@@ -72,15 +71,15 @@ final class PostCardPresenter
         // missing target keys under a placeholder until it exists.
         $target = get_post($postId);
         $modified = $target instanceof WP_Post ? (string) $target->post_modified_gmt : 'missing';
-        $key = 'card_' . $postId . '_' . md5($modified);
+        $key = PresenterCache::modifiedKey('card', $postId, $modified);
         /** @var string|false $cached */
-        $cached = wp_cache_get($key, self::CACHE_GROUP);
+        $cached = wp_cache_get($key, PresenterCache::GROUP);
         if (is_string($cached)) {
             return $cached;
         }
 
         $html = $this->build($postId);
-        wp_cache_set($key, $html, self::CACHE_GROUP, self::CACHE_TTL);
+        wp_cache_set($key, $html, PresenterCache::GROUP, self::CACHE_TTL);
 
         return $html;
     }

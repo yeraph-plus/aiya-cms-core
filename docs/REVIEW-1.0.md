@@ -35,7 +35,7 @@
 | B1 | P0 修正与测试防线 | R-01、C-02、H-01、H-02 | 原生盘 phpunit 全绿 + 手工时间/换图抽查 | ✅ 2026-10-03 |
 | B2 | SQL 收尾窗（1.0 冻结前唯一机会） | S-01～S-08、H-07 | MigrationChainTest 同步 + 旧库幂等演练 | ✅ 0.102.0（S-01..04/H-07）+ 0.102.1 后批（S-05..08） |
 | B3 | REST 面收敛 | R-02、R-03、R-07、R-10、C-04、C-05、L-08 | 快照零 diff + 全路由冒烟 | ☐ |
-| B4 | 媒体与杂项收敛 | R-04、R-05、R-06、R-08、R-12、R-13、R-14、R-15、L-07、L-09 | 上传/封面/文件服务手工回归 | ☐ |
+| B4 | 媒体与杂项收敛 | R-04、R-05、R-06、R-08、R-12、R-13、R-14、R-15、L-07、L-09 | 上传/封面/文件服务手工回归 | ✅ 2026-10-03 |
 | B5 | 卫生与测试补强 | H-03、H-04、H-05、H-06 | 新测试入套件、死代码零引用复核 | ☐ |
 | B6 | 架构裁决、文档与发布 | L-01、L-04、L-05、L-06、L-10、G-01～G-05 | 快照比对 + 发布动作清单全过 | ☐ |
 
@@ -140,19 +140,19 @@
 - 方向：`Api/Rest` 下 RestGuard 统一 `loggedIn()`/`rateLimited()`。
 - 复核：`grep -rn "Too many requests" src/` → 单一来源。
 
-**R-04 [P1] 图床上传管线整段复制两份，REST 侧落错层** ☐
+**R-04 [P1] 图床上传管线整段复制两份，REST 侧落错层** ✅ B4（PicBedStore + UploadException，防撞改 wp_unique_filename）
 - 位置：`src/Domain/Media/PicBedPage.php:196-231` 与 `src/Api/Rest/UploadsController.php:91-110`。
 - 证据：大小检查→MimeType::detect→相同文件名配方（`wp_date('d').'-'.time().'-'.wp_generate_password(8,false)`)→move→processUpload→URL/相对路径→getimagesize，逐行同构；仅错误载体不同。
 - 方向：下沉 `Domain/Media/PicBedStore` 单实现；防撞命名改 `wp_unique_filename()`（`wordpress-source/wp-includes/functions.php:2589` 有据）。
 - 复核：两处调用同一类；`wp_generate_password(8,false)` 配方零命中。
 
-**R-05 [P1] metabox 保存错误暂存双实现，一处缺 user 隔离** ☐
+**R-05 [P1] metabox 保存错误暂存双实现，一处缺 user 隔离** ✅ B4
 - 位置：`src/Admin/MetaboxAdmin.php:440-460`（全局键 `aiya_core_meta_save_errors`，:46 定义）与 `src/Admin/FileServeMetabox.php:199-225`（per-user 键）。
 - 证据：管理员 A 保存报错，2 分钟窗口内管理员 B 打开任意编辑屏会看到 A 的错误（缓存路审查亦报，并入本条）。
 - 方向：统一 per-user 键（保留 FileServeMetabox 形状），单一实现。
 - 复核：`grep -rn "ERROR_TRANSIENT" src/` → 键全部带 `get_current_user_id()` 后缀。
 
-**R-06 [P1] Presenter 层日期整形助手五份同体复制** ☐
+**R-06 [P1] Presenter 层日期整形助手五份同体复制** ✅ B4（WireDates；PostPresenter 保留 WP_Post 变体、内部走 fromTimestamp）
 - 位置：`DiscussionPresenter.php:249-252`、`CreditPresenter.php:50-53`、`NotificationPresenter.php:41-44`、`SponsorshipPresenter.php:90-93`、`PostPresenter.php:399-402`（WP_Post 变体）。
 - 证据：逐字相同的 `formatDate(string $mysqlGmt): string`（get_date_from_gmt + wp_date('c')）。ARCHITECTURE 明文「转换日期的投影应有自己的家」。
 - 方向：`Api/Presenter` 共享静态助手（与 R-01 的 admin 侧助手语义不同：ISO-8601 vs 本地化标签，各自独立）。
@@ -164,7 +164,7 @@
 - 方向：改读过滤器清单；ServiceKey 改收已解析 token。归 B3。
 - 复核：TokenAuthentication 内无命名空间字面量。
 
-**R-08 [P2] 封面文件名配方两份 + 校验正则隐形耦合** ☐
+**R-08 [P2] 封面文件名配方两份 + 校验正则隐形耦合** ✅ B4
 - 位置：`src/Domain/Media/CoverService.php:101`（配方）、`:108`（正则 `/\/\d{14}_\d{4}\.(?:jpg|webp|avif)$/`）与 `src/Domain/Media/CardThumbnailService.php:310`（配方）。
 - 证据：改配方要同步三处，编译期无感。
 - 方向：`MediaPaths::coverFilename($format)` + `isManagedCoverFile($path)`。
@@ -188,25 +188,25 @@
 - 方向（1.0 后）：仅共享 ids()/插入回查。
 - 复核：共享段单一来源。
 
-**R-12 [P2] Gofile / OpenList 两模块 transport 闭包近似复制** ☐
+**R-12 [P2] Gofile / OpenList 两模块 transport 闭包近似复制** ✅ B4（WireTransport 工厂，签名适配留模块侧）
 - 位置：`src/Modules/GofileModule.php:88-103` 与 `OpenListModule.php:252-273`。
 - 证据：同构 wp_remote_* → is_wp_error → SourceLog::writeOnce(md5 键, 300) → {status, body}；注释自认同款。
 - 方向：FileServe 提供共享 wire-transport 工厂（headers/动词参数化）。
 - 复核：两模块调用同一工厂。
 
-**R-13 [P2] 同域三种随机串配方并存** ☐
+**R-13 [P2] 同域三种随机串配方并存** ✅ B4（RandomToken::suffix；兑换码的 wp_generate_password 保留——码表语义不同）
 - 位置：`src/Api/Rest/SponsorshipController.php:146,236`（`md5(uniqid(wp_rand()))` ×2）与 `src/Domain/Sponsorship/RedeemCodeService.php:125`（`wp_generate_password`）。
 - 证据：均可工作（CSPRNG 底料），但同一域三配方无必要。
 - 方向：`randomSuffix(int $len)` 助手。
 - 复核：`md5(uniqid` 零命中。
 
-**R-14 [P2] 「modified 折叠键对象缓存」memo 模式三份，TTL 各异** ☐
+**R-14 [P2] 「modified 折叠键对象缓存」memo 模式三份，TTL 各异** ✅ B4（PresenterCache 组名+键形状；TTL 为各投影自身契约保留）
 - 位置：`src/Api/Presenter/PostCardPresenter.php:51-84`、`PostPresenter.php:47-48,353-360`、`DiscussionPresenter.php:38-39,185-204`。
 - 证据：同组 `aiya_core_content`、同键形状 `前缀_id_md5(modified)`，TTL 分别 600/HOUR_IN_SECONDS/600。
 - 方向：共享 memo 助手或至少组名/键形状收敛到一处常量。
 - 复核：组名与键形状字面量单处。
 
-**R-15 [P2] 三个 bulk action 的 notice() 渲染三份同构** ☐
+**R-15 [P2] 三个 bulk action 的 notice() 渲染三份同构** ✅ B4（BulkActionNotice 计数器映射）
 - 位置：`src/Admin/CardThumbnailBulkAction.php:110-144`、`TermMoveBulkAction.php:168-202`、`PostTypeSwitchBulkAction.php:162` 起。
 - 证据：读 `$_GET` 计数器→`_n()` 拼消息→notice div，约 35 行/份。
 - 方向：共享计数器 notice 渲染器，三处留文案映射。
@@ -250,7 +250,7 @@
 - 方向：改 docblock 或改字段语义。归 B6。
 - 复核：docblock 自洽。
 
-**L-07 [P2] 跨层字符串键耦合绕过域属主常量** ☐
+**L-07 [P2] 跨层字符串键耦合绕过域属主常量** ✅ B4
 - 位置：`src/Api/Presenter/PostPresenter.php:543-548`（`'view_count'/'like_count'/'rating_score'/'rating_count'` 字面量 vs `CounterService.php:40-41` 的 RATING_KEY/RATING_COUNT_KEY）；`src/Api/Presenter/CommentPresenter.php:31`（`'aiya-smilie'` vs `SmiliesRenderer::IMG_CLASS`，SmiliesRenderer.php:26）。
 - 证据：漂移时静默失真（smilie 会被 kses 剥掉）。
 - 方向：引用属主常量。归 B4。
@@ -262,7 +262,7 @@
 - 方向：update 不回带 replies（走 GET /discussions/{id}/replies），或 meta 带回复总数。归 B3。
 - 复核：超 50 条线程的 update 响应可判断完整性。
 
-**L-09 [P2] SitePresenter 以裸字符串键耦合 SiteBlocks 形状** ☐
+**L-09 [P2] SitePresenter 以裸字符串键耦合 SiteBlocks 形状** ✅ B4（键常量归 SiteBlocks；presenter 剥本地副本保 sponsor 缓存路径）
 - 位置：`src/Api/Presenter/SitePresenter.php:102-109`。
 - 证据：对 presentArray() 产物按 `'blocks'['adsTop']['adsBottom']` 字面键剥离；SiteBlocks 改键名时赞助者视图静默恢复广告。
 - 方向：下沉为 `SiteBlocks::withoutAds()` 值对象方法。归 B4。

@@ -161,37 +161,15 @@ final class PostTypeSwitchBulkAction implements Module
 
     public function notice(): void
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
-        if (!isset($_GET['aiya_switch_done'])) {
-            return;
-        }
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect counters
-        $done = absint((string) ($_GET['aiya_switch_done'] ?? '0'));
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ditto
-        $skipped = absint((string) ($_GET['aiya_switch_skipped'] ?? '0'));
-
-        $messages = [];
-        if ($done > 0) {
-            $messages[] = sprintf(
-                /* translators: %d: number of switched items */
-                _n('%d item switched to the new post type.', '%d items switched to the new post type.', $done, 'aiya-core'),
-                $done
-            );
-        }
-        if ($skipped > 0) {
-            $messages[] = sprintf(
-                /* translators: %d: number of skipped items */
-                _n('%d item skipped (unchanged or not permitted).', '%d items skipped (unchanged or not permitted).', $skipped, 'aiya-core'),
-                $skipped
-            );
-        }
-        if ($messages === []) {
-            $messages[] = __('Nothing was switched.', 'aiya-core');
-        }
-
-        printf(
-            '<div class="notice notice-info is-dismissible"><p>%s</p></div>',
-            esc_html(implode(' ', $messages))
-        );
+        BulkActionNotice::render([
+            'aiya_switch_done' => [
+                '%d item switched to the new post type.',
+                '%d items switched to the new post type.',
+            ],
+            'aiya_switch_skipped' => [
+                '%d item skipped (unchanged or not permitted).',
+                '%d items skipped (unchanged or not permitted).',
+            ],
+        ], __('Nothing was switched.', 'aiya-core'));
     }
 }

@@ -38,18 +38,12 @@ final class CreditPresenter
                 (string) $row['ref'],
                 (int) $row['amount'],
                 (int) $row['remaining'],
-                $this->iso((string) $row['createdAt']),
-                $row['expiresAt'] !== null ? $this->iso((string) $row['expiresAt']) : null,
+                WireDates::fromGmt((string) $row['createdAt']),
+                $row['expiresAt'] !== null ? WireDates::fromGmt((string) $row['expiresAt']) : null,
             ))->toArray();
         }
 
         return $items;
     }
 
-    private function iso(string $mysqlGmt): string
-    {
-        $timestamp = (int) get_date_from_gmt($mysqlGmt, 'U');
-
-        return $timestamp > 0 ? (string) wp_date('c', $timestamp) : '';
-    }
 }

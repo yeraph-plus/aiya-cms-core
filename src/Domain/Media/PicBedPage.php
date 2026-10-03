@@ -181,59 +181,24 @@ final class PicBedPage implements Module
         check_ajax_referer(self::NONCE_ACTION, 'nonce');
 
         $file = $_FILES['image'] ?? null;
-        if (!is_array($file) || empty($file['tmp_name']) || empty($file['name']) || !is_string($file['tmp_name'])) {
+        if (!is_array($file)) {
             throw new RuntimeException(__('No file was uploaded.', 'aiya-core'));
         }
-        if (!is_uploaded_file($file['tmp_name'])) {
-            throw new RuntimeException(__('Invalid upload.', 'aiya-core'));
-        }
-        if ((int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            throw new RuntimeException(__('The upload failed with a file error.', 'aiya-core'));
-        }
 
-        $maxBytes = self::MAX_SIZE_MB * 1024 * 1024;
-        if ((int) ($file['size'] ?? 0) <= 0 || (int) $file['size'] > $maxBytes) {
-            throw new RuntimeException(__('The file is too large.', 'aiya-core'));
-        }
-
-        // Real MIME check via finfo; the extension is derived from the type,
-        // never from the client-supplied filename.
-        $mime = MimeType::detect($file['tmp_name']);
-        $extension = $mime === null ? null : (MimeType::EXTENSIONS[$mime] ?? null);
-        if ($extension === null) {
-            throw new RuntimeException(__('This file type is not supported.', 'aiya-core'));
-        }
-
-        $target = trailingslashit($this->paths->picBedDir()) . wp_date('d') . '-' . time() . '-' . wp_generate_password(8, false) . $extension;
-        if (!move_uploaded_file($file['tmp_name'], $target)) {
-            throw new RuntimeException(__('The file could not be written.', 'aiya-core'));
-        }
-
-        $processed = ($this->processUpload)($target);
-        if (!is_string($processed) || !is_file($processed)) {
-            wp_delete_file($target);
-            throw new RuntimeException(__('Image processing failed.', 'aiya-core'));
-        }
-        $target = $processed;
-
-        $url = $this->paths->localToUrl($target);
-        $path = $this->paths->relativePath($target);
-        if ($url === null || $path === null) {
-            throw new RuntimeException(__('The image URL could not be resolved.', 'aiya-core'));
-        }
-
-        $size = getimagesize($target);
-        $title = sanitize_file_name((string) $file['name']);
+        // The shared pipeline (also behind the REST composer upload);
+        // its rejections carry the user-facing message already.
+        $stored = (new PicBedStore($this->paths, $this->processUpload, self::MAX_SIZE_MB * 1024 * 1024))
+            ->store($file, $this->paths->picBedDir(), (string) ($file['name'] ?? ''));
 
         return [
             'image' => [
-                'width' => is_array($size) ? (int) $size[0] : 0,
-                'height' => is_array($size) ? (int) $size[1] : 0,
-                'mime' => is_array($size) ? $size['mime'] : $mime,
-                'title' => $title,
+                'width' => $stored['width'],
+                'height' => $stored['height'],
+                'mime' => $stored['mime'],
+                'title' => $stored['title'],
             ],
-            'url' => $url,
-            'path' => $path,
+            'url' => $stored['url'],
+            'path' => $stored['path'],
         ];
     }
 

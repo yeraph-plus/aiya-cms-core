@@ -44,7 +44,6 @@ final class PostPresenter
      * invalidation hook, the same stance as the shell cache; post edits
      * re-key the excerpt entry through post_modified.
      */
-    private const CACHE_GROUP = 'aiya_core_content';
     private const CACHE_TTL = HOUR_IN_SECONDS;
     /** Vocabulary cache shape version: the 0.96.0 filtering changed the
         default key's content, so old cached shapes must not answer. */
@@ -263,7 +262,7 @@ final class PostPresenter
             . ($excludeTermIds !== [] ? '_nsfw' : '')
             . ($hideEmpty ? '' : '_full');
         /** @var array<int, array<string, mixed>>|false $cached */
-        $cached = wp_cache_get($key, self::CACHE_GROUP);
+        $cached = wp_cache_get($key, PresenterCache::GROUP);
         if (is_array($cached)) {
             return $cached;
         }
@@ -296,7 +295,7 @@ final class PostPresenter
             }
         }
 
-        wp_cache_set($key, $out, self::CACHE_GROUP, 5 * MINUTE_IN_SECONDS);
+        wp_cache_set($key, $out, PresenterCache::GROUP, 5 * MINUTE_IN_SECONDS);
 
         return $out;
     }
@@ -350,10 +349,10 @@ final class PostPresenter
         // the same password, so the guard is code, not a deployment note.
         $cacheable = (string) $post->post_password === '';
         $postId = (int) $post->ID;
-        $key = 'excerpt_' . $postId . '_' . md5((string) $post->post_modified_gmt);
+        $key = PresenterCache::modifiedKey('excerpt', $postId, (string) $post->post_modified_gmt);
         if ($cacheable) {
             /** @var string|false $cached */
-            $cached = wp_cache_get($key, self::CACHE_GROUP);
+            $cached = wp_cache_get($key, PresenterCache::GROUP);
             if (is_string($cached)) {
                 return $cached;
             }
@@ -378,7 +377,7 @@ final class PostPresenter
 
         $text = trim($text);
         if ($cacheable) {
-            wp_cache_set($key, $text, self::CACHE_GROUP, self::CACHE_TTL);
+            wp_cache_set($key, $text, PresenterCache::GROUP, self::CACHE_TTL);
         }
 
         return $text;
@@ -397,9 +396,7 @@ final class PostPresenter
     private function isoDate(WP_Post $post, string $field): string
     {
         // $field is always the literal 'date' or 'modified' at call sites.
-        $timestamp = (int) get_post_timestamp($post, $field === 'modified' ? 'modified' : 'date');
-
-        return $timestamp > 0 ? (string) wp_date('c', $timestamp) : '';
+        return WireDates::fromTimestamp((int) get_post_timestamp($post, $field === 'modified' ? 'modified' : 'date'));
     }
 
     /**
@@ -540,12 +537,12 @@ final class PostPresenter
 
     private function metrics(int $postId): PostMetrics
     {
-        $ratingScore = get_post_meta($postId, 'rating_score', true);
-        $ratingCount = get_post_meta($postId, 'rating_count', true);
+        $ratingScore = get_post_meta($postId, CounterService::RATING_KEY, true);
+        $ratingCount = get_post_meta($postId, CounterService::RATING_COUNT_KEY, true);
 
         return new PostMetrics(
-            max(0, (int) get_post_meta($postId, 'view_count', true)),
-            max(0, (int) get_post_meta($postId, 'like_count', true)),
+            max(0, (int) get_post_meta($postId, CounterService::VIEW_KEY, true)),
+            max(0, (int) get_post_meta($postId, CounterService::LIKE_KEY, true)),
             max(0, (int) get_comments_number($postId)),
             $ratingScore === '' ? null : max(0, (int) $ratingScore),
             $ratingCount === '' ? null : max(0, (int) $ratingCount)

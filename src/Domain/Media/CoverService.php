@@ -98,7 +98,7 @@ final class CoverService
         // never collides with the file being replaced.
         $previous = get_post_meta($postId, CardThumbnailService::THUMB_KEY, true);
 
-        $dest = $this->paths->coverManualDir() . '/' . wp_date('YmdHis') . '_' . wp_rand(1000, 9999) . '.' . $format;
+        $dest = $this->paths->coverManualDir() . '/' . $this->paths->coverFilename($format);
         $local = (new CoverGenerator($this->imagine))->generate($spec, $dest, SaveOptions::for($format, (int) $policy['quality']));
         if (!is_string($local)) {
             return new WP_Error('aiya_core_cover_generate_failed', __('Cover generation failed.', 'aiya-core'));
@@ -107,7 +107,7 @@ final class CoverService
         if (is_string($previous) && $previous !== '') {
             $previousLocal = $this->paths->urlToLocal($previous);
             if ($previousLocal !== null && str_starts_with($previousLocal, $this->paths->coverTreeDir() . '/')
-                && preg_match('/\/\d{14}_\d{4}\.(?:jpg|webp|avif)$/', $previousLocal) === 1) {
+                && $this->paths->isManagedCoverFile($previousLocal)) {
                 wp_delete_file($previousLocal);
             }
         }

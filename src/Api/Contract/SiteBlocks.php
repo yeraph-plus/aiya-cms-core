@@ -17,6 +17,9 @@ namespace Aiya\Core\Api\Contract;
  */
 final class SiteBlocks
 {
+    /** The two wire keys the sponsor view empties — owned here, not dug for by callers. */
+    public const KEY_AD_TOP = 'adsTop';
+    public const KEY_AD_BOTTOM = 'adsBottom';
     /**
      * @param list<MenuItem> $primary
      * @param list<MenuItem> $secondary
@@ -39,9 +42,25 @@ final class SiteBlocks
         return [
             'primary' => array_map(static fn (MenuItem $item): array => $item->toArray(), $this->primary),
             'secondary' => array_map(static fn (MenuItem $item): array => $item->toArray(), $this->secondary),
-            'adsTop' => array_map(static fn (AdSlot $slot): array => $slot->toArray(), $this->adsTop),
-            'adsBottom' => array_map(static fn (AdSlot $slot): array => $slot->toArray(), $this->adsBottom),
+            self::KEY_AD_TOP => array_map(static fn (AdSlot $slot): array => $slot->toArray(), $this->adsTop),
+            self::KEY_AD_BOTTOM => array_map(static fn (AdSlot $slot): array => $slot->toArray(), $this->adsBottom),
             'sections' => array_map(static fn (HomeSection $section): array => $section->toArray(), $this->sections),
         ];
+    }
+
+    /**
+     * The wire shape with both ad lists emptied — the sponsor view of
+     * the same blocks. A value-object method (not a caller-side literal
+     * dig), so a key rename here and the stripping move together.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArrayWithoutAds(): array
+    {
+        $out = $this->toArray();
+        $out[self::KEY_AD_TOP] = [];
+        $out[self::KEY_AD_BOTTOM] = [];
+
+        return $out;
     }
 }

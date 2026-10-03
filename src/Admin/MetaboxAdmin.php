@@ -43,7 +43,7 @@ final class MetaboxAdmin implements Module
     private const TERM_INPUT = 'aiya_core_term';
     private const USER_INPUT = 'aiya_core_user';
     private const ACTION_INPUT = 'aiya_core_actions';
-    private const ERROR_TRANSIENT = 'aiya_core_meta_save_errors';
+    private const ERROR_TRANSIENT = 'aiya_core_meta_save_errors_';
 
     public function __construct(private Registry $registry)
     {
@@ -437,19 +437,19 @@ final class MetaboxAdmin implements Module
      */
     private static function stashSaveError(WP_Error $error): void
     {
-        $messages = (array) get_transient(self::ERROR_TRANSIENT);
+        $messages = (array) get_transient(self::ERROR_TRANSIENT . get_current_user_id());
         $messages[] = $error->get_error_message();
-        set_transient(self::ERROR_TRANSIENT, $messages, 2 * MINUTE_IN_SECONDS);
+        set_transient(self::ERROR_TRANSIENT . get_current_user_id(), $messages, 2 * MINUTE_IN_SECONDS);
     }
 
     /** Renders and clears stashed metadata save errors, once. */
     public function renderSaveErrors(): void
     {
-        $messages = get_transient(self::ERROR_TRANSIENT);
+        $messages = get_transient(self::ERROR_TRANSIENT . get_current_user_id());
         if (!is_array($messages) || $messages === []) {
             return;
         }
-        delete_transient(self::ERROR_TRANSIENT);
+        delete_transient(self::ERROR_TRANSIENT . get_current_user_id());
 
         echo '<div class="notice notice-error is-dismissible"><p>';
         echo esc_html__('Some metadata fields were not saved:', 'aiya-core');

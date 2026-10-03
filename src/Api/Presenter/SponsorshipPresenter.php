@@ -65,8 +65,8 @@ final class SponsorshipPresenter
                 (int) $row['credits_per_cycle'],
                 (int) $row['cycles_total'],
                 (int) $row['cycles_granted'],
-                $this->iso((string) $row['starts_at']),
-                $this->iso((string) $row['ends_at']),
+                WireDates::fromGmt((string) $row['starts_at']),
+                WireDates::fromGmt((string) $row['ends_at']),
                 (string) $row['status'],
             ))->toArray();
         }
@@ -86,10 +86,4 @@ final class SponsorshipPresenter
     }
 
     /** GMT DATETIME queue value → offset ISO 8601 for the wire. */
-    private function iso(string $mysqlGmt): string
-    {
-        $timestamp = (int) get_date_from_gmt($mysqlGmt, 'U');
-
-        return $timestamp > 0 ? (string) wp_date('c', $timestamp) : '';
-    }
 }
