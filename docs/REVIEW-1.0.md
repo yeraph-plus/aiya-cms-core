@@ -52,7 +52,7 @@
 - H-02：`AfdianOrderUrlTest` 的 fixture 归位（tests/Fixture/ 显式加载）、`esc_html__`/`esc_attr__` 提进 bootstrap.php（与邮件域在途改动协调）。
 - 验证：UTC+8 站点后台五个列表页时间人工核对；媒体库替换同一附件后缩略图重生成；`--filter` 单文件可独立运行。
 
-**B2 — SQL 收尾窗**（迁移链压平为 CREATE-only 后 dbDelta 只加不减，这是清死列死索引的最后窗口；未上线无兼容义务，参照 0.56.0 收口先例：改 1.0.0 安装器本体 + 开发库一次性对齐）
+**B2 — SQL 收尾窗**（迁移链压平为 CREATE-only 后 dbDelta 只加不减——加法项由 Runner 在下次插件版本变动时自动补（stored 戳=插件版本，<1.0.0 即全链重跑），减法项必须显式 DROP；照 NotificationService 安装器内 user_id 索引清理的幂等先例（SHOW INDEX 探测 + DROP），把四个减法项的 DROP 内嵌进 1.0.0 安装器：开发库（stored=0.101.1、死对象在库）下次版本变动自愈，线上库（stored ≤0.99）1.0.0 首请求拿到的即修正后 DDL、DROP 全为 no-op——无需手工 SQL 对账）
 - S-01：删 `aiya_notifications` 死索引 `actor_id`、`object_ref`（升级库仿 user_id 索引先例补幂等 DROP）。
 - S-02：`aiya_discussions` 加 `(status, created_at)`、删冗余 `KEY status`。
 - S-03 / S-04：摘死列 `aiya_discussion_replies.updated_at`、`aiya_stats_active.first_seen`。
@@ -61,6 +61,8 @@
 - S-07 / S-08：SearchReplace 按批执行、线程删除包事务。
 - H-07：phpcs 1 error + 2 warnings 全部豁免注释归零。
 - 验证：`MigrationChainTest` 同步；拿旧 `schema_version` 库演练首请求幂等对账。
+
+**SQL 压平缺口的最后一项**（轻社区点赞表）不走 B2，单列批次 DL：2026-10-03 站长拍板重启，独立内容 CRUD 不触碰文章数据域，四步计划见 `docs/discussion-likes-design.md`（排 B2 之后、B6 之前）。
 
 **B3 — REST 面收敛**
 - R-02：`Envelope` 加 `list($data, ?Pagination)` 静态工厂，替换 12 处手工 meta 装配。
