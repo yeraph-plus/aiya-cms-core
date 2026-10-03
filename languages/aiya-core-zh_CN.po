@@ -3292,3 +3292,39 @@ msgstr "密码已更改"
 
 msgid "Email address changed"
 msgstr "邮箱地址已更改"
+
+msgid "[%1$s] Thank you — your membership is now active."
+msgstr "【%1$s】感谢支持，你的会员已生效。"
+
+msgid "Thank you for supporting %1$s — this email is your receipt."
+msgstr "感谢你对 %1$s 的支持——本邮件即你的订单回执。"
+
+msgid "Tier"
+msgstr "会员档位"
+
+msgid "Order"
+msgstr "订单号"
+
+msgid "Active from"
+msgstr "生效日期"
+
+msgid "Active until"
+msgstr "有效期至"
+
+msgid "If your purchase covers multiple cycles, the next one starts automatically when the current subscription period ends."
+msgstr "如果您购买了多个周期计划，当前订阅周期结束后，下一次订阅将自动递补生效。"
+
+msgid "View membership"
+msgstr "查看会员"
+
+msgid "Membership activated"
+msgstr "会员已生效"
+
+msgid "The like could not be removed."
+msgstr "取消点赞失败。"
+
+msgid "The like could not be stored."
+msgstr "点赞失败。"
+
+msgid "This thread is closed; likes are no longer accepted."
+msgstr "该帖已关闭，不再接受点赞。"

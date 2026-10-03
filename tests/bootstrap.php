@@ -1156,6 +1156,21 @@ if (!class_exists('wpdb')) {
                 }
             }
 
+            // The discussion-likes unique actor key: a repeat of a
+            // (thread, user) pair is the "already liked" no-op, exactly
+            // like the real table answers an INSERT on that key.
+            if (str_contains($table, 'discussion_likes')) {
+                foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
+                    if ((int) ($row['thread_id'] ?? 0) === (int) ($data['thread_id'] ?? 0)
+                        && (int) ($row['user_id'] ?? 0) === (int) ($data['user_id'] ?? 0)
+                    ) {
+                        $this->last_error = "Duplicate entry 'actor' for key 'actor'";
+
+                        return false;
+                    }
+                }
+            }
+
             $this->last_error = '';
             // Rows carry their auto-increment id like a real table, so
             // write-through updates can address them by primary key.
@@ -1181,6 +1196,30 @@ if (!class_exists('wpdb')) {
             $this->last_error = '';
 
             return true;
+        }
+
+        /** Write-through DELETE: removes every seeded row matching the
+         * where pairs and answers the removal count, like the real
+         * statement. */
+        public function delete(string $table, array $where, array $formats = []): int|false
+        {
+            $kept = [];
+            $removed = 0;
+            foreach (($this->aiya_test_rows[$table] ?? []) as $row) {
+                foreach ($where as $key => $value) {
+                    if ((string) ($row[$key] ?? '') !== (string) $value) {
+                        $kept[] = $row;
+                        continue 2;
+                    }
+                }
+                $removed++;
+            }
+            if ($removed > 0) {
+                $this->aiya_test_rows[$table] = $kept;
+            }
+            $this->last_error = '';
+
+            return $removed;
         }
 
         public function suppress_errors(bool $suppress = true): bool
@@ -1219,6 +1258,15 @@ if (!class_exists('wpdb')) {
                 }
                 if (preg_match('/user_id = (\d+)/', $sql, $user) === 1
                     && (int) ($row['user_id'] ?? 0) !== (int) $user[1]
+                ) {
+                    continue;
+                }
+                // A standalone primary-key probe (the like service's thread
+                // existence read) narrows to the matching row, the way the
+                // real WHERE id = N does.
+                if (preg_match('/\bid = (\d+)\b/', $sql, $idSel) === 1
+                    && array_key_exists('id', $row)
+                    && (int) $row['id'] !== (int) $idSel[1]
                 ) {
                     continue;
                 }
@@ -1424,6 +1472,36 @@ if (!class_exists('wpdb')) {
                         continue;
                     }
                     $this->aiya_test_rows[$table][$index]['remaining'] = (int) $row['remaining'] - (int) $step[2];
+                    $this->rows_affected = 1;
+
+                    return 1;
+                }
+
+                return 0;
+            }
+
+            // The discussion like counter: the atomic +/- pair the like
+            // service issues inside its transaction (GREATEST floors at
+            // zero the way MySQL would).
+            if (preg_match('/^UPDATE (\S+) SET like_count = like_count \+ 1 WHERE id = (\d+)$/', $sql, $bump) === 1) {
+                foreach ($this->aiya_test_rows[$bump[1]] ?? [] as $index => $row) {
+                    if ((int) ($row['id'] ?? 0) !== (int) $bump[2]) {
+                        continue;
+                    }
+                    $this->aiya_test_rows[$bump[1]][$index]['like_count'] = (int) ($row['like_count'] ?? 0) + 1;
+                    $this->rows_affected = 1;
+
+                    return 1;
+                }
+
+                return 0;
+            }
+            if (preg_match('/^UPDATE (\S+) SET like_count = GREATEST\(like_count - 1, 0\) WHERE id = (\d+)$/', $sql, $drop) === 1) {
+                foreach ($this->aiya_test_rows[$drop[1]] ?? [] as $index => $row) {
+                    if ((int) ($row['id'] ?? 0) !== (int) $drop[2]) {
+                        continue;
+                    }
+                    $this->aiya_test_rows[$drop[1]][$index]['like_count'] = max(0, (int) ($row['like_count'] ?? 0) - 1);
                     $this->rows_affected = 1;
 
                     return 1;

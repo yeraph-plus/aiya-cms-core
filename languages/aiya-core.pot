@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.101.1\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.102.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-03T01:19:14+00:00\n"
+"POT-Creation-Date: 2026-10-03T02:46:42+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -696,7 +696,7 @@ msgid "The nickname must be 1-50 characters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:139
-#: src/Api/Rest/AuthController.php:243
+#: src/Api/Rest/AuthController.php:249
 #: src/Api/Rest/UserController.php:315
 msgid "The email address is not valid."
 msgstr ""
@@ -720,24 +720,24 @@ msgstr ""
 msgid "The account was created, but the profile could not be saved."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:207
+#: src/Api/Rest/AuthController.php:213
 msgid "Please provide the email address and the password."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:215
+#: src/Api/Rest/AuthController.php:221
 msgid "The email address or the password is incorrect."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:284
+#: src/Api/Rest/AuthController.php:290
 #: src/Api/Rest/UserController.php:425
 msgid "Existing sessions could not be invalidated; the password was left unchanged."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:302
+#: src/Api/Rest/AuthController.php:308
 msgid "The reset link is missing required parameters."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:309
+#: src/Api/Rest/AuthController.php:315
 #: src/Api/Rest/ContentController.php:190
 #: src/Api/Rest/ContentController.php:453
 #: src/Api/Rest/ContentController.php:480
@@ -747,8 +747,10 @@ msgstr ""
 #: src/Api/Rest/CreditController.php:111
 #: src/Api/Rest/CreditController.php:143
 #: src/Api/Rest/CreditController.php:154
-#: src/Api/Rest/DiscussionController.php:185
-#: src/Api/Rest/DiscussionController.php:246
+#: src/Api/Rest/DiscussionController.php:201
+#: src/Api/Rest/DiscussionController.php:262
+#: src/Api/Rest/DiscussionController.php:375
+#: src/Api/Rest/DiscussionController.php:389
 #: src/Api/Rest/FileServeController.php:69
 #: src/Api/Rest/FileServeController.php:83
 #: src/Api/Rest/IntegrationsController.php:70
@@ -761,21 +763,21 @@ msgstr ""
 msgid "Too many requests, try again later."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:316
+#: src/Api/Rest/AuthController.php:322
 msgid "This password reset link is invalid or has expired."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:328
+#: src/Api/Rest/AuthController.php:334
 msgid "The account could not be loaded."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:336
+#: src/Api/Rest/AuthController.php:342
 msgid "The session could not be started."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:348
+#: src/Api/Rest/AuthController.php:354
 #: src/Api/Rest/CreditController.php:187
-#: src/Api/Rest/DiscussionController.php:383
+#: src/Api/Rest/DiscussionController.php:427
 #: src/Api/Rest/FileServeController.php:105
 #: src/Api/Rest/IntegrationsController.php:189
 #: src/Api/Rest/SponsorshipController.php:287
@@ -784,7 +786,7 @@ msgstr ""
 msgid "Authentication required."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:353
+#: src/Api/Rest/AuthController.php:359
 #: src/Api/Rest/CommentsController.php:149
 #: src/Api/Rest/ContentController.php:404
 #: src/Api/Rest/UploadsController.php:64
@@ -850,6 +852,8 @@ msgid "Profile not found."
 msgstr ""
 
 #: src/Api/Rest/CounterController.php:67
+#: src/Domain/Discussion/DiscussionLikeService.php:141
+#: src/Domain/Discussion/DiscussionLikeService.php:192
 msgid "Please log in to interact."
 msgstr ""
 
@@ -871,25 +875,27 @@ msgstr ""
 msgid "The Afdian channel is not available."
 msgstr ""
 
-#: src/Api/Rest/DiscussionController.php:206
+#: src/Api/Rest/DiscussionController.php:222
 msgid "The thread could not be read back."
 msgstr ""
 
-#: src/Api/Rest/DiscussionController.php:256
-#: src/Api/Rest/DiscussionController.php:320
+#: src/Api/Rest/DiscussionController.php:272
+#: src/Api/Rest/DiscussionController.php:336
 msgid "The reply could not be read back."
 msgstr ""
 
-#: src/Api/Rest/DiscussionController.php:371
+#: src/Api/Rest/DiscussionController.php:415
 #: src/Domain/Discussion/DiscussionService.php:48
-#: src/Domain/Discussion/DiscussionService.php:550
+#: src/Domain/Discussion/DiscussionService.php:549
 msgid "Unknown board."
 msgstr ""
 
-#: src/Api/Rest/DiscussionController.php:388
+#: src/Api/Rest/DiscussionController.php:432
+#: src/Domain/Discussion/DiscussionLikeService.php:145
+#: src/Domain/Discussion/DiscussionLikeService.php:195
 #: src/Domain/Discussion/DiscussionService.php:470
-#: src/Domain/Discussion/DiscussionService.php:525
-#: src/Domain/Discussion/DiscussionService.php:582
+#: src/Domain/Discussion/DiscussionService.php:524
+#: src/Domain/Discussion/DiscussionService.php:581
 msgid "Thread not found."
 msgstr ""
 
@@ -2471,17 +2477,31 @@ msgstr ""
 msgid "No shortcodes match."
 msgstr ""
 
+#: src/Domain/Discussion/DiscussionLikeService.php:148
+msgid "This thread is closed; likes are no longer accepted."
+msgstr ""
+
+#: src/Domain/Discussion/DiscussionLikeService.php:167
+#: src/Domain/Discussion/DiscussionLikeService.php:179
+msgid "The like could not be stored."
+msgstr ""
+
+#: src/Domain/Discussion/DiscussionLikeService.php:205
+#: src/Domain/Discussion/DiscussionLikeService.php:213
+msgid "The like could not be removed."
+msgstr ""
+
 #: src/Domain/Discussion/DiscussionService.php:42
 msgid "The thread author does not exist."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:51
-#: src/Domain/Discussion/DiscussionService.php:539
+#: src/Domain/Discussion/DiscussionService.php:538
 msgid "The thread body is required."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:55
-#: src/Domain/Discussion/DiscussionService.php:543
+#: src/Domain/Discussion/DiscussionService.php:542
 msgid "A thread can carry at most nine images."
 msgstr ""
 
@@ -2536,65 +2556,65 @@ msgid "The replying user does not exist."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:479
-#: src/Domain/Discussion/DiscussionService.php:619
+#: src/Domain/Discussion/DiscussionService.php:620
 msgid "The reply body is required."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:483
-#: src/Domain/Discussion/DiscussionService.php:623
+#: src/Domain/Discussion/DiscussionService.php:624
 msgid "A reply can carry at most nine images."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:502
+#: src/Domain/Discussion/DiscussionService.php:501
 msgid "The reply could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:528
+#: src/Domain/Discussion/DiscussionService.php:527
 msgid "You are not allowed to edit this thread."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:557
+#: src/Domain/Discussion/DiscussionService.php:556
 msgid "Unknown thread status."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:571
+#: src/Domain/Discussion/DiscussionService.php:570
 msgid "The thread could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:585
+#: src/Domain/Discussion/DiscussionService.php:584
 msgid "You are not allowed to delete this thread."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:592
+#: src/Domain/Discussion/DiscussionService.php:591
 msgid "The thread replies could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:596
+#: src/Domain/Discussion/DiscussionService.php:595
 msgid "The thread could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:613
-#: src/Domain/Discussion/DiscussionService.php:645
+#: src/Domain/Discussion/DiscussionService.php:614
+#: src/Domain/Discussion/DiscussionService.php:646
 msgid "Reply not found."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:616
+#: src/Domain/Discussion/DiscussionService.php:617
 msgid "You are not allowed to edit this reply."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:634
+#: src/Domain/Discussion/DiscussionService.php:635
 msgid "The reply could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:648
+#: src/Domain/Discussion/DiscussionService.php:649
 msgid "You are not allowed to delete this reply."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:655
+#: src/Domain/Discussion/DiscussionService.php:656
 msgid "The reply could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:721
+#: src/Domain/Discussion/DiscussionService.php:722
 msgid "The bound content does not exist or cannot carry discussions."
 msgstr ""
 
@@ -2900,33 +2920,33 @@ msgstr ""
 
 #. translators: %s: site name.
 #: src/Domain/Identity/PasswordResetService.php:44
-#: src/Domain/Mail/CoreMailRewrites.php:52
+#: src/Domain/Mail/CoreMailRewrites.php:51
 #, php-format
 msgid "[%s] Password reset"
 msgstr ""
 
 #. translators: %s: site name.
 #: src/Domain/Identity/PasswordResetService.php:50
-#: src/Domain/Mail/CoreMailRewrites.php:77
+#: src/Domain/Mail/CoreMailRewrites.php:76
 #, php-format
 msgid "Someone requested a password reset for your account at %s."
 msgstr ""
 
 #. translators: %s: login email address.
 #: src/Domain/Identity/PasswordResetService.php:55
-#: src/Domain/Mail/CoreMailRewrites.php:82
+#: src/Domain/Mail/CoreMailRewrites.php:81
 #, php-format
 msgid "Login email: %s"
 msgstr ""
 
 #: src/Domain/Identity/PasswordResetService.php:58
-#: src/Domain/Mail/CoreMailRewrites.php:85
+#: src/Domain/Mail/CoreMailRewrites.php:84
 msgid "If this was not you, ignore this email and your password will stay unchanged."
 msgstr ""
 
 #. translators: %d: number of hours the reset link stays valid.
 #: src/Domain/Identity/PasswordResetService.php:61
-#: src/Domain/Mail/CoreMailRewrites.php:88
+#: src/Domain/Mail/CoreMailRewrites.php:87
 #, php-format
 msgid "Open the link below within %d hours to choose a new password:"
 msgstr ""
@@ -2967,101 +2987,76 @@ msgstr ""
 msgid "This sign-in ticket is not valid."
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:91
-#: src/Domain/Mail/CoreMailRewrites.php:175
-#: src/Domain/Mail/CoreMailRewrites.php:201
+#: src/Domain/Mail/CoreMailRewrites.php:90
+#: src/Domain/Mail/CoreMailRewrites.php:142
+#: src/Domain/Mail/CoreMailRewrites.php:167
 msgid "Reset password"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:93
+#: src/Domain/Mail/CoreMailRewrites.php:92
 msgid "Password reset"
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Domain/Mail/CoreMailRewrites.php:111
+#: src/Domain/Mail/CoreMailRewrites.php:110
 #, php-format
 msgid "Your account on %1$s has been created."
 msgstr ""
 
 #. translators: %d: number of hours the reset link stays valid.
-#: src/Domain/Mail/CoreMailRewrites.php:116
+#: src/Domain/Mail/CoreMailRewrites.php:115
 #, php-format
 msgid "Open the link below within %d hours to set your password:"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:119
+#: src/Domain/Mail/CoreMailRewrites.php:118
 msgid "Set password"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:121
+#: src/Domain/Mail/CoreMailRewrites.php:120
 msgid "Your account is ready"
 msgstr ""
 
-#. translators: %s: site name.
-#: src/Domain/Mail/CoreMailRewrites.php:124
+#: src/Domain/Mail/CoreMailRewrites.php:122
 #, php-format
-msgid "[%1$s] Your account is ready."
+msgid "[%s] Your account is ready."
 msgstr ""
 
 #: src/Domain/Mail/CoreMailRewrites.php:140
-msgid "Username"
-msgstr ""
-
-#: src/Domain/Mail/CoreMailRewrites.php:141
-msgid "Email"
-msgstr ""
-
-#. translators: %s: site name.
-#: src/Domain/Mail/CoreMailRewrites.php:145
-#, php-format
-msgid "A new user just registered on %1$s."
-msgstr ""
-
-#: src/Domain/Mail/CoreMailRewrites.php:150
-msgid "New user registration"
-msgstr ""
-
-#. translators: %s: site name.
-#: src/Domain/Mail/CoreMailRewrites.php:153
-#, php-format
-msgid "[%1$s] New user registration"
-msgstr ""
-
-#: src/Domain/Mail/CoreMailRewrites.php:173
 msgid "Your password was just changed."
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:174
-#: src/Domain/Mail/CoreMailRewrites.php:200
+#: src/Domain/Mail/CoreMailRewrites.php:141
+#: src/Domain/Mail/CoreMailRewrites.php:166
 msgid "If this was not you, someone else may have access — reset your password now:"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:177
+#: src/Domain/Mail/CoreMailRewrites.php:144
 msgid "Password changed"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:178
+#: src/Domain/Mail/CoreMailRewrites.php:145
 #, php-format
 msgid "[%s] Password changed"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:195
+#: src/Domain/Mail/CoreMailRewrites.php:161
 msgid "Old email"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:196
+#: src/Domain/Mail/CoreMailRewrites.php:162
 msgid "New email"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:198
+#: src/Domain/Mail/CoreMailRewrites.php:164
 msgid "Your account email address was just changed."
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:203
+#: src/Domain/Mail/CoreMailRewrites.php:169
 msgid "Email address changed"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:204
+#: src/Domain/Mail/CoreMailRewrites.php:170
 #, php-format
 msgid "[%s] Your email address was changed"
 msgstr ""
@@ -3241,107 +3236,151 @@ msgid "User #%d"
 msgstr ""
 
 #. translators: %1$s: commenter name.
-#: src/Domain/Notification/NotificationActions.php:156
+#: src/Domain/Notification/NotificationActions.php:162
 #, php-format
 msgid "%1$s replied to your comment."
 msgstr ""
 
 #. translators: 1: commenter name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:174
+#: src/Domain/Notification/NotificationActions.php:180
 #, php-format
 msgid "%1$s commented on your article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: commenter name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:193
+#: src/Domain/Notification/NotificationActions.php:199
 #, php-format
 msgid "%1$s mentioned you in a comment on \"%2$s\"."
 msgstr ""
 
 #. translators: %s: post title.
-#: src/Domain/Notification/NotificationActions.php:246
+#: src/Domain/Notification/NotificationActions.php:252
 #, php-format
 msgid "Your submission \"%1$s\" was approved and published."
 msgstr ""
 
 #. translators: 1: author name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:267
+#: src/Domain/Notification/NotificationActions.php:273
 #, php-format
 msgid "%1$s mentioned you in the article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: author name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:286
+#: src/Domain/Notification/NotificationActions.php:292
 #, php-format
 msgid "%1$s published a new article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: post title.
-#: src/Domain/Notification/NotificationActions.php:322
+#: src/Domain/Notification/NotificationActions.php:328
 #, php-format
 msgid "A post you favorited was updated: \"%1$s\"."
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:338
+#: src/Domain/Notification/NotificationActions.php:344
 msgid "Your account password was reset. If this was not you, please contact the administrator."
 msgstr ""
 
 #. translators: %d: credit amount.
-#: src/Domain/Notification/NotificationActions.php:363
+#: src/Domain/Notification/NotificationActions.php:369
 #, php-format
 msgid "Your account was granted +%1$d credits."
 msgstr ""
 
 #. translators: %s: replier name.
-#: src/Domain/Notification/NotificationActions.php:387
+#: src/Domain/Notification/NotificationActions.php:393
 #, php-format
 msgid "%s replied to your thread."
 msgstr ""
 
 #. translators: 1: replier name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:392
+#: src/Domain/Notification/NotificationActions.php:398
 #, php-format
 msgid "%1$s replied to your thread \"%2$s\"."
 msgstr ""
 
 #. translators: %s: actor name.
-#: src/Domain/Notification/NotificationActions.php:432
+#: src/Domain/Notification/NotificationActions.php:438
 #, php-format
 msgid "%s mentioned you in a community thread."
 msgstr ""
 
 #. translators: 1: actor name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:437
+#: src/Domain/Notification/NotificationActions.php:443
 #, php-format
 msgid "%1$s mentioned you in the thread \"%2$s\"."
 msgstr ""
 
+#. translators: %s: site name.
+#: src/Domain/Notification/NotificationActions.php:477
+#, php-format
+msgid "Thank you for supporting %1$s — this email is your receipt."
+msgstr ""
+
+#: src/Domain/Notification/NotificationActions.php:481
+#: src/Domain/Sponsorship/ConvertCodesPage.php:76
+#: src/Domain/Sponsorship/ConvertCodesPage.php:125
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:142
+msgid "Tier"
+msgstr ""
+
+#: src/Domain/Notification/NotificationActions.php:482
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:141
+msgid "Order"
+msgstr ""
+
+#: src/Domain/Notification/NotificationActions.php:483
+msgid "Active from"
+msgstr ""
+
+#: src/Domain/Notification/NotificationActions.php:484
+msgid "Active until"
+msgstr ""
+
+#: src/Domain/Notification/NotificationActions.php:486
+msgid "If your purchase covers multiple cycles, the next one starts automatically when the current subscription period ends."
+msgstr ""
+
+#: src/Domain/Notification/NotificationActions.php:487
+msgid "View membership"
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Domain/Notification/NotificationActions.php:491
+#, php-format
+msgid "[%1$s] Thank you — your membership is now active."
+msgstr ""
+
+#: src/Domain/Notification/NotificationActions.php:494
+msgid "Membership activated"
+msgstr ""
+
 #. translators: %s: author name.
-#: src/Domain/Notification/NotificationActions.php:455
+#: src/Domain/Notification/NotificationActions.php:514
 #, php-format
 msgid "%s published a new thread."
 msgstr ""
 
 #. translators: 1: author name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:460
+#: src/Domain/Notification/NotificationActions.php:519
 #, php-format
 msgid "%1$s published a new thread \"%2$s\"."
 msgstr ""
 
 #. translators: %1$s: follower name.
-#: src/Domain/Notification/NotificationActions.php:503
+#: src/Domain/Notification/NotificationActions.php:562
 #, php-format
 msgid "%1$s followed you."
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:531
+#: src/Domain/Notification/NotificationActions.php:590
 #, php-format
 msgid "Your membership is active until %s. Thank you for the support!"
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:580
+#: src/Domain/Notification/NotificationActions.php:643
 #, php-format
 msgid "Your membership expires on %s. Renew to keep the perks."
 msgstr ""
@@ -3894,12 +3933,6 @@ msgstr ""
 msgid "Quantity"
 msgstr ""
 
-#: src/Domain/Sponsorship/ConvertCodesPage.php:76
-#: src/Domain/Sponsorship/ConvertCodesPage.php:125
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:142
-msgid "Tier"
-msgstr ""
-
 #: src/Domain/Sponsorship/ConvertCodesPage.php:81
 msgid "— define tiers first —"
 msgstr ""
@@ -4026,10 +4059,6 @@ msgstr ""
 
 #: src/Domain/Sponsorship/PaymentsAuditPage.php:128
 msgid "All sources"
-msgstr ""
-
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:141
-msgid "Order"
 msgstr ""
 
 #: src/Domain/Sponsorship/PaymentsAuditPage.php:151

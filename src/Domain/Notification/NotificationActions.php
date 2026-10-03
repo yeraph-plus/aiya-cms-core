@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Notification;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Mail\MailShell;
+use Aiya\Core\Domain\Mail\MailTemplate;
 use Aiya\Core\Domain\Content\Mentions;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
 use Aiya\Core\Domain\Shared\DateLabels;
+use Aiya\Core\Domain\Shared\FrontendDomain;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
@@ -54,6 +57,7 @@ final class NotificationActions implements Module
     private SmiliesRenderer $smilies;
 
     private Mentions $mentions;
+    private ?MailTemplate $mailTemplate;
 
     public function __construct(
         ?NotificationService $notifications = null,
@@ -61,7 +65,8 @@ final class NotificationActions implements Module
         ?FavoriteService $favorites = null,
         ?DiscussionService $threads = null,
         ?SmiliesRenderer $smilies = null,
-        ?Mentions $mentions = null
+        ?Mentions $mentions = null,
+        ?MailTemplate $mailTemplate = null
     ) {
         $this->notifications = $notifications ?? new NotificationService();
         $this->follows = $follows ?? new FollowService();
@@ -69,6 +74,7 @@ final class NotificationActions implements Module
         $this->threads = $threads ?? new DiscussionService();
         $this->smilies = $smilies ?? new SmiliesRenderer(SmiliesRegistry::shared());
         $this->mentions = $mentions ?? new Mentions();
+        $this->mailTemplate = $mailTemplate;
     }
 
     public function register(): void
@@ -440,6 +446,59 @@ final class NotificationActions implements Module
             );
     }
 
+    /**
+     * The activation receipt (2026-10-03): a branded bill for the new
+     * entitlement — tier, order id and the coverage window this purchase
+     * contributed, with the CTA on the front end's membership page. Best
+     * effort: the in-site row above is the authoritative notice, the mail
+     * never blocks or fails the activation.
+     */
+    private function membershipReceipt(int $userId, string $orderId, int $expiresAt): void
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $holder = get_userdata($userId);
+        if ($holder === false || $holder->user_email === '') {
+            return;
+        }
+
+        $row = $wpdb->get_row($wpdb->prepare(
+            'SELECT tier_name, starts_at, ends_at FROM %i WHERE order_id = %s',
+            $wpdb->prefix . 'aiya_memberships',
+            $orderId
+        ));
+        if ($row === null) {
+            return;
+        }
+
+        $template = $this->mailTemplate ?? MailShell::fromSite()->template();
+        $content = $this->receiptParagraph(sprintf(
+            /* translators: %s: site name. */
+            __('Thank you for supporting %1$s — this email is your receipt.', 'aiya-core'),
+            esc_html(wp_specialchars_decode((string) get_option('blogname'), ENT_QUOTES))
+        ))
+            . $template->rows([
+                __('Tier', 'aiya-core') => esc_html((string) $row->tier_name),
+                __('Order', 'aiya-core') => esc_html($orderId),
+                __('Active from', 'aiya-core') => esc_html(DateLabels::fromTimestamp((int) get_date_from_gmt((string) $row->starts_at, 'U'), false)),
+                __('Active until', 'aiya-core') => esc_html(DateLabels::fromTimestamp((int) get_date_from_gmt((string) $row->ends_at, 'U'), false)),
+            ])
+            . $this->receiptParagraph(__('If your purchase covers multiple cycles, the next one starts automatically when the current subscription period ends.', 'aiya-core'))
+            . $template->button(__('View membership', 'aiya-core'), FrontendDomain::originOrHome() . '/membership/');
+
+        $subject = sprintf(
+            /* translators: %s: site name. */
+            __('[%1$s] Thank you — your membership is now active.', 'aiya-core'),
+            wp_specialchars_decode((string) get_option('blogname'), ENT_QUOTES)
+        );
+        wp_mail((string) $holder->user_email, $subject, $template->render($content, __('Membership activated', 'aiya-core'), $holder->user_email));
+    }
+
+    private function receiptParagraph(string $html): string
+    {
+        return '<p style="margin: 0 0 16px;">' . $html . '</p>';
+    }
+
     /** A followed user published a community thread. */
     public function onThreadPublished(int $threadId, int $authorId, int $boardId): void
     {
@@ -533,6 +592,10 @@ final class NotificationActions implements Module
                 ),
             ''
         );
+
+        // The receipt copy (2026-10-03 ruling): the activation mail doubles
+        // as the holder's bill — tier, order id and the coverage window.
+        $this->membershipReceipt($userId, $orderId, $expiresAt);
     }
 
     /**
