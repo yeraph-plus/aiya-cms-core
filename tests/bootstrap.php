@@ -309,6 +309,13 @@ if (!function_exists('__')) {
     }
 }
 
+if (!function_exists('_x')) {
+    function _x(string $text, string $context, string $domain = 'default'): string
+    {
+        return $text;
+    }
+}
+
 if (!function_exists('sanitize_key')) {
     function sanitize_key(string $key): string
     {

@@ -354,7 +354,7 @@ final class SponsorshipModule implements Module
             $wpdb->prefix . 'aiya_memberships',
             $wpdb->prefix . 'aiya_redeem_codes',
         ] as $table) {
-            if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+            if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) !== $table) {
                 throw new \RuntimeException(sprintf('Table %s was not created.', $table));
             }
         }

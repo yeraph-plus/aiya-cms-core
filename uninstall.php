@@ -315,7 +315,27 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
     // protocol key — residue would permanently exclude those posts from a
     // reinstall's batch (pendingIds() skips flagged posts).
     $run($wpdb->prepare('DELETE FROM %i WHERE meta_key = %s', $wpdb->postmeta, '_thumb_failed'));
-    foreach (['thumbnail_id', 'icon', 'seo_keywords'] as $termMetaKey) {
+    // The cover key is core's de-facto term-thumbnail convention — third
+    // parties (WooCommerce product_cat and friends) use it on their own
+    // taxonomies — so it dies only on the contract taxonomies
+    // TermExtrasModule writes (keep the list in sync there). The other
+    // two keys are plugin-owned names: a flat delete is safe.
+    $contractTaxonomies = [
+        'category',
+        'page_category',
+        'resource_category',
+        'post_tag',
+        'resource_original',
+        'resource_character',
+        'resource_author',
+        'resource_content',
+        'resource_other',
+    ];
+    $taxonomyPlaceholders = implode(', ', array_fill(0, count($contractTaxonomies), '%s'));
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrong -- placeholder string built from the fixed contract list above; prepared on the spot
+    // @phpstan-ignore-next-line argument.type (same fixed-list interpolation)
+    $run($wpdb->prepare("DELETE tm FROM {$wpdb->termmeta} tm JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = tm.term_id WHERE tm.meta_key = 'thumbnail_id' AND tt.taxonomy IN ($taxonomyPlaceholders)", $contractTaxonomies));
+    foreach (['icon', 'seo_keywords'] as $termMetaKey) {
         $run($wpdb->prepare('DELETE FROM %i WHERE meta_key = %s', $wpdb->termmeta, $termMetaKey));
     }
 

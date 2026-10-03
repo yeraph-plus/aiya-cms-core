@@ -586,16 +586,25 @@ final class DiscussionService
 
         global $wpdb;
         /** @var \wpdb $wpdb */
+        // One transaction: replies, the thread row and its likes must
+        // commit together or not at all — a mid-air failure must not
+        // strand an empty thread or orphaned like rows.
+        $wpdb->query('START TRANSACTION');
         $replies = $wpdb->delete($this->repliesTable(), ['thread_id' => $threadId], ['%d']);
         if ($replies === false) {
+            $wpdb->query('ROLLBACK');
+
             return new WP_Error('aiya_db_error', __('The thread replies could not be deleted.', 'aiya-core'));
         }
         $deleted = $wpdb->delete($this->threadsTable(), ['id' => $threadId], ['%d']);
         if ($deleted === false) {
+            $wpdb->query('ROLLBACK');
+
             return new WP_Error('aiya_db_error', __('The thread could not be deleted.', 'aiya-core'));
         }
 
         (new DiscussionLikeService())->purgeForThread($threadId);
+        $wpdb->query('COMMIT');
 
         return true;
     }
@@ -871,7 +880,7 @@ final class DiscussionService
         );
 
         foreach ([$boards, $threads, $replies, $likes] as $table) {
-            if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+            if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) !== $table) {
                 throw new \RuntimeException(sprintf('Table %s was not created.', $table));
             }
         }

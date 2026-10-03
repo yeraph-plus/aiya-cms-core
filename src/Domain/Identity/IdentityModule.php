@@ -144,7 +144,7 @@ final class IdentityModule implements Module
         // dbDelta fails silently on transient DB hiccups; verify and let the
         // migration runner hold the version back so the next request retries.
         foreach ([$favorites, $follows, $tokens] as $table) {
-            if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+            if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) !== $table) {
                 throw new \RuntimeException(sprintf('Table %s was not created.', $table));
             }
         }

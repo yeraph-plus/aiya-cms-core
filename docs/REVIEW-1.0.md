@@ -33,7 +33,7 @@
 | 批次 | 主题 | 覆盖发现 | 验证门槛 | 状态 |
 |---|---|---|---|---|
 | B1 | P0 修正与测试防线 | R-01、C-02、H-01、H-02 | 原生盘 phpunit 全绿 + 手工时间/换图抽查 | ✅ 2026-10-03 |
-| B2 | SQL 收尾窗（1.0 冻结前唯一机会） | S-01～S-08、H-07 | MigrationChainTest 同步 + 旧库幂等演练 | ◐ DDL 面 ✅ 0.102.0 |
+| B2 | SQL 收尾窗（1.0 冻结前唯一机会） | S-01～S-08、H-07 | MigrationChainTest 同步 + 旧库幂等演练 | ✅ 0.102.0（S-01..04/H-07）+ 0.102.1 后批（S-05..08） |
 | B3 | REST 面收敛 | R-02、R-03、R-07、R-10、C-04、C-05、L-08 | 快照零 diff + 全路由冒烟 | ☐ |
 | B4 | 媒体与杂项收敛 | R-04、R-05、R-06、R-08、R-12、R-13、R-14、R-15、L-07、L-09 | 上传/封面/文件服务手工回归 | ☐ |
 | B5 | 卫生与测试补强 | H-03、H-04、H-05、H-06 | 新测试入套件、死代码零引用复核 | ☐ |
@@ -335,25 +335,25 @@
 - 方向：删列，或让月报输出首活跃时间用起来（二选一，1.0 前裁决）。
 - 复核：DDL 与月报字段一致。
 
-**S-05 [P2] purge 删 termmeta `thumbnail_id` 无 taxonomy 限定，误伤第三方** ☐
+**S-05 [P2] purge 删 termmeta `thumbnail_id` 无 taxonomy 限定，误伤第三方** ✅ B2
 - 位置：`uninstall.php:317-319`。
 - 证据：无 JOIN term_taxonomy 限定契约分类；站点另装写 term 缩略图的插件（WC product_cat 等）会被一并抹掉。
 - 方向：DELETE JOIN 限定契约分类白名单。
 - 复核：purge SQL 含 taxonomy IN 白名单。
 
-**S-06 [P2] 5 处 `SHOW TABLES LIKE` 未 esc_like** ☐
+**S-06 [P2] 5 处 `SHOW TABLES LIKE` 未 esc_like** ✅ B2
 - 位置：`DiscussionService.php:834`、`IdentityModule.php:147`、`SponsorshipModule.php:357`、`LedgerService.php:401`、`NotificationService.php:376`（对照 `StatsRecorder.php:117` 有 esc_like）。
 - 证据：表名固定前缀无注入，但前缀含 `_` 时 LIKE 单字符通配理论上可误判。
 - 方向：统一补 esc_like。
 - 复核：`grep -rn "SHOW TABLES LIKE" src/` 全部经 esc_like。
 
-**S-07 [P2] DevTools 替换执行全量载入匹配 ID，无分批** ☐
+**S-07 [P2] DevTools 替换执行全量载入匹配 ID，无分批** ✅ B2
 - 位置：`src/Domain/DevTools/SearchReplacePage.php:265-273`（执行，:212 预览同样无界）。
 - 证据：`SELECT ID` 无 LIMIT 全量进 PHP 再拼单条大 UPDATE——大结果集内存与 max_allowed_packet 双风险（admin-only + manage_options + nonce 门内，属可接受风险）。
 - 方向：按 id 分批。
 - 复核：执行路径有分批循环。
 
-**S-08 [P2] 线程删除两步无事务** ☐
+**S-08 [P2] 线程删除两步无事务** ✅ B2（现为三步含点赞清理论 + 事务）
 - 位置：`DiscussionService.php:590-597`。
 - 证据：先删 replies 再删 threads，中途失败留「回复已清、线程仍在」中间态（reply_count 自愈，线程残留）。spend() 已示范 START TRANSACTION 用法。
 - 方向：包事务。

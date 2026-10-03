@@ -385,7 +385,7 @@ final class NotificationService
             }
         }
 
-        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) !== $table) {
             throw new \RuntimeException(sprintf('Table %s was not created.', $table));
         }
     }

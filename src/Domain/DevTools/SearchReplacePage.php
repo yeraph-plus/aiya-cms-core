@@ -26,6 +26,12 @@ final class SearchReplacePage
     private const SAMPLE_LIMIT = 5;
     private const SNIPPET_PADDING = 60;
 
+    /** Execute-pass window: posts per REPLACE statement. */
+    private const REPLACE_BATCH = 500;
+
+    /** Hard ceiling on posts touched by one execute pass (a runaway guard). */
+    private const REPLACE_CEILING = 200000;
+
     private const COLUMNS = ['post_content', 'post_title', 'post_excerpt'];
     private const STATUSES_ALL = ['publish', 'draft', 'pending', 'future', 'private'];
 
@@ -208,13 +214,22 @@ final class SearchReplacePage
             echo '</tbody></table>';
         }
 
-        // @phpstan-ignore argument.type (whitelist interpolation)
-        $idRows = $wpdb->get_results($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE {$where}", $params)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- whitelist-built SQL, see buildWhere
-        $ids = array_map(static fn ($row): int => (int) $row->ID, is_array($idRows) ? $idRows : []);
+        // The statement preview carries the sample ids only: the execute
+        // pass runs in bounded batches (never one statement with every
+        // matching id), so a full id sweep here would buy nothing but
+        // memory pressure on large matches.
+        $sampleIds = array_map(static fn ($row): int => (int) $row->ID, $sampleRows);
 
-        [$updateSql] = self::buildUpdateSql($columns, $search, $replace, $ids, $wpdb->posts);
+        [$updateSql] = self::buildUpdateSql($columns, $search, $replace, $sampleIds, $wpdb->posts);
         echo '<h3 style="margin-top:16px;">' . esc_html__('Statement', 'aiya-core') . '</h3>';
         echo '<p><code>' . esc_html($updateSql) . '</code></p>';
+        echo '<p class="description">'
+            . esc_html(sprintf(
+                /* translators: %d: batch size. */
+                __('Execution runs this replace in batches of %d posts until no match remains; the ids above are a sample window.', 'aiya-core'),
+                self::REPLACE_BATCH
+            ))
+            . '</p>';
 
         $executeUrl = admin_url('admin-post.php');
         ?>
@@ -261,21 +276,39 @@ final class SearchReplacePage
         /** @var \wpdb $wpdb */
 
         [$where, $params] = self::buildWhere($columns, $types, $statuses, $like);
-        // @phpstan-ignore-next-line argument.type (whitelist interpolation)
-        $rows = $wpdb->get_results($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE {$where}", $params)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- whitelist-built SQL, see buildWhere
-        $ids = array_map(static fn ($row): int => (int) $row->ID, is_array($rows) ? $rows : []);
-        if ($ids === []) {
+
+        // Bounded batches: take a window of matching ids, replace (which
+        // removes the search string, so the window's rows leave the match
+        // set), repeat until the table stops matching. Memory stays O(batch)
+        // and no statement ever carries the whole id list.
+        $updated = 0;
+        while ($updated < self::REPLACE_CEILING) {
+            // @phpstan-ignore-next-line argument.type (whitelist interpolation)
+            $rows = $wpdb->get_results($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE {$where} LIMIT " . self::REPLACE_BATCH, $params)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- whitelist-built SQL, see buildWhere
+            $ids = array_map(static fn ($row): int => (int) $row->ID, is_array($rows) ? $rows : []);
+            if ($ids === []) {
+                break;
+            }
+
+            [$updateSql, $updateParams] = self::buildUpdateSql($columns, $search, $replace, $ids, $wpdb->posts);
+            // @phpstan-ignore argument.type, argument.type (whitelist interpolation; prepare() answers string here)
+            $affected = $wpdb->query($wpdb->prepare($updateSql, $updateParams)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see buildUpdateSql
+            foreach ($ids as $id) {
+                clean_post_cache($id);
+            }
+            // The replace must consume its own window; a batch that touches
+            // nothing would loop forever, so treat it as done.
+            if (!is_int($affected) || $affected === 0) {
+                break;
+            }
+            $updated += count($ids);
+        }
+
+        if ($updated === 0) {
             $this->redirectBack(['aiya_devtools_note' => 'replace_none']);
         }
 
-        [$updateSql, $updateParams] = self::buildUpdateSql($columns, $search, $replace, $ids, $wpdb->posts);
-        // @phpstan-ignore argument.type, argument.type (whitelist interpolation; prepare() answers string here)
-        $wpdb->query($wpdb->prepare($updateSql, $updateParams)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see buildUpdateSql
-        foreach ($ids as $id) {
-            clean_post_cache($id);
-        }
-
-        $this->redirectBack(['aiya_devtools_note' => 'replace_done', 'aiya_devtools_count' => (string) count($ids)]);
+        $this->redirectBack(['aiya_devtools_note' => 'replace_done', 'aiya_devtools_count' => (string) $updated]);
     }
 
     private function notice(): void
