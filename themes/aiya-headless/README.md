@@ -28,6 +28,9 @@ The theme is final — no further iteration is planned.
   `style.css` carries incremental overrides only. Singular routes
   collapse the shell onto a centered reading column — the theme has no
   widget support and reserves no side area.
+- List page titles: the home page carries the site title as the brand
+  row's `h1`; archive titles strip the core title wrapper span and
+  render as plain text.
 - Comments are display-only: existing comments render for reading, no
   submission form and no reply links (`comment_reply_link` filtered to
   nothing) — the public pages give bots nothing to post through.
