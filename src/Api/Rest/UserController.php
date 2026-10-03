@@ -49,13 +49,13 @@ final class UserController
         register_rest_route(Contract::API_NAMESPACE, '/users/me', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (): WP_REST_Response => $this->me(),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/users/me/favorites', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->listFavorites($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 'page' => ['type' => 'integer', 'default' => 1, 'minimum' => 1],
                 'perPage' => ['type' => 'integer', 'default' => 12, 'minimum' => 1, 'maximum' => 100],
@@ -65,21 +65,21 @@ final class UserController
         register_rest_route(Contract::API_NAMESPACE, '/users/me/favorites', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->addFavorite($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => ['postId' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/users/me/favorites/(?P<postId>\d+)', [
             'methods' => WP_REST_Server::DELETABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->removeFavorite($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => ['postId' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/users/me/following', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->listFollowing($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 'page' => ['type' => 'integer', 'default' => 1, 'minimum' => 1],
                 'perPage' => ['type' => 'integer', 'default' => 12, 'minimum' => 1, 'maximum' => 100],
@@ -89,7 +89,7 @@ final class UserController
         register_rest_route(Contract::API_NAMESPACE, '/users/me/followers', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->listFollowers($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 'page' => ['type' => 'integer', 'default' => 1, 'minimum' => 1],
                 'perPage' => ['type' => 'integer', 'default' => 12, 'minimum' => 1, 'maximum' => 100],
@@ -99,28 +99,28 @@ final class UserController
         register_rest_route(Contract::API_NAMESPACE, '/users/me/following/(?P<userId>\d+)', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->followUser($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => ['userId' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/users/me/following/(?P<userId>\d+)', [
             'methods' => WP_REST_Server::DELETABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->unfollowUser($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => ['userId' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/users/me/following/(?P<userId>\d+)', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->isFollowingUser($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => ['userId' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/users/me/profile', [
             'methods' => WP_REST_Server::EDITABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->updateProfile($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
 			'args' => [
 				'nickname' => ['type' => 'string', 'required' => false],
 				'description' => ['type' => 'string', 'required' => false, 'maxLength' => 2000],
@@ -135,7 +135,7 @@ final class UserController
         register_rest_route(Contract::API_NAMESPACE, '/users/me/avatar', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->uploadAvatar($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             // Image-pipeline work per hit — the same budget class as the
             // uploads route.
             // Rate limiting happens inside uploadAvatar().
@@ -144,13 +144,13 @@ final class UserController
         register_rest_route(Contract::API_NAMESPACE, '/users/me/avatar', [
             'methods' => WP_REST_Server::DELETABLE,
             'callback' => fn (): WP_REST_Response => $this->removeAvatar(),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/users/me/password', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->changePassword($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 'currentPassword' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
                 'password' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
@@ -177,21 +177,14 @@ final class UserController
             $items[] = $summary->toArray();
         }
 
-        return new WP_REST_Response([
-            'data' => $items,
-            'meta' => [
-                'apiVersion' => Contract::VERSION,
-                'requestId' => Envelope::meta()['requestId'],
-                'pagination' => Pagination::fromCounts($page, $perPage, $result['total'])->toArray(),
-            ],
-        ]);
+        return Envelope::payload($items, Pagination::fromCounts($page, $perPage, $result['total']));
     }
 
     private function addFavorite(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         $userId = (int) $this->currentUser()->ID;
-        if (!$this->rateLimiter->hit('favorites_write', 30, 600)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->rateLimiter->hitFor('favorites_write', $userId, 30, 600)) {
+            return RestGuard::rateLimited();
         }
 
         $added = $this->favorites->add($userId, (int) $request->get_param('postId'));
@@ -236,20 +229,13 @@ final class UserController
             $items[] = $this->postPresenter->author($id)->toArray();
         }
 
-        return new WP_REST_Response([
-            'data' => $items,
-            'meta' => [
-                'apiVersion' => Contract::VERSION,
-                'requestId' => Envelope::meta()['requestId'],
-                'pagination' => Pagination::fromCounts($page, $perPage, $result['total'])->toArray(),
-            ],
-        ]);
+        return Envelope::payload($items, Pagination::fromCounts($page, $perPage, $result['total']));
     }
 
     private function followUser(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
-        if (!$this->rateLimiter->hit('follow', 30, 600)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, please retry later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->rateLimiter->hitFor('follow', (int) $this->currentUser()->ID, 30, 600)) {
+            return RestGuard::rateLimited();
         }
 
         $me = (int) $this->currentUser()->ID;
@@ -372,8 +358,8 @@ final class UserController
 
     private function uploadAvatar(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
-        if (!$this->rateLimiter->hit('avatar_upload', 10, 3600)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->rateLimiter->hitFor('avatar_upload', (int) $this->currentUser()->ID, 10, 3600)) {
+            return RestGuard::rateLimited();
         }
 
         $files = $request->get_file_params();
@@ -402,8 +388,8 @@ final class UserController
     {
         // The current-password check runs full-cost bcrypt per attempt; the
         // budget keeps a stolen session from grinding it.
-        if (!$this->rateLimiter->hit('change_password', 10, 600)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, please retry later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->rateLimiter->hitFor('change_password', (int) $this->currentUser()->ID, 10, 600)) {
+            return RestGuard::rateLimited();
         }
         $user = $this->currentUser();
 
@@ -444,14 +430,5 @@ final class UserController
         $user = get_userdata((int) $this->currentUser()->ID);
 
         return $user instanceof WP_User ? $user : new WP_User();
-    }
-
-    private function requireLoggedIn(): bool|WP_Error
-    {
-        if (is_user_logged_in()) {
-            return true;
-        }
-
-        return new WP_Error('aiya_not_logged_in', __('Authentication required.', 'aiya-core'), ['status' => 401]);
     }
 }

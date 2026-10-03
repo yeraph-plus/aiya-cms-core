@@ -125,7 +125,7 @@ final class RestController implements Module
 
             // Companion-service machine endpoints (GatewayController-style:
             // outside the contract namespace, bare JSON, route-level auth).
-            (new IntegrationsController(new TicketService(), $ledger, new RateLimiter()))->registerRoutes();
+            (new IntegrationsController(new TicketService(), $ledger, new RateLimiter(), $authentication))->registerRoutes();
 
             // The membership domain is live again since the 0.50.0 tier
             // rewrite; Admin surfaces live under the membership menu.

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Api\Contract\Pagination;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -77,6 +78,25 @@ final class Envelope
             'apiVersion' => Contract::VERSION,
             'requestId' => bin2hex(random_bytes(4)),
         ];
+    }
+
+    /**
+     * The one factory for controller payloads: data plus the standard
+     * meta block, with the pagination block added when the caller has
+     * one. Controllers build their whole response through this instead
+     * of hand-assembling meta arrays — the envelope shape has exactly
+     * one author.
+     *
+     * @param array<string, mixed>|list<mixed> $data
+     */
+    public static function payload(array $data, ?Pagination $pagination = null): WP_REST_Response
+    {
+        $meta = self::meta();
+        if ($pagination !== null) {
+            $meta['pagination'] = $pagination->toArray();
+        }
+
+        return new WP_REST_Response(['data' => $data, 'meta' => $meta]);
     }
 
     /** @return array{code: string, message: string, status: int} */

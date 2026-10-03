@@ -34,8 +34,10 @@ final class ServiceKey
     /**
      * The route guard for every machine endpoint: null when the request
      * presents the configured key, otherwise the error to reject with.
+     * The caller passes the already-parsed bearer value (the REST layer
+     * owns header parsing); an absent header arrives as null.
      */
-    public static function guard(string $authorizationHeader): ?WP_Error
+    public static function guard(?string $presented): ?WP_Error
     {
         $stored = self::stored();
         if ($stored === '') {
@@ -46,12 +48,7 @@ final class ServiceKey
             );
         }
 
-        $presented = '';
-        if (preg_match('/^Bearer\s+(\S+)$/i', trim($authorizationHeader), $matches) === 1) {
-            $presented = $matches[1];
-        }
-
-        if ($presented === '' || !hash_equals($stored, $presented)) {
+        if ($presented === null || $presented === '' || !hash_equals($stored, $presented)) {
             return new WP_Error(
                 'aiya_service_unauthorized',
                 __('Service authentication failed.', 'aiya-core'),

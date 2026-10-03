@@ -187,24 +187,19 @@ final class ContentController
     private function search(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         if (!$this->limiter->hit('content_search', 30, 60)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            return RestGuard::rateLimited();
         }
 
         $q = trim(sanitize_text_field((string) $request->get_param('q')));
-        $page = max(1, (int) $request->get_param('page'));
-        $perPage = min(50, max(1, (int) $request->get_param('perPage')));
+        // Page bounds are the route schema's job (minimum/maximum); the
+        // params arrive validated or the request never reaches here.
+        $page = (int) $request->get_param('page');
+        $perPage = (int) $request->get_param('perPage');
         $typeName = (string) $request->get_param('type');
 
         if (mb_strlen($q) < 2) {
             if ($typeName !== '') {
-                return new WP_REST_Response([
-                    'data' => [],
-                    'meta' => [
-                        'apiVersion' => Contract::VERSION,
-                        'requestId' => Envelope::meta()['requestId'],
-                        'pagination' => Pagination::fromCounts($page, $perPage, 0)->toArray(),
-                    ],
-                ]);
+                return Envelope::payload([], Pagination::fromCounts($page, $perPage, 0));
             }
 
             $empty = static fn (): SearchGroup => new SearchGroup([], 0);
@@ -235,17 +230,10 @@ final class ContentController
                 $this->nsfw->excludedTermTaxonomyIds($type, (bool) $request->get_param('excludeNsfw'))
             );
 
-            return new WP_REST_Response([
-                'data' => array_map(
+            return Envelope::payload(array_map(
                     static fn (PostSummary $summary): array => $summary->toArray(),
                     $summarize($result['items'], $type)
-                ),
-                'meta' => [
-                    'apiVersion' => Contract::VERSION,
-                    'requestId' => Envelope::meta()['requestId'],
-                    'pagination' => Pagination::fromCounts($page, $perPage, $result['total'])->toArray(),
-                ],
-            ]);
+                ), Pagination::fromCounts($page, $perPage, $result['total']));
         }
 
         $groups = [];
@@ -331,7 +319,7 @@ final class ContentController
     {
         $type = PublicTypes::get($typeName);
         if ($type === null) {
-            return new WP_REST_Response(['data' => [], 'meta' => Envelope::meta()]);
+            return Envelope::payload([]);
         }
 
         $page = (int) $request->get_param('page');
@@ -356,14 +344,7 @@ final class ContentController
             $items[] = $this->posts->summary($post, $type)->toArray();
         }
 
-        return new WP_REST_Response([
-            'data' => $items,
-            'meta' => [
-                'apiVersion' => Contract::VERSION,
-                'requestId' => Envelope::meta()['requestId'],
-                'pagination' => Pagination::fromCounts($page, $perPage, $result['total'])->toArray(),
-            ],
-        ]);
+        return Envelope::payload($items, Pagination::fromCounts($page, $perPage, $result['total']));
     }
 
     private function detail(WP_REST_Request $request, string $typeName): WP_Error|WP_REST_Response
@@ -401,7 +382,7 @@ final class ContentController
     private function unlock(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         if (!$this->limiter->hit('content-unlock', self::UNLOCK_HITS, self::UNLOCK_WINDOW)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, please retry later.', 'aiya-core'), ['status' => 429]);
+            return RestGuard::rateLimited();
         }
 
         // Any public type can carry the password gate; the first match wins.
@@ -450,7 +431,7 @@ final class ContentController
     private function hot(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         if (!$this->limiter->hit('content_hot', 30, 60)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            return RestGuard::rateLimited();
         }
 
         $type = PublicTypes::get((string) $request->get_param('type')) ?? PublicTypes::get('post');
@@ -477,7 +458,7 @@ final class ContentController
         // (shared-term counting over a second JOIN) and lands on
         // max-age=0, so it carries the search budget too.
         if (!$this->limiter->hit('content_related', 30, 60)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            return RestGuard::rateLimited();
         }
 
         $post = null;

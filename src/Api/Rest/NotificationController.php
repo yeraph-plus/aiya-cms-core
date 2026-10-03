@@ -66,28 +66,20 @@ final class NotificationController
         // public reads; logged-in readers are authenticated polling and
         // stay unmetered.
         if (!$loggedIn && !$this->limiter->hit('notifications_read', 120, 60)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            return RestGuard::rateLimited();
         }
 
         $rank = RoleLevel::rank($loggedIn ? $this->users->role($user) : RoleLevel::GUEST);
         $viewerId = $loggedIn ? (int) $user->ID : 0;
 
-        $page = max(1, (int) $request->get_param('page'));
-        $perPage = min(self::MAX_PER_PAGE, max(1, (int) $request->get_param('perPage')));
+        $page = (int) $request->get_param('page');
+        $perPage = (int) $request->get_param('perPage');
         $total = $this->notifications->countVisible($rank, $viewerId);
 
-        $items = array_map(
-            $this->presenter->present(...),
+        $items = $this->presenter->presentAll(
             $this->notifications->visible($rank, $viewerId, $perPage, ($page - 1) * $perPage)
         );
 
-        return new WP_REST_Response([
-            'data' => $items,
-            'meta' => [
-                'apiVersion' => Contract::VERSION,
-                'requestId' => Envelope::meta()['requestId'],
-                'pagination' => Pagination::fromCounts($page, $perPage, $total)->toArray(),
-            ],
-        ]);
+        return Envelope::payload($items, Pagination::fromCounts($page, $perPage, $total));
     }
 }

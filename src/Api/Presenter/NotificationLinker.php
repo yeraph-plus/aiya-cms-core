@@ -30,6 +30,82 @@ final class NotificationLinker
     }
 
     /**
+     * Feeds a whole notification page's anchors in bulk before the row
+     * loop: core objects warm their own caches via the priming helpers,
+     * thread rows land in a per-request memo (the self-table has no core
+     * cache behind it). Steady-state wrap() calls then answer from memory
+     * instead of one query per row.
+     *
+     * @param list<object{object_type?:string|int|null,object_id?:int|string|null,actor_id?:int|string|null}> $rows
+     */
+    public function prime(array $rows): void
+    {
+        $postIds = [];
+        $commentIds = [];
+        $actorIds = [];
+        $threadIds = [];
+        foreach ($rows as $row) {
+            $objectId = (int) ($row->object_id ?? 0);
+            $actorId = (int) ($row->actor_id ?? 0);
+            if ($actorId > 0) {
+                $actorIds[] = $actorId;
+            }
+
+            switch ((string) ($row->object_type ?? '')) {
+                case 'post':
+                    if ($objectId > 0) {
+                        $postIds[] = $objectId;
+                    }
+                    break;
+                case 'comment':
+                    if ($objectId > 0) {
+                        $commentIds[] = $objectId;
+                    }
+                    break;
+                case 'discussion':
+                    if ($objectId > 0) {
+                        $threadIds[] = $objectId;
+                    }
+                    break;
+                case 'user':
+                    if ($actorId > 0) {
+                        $actorIds[] = $actorId;
+                    }
+                    break;
+            }
+        }
+
+        // Comment anchors read their parent post too; collect those after
+        // the comments land in cache (get_comment is then a cache hit).
+        if ($commentIds !== []) {
+            _prime_comment_caches(array_values(array_unique($commentIds)));
+            foreach (array_unique($commentIds) as $id) {
+                $comment = get_comment($id);
+                if ($comment instanceof WP_Comment) {
+                    $postIds[] = (int) $comment->comment_post_ID;
+                }
+            }
+        }
+
+        if ($postIds !== []) {
+            _prime_post_caches(array_values(array_unique($postIds)));
+        }
+        if ($actorIds !== []) {
+            cache_users(array_values(array_unique($actorIds)));
+        }
+
+        if ($threadIds !== []) {
+            foreach ($this->threads->byIds(array_values(array_unique($threadIds))) as $id => $thread) {
+                $this->threadMemo[$id] = $thread;
+            }
+        }
+    }
+
+    /** Per-request thread-row memo fed by prime(); see prime().
+     * @var array<int, object{id:int,board_slug:string|null}|null> */
+    private array $threadMemo = [];
+
+    /**
      * @param object{object_type?:string|int|null,object_id?:int|string|null,actor_id?:int|string|null} $row
      */
     public function wrap(object $row, string $title): string
@@ -81,7 +157,12 @@ final class NotificationLinker
     /** The thread anchor: id + board handles, the [ref thread] vocabulary. */
     private function thread(int $id): string
     {
-        $thread = $id > 0 ? $this->threads->byId($id) : null;
+        if (!array_key_exists($id, $this->threadMemo)) {
+            // Cache the miss too — a deleted thread costs one lookup per
+            // id per request, not one per row.
+            $this->threadMemo[$id] = $id > 0 ? $this->threads->byId($id) : null;
+        }
+        $thread = $this->threadMemo[$id];
 
         return $thread === null
             ? ''

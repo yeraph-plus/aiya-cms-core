@@ -95,6 +95,15 @@ final class DiscussionPresenter
      */
     public function presentAll(array $rows, int $viewerId): array
     {
+        // Mass-fill the author cache first: every row's author() read and
+        // every canModerate() capability check then hits the primed cache
+        // instead of a per-row users query (the PostPresenter::summariesByIds
+        // discipline, applied to the self-table discussion rows).
+        cache_users(array_values(array_unique(array_map(
+            static fn (object $row): int => (int) $row->user_id,
+            $rows
+        ))));
+
         $ids = array_map(static fn (object $row): int => (int) $row->id, $rows);
         $counts = $this->likes->counts($ids);
         $liked = $this->likes->likedBy($viewerId, $ids);

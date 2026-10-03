@@ -133,20 +133,13 @@ final class CommentsController
         $items = array_map($this->presenter->present(...), $result['items']);
         $total = $result['total'];
 
-        return new WP_REST_Response([
-            'data' => $items,
-            'meta' => [
-                'apiVersion' => Contract::VERSION,
-                'requestId' => Envelope::meta()['requestId'],
-                'pagination' => Pagination::fromCounts($page, $perPage, $total)->toArray(),
-            ],
-        ]);
+        return Envelope::payload($items, Pagination::fromCounts($page, $perPage, $total));
     }
 
     private function create(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
-        if (!$this->rateLimiter->hit('comment', self::HITS, self::WINDOW)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, please retry later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->rateLimiter->hitFor('comment', (int) get_current_user_id(), self::HITS, self::WINDOW)) {
+            return RestGuard::rateLimited();
         }
 
         $postId = (int) $request->get_param('id');

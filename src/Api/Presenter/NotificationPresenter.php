@@ -36,6 +36,26 @@ final class NotificationPresenter
         ))->toArray();
     }
 
+    /**
+     * A feed page: prime every anchor target in bulk before the row
+     * loop, then project — the batched-read discipline of the other
+     * list projections.
+     *
+     * @param list<object{id:int,type:string,title:string,body:string,created_at:string,actor_id?:int|string|null,object_type?:int|string|null,object_id?:int|string|null}> $rows
+     * @return list<array<string, mixed>>
+     */
+    public function presentAll(array $rows): array
+    {
+        $this->linker?->prime($rows);
+
+        $out = [];
+        foreach ($rows as $row) {
+            $out[] = $this->present($row);
+        }
+
+        return $out;
+    }
+
     /** created_at is stored GMT; the contract wants offset ISO 8601. */
     private function isoCreatedAt(string $mysqlGmt): string
     {

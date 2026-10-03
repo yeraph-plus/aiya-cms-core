@@ -1727,6 +1727,19 @@ if (!function_exists('cache_users')) {
     }
 }
 
+if (!function_exists('_prime_post_caches')) {
+    function _prime_post_caches(array $ids, bool $updateTermCache = true, bool $updateMetaCache = true): void
+    {
+        // Same stance as cache_users: a warm-up with no observable state.
+    }
+}
+
+if (!function_exists('_prime_comment_caches')) {
+    function _prime_comment_caches(array $commentIds, bool $updateMetaCache = true): void
+    {
+    }
+}
+
 if (!function_exists('wp_list_pluck')) {
     function wp_list_pluck(array $list, string|int $field, string|int|null $indexKey = null): array
     {

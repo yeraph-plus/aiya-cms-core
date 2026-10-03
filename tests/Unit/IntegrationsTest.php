@@ -103,7 +103,7 @@ final class IntegrationsTest extends TestCase
 
     public function testAnUnconfiguredKeyDisablesTheWholeSurface(): void
     {
-        $error = ServiceKey::guard('Bearer whatever');
+        $error = ServiceKey::guard('whatever');
 
         self::assertInstanceOf(WP_Error::class, $error);
         self::assertSame('aiya_service_disabled', $error->get_error_code());
@@ -114,8 +114,11 @@ final class IntegrationsTest extends TestCase
     {
         $GLOBALS['__aiya_test_options']['fileserve']['service_key'] = 'correct-key';
 
-        foreach (['Bearer wrong-key', 'Bearer', 'Basic correct-key', ''] as $header) {
-            $error = ServiceKey::guard($header);
+        // The REST boundary (TokenAuthentication::presentedToken) owns
+        // Bearer parsing — well-formed strangers and malformed headers
+        // alike arrive here as a plain token or null.
+        foreach (['wrong-key', null, ''] as $presented) {
+            $error = ServiceKey::guard($presented);
             self::assertInstanceOf(WP_Error::class, $error);
             self::assertSame('aiya_service_unauthorized', $error->get_error_code());
             self::assertSame(401, $error->get_error_data()['status']);
@@ -126,8 +129,7 @@ final class IntegrationsTest extends TestCase
     {
         $GLOBALS['__aiya_test_options']['fileserve']['service_key'] = 'correct-key';
 
-        self::assertNull(ServiceKey::guard('Bearer  correct-key '));
-        self::assertNull(ServiceKey::guard('bearer correct-key'));
+        self::assertNull(ServiceKey::guard('correct-key'));
     }
 
     public function testTheKeyGroupLeadsTheFileServePage(): void

@@ -77,7 +77,7 @@ final class AuthController
         register_rest_route(Contract::API_NAMESPACE, '/auth/logout', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (): WP_REST_Response => $this->logout(),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/auth/password-reset-request', [
@@ -312,7 +312,7 @@ final class AuthController
         // DB query + hash per guess and must carry an attempt budget like
         // every other public auth surface.
         if (!$this->rateLimiter->hit('password-reset-confirm', 10, 600)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            return RestGuard::rateLimited();
         }
 
         $user = check_password_reset_key($key, $login);
@@ -345,18 +345,10 @@ final class AuthController
         return new WP_REST_Response($this->presenter->session($user, $token->token, $token->expiresAt)->toArray());
     }
 
-    private function requireLoggedIn(): bool|WP_Error
-    {
-        if (is_user_logged_in()) {
-            return true;
-        }
-
-        return new WP_Error('aiya_not_logged_in', __('Authentication required.', 'aiya-core'), ['status' => 401]);
-    }
 
     private function rateLimited(): WP_Error
     {
-        return new WP_Error('aiya_rate_limited', __('Too many requests, please retry later.', 'aiya-core'), ['status' => 429]);
+        return RestGuard::rateLimited();
     }
 
     private function invalidParam(string $message): WP_Error

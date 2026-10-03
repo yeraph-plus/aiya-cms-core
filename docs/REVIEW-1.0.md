@@ -128,13 +128,13 @@
 - 方向：统一改 `wp_date()`（同 functions.php:243，明确接受真 epoch；`CronsPage.php:311-314` 已是正确写法），admin 侧收敛为共享助手。
 - 复核：`grep -rn "date_i18n(" src/` → 0 命中；后台列表时间人工核对。
 
-**R-02 [P1] REST 列表信封 meta 手工装配 12 处，绕过 Envelope** ☐
+**R-02 [P1] REST 列表信封 meta 手工装配 12 处，绕过 Envelope** ✅ B3
 - 位置：`src/Api/Rest/DiscussionController.php:171-178,138-144,232-239`、`ContentController.php:199-208,237-247,334,358-366`、`UserController.php:182,241`、`CommentsController.php:138`、`NotificationController.php:84-91`、`CreditController.php:93`。
 - 证据：各端点重复拼 `'meta' => ['apiVersion'=>..., 'requestId'=>..., 'pagination'=>...]`；`Envelope.php:61-63` 因「controllers may build the full meta themselves」放行。
 - 方向：`Envelope::list($data, ?Pagination)` 静态工厂，控制器一行调用。信封形状在 v1 冻结下最不该有漂移空间。
 - 复核：`grep -rn "requestId" src/Api/Rest/` → 只剩 Envelope 自身。
 
-**R-03 [P1] `requireLoggedIn()` 复制 8 份 + 429 文案 27 处已漂移** ☐
+**R-03 [P1] `requireLoggedIn()` 复制 8 份 + 429 文案 27 处已漂移** ✅ B3
 - 位置：`AuthController.php:342`、`CreditController.php:181`、`DiscussionController.php:377`、`FileServeController.php:99`、`IntegrationsController.php:183`、`SponsorshipController.php:281`、`UserController.php:449`、`CounterController.php:62`（变体）。
 - 证据：同体 `is_user_logged_in()?:WP_Error` 八份；`Too many requests` 27 处两种措辞并存（CounterController 的文案与未登录文案均不同）。
 - 方向：`Api/Rest` 下 RestGuard 统一 `loggedIn()`/`rateLimited()`。
@@ -158,7 +158,7 @@
 - 方向：`Api/Presenter` 共享静态助手（与 R-01 的 admin 侧助手语义不同：ISO-8601 vs 本地化标签，各自独立）。
 - 复核：`grep -c "private function formatDate" src/Api/Presenter/` → ≤1。
 
-**R-07 [P2] Bearer 头解析两份 + firstparty 命名空间清单第二真相源** ☐
+**R-07 [P2] Bearer 头解析两份 + firstparty 命名空间清单第二真相源** ✅ B3（过滤器时机不可行——determine_current_user 早于 rest_api_init，改为引用控制器常量）
 - 位置：`src/Api/Rest/TokenAuthentication.php:76-91`（:71-73 硬编码三个命名空间）与 `src/Domain/Integrations/ServiceKey.php:49-52`（同一正则）。
 - 证据：硬编码 `/aiya/core/v1/` 等与 `aiya_core_firstparty_rest_namespaces` 宣告机制平行——新命名空间宣告后 bearer 认证不会自动跟随。
 - 方向：改读过滤器清单；ServiceKey 改收已解析 token。归 B3。
@@ -176,7 +176,7 @@
 - 方向（1.0 后）：提取 `runMarkedQuery($args, $filter)` 私有助手防双处漂移；核心排序子句不同，不做整类抽象。
 - 复核：两文件共享助手被引用。
 
-**R-10 [P2] perPage/page 手工夹取与 args schema 校验重复（死代码）** ☐
+**R-10 [P2] perPage/page 手工夹取与 args schema 校验重复（死代码）** ✅ B3
 - 位置：`ContentController.php:195`、`NotificationController.php:76`、`CreditController.php:88`。
 - 证据：args 已声明 minimum/maximum，WP REST 在回调前即 400（`wordpress-source/wp-includes/rest-api.php:2614-2667`），夹取分支不可达；而 Discussion/User/Comments 只 cast 不夹取，同 API 面两种风格。
 - 方向：删夹取，统一依赖 schema 校验。归 B3。
@@ -256,7 +256,7 @@
 - 方向：引用属主常量。归 B4。
 - 复核：四键与类名字面量在 Presenter 零命中。
 
-**L-08 [P2] discussion update 响应的 replies 静默截断且无分页标记** ☐
+**L-08 [P2] discussion update 响应的 replies 静默截断且无分页标记** ✅ B3（信封化 + meta.pagination 真实回复分页）
 - 位置：`src/Api/Rest/DiscussionController.php:289-295`。
 - 证据：update 把第 1 页 50 条回复装进 detail 返回，超 50 条无提示截断，detail 形状无分页字段。
 - 方向：update 不回带 replies（走 GET /discussions/{id}/replies），或 meta 带回复总数。归 B3。
@@ -295,13 +295,13 @@
 - 证据：分组 flush 只挂 `update_option_aiya_core_content`（NSFW 保存）；term 改名/bump 计数/主题 filter 变化不重键。代码注释均声明「TTL is the freshness contract」，无 drop-in 时全部退化为请求级、无跨请求陈旧。
 - 处置：设计契约而非缺陷，登记防误判；未来加装对象缓存时在 `edited_term_taxonomy`/`save_post` 补同组 flush_group。
 
-**C-04 [P2] 讨论列表逐行解析作者，未批量预热用户缓存** ☐
+**C-04 [P2] 讨论列表逐行解析作者，未批量预热用户缓存** ✅ B3
 - 位置：`src/Api/Presenter/DiscussionPresenter.php:221-236`（每行 get_userdata + get_avatar_url）、`DiscussionController.php:147-169`。
 - 证据：自建表行不享受 WP_Query 预热；perPage 上限 100（:57），百行页约 40-200 条额外查询。同插件范式：`PostPresenter.php:223` cache_users。
 - 方向：present 前 `cache_users($ids)`（users+usermeta 各一条 IN）。归 B3。
 - 复核：列表页查询数（Query Monitor 或 SAVEQUERIES）明显下降。
 
-**C-05 [P2] 通知 feed 逐行回查对象锚点** ☐
+**C-05 [P2] 通知 feed 逐行回查对象锚点** ✅ B3
 - 位置：`src/Api/Presenter/NotificationLinker.php:53`（get_post）、`:65`（get_comment）、`:84`（threads byId 全行+board JOIN）。
 - 证据：50 行 feed 最多 50 次额外点查；核心对象有请求内缓存兜底，threads 自建表完全没有。
 - 方向：NotificationController 按 object_type 分组 IN 预取（服务加 `byIds()`）。低成本非必做，归 B3。
@@ -550,8 +550,8 @@
 | M9 | P2 | MailTemplate 两处缺 translators 注释 + CoreMailRewrites 两条失效 ignore 码 | ✅ 补注释 + ignore 码族级修正 |
 | M10 | P2 | 契约快照遗漏 DiscussionDetail 的新字段（WIRE_SHAPES 未同步） | ✅ 本批 0.102 主体已同步（审查前发现） |
 | M11 | P2 | marker 分支对非文本 Content-Type 一律强换（防御缺口） | ✅ 与 M5 一并覆盖 |
-| R1 | P2 | 点赞响应 `{likes,viewerLiked,already}` 为 ad-hoc 面不在契约执法 | ⏭️ 登记（B3 契约收口一并落 DTO） |
-| R2 | P2 | 登录写面限流按 IP 计（RateLimiter docblock 建议登录面用 hitFor） | ⏭️ 登记（系统性遗留，随 B3 RestGuard 收敛） |
+| R1 | P2 | 点赞响应 `{likes,viewerLiked,already}` 为 ad-hoc 面不在契约执法 | ✅ B3（LikeResponse DTO + 快照 + zod） |
+| R2 | P2 | 登录写面限流按 IP 计（RateLimiter docblock 建议登录面用 hitFor） | ✅ B3（互动/账户写面全切 hitFor(user)；auth 凭据面、匿名读面、webhook 保持 IP） |
 | R3 | P2 | lockWpV2 在 rest_endpoints 内 302+exit 语义偏脆（当前影响为零） | ⏭️ 登记 |
 | R4 | P2 | DiscussionService::delete 内联 new DiscussionLikeService | ⏭️ 登记（可注入化随 B4） |
 | R5 | P2 | 壳主题标题助手转义不一致（当前值均管理端可控，风险低） | ⏭️ 登记 |

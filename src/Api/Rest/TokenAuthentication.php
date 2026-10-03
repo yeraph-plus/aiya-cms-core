@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
+use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Domain\Identity\TokenStore;
+use Aiya\Core\Domain\Sponsorship\PaymentGateway;
 
 /**
  * Bearer-token authentication for the headless API: resolves
@@ -22,6 +24,25 @@ final class TokenAuthentication
 {
     public function __construct(private TokenStore $tokens)
     {
+    }
+
+    /**
+     * The namespaces a presented bearer token may authenticate against.
+     * Pulled from the owning classes' constants — NOT from the
+     * aiya_core_firstparty_rest_namespaces filter: determine_current_user
+     * fires before rest_api_init, before the controllers have announced
+     * themselves. A new firstparty namespace opts in by referencing its
+     * constant here.
+     *
+     * @return list<string>
+     */
+    private function namespaces(): array
+    {
+        return [
+            Contract::API_NAMESPACE,
+            IntegrationsController::API_NAMESPACE,
+            PaymentGateway::GATEWAY_NAMESPACE,
+        ];
     }
 
     public function register(): void
@@ -68,9 +89,13 @@ final class TokenAuthentication
 
         $path = (string) wp_parse_url($uri, PHP_URL_PATH);
 
-        return str_contains($path, '/aiya/core/v1/')
-            || str_contains($path, '/aiya/sponsorship/v1/')
-            || str_contains($path, '/aiya/integrations/v1/');
+        foreach ($this->namespaces() as $namespace) {
+            if (str_contains($path, '/' . trim((string) $namespace, '/') . '/')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** The presented bearer token, or null when the header is absent/malformed. */

@@ -38,6 +38,7 @@ final class IntegrationsController
         private TicketService $tickets,
         private LedgerService $ledger,
         private RateLimiter $limiter,
+        private ?TokenAuthentication $tokenAuth = null,
     ) {
     }
 
@@ -55,11 +56,16 @@ final class IntegrationsController
         register_rest_route(self::API_NAMESPACE, '/auth/tickets', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (): WP_Error|WP_REST_Response => $this->issueTicket(),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
         ]);
 
         $serviceGuard = function (WP_REST_Request $request): bool|WP_Error {
-            $error = ServiceKey::guard((string) $request->get_header('authorization'));
+            // The REST layer owns header parsing: the token authenticator's
+            // Bearer extraction is the single parser, the domain guard only
+            // compares. Machine keys never match the `{userId}.{secret}`
+            // bearer shape, so the two credentials stay disjoint.
+            $presented = $this->tokenAuth?->presentedToken();
+            $error = ServiceKey::guard($presented);
             if ($error === null) {
                 return true;
             }
@@ -67,7 +73,7 @@ final class IntegrationsController
             // fat-fingered or probed key burns its own bucket, the valid
             // key never shares it.
             if (!$this->limiter->hitFor('integrations_key', md5((string) $request->get_header('authorization')), 30, 600)) {
-                return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+                return RestGuard::rateLimited();
             }
             return $error;
         };
@@ -114,7 +120,7 @@ final class IntegrationsController
         // service calls from a small set of server IPs, and one shared
         // bucket would lock all of the site's users out together.
         if (!$this->limiter->hitFor('integrations_tickets', (string) $userId, self::TICKETS_PER_USER, self::TICKET_WINDOW)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            return RestGuard::rateLimited();
         }
 
         $ticket = $this->tickets->issue($userId);
@@ -178,14 +184,5 @@ final class IntegrationsController
         $userId = (int) $request->get_param('userId');
 
         return new WP_REST_Response(['balance' => $this->ledger->balance($userId)]);
-    }
-
-    private function requireLoggedIn(): bool|WP_Error
-    {
-        if (is_user_logged_in()) {
-            return true;
-        }
-
-        return new WP_Error('aiya_not_logged_in', __('Authentication required.', 'aiya-core'), ['status' => 401]);
     }
 }

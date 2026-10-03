@@ -53,13 +53,13 @@ final class SponsorshipController
         register_rest_route(Contract::API_NAMESPACE, '/sponsorship/membership', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (): WP_REST_Response => $this->membershipState(),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/sponsorship/afdian/order-url', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->afdianOrderUrl($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 // The tier resolves the cycle count; the plan binding still
                 // decides activation at webhook time.
@@ -70,7 +70,7 @@ final class SponsorshipController
         register_rest_route(Contract::API_NAMESPACE, '/sponsorship/orders', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->createOrder($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 'tierKey' => ['type' => 'string', 'required' => true, 'maxLength' => 32],
                 'channel' => ['type' => 'string', 'required' => true, 'enum' => ['alipay', 'wxpay', 'usdt']],
@@ -107,7 +107,7 @@ final class SponsorshipController
         // hand out one outbound platform artifact per hit, and the buyer
         // has no reason to hammer either.
         if (!$this->limiter->hit('afdian_order_url', 10, 600)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            return RestGuard::rateLimited();
         }
 
         $gateway = AfdianGateway::fromSettings();
@@ -181,7 +181,7 @@ final class SponsorshipController
     {
         $userId = (int) get_current_user_id();
         if (!$this->limiter->hit('sponsorship_order', 10, 600)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            return RestGuard::rateLimited();
         }
 
         $gateway = $this->gateway();
@@ -276,14 +276,5 @@ final class SponsorshipController
     private function gateway(): ?PaymentGateway
     {
         return EpayGateway::fromSettings();
-    }
-
-    private function requireLoggedIn(): bool|WP_Error
-    {
-        if (is_user_logged_in()) {
-            return true;
-        }
-
-        return new WP_Error('aiya_not_logged_in', __('Authentication required.', 'aiya-core'), ['status' => 401]);
     }
 }

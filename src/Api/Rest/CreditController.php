@@ -42,13 +42,13 @@ final class CreditController
         register_rest_route(Contract::API_NAMESPACE, '/credits/balance', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (): WP_REST_Response => $this->balanceState(),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/credits/entries', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (WP_REST_Request $request): WP_REST_Response => $this->entries($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 'page' => ['type' => 'integer', 'minimum' => 1, 'default' => 1],
                 'perPage' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 20],
@@ -58,13 +58,13 @@ final class CreditController
         register_rest_route(Contract::API_NAMESPACE, '/credits/checkin', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (): WP_Error|WP_REST_Response => $this->checkin(),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/credits/redeem', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->redeem($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 'code' => ['type' => 'string', 'required' => true, 'maxLength' => 64],
                 // "redeem" (default) claims a site code; "afdian" treats the
@@ -84,18 +84,11 @@ final class CreditController
 
     private function entries(WP_REST_Request $request): WP_REST_Response
     {
-        $page = max(1, (int) $request->get_param('page'));
-        $perPage = max(1, min(100, (int) $request->get_param('perPage')));
+        $page = (int) $request->get_param('page');
+        $perPage = (int) $request->get_param('perPage');
         $result = $this->ledger->entries((int) get_current_user_id(), $page, $perPage);
 
-        return new WP_REST_Response([
-            'data' => $this->presenter->entries($result['items']),
-            'meta' => [
-                'apiVersion' => Contract::VERSION,
-                'requestId' => Envelope::meta()['requestId'],
-                'pagination' => Pagination::fromCounts($page, $perPage, $result['total'])->toArray(),
-            ],
-        ]);
+        return Envelope::payload($this->presenter->entries($result['items']), Pagination::fromCounts($page, $perPage, $result['total']));
     }
 
     private function checkin(): WP_Error|WP_REST_Response
@@ -107,8 +100,8 @@ final class CreditController
         if (UserBan::isBanned($userId)) {
             return new WP_Error('aiya_account_disabled', __('This account is disabled.', 'aiya-core'), ['status' => 403]);
         }
-        if (!$this->limiter->hit('credits_checkin', 10, 3600)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->limiter->hitFor('credits_checkin', $userId, 10, 3600)) {
+            return RestGuard::rateLimited();
         }
 
         $settings = CreditSettings::read();
@@ -139,8 +132,8 @@ final class CreditController
     private function redeem(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         $userId = (int) get_current_user_id();
-        if (!$this->limiter->hit('credits_redeem', 10, 600)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->limiter->hitFor('credits_redeem', $userId, 10, 600)) {
+            return RestGuard::rateLimited();
         }
 
         $code = trim((string) $request->get_param('code'));
@@ -150,8 +143,8 @@ final class CreditController
             // The verification calls the Afdian open API — a tighter
             // window than the local-code path keeps it unattractive to
             // hammer with guessed numbers.
-            if (!$this->limiter->hit('afdian_redeem', 5, 600)) {
-                return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            if (!$this->limiter->hitFor('afdian_redeem', $userId, 5, 600)) {
+                return RestGuard::rateLimited();
             }
 
             $activator = AfdianActivator::fromSettings();
@@ -176,14 +169,5 @@ final class CreditController
             $result['tierName'],
             $result['cycles']
         ))->toArray());
-    }
-
-    private function requireLoggedIn(): bool|WP_Error
-    {
-        if (is_user_logged_in()) {
-            return true;
-        }
-
-        return new WP_Error('aiya_not_logged_in', __('Authentication required.', 'aiya-core'), ['status' => 401]);
     }
 }

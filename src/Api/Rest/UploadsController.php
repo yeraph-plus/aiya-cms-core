@@ -60,8 +60,8 @@ final class UploadsController
 
     private function upload(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
-        if (!$this->rateLimiter->hit('upload-image', self::HITS, self::WINDOW)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, please retry later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->rateLimiter->hitFor('upload-image', (int) get_current_user_id(), self::HITS, self::WINDOW)) {
+            return RestGuard::rateLimited();
         }
 
         $file = $request->get_file_params()['image'] ?? null;

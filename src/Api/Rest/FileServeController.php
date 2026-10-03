@@ -49,7 +49,7 @@ final class FileServeController
             [
                 'methods' => WP_REST_Server::CREATABLE,
                 'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->claim($request),
-                'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+                'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
                 'args' => [
                     'id' => $idArg,
                     'listId' => ['type' => 'string', 'required' => true],
@@ -66,7 +66,7 @@ final class FileServeController
         // walk over post ids would turn into an upstream flood. Same budget
         // shape as the search endpoint.
         if (!$this->limiter->hit('fileserve_list', 30, 60)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            return RestGuard::rateLimited();
         }
 
         $result = $this->files->forPost((int) $request->get_param('id'), (int) get_current_user_id());
@@ -79,8 +79,8 @@ final class FileServeController
 
     private function claim(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
-        if (!$this->limiter->hit('fileserve_download', 30, 600)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->limiter->hitFor('fileserve_download', (int) get_current_user_id(), 30, 600)) {
+            return RestGuard::rateLimited();
         }
 
         $result = $this->downloads->claim(
@@ -94,14 +94,5 @@ final class FileServeController
         }
 
         return new WP_REST_Response($this->presenter->download($result));
-    }
-
-    private function requireLoggedIn(): bool|WP_Error
-    {
-        if (is_user_logged_in()) {
-            return true;
-        }
-
-        return new WP_Error('aiya_not_logged_in', __('Authentication required.', 'aiya-core'), ['status' => 401]);
     }
 }

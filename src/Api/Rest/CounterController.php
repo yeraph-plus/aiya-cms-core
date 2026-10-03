@@ -59,29 +59,17 @@ final class CounterController
      * the front end disables its action buttons for guests anyway. Views
      * stay public — visitor counting is their purpose.
      */
-    private function requireLoggedIn(): ?WP_Error
-    {
-        if (!is_user_logged_in()) {
-            return new WP_Error(
-                'aiya_not_logged_in',
-                __('Please log in to interact.', 'aiya-core'),
-                ['status' => 401]
-            );
-        }
-
-        return null;
-    }
 
     /** @return array<string, mixed>|WP_Error */
     private function like(WP_REST_Request $request): array|WP_Error
     {
-        $notLoggedIn = $this->requireLoggedIn();
-        if ($notLoggedIn !== null) {
-            return $notLoggedIn;
+        $guest = RestGuard::guestError();
+        if ($guest !== null) {
+            return $guest;
         }
 
-        if (!$this->limiter->hit('counter_like', 30, 60)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->limiter->hitFor('counter_like', (int) get_current_user_id(), 30, 60)) {
+            return RestGuard::rateLimited();
         }
 
         $result = $this->counters->registerLike(absint((string) $request['id']), $this->counters->visitorHash());
@@ -96,7 +84,7 @@ final class CounterController
     private function view(WP_REST_Request $request): array|WP_Error
     {
         if (!$this->limiter->hit('counter_view', 120, 60)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+            return RestGuard::rateLimited();
         }
 
         $views = $this->counters->registerView(absint((string) $request['id']), $this->counters->visitorHash());
@@ -110,13 +98,13 @@ final class CounterController
     /** @return array<string, mixed>|WP_Error */
     private function rating(WP_REST_Request $request): array|WP_Error
     {
-        $notLoggedIn = $this->requireLoggedIn();
-        if ($notLoggedIn !== null) {
-            return $notLoggedIn;
+        $guest = RestGuard::guestError();
+        if ($guest !== null) {
+            return $guest;
         }
 
-        if (!$this->limiter->hit('counter_rating', 30, 60)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->limiter->hitFor('counter_rating', (int) get_current_user_id(), 30, 60)) {
+            return RestGuard::rateLimited();
         }
 
         $value = isset($request['value']) && is_numeric((string) $request['value'])

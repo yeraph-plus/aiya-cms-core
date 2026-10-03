@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Api\Contract\LikeResponse;
 use Aiya\Core\Api\Contract\Pagination;
 use Aiya\Core\Api\Presenter\DiscussionPresenter;
 use Aiya\Core\Domain\Discussion\DiscussionLikeService;
@@ -63,7 +64,7 @@ final class DiscussionController
         register_rest_route(Contract::API_NAMESPACE, '/discussions', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->create($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 'title' => ['type' => 'string', 'required' => false, 'default' => '', 'maxLength' => 191],
                 'content' => ['type' => 'string', 'required' => true, 'maxLength' => 20000],
@@ -85,7 +86,7 @@ final class DiscussionController
         register_rest_route(Contract::API_NAMESPACE, '/discussions/(?P<id>\d+)/replies', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->addReply($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 'id' => ['type' => 'integer', 'required' => true, 'minimum' => 1],
                 'content' => ['type' => 'string', 'required' => true, 'maxLength' => 10000],
@@ -95,7 +96,7 @@ final class DiscussionController
         register_rest_route(Contract::API_NAMESPACE, '/discussions/(?P<id>\d+)', [
             'methods' => WP_REST_Server::EDITABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->update($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 'id' => ['type' => 'integer', 'required' => true, 'minimum' => 1],
                 'title' => ['type' => 'string', 'required' => false, 'maxLength' => 191],
@@ -108,28 +109,28 @@ final class DiscussionController
         register_rest_route(Contract::API_NAMESPACE, '/discussions/(?P<id>\d+)', [
             'methods' => WP_REST_Server::DELETABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->delete($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => ['id' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/discussions/(?P<id>\d+)/like', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->like($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => ['id' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/discussions/(?P<id>\d+)/like', [
             'methods' => WP_REST_Server::DELETABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->unlike($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => ['id' => ['type' => 'integer', 'required' => true, 'minimum' => 1]],
         ]);
 
         register_rest_route(Contract::API_NAMESPACE, '/discussions/(?P<id>\d+)/replies/(?P<replyId>\d+)', [
             'methods' => WP_REST_Server::EDITABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->updateReply($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 'id' => ['type' => 'integer', 'required' => true, 'minimum' => 1],
                 'replyId' => ['type' => 'integer', 'required' => true, 'minimum' => 1],
@@ -140,7 +141,7 @@ final class DiscussionController
         register_rest_route(Contract::API_NAMESPACE, '/discussions/(?P<id>\d+)/replies/(?P<replyId>\d+)', [
             'methods' => WP_REST_Server::DELETABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->deleteReply($request),
-            'permission_callback' => fn (): bool|WP_Error => $this->requireLoggedIn(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
                 'id' => ['type' => 'integer', 'required' => true, 'minimum' => 1],
                 'replyId' => ['type' => 'integer', 'required' => true, 'minimum' => 1],
@@ -151,13 +152,7 @@ final class DiscussionController
     /** The public board list with thread counts, menu order. */
     private function boards(): WP_REST_Response
     {
-        return new WP_REST_Response([
-            'data' => $this->presenter->boards($this->threads->boards()),
-            'meta' => [
-                'apiVersion' => Contract::VERSION,
-                'requestId' => Envelope::meta()['requestId'],
-            ],
-        ]);
+        return Envelope::payload($this->presenter->boards($this->threads->boards()));
     }
 
     private function list(WP_REST_Request $request): WP_REST_Response
@@ -184,21 +179,14 @@ final class DiscussionController
             $items[] = $thread->toArray();
         }
 
-        return new WP_REST_Response([
-            'data' => $items,
-            'meta' => [
-                'apiVersion' => Contract::VERSION,
-                'requestId' => Envelope::meta()['requestId'],
-                'pagination' => Pagination::fromCounts($page, $perPage, $result['total'])->toArray(),
-            ],
-        ]);
+        return Envelope::payload($items, Pagination::fromCounts($page, $perPage, $result['total']));
     }
 
     private function create(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         $userId = (int) get_current_user_id();
-        if (!$this->limiter->hit('discussion_create', 5, 3600)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->limiter->hitFor('discussion_create', $userId, 5, 3600)) {
+            return RestGuard::rateLimited();
         }
 
         $boardId = $this->resolveBoardId((string) $request->get_param('board'));
@@ -245,21 +233,14 @@ final class DiscussionController
             $items[] = $this->presenter->reply($row, $viewer)->toArray();
         }
 
-        return new WP_REST_Response([
-            'data' => $items,
-            'meta' => [
-                'apiVersion' => Contract::VERSION,
-                'requestId' => Envelope::meta()['requestId'],
-                'pagination' => Pagination::fromCounts($page, self::REPLIES_PER_PAGE, $result['total'])->toArray(),
-            ],
-        ]);
+        return Envelope::payload($items, Pagination::fromCounts($page, self::REPLIES_PER_PAGE, $result['total']));
     }
 
     private function addReply(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         $userId = (int) get_current_user_id();
-        if (!$this->limiter->hit('discussion_reply', 30, 600)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        if (!$this->limiter->hitFor('discussion_reply', $userId, 30, 600)) {
+            return RestGuard::rateLimited();
         }
 
         $replyId = $this->threads->reply((int) $request->get_param('id'), $userId, (string) $request->get_param('content'));
@@ -302,13 +283,20 @@ final class DiscussionController
             return $this->notFound();
         }
 
+        // First reply page plus the REAL pagination: a thread with more
+        // than one page of replies states so in meta (hasNext/totalItems)
+        // instead of silently shipping a truncated list — deeper pages
+        // are the replies endpoint's job.
         $replies = $this->threads->replies((int) $thread->id, 1, self::REPLIES_PER_PAGE);
-        $items = [];
+        $replyObjects = [];
         foreach ($replies['items'] as $row) {
-            $items[] = $this->presenter->reply($row, $userId);
+            $replyObjects[] = $this->presenter->reply($row, $userId);
         }
 
-        return new WP_REST_Response($this->presenter->detail($thread, $items, $userId)->toArray());
+        return Envelope::payload(
+            $this->presenter->detail($thread, $replyObjects, $userId)->toArray(),
+            Pagination::fromCounts(1, self::REPLIES_PER_PAGE, $replies['total'])
+        );
     }
 
     /**
@@ -371,30 +359,41 @@ final class DiscussionController
 
     private function like(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
-        if (!$this->limiter->hit('discussion_like', 30, 60)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        $userId = (int) get_current_user_id();
+        // Login-gated write: the budget belongs to the acting user, not
+        // the egress address (one office IP must not crowd out its users).
+        if (!$this->limiter->hitFor('discussion_like', $userId, 30, 60)) {
+            return RestGuard::rateLimited();
         }
 
-        $result = $this->likes->like((int) $request->get_param('id'), (int) get_current_user_id());
+        $result = $this->likes->like((int) $request->get_param('id'), $userId);
         if (is_wp_error($result)) {
             return $result;
         }
 
-        return new WP_REST_Response($result);
+        return Envelope::payload((new LikeResponse(
+            $result['likes'],
+            $result['viewerLiked'],
+            $result['already'] ?? false,
+        ))->toArray());
     }
 
     private function unlike(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
-        if (!$this->limiter->hit('discussion_like', 30, 60)) {
-            return new WP_Error('aiya_rate_limited', __('Too many requests, try again later.', 'aiya-core'), ['status' => 429]);
+        $userId = (int) get_current_user_id();
+        if (!$this->limiter->hitFor('discussion_like', $userId, 30, 60)) {
+            return RestGuard::rateLimited();
         }
 
-        $result = $this->likes->unlike((int) $request->get_param('id'), (int) get_current_user_id());
+        $result = $this->likes->unlike((int) $request->get_param('id'), $userId);
         if (is_wp_error($result)) {
             return $result;
         }
 
-        return new WP_REST_Response($result);
+        return Envelope::payload((new LikeResponse(
+            $result['likes'],
+            $result['viewerLiked'],
+        ))->toArray());
     }
 
     /**
@@ -418,14 +417,6 @@ final class DiscussionController
         return (int) $board->id;
     }
 
-    private function requireLoggedIn(): bool|WP_Error
-    {
-        if (is_user_logged_in()) {
-            return true;
-        }
-
-        return new WP_Error('aiya_not_logged_in', __('Authentication required.', 'aiya-core'), ['status' => 401]);
-    }
 
     private function notFound(): WP_Error
     {

@@ -199,6 +199,44 @@ final class DiscussionService
     }
 
     /**
+     * Thread rows by id, keyed by id — the notification feed's bulk
+     * anchor pass reads one page's worth of targets in a single query
+     * instead of one join per row.
+     *
+     * @param list<int> $threadIds
+     * @return array<int, object{id:int,user_id:int,board_id:int,board_slug:string|null,board_name:string|null,status:string,title:string,content:string,post_id:int,reply_count:int,last_reply_user_id:int,last_reply_at:string|null,created_at:string,updated_at:string}>
+     */
+    public function byIds(array $threadIds): array
+    {
+        $ids = array_values(array_filter(array_map('intval', $threadIds), static fn (int $id): bool => $id > 0));
+        if ($ids === []) {
+            return [];
+        }
+
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $placeholders = implode(', ', array_fill(0, count($ids), '%d'));
+        /** @var list<object{id:int,user_id:int,board_id:int,board_slug:string|null,board_name:string|null,status:string,title:string,content:string,post_id:int,reply_count:int,last_reply_user_id:int,last_reply_at:string|null,created_at:string,updated_at:string}>|null $rows */
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT d.id, d.user_id, d.board_id, b.slug AS board_slug, b.name AS board_name, d.status, d.title, d.content, d.post_id, d.reply_count, d.last_reply_user_id, d.last_reply_at, d.created_at, d.updated_at
+             FROM %i d LEFT JOIN %i b ON b.id = d.board_id WHERE d.id IN ($placeholders)",
+            $this->threadsTable(),
+            $this->boardsTable(),
+            ...$ids
+        ));
+
+        $out = [];
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $id = (int) $row->id;
+            if (in_array($id, $ids, true)) {
+                $out[$id] = $row;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
      * Every board in menu order, thread counts attached.
      *
      * @return list<object{id:int,slug:string,name:string,description:string,sort:int,threads:int}>
