@@ -168,12 +168,21 @@ final class SponsorshipTestWpdb
         return $output === ARRAY_A ? $row : (object) $row;
     }
 
-    /** @return list<array<string, mixed>> */
+    /**
+     * The real wpdb honours the output flag here too (ARRAY_A assoc rows,
+     * default objects) — runCycleGrants reads properties off this shape,
+     * so the double keeps both faces available.
+     *
+     * @return list<array<string, mixed>>|list<object>
+     */
     public function get_results(string $sql, mixed $output = null): array
     {
         $this->aiya_test_reads++;
+        if ($output === ARRAY_A) {
+            return $this->select($sql);
+        }
 
-        return $this->select($sql);
+        return array_map(static fn (array $row): object => (object) $row, $this->select($sql));
     }
 
     public function query(string $sql): int

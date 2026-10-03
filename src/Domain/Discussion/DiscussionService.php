@@ -655,7 +655,11 @@ final class DiscussionService
             return new WP_Error('aiya_db_error', __('The thread could not be deleted.', 'aiya-core'));
         }
 
-        $this->likes()->purgeForThread($threadId);
+        if (!$this->likes()->purgeForThread($threadId)) {
+            $wpdb->query('ROLLBACK');
+
+            return new WP_Error('aiya_db_error', __('The thread could not be deleted.', 'aiya-core'));
+        }
         $wpdb->query('COMMIT');
 
         return true;

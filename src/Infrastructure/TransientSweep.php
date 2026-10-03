@@ -15,7 +15,9 @@ use Aiya\Core\Contracts\Module;
  * rows forever, and the rate limiter is the highest-frequency write face
  * on the site. Runs at the tail of the daily credit-cleanup cron; the
  * JOIN pairs each expired `_transient_timeout_` row with its value row
- * so neither survives alone.
+ * (and a second pass finishes orphaned timeout rows whose value was
+ * already lazily deleted). Meaningless under an external object cache —
+ * transients never land in the options table there, nothing to sweep.
  */
 final class TransientSweep implements Module
 {
@@ -43,6 +45,19 @@ final class TransientSweep implements Module
         if (is_string($sql)) {
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
             $wpdb->query($sql);
+        }
+
+        // Orphaned timeout rows (value already lazily deleted) never match
+        // the JOIN — one flat delete finishes them.
+        $orphanSql = $wpdb->prepare(
+            'DELETE FROM %i WHERE option_name LIKE %s AND CAST(option_value AS UNSIGNED) < %d',
+            $wpdb->options,
+            $timeoutLike,
+            time()
+        );
+        if (is_string($orphanSql)) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
+            $wpdb->query($orphanSql);
         }
     }
 }

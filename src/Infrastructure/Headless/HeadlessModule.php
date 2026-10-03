@@ -314,14 +314,15 @@ final class HeadlessModule implements Module
         }
 
         // An HTTP REST dispatch always carries its target: rest_route (plain
-        // permalinks) or a request path under the REST prefix (pretty ones).
-        // Anything else is route building outside a dispatch (wp-cli, an
-        // internal rest_do_request riding a front-end request) — the URI
-        // above belongs to the host request, not to the routes being built,
-        // so the lock has no subject here and stands down. REST_REQUEST
-        // cannot make this call: it is defined for both shapes.
-        $restPrefix = '/' . rest_get_url_prefix() . '/';
-        if ($restRoute === '' && !str_starts_with($requestPath, $restPrefix)) {
+        // permalinks) or a request path containing the REST prefix anywhere
+        // (pretty ones — subdirectory installs put it after the home path,
+        // the same any-depth match requestHitsNamespace applies). Anything
+        // else is route building outside a dispatch (wp-cli, an internal
+        // rest_do_request riding a front-end request) — the URI above
+        // belongs to the host request, not to the routes being built, so
+        // the lock has no subject here and stands down.
+        $restMarker = '/' . trim(rest_get_url_prefix(), '/') . '/';
+        if ($restRoute === '' && stripos($requestPath, $restMarker) === false) {
             return $endpoints;
         }
 

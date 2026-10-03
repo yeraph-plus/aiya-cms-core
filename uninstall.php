@@ -335,8 +335,14 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
     // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrong -- placeholder string built from the fixed contract list above; prepared on the spot
     // @phpstan-ignore-next-line argument.type (same fixed-list interpolation)
     $run($wpdb->prepare("DELETE tm FROM {$wpdb->termmeta} tm JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = tm.term_id WHERE tm.meta_key = 'thumbnail_id' AND tt.taxonomy IN ($taxonomyPlaceholders)", $contractTaxonomies));
+    // icon/seo_keywords are plugin-owned names too — the same scoping
+    // keeps a third party's identically-named term meta alive.
     foreach (['icon', 'seo_keywords'] as $termMetaKey) {
-        $run($wpdb->prepare('DELETE FROM %i WHERE meta_key = %s', $wpdb->termmeta, $termMetaKey));
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed key name, placeholder list built above
+        $run($wpdb->prepare(
+            "DELETE tm FROM {$wpdb->termmeta} tm JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = tm.term_id WHERE tm.meta_key = %s AND tt.taxonomy IN ($taxonomyPlaceholders)",
+            array_merge([$termMetaKey], $contractTaxonomies)
+        ));
     }
 
     // Webhook debug logs (payment payloads) and the stale rewrite cache.

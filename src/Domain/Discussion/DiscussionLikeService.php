@@ -124,12 +124,15 @@ final class DiscussionLikeService
     /**
      * Drops every like row of one thread — the thread-delete companion,
      * so removing a thread never leaves orphaned actor rows behind.
+     * Reports success: the caller's delete transaction rolls back when
+     * this fails, keeping the "no orphaned rows" promise honest.
      */
-    public function purgeForThread(int $threadId): void
+    public function purgeForThread(int $threadId): bool
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $wpdb->delete($this->likesTable(), ['thread_id' => $threadId], ['%d']);
+
+        return $wpdb->delete($this->likesTable(), ['thread_id' => $threadId], ['%d']) !== false;
     }
 
     /**

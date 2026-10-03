@@ -46,6 +46,9 @@ final class UserBanTest extends TestCase
 
     protected function tearDown(): void
     {
+        // Restore the default posture; downstream suites read these globals.
+        $GLOBALS['__aiya_test_caps'] = true;
+        $GLOBALS['__aiya_test_current_user_id'] = 0;
         unset($GLOBALS['wpdb']);
         $_POST = [];
     }

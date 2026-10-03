@@ -445,7 +445,7 @@
 - 方向：require 改 `>=8.5` 对齐声明。归 B6。
 - 复核：两处一致。
 
-**G-04 [P2] 0.100.0–0.101.1 从未打 tag，线上 PUC 链停在 v0.99.0** ✅ B6（0.102.0 已上线对账，v1.0.0 tag 发布即闭环）
+**G-04 [P2] 0.100.0–0.101.1 从未打 tag，线上 PUC 链停在 v0.99.0** ✅ B6（0.102.0 与 0.103.0 已相继上线对账；1.0.0 tag 曾推送因 CI composer 卡死撤销、v0.103.0 前置先行——重打 v1.0.0 即闭环，见 ROADMAP 0.103.x 收官条目）
 - 证据：`git tag` 终于 v0.99.0；线上站点从未收到这三个版本。1.0 是首个走完整 release.yml 资产链的大版本；四个数据搬迁正是为 ≤0.94 线上库保留的。
 - 方向：上线时实测一次 0.99.0→1.0.0 升级路径（PUC 自动更新链 + 迁移幂等对账）。
 - 复核：线上升级后 `aiya_core_schema_version`=1.0.0、`aiya_core_last_migration_error` 不存在。
@@ -559,3 +559,26 @@
 | R7 | P2 | 测试 shim 不跑 wp_mail filter（CID bug 漏网的结构性原因） | ◐ 已补 marker-embeds/multipart/死路径回归用例；垫片跑 filter 归 B5 |
 
 **同批退役**：`docs/discussion-likes-design.md` 与 `docs/mentions-design.md` 删除（语义已永久化——点赞见 ROADMAP 0.102.0 条目、mentions 见 ARCHITECTURE 零路由节 + ROADMAP「@提及通知落地」条目；git 历史取回原文）；三处 src docblock 指针改指 ARCHITECTURE/ROADMAP。**H-07 归零**：phpcs 0 error 0 warning（三条豁免注释）。**工具链终态**：phpunit 650/1904、phpstan 0、phpcs 0/0、vitest 342/342。
+
+## 7. 二轮复核（0.103.0 修改面专项，2026-10-04，范围 v0.102.0..HEAD 12 提交/116 文件）
+
+三路并行复核（重构等价性 / 新增类与升级路径 / 测试基建与发布链）。**等价性大面成立**：14 页迁移零漂移（12 页逐字节 diff 0）、VisitorFingerprint 逐字节一致、AccountService 三不变量保序保码（register/locale 顺序漂移的担忧基于错误前提，实测 locale 400 仍先于 email 409）、RestGuard 29 处收敛前端按 code 无感、Envelope 四处抽查键序值全等、hitFor 桶名预算逐点未变、WireTransport 对照 v0.102.0 零漂移、升级四情形全过、发布链五处版本一致、快照语义零差。
+
+**二轮新发现与处置**：
+
+| # | 级 | 发现 | 处置 |
+|---|---|---|---|
+| S1 | P1 | lockWpV2 stand-down 用前缀锚定，子目录安装（/sub/wp-json/）锁静默失效，与 requestHitsNamespace 的任意深度匹配不一致 | ✅ 改同源 stripos 任意深度匹配 |
+| S2 | P1 | purgeForThread 失败时 delete 事务 COMMIT 照走，孤儿 like 行违背注释声明的不变量 | ✅ 改返回 bool，失败 ROLLBACK |
+| S3 | P1 | screenshot.jpg 仓库侧新增未同步部署侧（逐字节一致契约违反） | ✅ 已同步（双向零差） |
+| S4 | P1 | AGENTS.md 四处漂移（1.0.0 标题/10 条迁移链/51 DTO/WP 6.4） | ✅ 刷新（0.103.0/6 条/52 DTO/7.0） |
+| S5 | P2 | CommentsController comment 桶匿名共享（休眠分支） | ✅ 行内注释登记拍板 |
+| S6 | P2 | PicBedStore 错误码收敛为 aiya_upload_rejected，前端 8 条 4 语言上传文案失效 | ⏭️ 前端字典补条目（front-station 侧批次） |
+| S7 | P2 | uninstall icon/seo_keywords 平删误伤第三方同名键 | ✅ 套同款 taxonomy 白名单 |
+| S8 | P2 | TransientSweep：drop-in 前提未标注 + 孤儿超时行不清 | ✅ 注释补 + 孤儿清扫第二遍 |
+| S9 | P2 | FileServeDownloadTest/PostCardTest/UserBanTest caps 泄漏（靠字母序自愈） | ✅ tearDown 统一恢复 |
+| S10 | P2 | LedgerExpiryTest FIFO 断言假绿（shim 不模拟 ORDER BY） | ⏭️ shim 补排序模拟或改测 Allocator 纯函数 |
+| S11 | P2 | SponsorshipTestWpdb get_results 无视 output 参数（runCycleGrants 入测即炸的潜伏缺口） | ✅ 补双形状 |
+| S12 | P2 | 0.99 老库直跳 0.103 会静默丢三处设置（跳过搬迁） | 登记单向约束（ROADMAP）：0.99 库须先过 0.102.x |
+| S13 | P2 | 快照同步口径（语义相等 vs 逐字节） | 登记口径=JSON 语义相等 |
+| S14 | P3 | DiscussionLikeService 两处 401 旧文案、like 失败路径 last_error、count($userdata)>1 显式化、test-native 守卫收紧、PO 陈旧条目清理 | ⏭️ 登记缓办 |

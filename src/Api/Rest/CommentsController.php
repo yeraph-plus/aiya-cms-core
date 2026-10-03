@@ -138,7 +138,7 @@ final class CommentsController
 
     private function create(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
-        if (!$this->rateLimiter->hitFor('comment', (int) get_current_user_id(), self::HITS, self::WINDOW)) {
+        if (!$this->rateLimiter->hitFor('comment', (int) get_current_user_id(), self::HITS, self::WINDOW) // user 0 (the dormant anonymous-registration branch) shares one bucket by design) {
             return RestGuard::rateLimited();
         }
 

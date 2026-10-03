@@ -47,6 +47,9 @@ final class PostCardTest extends TestCase
 
     protected function tearDown(): void
     {
+        // Restore the default posture; downstream suites read these globals.
+        $GLOBALS['__aiya_test_caps'] = true;
+        $GLOBALS['__aiya_test_current_user_id'] = 0;
         unset($GLOBALS['wpdb']);
         $cover = WP_CONTENT_DIR . '/aiya_thumbnail/card/cover.jpg';
         if (is_file($cover)) {
