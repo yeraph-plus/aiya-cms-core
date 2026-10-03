@@ -16,16 +16,16 @@ namespace Aiya\Core\Domain\Mail;
  * templates) ride the slot as-is. A message already carrying the shell
  * marker passes through untouched, so the per-mail rewrite layer and a
  * re-entrant filter can never double-wrap. The Content-Type header is
- * normalised to text/html, and when a site icon exists its attachment
- * file joins `$embeds` under a fixed Content-ID for the header image
- * (WP 6.9+ embeds, inline CID — never a remote image).
+ * normalised to text/html, and when a site icon exists its public
+ * uploads URL fills the header image slot (2026-10-04: the header logo
+ * left the `$embeds` CID lane — an inline MIME part is surfaced as an
+ * attachment by several mainstream clients regardless of disposition,
+ * and a remote image creates no MIME part at all; caller-passed
+ * `$embeds` pass through untouched for their own CIDs).
  */
 final class MailShell
 {
-    /** Content-ID the site icon embeds under (default cid = embeds key). */
-    public const ICON_CID = 'aiya-site-icon';
-
-    public function __construct(private readonly MailTemplate $template, private readonly ?string $iconPath = null)
+    public function __construct(private readonly MailTemplate $template)
     {
     }
 
@@ -38,17 +38,20 @@ final class MailShell
     /**
      * Assembles the shell from site configuration: the theme color from
      * the frontend settings, blogname and the front-end origin (the brand
-     * link lands on the site readers know), and
-     * the site icon's attachment file when one is set.
+     * link lands on the site readers know), and the site icon's public
+     * URL when one is set (thumbnail size first — a 32px slot needs no
+     * full-size bytes — the original file as the fallback).
      */
     public static function fromSite(): self
     {
-        $iconPath = null;
+        $iconSrc = null;
         $iconId = (int) get_option('site_icon');
         if ($iconId > 0) {
-            $file = get_attached_file($iconId);
-            if (is_string($file) && $file !== '' && is_file($file)) {
-                $iconPath = $file;
+            $image = wp_get_attachment_image_src($iconId, 'thumbnail');
+            $iconSrc = is_array($image) && (string) ($image[0] ?? '') !== '' ? (string) $image[0] : null;
+            if ($iconSrc === null) {
+                $url = wp_get_attachment_url($iconId);
+                $iconSrc = is_string($url) && $url !== '' ? $url : null;
             }
         }
 
@@ -63,15 +66,16 @@ final class MailShell
                 $color,
                 wp_specialchars_decode((string) get_option('blogname'), ENT_QUOTES),
                 \Aiya\Core\Domain\Shared\FrontendDomain::originOrHome(),
-                $iconPath !== null ? self::ICON_CID : null,
+                $iconSrc,
             ),
-            $iconPath,
         );
     }
 
     /**
      * `wp_mail` args filter: wraps the message in the brand shell and
-     * normalises the Content-Type header.
+     * normalises the Content-Type header. `$embeds` is never touched —
+     * the shell's own icon is a plain remote URL, so caller-passed
+     * embeds belong to the caller's CIDs alone.
      *
      * @param array<string, mixed> $args
      * @return array<string, mixed>
@@ -99,11 +103,7 @@ final class MailShell
             // rewrite layer's), but message-only filters like
             // retrieve_password_message cannot touch headers — ship it as
             // text/html here or the branded document travels as plain text.
-            // The icon embed stays ours to satisfy: the rewrite layer's
-            // document references the CID and notification-style callers
-            // cannot pass embeds at all.
             $args['headers'] = $this->withoutContentType($headers);
-            $args = $this->withIconEmbed($args, $message);
 
             return $args;
         }
@@ -118,34 +118,6 @@ final class MailShell
         // The shell is text/html by construction: any prior Content-Type
         // line goes, the normalised one stays.
         $args['headers'] = $this->withoutContentType($headers);
-        $args = $this->withIconEmbed($args, '');
-
-        return $args;
-    }
-
-    /**
-     * Appends the site icon under the shell's Content-ID whenever the
-     * message references it and the icon file is actually there.
-     *
-     * @param array<string, mixed> $args
-     * @return array<string, mixed>
-     */
-    private function withIconEmbed(array $args, string $message): array
-    {
-        if ($this->iconPath === null) {
-            return $args;
-        }
-        if ($message !== '' && !str_contains($message, self::ICON_CID)) {
-            return $args; // a text-only header references no CID
-        }
-
-        // wp_mail also accepts newline-separated path strings — keep
-        // the paths that arrived and append the icon under our CID.
-        $embeds = is_array($args['embeds'] ?? null)
-            ? $args['embeds']
-            : explode("\n", str_replace("\r\n", "\n", (string) ($args['embeds'] ?? '')));
-        $embeds = array_values(array_filter(array_map('strval', $embeds)));
-        $args['embeds'] = array_merge($embeds, [self::ICON_CID => $this->iconPath]);
 
         return $args;
     }

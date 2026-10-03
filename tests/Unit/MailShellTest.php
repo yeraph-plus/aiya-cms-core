@@ -14,19 +14,23 @@ use PHPUnit\Framework\TestCase;
  * delivery itself stays WordPress's own. Plain text escapes into the
  * content slot, HTML fragments ride as-is, a message already carrying
  * the shell marker passes through untouched (no double wrap), the site
- * icon joins the embeds under the fixed Content-ID, and the footer names
- * the first parseable recipient.
+ * icon rides as a plain remote URL (2026-10-04 — the CID lane made
+ * clients list the logo as an attachment), and the footer names the
+ * first parseable recipient.
  */
 final class MailShellTest extends TestCase
 {
     private const COLOR = '#e94f69';
 
+    private const ICON_SRC = 'https://aiya.test/wp-content/uploads/icon-150.png';
+
     protected function setUp(): void
     {
         $GLOBALS['__aiya_test_options'] = [];
-        $GLOBALS['__aiya_test_attached_files'] = [];
         $GLOBALS['__aiya_test_mails'] = [];
         $GLOBALS['__aiya_test_filters'] = [];
+        $GLOBALS['__aiya_test_attachment_images'] = [];
+        $GLOBALS['__aiya_test_attachment_files'] = [];
     }
 
     protected function tearDown(): void
@@ -36,12 +40,9 @@ final class MailShellTest extends TestCase
         $GLOBALS['__aiya_test_filters'] = [];
     }
 
-    private function shell(?string $iconPath = null): MailShell
+    private function shell(?string $iconSrc = null): MailShell
     {
-        return new MailShell(
-            new MailTemplate(self::COLOR, '喵喵测试版', 'https://aiya.test', $iconPath !== null ? MailShell::ICON_CID : null),
-            $iconPath,
-        );
+        return new MailShell(new MailTemplate(self::COLOR, '喵喵测试版', 'https://aiya.test', $iconSrc));
     }
 
     /** @param array<string, mixed> $args
@@ -99,31 +100,31 @@ final class MailShellTest extends TestCase
         // A marked message is finished brand HTML — content stays byte-for-
         // byte, but message-only filters cannot set headers, so the takeover
         // normalises the Content-Type here or the document travels as text.
-        // The icon embed rides along: the rewrite layer's document references
-        // the CID and notification-style callers cannot pass embeds at all.
-        $out = $this->apply($this->shell('/var/www/uploads/icon.png'), [
+        $out = $this->apply($this->shell(self::ICON_SRC), [
             'to' => 'a@example.test',
             'subject' => 'x',
-            'message' => MailTemplate::SHELL_MARKER . '<html><img src="cid:' . MailShell::ICON_CID . '"></html>',
+            'message' => MailTemplate::SHELL_MARKER . '<html><img src="' . self::ICON_SRC . '"></html>',
             'headers' => [],
         ]);
 
-        self::assertSame(MailTemplate::SHELL_MARKER . '<html><img src="cid:' . MailShell::ICON_CID . '"></html>', $out['message']);
+        self::assertSame(MailTemplate::SHELL_MARKER . '<html><img src="' . self::ICON_SRC . '"></html>', $out['message']);
         self::assertSame(['Content-Type: text/html; charset=UTF-8'], $out['headers']);
-        self::assertSame([MailShell::ICON_CID => '/var/www/uploads/icon.png'], $out['embeds']);
+        self::assertArrayNotHasKey('embeds', $out, 'the shell injects no embeds — its icon is a remote URL');
     }
 
-    public function testAMarkedMessageWithoutAnIconReferenceGetsNoEmbeds(): void
+    public function testCallerEmbedsPassThroughUntouched(): void
     {
-        // A text-only header references no CID — nothing to attach.
-        $out = $this->apply($this->shell('/var/www/uploads/icon.png'), [
+        // The takeover never owns the embeds lane: a caller embedding its
+        // own images keeps them exactly as passed, nothing appended.
+        $out = $this->apply($this->shell(self::ICON_SRC), [
             'to' => 'a@example.test',
             'subject' => 'x',
-            'message' => MailTemplate::SHELL_MARKER . '<html>纯文字头</html>',
-            'headers' => [],
+            'message' => '<p>正文</p>',
+            'headers' => ['Content-Type: text/html; charset=UTF-8'],
+            'embeds' => ['caller-image' => '/var/www/uploads/caller.png'],
         ]);
 
-        self::assertArrayNotHasKey('embeds', $out);
+        self::assertSame(['caller-image' => '/var/www/uploads/caller.png'], $out['embeds']);
     }
 
     public function testAMultipartBodyStandsDownUntouched(): void
@@ -137,7 +138,7 @@ final class MailShellTest extends TestCase
             'headers' => ['Content-Type: multipart/alternative; boundary="xyz"'],
         ];
 
-        self::assertSame($args, $this->apply($this->shell('/var/www/uploads/icon.png'), $args));
+        self::assertSame($args, $this->apply($this->shell(self::ICON_SRC), $args));
     }
 
     public function testAnEmptyMessagePassesThroughUntouched(): void
@@ -147,17 +148,18 @@ final class MailShellTest extends TestCase
         self::assertSame($args, $this->apply($this->shell(), $args));
     }
 
-    public function testTheSiteIconJoinsTheEmbeds(): void
+    public function testTheSiteIconRidesAsARemoteUrl(): void
     {
-        $out = $this->apply($this->shell('/var/www/uploads/icon.png'), [
+        $out = $this->apply($this->shell(self::ICON_SRC), [
             'to' => 'a@example.test',
             'subject' => 'x',
             'message' => '正文',
             'headers' => [],
         ]);
 
-        self::assertSame([MailShell::ICON_CID => '/var/www/uploads/icon.png'], $out['embeds']);
-        self::assertStringContainsString('src="cid:' . MailShell::ICON_CID . '"', (string) $out['message']);
+        self::assertStringContainsString('src="' . self::ICON_SRC . '"', (string) $out['message']);
+        self::assertStringNotContainsString('cid:', (string) $out['message'], 'no MIME part, no attachment in any client');
+        self::assertArrayNotHasKey('embeds', $out);
     }
 
     public function testWithoutAnIconTheHeaderIsTextOnly(): void
@@ -169,7 +171,7 @@ final class MailShellTest extends TestCase
             'headers' => [],
         ]);
 
-        self::assertStringNotContainsString('cid:', (string) $out['message']);
+        self::assertStringNotContainsString('<img', (string) $out['message']);
         self::assertArrayNotHasKey('embeds', $out);
     }
 
@@ -191,17 +193,17 @@ final class MailShellTest extends TestCase
         // The shim must mirror production: wp_mail() applies the 'wp_mail'
         // args filter before transport, so a caller that merely calls
         // wp_mail() while MailShell is registered still ships the wrapped
-        // document. Recording raw text instead is the hole the embeds/CID
+        // document. Recording raw text instead is the hole the shell/CID
         // regression slipped through (ledger R7).
-        \add_filter('wp_mail', $this->shell('/var/www/uploads/icon.png')->apply(...), 999);
+        \add_filter('wp_mail', $this->shell(self::ICON_SRC)->apply(...), 999);
 
         \wp_mail('reader@example.test', '主题', '正文');
 
         $mail = $GLOBALS['__aiya_test_mails'][0];
         self::assertStringContainsString(MailTemplate::SHELL_MARKER, (string) $mail['message']);
         self::assertStringContainsString('<p>正文</p>', (string) $mail['message']);
+        self::assertStringContainsString('src="' . self::ICON_SRC . '"', (string) $mail['message']);
         self::assertSame(['Content-Type: text/html; charset=UTF-8'], $mail['headers']);
-        self::assertSame([MailShell::ICON_CID => '/var/www/uploads/icon.png'], $mail['embeds']);
     }
 
     public function testWpMailHonoursThePreWpMailShortCircuit(): void
@@ -214,17 +216,20 @@ final class MailShellTest extends TestCase
 
     public function testFromSiteReadsTheSiteIconAndKeepsStoredEntities(): void
     {
-        // The icon must exist on disk: a dead attachment path never joins
-        // the embeds (the fromSite is_file guard).
-        $icon = tempnam(sys_get_temp_dir(), 'aiya-icon');
-        self::assertNotFalse($icon);
+        // The icon must resolve to a URL: an attachment without a
+        // resolvable image never fills the header slot (thumbnail size
+        // first, the original file's URL as the fallback).
         $GLOBALS['__aiya_test_options'] = [
             'frontend' => ['color_primary' => '#2271b1'],
             'site_icon' => 55,
             'blogname' => '站名 &amp; 符号',
             'blog_charset' => 'UTF-8',
         ];
-        $GLOBALS['__aiya_test_attached_files'][55] = $icon;
+        $GLOBALS['__aiya_test_attachment_images'][55] = [
+            'url' => self::ICON_SRC,
+            'width' => 150,
+            'height' => 150,
+        ];
 
         $shell = MailShell::fromSite();
         $out = $shell->apply([
@@ -235,18 +240,34 @@ final class MailShellTest extends TestCase
         ]);
 
         self::assertStringContainsString('站名 &amp; 符号', (string) $out['message'], 'the stored entity decodes once, then re-escapes on render');
-        self::assertSame([MailShell::ICON_CID => $icon], $out['embeds']);
+        self::assertStringContainsString('src="' . self::ICON_SRC . '"', (string) $out['message']);
 
-        $GLOBALS['__aiya_test_attached_files'][55] = '/var/www/uploads/dead-site-icon.png';
-        $dead = MailShell::fromSite()->apply([
+        // A missing attachment resolves to nothing: text-only header, no
+        // broken image riding into every mail.
+        unset($GLOBALS['__aiya_test_attachment_images'][55]);
+        $textOnly = MailShell::fromSite()->apply([
             'to' => 'a@example.test',
             'subject' => 'x',
             'message' => '正文',
             'headers' => [],
         ]);
-        self::assertArrayNotHasKey('embeds', $dead, 'a dead attachment path never joins the embeds');
-        self::assertStringNotContainsString('cid:', (string) $dead['message']);
-        unset($GLOBALS['__aiya_test_attached_files'][55]);
-        unlink($icon);
+        self::assertStringNotContainsString('<img', (string) $textOnly['message']);
+    }
+
+    public function testFromSiteFallsBackToTheAttachmentUrl(): void
+    {
+        // No thumbnail-size metadata — the original file's URL carries the
+        // header slot instead of dropping the logo.
+        $GLOBALS['__aiya_test_options'] = ['site_icon' => 55];
+        $GLOBALS['__aiya_test_attachment_files'][55] = self::ICON_SRC;
+
+        $out = MailShell::fromSite()->apply([
+            'to' => 'a@example.test',
+            'subject' => 'x',
+            'message' => '正文',
+            'headers' => [],
+        ]);
+
+        self::assertStringContainsString('src="' . self::ICON_SRC . '"', (string) $out['message']);
     }
 }

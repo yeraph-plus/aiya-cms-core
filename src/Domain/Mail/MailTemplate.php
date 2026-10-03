@@ -24,8 +24,8 @@ final class MailTemplate
         private readonly string $color,
         private readonly string $siteName,
         private readonly string $siteUrl,
-        /** Content-ID of the embedded site icon, or null for a text-only header. */
-        private readonly ?string $iconCid = null,
+        /** Public URL of the site icon, or null for a text-only header. */
+        private readonly ?string $iconSrc = null,
     ) {
     }
 
@@ -40,9 +40,9 @@ final class MailTemplate
         $color = $this->color;
         $name = esc_html($this->siteName);
         $siteUrl = esc_url($this->siteUrl);
-        $icon = $this->iconCid === null
+        $icon = $this->iconSrc === null
             ? ''
-            : '<td width="32" style="padding-right: 10px;"><img src="cid:' . esc_attr($this->iconCid) . '"'
+            : '<td width="32" style="padding-right: 10px;"><img src="' . esc_url($this->iconSrc) . '"'
                 . ' width="32" height="32" alt="" style="display: block; width: 32px; height: 32px; border-radius: 8px;"></td>';
         $preheader = $preheader === ''
             ? ''
