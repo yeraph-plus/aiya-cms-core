@@ -237,6 +237,13 @@ optional "more" target) that the front end resolves against the public
 list reads; `Tier` gained `cycles` and `description`. The snapshot and
 the front-end zod schemas moved together.
 
+2026-10-04 amendment (snapshot sync semantics): the living snapshot and
+the frozen baseline compare as **JSON semantic equality** — deep
+equality of the parsed values. Key order, whitespace and the POT-era
+ordering of `WIRE_SHAPES` entries do not matter; field presence, value
+shapes and literal strings do. A byte-identical diff is neither
+required nor expected across generators.
+
 ## HTTP surface policy (CORS and caching)
 
 - **CORS**: WordPress core's permissive origin echo is removed; contract

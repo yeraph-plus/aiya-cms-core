@@ -41,7 +41,11 @@ final class AccountService
             }
         }
 
-        if (count($userdata) > 1 && is_wp_error(wp_update_user($userdata))) {
+        // The payload always carries the ID key; write only when a real
+        // field rides along (an ID-only array would fail wp_update_user's
+        // empty-content path for nothing).
+        $fields = array_diff_key($userdata, ['ID' => null]);
+        if ($fields !== [] && is_wp_error(wp_update_user($userdata))) {
             return new WP_Error('aiya_update_failed', __('The profile could not be saved.', 'aiya-core'), ['status' => 500]);
         }
 

@@ -119,7 +119,8 @@ final class CoreMailRewrites
 
         $email['message'] = $this->template->render($content, __('Your account is ready', 'aiya-core'), (string) $user->user_email);
         // The caller sprints the subject with the blog name after this filter.
-        $email['subject'] = __('[%s] Your account is ready.', 'aiya-core'); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- the blog name is appended by wp_new_user_notification()
+        /* translators: %s: site name. */
+        $email['subject'] = __('[%s] Your account is ready.', 'aiya-core');
         $email['headers'] = [$this->htmlContentType()];
 
         return $email;
@@ -142,7 +143,8 @@ final class CoreMailRewrites
             . $this->template->button(__('Reset password', 'aiya-core'), $this->resetRequestUrl());
 
         $email['message'] = $this->template->render($content, __('Password changed', 'aiya-core'), (string) ($user['user_email'] ?? ''));
-        $email['subject'] = __('[%s] Password changed', 'aiya-core'); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- the blog name is appended by wp_update_user()
+        /* translators: %s: site name. */
+        $email['subject'] = __('[%s] Password changed', 'aiya-core');
         $email['headers'] = [$this->htmlContentType()];
 
         return $email;
@@ -167,7 +169,8 @@ final class CoreMailRewrites
             . $this->template->button(__('Reset password', 'aiya-core'), $this->resetRequestUrl());
 
         $email['message'] = $this->template->render($content, __('Email address changed', 'aiya-core'), (string) ($user['user_email'] ?? ''));
-        $email['subject'] = __('[%s] Your email address was changed', 'aiya-core'); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- the blog name is appended by wp_update_user()
+        /* translators: %s: site name. */
+        $email['subject'] = __('[%s] Your email address was changed', 'aiya-core');
         $email['headers'] = [$this->htmlContentType()];
 
         return $email;

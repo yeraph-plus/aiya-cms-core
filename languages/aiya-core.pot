@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.104.0\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.105.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-03T19:58:12+00:00\n"
+"POT-Creation-Date: 2026-10-03T20:09:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -2186,7 +2186,7 @@ msgid "The email address or the password is incorrect."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:256
-#: src/Domain/Identity/AccountService.php:69
+#: src/Domain/Identity/AccountService.php:73
 msgid "Existing sessions could not be invalidated; the password was left unchanged."
 msgstr ""
 
@@ -2297,7 +2297,7 @@ msgstr ""
 
 #: src/Api/Rest/DiscussionController.php:423
 #: src/Domain/Discussion/DiscussionLikeService.php:148
-#: src/Domain/Discussion/DiscussionLikeService.php:201
+#: src/Domain/Discussion/DiscussionLikeService.php:209
 #: src/Domain/Discussion/DiscussionService.php:513
 #: src/Domain/Discussion/DiscussionService.php:567
 #: src/Domain/Discussion/DiscussionService.php:630
@@ -2306,6 +2306,8 @@ msgstr ""
 
 #: src/Api/Rest/RestGuard.php:38
 #: src/Api/Rest/UploadsController.php:58
+#: src/Domain/Discussion/DiscussionLikeService.php:144
+#: src/Domain/Discussion/DiscussionLikeService.php:206
 msgid "Authentication required."
 msgstr ""
 
@@ -2349,7 +2351,7 @@ msgid "The follow could not be removed."
 msgstr ""
 
 #: src/Api/Rest/UserController.php:302
-#: src/Domain/Identity/AccountService.php:90
+#: src/Domain/Identity/AccountService.php:94
 msgid "This email address is already registered."
 msgstr ""
 
@@ -2958,22 +2960,17 @@ msgstr ""
 msgid "Dev Tools"
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionLikeService.php:144
-#: src/Domain/Discussion/DiscussionLikeService.php:198
-msgid "Please log in to interact."
-msgstr ""
-
 #: src/Domain/Discussion/DiscussionLikeService.php:151
 msgid "This thread is closed; likes are no longer accepted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionLikeService.php:170
-#: src/Domain/Discussion/DiscussionLikeService.php:185
+#: src/Domain/Discussion/DiscussionLikeService.php:174
+#: src/Domain/Discussion/DiscussionLikeService.php:193
 msgid "The like could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionLikeService.php:211
-#: src/Domain/Discussion/DiscussionLikeService.php:220
+#: src/Domain/Discussion/DiscussionLikeService.php:219
+#: src/Domain/Discussion/DiscussionLikeService.php:228
 msgid "The like could not be removed."
 msgstr ""
 
@@ -3266,20 +3263,20 @@ msgstr ""
 msgid "Changing the email address requires the current password."
 msgstr ""
 
-#: src/Domain/Identity/AccountService.php:45
+#: src/Domain/Identity/AccountService.php:49
 msgid "The profile could not be saved."
 msgstr ""
 
-#: src/Domain/Identity/AccountService.php:60
+#: src/Domain/Identity/AccountService.php:64
 msgid "The current password is incorrect."
 msgstr ""
 
-#: src/Domain/Identity/AccountService.php:105
-#: src/Domain/Identity/AccountService.php:110
+#: src/Domain/Identity/AccountService.php:109
+#: src/Domain/Identity/AccountService.php:114
 msgid "The account could not be created, please retry."
 msgstr ""
 
-#: src/Domain/Identity/AccountService.php:124
+#: src/Domain/Identity/AccountService.php:128
 msgid "The account was created, but the profile could not be saved."
 msgstr ""
 
@@ -3500,8 +3497,8 @@ msgid "This sign-in ticket is not valid."
 msgstr ""
 
 #: src/Domain/Mail/CoreMailRewrites.php:90
-#: src/Domain/Mail/CoreMailRewrites.php:142
-#: src/Domain/Mail/CoreMailRewrites.php:167
+#: src/Domain/Mail/CoreMailRewrites.php:143
+#: src/Domain/Mail/CoreMailRewrites.php:169
 msgid "Reset password"
 msgstr ""
 
@@ -3529,46 +3526,49 @@ msgstr ""
 msgid "Your account is ready"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:122
+#. translators: %s: site name.
+#: src/Domain/Mail/CoreMailRewrites.php:123
 #, php-format
 msgid "[%s] Your account is ready."
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:140
+#: src/Domain/Mail/CoreMailRewrites.php:141
 msgid "Your password was just changed."
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:141
-#: src/Domain/Mail/CoreMailRewrites.php:166
+#: src/Domain/Mail/CoreMailRewrites.php:142
+#: src/Domain/Mail/CoreMailRewrites.php:168
 msgid "If this was not you, someone else may have access — reset your password now:"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:144
+#: src/Domain/Mail/CoreMailRewrites.php:145
 msgid "Password changed"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:145
+#. translators: %s: site name.
+#: src/Domain/Mail/CoreMailRewrites.php:147
 #, php-format
 msgid "[%s] Password changed"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:161
+#: src/Domain/Mail/CoreMailRewrites.php:163
 msgid "Old email"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:162
+#: src/Domain/Mail/CoreMailRewrites.php:164
 msgid "New email"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:164
+#: src/Domain/Mail/CoreMailRewrites.php:166
 msgid "Your account email address was just changed."
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:169
+#: src/Domain/Mail/CoreMailRewrites.php:171
 msgid "Email address changed"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:170
+#. translators: %s: site name.
+#: src/Domain/Mail/CoreMailRewrites.php:173
 #, php-format
 msgid "[%s] Your email address was changed"
 msgstr ""

@@ -490,9 +490,6 @@ msgstr "无法建立会话。"
 msgid "Authentication required."
 msgstr "需要登录。"
 
-msgid "Too many requests, please retry later."
-msgstr "请求过于频繁，请稍后再试。"
-
 msgid "Comments are closed for this content."
 msgstr "该内容的评论已关闭。"
 
@@ -525,9 +522,6 @@ msgstr "密码不正确。"
 
 msgid "Profile not found."
 msgstr "未找到该用户主页。"
-
-msgid "Please log in to interact."
-msgstr "登录后才能点赞或评分。"
 
 msgid "This account is disabled."
 msgstr "该账号已被禁用。"
@@ -576,9 +570,6 @@ msgstr "回跳地址不是有效的绝对 http(s) 地址。"
 
 msgid "No file was uploaded."
 msgstr "未接收到文件。"
-
-msgid "Invalid upload."
-msgstr "无效的上传。"
 
 msgid "The upload failed with a file error."
 msgstr "上传因文件错误失败。"
@@ -835,9 +826,6 @@ msgstr "浅色"
 msgid "Site fallback cover"
 msgstr "站级兜底封面"
 
-msgid "Used wherever a cover is missing: list card thumbnails, category cards and the article hero — each surface derives its own crop from this one image."
-msgstr "凡缺图处统一用它兜底：列表卡片缩略图、分类卡片与文章头图——各界面从这同一张图派生自己的裁剪。"
-
 msgid "Empty state image"
 msgstr "空状态图片"
 
@@ -1059,12 +1047,6 @@ msgstr "可选；会记入账本关联号。"
 
 msgid "Grant credits"
 msgstr "发放积分"
-
-msgid "View ledger"
-msgstr "查看流水"
-
-msgid "Pick a user to browse their grants and spends."
-msgstr "选择用户以查看其发放与消费记录。"
 
 msgid "Time"
 msgstr "时间"
@@ -2572,9 +2554,6 @@ msgstr "该订单已被记录。"
 msgid "The order could not be stored."
 msgstr "订单保存失败。"
 
-msgid "Payment audit"
-msgstr "支付查账"
-
 msgid "You are not allowed to view payments."
 msgstr "您无权查看支付记录。"
 
@@ -2601,9 +2580,6 @@ msgstr "已支付"
 
 msgid "Awaiting payment"
 msgstr "待支付"
-
-msgid "Unpaid"
-msgstr "未支付"
 
 msgid "Invalid redemption code."
 msgstr "无效的兑换码。"
@@ -2827,9 +2803,6 @@ msgstr "WP 原生 REST API（/wp/v2）"
 msgid "Answer 404 for the whole /wp/v2 API — only the aiya contract routes stay public"
 msgstr "整个 /wp/v2 API 对无后台会话的访客返回 404——仅保留 aiya 契约路由公开"
 
-msgid "The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Backend sessions (administrator, editor, author) keep the full /wp/v2 for admin screens such as the media picker."
-msgstr "前端只消费 aiya/core/v1，原生 API 已无公开消费方，用户枚举也随之消失。后台会话（管理员、编辑、作者）保留完整 /wp/v2，供媒体选择器等管理界面使用。"
-
 msgid "XML sitemaps"
 msgstr "XML 站点地图"
 
@@ -2880,9 +2853,6 @@ msgstr "后台防护"
 
 msgid "Admin back end minimum role"
 msgstr "后台最低角色"
-
-msgid "Users below the selected role are redirected away from wp-admin. Off by default."
-msgstr "低于所选角色的用户将被重定向离开 wp-admin。默认关闭。"
 
 msgid "Subscriber and above"
 msgstr "订阅者及以上"
@@ -3251,18 +3221,6 @@ msgstr "你在 %1$s 的账户已创建。"
 msgid "Open the link below within %d hours to set your password:"
 msgstr "请在 %d 小时内打开以下链接设置你的密码："
 
-msgid "[%1$s] New user registration"
-msgstr "【%1$s】新用户注册"
-
-msgid "A new user just registered on %1$s."
-msgstr "有新用户在 %1$s 完成了注册。"
-
-msgid "Username"
-msgstr "用户名"
-
-msgid "Email"
-msgstr "邮箱"
-
 msgid "[%s] Password changed"
 msgstr "【%s】密码已更改"
 
@@ -3289,9 +3247,6 @@ msgstr "密码重置"
 
 msgid "Your account is ready"
 msgstr "你的账户已就绪"
-
-msgid "New user registration"
-msgstr "新用户注册"
 
 msgid "Password changed"
 msgstr "密码已更改"
@@ -3357,3 +3312,4 @@ msgstr "订单记录"
 
 msgid "No ledger entries yet."
 msgstr "暂无流水记录。"
+

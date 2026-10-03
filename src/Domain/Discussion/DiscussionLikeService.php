@@ -141,7 +141,7 @@ final class DiscussionLikeService
     public function like(int $threadId, int $userId): array|WP_Error
     {
         if ($userId <= 0) {
-            return new WP_Error('aiya_not_logged_in', __('Please log in to interact.', 'aiya-core'), ['status' => 401]);
+            return new WP_Error('aiya_not_logged_in', __('Authentication required.', 'aiya-core'), ['status' => 401]);
         }
         $thread = $this->thread($threadId);
         if ($thread === null) {
@@ -166,6 +166,10 @@ final class DiscussionLikeService
         if ($inserted === false) {
             if (!isset($this->likedBy($userId, [$threadId])[$threadId])) {
                 $wpdb->query('ROLLBACK');
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+                    error_log('[aiya-core] Like insert failed: ' . $wpdb->last_error);
+                }
 
                 return new WP_Error('aiya_db_error', __('The like could not be stored.', 'aiya-core'));
             }
@@ -181,6 +185,10 @@ final class DiscussionLikeService
         // check and this UPDATE — abort rather than commit an orphan like.
         if ((int) $bumped < 1) {
             $wpdb->query('ROLLBACK');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+                error_log('[aiya-core] Like counter bump failed: ' . $wpdb->last_error);
+            }
 
             return new WP_Error('aiya_db_error', __('The like could not be stored.', 'aiya-core'));
         }
@@ -195,7 +203,7 @@ final class DiscussionLikeService
     public function unlike(int $threadId, int $userId): array|WP_Error
     {
         if ($userId <= 0) {
-            return new WP_Error('aiya_not_logged_in', __('Please log in to interact.', 'aiya-core'), ['status' => 401]);
+            return new WP_Error('aiya_not_logged_in', __('Authentication required.', 'aiya-core'), ['status' => 401]);
         }
         if ($this->thread($threadId) === null) {
             return new WP_Error('aiya_not_found', __('Thread not found.', 'aiya-core'), ['status' => 404]);
