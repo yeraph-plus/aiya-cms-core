@@ -43,4 +43,20 @@ final class MailModuleTest extends TestCase
         self::assertFalse(apply_filters('notify_post_author', true, 1));
         self::assertFalse(apply_filters('notify_moderator', '1', 2));
     }
+
+    public function testSilencesTheNewRegistrationAdminNotice(): void
+    {
+        // 2026-10-03 ruling: the registration notice is pure admin noise —
+        // the user's own branded welcome mail carries the reset link.
+        self::assertFalse(apply_filters('wp_send_new_user_notification_to_admin', true, ['ID' => 7]));
+        self::assertFalse(apply_filters('wp_send_new_user_notification_to_admin', true, $this->module, 7));
+    }
+
+    public function testUnhooksTheResetCompletedAdminNotice(): void
+    {
+        // 2026-10-03 ruling: removed from after_password_reset (the lightest
+        // touch — no pluggable override), the user's branded security mail
+        // is the thing that matters.
+        self::assertFalse(has_action('after_password_reset', 'wp_password_change_notification'));
+    }
 }

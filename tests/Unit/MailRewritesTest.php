@@ -99,18 +99,6 @@ final class MailRewritesTest extends TestCase
         self::assertSame($email, $this->rewrites->newUserEmail($email, $this->user(), 'AIYA 测试站'));
     }
 
-    public function testNewUserAdminNoticeKeepsTheFactsDropsTheLinks(): void
-    {
-        $email = ['to' => 'admin@example.test', 'subject' => 's', 'message' => 'native', 'headers' => []];
-
-        $out = $this->rewrites->newUserEmailAdmin($email, $this->user(), 'AIYA 测试站');
-
-        self::assertSame('[AIYA 测试站] New user registration', $out['subject']);
-        self::assertStringContainsString('uuid-seven', (string) $out['message']);
-        self::assertStringContainsString('seven@example.test', (string) $out['message']);
-        self::assertStringNotContainsString('wp-login.php', (string) $out['message'], 'no link may fall back to a WP surface');
-    }
-
     public function testPasswordChangedNoticeKeepsTheCallerSprint(): void
     {
         $email = ['to' => 'seven@example.test', 'subject' => 'native', 'message' => 'native', 'headers' => []];

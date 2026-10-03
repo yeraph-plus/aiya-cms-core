@@ -35,7 +35,9 @@ final class MailShellTest extends TestCase
         );
     }
 
-    /** @param array<string, mixed> $args */
+    /** @param array<string, mixed> $args
+     * @return array<string, mixed>
+     */
     private function apply(MailShell $shell, array $args): array
     {
         return $shell->apply($args);

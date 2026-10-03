@@ -1856,6 +1856,51 @@ if (!function_exists('delete_term_meta')) {
     }
 }
 
+if (!function_exists('date_i18n')) {
+    function date_i18n(string $format, int|bool $timestampWithOffset = false): string
+    {
+        return date($format, $timestampWithOffset === false ? time() : $timestampWithOffset);
+    }
+}
+
+if (!function_exists('has_action')) {
+    /** Reads the filter registry the add_action shim writes. */
+    function has_action(string $hook, callable|string|false $callback = false): bool|int
+    {
+        $buckets = $GLOBALS['__aiya_test_filters'][$hook] ?? [];
+        if ($callback === false) {
+            return $buckets !== [] ? true : false;
+        }
+        foreach ($buckets as $entries) {
+            foreach ($entries as $entry) {
+                if ($entry['callback'] === $callback) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('wp_mail')) {
+    /** Captures every send for assertions; the branded shell arrives here
+        exactly as a real MTA would receive it. */
+    function wp_mail(string|array $to, string $subject, string $message, array|string $headers = [], array|string $attachments = []): bool
+    {
+        $GLOBALS['__aiya_test_mails'][] = [
+            'to' => $to,
+            'subject' => $subject,
+            'message' => $message,
+            'headers' => $headers,
+        ];
+
+        return true;
+    }
+}
+
+$GLOBALS['__aiya_test_mails'] = [];
+
 if (!function_exists('get_date_from_gmt')) {
     function get_date_from_gmt(string $date, string $format = 'Y-m-d H:i:s'): string
     {

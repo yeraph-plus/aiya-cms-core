@@ -10,7 +10,7 @@ use Aiya\Core\Contracts\Module;
  * The mail domain: silences the core comment notification emails for the
  * headless split and applies the brand shell to every wp_mail() message.
  *
- * ### Silenced comment mails
+ * ### Silenced admin mails
  *
  * wp_notify_postauthor() and wp_notify_moderator() build their links from
  * get_permalink() / get_comment_link() — permalinks on the WP domain, where
@@ -30,6 +30,14 @@ use Aiya\Core\Contracts\Module;
  * notify_moderator receives the raw moderation_notify option value (a
  * string '0'/'1' as stored) — hence the untyped parameter.
  *
+ * Two more admin-facing mails are silenced by ruling (2026-10-03): the
+ * new-registration notice (the wp_send_new_user_notification_to_admin
+ * gate — the USER welcome leg keeps its branded rewrite) and the
+ * password-reset admin notice (wp_password_change_notification, unhooked
+ * from after_password_reset — the reset link mail the user receives is
+ * the thing that matters). Both are pure noise on this site: there is no
+ * admin consumption for registration or reset events.
+ *
  * ### The brand shell
  *
  * A `wp_mail` args filter (late priority, so third-party arg rewrites run
@@ -47,6 +55,14 @@ final class MailModule implements Module
         // final veto gate (WP 4.4+), it never reads the proposed value.
         add_filter('notify_post_author', static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
         add_filter('notify_moderator', static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
+
+        // The new-registration admin notice is noise here (2026-10-03):
+        // the user's own branded welcome mail carries the reset link.
+        add_filter('wp_send_new_user_notification_to_admin', static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
+
+        // So is the reset-completed admin notice (2026-10-03): the user
+        // already got the branded "password changed" security mail.
+        remove_action('after_password_reset', 'wp_password_change_notification', 10);
 
         $shell = MailShell::fromSite();
         add_filter('wp_mail', [$shell, 'apply'], 999);

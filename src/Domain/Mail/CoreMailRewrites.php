@@ -39,13 +39,12 @@ final class CoreMailRewrites
         add_filter('retrieve_password_title', [$this, 'retrievePasswordTitle'], 10, 3);
         add_filter('retrieve_password_message', [$this, 'retrievePasswordMessage'], 10, 4);
         add_filter('wp_new_user_notification_email', [$this, 'newUserEmail'], 10, 3);
-        add_filter('wp_new_user_notification_email_admin', [$this, 'newUserEmailAdmin'], 10, 3);
         add_filter('password_change_email', [$this, 'passwordChanged'], 10, 3);
         add_filter('email_change_email', [$this, 'emailChanged'], 10, 3);
     }
 
     /** The shell's brand copy for the native lost-password flow. */
-    public function retrievePasswordTitle(string $title, string $userLogin, WP_User $userData): string
+    public function retrievePasswordTitle(string $title, string $userLogin, WP_User $userData): string // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
     {
         return sprintf(
             /* translators: %s: site name. */
@@ -120,36 +119,7 @@ final class CoreMailRewrites
 
         $email['message'] = $this->template->render($content, __('Your account is ready', 'aiya-core'), (string) $user->user_email);
         // The caller sprints the subject with the blog name after this filter.
-        $email['subject'] = __('[%s] Your account is ready.', 'aiya-core');
-        $email['headers'] = [$this->htmlContentType()];
-
-        return $email;
-    }
-
-    /** The admin notice keeps the facts, drops the wp-login links.
-     *
-     * @param array<string, mixed> $email
-     * @return array<string, mixed>
-     */
-    public function newUserEmailAdmin(array $email, WP_User $user, string $blogname): array
-    {
-        $rows = $this->template->rows([
-            __('Username', 'aiya-core') => (string) $user->user_login,
-            __('Email', 'aiya-core') => (string) $user->user_email,
-        ]);
-        $content = $this->paragraph(sprintf(
-            /* translators: %s: site name. */
-            __('A new user just registered on %1$s.', 'aiya-core'),
-            esc_html(wp_specialchars_decode($blogname, ENT_QUOTES))
-        ))
-            . $rows;
-
-        $email['message'] = $this->template->render($content, __('New user registration', 'aiya-core'));
-        $email['subject'] = sprintf(
-            /* translators: %s: site name. */
-            __('[%1$s] New user registration', 'aiya-core'),
-            wp_specialchars_decode($blogname, ENT_QUOTES)
-        );
+        $email['subject'] = __('[%s] Your account is ready.', 'aiya-core'); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- the blog name is appended by wp_new_user_notification()
         $email['headers'] = [$this->htmlContentType()];
 
         return $email;
@@ -165,20 +135,19 @@ final class CoreMailRewrites
      * @param array<string, mixed> $userdata
      * @return array<string, mixed>
      */
-    public function passwordChanged(array $email, array $user, array $userdata): array
+    public function passwordChanged(array $email, array $user, array $userdata): array // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter ($userdata names the new address)
     {
         $content = $this->paragraph(__('Your password was just changed.', 'aiya-core'))
             . $this->paragraph(__('If this was not you, someone else may have access — reset your password now:', 'aiya-core'))
             . $this->template->button(__('Reset password', 'aiya-core'), $this->resetRequestUrl());
 
         $email['message'] = $this->template->render($content, __('Password changed', 'aiya-core'), (string) ($user['user_email'] ?? ''));
-        $email['subject'] = __('[%s] Password changed', 'aiya-core');
+        $email['subject'] = __('[%s] Password changed', 'aiya-core'); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- the blog name is appended by wp_update_user()
         $email['headers'] = [$this->htmlContentType()];
 
         return $email;
     }
 
-    /** The security notice for a changed email address (mailed to the OLD address). */
     /** The security notice for a changed email address (mailed to the OLD address).
      *
      * @param array<string, mixed> $email
@@ -198,7 +167,7 @@ final class CoreMailRewrites
             . $this->template->button(__('Reset password', 'aiya-core'), $this->resetRequestUrl());
 
         $email['message'] = $this->template->render($content, __('Email address changed', 'aiya-core'), (string) ($user['user_email'] ?? ''));
-        $email['subject'] = __('[%s] Your email address was changed', 'aiya-core');
+        $email['subject'] = __('[%s] Your email address was changed', 'aiya-core'); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- the blog name is appended by wp_update_user()
         $email['headers'] = [$this->htmlContentType()];
 
         return $email;
