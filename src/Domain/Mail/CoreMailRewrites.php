@@ -9,7 +9,7 @@ use Aiya\Core\Domain\Shared\FrontendDomain;
 use WP_User;
 
 /**
- * The per-mail rewrite layer (mail-design.md 批次 B): the four WP-native
+ * The per-mail rewrite layer (ruling ⑤): the four WP-native
  * mails whose copy links back to wp-login/profile pages get brand copy
  * and front-end links instead. Each hook returns a finished brand-shell
  * document (MailTemplate::render carries the shell marker, so the wp_mail

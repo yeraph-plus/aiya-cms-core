@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Mail;
 
 /**
- * The brand mail shell (docs/mail-template-preview.html, 2026-10-03 定版):
+ * The brand mail shell (2026-10-03 定版; structure parameters live in
  * a 600px table layout with fully inlined styles — Outlook's Word engine
  * and the hard-boiled clients all render this shape. The theme color
  * tints the content layer only (CTA button, links, key-value accent);
  * neutral surfaces keep forced dark mode from inverting into a mess.
  *
- * Output is a complete document carrying {@see self::SHELL_MARKER} — the
- * takeover filter recognises its own (and the per-mail rewrite layer's)
- * product by that marker and never wraps a shell twice.
+ * this docblock and the constant list below). Output is a complete
+ * document carrying {@see self::SHELL_MARKER} — the takeover filter
+ * recognises its own (and the per-mail rewrite layer's) product by that
+ * marker and never wraps a shell twice.
  */
 final class MailTemplate
 {

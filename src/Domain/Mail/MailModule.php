@@ -43,7 +43,7 @@ use Aiya\Core\Contracts\Module;
  * A `wp_mail` args filter (late priority, so third-party arg rewrites run
  * first) wraps every message in MailTemplate's shell and normalises the
  * Content-Type — content and style only, delivery stays on WordPress's
- * native chain (mail-design.md ②⑥, 2026-10-03). Third-party SMTP plugins
+ * native chain (rulings ②⑥, 2026-10-03). Third-party SMTP plugins
  * hooking phpmailer_init keep working underneath the shell, but with the
  * content already branded.
  */
