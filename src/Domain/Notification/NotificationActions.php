@@ -478,10 +478,10 @@ final class NotificationActions implements Module
             esc_html(wp_specialchars_decode((string) get_option('blogname'), ENT_QUOTES))
         ))
             . $template->rows([
-                __('Tier', 'aiya-core') => esc_html((string) $row->tier_name),
-                __('Order', 'aiya-core') => esc_html($orderId),
-                __('Active from', 'aiya-core') => esc_html(DateLabels::fromTimestamp((int) get_date_from_gmt((string) $row->starts_at, 'U'), false)),
-                __('Active until', 'aiya-core') => esc_html(DateLabels::fromTimestamp((int) get_date_from_gmt((string) $row->ends_at, 'U'), false)),
+                __('Tier', 'aiya-core') => (string) $row->tier_name,
+                __('Order', 'aiya-core') => $orderId,
+                __('Active from', 'aiya-core') => DateLabels::fromTimestamp((int) get_date_from_gmt((string) $row->starts_at, 'U'), false),
+                __('Active until', 'aiya-core') => DateLabels::fromTimestamp((int) get_date_from_gmt((string) $row->ends_at, 'U'), false),
             ])
             . $this->receiptParagraph(__('If your purchase covers multiple cycles, the next one starts automatically when the current subscription period ends.', 'aiya-core'))
             . $template->button(__('View membership', 'aiya-core'), FrontendDomain::originOrHome() . '/membership/');

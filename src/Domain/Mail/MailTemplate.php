@@ -125,11 +125,11 @@ body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
     }
 
     /**
-     * The key-value panel (expiry reminders, account facts): label in the
-     * muted color, value emphasized; the LAST value renders in the theme
-     * color — put theurgent figure last.
+     * The key-value panel (receipts, account facts): label in the muted
+     * color, value emphasized; the LAST value renders in the theme color —
+     * put the urgent figure last. Labels and values are escaped here.
      *
-     * @param array<string, string> $rows label => value, values pre-escaped
+     * @param array<string, string> $rows label => raw value
      */
     public function rows(array $rows): string
     {
@@ -139,7 +139,7 @@ body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
             $valueColor = $label === $last ? $this->color : '#18181b';
             $cells .= '<tr>'
                 . '<td style="padding: 3px 0; color: #71717a; width: 96px;">' . esc_html($label) . '</td>'
-                . '<td style="padding: 3px 0; color: ' . $valueColor . '; font-weight: 600;">' . $value . '</td>'
+                . '<td style="padding: 3px 0; color: ' . $valueColor . '; font-weight: 600;">' . esc_html($value) . '</td>'
                 . '</tr>';
         }
 

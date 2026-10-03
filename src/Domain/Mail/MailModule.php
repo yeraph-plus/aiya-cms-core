@@ -49,19 +49,39 @@ use Aiya\Core\Contracts\Module;
  */
 final class MailModule implements Module
 {
+    /**
+     * Mails silenced outright, one veto-gate filter per name (2026-10-03:
+     * the registration notice joins the 0.96.0 comment pair):
+     *
+     * - notify_post_author — comment author mail: its links dead-end on
+     *   the shell domain and the in-site notifications cover the event;
+     * - notify_moderator — moderation mail, same terms;
+     * - wp_send_new_user_notification_to_admin — the registration notice
+     *   is pure admin noise; the user's branded welcome carries the
+     *   reset link.
+     *
+     * Every gate answers false unconditionally — WP's last word, never
+     * reading the proposed value — and no setting is exposed (no consumer
+     * is left for these mails; stored options keep their values).
+     */
+    private const SILENCED_GATES = [
+        'notify_post_author',
+        'notify_moderator',
+        'wp_send_new_user_notification_to_admin',
+    ];
+
     public function register(): void
     {
         // $maybeNotify rides WP's filter signature only — this hook is the
         // final veto gate (WP 4.4+), it never reads the proposed value.
-        add_filter('notify_post_author', static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
-        add_filter('notify_moderator', static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
+        foreach (self::SILENCED_GATES as $gate) {
+            add_filter($gate, static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
+        }
 
-        // The new-registration admin notice is noise here (2026-10-03):
-        // the user's own branded welcome mail carries the reset link.
-        add_filter('wp_send_new_user_notification_to_admin', static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
-
-        // So is the reset-completed admin notice (2026-10-03): the user
-        // already got the branded "password changed" security mail.
+        // The reset-completed admin notice is silenced by unhooking it from
+        // after_password_reset (the lightest touch — no pluggable
+        // override): the user's branded "password changed" security mail is
+        // the thing that matters (2026-10-03).
         remove_action('after_password_reset', 'wp_password_change_notification', 10);
 
         $shell = MailShell::fromSite();

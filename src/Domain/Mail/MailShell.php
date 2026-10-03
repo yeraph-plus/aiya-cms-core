@@ -72,25 +72,22 @@ final class MailShell
     public function apply(array $args): array
     {
         $message = (string) ($args['message'] ?? '');
-        if ($message === '' || str_contains($message, MailTemplate::SHELL_MARKER)) {
-            if ($message === '') {
-                return $args;
-            }
-
-            // A marked message is finished brand HTML (this shell's or the
-            // rewrite layer's), but message-only filters like
-            // retrieve_password_message cannot touch headers — ship it as
-            // text/html here or the branded document travels as plain text.
-            $headers = $this->headerLines((array) ($args['headers'] ?? []));
-            $args['headers'] = array_values(array_merge(
-                array_values(array_filter($headers, static fn (string $line): bool => preg_match('/^content-type:/i', trim($line)) !== 1)),
-                [$this->htmlContentType()]
-            ));
-
+        if ($message === '') {
             return $args;
         }
 
         $headers = $this->headerLines((array) ($args['headers'] ?? []));
+
+        if (str_contains($message, MailTemplate::SHELL_MARKER)) {
+            // A marked message is finished brand HTML (this shell's or the
+            // rewrite layer's), but message-only filters like
+            // retrieve_password_message cannot touch headers — ship it as
+            // text/html here or the branded document travels as plain text.
+            $args['headers'] = $this->withoutContentType($headers);
+
+            return $args;
+        }
+
         $isHtml = $this->isHtml($headers);
 
         $content = $isHtml
@@ -100,17 +97,34 @@ final class MailShell
 
         // The shell is text/html by construction: any prior Content-Type
         // line goes, the normalised one stays.
-        $args['headers'] = array_values(array_merge(
-            array_values(array_filter($headers, static fn (string $line): bool => preg_match('/^content-type:/i', trim($line)) !== 1)),
-            [$this->htmlContentType()]
-        ));
+        $args['headers'] = $this->withoutContentType($headers);
 
         if ($this->iconPath !== null) {
-            $embeds = is_array($args['embeds'] ?? null) ? $args['embeds'] : [];
-            $args['embeds'] = $embeds + [self::ICON_CID => $this->iconPath];
+            // wp_mail also accepts newline-separated path strings — keep
+            // the paths that arrived and append the icon under our CID.
+            $embeds = is_array($args['embeds'] ?? null)
+                ? $args['embeds']
+                : explode("\n", str_replace("\r\n", "\n", (string) ($args['embeds'] ?? '')));
+            $embeds = array_values(array_filter(array_map('strval', $embeds)));
+            $args['embeds'] = array_merge($embeds, [self::ICON_CID => $this->iconPath]);
         }
 
         return $args;
+    }
+
+    /**
+     * The shell is text/html by construction: any prior Content-Type line
+     * goes, the normalised one stays.
+     *
+     * @param list<string> $lines
+     * @return list<string>
+     */
+    private function withoutContentType(array $lines): array
+    {
+        return array_values(array_merge(
+            array_values(array_filter($lines, static fn (string $line): bool => preg_match('/^content-type:/i', trim($line)) !== 1)),
+            [$this->htmlContentType()]
+        ));
     }
 
     /**
@@ -125,14 +139,14 @@ final class MailShell
     {
         $lines = [];
         foreach ($headers as $name => $value) {
-            if (!is_string($value) && !is_int($name)) {
-                continue;
+            if (!is_string($value)) {
+                continue; // non-standard nested header shapes stay out
             }
             if (is_string($name) && $name !== '') {
                 $lines[] = $name . ': ' . $value;
                 continue;
             }
-            foreach (explode("\n", str_replace("\r\n", "\n", (string) $value)) as $line) {
+            foreach (explode("\n", str_replace("\r\n", "\n", $value)) as $line) {
                 if (trim($line) !== '') {
                     $lines[] = trim($line);
                 }
