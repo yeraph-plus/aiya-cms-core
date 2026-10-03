@@ -380,7 +380,7 @@
 
 ### 3.5 H 代码卫生
 
-**H-01 [P0] 本地 Docker 挂载使 phpunit 静默漏跑，绿灯不可信** ✅ B1（入口=`composer test:native` / scripts/test-native.sh）
+**H-01 [P0] 本地 Docker 挂载使 phpunit 静默漏跑，绿灯不可信** ✅ B1（入口=`composer test:native`；脚本 2026-10-04 起移出版本库、留本机工作树并入 .gitignore——纯本机 Docker 兼容件，CI 不跑 phpunit 用不到）
 - 位置：vendor/phpunit/php-file-iterator（根因链），表现为运行结果。
 - 证据：实测挂载路径 `OK (90 tests)`；容器本地盘 `OK (625 tests, 1811 assertions)`。根因：gRPC-FUSE 挂载目录枚举截断 → php-file-iterator 对假 realpath 静默丢弃 → 套件仅发默认隐藏 warning。本机全绿≠全量通过，1.0 回归防线形同虚设（也解释 H-02 为何没红过）。
 - 方向：CI 或本地脚本在 Linux 原生盘跑套件；以测试数 ≈625 为基准断言。

@@ -17,3 +17,7 @@ Thumbs.db
 
 # Contract snapshot scratch output (sync tool workspace artifact)
 /backend-snap.json
+
+# Local dev-only helper: runs the suite on the container-native disk
+# (the Windows bind mount silently truncates phpunit discovery).
+scripts/test-native.sh
