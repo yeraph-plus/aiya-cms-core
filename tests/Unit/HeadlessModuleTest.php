@@ -32,6 +32,15 @@ final class HeadlessModuleTest extends TestCase
         $this->module->register();
     }
 
+    protected function tearDown(): void
+    {
+        // The lock fixtures flip the capability/session globals; every
+        // downstream suite expects the default posture (caps true, no user).
+        $GLOBALS['__aiya_test_caps'] = true;
+        $GLOBALS['__aiya_test_current_user_id'] = 0;
+        unset($_SERVER['REQUEST_URI']);
+    }
+
     public function testFreshInstallsStopStoringRevisions(): void
     {
         $this->module->apply();
@@ -145,6 +154,10 @@ final class HeadlessModuleTest extends TestCase
     {
         $GLOBALS['__aiya_test_current_user_id'] = 0;
         $endpoints = ['/wp/v2/posts' => [], '/aiya/core/v1/content' => []];
+        // A dispatch shape: without a REST target (rest_route or a request
+        // path under the REST prefix) the lock stands down entirely — the
+        // non-dispatch guard precedes every posture decision below.
+        $_SERVER['REQUEST_URI'] = '/wp-json/wp/v2/posts';
 
         // Gate off: the fallback posture is author-level, anonymous keeps
         // the first-party routes only.
@@ -171,7 +184,7 @@ final class HeadlessModuleTest extends TestCase
         try {
             $locked = $this->module->lockWpV2($endpoints);
         } finally {
-            unset($_SERVER['REQUEST_URI']);
+            $_SERVER['REQUEST_URI'] = '/wp-json/wp/v2/posts';
             $GLOBALS['__aiya_test_current_user_id'] = 0;
         }
 
@@ -184,6 +197,24 @@ final class HeadlessModuleTest extends TestCase
             '/wp/v2/posts',
             $this->module->lockWpV2($endpoints),
             'a contributor-level session clears the contributor gate'
+        );
+    }
+
+    public function testLockStandsDownOutsideADispatch(): void
+    {
+        // Route building without a dispatch (wp-cli, an internal
+        // rest_do_request riding a front-end request): neither the
+        // rest_route param nor a REST-prefixed path is present, so the
+        // lock must not decide anything on the host request's URI.
+        $GLOBALS['__aiya_test_current_user_id'] = 7;
+        $GLOBALS['__aiya_test_caps'] = false;
+        unset($_SERVER['REQUEST_URI']);
+        $endpoints = ['/wp/v2/posts' => []];
+
+        self::assertSame(
+            $endpoints,
+            $this->module->lockWpV2($endpoints),
+            'the lock stands down and the endpoints pass untouched'
         );
     }
 }

@@ -313,13 +313,22 @@ final class HeadlessModule implements Module
             $requestPath = is_string($parsed) ? $parsed : '';
         }
 
-        if (is_user_logged_in() && (!defined('REST_REQUEST') || !REST_REQUEST) && !self::requestHitsNamespace($allowed, $requestPath, $restRoute)) {
+        // An HTTP REST dispatch always carries its target: rest_route (plain
+        // permalinks) or a request path under the REST prefix (pretty ones).
+        // Anything else is route building outside a dispatch (wp-cli, an
+        // internal rest_do_request riding a front-end request) — the URI
+        // above belongs to the host request, not to the routes being built,
+        // so the lock has no subject here and stands down. REST_REQUEST
+        // cannot make this call: it is defined for both shapes.
+        $restPrefix = '/' . rest_get_url_prefix() . '/';
+        if ($restRoute === '' && !str_starts_with($requestPath, $restPrefix)) {
+            return $endpoints;
+        }
+
+        if (is_user_logged_in() && !self::requestHitsNamespace($allowed, $requestPath, $restRoute)) {
             // wp_redirect, not the safe variant: the front end lives on
             // another host by design, and the target is the admin-configured
             // normalized origin (or the local shell when none is set).
-            // The REST_REQUEST guard keeps an internal rest_do_request()
-            // (route building outside an HTTP REST dispatch) from killing
-            // its host request over a stale REQUEST_URI.
             wp_redirect(esc_url_raw(FrontendDomain::origin() ?? home_url('/')), 302); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- the front-end origin is another host by design
             exit;
         }
