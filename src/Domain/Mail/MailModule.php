@@ -7,7 +7,10 @@ namespace Aiya\Core\Domain\Mail;
 use Aiya\Core\Contracts\Module;
 
 /**
- * Silences the core comment notification emails for the headless split.
+ * The mail domain: silences the core comment notification emails for the
+ * headless split and applies the brand shell to every wp_mail() message.
+ *
+ * ### Silenced comment mails
  *
  * wp_notify_postauthor() and wp_notify_moderator() build their links from
  * get_permalink() / get_comment_link() — permalinks on the WP domain, where
@@ -26,6 +29,15 @@ use Aiya\Core\Contracts\Module;
  * Note the value shapes differ: notify_post_author receives a bool, while
  * notify_moderator receives the raw moderation_notify option value (a
  * string '0'/'1' as stored) — hence the untyped parameter.
+ *
+ * ### The brand shell
+ *
+ * A `wp_mail` args filter (late priority, so third-party arg rewrites run
+ * first) wraps every message in MailTemplate's shell and normalises the
+ * Content-Type — content and style only, delivery stays on WordPress's
+ * native chain (mail-design.md ②⑥, 2026-10-03). Third-party SMTP plugins
+ * hooking phpmailer_init keep working underneath the shell, but with the
+ * content already branded.
  */
 final class MailModule implements Module
 {
@@ -35,5 +47,7 @@ final class MailModule implements Module
         // final veto gate (WP 4.4+), it never reads the proposed value.
         add_filter('notify_post_author', static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
         add_filter('notify_moderator', static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
+
+        add_filter('wp_mail', [MailShell::fromSite(), 'apply'], 999);
     }
 }

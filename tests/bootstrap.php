@@ -620,6 +620,29 @@ if (!function_exists('absint')) {
     }
 }
 
+if (!function_exists('wpautop')) {
+    /** Plain-text messages hit this before the shell: double newlines
+        separate paragraphs, single ones break lines (core semantics for
+        the text-only shapes these messages carry). */
+    function wpautop(string $text, bool $br = true): string
+    {
+        $paragraphs = preg_split('/\n\s*\n/', trim($text)) ?: [];
+        $out = [];
+        foreach ($paragraphs as $paragraph) {
+            $out[] = '<p>' . ($br ? nl2br($paragraph) : $paragraph) . '</p>';
+        }
+
+        return implode("\n", $out);
+    }
+}
+
+if (!function_exists('get_attached_file')) {
+    function get_attached_file(int $attachmentId): string|false
+    {
+        return $GLOBALS['__aiya_test_attached_files'][$attachmentId] ?? false;
+    }
+}
+
 if (!function_exists('is_email')) {
     function is_email(string $email): bool
     {

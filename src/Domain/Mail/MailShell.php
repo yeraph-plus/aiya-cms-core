@@ -1,0 +1,162 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Aiya\Core\Domain\Mail;
+
+/**
+ * The mail takeover (2026-10-03 定版): a `wp_mail` args filter is the whole
+ * mechanism — content and headers are rewritten into the brand shell and
+ * delivery itself stays on WordPress's native chain (default `mail()`),
+ * per the owner's ruling that only text and style change while WP
+ * behaviour remains untouched. No transport, no queue, no log.
+ *
+ * Plain-text messages are escaped into the shell's content slot; HTML
+ * fragments (the Send Mail screen's composed markup, future per-mail
+ * templates) ride the slot as-is. A message already carrying the shell
+ * marker passes through untouched, so the per-mail rewrite layer and a
+ * re-entrant filter can never double-wrap. The Content-Type header is
+ * normalised to text/html, and when a site icon exists its attachment
+ * file joins `$embeds` under a fixed Content-ID for the header image
+ * (WP 6.9+ embeds, inline CID — never a remote image).
+ */
+final class MailShell
+{
+    /** Content-ID the site icon embeds under (default cid = embeds key). */
+    public const ICON_CID = 'aiya-site-icon';
+
+    public function __construct(private readonly MailTemplate $template, private readonly ?string $iconPath = null)
+    {
+    }
+
+    /**
+     * Assembles the shell from site configuration: the theme color from
+     * the frontend settings, blogname and home URL from core options, and
+     * the site icon's attachment file when one is set.
+     */
+    public static function fromSite(): self
+    {
+        $iconPath = null;
+        $iconId = (int) get_option('site_icon');
+        if ($iconId > 0) {
+            $file = get_attached_file($iconId);
+            if (is_string($file) && $file !== '') {
+                $iconPath = $file;
+            }
+        }
+
+        return new self(
+            new MailTemplate(
+                (string) aiya_core_opt('frontend', 'color_primary', '#e94f69'),
+                wp_specialchars_decode((string) get_option('blogname'), ENT_QUOTES),
+                (string) home_url(),
+                $iconPath !== null ? self::ICON_CID : null,
+            ),
+            $iconPath,
+        );
+    }
+
+    /**
+     * `wp_mail` args filter: wraps the message in the brand shell and
+     * normalises the Content-Type header.
+     *
+     * @param array<string, mixed> $args
+     * @return array<string, mixed>
+     */
+    public function apply(array $args): array
+    {
+        $message = (string) ($args['message'] ?? '');
+        if ($message === '' || str_contains($message, MailTemplate::SHELL_MARKER)) {
+            return $args;
+        }
+
+        $headers = $this->headerLines((array) ($args['headers'] ?? []));
+        $isHtml = $this->isHtml($headers);
+
+        $content = $isHtml
+            ? $message
+            : wpautop(esc_html($message));
+        $args['message'] = $this->template->render($content, '', $this->firstRecipient($args['to'] ?? ''));
+
+        // The shell is text/html by construction: any prior Content-Type
+        // line goes, the normalised one stays.
+        $args['headers'] = array_values(array_merge(
+            array_values(array_filter($headers, static fn (string $line): bool => preg_match('/^content-type:/i', trim($line)) !== 1)),
+            [$this->htmlContentType()]
+        ));
+
+        if ($this->iconPath !== null) {
+            $embeds = is_array($args['embeds'] ?? null) ? $args['embeds'] : [];
+            $args['embeds'] = $embeds + [self::ICON_CID => $this->iconPath];
+        }
+
+        return $args;
+    }
+
+    /**
+     * Header arrays come in two core shapes — a list of "Name: value"
+     * strings, or name => value pairs — plus plain strings with newlines;
+     * everything lands in one "Name: value" list, empty names dropped.
+     *
+     * @param array<int|string, mixed> $headers
+     * @return list<string>
+     */
+    private function headerLines(array $headers): array
+    {
+        $lines = [];
+        foreach ($headers as $name => $value) {
+            if (!is_string($value) && !is_int($name)) {
+                continue;
+            }
+            if (is_string($name) && $name !== '') {
+                $lines[] = $name . ': ' . $value;
+                continue;
+            }
+            foreach (explode("\n", str_replace("\r\n", "\n", (string) $value)) as $line) {
+                if (trim($line) !== '') {
+                    $lines[] = trim($line);
+                }
+            }
+        }
+
+        return $lines;
+    }
+
+    /** @param list<string> $lines */
+    private function isHtml(array $lines): bool
+    {
+        foreach ($lines as $line) {
+            if (preg_match('/^content-type:\s*text\/html/i', trim($line)) === 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function htmlContentType(): string
+    {
+        $charset = (string) get_option('blog_charset');
+
+        return 'Content-Type: text/html; charset=' . ($charset !== '' ? $charset : 'UTF-8');
+    }
+
+    /**
+     * The footer's "sent to" line takes the first parseable recipient —
+     * `to` arrives as a string (possibly comma-separated) or a list.
+     *
+     * @param mixed $to
+     */
+    private function firstRecipient(mixed $to): string
+    {
+        $joined = is_array($to) ? implode(',', array_map('strval', $to)) : (string) ($to ?? '');
+        foreach (explode(',', $joined) as $candidate) {
+            $candidate = trim($candidate, " \t\n\r<>\"");
+            if (is_email($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return '';
+    }
+}

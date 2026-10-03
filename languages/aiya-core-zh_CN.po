@@ -3220,3 +3220,12 @@ msgstr "你的账户入账 +%1$d 积分。"
 
 msgid "Your submission \"%1$s\" was approved and published."
 msgstr "你的投稿「%1$s」已通过审核并发布。"
+
+msgid "This message was sent automatically by %1$s — do not reply."
+msgstr "此邮件由 %1$s 系统自动发送，请勿直接回复。"
+
+msgid "Sent to %1$s — you are receiving this message because of activity on your account."
+msgstr "发送至 %1$s —— 你收到这封邮件是因为账户内触发了对应事件。"
+
+msgid "If the button does not work, copy this link into your browser:"
+msgstr "按钮不可用时，复制以下链接到浏览器打开："
