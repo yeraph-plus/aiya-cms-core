@@ -251,8 +251,16 @@ final class CardThumbnailService
         $format = in_array(strtolower((string) $policy['format']), ['webp', 'avif'], true)
             ? strtolower((string) $policy['format'])
             : 'jpg';
-        $dest = $this->paths->thumbnailDir($width, $height) . '/' . $attachmentId . '-' . $width . 'x' . $height . '.' . $format;
+        // The dest key folds the source path, its mtime and the save
+        // policy: an attachment whose binary is replaced in place (same
+        // id, same path) or a quality change rekeys and regenerates
+        // instead of serving the stale crop — the defect
+        // ThumbnailService::cacheKey already fixed for its derivatives.
+        $key = substr(hash('sha1', $source . '|' . (int) filemtime($source) . '|' . $width . '|' . $height . '|' . $format . '|' . (int) $policy['quality']), 0, 16);
+        $dir = $this->paths->thumbnailDir($width, $height);
+        $dest = $dir . '/' . $attachmentId . '-' . $key . '.' . $format;
 
+        $fresh = !is_file($dest);
         $local = (new ThumbnailGenerator($this->imagine))->generate(
             $source,
             $dest,
@@ -260,10 +268,28 @@ final class CardThumbnailService
             $height,
             SaveOptions::for($format, (int) $policy['quality'])
         );
+        if ($fresh && is_string($local)) {
+            $this->sweepSuperseded($dir, $attachmentId, basename($local));
+        }
 
         self::$derivedMemo[$memoKey] = is_string($local) ? $this->paths->localToUrl($local) : null;
 
         return self::$derivedMemo[$memoKey];
+    }
+
+    /**
+     * Deletes the superseded derived files of one attachment in one size
+     * directory (legacy `{id}-{w}x{h}` names and files from earlier keys)
+     * — runs only on fresh generation, so steady-state reads pay nothing.
+     */
+    private function sweepSuperseded(string $dir, int $attachmentId, string $keep): void
+    {
+        $matches = glob($dir . '/' . $attachmentId . '-*');
+        foreach (is_array($matches) ? $matches : [] as $file) {
+            if (is_file($file) && basename($file) !== $keep) {
+                wp_delete_file($file);
+            }
+        }
     }
 
     /**

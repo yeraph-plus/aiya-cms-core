@@ -14,6 +14,8 @@ use Aiya\Core\Domain\Sponsorship\OrderService;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 
+require_once __DIR__ . '/../Fixture/SponsorshipTestWpdb.php';
+
 if (!class_exists('WP_REST_Request')) {
     // The REST stack is not shimmed in bootstrap; the rate-limit test only
     // needs an inert request object that satisfies the controller's hint.

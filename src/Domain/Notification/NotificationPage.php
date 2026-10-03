@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Notification;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Shared\DateLabels;
 
 /**
  * Notifications screen (submenu of the AIYA CMS Core menu): publish an
@@ -128,7 +129,7 @@ final class NotificationPage implements Module
                                     echo esc_html((int) $row->user_id > 0 ? sprintf(__('User #%d', 'aiya-core'), (int) $row->user_id) : __('Broadcast', 'aiya-core'));
                                     ?>
                                 </td>
-                                <td><?php echo esc_html($this->createdAtLabel((string) $row->created_at)); ?></td>
+                                <td><?php echo esc_html(DateLabels::fromGmt((string) $row->created_at)); ?></td>
                                 <td>
                                     <?php
                                     $deleteUrl = wp_nonce_url(
@@ -242,14 +243,5 @@ final class NotificationPage implements Module
             RoleLevel::ADMINISTRATOR => __('Administrator', 'aiya-core'),
             default => __('Guest', 'aiya-core'),
         };
-    }
-
-    private function createdAtLabel(string $mysqlGmt): string
-    {
-        $timestamp = (int) get_date_from_gmt($mysqlGmt, 'U');
-
-        return $timestamp > 0
-            ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $timestamp)
-            : '—';
     }
 }

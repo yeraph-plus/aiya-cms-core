@@ -7,6 +7,8 @@ namespace Aiya\Core\Tests\Unit;
 use Aiya\Core\Admin\AdminBarFrontendLink;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/../wp-shims.php';
+
 /**
  * The site-name dropdown entry only exists while the frontend domain is
  * configured, sits beside the core "Visit Site" item, and opens the

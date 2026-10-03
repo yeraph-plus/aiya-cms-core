@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Sponsorship;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Shared\DateLabels;
 
 /**
  * The payment audit screen (submenu of the membership menu): every
@@ -152,7 +153,7 @@ final class PaymentsAuditPage implements Module
                     <?php foreach ($result['items'] as $row) : ?>
                         <?php $holder = get_userdata((int) $row['user_id']); ?>
                         <tr>
-                            <td><?php echo esc_html($this->dateLabel((string) $row['created_at'])); ?></td>
+                            <td><?php echo esc_html(DateLabels::fromGmt((string) $row['created_at'])); ?></td>
                             <td><?php echo esc_html($holder !== false ? $holder->display_name . ' (#' . (int) $row['user_id'] . ')' : '#' . (int) $row['user_id']); ?></td>
                             <td><code><?php echo esc_html((string) $row['order_id']); ?></code></td>
                             <td><?php echo esc_html((string) $row['tier_key']); ?></td>
@@ -330,14 +331,6 @@ final class PaymentsAuditPage implements Module
             OrderService::STATUS_UNPAID => __('Unpaid', 'aiya-core'),
             default => $status,
         };
-    }
-
-    /** GMT DATETIME column → localized date label. */
-    private function dateLabel(string $mysqlGmt): string
-    {
-        $timestamp = (int) get_date_from_gmt($mysqlGmt, 'U');
-
-        return $timestamp > 0 ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $timestamp) : '—';
     }
 
     /** Holder display label for the picker (same shape as the credits page). */

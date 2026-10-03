@@ -34,6 +34,7 @@
         "php:cbf": "@php ./vendor/bin/phpcbf",
         "php:stan": "@php ./vendor/bin/phpstan analyse --memory-limit=4G",
         "php:unit": "@php ./vendor/bin/phpunit",
+        "test:native": "bash scripts/test-native.sh",
         "i18n:pot": "@php ./vendor/wp-cli/wp-cli/php/boot-fs.php --allow-root i18n make-pot . languages/aiya-core.pot --domain=aiya-core --exclude=vendor,node_modules,.git,docs"
     },
     "config": {

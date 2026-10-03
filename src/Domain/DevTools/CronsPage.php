@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\DevTools;
 
+use Aiya\Core\Domain\Shared\DateLabels;
 use DateTimeImmutable;
 
 /**
@@ -310,7 +311,7 @@ final class CronsPage
 
     private function timeLabel(int $timestamp): string
     {
-        return (string) wp_date(get_option('date_format') . ' ' . get_option('time_format'), $timestamp);
+        return DateLabels::fromTimestamp($timestamp);
     }
 
     /** Nonced admin-post URL for one row action. */

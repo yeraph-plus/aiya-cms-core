@@ -10,6 +10,7 @@ use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
+use Aiya\Core\Domain\Shared\DateLabels;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
@@ -525,11 +526,11 @@ final class NotificationActions implements Module
             0,
             'sponsorship',
             $userId,
-            sprintf(
-                /* translators: %s: membership expiration date. */
-                __('Your membership is active until %s. Thank you for the support!', 'aiya-core'),
-                date_i18n(get_option('date_format'), $expiresAt)
-            ),
+                sprintf(
+                    /* translators: %s: membership expiration date. */
+                    __('Your membership is active until %s. Thank you for the support!', 'aiya-core'),
+                    DateLabels::fromTimestamp($expiresAt, false)
+                ),
             ''
         );
     }
@@ -577,7 +578,7 @@ final class NotificationActions implements Module
                 sprintf(
                     /* translators: %s: membership expiration date. */
                     __('Your membership expires on %s. Renew to keep the perks.', 'aiya-core'),
-                    date_i18n(get_option('date_format'), $endsAt)
+                    DateLabels::fromTimestamp($endsAt, false)
                 ),
                 ''
             );

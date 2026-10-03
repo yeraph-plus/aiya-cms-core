@@ -7,6 +7,7 @@ namespace Aiya\Core\Admin;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Discussion\ThreadStatus;
+use Aiya\Core\Domain\Shared\DateLabels;
 use RuntimeException;
 
 /**
@@ -147,7 +148,7 @@ final class DiscussionModerationPage implements Module
                                 <td><div class="aiya-core-thread-excerpt"><?php echo esc_html(wp_trim_words(wp_strip_all_tags((string) $row->content), 40)); ?></div></td>
                                 <td><?php echo esc_html(get_the_author_meta('display_name', (int) $row->user_id)); ?></td>
                                 <td><?php echo esc_html((string) $row->reply_count); ?></td>
-                                <td><?php echo esc_html($this->createdAtLabel((string) ($row->last_reply_at ?? $row->created_at))); ?></td>
+                                <td><?php echo esc_html(DateLabels::fromGmt((string) ($row->last_reply_at ?? $row->created_at))); ?></td>
                                 <td>
                                     <button type="button" class="button button-small aiya-thread-edit" data-id="<?php echo esc_attr((string) $threadId); ?>"><?php esc_html_e('Edit', 'aiya-core'); ?></button>
                                     <a class="button button-small aiya-thread-delete" href="<?php echo esc_url($deleteUrl); ?>"
@@ -550,14 +551,5 @@ final class DiscussionModerationPage implements Module
         return $status === ThreadStatus::CLOSED
             ? '<span class="aiya-core-badge aiya-core-badge--closed">' . esc_html($this->statusLabel($status)) . '</span>'
             : '';
-    }
-
-    private function createdAtLabel(string $mysqlGmt): string
-    {
-        $timestamp = (int) get_date_from_gmt($mysqlGmt, 'U');
-
-        return $timestamp > 0
-            ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $timestamp)
-            : '—';
     }
 }

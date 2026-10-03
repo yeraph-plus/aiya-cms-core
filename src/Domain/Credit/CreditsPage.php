@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Credit;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Shared\DateLabels;
 
 /**
  * The credit ledger screen (submenu of the membership menu): collapsible
@@ -283,7 +284,7 @@ final class CreditsPage implements Module
                     <?php else : ?>
                         <?php foreach ($result['items'] as $row) : ?>
                             <tr>
-                                <td><?php echo esc_html($this->dateLabel($row['createdAt'])); ?></td>
+                                <td><?php echo esc_html(DateLabels::fromGmt($row['createdAt'])); ?></td>
                                 <td>
                                 <?php
                                 echo $row['direction'] === 'in'
@@ -295,7 +296,7 @@ final class CreditsPage implements Module
                                 <td><?php echo $row['ref'] !== '' ? '<code>' . esc_html($row['ref']) . '</code>' : '—'; ?></td>
                                 <td><?php echo esc_html((string) $row['amount']); ?></td>
                                 <td><?php echo esc_html((string) $row['remaining']); ?></td>
-                                <td><?php echo $row['expiresAt'] !== null ? esc_html($this->dateLabel($row['expiresAt'])) : '—'; ?></td>
+                                <td><?php echo $row['expiresAt'] !== null ? esc_html(DateLabels::fromGmt($row['expiresAt'])) : '—'; ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -486,15 +487,6 @@ final class CreditsPage implements Module
         ];
 
         return $labels[$source] ?? $source;
-    }
-
-    private function dateLabel(string $mysqlGmt): string
-    {
-        $timestamp = (int) get_date_from_gmt($mysqlGmt, 'U');
-
-        return $timestamp > 0
-            ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $timestamp)
-            : '—';
     }
 
     /** @param array<string, string> $args */
