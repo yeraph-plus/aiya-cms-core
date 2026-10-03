@@ -90,15 +90,45 @@ final class MailShellTest extends TestCase
         // A marked message is finished brand HTML — content stays byte-for-
         // byte, but message-only filters cannot set headers, so the takeover
         // normalises the Content-Type here or the document travels as text.
-        $out = $this->apply($this->shell(), [
+        // The icon embed rides along: the rewrite layer's document references
+        // the CID and notification-style callers cannot pass embeds at all.
+        $out = $this->apply($this->shell('/var/www/uploads/icon.png'), [
             'to' => 'a@example.test',
             'subject' => 'x',
-            'message' => MailTemplate::SHELL_MARKER . '<html>已是成品</html>',
+            'message' => MailTemplate::SHELL_MARKER . '<html><img src="cid:' . MailShell::ICON_CID . '"></html>',
             'headers' => [],
         ]);
 
-        self::assertSame(MailTemplate::SHELL_MARKER . '<html>已是成品</html>', $out['message']);
+        self::assertSame(MailTemplate::SHELL_MARKER . '<html><img src="cid:' . MailShell::ICON_CID . '"></html>', $out['message']);
         self::assertSame(['Content-Type: text/html; charset=UTF-8'], $out['headers']);
+        self::assertSame([MailShell::ICON_CID => '/var/www/uploads/icon.png'], $out['embeds']);
+    }
+
+    public function testAMarkedMessageWithoutAnIconReferenceGetsNoEmbeds(): void
+    {
+        // A text-only header references no CID — nothing to attach.
+        $out = $this->apply($this->shell('/var/www/uploads/icon.png'), [
+            'to' => 'a@example.test',
+            'subject' => 'x',
+            'message' => MailTemplate::SHELL_MARKER . '<html>纯文字头</html>',
+            'headers' => [],
+        ]);
+
+        self::assertArrayNotHasKey('embeds', $out);
+    }
+
+    public function testAMultipartBodyStandsDownUntouched(): void
+    {
+        // A third party's MIME document is beyond the takeover's single-part
+        // competence: hands off entirely, boundary structure intact.
+        $args = [
+            'to' => 'a@example.test',
+            'subject' => 'x',
+            'message' => 'multipart body',
+            'headers' => ['Content-Type: multipart/alternative; boundary="xyz"'],
+        ];
+
+        self::assertSame($args, $this->apply($this->shell('/var/www/uploads/icon.png'), $args));
     }
 
     public function testAnEmptyMessagePassesThroughUntouched(): void
@@ -149,13 +179,17 @@ final class MailShellTest extends TestCase
 
     public function testFromSiteReadsTheSiteIconAndKeepsStoredEntities(): void
     {
+        // The icon must exist on disk: a dead attachment path never joins
+        // the embeds (the fromSite is_file guard).
+        $icon = tempnam(sys_get_temp_dir(), 'aiya-icon');
+        self::assertNotFalse($icon);
         $GLOBALS['__aiya_test_options'] = [
             'frontend' => ['color_primary' => '#2271b1'],
             'site_icon' => 55,
             'blogname' => '站名 &amp; 符号',
             'blog_charset' => 'UTF-8',
         ];
-        $GLOBALS['__aiya_test_attached_files'][55] = '/var/www/uploads/site-icon.png';
+        $GLOBALS['__aiya_test_attached_files'][55] = $icon;
 
         $shell = MailShell::fromSite();
         $out = $shell->apply([
@@ -166,6 +200,18 @@ final class MailShellTest extends TestCase
         ]);
 
         self::assertStringContainsString('站名 &amp; 符号', (string) $out['message'], 'the stored entity decodes once, then re-escapes on render');
-        self::assertSame([MailShell::ICON_CID => '/var/www/uploads/site-icon.png'], $out['embeds']);
+        self::assertSame([MailShell::ICON_CID => $icon], $out['embeds']);
+
+        $GLOBALS['__aiya_test_attached_files'][55] = '/var/www/uploads/dead-site-icon.png';
+        $dead = MailShell::fromSite()->apply([
+            'to' => 'a@example.test',
+            'subject' => 'x',
+            'message' => '正文',
+            'headers' => [],
+        ]);
+        self::assertArrayNotHasKey('embeds', $dead, 'a dead attachment path never joins the embeds');
+        self::assertStringNotContainsString('cid:', (string) $dead['message']);
+        unset($GLOBALS['__aiya_test_attached_files'][55]);
+        unlink($icon);
     }
 }

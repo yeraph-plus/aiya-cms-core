@@ -827,6 +827,7 @@ final class DiscussionService
 
         // Legacy rows predate bumped_at: activity = the last reply, else
         // creation. The WHERE keeps the statement a no-op once filled.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed table name, no inputs (same shape as the CREATE above)
         $wpdb->query(
             "UPDATE {$threads} SET bumped_at = COALESCE(last_reply_at, created_at) WHERE bumped_at < '2000-01-01 00:00:01'"
         );

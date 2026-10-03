@@ -35,7 +35,7 @@ get_header();
             $aiya_meta[] = esc_html((string) get_the_date());
 
             if (has_category()) {
-                $aiya_meta[] = get_the_category_list('、');
+                $aiya_meta[] = get_the_category_list();
             }
 
             echo implode(' · ', $aiya_meta); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every segment is escaped as it is built.

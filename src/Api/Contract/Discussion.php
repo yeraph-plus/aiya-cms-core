@@ -14,7 +14,8 @@ namespace Aiya\Core\Api\Contract;
  * no longer a field: a thread bound to one renders that post's card into
  * contentHtml instead (0.87.0), so the card and a hand-embedded
  * `[post_id]` shortcode cannot drift apart. Likes returned with 0.102.0
- * on a dedicated relation table (docs/discussion-likes-design.md):
+ * on a dedicated relation table (batch DL; the plan's semantics live in
+ * the ROADMAP 0.102.0 entry):
  * `likes` is the materialized thread count, `viewerLiked` the current
  * reader's state — false for guests. Threads carry no self-page field by
  * design (the front end expands them inline; zero-routing rule,

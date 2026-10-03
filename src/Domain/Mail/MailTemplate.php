@@ -50,13 +50,14 @@ final class MailTemplate
         $sentTo = $toEmail === ''
             ? ''
             : '<br>' . sprintf(
+                /* translators: 1: recipient email address. */
                 esc_html__('Sent to %1$s — you are receiving this message because of activity on your account.', 'aiya-core'),
                 esc_html($toEmail)
             );
         $brandLink = '<a href="' . $siteUrl . '" style="color: #a1a1aa; text-decoration: underline;">' . $name . '</a>';
 
         return self::SHELL_MARKER . '<!DOCTYPE html>
-<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="' . esc_attr(str_replace('_', '-', (string) get_locale())) . '" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -111,7 +112,11 @@ body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
 </tr>
 <tr>
 <td class="aiya-pad" style="padding: 16px 32px 22px; font-family: ' . $font . '; font-size: 12px; line-height: 1.7; color: #a1a1aa;">
-' . sprintf(esc_html__('This message was sent automatically by %1$s — do not reply.', 'aiya-core'), $brandLink) . $sentTo . '
+' . sprintf(
+            /* translators: 1: site name, linked to the site home. */
+            esc_html__('This message was sent automatically by %1$s — do not reply.', 'aiya-core'),
+            $brandLink
+        ) . $sentTo . '
 </td>
 </tr>
 </table>

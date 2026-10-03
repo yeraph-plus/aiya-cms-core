@@ -453,7 +453,7 @@ final class NotificationActions implements Module
      * effort: the in-site row above is the authoritative notice, the mail
      * never blocks or fails the activation.
      */
-    private function membershipReceipt(int $userId, string $orderId, int $expiresAt): void
+    private function membershipReceipt(int $userId, string $orderId): void
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
@@ -480,11 +480,11 @@ final class NotificationActions implements Module
             . $template->rows([
                 __('Tier', 'aiya-core') => (string) $row->tier_name,
                 __('Order', 'aiya-core') => $orderId,
-                __('Active from', 'aiya-core') => DateLabels::fromTimestamp((int) get_date_from_gmt((string) $row->starts_at, 'U'), false),
-                __('Active until', 'aiya-core') => DateLabels::fromTimestamp((int) get_date_from_gmt((string) $row->ends_at, 'U'), false),
+                __('Active from', 'aiya-core') => DateLabels::fromGmt((string) $row->starts_at, false),
+                __('Active until', 'aiya-core') => DateLabels::fromGmt((string) $row->ends_at, false),
             ])
             . $this->receiptParagraph(__('If your purchase covers multiple cycles, the next one starts automatically when the current subscription period ends.', 'aiya-core'))
-            . $template->button(__('View membership', 'aiya-core'), FrontendDomain::originOrHome() . '/membership/');
+            . $template->button(__('View membership', 'aiya-core'), FrontendDomain::originOrHome() . '/profile/me/');
 
         $subject = sprintf(
             /* translators: %s: site name. */
@@ -595,7 +595,7 @@ final class NotificationActions implements Module
 
         // The receipt copy (2026-10-03 ruling): the activation mail doubles
         // as the holder's bill — tier, order id and the coverage window.
-        $this->membershipReceipt($userId, $orderId, $expiresAt);
+        $this->membershipReceipt($userId, $orderId);
     }
 
     /**

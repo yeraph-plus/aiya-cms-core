@@ -46,14 +46,20 @@ final class MailShell
         $iconId = (int) get_option('site_icon');
         if ($iconId > 0) {
             $file = get_attached_file($iconId);
-            if (is_string($file) && $file !== '') {
+            if (is_string($file) && $file !== '' && is_file($file)) {
                 $iconPath = $file;
             }
         }
 
+        $color = (string) aiya_core_opt('frontend', 'color_primary', '#e94f69');
+        if (preg_match('/^#[0-9a-fA-F]{3,8}$/', $color) !== 1) {
+            // A malformed custom value must not ride into inline style attributes.
+            $color = '#e94f69';
+        }
+
         return new self(
             new MailTemplate(
-                (string) aiya_core_opt('frontend', 'color_primary', '#e94f69'),
+                $color,
                 wp_specialchars_decode((string) get_option('blogname'), ENT_QUOTES),
                 (string) home_url(),
                 $iconPath !== null ? self::ICON_CID : null,
@@ -78,12 +84,25 @@ final class MailShell
 
         $headers = $this->headerLines((array) ($args['headers'] ?? []));
 
+        // A multipart body is a fully-formed MIME document a third party
+        // built; the takeover only understands single-part text, so it
+        // stands down rather than break the boundary structure.
+        foreach ($headers as $line) {
+            if (preg_match('/^content-type:\s*multipart\//i', trim($line)) === 1) {
+                return $args;
+            }
+        }
+
         if (str_contains($message, MailTemplate::SHELL_MARKER)) {
             // A marked message is finished brand HTML (this shell's or the
             // rewrite layer's), but message-only filters like
             // retrieve_password_message cannot touch headers — ship it as
             // text/html here or the branded document travels as plain text.
+            // The icon embed stays ours to satisfy: the rewrite layer's
+            // document references the CID and notification-style callers
+            // cannot pass embeds at all.
             $args['headers'] = $this->withoutContentType($headers);
+            $args = $this->withIconEmbed($args, $message);
 
             return $args;
         }
@@ -98,16 +117,34 @@ final class MailShell
         // The shell is text/html by construction: any prior Content-Type
         // line goes, the normalised one stays.
         $args['headers'] = $this->withoutContentType($headers);
+        $args = $this->withIconEmbed($args, '');
 
-        if ($this->iconPath !== null) {
-            // wp_mail also accepts newline-separated path strings — keep
-            // the paths that arrived and append the icon under our CID.
-            $embeds = is_array($args['embeds'] ?? null)
-                ? $args['embeds']
-                : explode("\n", str_replace("\r\n", "\n", (string) ($args['embeds'] ?? '')));
-            $embeds = array_values(array_filter(array_map('strval', $embeds)));
-            $args['embeds'] = array_merge($embeds, [self::ICON_CID => $this->iconPath]);
+        return $args;
+    }
+
+    /**
+     * Appends the site icon under the shell's Content-ID whenever the
+     * message references it and the icon file is actually there.
+     *
+     * @param array<string, mixed> $args
+     * @return array<string, mixed>
+     */
+    private function withIconEmbed(array $args, string $message): array
+    {
+        if ($this->iconPath === null) {
+            return $args;
         }
+        if ($message !== '' && !str_contains($message, self::ICON_CID)) {
+            return $args; // a text-only header references no CID
+        }
+
+        // wp_mail also accepts newline-separated path strings — keep
+        // the paths that arrived and append the icon under our CID.
+        $embeds = is_array($args['embeds'] ?? null)
+            ? $args['embeds']
+            : explode("\n", str_replace("\r\n", "\n", (string) ($args['embeds'] ?? '')));
+        $embeds = array_values(array_filter(array_map('strval', $embeds)));
+        $args['embeds'] = array_merge($embeds, [self::ICON_CID => $this->iconPath]);
 
         return $args;
     }

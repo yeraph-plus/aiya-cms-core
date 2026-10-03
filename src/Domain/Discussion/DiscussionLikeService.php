@@ -7,7 +7,7 @@ namespace Aiya\Core\Domain\Discussion;
 use WP_Error;
 
 /**
- * The community like relation (0.102.0, docs/discussion-likes-design.md):
+ * The community like relation (0.102.0, batch DL): a dedicated per-thread
  * a dedicated per-thread actor table — deliberately not the post-meta
  * counter domain — with the count materialized on the thread row by this
  * one writer (the same single-writer stance as syncReplyStats). Writes
@@ -172,8 +172,11 @@ final class DiscussionLikeService
         }
 
         $bump = $wpdb->prepare('UPDATE %i SET like_count = like_count + 1 WHERE id = %d', $this->threadsTable(), $threadId);
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above, guarded by is_string
         $bumped = is_string($bump) ? $wpdb->query($bump) : false;
-        if ($bumped === false) {
+        // Zero affected rows means the thread vanished between the existence
+        // check and this UPDATE — abort rather than commit an orphan like.
+        if ((int) $bumped < 1) {
             $wpdb->query('ROLLBACK');
 
             return new WP_Error('aiya_db_error', __('The like could not be stored.', 'aiya-core'));
@@ -206,6 +209,7 @@ final class DiscussionLikeService
         }
         if ((int) $deleted > 0) {
             $drop = $wpdb->prepare('UPDATE %i SET like_count = GREATEST(like_count - 1, 0) WHERE id = %d', $this->threadsTable(), $threadId);
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above, guarded by is_string
             $dropped = is_string($drop) ? $wpdb->query($drop) : false;
             if ($dropped === false) {
                 $wpdb->query('ROLLBACK');

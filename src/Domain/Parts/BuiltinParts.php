@@ -200,6 +200,7 @@ final class BuiltinParts implements Module
                 ],
                 $this->ref === null
                     ? null
+                    // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- the render callback signature is fixed by the shortcode layer; ref parts render from attributes only
                     : fn (array $attrs, string $content): string => $this->renderRef($attrs),
             ),
         ];

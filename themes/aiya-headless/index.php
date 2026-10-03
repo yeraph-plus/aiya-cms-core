@@ -48,14 +48,14 @@ get_header();
                     $aiya_meta[] = esc_html((string) get_the_date());
 
                     if (has_category()) {
-                        $aiya_meta[] = get_the_category_list('、');
+                        $aiya_meta[] = get_the_category_list();
                     }
 
                     if (comments_open() || (int) get_comments_number() > 0) {
                         $aiya_meta[] = sprintf(
                             '<a href="%s">%s</a>',
                             esc_url((string) get_comments_link()),
-                            esc_html(sprintf('%s 条评论', number_format_i18n((int) get_comments_number())))
+                            esc_html(get_comments_number_text())
                         );
                     }
 

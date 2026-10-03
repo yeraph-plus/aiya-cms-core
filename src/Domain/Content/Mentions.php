@@ -8,8 +8,9 @@ use Closure;
 use WP_Comment;
 
 /**
- * @mentions support for comments and community threads (design:
- * docs/mentions-design.md, marker form per the zero-routing rule). The
+ * @mentions support for comments and community threads (marker form per
+ * the zero-routing rule, ARCHITECTURE "Zero-routing rule and reference
+ * markers" section). The
  * token is `@` + 2-64 word chars (latin/digit/underscore/hyphen/CJK —
  * no spaces, so v1 cannot mention multi-word display names). Resolution
  * order per token: exact `user_nicename` first, then an exact and UNIQUE
@@ -95,6 +96,7 @@ final class Mentions
             static function (string $text) use ($resolved): string {
                 return (string) preg_replace_callback(
                     self::TOKEN,
+                    // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.matchFound -- the callback receives one regex match array; no `match` expression is in play
                     static function (array $match) use ($resolved): string {
                         $user = $resolved[$match[1]] ?? null;
                         if (!$user instanceof \WP_User) {

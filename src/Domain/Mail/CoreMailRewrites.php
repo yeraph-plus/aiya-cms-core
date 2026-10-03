@@ -44,7 +44,7 @@ final class CoreMailRewrites
     }
 
     /** The shell's brand copy for the native lost-password flow. */
-    public function retrievePasswordTitle(string $title, string $userLogin, WP_User $userData): string // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
+    public function retrievePasswordTitle(string $title, string $userLogin, WP_User $userData): string // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter -- filter contract parameters
     {
         return sprintf(
             /* translators: %s: site name. */
@@ -135,7 +135,7 @@ final class CoreMailRewrites
      * @param array<string, mixed> $userdata
      * @return array<string, mixed>
      */
-    public function passwordChanged(array $email, array $user, array $userdata): array // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter ($userdata names the new address)
+    public function passwordChanged(array $email, array $user, array $userdata): array // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter -- filter contract parameters ($userdata names the new address)
     {
         $content = $this->paragraph(__('Your password was just changed.', 'aiya-core'))
             . $this->paragraph(__('If this was not you, someone else may have access — reset your password now:', 'aiya-core'))

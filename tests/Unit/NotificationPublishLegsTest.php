@@ -223,6 +223,6 @@ final class NotificationPublishLegsTest extends TestCase
         self::assertStringContainsString('季档', $message);
         self::assertStringContainsString('probe-order-21', $message);
         self::assertStringContainsString('multiple cycles', $message, 'the multi-cycle stacking copy rides the receipt (unit tests see the source locale)');
-        self::assertStringContainsString('href="https://aiya.test/membership/"', $message);
+        self::assertStringContainsString('href="https://aiya.test/profile/me/"', $message);
     }
 }

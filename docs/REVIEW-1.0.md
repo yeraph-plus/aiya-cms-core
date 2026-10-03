@@ -62,7 +62,7 @@
 - H-07：phpcs 1 error + 2 warnings 全部豁免注释归零。
 - 验证：`MigrationChainTest` 同步；拿旧 `schema_version` 库演练首请求幂等对账。
 
-**SQL 压平缺口的最后一项**（轻社区点赞表）不走 B2，单列批次 DL：2026-10-03 站长拍板重启，独立内容 CRUD 不触碰文章数据域，四步计划见 `docs/discussion-likes-design.md`（排 B2 之后、B6 之前）。
+**SQL 压平缺口的最后一项**（轻社区点赞表）不走 B2，单列批次 DL：2026-10-03 站长拍板重启，独立内容 CRUD 不触碰文章数据域（设计稿已随实施退役，语义见 ROADMAP 0.102.0 条目；已落地 ✅）。
 
 **B3 — REST 面收敛**
 - R-02：`Envelope` 加 `list($data, ?Pagination)` 静态工厂，替换 12 处手工 meta 装配。
@@ -268,11 +268,11 @@
 - 方向：下沉为 `SiteBlocks::withoutAds()` 值对象方法。归 B4。
 - 复核：SitePresenter 无 blocks 键字面量。
 
-**L-10 [P2] ARCHITECTURE.md 零路由节与代码现实漂移** ☐
+**L-10 [P2] ARCHITECTURE.md 零路由节与代码现实漂移** ✅ 0.102.0
 - 位置：`docs/ARCHITECTURE.md:132-135,157-160`。
 - 证据：称 "PostSummary still ships a legacy url (deprecated)"——现行 PostSummary 已无 url 字段；称 mentions "pending"——Mentions::linkify 已上线并接入三个 Presenter。
 - 方向：更新 Verified surfaces / Status 两段。归 B6。
-- 复核：文档描述与代码一致。
+- 复核：文档描述与代码一致。（已随 0.102.0 专项审查修正：PostSummary.url 描述、mentions 状态）
 
 ### 3.3 C 缓存
 
@@ -415,7 +415,7 @@
 - 方向：统一 WP_DEBUG 门 + phpcs:ignore 注释。归 B5。
 - 复核：`grep -rn "error_log" src/` 全部带豁免注释。
 
-**H-07 [P2] phpcs 唯一 1 error + 2 warnings** ☐
+**H-07 [P2] phpcs 唯一 1 error + 2 warnings** ✅ 0.102.0
 - 位置：`DiscussionService.php:815`（迁移 SQL 表名插值，ValidatedSanitizedInput/MustUsePrepare 误报性命中，与上下文 CREATE 同模式）；`Content/Mentions.php:98`（$match 保留字提示）；`Parts/BuiltinParts.php:203`（未用 $content，签名统一故意留空）。
 - 方向：三处豁免注释归零。归 B2。
 - 复核：phpcs 0 error 0 warning。
@@ -532,3 +532,30 @@
 | aiya_payment_orders | 支付流水 | 够（status 全扫可接受） | 否 |
 | aiya_redeem_codes | 兑换码 | 够 | 否 |
 | aiya_stats_monthly / aiya_stats_active | 月报 / MAU | PK 即查询面；first_seen 死列（S-04） | 否 |
+
+## 6. 0.102.0 发布前专项审查（2026-10-03，发布范围 edc2e4d..v0.102.0）
+
+两路并行审查（邮件域 / 其余新增面）覆盖 0.101.1 盖章以来的全部 19 个提交。发现与处置：
+
+| # | 严重度 | 发现 | 处置 |
+|---|---|---|---|
+| M1 | P1 | 邮件 CID 悬空：marker 分支不补 embeds，五类品牌邮件页头图标碎 | ✅ 修复（marker/包裹两路统一 withIconEmbed + is_file 守卫 + CID 引用检测） |
+| M2 | P1 | 激活回执 CTA 指向已退役 `/membership/` 路由 | ✅ 改 `/profile/me/` |
+| M3 | P1 | 壳主题硬编码中文（「条评论」、`、`分隔），违反 core 原串契约 | ✅ `get_comments_number_text()` + `get_the_category_list()` 默认分隔 |
+| M4 | P2 | like 竞态：UPDATE 0 行被当成功，线程删除竞态留孤儿行 | ✅ `(int)$bumped < 1` 判失败回滚 |
+| M5 | P2 | multipart 邮件被强换 text/html 破坏 boundary | ✅ multipart 检测整体让路 |
+| M6 | P2 | color_primary 未校验即内插 style | ✅ hex 正则校验，不合格回落默认 |
+| M7 | P2 | MailTemplate 硬编码 lang="zh-CN" | ✅ 改 get_locale() 动态 |
+| M8 | P2 | membershipReceipt 死参数 + 日期两步手工重复 | ✅ 签名收敛 + DateLabels::fromGmt |
+| M9 | P2 | MailTemplate 两处缺 translators 注释 + CoreMailRewrites 两条失效 ignore 码 | ✅ 补注释 + ignore 码族级修正 |
+| M10 | P2 | 契约快照遗漏 DiscussionDetail 的新字段（WIRE_SHAPES 未同步） | ✅ 本批 0.102 主体已同步（审查前发现） |
+| M11 | P2 | marker 分支对非文本 Content-Type 一律强换（防御缺口） | ✅ 与 M5 一并覆盖 |
+| R1 | P2 | 点赞响应 `{likes,viewerLiked,already}` 为 ad-hoc 面不在契约执法 | ⏭️ 登记（B3 契约收口一并落 DTO） |
+| R2 | P2 | 登录写面限流按 IP 计（RateLimiter docblock 建议登录面用 hitFor） | ⏭️ 登记（系统性遗留，随 B3 RestGuard 收敛） |
+| R3 | P2 | lockWpV2 在 rest_endpoints 内 302+exit 语义偏脆（当前影响为零） | ⏭️ 登记 |
+| R4 | P2 | DiscussionService::delete 内联 new DiscussionLikeService | ⏭️ 登记（可注入化随 B4） |
+| R5 | P2 | 壳主题标题助手转义不一致（当前值均管理端可控，风险低） | ⏭️ 登记 |
+| R6 | P2 | 壳页脚品牌链接 home_url vs 前端 origin | ⏭️ 登记（下批统一） |
+| R7 | P2 | 测试 shim 不跑 wp_mail filter（CID bug 漏网的结构性原因） | ◐ 已补 marker-embeds/multipart/死路径回归用例；垫片跑 filter 归 B5 |
+
+**同批退役**：`docs/discussion-likes-design.md` 与 `docs/mentions-design.md` 删除（语义已永久化——点赞见 ROADMAP 0.102.0 条目、mentions 见 ARCHITECTURE 零路由节 + ROADMAP「@提及通知落地」条目；git 历史取回原文）；三处 src docblock 指针改指 ARCHITECTURE/ROADMAP。**H-07 归零**：phpcs 0 error 0 warning（三条豁免注释）。**工具链终态**：phpunit 650/1904、phpstan 0、phpcs 0/0、vitest 342/342。

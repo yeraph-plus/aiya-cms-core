@@ -129,9 +129,9 @@ Traditional-variant viewers of `aiya/core/v1` only).
 The back end never bakes front-end paths into any output — JSON payloads,
 rich-text HTML and template-part markup carry *semantic references*
 (kind + handle) only, and every route template lives in the front end.
-Verified surfaces: `PostSummary` still ships a legacy `url` (deprecated,
-pre-dating the rule — the front end builds routes from `type` + `slug`
-instead), threads carry no self-page field at all, and the related-post
+Verified surfaces: `PostSummary` carries no `url` field (the field went
+with the zero-routing batch — the front end builds routes from `type` +
+`slug`), threads carry no self-page field at all, and the related-post
 card emits `data-aiya-ref` markers instead of anchors.
 
 The marker vocabulary (compliant tags + `data-aiya-*` attributes; no
@@ -154,10 +154,10 @@ gate's own URL, the muted core mails, and admin-authored link content
 (navigation repeater, ad slots, beian links — the operator knows the
 front end when configuring them).
 
-Status: the post card and breadcrumbs are converted; mentions are
-designed (docs/mentions-design.md, marker form) and pending; term /
-search / comment references are reserved vocabulary without usage
-surfaces yet.
+Status: the post card and breadcrumbs are converted, and @mentions are
+live on the comment and community surfaces (marker form, `data-aiya-ref
+="user"`); term / search / comment references are reserved vocabulary
+without usage surfaces yet.
 
 ## Error handling conventions
 
