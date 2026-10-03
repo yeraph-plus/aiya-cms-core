@@ -676,8 +676,10 @@ final class NotificationActions implements Module
             $objectId
         );
         if (is_wp_error($created)) {
-            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
-            error_log('[aiya-core] Notification action failed: ' . $created->get_error_message());
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+                error_log('[aiya-core] Notification action failed: ' . $created->get_error_message());
+            }
         }
     }
 

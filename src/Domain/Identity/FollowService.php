@@ -87,11 +87,6 @@ final class FollowService
         return $found !== null;
     }
 
-    public function countFollowing(int $userId): int
-    {
-        return $this->countBy('follower_id', $userId);
-    }
-
     public function countFollowers(int $userId): int
     {
         return $this->countBy('followed_id', $userId);

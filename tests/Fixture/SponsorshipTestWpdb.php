@@ -160,7 +160,12 @@ final class SponsorshipTestWpdb
             return null;
         }
 
-        return str_contains($sql, 'ORDER BY id DESC') ? $matches[count($matches) - 1] : $matches[0];
+        // The real wpdb honours the output flag: ARRAY_A carries the assoc
+        // array, the default answers an object row. Callers read both ways
+        // (OrderService passes ARRAY_A, RedeemCodeService reads properties).
+        $row = str_contains($sql, 'ORDER BY id DESC') ? $matches[count($matches) - 1] : $matches[0];
+
+        return $output === ARRAY_A ? $row : (object) $row;
     }
 
     /** @return list<array<string, mixed>> */
@@ -173,7 +178,28 @@ final class SponsorshipTestWpdb
 
     public function query(string $sql): int
     {
-        return (int) (str_contains($sql, 'RELEASE_LOCK(') ? 1 : 0);
+        if (str_contains($sql, 'RELEASE_LOCK(')) {
+            return 1;
+        }
+
+        // The redeem code's atomic claim: a conditional UPDATE that wins
+        // exactly when the row is still unused — the same 1/0 the real
+        // affected-rows answer gives, with the claim fields written.
+        if (preg_match("/UPDATE\s+(\S+)\s+SET\s+status = 1,\s*user_id = (\d+),\s*used_to = '([^']*)'\s+WHERE\s+code = '([^']+)'\s+AND\s+status = 0/s", $sql, $claim) === 1) {
+            foreach ($this->rows[$claim[1]] ?? [] as $index => $row) {
+                if (($row['code'] ?? '') === $claim[4] && (int) ($row['status'] ?? 0) === 0) {
+                    $this->rows[$claim[1]][$index]['status'] = 1;
+                    $this->rows[$claim[1]][$index]['user_id'] = (int) $claim[2];
+                    $this->rows[$claim[1]][$index]['used_to'] = $claim[3];
+
+                    return 1;
+                }
+            }
+
+            return 0;
+        }
+
+        return 0;
     }
 
     /** Evaluates the WHERE shapes the two services issue against one table. @return list<array<string, mixed>> */

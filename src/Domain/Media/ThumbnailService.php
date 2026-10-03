@@ -73,19 +73,6 @@ final class ThumbnailService
         return $local === null ? null : $this->paths->localToUrl($local);
     }
 
-    /**
-     * Generates a thumbnail for an arbitrary URL/path reference and returns
-     * its content URL. References that do not resolve to a file under the
-     * content directory resolve to null — the caller decides how to
-     * represent them.
-     */
-    public function urlForReference(string $urlOrPath, int $width, int $height): ?string
-    {
-        $local = $this->paths->urlToLocal($urlOrPath);
-
-        return $local === null ? null : $this->urlFor($local, $width, $height);
-    }
-
     private function generator(): ThumbnailGenerator
     {
         return $this->generator ??= new ThumbnailGenerator($this->imagine);

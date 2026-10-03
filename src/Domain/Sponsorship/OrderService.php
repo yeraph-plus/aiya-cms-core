@@ -34,8 +34,6 @@ final class OrderService
     public const STATUS_PAID = 'paid';
     public const STATUS_PENDING = 'pending';
     public const STATUS_UNPAID = 'unpaid';
-    /** @var list<string> */
-    public const STATUSES = ['cancelled', 'pending', 'paid', 'unpaid'];
 
     /** Days an untouched checkout keeps its `pending` state. */
     public const PENDING_TTL_DAYS = 7;
@@ -405,27 +403,6 @@ final class OrderService
             'total' => $total,
             'pages' => (int) ceil($total / $perPage),
         ];
-    }
-
-    /**
-     * The holder's payment history, newest first.
-     *
-     * @return list<object{order_id:string,amount:string|int,tier_key:string,source:string,status:string,created_at:string}>
-     */
-    public function forUser(int $userId, int $limit = 100): array
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        /** @var list<object{order_id:string,amount:string|int,tier_key:string,source:string,status:string,created_at:string}>|null $rows */
-        $rows = $wpdb->get_results($wpdb->prepare(
-            'SELECT order_id, amount, tier_key, cycles, source, status, created_at
-             FROM %i WHERE user_id = %d ORDER BY id DESC LIMIT %d',
-            $this->table(),
-            $userId,
-            max(1, $limit)
-        ));
-
-        return is_array($rows) ? $rows : [];
     }
 
     private function table(): string

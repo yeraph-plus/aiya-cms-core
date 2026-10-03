@@ -72,16 +72,6 @@ final class Registry
         }
     }
 
-    public function postBox(string $id): ?PostBox
-    {
-        return $this->postBoxes[$id] ?? null;
-    }
-
-    public function termBox(string $id): ?TermBox
-    {
-        return $this->termBoxes[$id] ?? null;
-    }
-
     /** @return list<PostBox> */
     public function postBoxes(): array
     {

@@ -86,7 +86,9 @@ final class AfdianGateway implements PaymentGateway
                 $client,
                 $primaryPlan,
                 $primaryPlan === '' ? null : $planTiers[$primaryPlan]['key'],
-                sprintf('来自「%s」的会员订单', (string) get_bloginfo('name'))
+                // The remark rides the outbound payment page, so it reads in
+                // the site language like every other buyer-facing string.
+                sprintf(__('A membership order from %s', 'aiya-core'), wp_specialchars_decode((string) get_bloginfo('name'), ENT_QUOTES))
             ),
             true,
             $planTiers,

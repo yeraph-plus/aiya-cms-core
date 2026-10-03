@@ -36,7 +36,7 @@
 | B2 | SQL 收尾窗（1.0 冻结前唯一机会） | S-01～S-08、H-07 | MigrationChainTest 同步 + 旧库幂等演练 | ✅ 0.102.0（S-01..04/H-07）+ 0.102.1 后批（S-05..08） |
 | B3 | REST 面收敛 | R-02、R-03、R-07、R-10、C-04、C-05、L-08 | 快照零 diff + 全路由冒烟 | ☐ |
 | B4 | 媒体与杂项收敛 | R-04、R-05、R-06、R-08、R-12、R-13、R-14、R-15、L-07、L-09 | 上传/封面/文件服务手工回归 | ✅ 2026-10-03 |
-| B5 | 卫生与测试补强 | H-03、H-04、H-05、H-06 | 新测试入套件、死代码零引用复核 | ☐ |
+| B5 | 卫生与测试补强 | H-03、H-04、H-05、H-06 | 新测试入套件、死代码零引用复核 | ✅ 2026-10-03 |
 | B6 | 架构裁决、文档与发布 | L-01、L-04、L-05、L-06、L-10、G-01～G-05 | 快照比对 + 发布动作清单全过 | ☐ |
 
 **统一验证基线**（每批收尾都要过）：容器内 Linux 原生盘跑 phpunit 全绿（基准 ≥625 tests，B5 后增长）；`phpstan analyse --memory-limit=2G` 0 errors（level 8）；phpcs 0 errors。每批按惯例盖版本戳并在 ROADMAP 追加条目、回写本台账状态位。
@@ -392,24 +392,24 @@
 - 方向：fixture 归位 tests/Fixture/ 显式加载；`esc_html__`/`esc_attr__` 提进 bootstrap.php。**注意与邮件域在途的 tests/bootstrap.php 改动协调。**
 - 复核：两个文件 `phpunit --filter` 单跑通过。
 
-**H-03 [P1] 死代码：7 个 public 方法 + 1 个常量（全仓库+tests+themes 零引用）** ☐
+**H-03 [P1] 死代码：7 个 public 方法 + 1 个常量（全仓库+tests+themes 零引用）** ✅ B5
 - 清单：`FavoriteService.php:152 countForPost()`、`FollowService.php:90 countFollowing()`、`MediaPaths.php:98 coverDir()`、`ThumbnailService.php:82 urlForReference()`、`OrderService.php:415 forUser()`、`Metadata/Registry.php:75 postBox()`、`:80 termBox()`、`OrderService.php:38 const STATUSES`。
 - 方向：1.0 直接删（git 可找回）。
 - 复核：`grep -rn "countForPost\|countFollowing\|coverDir\|urlForReference\|postBox(\|termBox(" src/ tests/` 仅剩定义外零命中后删除。
 
-**H-04 [P2] 兑换码域零测试** ☐
+**H-04 [P2] 兑换码域零测试** ✅ B5（RedeemCodeServiceTest 5 例 + LedgerExpiryTest 4 例）
 - 位置：`src/Domain/Sponsorship/RedeemCodeService.php`。
 - 证据：tests/ 无任何直接或间接引用；原子核销/回滚（含 :94 回滚失败分支）完全裸奔。LedgerService FIFO 过期边界也无专门测试（仅间接扫过）；FileServe 归一化覆盖良好。
 - 方向：补 RedeemCodeServiceTest（核销幂等/过期/回滚三场景）+ LedgerService 过期边界用例。归 B5。
 - 复核：套件含上述用例且全绿。
 
-**H-05 [P2] 唯一硬编码中文串（非 i18n）** ☐
+**H-05 [P2] 唯一硬编码中文串（非 i18n）** ✅ B5（改英文原串 + i18n 全套）
 - 位置：`src/Domain/Sponsorship/AfdianGateway.php:76`。
 - 证据：`sprintf('来自「%s」的会员订单', get_bloginfo('name'))` 进爱发电支付 URL 的 remark（packages/payment-afdian/src/Gateway.php:75），赞助页用户可见；全 src 1057 条 `__()` 文案中唯一源语言外字符串。
 - 方向：包 `__()` 入 pot，或注释说明刻意为之。归 B5。
 - 复核：源码无未包装中文字面量。
 
-**H-06 [P2] error_log 双轨制（2 处门控 / 7 处裸奔）** ☐
+**H-06 [P2] error_log 双轨制（2 处门控 / 7 处裸奔）** ✅ B5（九处全 WP_DEBUG 门 + ignore 注释）
 - 位置：有门控：`Runtime/Packages.php:83`（phpcs:ignore + WP_DEBUG 门 + 援引约定）；裸奔：`Admin/DiscussionModerationPage.php:323,493`、`NotificationActions.php:613`、`NotificationPage.php:185`、`EntitlementService.php:208`、`RedeemCodeService.php:94`、`MediaPaths.php:156`。
 - 证据：均为失败 breadcrumbs（带 `[aiya-core]` 前缀）而非调试残留，但约定只落实一半。
 - 方向：统一 WP_DEBUG 门 + phpcs:ignore 注释。归 B5。

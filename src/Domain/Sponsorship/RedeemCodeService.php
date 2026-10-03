@@ -90,8 +90,10 @@ final class RedeemCodeService
             // burns the code silently, so make it visible in the logs.
             $restored = $wpdb->update($table, ['status' => 0, 'user_id' => null, 'used_to' => null], ['code' => $code], ['%d', '%s', '%s'], ['%s']);
             if ($restored === false) {
-                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
-                error_log('[aiya-core] Redeem rollback failed for code ' . $code . ' — the code is now unusable without manual repair.');
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+                    error_log('[aiya-core] Redeem rollback failed for code ' . $code . ' — the code is now unusable without manual repair.');
+                }
             }
 
             return new WP_Error('aiya_code_activation_failed', __('The membership activation failed — the code was not consumed, try again.', 'aiya-core'), ['status' => 500]);

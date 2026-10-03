@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-03T04:03:51+00:00\n"
+"POT-Creation-Date: 2026-10-03T15:28:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -41,23 +41,7 @@ msgstr ""
 msgid "Refresh thumbnails"
 msgstr ""
 
-#. translators: %d: number of queued items
-#: src/Admin/CardThumbnailBulkAction.php:125
-#, php-format
-msgid "%d item queued for a thumbnail refresh."
-msgid_plural "%d items queued for a thumbnail refresh."
-msgstr[0] ""
-msgstr[1] ""
-
-#. translators: %d: number of skipped items
-#: src/Admin/CardThumbnailBulkAction.php:132
-#, php-format
-msgid "%d item skipped (nothing to refresh or not permitted)."
-msgid_plural "%d items skipped (nothing to refresh or not permitted)."
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Admin/CardThumbnailBulkAction.php:137
+#: src/Admin/CardThumbnailBulkAction.php:121
 msgid "No thumbnails were refreshed."
 msgstr ""
 
@@ -174,7 +158,7 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:128
 #: src/Domain/Content/ContentTypeModule.php:60
-#: src/Domain/Notification/NotificationPage.php:242
+#: src/Domain/Notification/NotificationPage.php:244
 msgid "Author"
 msgstr ""
 
@@ -187,7 +171,7 @@ msgid "Last activity"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:131
-#: src/Admin/DiscussionModerationPage.php:413
+#: src/Admin/DiscussionModerationPage.php:415
 #: src/Domain/DevTools/CronsPage.php:173
 #: src/Domain/Notification/NotificationPage.php:113
 msgid "Actions"
@@ -198,7 +182,7 @@ msgid "No threads found."
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:153
-#: src/Admin/DiscussionModerationPage.php:429
+#: src/Admin/DiscussionModerationPage.php:431
 msgid "Edit"
 msgstr ""
 
@@ -207,7 +191,7 @@ msgid "Delete this thread and all its replies?"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:156
-#: src/Admin/DiscussionModerationPage.php:438
+#: src/Admin/DiscussionModerationPage.php:440
 #: src/Domain/DevTools/CronsPage.php:190
 #: src/Domain/Notification/NotificationPage.php:142
 msgid "Delete"
@@ -250,101 +234,101 @@ msgid "Edit thread"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:301
-#: src/Admin/DiscussionModerationPage.php:336
-#: src/Admin/DiscussionModerationPage.php:512
+#: src/Admin/DiscussionModerationPage.php:338
+#: src/Admin/DiscussionModerationPage.php:516
 #: src/Domain/Credit/CreditsPage.php:457
 msgid "The operation failed."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:334
+#: src/Admin/DiscussionModerationPage.php:336
 msgid "Status updated."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:335
+#: src/Admin/DiscussionModerationPage.php:337
 msgid "Thread deleted."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:365
+#: src/Admin/DiscussionModerationPage.php:367
 msgid "Boards"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:373
-#: src/Admin/DiscussionModerationPage.php:409
+#: src/Admin/DiscussionModerationPage.php:375
+#: src/Admin/DiscussionModerationPage.php:411
 msgid "Slug"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:377
+#: src/Admin/DiscussionModerationPage.php:379
 msgid "The slug is fixed once threads reference it."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:380
+#: src/Admin/DiscussionModerationPage.php:382
 msgid "Lowercase letters, digits, dashes or underscores."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:385
-#: src/Admin/DiscussionModerationPage.php:408
+#: src/Admin/DiscussionModerationPage.php:387
+#: src/Admin/DiscussionModerationPage.php:410
 #: src/Admin/FileServeMetabox.php:288
 #: src/Domain/Sponsorship/SponsorshipModule.php:125
 msgid "Name"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:389
-#: src/Admin/DiscussionModerationPage.php:410
+#: src/Admin/DiscussionModerationPage.php:391
+#: src/Admin/DiscussionModerationPage.php:412
 #: src/Domain/Sponsorship/SponsorshipModule.php:131
 msgid "Description"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:393
-#: src/Admin/DiscussionModerationPage.php:411
+#: src/Admin/DiscussionModerationPage.php:395
+#: src/Admin/DiscussionModerationPage.php:413
 msgid "Sort order"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:398
+#: src/Admin/DiscussionModerationPage.php:400
 msgid "Save board"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:398
+#: src/Admin/DiscussionModerationPage.php:400
 msgid "Add board"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:400
+#: src/Admin/DiscussionModerationPage.php:402
 msgid "Cancel editing"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:412
+#: src/Admin/DiscussionModerationPage.php:414
 msgid "Threads"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:419
+#: src/Admin/DiscussionModerationPage.php:421
 msgid "No boards yet."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:437
+#: src/Admin/DiscussionModerationPage.php:439
 msgid "Delete this board? Its threads move to the first remaining board."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:454
-#: src/Admin/DiscussionModerationPage.php:487
+#: src/Admin/DiscussionModerationPage.php:456
+#: src/Admin/DiscussionModerationPage.php:489
 msgid "You are not allowed to manage the community."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:509
+#: src/Admin/DiscussionModerationPage.php:513
 msgid "Board created."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:510
+#: src/Admin/DiscussionModerationPage.php:514
 msgid "Board saved."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:511
+#: src/Admin/DiscussionModerationPage.php:515
 msgid "Board deleted."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:537
+#: src/Admin/DiscussionModerationPage.php:541
 msgid "Normal"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:538
+#: src/Admin/DiscussionModerationPage.php:542
 msgid "Closed"
 msgstr ""
 
@@ -456,7 +440,7 @@ msgid "Size"
 msgstr ""
 
 #: src/Admin/FileServeMetabox.php:291
-#: src/Domain/Media/PicBedPage.php:283
+#: src/Domain/Media/PicBedPage.php:248
 msgid "Preview"
 msgstr ""
 
@@ -518,23 +502,7 @@ msgid_plural "Move %d selected items to:"
 msgstr[0] ""
 msgstr[1] ""
 
-#. translators: %d: number of switched items
-#: src/Admin/PostTypeSwitchBulkAction.php:177
-#, php-format
-msgid "%d item switched to the new post type."
-msgid_plural "%d items switched to the new post type."
-msgstr[0] ""
-msgstr[1] ""
-
-#. translators: %d: number of skipped items
-#: src/Admin/PostTypeSwitchBulkAction.php:184
-#, php-format
-msgid "%d item skipped (unchanged or not permitted)."
-msgid_plural "%d items skipped (unchanged or not permitted)."
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Admin/PostTypeSwitchBulkAction.php:189
+#: src/Admin/PostTypeSwitchBulkAction.php:173
 msgid "Nothing was switched."
 msgstr ""
 
@@ -634,23 +602,7 @@ msgstr ""
 msgid "Resource tags — other"
 msgstr ""
 
-#. translators: %d: number of moved terms
-#: src/Admin/TermMoveBulkAction.php:183
-#, php-format
-msgid "%d term moved to the new taxonomy."
-msgid_plural "%d terms moved to the new taxonomy."
-msgstr[0] ""
-msgstr[1] ""
-
-#. translators: %d: number of skipped terms
-#: src/Admin/TermMoveBulkAction.php:190
-#, php-format
-msgid "%d term skipped (unchanged or not permitted)."
-msgid_plural "%d terms skipped (unchanged or not permitted)."
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Admin/TermMoveBulkAction.php:195
+#: src/Admin/TermMoveBulkAction.php:179
 msgid "Nothing was moved."
 msgstr ""
 
@@ -691,18 +643,18 @@ msgid "Registration is currently disabled."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:136
-#: src/Api/Rest/UserController.php:292
+#: src/Api/Rest/UserController.php:278
 msgid "The nickname must be 1-50 characters."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:139
 #: src/Api/Rest/AuthController.php:249
-#: src/Api/Rest/UserController.php:315
+#: src/Api/Rest/UserController.php:301
 msgid "The email address is not valid."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:145
-#: src/Api/Rest/UserController.php:317
+#: src/Api/Rest/UserController.php:303
 msgid "This email address is already registered."
 msgstr ""
 
@@ -712,7 +664,7 @@ msgid "The account could not be created, please retry."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:170
-#: src/Api/Rest/UserController.php:332
+#: src/Api/Rest/UserController.php:318
 msgid "The locale is not supported."
 msgstr ""
 
@@ -729,38 +681,12 @@ msgid "The email address or the password is incorrect."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:290
-#: src/Api/Rest/UserController.php:425
+#: src/Api/Rest/UserController.php:411
 msgid "Existing sessions could not be invalidated; the password was left unchanged."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:308
 msgid "The reset link is missing required parameters."
-msgstr ""
-
-#: src/Api/Rest/AuthController.php:315
-#: src/Api/Rest/ContentController.php:190
-#: src/Api/Rest/ContentController.php:453
-#: src/Api/Rest/ContentController.php:480
-#: src/Api/Rest/CounterController.php:84
-#: src/Api/Rest/CounterController.php:99
-#: src/Api/Rest/CounterController.php:119
-#: src/Api/Rest/CreditController.php:111
-#: src/Api/Rest/CreditController.php:143
-#: src/Api/Rest/CreditController.php:154
-#: src/Api/Rest/DiscussionController.php:201
-#: src/Api/Rest/DiscussionController.php:262
-#: src/Api/Rest/DiscussionController.php:375
-#: src/Api/Rest/DiscussionController.php:389
-#: src/Api/Rest/FileServeController.php:69
-#: src/Api/Rest/FileServeController.php:83
-#: src/Api/Rest/IntegrationsController.php:70
-#: src/Api/Rest/IntegrationsController.php:117
-#: src/Api/Rest/NotificationController.php:69
-#: src/Api/Rest/SponsorshipController.php:110
-#: src/Api/Rest/SponsorshipController.php:184
-#: src/Api/Rest/UserController.php:194
-#: src/Api/Rest/UserController.php:376
-msgid "Too many requests, try again later."
 msgstr ""
 
 #: src/Api/Rest/AuthController.php:322
@@ -775,227 +701,175 @@ msgstr ""
 msgid "The session could not be started."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:354
-#: src/Api/Rest/CreditController.php:187
-#: src/Api/Rest/DiscussionController.php:427
-#: src/Api/Rest/FileServeController.php:105
-#: src/Api/Rest/IntegrationsController.php:189
-#: src/Api/Rest/SponsorshipController.php:287
-#: src/Api/Rest/UploadsController.php:57
-#: src/Api/Rest/UserController.php:455
-msgid "Authentication required."
-msgstr ""
-
-#: src/Api/Rest/AuthController.php:359
-#: src/Api/Rest/CommentsController.php:149
-#: src/Api/Rest/ContentController.php:404
-#: src/Api/Rest/UploadsController.php:64
-#: src/Api/Rest/UserController.php:252
-#: src/Api/Rest/UserController.php:406
-msgid "Too many requests, please retry later."
-msgstr ""
-
-#: src/Api/Rest/CommentsController.php:158
+#: src/Api/Rest/CommentsController.php:151
 msgid "Comments are closed for this content."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:168
+#: src/Api/Rest/CommentsController.php:161
 msgid "The comment is too long."
 msgstr ""
 
 #. translators: %d: maximum comment length.
-#: src/Api/Rest/CommentsController.php:178
+#: src/Api/Rest/CommentsController.php:171
 #, php-format
 msgid "The comment must be 1-%d characters long."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:189
+#: src/Api/Rest/CommentsController.php:182
 msgid "The commented reply does not exist."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:201
+#: src/Api/Rest/CommentsController.php:194
 msgid "Please log in to comment."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:209
+#: src/Api/Rest/CommentsController.php:202
 msgid "Please provide your name and a valid email address to comment."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:253
-#: src/Api/Rest/CommentsController.php:261
-#: src/Api/Rest/CommentsController.php:264
+#: src/Api/Rest/CommentsController.php:246
+#: src/Api/Rest/CommentsController.php:254
+#: src/Api/Rest/CommentsController.php:257
 msgid "The comment could not be posted."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:258
+#: src/Api/Rest/CommentsController.php:251
 msgid "You are commenting too quickly. Slow down."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:279
-#: src/Api/Rest/ContentController.php:223
-#: src/Api/Rest/ContentController.php:373
-#: src/Api/Rest/ContentController.php:378
-#: src/Api/Rest/ContentController.php:419
-#: src/Api/Rest/ContentController.php:458
-#: src/Api/Rest/ContentController.php:494
+#: src/Api/Rest/CommentsController.php:272
+#: src/Api/Rest/ContentController.php:218
+#: src/Api/Rest/ContentController.php:354
+#: src/Api/Rest/ContentController.php:359
+#: src/Api/Rest/ContentController.php:400
+#: src/Api/Rest/ContentController.php:439
+#: src/Api/Rest/ContentController.php:475
 #: src/Domain/FileServe/DownloadService.php:108
 #: src/Domain/FileServe/FileService.php:51
 msgid "Content not found."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:429
+#: src/Api/Rest/ContentController.php:410
 msgid "Incorrect password."
 msgstr ""
 
-#: src/Api/Rest/ContentController.php:534
+#: src/Api/Rest/ContentController.php:515
 msgid "Profile not found."
 msgstr ""
 
-#: src/Api/Rest/CounterController.php:67
-#: src/Domain/Discussion/DiscussionLikeService.php:141
-#: src/Domain/Discussion/DiscussionLikeService.php:195
-msgid "Please log in to interact."
-msgstr ""
-
-#: src/Api/Rest/CreditController.php:108
+#: src/Api/Rest/CreditController.php:101
 #: src/Domain/Credit/LedgerService.php:175
 msgid "This account is disabled."
 msgstr ""
 
-#: src/Api/Rest/CreditController.php:116
+#: src/Api/Rest/CreditController.php:109
 msgid "Check-in is not available."
 msgstr ""
 
-#: src/Api/Rest/CreditController.php:126
+#: src/Api/Rest/CreditController.php:119
 msgid "Already checked in today."
 msgstr ""
 
-#: src/Api/Rest/CreditController.php:159
-#: src/Api/Rest/SponsorshipController.php:115
+#: src/Api/Rest/CreditController.php:152
+#: src/Api/Rest/SponsorshipController.php:116
 msgid "The Afdian channel is not available."
 msgstr ""
 
-#: src/Api/Rest/DiscussionController.php:222
+#: src/Api/Rest/DiscussionController.php:210
 msgid "The thread could not be read back."
 msgstr ""
 
-#: src/Api/Rest/DiscussionController.php:272
-#: src/Api/Rest/DiscussionController.php:336
+#: src/Api/Rest/DiscussionController.php:253
+#: src/Api/Rest/DiscussionController.php:324
 msgid "The reply could not be read back."
 msgstr ""
 
-#: src/Api/Rest/DiscussionController.php:415
+#: src/Api/Rest/DiscussionController.php:414
 #: src/Domain/Discussion/DiscussionService.php:48
-#: src/Domain/Discussion/DiscussionService.php:549
+#: src/Domain/Discussion/DiscussionService.php:587
 msgid "Unknown board."
 msgstr ""
 
-#: src/Api/Rest/DiscussionController.php:432
+#: src/Api/Rest/DiscussionController.php:423
 #: src/Domain/Discussion/DiscussionLikeService.php:145
 #: src/Domain/Discussion/DiscussionLikeService.php:198
-#: src/Domain/Discussion/DiscussionService.php:470
-#: src/Domain/Discussion/DiscussionService.php:524
-#: src/Domain/Discussion/DiscussionService.php:581
+#: src/Domain/Discussion/DiscussionService.php:508
+#: src/Domain/Discussion/DiscussionService.php:562
+#: src/Domain/Discussion/DiscussionService.php:619
 msgid "Thread not found."
 msgstr ""
 
-#: src/Api/Rest/IntegrationsController.php:142
+#: src/Api/Rest/IntegrationsController.php:148
 #: src/Domain/Credit/CreditsPage.php:334
 #: src/Domain/Credit/LedgerService.php:105
 #: src/Domain/Credit/LedgerService.php:178
 msgid "The credit holder does not exist."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:127
-#: src/Api/Rest/SponsorshipController.php:200
+#: src/Api/Rest/RestGuard.php:38
+#: src/Api/Rest/UploadsController.php:58
+msgid "Authentication required."
+msgstr ""
+
+#: src/Api/Rest/RestGuard.php:44
+msgid "Too many requests, try again later."
+msgstr ""
+
+#: src/Api/Rest/SponsorshipController.php:128
+#: src/Api/Rest/SponsorshipController.php:201
 msgid "Unknown membership tier."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:134
-#: src/Api/Rest/SponsorshipController.php:208
+#: src/Api/Rest/SponsorshipController.php:135
+#: src/Api/Rest/SponsorshipController.php:209
 msgid "This membership tier is not available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:141
+#: src/Api/Rest/SponsorshipController.php:142
 msgid "This tier is not bound to an Afdian plan."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:190
+#: src/Api/Rest/SponsorshipController.php:191
 msgid "No payment gateway is available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:193
+#: src/Api/Rest/SponsorshipController.php:194
 #: src/Domain/Sponsorship/EpayGateway.php:86
 msgid "The requested payment channel is not available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:229
+#: src/Api/Rest/SponsorshipController.php:230
 msgid "The return URL is not a valid absolute http(s) address."
 msgstr ""
 
-#: src/Api/Rest/UploadsController.php:69
+#: src/Api/Rest/UploadsController.php:70
 #: src/Domain/Identity/AvatarModule.php:428
 #: src/Domain/Media/PicBedPage.php:185
+#: src/Domain/Media/PicBedStore.php:45
 msgid "No file was uploaded."
 msgstr ""
 
-#: src/Api/Rest/UploadsController.php:72
-#: src/Domain/Media/PicBedPage.php:188
-msgid "Invalid upload."
-msgstr ""
-
-#: src/Api/Rest/UploadsController.php:75
-#: src/Domain/Identity/AvatarModule.php:551
-#: src/Domain/Media/PicBedPage.php:191
-msgid "The upload failed with a file error."
-msgstr ""
-
-#: src/Api/Rest/UploadsController.php:80
-#: src/Domain/Media/PicBedPage.php:196
-msgid "The file is too large."
-msgstr ""
-
-#: src/Api/Rest/UploadsController.php:88
-#: src/Domain/Media/PicBedPage.php:204
-msgid "This file type is not supported."
-msgstr ""
-
-#: src/Api/Rest/UploadsController.php:94
-#: src/Domain/Media/PicBedPage.php:209
-msgid "The file could not be written."
-msgstr ""
-
-#: src/Api/Rest/UploadsController.php:100
-#: src/Domain/Media/PicBedPage.php:215
-msgid "Image processing failed."
-msgstr ""
-
-#: src/Api/Rest/UploadsController.php:108
-#: src/Domain/Media/PicBedPage.php:222
-msgid "The image URL could not be resolved."
-msgstr ""
-
-#: src/Api/Rest/UserController.php:208
+#: src/Api/Rest/UserController.php:201
 msgid "The favorite could not be removed."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:268
+#: src/Api/Rest/UserController.php:254
 msgid "The follow could not be removed."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:357
+#: src/Api/Rest/UserController.php:343
 msgid "Changing the email address requires the current password."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:362
+#: src/Api/Rest/UserController.php:348
 msgid "The profile could not be saved."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:382
+#: src/Api/Rest/UserController.php:368
 msgid "No avatar image was uploaded."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:412
+#: src/Api/Rest/UserController.php:398
 msgid "The current password is incorrect."
 msgstr ""
 
@@ -1056,7 +930,7 @@ msgstr ""
 #: src/Domain/Content/BlocksModule.php:124
 #: src/Domain/DevTools/SamplePage.php:241
 #: src/Domain/Media/PicBedPage.php:103
-#: src/Domain/Media/PicBedPage.php:285
+#: src/Domain/Media/PicBedPage.php:250
 #: src/Domain/Parts/BuiltinParts.php:153
 msgid "URL"
 msgstr ""
@@ -1659,7 +1533,7 @@ msgid "Direction"
 msgstr ""
 
 #: src/Domain/Credit/CreditsPage.php:274
-#: src/Domain/Media/PicBedPage.php:284
+#: src/Domain/Media/PicBedPage.php:249
 #: src/Domain/Sponsorship/PaymentsAuditPage.php:146
 msgid "Source"
 msgstr ""
@@ -1910,7 +1784,7 @@ msgstr ""
 
 #: src/Domain/DevTools/DevToolsModule.php:123
 #: src/Domain/DevTools/DevToolsModule.php:124
-#: src/Domain/DevTools/SearchReplacePage.php:45
+#: src/Domain/DevTools/SearchReplacePage.php:51
 msgid "Search & Replace"
 msgstr ""
 
@@ -2198,104 +2072,110 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:40
-#: src/Domain/DevTools/SearchReplacePage.php:243
+#: src/Domain/DevTools/SearchReplacePage.php:46
+#: src/Domain/DevTools/SearchReplacePage.php:258
 msgid "You are not allowed to run search and replace."
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:46
+#: src/Domain/DevTools/SearchReplacePage.php:52
 msgid "Direct wp_posts search and replace: query first, then execute. Raw SQL — no hooks fire, no revisions, no modified-date bump, meta and options untouched. Back up the database before executing; the match is case-sensitive and cannot be undone."
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:64
+#: src/Domain/DevTools/SearchReplacePage.php:70
 msgid "Search & replace"
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:71
+#: src/Domain/DevTools/SearchReplacePage.php:77
 msgid "Search"
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:74
+#: src/Domain/DevTools/SearchReplacePage.php:80
 msgid "Case-sensitive, matched byte-exactly."
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:78
+#: src/Domain/DevTools/SearchReplacePage.php:84
 msgid "Replace with"
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:81
+#: src/Domain/DevTools/SearchReplacePage.php:87
 msgid "Leave empty to remove every occurrence of the search string."
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:85
+#: src/Domain/DevTools/SearchReplacePage.php:91
 msgid "Columns"
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:93
+#: src/Domain/DevTools/SearchReplacePage.php:99
 msgid "At least one; defaults to post_content."
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:97
+#: src/Domain/DevTools/SearchReplacePage.php:103
 msgid "Post types"
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:105
+#: src/Domain/DevTools/SearchReplacePage.php:111
 msgid "Empty selection means every public type."
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:109
+#: src/Domain/DevTools/SearchReplacePage.php:115
 msgid "Statuses"
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:112
+#: src/Domain/DevTools/SearchReplacePage.php:118
 msgid "Published only"
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:113
+#: src/Domain/DevTools/SearchReplacePage.php:119
 msgid "All real statuses (no trash, no auto-draft)"
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:118
+#: src/Domain/DevTools/SearchReplacePage.php:124
 msgid "Query only"
 msgstr ""
 
 #. translators: %s: search string.
-#: src/Domain/DevTools/SearchReplacePage.php:160
+#: src/Domain/DevTools/SearchReplacePage.php:166
 #, php-format
 msgid "Preview for \"%s\""
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:167
+#: src/Domain/DevTools/SearchReplacePage.php:173
 msgid "No matches in the selected columns, types and statuses."
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:187
+#: src/Domain/DevTools/SearchReplacePage.php:193
 msgid "Sample matches (newest first)"
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:216
+#: src/Domain/DevTools/SearchReplacePage.php:224
 msgid "Statement"
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:233
+#. translators: %d: batch size.
+#: src/Domain/DevTools/SearchReplacePage.php:229
+#, php-format
+msgid "Execution runs this replace in batches of %d posts until no match remains; the ids above are a sample window."
+msgstr ""
+
+#: src/Domain/DevTools/SearchReplacePage.php:248
 msgid "Run the replace on the posts table now? This cannot be undone."
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:233
+#: src/Domain/DevTools/SearchReplacePage.php:248
 msgid "Execute replace"
 msgstr ""
 
 #. translators: %d: number of updated rows
-#: src/Domain/DevTools/SearchReplacePage.php:290
+#: src/Domain/DevTools/SearchReplacePage.php:323
 #, php-format
 msgid "Updated %d rows in the posts table."
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:293
+#: src/Domain/DevTools/SearchReplacePage.php:326
 msgid "Nothing matched — nothing was updated."
 msgstr ""
 
-#: src/Domain/DevTools/SearchReplacePage.php:294
+#: src/Domain/DevTools/SearchReplacePage.php:327
 msgid "The search string is empty."
 msgstr ""
 
@@ -2477,6 +2357,11 @@ msgstr ""
 msgid "No shortcodes match."
 msgstr ""
 
+#: src/Domain/Discussion/DiscussionLikeService.php:141
+#: src/Domain/Discussion/DiscussionLikeService.php:195
+msgid "Please log in to interact."
+msgstr ""
+
 #: src/Domain/Discussion/DiscussionLikeService.php:148
 msgid "This thread is closed; likes are no longer accepted."
 msgstr ""
@@ -2496,12 +2381,12 @@ msgid "The thread author does not exist."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:51
-#: src/Domain/Discussion/DiscussionService.php:538
+#: src/Domain/Discussion/DiscussionService.php:576
 msgid "The thread body is required."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:55
-#: src/Domain/Discussion/DiscussionService.php:542
+#: src/Domain/Discussion/DiscussionService.php:580
 msgid "A thread can carry at most nine images."
 msgstr ""
 
@@ -2509,112 +2394,112 @@ msgstr ""
 msgid "The thread could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:335
+#: src/Domain/Discussion/DiscussionService.php:373
 msgid "The board slug must be lowercase letters, digits, dashes or underscores."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:338
-#: src/Domain/Discussion/DiscussionService.php:381
+#: src/Domain/Discussion/DiscussionService.php:376
+#: src/Domain/Discussion/DiscussionService.php:419
 msgid "The board name is required."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:341
+#: src/Domain/Discussion/DiscussionService.php:379
 msgid "A board with this slug already exists."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:359
+#: src/Domain/Discussion/DiscussionService.php:397
 msgid "The board could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:374
-#: src/Domain/Discussion/DiscussionService.php:415
+#: src/Domain/Discussion/DiscussionService.php:412
+#: src/Domain/Discussion/DiscussionService.php:453
 msgid "Board not found."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:400
+#: src/Domain/Discussion/DiscussionService.php:438
 msgid "The board could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:428
+#: src/Domain/Discussion/DiscussionService.php:466
 msgid "The last board cannot be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:441
+#: src/Domain/Discussion/DiscussionService.php:479
 msgid "The board threads could not be moved."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:445
+#: src/Domain/Discussion/DiscussionService.php:483
 msgid "The board could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:473
+#: src/Domain/Discussion/DiscussionService.php:511
 msgid "This thread is closed to new replies."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:476
+#: src/Domain/Discussion/DiscussionService.php:514
 msgid "The replying user does not exist."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:479
-#: src/Domain/Discussion/DiscussionService.php:620
+#: src/Domain/Discussion/DiscussionService.php:517
+#: src/Domain/Discussion/DiscussionService.php:667
 msgid "The reply body is required."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:483
-#: src/Domain/Discussion/DiscussionService.php:624
+#: src/Domain/Discussion/DiscussionService.php:521
+#: src/Domain/Discussion/DiscussionService.php:671
 msgid "A reply can carry at most nine images."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:501
+#: src/Domain/Discussion/DiscussionService.php:539
 msgid "The reply could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:527
+#: src/Domain/Discussion/DiscussionService.php:565
 msgid "You are not allowed to edit this thread."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:556
+#: src/Domain/Discussion/DiscussionService.php:594
 msgid "Unknown thread status."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:570
+#: src/Domain/Discussion/DiscussionService.php:608
 msgid "The thread could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:584
+#: src/Domain/Discussion/DiscussionService.php:622
 msgid "You are not allowed to delete this thread."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:591
+#: src/Domain/Discussion/DiscussionService.php:635
 msgid "The thread replies could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:595
+#: src/Domain/Discussion/DiscussionService.php:641
 msgid "The thread could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:614
-#: src/Domain/Discussion/DiscussionService.php:646
+#: src/Domain/Discussion/DiscussionService.php:661
+#: src/Domain/Discussion/DiscussionService.php:693
 msgid "Reply not found."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:617
+#: src/Domain/Discussion/DiscussionService.php:664
 msgid "You are not allowed to edit this reply."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:635
+#: src/Domain/Discussion/DiscussionService.php:682
 msgid "The reply could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:649
+#: src/Domain/Discussion/DiscussionService.php:696
 msgid "You are not allowed to delete this reply."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:656
+#: src/Domain/Discussion/DiscussionService.php:703
 msgid "The reply could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:722
+#: src/Domain/Discussion/DiscussionService.php:769
 msgid "The bound content does not exist or cannot carry discussions."
 msgstr ""
 
@@ -2856,6 +2741,10 @@ msgstr ""
 msgid "Invalid avatar upload."
 msgstr ""
 
+#: src/Domain/Identity/AvatarModule.php:551
+msgid "The upload failed with a file error."
+msgstr ""
+
 #: src/Domain/Identity/AvatarModule.php:554
 msgid "The avatar image is too large (4 MB maximum)."
 msgstr ""
@@ -2868,7 +2757,7 @@ msgstr ""
 msgid "The favorite could not be stored."
 msgstr ""
 
-#: src/Domain/Identity/FavoriteService.php:197
+#: src/Domain/Identity/FavoriteService.php:187
 msgid "Only published content can be favorited."
 msgstr ""
 
@@ -2975,11 +2864,11 @@ msgstr ""
 msgid "One shared key for every self-hosted companion service that binds site sign-in and credit spending. Generate a random key with the button (or paste your own) and configure it in each service; leave empty to switch the integration endpoints off. Rotating the key means updating every bound service."
 msgstr ""
 
-#: src/Domain/Integrations/ServiceKey.php:44
+#: src/Domain/Integrations/ServiceKey.php:46
 msgid "The service integration is not configured."
 msgstr ""
 
-#: src/Domain/Integrations/ServiceKey.php:57
+#: src/Domain/Integrations/ServiceKey.php:54
 msgid "Service authentication failed."
 msgstr ""
 
@@ -3191,7 +3080,7 @@ msgid "Dimensions"
 msgstr ""
 
 #: src/Domain/Media/PicBedPage.php:105
-#: src/Domain/Media/PicBedPage.php:286
+#: src/Domain/Media/PicBedPage.php:251
 msgid "Relative path"
 msgstr ""
 
@@ -3211,13 +3100,13 @@ msgstr ""
 msgid "Insufficient permissions."
 msgstr ""
 
-#: src/Domain/Media/PicBedPage.php:245
-#: src/Domain/Media/PicBedPage.php:260
+#: src/Domain/Media/PicBedPage.php:210
+#: src/Domain/Media/PicBedPage.php:225
 msgid "No uploads yet."
 msgstr ""
 
 #. translators: %d: number of older files not listed.
-#: src/Domain/Media/PicBedPage.php:277
+#: src/Domain/Media/PicBedPage.php:242
 #, php-format
 msgid "The %d oldest file is not listed."
 msgid_plural "The %d oldest files are not listed."
@@ -3225,16 +3114,36 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: user display name or login, 2: user ID.
-#: src/Domain/Media/PicBedPage.php:321
+#: src/Domain/Media/PicBedPage.php:286
 #, php-format
 msgid "User %1$s (#%2$d)"
 msgstr ""
 
 #. translators: %d: user ID.
-#: src/Domain/Media/PicBedPage.php:327
+#: src/Domain/Media/PicBedPage.php:292
 #: src/Domain/Notification/NotificationPage.php:129
 #, php-format
 msgid "User #%d"
+msgstr ""
+
+#: src/Domain/Media/PicBedStore.php:48
+msgid "The file is too large."
+msgstr ""
+
+#: src/Domain/Media/PicBedStore.php:56
+msgid "This file type is not supported."
+msgstr ""
+
+#: src/Domain/Media/PicBedStore.php:65
+msgid "The file could not be written."
+msgstr ""
+
+#: src/Domain/Media/PicBedStore.php:75
+msgid "Image processing failed."
+msgstr ""
+
+#: src/Domain/Media/PicBedStore.php:83
+msgid "The image URL could not be resolved."
 msgstr ""
 
 #. translators: %1$s: commenter name.
@@ -3393,7 +3302,7 @@ msgstr ""
 
 #: src/Domain/Notification/NotificationPage.php:61
 #: src/Domain/Notification/NotificationPage.php:174
-#: src/Domain/Notification/NotificationPage.php:196
+#: src/Domain/Notification/NotificationPage.php:198
 msgid "You are not allowed to manage notifications."
 msgstr ""
 
@@ -3447,32 +3356,32 @@ msgstr ""
 msgid "Delete this notification?"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:214
+#: src/Domain/Notification/NotificationPage.php:216
 msgid "Notification published."
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:215
+#: src/Domain/Notification/NotificationPage.php:217
 msgid "Notification deleted."
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:216
+#: src/Domain/Notification/NotificationPage.php:218
 #: src/Domain/Sponsorship/ConvertCodesPage.php:223
 msgid "The operation failed — check the values and try again."
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:240
+#: src/Domain/Notification/NotificationPage.php:242
 msgid "Subscriber"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:241
+#: src/Domain/Notification/NotificationPage.php:243
 msgid "Sponsor"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:243
+#: src/Domain/Notification/NotificationPage.php:245
 msgid "Administrator"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:244
+#: src/Domain/Notification/NotificationPage.php:246
 msgid "Guest"
 msgstr ""
 
@@ -3909,6 +3818,11 @@ msgstr ""
 msgid "The order carries no account binding — activate it from the account page with the order number."
 msgstr ""
 
+#: src/Domain/Sponsorship/AfdianGateway.php:91
+#, php-format
+msgid "A membership order from %s"
+msgstr ""
+
 #: src/Domain/Sponsorship/ConvertCodesPage.php:42
 #: src/Domain/Sponsorship/ConvertCodesPage.php:43
 #: src/Domain/Sponsorship/ConvertCodesPage.php:61
@@ -4012,8 +3926,8 @@ msgid "The membership holder does not exist."
 msgstr ""
 
 #: src/Domain/Sponsorship/EntitlementService.php:77
-#: src/Domain/Sponsorship/OrderService.php:54
-#: src/Domain/Sponsorship/OrderService.php:105
+#: src/Domain/Sponsorship/OrderService.php:52
+#: src/Domain/Sponsorship/OrderService.php:103
 msgid "The order id is required."
 msgstr ""
 
@@ -4034,18 +3948,18 @@ msgstr ""
 msgid "The Epay channel is not available."
 msgstr ""
 
-#: src/Domain/Sponsorship/OrderService.php:51
-#: src/Domain/Sponsorship/OrderService.php:102
+#: src/Domain/Sponsorship/OrderService.php:49
+#: src/Domain/Sponsorship/OrderService.php:100
 msgid "The order user does not exist."
 msgstr ""
 
-#: src/Domain/Sponsorship/OrderService.php:81
-#: src/Domain/Sponsorship/OrderService.php:129
+#: src/Domain/Sponsorship/OrderService.php:79
+#: src/Domain/Sponsorship/OrderService.php:127
 msgid "This order was already recorded."
 msgstr ""
 
-#: src/Domain/Sponsorship/OrderService.php:84
-#: src/Domain/Sponsorship/OrderService.php:132
+#: src/Domain/Sponsorship/OrderService.php:82
+#: src/Domain/Sponsorship/OrderService.php:130
 msgid "The order could not be stored."
 msgstr ""
 
@@ -4110,7 +4024,7 @@ msgstr ""
 msgid "This code has already been redeemed."
 msgstr ""
 
-#: src/Domain/Sponsorship/RedeemCodeService.php:97
+#: src/Domain/Sponsorship/RedeemCodeService.php:99
 msgid "The membership activation failed — the code was not consumed, try again."
 msgstr ""
 
@@ -4717,63 +4631,63 @@ msgstr ""
 msgid "Image processing failed; the upload was cancelled."
 msgstr ""
 
-#: src/Modules/OpenListModule.php:116
+#: src/Modules/OpenListModule.php:117
 msgid "OpenList service"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:122
+#: src/Modules/OpenListModule.php:123
 msgid "Server URL"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:123
+#: src/Modules/OpenListModule.php:124
 msgid "Base address of the OpenList instance that hosts the listed files."
 msgstr ""
 
-#: src/Modules/OpenListModule.php:129
+#: src/Modules/OpenListModule.php:130
 msgid "Link base URL"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:130
+#: src/Modules/OpenListModule.php:131
 msgid "Base address the delivery links are built on — the one the visitor's browser must reach. Leave empty to reuse the server URL; split them when WordPress reaches the file service on an internal host."
 msgstr ""
 
-#: src/Modules/OpenListModule.php:136
+#: src/Modules/OpenListModule.php:137
 msgid "API username"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:142
+#: src/Modules/OpenListModule.php:143
 msgid "API password"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:143
+#: src/Modules/OpenListModule.php:144
 msgid "Used to fetch fresh bearer tokens; stored server-side and never exposed."
 msgstr ""
 
-#: src/Modules/OpenListModule.php:149
+#: src/Modules/OpenListModule.php:150
 msgid "Token cache (hours)"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:150
+#: src/Modules/OpenListModule.php:151
 msgid "0 refetches the token on every request. Uses the object cache, so a Redis/memcached drop-in makes it persist."
 msgstr ""
 
-#: src/Modules/OpenListModule.php:159
+#: src/Modules/OpenListModule.php:160
 msgid "Download link mode"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:160
+#: src/Modules/OpenListModule.php:161
 msgid "How a delivery link is built. All three are download paths on the OpenList host — none of them sends a reader to its browsing pages."
 msgstr ""
 
-#: src/Modules/OpenListModule.php:163
+#: src/Modules/OpenListModule.php:164
 msgid "Direct (/d/)"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:164
+#: src/Modules/OpenListModule.php:165
 msgid "Proxied (/p/)"
 msgstr ""
 
-#: src/Modules/OpenListModule.php:165
+#: src/Modules/OpenListModule.php:166
 msgid "Plain path"
 msgstr ""
 

@@ -94,12 +94,6 @@ final class MediaPaths
         return $this->ensureDir($this->contentDir() . '/aiya_thumbnail/' . $width . 'x' . $height);
     }
 
-    /** Month-sharded directory for generated covers, created on demand. */
-    public function coverDir(): string
-    {
-        return $this->ensureDir($this->coverTreeDir() . '/' . wp_date('Y/m'));
-    }
-
     /**
      * The generated-cover filename recipe: timestamp + random suffix.
      * Single author for the recipe AND its recognition pattern — a
@@ -169,8 +163,10 @@ final class MediaPaths
     private function ensureDir(string $dir): string
     {
         if (!is_dir($dir) && !wp_mkdir_p($dir)) {
-            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
-            error_log('[aiya-core] Could not create media directory: ' . $dir);
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+                error_log('[aiya-core] Could not create media directory: ' . $dir);
+            }
         }
 
         return $dir;

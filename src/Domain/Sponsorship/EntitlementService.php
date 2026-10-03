@@ -204,8 +204,10 @@ final class EntitlementService
                             $window['endsAt']
                         );
                         if (is_wp_error($credited) && $credited->get_error_code() !== 'aiya_credit_duplicate') {
-                            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
-                            error_log('[aiya-core] Membership cycle grant failed: ' . $credited->get_error_message());
+                            if (defined('WP_DEBUG') && WP_DEBUG) {
+                                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+                                error_log('[aiya-core] Membership cycle grant failed: ' . $credited->get_error_message());
+                            }
                             break; // transient failure — retry the whole row next run, never skip ahead
                         }
                         // A duplicate means a previous lost race already

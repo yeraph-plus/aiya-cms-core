@@ -148,16 +148,6 @@ final class FavoriteService
         return array_map('intval', is_array($rows) ? $rows : []);
     }
 
-    /** How many users favorited one post — the future article-side counter. */
-    public function countForPost(int $postId): int
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $found = $wpdb->get_var($wpdb->prepare('SELECT COUNT(id) FROM %i WHERE post_id = %d', $this->table(), $postId));
-
-        return is_numeric($found) ? (int) $found : 0;
-    }
-
     /** How many favorites the author's published posts received in total. */
     public function countForAuthor(int $authorId): int
     {

@@ -3330,3 +3330,9 @@ msgstr "点赞失败。"
 
 msgid "This thread is closed; likes are no longer accepted."
 msgstr "该帖已关闭，不再接受点赞。"
+
+msgid "A membership order from %s"
+msgstr "来自%s的会员订单"
+
+msgid "Execution runs this replace in batches of %d posts until no match remains; the ids above are a sample window."
+msgstr "执行时按每批 %d 篇文章分批替换，直到不再有匹配；上方的 id 仅为样本窗口。"
