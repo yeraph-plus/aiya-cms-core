@@ -191,6 +191,12 @@ final class AuthController
             return new WP_Error('aiya_registration_failed', __('The account was created, but the profile could not be saved.', 'aiya-core'), ['status' => 500]);
         }
 
+        // Front-end registration rides the default new-user notification
+        // (user leg only — the admin notice is gated off in MailModule),
+        // so every new account gets the branded welcome the wp-admin
+        // creation path already sends.
+        wp_send_new_user_notifications($userId, 'user');
+
         return $this->sessionResponse((int) $userId, true);
     }
 
