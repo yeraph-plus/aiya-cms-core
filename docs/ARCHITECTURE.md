@@ -8,11 +8,18 @@ AIYA CMS Core is a conventional WordPress plugin. It does not depend on an activ
 placeholder shell theme (占位主题壳), versioned here as the sync source for
 its runtime location `wp-content/themes/aiya-headless/`. It exists only so
 direct hits on the WP host render a harmless document while the Astro
-application serves the public frontend: it boots no framework, takes
-nothing from this plugin (its two appearance features ride stock WordPress
-surfaces — the Site Icon and one Customizer field), and HeadlessModule
-owns the headless trims around it. See that directory's README for the
-details; keep the two copies byte-identical.
+application serves the public frontend: it boots no framework, reads none
+of this plugin's own data (custom fields, custom tables) and renders
+identically with the plugin deactivated — its one guarded plugin-awareness
+(injecting the `resource` CPT into the post-only listing queries — home
+and the date/author archives — and rendering the taxonomies this plugin
+registers, the resource family plus `page_category`, on the singular meta
+line) keys on the `AIYA_CORE_VERSION` constant only; search and term
+archives stay on native behavior (search runs post_type "any", term
+archives scope themselves to the types carrying the taxonomy).
+HeadlessModule owns the
+headless trims around it. See that directory's README for the details;
+keep the two copies byte-identical.
 
 ## Current foundation
 

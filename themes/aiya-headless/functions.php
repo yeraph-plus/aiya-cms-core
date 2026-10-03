@@ -64,6 +64,30 @@ add_filter('comment_reply_link', static function (): string {
     return '';
 });
 
+/*
+ * Listing surfaces. aiya-core's additions to WordPress's own query
+ * surfaces are exactly two: the resource CPT and the page_category
+ * taxonomy on pages (both registered by ContentTypeModule). Native
+ * behavior already covers the taxonomy everywhere it can appear — term
+ * archives scope themselves to the post types carrying the queried
+ * taxonomy, and search runs post_type "any" — so the one gap is the
+ * post-only default of home and the date/author archives, where the
+ * resource library joins the list. Search is deliberately untouched:
+ * narrowing it to ['post', 'resource'] would silently drop pages,
+ * which the default "any" search includes. The core version constant
+ * keeps the theme inert when aiya-core is inactive, so it renders
+ * identically without the plugin.
+ */
+add_action('pre_get_posts', static function (WP_Query $query): void {
+    if (is_admin() || !defined('AIYA_CORE_VERSION') || !$query->is_main_query()) {
+        return;
+    }
+
+    if ($query->is_home() || $query->is_date() || $query->is_author()) {
+        $query->set('post_type', ['post', 'resource']);
+    }
+});
+
 /**
  * Contextual heading for the list template (home, archives, search, 404).
  *
@@ -84,7 +108,12 @@ function aiya_shell_page_title(): string
     }
 
     if (is_archive()) {
-        return (string) get_the_archive_title();
+        // Core wraps the title part of get_the_archive_title() in a
+        // presentational <span> (the "%1$s %2$s" archive format). The
+        // shell's single esc_html() outlet needs text, so strip that
+        // wrapper instead of printing literal markup; the strip is what
+        // makes term titles render cleanly with no extra compatibility.
+        return (string) wp_strip_all_tags((string) get_the_archive_title());
     }
 
     if (is_home()) {

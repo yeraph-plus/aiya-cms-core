@@ -1,8 +1,9 @@
 <?php
 /**
  * Singular template: posts, pages, attachments and post previews all render
- * through here. No aiya-core data is read — the only content outlet is
- * WordPress's own the_content().
+ * through here. The only content outlet is WordPress's own the_content();
+ * the meta line additionally reads whichever taxonomies the post type has
+ * registered (core taxonomy API only — no aiya-core code, fields or tables).
  *
  * @package AIYA_Headless_Shell
  */
@@ -36,6 +37,25 @@ get_header();
 
             if (has_category()) {
                 $aiya_meta[] = get_the_category_list();
+            }
+
+            // Custom taxonomies (aiya-core registers the resource family
+            // plus page_category on pages): every public, non-builtin
+            // taxonomy attached to the post joins the line with its terms,
+            // labeled exactly like core labels a term archive
+            // ("<taxonomy>: <terms>"). The label is the taxonomy's own
+            // registered label — the registering plugin owns its
+            // translation — and the term list comes pre-escaped from core
+            // (same trust level as get_the_category_list() above).
+            foreach (get_object_taxonomies(get_post(), 'objects') as $aiya_taxonomy) {
+                if (!$aiya_taxonomy->public || in_array($aiya_taxonomy->name, ['category', 'post_tag', 'post_format'], true)) {
+                    continue;
+                }
+
+                $aiya_term_links = get_the_term_list((int) get_the_ID(), $aiya_taxonomy->name, '', ', ');
+                if (is_string($aiya_term_links) && $aiya_term_links !== '') {
+                    $aiya_meta[] = sprintf(_x('%s:', 'taxonomy term archive title prefix'), esc_html((string) $aiya_taxonomy->labels->singular_name)) . ' ' . $aiya_term_links;
+                }
             }
 
             echo implode(' · ', $aiya_meta); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every segment is escaped as it is built.

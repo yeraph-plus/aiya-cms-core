@@ -2,7 +2,7 @@
 Theme Name: AIYA Headless Shell
 Description: Classic shell theme for the headless AIYA CMS stack. Renders WordPress's native routes (lists, singular pages, comments, previews) with stock admin stylesheets; the public frontend is served by the Astro application.
 Author: Yeraph Studio
-Version: 0.3.0
+Version: 0.4.0
 Requires at least: 6.4
 Requires PHP: 8.5
 License: GPL-3.0-or-later
@@ -160,7 +160,14 @@ body {
 	text-decoration: none;
 }
 
-/* Singular: plain reading typography, no card */
+/* Singular: plain reading typography, no card. The shell collapses onto
+   the reading column itself — no side area is held open (the theme
+   declares no widget support) — so brand row, article and footer share
+   one centered column (760 = 720 reading width + shell padding). */
+.wp-singular .aiya-shell {
+	max-width: 760px;
+}
+
 .aiya-singular .entry-title {
 	margin: 0 0 8px;
 	padding: 0;
