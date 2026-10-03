@@ -552,10 +552,10 @@
 | M11 | P2 | marker 分支对非文本 Content-Type 一律强换（防御缺口） | ✅ 与 M5 一并覆盖 |
 | R1 | P2 | 点赞响应 `{likes,viewerLiked,already}` 为 ad-hoc 面不在契约执法 | ✅ B3（LikeResponse DTO + 快照 + zod） |
 | R2 | P2 | 登录写面限流按 IP 计（RateLimiter docblock 建议登录面用 hitFor） | ✅ B3（互动/账户写面全切 hitFor(user)；auth 凭据面、匿名读面、webhook 保持 IP） |
-| R3 | P2 | lockWpV2 在 rest_endpoints 内 302+exit 语义偏脆（当前影响为零） | ⏭️ 登记 |
-| R4 | P2 | DiscussionService::delete 内联 new DiscussionLikeService | ⏭️ 登记（可注入化随 B4） |
-| R5 | P2 | 壳主题标题助手转义不一致（当前值均管理端可控，风险低） | ⏭️ 登记 |
-| R6 | P2 | 壳页脚品牌链接 home_url vs 前端 origin | ⏭️ 登记（下批统一） |
+| R3 | P2 | lockWpV2 在 rest_endpoints 内 302+exit 语义偏脆（当前影响为零） | ✅ B6（REST_REQUEST 卫兵→二轮改 dispatch 形状判定，见 §7 S1） |
+| R4 | P2 | DiscussionService::delete 内联 new DiscussionLikeService | ✅ B6（构造注入 + 惰性兜底，RestController 三方共享） |
+| R5 | P2 | 壳主题标题助手转义不一致（当前值均管理端可控，风险低） | ✅ B6（单一出口 esc_html，搜索串字面弯引号避双编） |
+| R6 | P2 | 壳页脚品牌链接 home_url vs 前端 origin | ✅ B6（MailShell 改 FrontendDomain::originOrHome） |
 | R7 | P2 | 测试 shim 不跑 wp_mail filter（CID bug 漏网的结构性原因） | ◐ 已补 marker-embeds/multipart/死路径回归用例；垫片跑 filter 归 B5 |
 
 **同批退役**：`docs/discussion-likes-design.md` 与 `docs/mentions-design.md` 删除（语义已永久化——点赞见 ROADMAP 0.102.0 条目、mentions 见 ARCHITECTURE 零路由节 + ROADMAP「@提及通知落地」条目；git 历史取回原文）；三处 src docblock 指针改指 ARCHITECTURE/ROADMAP。**H-07 归零**：phpcs 0 error 0 warning（三条豁免注释）。**工具链终态**：phpunit 650/1904、phpstan 0、phpcs 0/0、vitest 342/342。
