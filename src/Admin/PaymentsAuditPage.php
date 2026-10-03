@@ -12,7 +12,7 @@ use Aiya\Core\Domain\Sponsorship\OrderService;
 use Aiya\Core\Domain\Shared\DateLabels;
 
 /**
- * The payment audit screen (submenu of the membership menu): every
+ * The order-records screen (submenu of the membership menu): every
  * gateway payment the site has recorded, newest first, filterable to one
  * holder through the shared user typeahead and to one source. The source
  * vocabulary is derived from the gateways themselves — the adapters own
@@ -61,12 +61,12 @@ final class PaymentsAuditPage implements Module
     {
         add_submenu_page(
             self::PARENT_SLUG,
-            __('Payment audit', 'aiya-core'),
-            __('Payment audit', 'aiya-core'),
+            __('Order records', 'aiya-core'),
+            __('Order records', 'aiya-core'),
             'manage_options',
             self::MENU_SLUG,
             [$this, 'render'],
-            2 // credits ledger first, then the money audit
+            2 // credits ledger first, then the order records
         );
     }
 
@@ -116,7 +116,7 @@ final class PaymentsAuditPage implements Module
         $result = $this->orders->list($paged, self::PER_PAGE, $userId > 0 ? $userId : null, $source !== '' ? $source : null, $sources);
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('Payment audit', 'aiya-core'); ?></h1>
+            <h1><?php esc_html_e('Order records', 'aiya-core'); ?></h1>
             <p class="description"><?php esc_html_e('Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue.', 'aiya-core'); ?></p>
 
             <form method="get" class="aiya-core-filters" style="margin:12px 0;">
@@ -241,7 +241,7 @@ final class PaymentsAuditPage implements Module
 
     /**
      * Membership cell: the currently covering tier and its expiry, or an
-     * em dash. Linked into this audit view filtered to the holder.
+     * em dash. Linked into this view filtered to the holder.
      * Prefetched for the whole page in one queue read; the per-user read
      * only covers listings that escaped the pre_user_query capture.
      *
@@ -271,7 +271,7 @@ final class PaymentsAuditPage implements Module
     /**
      * The source vocabulary, derived from the gateways themselves (the
      * adapters own their ids; this page must not duplicate it — and the
-     * audit list only filters sources a live gateway answers for). The
+     * list only filters sources a live gateway answers for). The
      * same list is handed to OrderService::list() as its interpolation
      * whitelist, so the domain never hardcodes gateway names either.
      *
@@ -325,14 +325,17 @@ final class PaymentsAuditPage implements Module
     /**
      * The checkout lifecycle in one word: a row is written `pending` when
      * the buyer leaves for the cashier and settled to `paid` by the push;
-     * untouched pendings age to `unpaid`.
+     * untouched pendings age to `unpaid` — and read the same to the
+     * operator, because it is the same not-yet-paid cart, just old (the
+     * internal states differ for the settle path and the retention purge,
+     * not for the human reading the log). Money is forever; the carts
+     * leave with the retention purge.
      */
     private function statusLabel(string $status): string
     {
         return match ($status) {
             OrderService::STATUS_PAID => __('Paid', 'aiya-core'),
-            OrderService::STATUS_PENDING => __('Awaiting payment', 'aiya-core'),
-            OrderService::STATUS_UNPAID => __('Unpaid', 'aiya-core'),
+            OrderService::STATUS_PENDING, OrderService::STATUS_UNPAID => __('Awaiting payment', 'aiya-core'),
             default => $status,
         };
     }

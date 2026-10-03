@@ -27,9 +27,6 @@ final class SponsorshipTestWpdb
 
     public string $queueTable = 'wp_aiya_memberships';
 
-    /** When set, the next pending-row confirm loses to the named order id (a scripted settle race). */
-    public ?string $stealConfirmTo = null;
-
     /** Seeds one queue row; relative day offsets keep the windows valid. */
     public function seedQueueRow(int $userId, string $tierKey, string $tierName, string $starts, string $ends): void
     {
@@ -95,23 +92,6 @@ final class SponsorshipTestWpdb
 
     public function update(string $table, array $data, array $where, array $formats = [], array $whereFormats = []): int
     {
-        // Scripted race: the next pending-row confirm loses — the shared
-        // row settles to another push's order id mid-air and reports 0
-        // updated rows, exactly what a concurrent webhook pair produces.
-        if ($this->stealConfirmTo !== null && $table === $this->paymentTable && ($where['status'] ?? '') === 'pending') {
-            $stolenTo = $this->stealConfirmTo;
-            $this->stealConfirmTo = null;
-            foreach ($this->rows[$table] ?? [] as $index => $row) {
-                if ((int) ($row['id'] ?? 0) === (int) ($where['id'] ?? 0)) {
-                    $this->rows[$table][$index]['status'] = 'paid';
-                    $this->rows[$table][$index]['order_id'] = $stolenTo;
-                }
-            }
-            $this->last_error = '';
-
-            return 0;
-        }
-
         $count = 0;
         foreach ($this->rows[$table] ?? [] as $index => $row) {
             foreach ($where as $key => $value) {
@@ -122,7 +102,7 @@ final class SponsorshipTestWpdb
             foreach ($data as $key => $value) {
                 $this->rows[$table][$index][$key] = $value;
             }
-            $count++;
+            ++$count;
         }
         $this->last_error = '';
 
@@ -137,6 +117,9 @@ final class SponsorshipTestWpdb
         }
 
         $matches = $this->select($sql);
+        if (str_contains($sql, 'COUNT(')) {
+            return count($matches);
+        }
         if (str_contains($sql, 'MAX(ends_at)')) {
             $max = null;
             foreach ($matches as $row) {
@@ -154,7 +137,7 @@ final class SponsorshipTestWpdb
     /** @return list<array<string, mixed>>|object|null */
     public function get_row(string $sql, mixed $output = null): array|object|null
     {
-        $this->aiya_test_reads++;
+        ++$this->aiya_test_reads;
         $matches = $this->select($sql);
         if ($matches === []) {
             return null;
@@ -163,7 +146,7 @@ final class SponsorshipTestWpdb
         // The real wpdb honours the output flag: ARRAY_A carries the assoc
         // array, the default answers an object row. Callers read both ways
         // (OrderService passes ARRAY_A, RedeemCodeService reads properties).
-        $row = str_contains($sql, 'ORDER BY id DESC') ? $matches[count($matches) - 1] : $matches[0];
+        $row = $matches[0];
 
         return $output === ARRAY_A ? $row : (object) $row;
     }
@@ -177,7 +160,7 @@ final class SponsorshipTestWpdb
      */
     public function get_results(string $sql, mixed $output = null): array
     {
-        $this->aiya_test_reads++;
+        ++$this->aiya_test_reads;
         if ($output === ARRAY_A) {
             return $this->select($sql);
         }
@@ -189,6 +172,34 @@ final class SponsorshipTestWpdb
     {
         if (str_contains($sql, 'RELEASE_LOCK(')) {
             return 1;
+        }
+
+        // The retention purge: paid rows are forever, unsettled rows past
+        // the cutoff leave — the affected-rows answer the real wpdb gives.
+        if (preg_match("/DELETE FROM (\S+) WHERE status != 'paid' AND created_at < '([^']*)'/", $sql, $purge) === 1) {
+            $before = count($this->rows[$purge[1]] ?? []);
+            $kept = [];
+            foreach ($this->rows[$purge[1]] ?? [] as $row) {
+                if (($row['status'] ?? '') === 'paid' || (string) ($row['created_at'] ?? '') >= $purge[2]) {
+                    $kept[] = $row;
+                }
+            }
+            $this->rows[$purge[1]] = $kept;
+
+            return $before - count($kept);
+        }
+
+        // The expire sweep: pending flips to unpaid past the cutoff.
+        if (preg_match("/UPDATE (\S+) SET status = 'unpaid' WHERE status = 'pending' AND created_at < '([^']*)'/", $sql, $sweep) === 1) {
+            $flipped = 0;
+            foreach ($this->rows[$sweep[1]] ?? [] as $index => $row) {
+                if (($row['status'] ?? '') === 'pending' && (string) ($row['created_at'] ?? '') < $sweep[2]) {
+                    $this->rows[$sweep[1]][$index]['status'] = 'unpaid';
+                    $flipped++;
+                }
+            }
+
+            return $flipped;
         }
 
         // The redeem code's atomic claim: a conditional UPDATE that wins
@@ -243,6 +254,22 @@ final class SponsorshipTestWpdb
                 }
             }
         }
+        // DATETIME bounds compare correctly as strings ('Y-m-d H:i:s' is
+        // lexicographic); an unmatched comparison shape stays ignored.
+        if (preg_match_all("/([a-z_]+) <= '([^']*)'/", $sql, $atMost, PREG_SET_ORDER) > 0) {
+            foreach ($atMost as $bound) {
+                if ((string) ($row[$bound[1]] ?? '') > $bound[2]) {
+                    return false;
+                }
+            }
+        }
+        if (preg_match_all("/([a-z_]+) > '([^']*)'/", $sql, $atLeast, PREG_SET_ORDER) > 0) {
+            foreach ($atLeast as $bound) {
+                if ((string) ($row[$bound[1]] ?? '') <= $bound[2]) {
+                    return false;
+                }
+            }
+        }
         if (preg_match_all('/([a-z_]+) = (\d+)\b/', $sql, $numbers, PREG_SET_ORDER) > 0) {
             foreach ($numbers as $match) {
                 if ((int) ($row[$match[1]] ?? 0) !== (int) $match[2]) {
@@ -256,7 +283,7 @@ final class SponsorshipTestWpdb
                 return false;
             }
         }
-        if (preg_match("/([a-z_]+) IN \(([^)]+)\)/", $sql, $list) === 1) {
+        if (preg_match('/([a-z_]+) IN \(([^)]+)\)/', $sql, $list) === 1) {
             $values = array_map(static fn (string $value): string => trim($value, "' "), explode(',', $list[2]));
             if (!in_array((string) ($row[$list[1]] ?? ''), $values, true)) {
                 return false;

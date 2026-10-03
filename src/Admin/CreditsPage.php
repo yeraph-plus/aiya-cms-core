@@ -11,9 +11,11 @@ use Aiya\Core\Domain\Shared\DateLabels;
 
 /**
  * The credit ledger screen (submenu of the membership menu): collapsible
- * cards in the Light Community style — manual grants with user typeahead
- * and a per-user ledger viewer. The users list gains a derived-balance
- * column linking into the viewer.
+ * cards in the Light Community style — manual grants with user typeahead,
+ * above the ledger itself, which lists the whole log by default and
+ * narrows to one holder once the filter names them (the order-records
+ * screen's pattern). The users list gains a derived-balance column
+ * linking into the filtered view.
  *
  * The credit domain only books; pricing stays with the caller, so the
  * page never offers more than "grant" — spending is a downstream concern.
@@ -166,6 +168,9 @@ final class CreditsPage implements Module
                     var term = $input.val();
                     window.clearTimeout(searchTimer);
                     $wrap.find('.aiya-credit-user-suggestions').empty();
+                    // Retyping drops the previous pick — the hidden id must
+                    // never outlive the visible selection.
+                    $wrap.find('.aiya-credit-user-id').val('');
                     if (term.length < <?php echo (int) self::MIN_SEARCH_LENGTH; ?>) {
                         return;
                     }
@@ -179,6 +184,9 @@ final class CreditsPage implements Module
                                 var $item = $('<button type="button" class="button-link">').css({display: 'block', padding: '2px 0'}).text(item.name + ' — ' + item.email);
                                 $item.on('click', function () {
                                     $wrap.find('.aiya-credit-user-id').val(item.id);
+                                    $wrap.find('.aiya-credit-user-search').val(item.name + ' — ' + item.email);
+                                    // The grant card echoes the pick in a label
+                                    // beside the input; the filter picker has none.
                                     $wrap.find('.aiya-credit-user-label').text(item.name + ' — ' + item.email);
                                     $list.empty();
                                 });
@@ -246,82 +254,89 @@ final class CreditsPage implements Module
     }
 
     /**
-     * Per-user ledger, newest first — rendered directly on the page (not
-     * a collapsible card): it is the page's primary browse surface.
+     * The ledger, newest first — rendered directly on the page (not a
+     * collapsible card): it is the page's primary browse surface. Same
+     * pattern as the order-records screen: the whole log by default,
+     * one holder's ledger once the filter names them.
      */
     private function ledgerSection(int $userId, int $paged): void
     {
-        $result = $userId > 0 ? $this->ledger->entries($userId, $paged, self::PER_PAGE) : null;
+        $result = $this->ledger->entries($userId > 0 ? $userId : null, $paged, self::PER_PAGE);
         ?>
         <h2 class="title" style="margin-top:24px;"><?php esc_html_e('Credit ledger', 'aiya-core'); ?></h2>
         <form method="get" class="aiya-core-filters" style="margin-bottom:12px;">
             <input type="hidden" name="page" value="<?php echo esc_attr(self::MENU_SLUG); ?>">
             <span class="aiya-credit-user-picker">
                 <input type="hidden" name="user" class="aiya-credit-user-id" value="<?php echo esc_attr((string) $userId); ?>">
-                <input type="text" class="aiya-credit-user-search regular-text" autocomplete="off" spellcheck="false" placeholder="<?php esc_attr_e('Type a username or name…', 'aiya-core'); ?>">
-                <strong class="aiya-credit-user-label" style="margin-left:8px;"><?php echo $userId > 0 ? esc_html($this->userLabel($userId)) : ''; ?></strong>
+                <input type="text" class="aiya-credit-user-search regular-text" autocomplete="off" spellcheck="false"
+                    placeholder="<?php esc_attr_e('Type a username or name…', 'aiya-core'); ?>"
+                    value="<?php echo esc_attr($userId > 0 ? $this->userLabel($userId) : ''); ?>">
                 <div class="aiya-credit-user-suggestions"></div>
             </span>
-            <button type="submit" class="button"><?php esc_html_e('View ledger', 'aiya-core'); ?></button>
+            <button type="submit" class="button"><?php esc_html_e('Filter', 'aiya-core'); ?></button>
         </form>
 
-        <?php if ($result === null) : ?>
-            <p class="description"><?php esc_html_e('Pick a user to browse their grants and spends.', 'aiya-core'); ?></p>
-        <?php else : ?>
-            <table class="wp-list-table widefat fixed striped">
-                <thead>
-                    <tr>
-                        <th style="width:170px;"><?php esc_html_e('Time', 'aiya-core'); ?></th>
-                        <th style="width:110px;"><?php esc_html_e('Direction', 'aiya-core'); ?></th>
-                        <th style="width:130px;"><?php esc_html_e('Source', 'aiya-core'); ?></th>
-                        <th><?php esc_html_e('Reference', 'aiya-core'); ?></th>
-                        <th style="width:90px;"><?php esc_html_e('Amount', 'aiya-core'); ?></th>
-                        <th style="width:110px;"><?php esc_html_e('Bucket left', 'aiya-core'); ?></th>
-                        <th style="width:170px;"><?php esc_html_e('Expires', 'aiya-core'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($result['items'] === []) : ?>
-                        <tr><td colspan="7"><?php esc_html_e('No ledger entries for this user yet.', 'aiya-core'); ?></td></tr>
-                    <?php else : ?>
-                        <?php foreach ($result['items'] as $row) : ?>
-                            <tr>
-                                <td><?php echo esc_html(DateLabels::fromGmt($row['createdAt'])); ?></td>
-                                <td>
+        <table class="wp-list-table widefat fixed striped">
+            <thead>
+                <tr>
+                    <th style="width:170px;"><?php esc_html_e('Time', 'aiya-core'); ?></th>
+                    <th style="width:160px;"><?php esc_html_e('User', 'aiya-core'); ?></th>
+                    <th style="width:110px;"><?php esc_html_e('Direction', 'aiya-core'); ?></th>
+                    <th style="width:130px;"><?php esc_html_e('Source', 'aiya-core'); ?></th>
+                    <th><?php esc_html_e('Reference', 'aiya-core'); ?></th>
+                    <th style="width:90px;"><?php esc_html_e('Amount', 'aiya-core'); ?></th>
+                    <th style="width:110px;"><?php esc_html_e('Bucket left', 'aiya-core'); ?></th>
+                    <th style="width:170px;"><?php esc_html_e('Expires', 'aiya-core'); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ($result['items'] === []) : ?>
+                    <tr><td colspan="8"><?php echo esc_html($userId > 0 ? __('No ledger entries for this user yet.', 'aiya-core') : __('No ledger entries yet.', 'aiya-core')); ?></td></tr>
+                <?php else : ?>
+                    <?php foreach ($result['items'] as $row) : ?>
+                        <tr>
+                            <td><?php echo esc_html(DateLabels::fromGmt($row['createdAt'])); ?></td>
+                            <td><?php echo esc_html($this->holderLabel((int) $row['user_id'])); ?></td>
+                            <td>
                                 <?php
                                 echo $row['direction'] === 'in'
                                     ? '<span class="aiya-core-credit-in">+' . esc_html((string) $row['amount']) . '</span>'
                                     : '<span class="aiya-core-credit-out">-' . esc_html((string) $row['amount']) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static tags, numbers escaped
                                 ?>
-                                </td>
-                                <td><?php echo esc_html($this->sourceLabel($row['source'])); ?></td>
-                                <td><?php echo $row['ref'] !== '' ? '<code>' . esc_html($row['ref']) . '</code>' : '—'; ?></td>
-                                <td><?php echo esc_html((string) $row['amount']); ?></td>
-                                <td><?php echo esc_html((string) $row['remaining']); ?></td>
-                                <td><?php echo $row['expiresAt'] !== null ? esc_html(DateLabels::fromGmt($row['expiresAt'])) : '—'; ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-            <?php
-            if ($result['pages'] > 1) {
-                echo '<div class="tablenav bottom"><div class="tablenav-pages">';
-                echo wp_kses_post(
-                    (string) paginate_links([
-                        'base' => add_query_arg('paged', '%#%'),
-                        'format' => '',
-                        'current' => $paged,
-                        'total' => $result['pages'],
-                        'prev_text' => '&laquo;',
-                        'next_text' => '&raquo;',
-                    ])
-                );
-                echo '</div></div>';
-            }
-            ?>
-        <?php endif; ?>
+                            </td>
+                            <td><?php echo esc_html($this->sourceLabel($row['source'])); ?></td>
+                            <td><?php echo $row['ref'] !== '' ? '<code>' . esc_html($row['ref']) . '</code>' : '—'; ?></td>
+                            <td><?php echo esc_html((string) $row['amount']); ?></td>
+                            <td><?php echo esc_html((string) $row['remaining']); ?></td>
+                            <td><?php echo $row['expiresAt'] !== null ? esc_html(DateLabels::fromGmt($row['expiresAt'])) : '—'; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
         <?php
+        if ($result['pages'] > 1) {
+            echo '<div class="tablenav bottom"><div class="tablenav-pages">';
+            echo wp_kses_post(
+                (string) paginate_links([
+                    'base' => add_query_arg('paged', '%#%'),
+                    'format' => '',
+                    'current' => $paged,
+                    'total' => $result['pages'],
+                    'prev_text' => '&laquo;',
+                    'next_text' => '&raquo;',
+                ])
+            );
+            echo '</div></div>';
+        }
+    }
+
+    /** Holder display label for a ledger row (same shape as the order-records table). */
+    private function holderLabel(int $userId): string
+    {
+        $user = get_userdata($userId);
+
+        return $user !== false ? ($user->display_name . ' (#' . $userId . ')') : ('#' . $userId);
     }
 
     public function handleGrant(): void

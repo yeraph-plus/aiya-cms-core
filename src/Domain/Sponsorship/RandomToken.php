@@ -7,9 +7,9 @@ namespace Aiya\Core\Domain\Sponsorship;
 /**
  * The sponsorship domain's one random-suffix recipe: an uppercase
  * alphanumeric token cut from a CSPRNG-seeded digest (wp_rand feeds
- * uniqid's entropy; PHP's uniqid is seeded from the RNG source). Every
- * site-facing artifact — pending order ids, epay out_trade_no tails —
- * reads the same helper, so the shapes cannot drift apart.
+ * uniqid's entropy; PHP's uniqid is seeded from the RNG source). The
+ * Epay checkout's out_trade_no tail reads this helper so the wire shape
+ * cannot drift between requests.
  */
 final class RandomToken
 {

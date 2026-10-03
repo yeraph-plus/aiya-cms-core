@@ -411,35 +411,47 @@ final class EntitlementService
     }
 
     /**
-     * Active membership row count per tier key — the settings-save guard
-     * refuses to delete a tier that still has holders. Only keys present
-     * in the result have active rows.
+     * Tiers with members whose window currently covers now, per tier key —
+     * the settings-save guard's "in use" measure. The count is
+     * window-based on purpose: the `status` column never flips (0.86.0),
+     * so it would read "ever purchased" as "in use" forever; only a
+     * covering window means a member is actually riding the tier.
      *
      * @param list<string> $tierKeys
      * @return array<string, int>
      */
-    public function activeCountByTier(array $tierKeys): array
+    public function coveringCountByTier(array $tierKeys): array
     {
+        $tierKeys = array_values(array_filter(array_map(
+            static fn (string $key): string => substr(sanitize_key($key), 0, 32),
+            $tierKeys
+        )));
         if ($tierKeys === []) {
             return [];
         }
 
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $table = $this->table();
-        $in = implode(',', array_fill(0, count($tierKeys), '%s'));
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- whitelist IN-list over admin-defined tier keys
-        $sql = "SELECT tier_key, COUNT(*) AS n FROM {$table} WHERE status = 'active' AND tier_key IN ($in) GROUP BY tier_key";
-        $rows = $wpdb->get_results(
-            // @phpstan-ignore argument.type (whitelist interpolation)
-            $wpdb->prepare($sql, ...$tierKeys), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is the whitelist-built statement above
-            ARRAY_A
+        $in = implode(', ', array_fill(0, count($tierKeys), '%s'));
+        $now = gmdate('Y-m-d H:i:s', time());
+        // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the spread feeds the $placeholders list; the sniff cannot count it.
+        $sql = $wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $in is itself a placeholder list.
+            "SELECT tier_key FROM %i WHERE tier_key IN ($in) AND starts_at <= %s AND ends_at > %s",
+            $this->table(),
+            ...array_merge($tierKeys, [$now, $now])
         );
+        if (!is_string($sql)) {
+            return [];
+        }
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
+        $rows = $wpdb->get_results($sql, ARRAY_A);
 
         $out = [];
         foreach (is_array($rows) ? $rows : [] as $row) {
-            $out[(string) $row['tier_key']] = (int) $row['n'];
+            $key = (string) $row['tier_key'];
+            $out[$key] = ($out[$key] ?? 0) + 1;
         }
 
         return $out;

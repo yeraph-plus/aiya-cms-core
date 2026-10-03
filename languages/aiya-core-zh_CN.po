@@ -3336,3 +3336,18 @@ msgstr "来自%s的会员订单"
 
 msgid "Execution runs this replace in batches of %d posts until no match remains; the ids above are a sample window."
 msgstr "执行时按每批 %d 篇文章分批替换，直到不再有匹配；上方的 id 仅为样本窗口。"
+
+msgid "Order log"
+msgstr "订单日志"
+
+msgid "Unpaid order retention (days)"
+msgstr "未支付订单保留期（天）"
+
+msgid "Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep)."
+msgstr "未支付订单（放弃的结算单）将在这么多天后从支付日志中删除；已支付记录永久保留。最小 7 天（越过待支付标记清扫期）。"
+
+msgid "Order records"
+msgstr "订单记录"
+
+msgid "No ledger entries yet."
+msgstr "暂无流水记录。"

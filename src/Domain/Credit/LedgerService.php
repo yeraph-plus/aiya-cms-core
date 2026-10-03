@@ -278,11 +278,17 @@ final class LedgerService
     }
 
     /**
-     * One holder's ledger, newest first.
+     * Paged ledger entries, newest first — the whole log when no holder
+     * is pinned (the credits screen's default browse), one holder's
+     * ledger when they are. The optional filter is integer-cast into the
+     * WHERE, the same whitelist-interpolation shape OrderService::list()
+     * uses: the only variable is an int, everything else is fixed SQL.
+     * Every row carries its holder id — the unpinned view's table reads
+     * it for attribution.
      *
-     * @return array{items: list<array{id:int, direction:string, source:string, ref:string, amount:int, remaining:int, createdAt:string, expiresAt:string|null}>, total: int, pages: int}
+     * @return array{items: list<array{id:int, user_id:int, direction:string, source:string, ref:string, amount:int, remaining:int, createdAt:string, expiresAt:string|null}>, total: int, pages: int}
      */
-    public function entries(int $userId, int $paged = 1, int $perPage = 20): array
+    public function entries(?int $userId = null, int $paged = 1, int $perPage = 20): array
     {
         $paged = max(1, $paged);
         $perPage = max(1, min(100, $perPage));
@@ -290,24 +296,34 @@ final class LedgerService
         global $wpdb;
         /** @var \wpdb $wpdb */
         $table = $this->table();
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed table property interpolation
-        $total = (int) $wpdb->get_var($wpdb->prepare('SELECT COUNT(id) FROM %i WHERE user_id = %d', $table, $userId));
+        $where = $userId !== null && $userId > 0 ? ' WHERE user_id = ' . (int) $userId : '';
+        // Every fragment is the fixed table name plus the int-cast filter
+        // above; the interpolation is safe but leaves phpstan's
+        // literal-string inference (same note as OrderService::list()).
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- whitelist-built SQL, see note above
+        $countSql = "SELECT COUNT(id) FROM %i{$where}";
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- whitelist-built SQL, see note above
+        $listSql = "SELECT id, user_id, direction, source, ref, amount, remaining, created_at, expires_at
+                 FROM %i{$where} ORDER BY id DESC LIMIT %d OFFSET %d";
+
+        $total = (int) $wpdb->get_var(
+            // @phpstan-ignore argument.type (whitelist interpolation)
+            $wpdb->prepare($countSql, $table)
+        );
 
         $items = [];
         if ($total > 0) {
-            /** @var list<array{id:string|int, direction:string, source:string, ref:string, amount:string|int, remaining:string|int, created_at:string, expires_at:string|null}>|null $rows */
-            $rows = $wpdb->get_results($wpdb->prepare(
-                'SELECT id, direction, source, ref, amount, remaining, created_at, expires_at
-                 FROM %i WHERE user_id = %d ORDER BY id DESC LIMIT %d OFFSET %d',
-                $table,
-                $userId,
-                $perPage,
-                ($paged - 1) * $perPage
-            ), ARRAY_A);
+            /** @var list<array{id:string|int, user_id:string|int, direction:string, source:string, ref:string, amount:string|int, remaining:string|int, created_at:string, expires_at:string|null}>|null $rows */
+            $rows = $wpdb->get_results(
+                // @phpstan-ignore argument.type (whitelist interpolation)
+                $wpdb->prepare($listSql, $table, $perPage, ($paged - 1) * $perPage), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see note above
+                ARRAY_A
+            );
 
             foreach (is_array($rows) ? $rows : [] as $row) {
                 $items[] = [
                     'id' => (int) $row['id'],
+                    'user_id' => (int) $row['user_id'],
                     'direction' => (string) $row['direction'],
                     'source' => (string) $row['source'],
                     'ref' => (string) $row['ref'],

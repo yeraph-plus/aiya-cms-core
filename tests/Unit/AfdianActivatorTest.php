@@ -20,14 +20,14 @@ use WP_Error;
 require_once __DIR__ . '/../Fixture/SponsorshipTestWpdb.php';
 
 /**
- * The Afdian activation chain, webhook side first (2026-09-21 rewrite):
- * the push trades only its order number, the open-API query answers for
- * everything else, and the settle reuses the manual path's chain — so a
- * deep-link checkout's pending row flips to the real order (id, amount,
- * cycles, plan-resolved tier), a direct purchase books straight into the
- * paid log, replays stay idempotent, and unusable pushes log an
- * "ignored" outcome without touching the books. The confirm() pending
- * guard and the users-list batch read share the same wpdb double.
+ * The Afdian activation chain, webhook side first (2026-09-21 rewrite;
+ * placeholders dropped 0.104.0): the push trades only its order number,
+ * the open-API query answers for everything else, and a purchase the
+ * query vouches for books straight into the paid log under the
+ * platform's own order id — no local checkout row exists to settle.
+ * Replays stay idempotent, and unusable pushes log an "ignored" outcome
+ * without touching the books. The confirm() settle guard and the
+ * users-list batch read share the same wpdb double.
  */
 final class AfdianActivatorTest extends TestCase
 {
@@ -125,10 +125,9 @@ final class AfdianActivatorTest extends TestCase
 
     // ------------------------------------------------------------- the webhook
 
-    public function testWebhookSettlesThePendingCheckoutWithTheQueriedFacts(): void
+    public function testWebhookBooksTheQueriedPurchaseDirectly(): void
     {
         $orders = new OrderService();
-        $orders->createPending(42, 'afd_pending_AB12', 'gold', 1, 0.0, 'afdian');
         $this->paidOrder('T100', ['month' => 2, 'total_amount' => '51.00']);
 
         $outcome = $this->activator()->settlePush($this->push('T100'));
@@ -136,15 +135,17 @@ final class AfdianActivatorTest extends TestCase
         self::assertStringContainsString('activated order T100', $outcome);
         self::assertStringContainsString('tier gold ×2', $outcome);
 
-        // The checkout placeholder row became the real order: one paid
-        // row, real trade number, real amount, queried cycles, queried tier.
+        // One paid row under the platform's own trade number, carrying
+        // the queried facts (amount, cycles, plan-resolved tier), never
+        // the push body's — and no second row, for there is no checkout
+        // to settle into.
         $row = $orders->orderRow('afd_T100');
         self::assertNotNull($row);
         self::assertSame('paid', $row['status']);
         self::assertSame(51.0, $row['amount']);
         self::assertSame(2, $row['cycles']);
         self::assertSame('gold', $row['tier_key']);
-        self::assertCount(1, $this->db->rows[$this->db->paymentTable], 'the placeholder did not linger as a second row');
+        self::assertCount(1, $this->db->rows[$this->db->paymentTable]);
 
         // And the entitlement queued once, on the real order id.
         $queue = $this->db->rows[$this->db->queueTable];
@@ -154,7 +155,7 @@ final class AfdianActivatorTest extends TestCase
         self::assertSame('gold', $queue[0]['tier_key']);
     }
 
-    public function testWebhookWithoutAPendingRowBooksThePaidOrderDirectly(): void
+    public function testTheAmountOnlyPlanFallsIntoTheFallbackTier(): void
     {
         $this->paidOrder('T200', ['plan_id' => '']);
 
@@ -250,17 +251,16 @@ final class AfdianActivatorTest extends TestCase
         );
     }
 
-    // --------------------------------------------- the confirm() pending guard
+    // --------------------------------------------- the confirm() settle guard
 
     public function testConfirmFlipsOnlyAPendingRow(): void
     {
         $orders = new OrderService();
         $orders->createPending(42, 'epc_T600', 'gold', 1, 30.0, 'epay');
-        $pending = $orders->pendingForUser(42, 'epay');
-        self::assertNotNull($pending);
+        $rowId = (int) $this->db->rows[$this->db->paymentTable][0]['id'];
 
-        self::assertTrue($orders->confirm($pending['id'], 28.0), 'pending → paid answers true: this call settled it');
-        self::assertFalse($orders->confirm($pending['id'], 28.0), 'a second push lost the race: the row is not pending any more');
+        self::assertTrue($orders->confirm($rowId, 28.0), 'pending → paid answers true: this call settled it');
+        self::assertFalse($orders->confirm($rowId, 28.0), 'a second push lost the race: the row is not pending any more');
         self::assertFalse($orders->confirm(99999, 1.0), 'no such row');
 
         $row = $orders->orderRow('epc_T600');
@@ -278,64 +278,42 @@ final class AfdianActivatorTest extends TestCase
     {
         $orders = new OrderService();
         $orders->createPending(42, 'epc_T700', 'gold', 1, 30.0, 'epay');
-        $pending = $orders->pendingForUser(42, 'epay');
+        $rowId = (int) $this->db->rows[$this->db->paymentTable][0]['id'];
         $this->db->rows[$this->db->paymentTable][0]['status'] = 'unpaid';
 
-        self::assertTrue($orders->confirm((int) $pending['id'], 28.0), 'an aged `unpaid` row settles like a waiting one');
+        self::assertTrue($orders->confirm($rowId, 28.0), 'an aged `unpaid` row settles like a waiting one');
 
         $row = $orders->orderRow('epc_T700');
         self::assertSame('paid', $row['status']);
         self::assertSame(28.0, $row['amount']);
     }
 
-    public function testWebhookSettlesACheckoutTheSweepAlreadyAgedOut(): void
-    {
-        $orders = new OrderService();
-        $orders->createPending(42, 'afd_pending_AB12', 'gold', 1, 0.0, 'afdian');
-        $this->db->rows[$this->db->paymentTable][0]['status'] = 'unpaid';
-        $this->paidOrder('T750', ['month' => 3, 'total_amount' => '84.00']);
-
-        $outcome = $this->activator()->settlePush($this->push('T750'));
-
-        self::assertStringContainsString('activated order T750', $outcome);
-        $row = $orders->orderRow('afd_T750');
-        self::assertNotNull($row);
-        self::assertSame('paid', $row['status']);
-        self::assertSame(84.0, $row['amount']);
-        self::assertSame(3, $row['cycles']);
-        self::assertCount(1, $this->db->rows[$this->db->paymentTable]);
-        self::assertCount(1, $this->db->rows[$this->db->queueTable]);
-    }
-
     /**
-     * Two orders, one latest-pending slot: when the confirm loses the
-     * shared row to a concurrent push, the losing push must still book
-     * its own money — rights without a payment row are how revenue goes
-     * missing from the books.
+     * The retention purge's one rule: money is forever, carts are not.
+     * A paid row survives whatever its age, an unsettled row inside the
+     * window stays, and only the unsettled row past the window leaves —
+     * the log's only deletion path.
      */
-    public function testAPushThatLosesTheSharedPendingRowStillBooksItsMoney(): void
+    public function testPruneUnpaidKeepsPaidForeverAndAgesCartsOut(): void
     {
         $orders = new OrderService();
-        $orders->createPending(42, 'afd_pending_AB12', 'gold', 1, 0.0, 'afdian');
-        $this->paidOrder('T760'); // the push that, unseen, wins the shared row mid-air
-        $this->paidOrder('T761'); // the push under test
+        $orders->addPayment(42, 'epc_PAID', 'gold', 30.0, 'epay');
+        $orders->createPending(42, 'epc_OLD', 'gold', 1, 30.0, 'epay');
+        $orders->createPending(42, 'epc_NEW', 'gold', 1, 30.0, 'epay');
+        $rows = $this->db->rows[$this->db->paymentTable];
+        $rows[0]['created_at'] = gmdate('Y-m-d H:i:s', time() - 400 * DAY_IN_SECONDS);
+        $rows[1]['status'] = 'unpaid';
+        $rows[1]['created_at'] = gmdate('Y-m-d H:i:s', time() - 40 * DAY_IN_SECONDS);
+        $rows[2]['created_at'] = gmdate('Y-m-d H:i:s', time() - 1 * DAY_IN_SECONDS);
+        $this->db->rows[$this->db->paymentTable] = $rows;
 
-        $this->db->stealConfirmTo = 'afd_T760';
-        $outcome = $this->activator()->settlePush($this->push('T761'));
-        self::assertStringContainsString('activated order T761', $outcome);
+        $deleted = $orders->pruneUnpaid(30);
 
-        // The stolen placeholder carries the other push; this push's money
-        // landed as its own booked row anyway.
+        self::assertSame(1, $deleted, 'only the aged unpaid cart leaves');
         $orderIds = array_column($this->db->rows[$this->db->paymentTable], 'order_id');
-        self::assertSame('afd_T760', $this->db->rows[$this->db->paymentTable][0]['order_id']);
-        self::assertContains('afd_T761', $orderIds, 'the losing push booked its money directly');
-        self::assertSame('afd_T761', $this->db->rows[$this->db->queueTable][0]['order_id']);
-
-        // And the push that won mid-air still settles when it arrives: its
-        // row is already paid, so it just queues.
-        $outcomeWinner = $this->activator()->settlePush($this->push('T760'));
-        self::assertStringContainsString('activated order T760', $outcomeWinner);
-        self::assertCount(2, $this->db->rows[$this->db->queueTable]);
+        self::assertContains('epc_PAID', $orderIds, 'paid money is the archive — forever, whatever its age');
+        self::assertContains('epc_NEW', $orderIds, 'a cart inside the retention window is still a maybe');
+        self::assertNotContains('epc_OLD', $orderIds);
     }
 
     // ------------------------------------------ the users-list batched tier read
@@ -371,9 +349,9 @@ final class AfdianActivatorTest extends TestCase
 
     /**
      * A live checkout pins its tier: deleting the tier under a buyer who
-     * is mid-payment means their verified money later settles into a tier
-     * that no longer activates. An aged `unpaid` row is an abandoned
-     * cart, not money — it never blocks.
+     * is mid-payment drops the key from the gateway's callback whitelist,
+     * so their verified money later dies before settlement. An aged
+     * `unpaid` row is an abandoned cart, not money — it never blocks.
      */
     public function testDeletingATierWithALiveCheckoutIsRefused(): void
     {
@@ -392,5 +370,32 @@ final class AfdianActivatorTest extends TestCase
 
         $this->db->rows[$this->db->paymentTable][0]['status'] = 'unpaid';
         self::assertSame($values, $module->guardTierDeletion($values, 'membership', $old), 'an abandoned cart does not pin the tier');
+    }
+
+    /**
+     * Both vetoes are current-state only. A member whose window covers
+     * now pins the tier: their entitlement would keep self-rotating from
+     * its frozen snapshot, but the product must not vanish from under
+     * them. An expired window is history and never pins — the pre-0.104.0
+     * count read the never-flipping `status` column instead, so "ever
+     * purchased" pinned forever.
+     */
+    public function testDeletingATierWithCoveringMembersIsRefused(): void
+    {
+        $module = new SponsorshipModule(new Registry());
+        $values = ['tiers' => [['key' => 'gold', 'name' => 'Gold']]];
+        $old = ['tiers' => [['key' => 'gold'], ['key' => 'silver']]];
+
+        // A currently-covering membership on the tier being deleted…
+        $this->db->seedQueueRow(42, 'silver', 'Silver', '-10 days', '+20 days');
+        $refused = $module->guardTierDeletion($values, 'membership', $old);
+        self::assertInstanceOf(WP_Error::class, $refused);
+        self::assertSame('aiya_tier_in_use', $refused->get_error_code());
+        self::assertStringContainsString('silver', $refused->get_error_message());
+
+        // …but an expired window on that tier is history, not usage.
+        $this->db->rows[$this->db->queueTable][0]['starts_at'] = gmdate('Y-m-d H:i:s', strtotime('-40 days'));
+        $this->db->rows[$this->db->queueTable][0]['ends_at'] = gmdate('Y-m-d H:i:s', strtotime('-10 days'));
+        self::assertSame($values, $module->guardTierDeletion($values, 'membership', $old), 'expired history does not pin the tier');
     }
 }

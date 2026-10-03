@@ -101,6 +101,11 @@ final class SponsorshipController
      * The viewer's personalized Afdian order-create deep link for one
      * tier: the custom_order_id segment carries the user binding back
      * into the webhook, so the purchase self-attributes on arrival.
+     *
+     * Minting the link writes nothing local (0.104.0 dropped the
+     * placeholder rows): the books open only when a webhook delivers a
+     * trade number that survives the open-API re-query — a link nobody
+     * clicks leaves no trace to age out.
      */
     private function afdianOrderUrl(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
@@ -117,9 +122,8 @@ final class SponsorshipController
         }
 
         // The tier decides the cycle count (there is no front-end picker):
-        // the deep link pre-selects it on the platform page and the local
-        // placeholder row queues it until the push replaces both id and
-        // cycles with the queried order's reality.
+        // the deep link only pre-selects it on the platform page — the
+        // webhook's queried order settles the reality (id, cycles, plan).
         $tier = SponsorshipSettings::tierByKey(
             SponsorshipSettings::read()['tiers'],
             sanitize_key((string) $request->get_param('tierKey'))
@@ -128,9 +132,8 @@ final class SponsorshipController
             return new WP_Error('aiya_not_found', __('Unknown membership tier.', 'aiya-core'), ['status' => 404]);
         }
         // The deep link obeys the same server-side gate as the checkout
-        // POST: a hand-crafted order-url request must not pre-select — and
-        // through the placeholder row eventually buy — a tier the site
-        // pulled from sale.
+        // POST: a hand-crafted order-url request must not pre-select a
+        // tier the site pulled from sale.
         if (!(bool) ($tier['enabled'] ?? true)) {
             return new WP_Error('aiya_tier_disabled', __('This membership tier is not available.', 'aiya-core'), ['status' => 410]);
         }
@@ -140,18 +143,6 @@ final class SponsorshipController
         $url = $gateway->orderUrl($userId, $cycles, (string) $tier['key']);
         if ($url === '') {
             return new WP_Error('aiya_plan_unbound', __('This tier is not bound to an Afdian plan.', 'aiya-core'), ['status' => 422]);
-        }
-
-        $pending = $this->orders->createPending(
-            $userId,
-            $gateway->orderId('pending_' . RandomToken::suffix(12)),
-            (string) $tier['key'],
-            $cycles,
-            0.0,
-            'afdian'
-        );
-        if (is_wp_error($pending)) {
-            return $pending;
         }
 
         return new WP_REST_Response(['url' => $url]);

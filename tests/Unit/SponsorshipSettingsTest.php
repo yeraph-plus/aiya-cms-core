@@ -81,4 +81,20 @@ final class SponsorshipSettingsTest extends TestCase
         self::assertSame(12.35, $normalized[0]['price'], 'extra precision folds to two decimals');
         self::assertSame(500.0, $normalized[1]['price'], 'rows saved before the cap cannot exceed 500');
     }
+
+    /**
+     * The retention purge's safety rail: the window never dips under the
+     * pending TTL (a checkout must be labelled before it can ever be
+     * deleted) and never keeps carts for years. An absent or empty key
+     * is "not configured" and takes the default.
+     */
+    public function testUnpaidRetentionClampsBothEnds(): void
+    {
+        self::assertSame(30, SponsorshipSettings::unpaidRetention([]), 'unconfigured takes the default');
+        self::assertSame(30, SponsorshipSettings::unpaidRetention(['unpaid_order_retention' => '0']));
+        self::assertSame(30, SponsorshipSettings::unpaidRetention(['unpaid_order_retention' => '']));
+        self::assertSame(7, SponsorshipSettings::unpaidRetention(['unpaid_order_retention' => '3']), 'never under the labelling sweep');
+        self::assertSame(365, SponsorshipSettings::unpaidRetention(['unpaid_order_retention' => '4000']));
+        self::assertSame(45, SponsorshipSettings::unpaidRetention(['unpaid_order_retention' => '45']));
+    }
 }

@@ -24,9 +24,9 @@ use WP_Error;
  * push finds that row and settles it to `paid`. The row is the authority
  * for WHAT was bought — a callback only reports that money arrived — and
  * untouched pendings age to `unpaid` on the daily sweep, which stays
- * settleable: an independently verified payment — the Afdian chain, which
- * re-reads the order from the platform's own API, or a late Epay push —
- * settles a matching row at any age and otherwise inserts the paid row
+ * settleable: a signature-verified Epay push settles a matching row at
+ * any age. The Afdian chain writes no checkout row at all (0.104.0
+ * dropped the deep-link placeholders) — its verified purchase books
  * directly; both writes are idempotent on the order-id unique key.
  */
 final class OrderService
@@ -39,11 +39,14 @@ final class OrderService
     public const PENDING_TTL_DAYS = 7;
 
     /**
-     * Records one payment (unique order id, deduplicated).
+     * Records one payment (unique order id, deduplicated). The cycle
+     * count rides the row: with the checkout rows gone from the Afdian
+     * chain (0.104.0), the booking itself is the only place the log
+     * learns what length of purchase the money paid for.
      *
      * @return true|WP_Error
      */
-    public function addPayment(int $userId, string $orderId, string $tierKey, float $amount, string $source): bool|WP_Error
+    public function addPayment(int $userId, string $orderId, string $tierKey, float $amount, string $source, int $cycles = 1): bool|WP_Error
     {
         if ($userId <= 0 || get_userdata($userId) === false) {
             return new WP_Error('aiya_invalid_user', __('The order user does not exist.', 'aiya-core'), ['status' => 400]);
@@ -67,9 +70,10 @@ final class OrderService
                 'tier_key' => substr($tierKey, 0, 32),
                 'source' => sanitize_text_field($source),
                 'status' => self::STATUS_PAID,
+                'cycles' => max(1, $cycles),
                 'created_at' => current_time('mysql', true),
             ],
-            ['%d', '%s', '%f', '%s', '%s', '%s', '%s']
+            ['%d', '%s', '%f', '%s', '%s', '%s', '%d', '%s']
         );
 
         $wpdb->suppress_errors($suppress);
@@ -188,9 +192,10 @@ final class OrderService
     /**
      * Tiers with live checkouts among the given keys: a buyer sitting on
      * the cashier page right now is not yet a holder, but deleting the
-     * tier under them means their verified payment later settles into a
-     * tier that no longer activates. Aged `unpaid` rows are abandoned
-     * carts, not money — they never block a deletion.
+     * tier under them drops its key from the gateway's callback
+     * whitelist, so their verified payment later dies before settlement
+     * — money collected on the platform, nothing booked. Aged `unpaid`
+     * rows are abandoned carts, not money — they never block a deletion.
      *
      * @param list<string> $tierKeys
      * @return array<string, int> keyed by tier key, live checkouts only
@@ -260,6 +265,39 @@ final class OrderService
     }
 
     /**
+     * Cron hygiene: money is forever, carts are not. `paid` rows are the
+     * financial archive and never leave; the unsettled states — abandoned
+     * checkouts the sweep aged to `unpaid`, and any `pending` row that
+     * somehow outlived the retention window — are deleted once they are
+     * older than the retention. Deletion removes settleability (orderRow()
+     * stops finding the row), so the retention must comfortably outlive
+     * the gateway's own payment latency; the settings reader clamps it
+     * well past the pending TTL for exactly that reason.
+     *
+     * @return int rows deleted
+     */
+    public function pruneUnpaid(int $retentionDays): int
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $cutoff = gmdate('Y-m-d H:i:s', time() - max(1, $retentionDays) * DAY_IN_SECONDS);
+        $sql = $wpdb->prepare(
+            'DELETE FROM %i WHERE status != %s AND created_at < %s',
+            $this->table(),
+            self::STATUS_PAID,
+            $cutoff
+        );
+        if (!is_string($sql)) {
+            return 0;
+        }
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
+        $deleted = $wpdb->query($sql);
+
+        return is_int($deleted) ? $deleted : 0;
+    }
+
+    /**
      * One order row by id whatever its status: the settle path needs to
      * tell "never seen" from "already paid" (a gateway retry after a failed
      * activation must be able to finish the job).
@@ -278,38 +316,6 @@ final class OrderService
             'SELECT id, user_id, tier_key, cycles, amount, source, status FROM %i WHERE order_id = %s',
             $this->table(),
             $orderId
-        );
-        if (!is_string($sql)) {
-            return null;
-        }
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
-        return $this->mapRow($wpdb->get_row($sql, ARRAY_A));
-    }
-
-    /**
-     * The holder's most recent unsettled checkout — `pending` at the
-     * cashier or `unpaid` aged out — which is how an Afdian push (whose
-     * order number the platform generates) finds the checkout it settles:
-     * the aged deep-link row is settled into itself, keeping one row per
-     * purchase and the frozen snapshot instead of a duplicate booking.
-     *
-     * @return array{id:int, user_id:int, tier_key:string, cycles:int, amount:float, source:string, status:string}|null
-     */
-    public function pendingForUser(int $userId, string $source): ?array
-    {
-        if ($userId <= 0) {
-            return null;
-        }
-
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $sql = $wpdb->prepare(
-            "SELECT id, user_id, tier_key, cycles, amount, source, status FROM %i
-             WHERE user_id = %d AND source = %s AND status IN ('pending', 'unpaid') ORDER BY id DESC LIMIT 1",
-            $this->table(),
-            $userId,
-            sanitize_text_field($source)
         );
         if (!is_string($sql)) {
             return null;

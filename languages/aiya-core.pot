@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.103.0\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.104.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-03T17:11:24+00:00\n"
+"POT-Creation-Date: 2026-10-03T19:26:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -226,156 +226,162 @@ msgstr ""
 msgid "Cover generated."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:128
-#: src/Admin/CreditsPage.php:129
-#: src/Admin/CreditsPage.php:150
-#: src/Admin/CreditsPage.php:256
+#: src/Admin/CreditsPage.php:130
+#: src/Admin/CreditsPage.php:131
+#: src/Admin/CreditsPage.php:152
+#: src/Admin/CreditsPage.php:266
 msgid "Credit ledger"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:140
-#: src/Admin/CreditsPage.php:330
-#: src/Admin/CreditsPage.php:371
+#: src/Admin/CreditsPage.php:142
+#: src/Admin/CreditsPage.php:345
+#: src/Admin/CreditsPage.php:386
 msgid "You are not allowed to manage credits."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:151
+#: src/Admin/CreditsPage.php:153
 msgid "Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:205
+#: src/Admin/CreditsPage.php:213
 msgid "Manual grant"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:212
+#: src/Admin/CreditsPage.php:220
+#: src/Admin/CreditsPage.php:283
 #: src/Admin/PaymentsAuditPage.php:144
 msgid "User"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:215
-#: src/Admin/CreditsPage.php:261
+#: src/Admin/CreditsPage.php:223
+#: src/Admin/CreditsPage.php:272
 #: src/Admin/PaymentsAuditPage.php:127
 msgid "Type a username or name…"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:221
-#: src/Admin/CreditsPage.php:278
+#: src/Admin/CreditsPage.php:229
+#: src/Admin/CreditsPage.php:287
 #: src/Admin/PaymentsAuditPage.php:147
 msgid "Amount"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:227
+#: src/Admin/CreditsPage.php:235
 msgid "Validity (days)"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:230
+#: src/Admin/CreditsPage.php:238
 msgid "The bucket dies when this expires."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:234
+#: src/Admin/CreditsPage.php:242
 msgid "Note"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:237
+#: src/Admin/CreditsPage.php:245
 msgid "Optional; recorded in the ledger reference."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:241
+#: src/Admin/CreditsPage.php:249
 msgid "Grant credits"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:265
-msgid "View ledger"
+#: src/Admin/CreditsPage.php:276
+#: src/Admin/CronsPage.php:164
+#: src/Admin/DiscussionModerationPage.php:119
+#: src/Admin/PaymentsAuditPage.php:137
+#: src/Admin/RewritesPage.php:85
+#: src/Admin/ShortcodesPage.php:72
+msgid "Filter"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:269
-msgid "Pick a user to browse their grants and spends."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:274
+#: src/Admin/CreditsPage.php:282
 #: src/Admin/PaymentsAuditPage.php:143
 msgid "Time"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:275
+#: src/Admin/CreditsPage.php:284
 msgid "Direction"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:276
+#: src/Admin/CreditsPage.php:285
 #: src/Admin/PaymentsAuditPage.php:150
 #: src/Admin/PicBedPage.php:252
 msgid "Source"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:277
+#: src/Admin/CreditsPage.php:286
 #: src/Domain/Parts/BuiltinParts.php:190
 msgid "Reference"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:279
+#: src/Admin/CreditsPage.php:288
 msgid "Bucket left"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:280
+#: src/Admin/CreditsPage.php:289
 msgid "Expires"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:285
+#: src/Admin/CreditsPage.php:294
 msgid "No ledger entries for this user yet."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:336
+#: src/Admin/CreditsPage.php:294
+msgid "No ledger entries yet."
+msgstr ""
+
+#: src/Admin/CreditsPage.php:351
 #: src/Api/Rest/IntegrationsController.php:148
 #: src/Domain/Credit/LedgerService.php:105
 #: src/Domain/Credit/LedgerService.php:178
 msgid "The credit holder does not exist."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:345
+#: src/Admin/CreditsPage.php:360
 msgid "Amount and validity are required."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:359
+#: src/Admin/CreditsPage.php:374
 msgid "An admin grant with this exact note already exists for this user."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:417
+#: src/Admin/CreditsPage.php:432
 msgid "Credits"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:458
+#: src/Admin/CreditsPage.php:473
 msgid "Credits granted."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:459
+#: src/Admin/CreditsPage.php:474
 #: src/Admin/DiscussionModerationPage.php:301
 #: src/Admin/DiscussionModerationPage.php:338
 #: src/Admin/DiscussionModerationPage.php:516
 msgid "The operation failed."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:484
+#: src/Admin/CreditsPage.php:499
 #: src/Admin/OperationsPage.php:390
 #: src/Domain/Credit/CreditModule.php:80
 msgid "Check-in"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:485
+#: src/Admin/CreditsPage.php:500
 msgid "Redeem code"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:486
+#: src/Admin/CreditsPage.php:501
 #: src/Admin/OperationsPage.php:391
 #: src/Admin/PaymentsAuditPage.php:237
-#: src/Domain/Sponsorship/SponsorshipModule.php:87
+#: src/Domain/Sponsorship/SponsorshipModule.php:95
 msgid "Membership"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:487
+#: src/Admin/CreditsPage.php:502
 msgid "Admin grant"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:488
+#: src/Admin/CreditsPage.php:503
 msgid "Download"
 msgstr ""
 
@@ -459,14 +465,6 @@ msgstr ""
 
 #: src/Admin/CronsPage.php:163
 msgid "Filter by hook name…"
-msgstr ""
-
-#: src/Admin/CronsPage.php:164
-#: src/Admin/DiscussionModerationPage.php:119
-#: src/Admin/PaymentsAuditPage.php:137
-#: src/Admin/RewritesPage.php:85
-#: src/Admin/ShortcodesPage.php:72
-msgid "Filter"
 msgstr ""
 
 #: src/Admin/CronsPage.php:173
@@ -654,13 +652,13 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:387
 #: src/Admin/DiscussionModerationPage.php:410
 #: src/Admin/FileServeMetabox.php:288
-#: src/Domain/Sponsorship/SponsorshipModule.php:125
+#: src/Domain/Sponsorship/SponsorshipModule.php:133
 msgid "Name"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:391
 #: src/Admin/DiscussionModerationPage.php:412
-#: src/Domain/Sponsorship/SponsorshipModule.php:131
+#: src/Domain/Sponsorship/SponsorshipModule.php:139
 msgid "Description"
 msgstr ""
 
@@ -1160,7 +1158,7 @@ msgstr ""
 #: src/Admin/PaymentsAuditPage.php:64
 #: src/Admin/PaymentsAuditPage.php:65
 #: src/Admin/PaymentsAuditPage.php:119
-msgid "Payment audit"
+msgid "Order records"
 msgstr ""
 
 #: src/Admin/PaymentsAuditPage.php:105
@@ -1191,16 +1189,12 @@ msgstr ""
 msgid "Afdian"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:333
+#: src/Admin/PaymentsAuditPage.php:337
 msgid "Paid"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:334
+#: src/Admin/PaymentsAuditPage.php:338
 msgid "Awaiting payment"
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:335
-msgid "Unpaid"
 msgstr ""
 
 #: src/Admin/PicBedPage.php:58
@@ -1608,7 +1602,7 @@ msgid "Priority"
 msgstr ""
 
 #: src/Admin/SamplePage.php:255
-#: src/Domain/Sponsorship/SponsorshipModule.php:112
+#: src/Domain/Sponsorship/SponsorshipModule.php:120
 msgid "Enabled"
 msgstr ""
 
@@ -2164,43 +2158,43 @@ msgstr ""
 msgid "The session could not be started."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:151
+#: src/Api/Rest/CommentsController.php:153
 msgid "Comments are closed for this content."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:161
+#: src/Api/Rest/CommentsController.php:163
 msgid "The comment is too long."
 msgstr ""
 
 #. translators: %d: maximum comment length.
-#: src/Api/Rest/CommentsController.php:171
+#: src/Api/Rest/CommentsController.php:173
 #, php-format
 msgid "The comment must be 1-%d characters long."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:182
+#: src/Api/Rest/CommentsController.php:184
 msgid "The commented reply does not exist."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:194
+#: src/Api/Rest/CommentsController.php:196
 msgid "Please log in to comment."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:202
+#: src/Api/Rest/CommentsController.php:204
 msgid "Please provide your name and a valid email address to comment."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:246
-#: src/Api/Rest/CommentsController.php:254
-#: src/Api/Rest/CommentsController.php:257
+#: src/Api/Rest/CommentsController.php:248
+#: src/Api/Rest/CommentsController.php:256
+#: src/Api/Rest/CommentsController.php:259
 msgid "The comment could not be posted."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:251
+#: src/Api/Rest/CommentsController.php:253
 msgid "You are commenting too quickly. Slow down."
 msgstr ""
 
-#: src/Api/Rest/CommentsController.php:272
+#: src/Api/Rest/CommentsController.php:274
 #: src/Api/Rest/ContentController.php:218
 #: src/Api/Rest/ContentController.php:354
 #: src/Api/Rest/ContentController.php:359
@@ -2234,7 +2228,7 @@ msgid "Already checked in today."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:152
-#: src/Api/Rest/SponsorshipController.php:116
+#: src/Api/Rest/SponsorshipController.php:121
 msgid "The Afdian channel is not available."
 msgstr ""
 
@@ -2254,8 +2248,8 @@ msgid "Unknown board."
 msgstr ""
 
 #: src/Api/Rest/DiscussionController.php:423
-#: src/Domain/Discussion/DiscussionLikeService.php:145
-#: src/Domain/Discussion/DiscussionLikeService.php:198
+#: src/Domain/Discussion/DiscussionLikeService.php:148
+#: src/Domain/Discussion/DiscussionLikeService.php:201
 #: src/Domain/Discussion/DiscussionService.php:516
 #: src/Domain/Discussion/DiscussionService.php:570
 #: src/Domain/Discussion/DiscussionService.php:633
@@ -2271,30 +2265,30 @@ msgstr ""
 msgid "Too many requests, try again later."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:128
-#: src/Api/Rest/SponsorshipController.php:201
+#: src/Api/Rest/SponsorshipController.php:132
+#: src/Api/Rest/SponsorshipController.php:192
 msgid "Unknown membership tier."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:135
-#: src/Api/Rest/SponsorshipController.php:209
+#: src/Api/Rest/SponsorshipController.php:138
+#: src/Api/Rest/SponsorshipController.php:200
 msgid "This membership tier is not available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:142
+#: src/Api/Rest/SponsorshipController.php:145
 msgid "This tier is not bound to an Afdian plan."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:191
+#: src/Api/Rest/SponsorshipController.php:182
 msgid "No payment gateway is available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:194
+#: src/Api/Rest/SponsorshipController.php:185
 #: src/Domain/Sponsorship/EpayGateway.php:86
 msgid "The requested payment channel is not available."
 msgstr ""
 
-#: src/Api/Rest/SponsorshipController.php:230
+#: src/Api/Rest/SponsorshipController.php:221
 msgid "The return URL is not a valid absolute http(s) address."
 msgstr ""
 
@@ -2916,22 +2910,22 @@ msgstr ""
 msgid "Dev Tools"
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionLikeService.php:141
-#: src/Domain/Discussion/DiscussionLikeService.php:195
+#: src/Domain/Discussion/DiscussionLikeService.php:144
+#: src/Domain/Discussion/DiscussionLikeService.php:198
 msgid "Please log in to interact."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionLikeService.php:148
+#: src/Domain/Discussion/DiscussionLikeService.php:151
 msgid "This thread is closed; likes are no longer accepted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionLikeService.php:167
-#: src/Domain/Discussion/DiscussionLikeService.php:182
+#: src/Domain/Discussion/DiscussionLikeService.php:170
+#: src/Domain/Discussion/DiscussionLikeService.php:185
 msgid "The like could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionLikeService.php:208
-#: src/Domain/Discussion/DiscussionLikeService.php:217
+#: src/Domain/Discussion/DiscussionLikeService.php:211
+#: src/Domain/Discussion/DiscussionLikeService.php:220
 msgid "The like could not be removed."
 msgstr ""
 
@@ -3000,12 +2994,12 @@ msgid "The replying user does not exist."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:525
-#: src/Domain/Discussion/DiscussionService.php:681
+#: src/Domain/Discussion/DiscussionService.php:685
 msgid "The reply body is required."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:529
-#: src/Domain/Discussion/DiscussionService.php:685
+#: src/Domain/Discussion/DiscussionService.php:689
 msgid "A reply can carry at most nine images."
 msgstr ""
 
@@ -3034,31 +3028,32 @@ msgid "The thread replies could not be deleted."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:655
+#: src/Domain/Discussion/DiscussionService.php:661
 msgid "The thread could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:675
-#: src/Domain/Discussion/DiscussionService.php:707
+#: src/Domain/Discussion/DiscussionService.php:679
+#: src/Domain/Discussion/DiscussionService.php:711
 msgid "Reply not found."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:678
+#: src/Domain/Discussion/DiscussionService.php:682
 msgid "You are not allowed to edit this reply."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:696
+#: src/Domain/Discussion/DiscussionService.php:700
 msgid "The reply could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:710
+#: src/Domain/Discussion/DiscussionService.php:714
 msgid "You are not allowed to delete this reply."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:717
+#: src/Domain/Discussion/DiscussionService.php:721
 msgid "The reply could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:783
+#: src/Domain/Discussion/DiscussionService.php:787
 msgid "The bound content does not exist or cannot carry discussions."
 msgstr ""
 
@@ -3920,45 +3915,45 @@ msgstr ""
 msgid "No template parts are registered yet."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:83
+#: src/Domain/Sponsorship/AfdianActivator.php:86
 msgid "This order has already been activated."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:84
-#: src/Domain/Sponsorship/AfdianActivator.php:242
+#: src/Domain/Sponsorship/AfdianActivator.php:87
+#: src/Domain/Sponsorship/AfdianActivator.php:230
 msgid "The membership activation failed — try again."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:147
-#: src/Domain/Sponsorship/AfdianActivator.php:166
+#: src/Domain/Sponsorship/AfdianActivator.php:150
+#: src/Domain/Sponsorship/AfdianActivator.php:169
 msgid "The Afdian API is unreachable — try again later."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:151
+#: src/Domain/Sponsorship/AfdianActivator.php:154
 msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:152
+#: src/Domain/Sponsorship/AfdianActivator.php:155
 msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:169
+#: src/Domain/Sponsorship/AfdianActivator.php:172
 msgid "No matching Afdian order — check the order number."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:175
+#: src/Domain/Sponsorship/AfdianActivator.php:178
 msgid "This order is not a paid trade."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:184
+#: src/Domain/Sponsorship/AfdianActivator.php:187
 msgid "This order's Afdian plan is not bound to a membership tier."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:192
+#: src/Domain/Sponsorship/AfdianActivator.php:195
 msgid "This order is bound to another account."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianActivator.php:197
+#: src/Domain/Sponsorship/AfdianActivator.php:200
 msgid "The order carries no account binding — activate it from the account page with the order number."
 msgstr ""
 
@@ -3972,8 +3967,8 @@ msgid "The membership holder does not exist."
 msgstr ""
 
 #: src/Domain/Sponsorship/EntitlementService.php:77
-#: src/Domain/Sponsorship/OrderService.php:52
-#: src/Domain/Sponsorship/OrderService.php:103
+#: src/Domain/Sponsorship/OrderService.php:55
+#: src/Domain/Sponsorship/OrderService.php:107
 msgid "The order id is required."
 msgstr ""
 
@@ -3994,18 +3989,18 @@ msgstr ""
 msgid "The Epay channel is not available."
 msgstr ""
 
-#: src/Domain/Sponsorship/OrderService.php:49
-#: src/Domain/Sponsorship/OrderService.php:100
+#: src/Domain/Sponsorship/OrderService.php:52
+#: src/Domain/Sponsorship/OrderService.php:104
 msgid "The order user does not exist."
 msgstr ""
 
-#: src/Domain/Sponsorship/OrderService.php:79
-#: src/Domain/Sponsorship/OrderService.php:127
+#: src/Domain/Sponsorship/OrderService.php:83
+#: src/Domain/Sponsorship/OrderService.php:131
 msgid "This order was already recorded."
 msgstr ""
 
-#: src/Domain/Sponsorship/OrderService.php:82
-#: src/Domain/Sponsorship/OrderService.php:130
+#: src/Domain/Sponsorship/OrderService.php:86
+#: src/Domain/Sponsorship/OrderService.php:134
 msgid "The order could not be stored."
 msgstr ""
 
@@ -4028,170 +4023,182 @@ msgstr ""
 msgid "The membership activation failed — the code was not consumed, try again."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:86
-#: src/Domain/Sponsorship/SponsorshipModule.php:91
+#: src/Domain/Sponsorship/SponsorshipModule.php:94
+#: src/Domain/Sponsorship/SponsorshipModule.php:99
 msgid "Membership settings"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:99
+#: src/Domain/Sponsorship/SponsorshipModule.php:107
 msgid "Tiers"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:105
+#: src/Domain/Sponsorship/SponsorshipModule.php:113
 msgid "Tier list"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:106
+#: src/Domain/Sponsorship/SponsorshipModule.php:114
 msgid "Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:113
+#: src/Domain/Sponsorship/SponsorshipModule.php:121
 msgid "Disabled tiers stay out of the purchase list; existing holders keep their membership."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:119
+#: src/Domain/Sponsorship/SponsorshipModule.php:127
 msgid "Key"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:132
+#: src/Domain/Sponsorship/SponsorshipModule.php:140
 msgid "One-liner shown on the plan card (what the tier includes)."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:138
+#: src/Domain/Sponsorship/SponsorshipModule.php:146
 msgid "Price (per cycle)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:139
+#: src/Domain/Sponsorship/SponsorshipModule.php:147
 msgid "Up to 500, two decimals."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:148
+#: src/Domain/Sponsorship/SponsorshipModule.php:156
 msgid "Cycle length (days)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:149
+#: src/Domain/Sponsorship/SponsorshipModule.php:157
 msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:158
+#: src/Domain/Sponsorship/SponsorshipModule.php:166
 msgid "Credits per cycle"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:159
+#: src/Domain/Sponsorship/SponsorshipModule.php:167
 msgid "Credit bucket granted at each cycle start."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:167
+#: src/Domain/Sponsorship/SponsorshipModule.php:175
 msgid "Cycles per purchase"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:168
+#: src/Domain/Sponsorship/SponsorshipModule.php:176
 msgid "One purchase of this tier always queues this many cycles; the front end shows the total, there is no cycle picker."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:183
-#: src/Domain/Sponsorship/SponsorshipModule.php:184
+#: src/Domain/Sponsorship/SponsorshipModule.php:191
+#: src/Domain/Sponsorship/SponsorshipModule.php:192
 msgid "Payments"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:191
+#: src/Domain/Sponsorship/SponsorshipModule.php:199
 msgid "Epay gateway (cashier integration)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:197
+#: src/Domain/Sponsorship/SponsorshipModule.php:205
 msgid "Epay integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:203
+#: src/Domain/Sponsorship/SponsorshipModule.php:211
 msgid "Merchant id (pid)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:209
+#: src/Domain/Sponsorship/SponsorshipModule.php:217
 msgid "Merchant key"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:215
+#: src/Domain/Sponsorship/SponsorshipModule.php:223
 msgid "Gateway submit URL"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:221
+#: src/Domain/Sponsorship/SponsorshipModule.php:229
 msgid "Payment channels"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:222
+#: src/Domain/Sponsorship/SponsorshipModule.php:230
 msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:225
+#: src/Domain/Sponsorship/SponsorshipModule.php:233
 msgid "Alipay"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:226
+#: src/Domain/Sponsorship/SponsorshipModule.php:234
 msgid "WeChat Pay"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:227
+#: src/Domain/Sponsorship/SponsorshipModule.php:235
 msgid "USDT (TRC20)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:233
+#: src/Domain/Sponsorship/SponsorshipModule.php:241
 msgid "Afdian (platform push)"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:239
+#: src/Domain/Sponsorship/SponsorshipModule.php:247
 msgid "Afdian integration"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:240
+#: src/Domain/Sponsorship/SponsorshipModule.php:248
 msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:246
+#: src/Domain/Sponsorship/SponsorshipModule.php:254
 msgid "Afdian plan bindings"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:247
+#: src/Domain/Sponsorship/SponsorshipModule.php:255
 msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:253
+#: src/Domain/Sponsorship/SponsorshipModule.php:261
 msgid "Afdian plan ID"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:259
+#: src/Domain/Sponsorship/SponsorshipModule.php:267
 msgid "Membership tier"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:260
+#: src/Domain/Sponsorship/SponsorshipModule.php:268
 msgid "The tier (from the membership settings page) that this plan activates."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:275
+#: src/Domain/Sponsorship/SponsorshipModule.php:283
 msgid "Fallback tier"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:276
+#: src/Domain/Sponsorship/SponsorshipModule.php:284
 msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:289
+#: src/Domain/Sponsorship/SponsorshipModule.php:297
 msgid "Afdian user id"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:295
+#: src/Domain/Sponsorship/SponsorshipModule.php:303
 msgid "Afdian API token"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:302
+#: src/Domain/Sponsorship/SponsorshipModule.php:310
 msgid "Afdian webhook address"
 msgstr ""
 
-#: src/Domain/Sponsorship/SponsorshipModule.php:303
+#: src/Domain/Sponsorship/SponsorshipModule.php:311
 msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
 msgstr ""
 
-#. translators: %s: tier keys that still have active holders or live checkouts.
-#: src/Domain/Sponsorship/SponsorshipModule.php:411
+#: src/Domain/Sponsorship/SponsorshipModule.php:317
+msgid "Order log"
+msgstr ""
+
+#: src/Domain/Sponsorship/SponsorshipModule.php:323
+msgid "Unpaid order retention (days)"
+msgstr ""
+
+#: src/Domain/Sponsorship/SponsorshipModule.php:324
+msgid "Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep)."
+msgstr ""
+
+#. translators: %s: tier keys that still have live checkouts or covering members.
+#: src/Domain/Sponsorship/SponsorshipModule.php:447
 #, php-format
 msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
 msgstr ""
@@ -4333,7 +4340,7 @@ msgstr ""
 msgid "Answer 404 for every RSS/RDF/Atom feed URL"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:549
+#: src/Infrastructure/Headless/HeadlessModule.php:550
 msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA CMS Core > Optimization."
 msgstr ""
 

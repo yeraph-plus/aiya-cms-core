@@ -42,7 +42,7 @@ final class SponsorshipModule implements Module
     {
         add_action('aiya_core_register', [$this, 'settings'], 10, 0);
         // Runs after the framework's normalization, before the save lands:
-        // a tier with active holders cannot be deleted.
+        // a tier with live checkouts or covering members cannot be deleted.
         add_filter('aiya_core_settings_validate', [$this, 'guardTierDeletion'], 10, 3);
 
         // Same gate, different concern: the tier name must survive the
@@ -62,10 +62,18 @@ final class SponsorshipModule implements Module
         }, 5);
 
         add_action(self::CRON_HOOK, static function (): void {
-            (new EntitlementService(new LedgerService()))->advance();
-            // Untouched checkouts age out of `pending` so the payment log
-            // tells "never paid" apart from "waiting".
-            (new OrderService())->expirePending();
+            try {
+                (new EntitlementService(new LedgerService()))->advance();
+            } finally {
+                // The sweep must not lose its day to an aborted grant pass:
+                // untouched checkouts age out of `pending` so the payment
+                // log tells "never paid" apart from "waiting", and carts
+                // past the retention window then leave the log entirely —
+                // money is forever, abandoned checkouts are not.
+                $orders = new OrderService();
+                $orders->expirePending();
+                $orders->pruneUnpaid(SponsorshipSettings::read()['unpaidRetentionDays']);
+            }
         });
 
         add_filter('aiya_core_scheduled_events', function (array $hooks): array {
@@ -303,6 +311,22 @@ final class SponsorshipModule implements Module
                     'description' => __('Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only.', 'aiya-core'),
                     'default' => null,
                 ],
+                [
+                    'id' => 'heading_order_log',
+                    'type' => 'heading',
+                    'label' => __('Order log', 'aiya-core'),
+                    'level' => '2',
+                ],
+                [
+                    'id' => 'unpaid_order_retention',
+                    'type' => 'number',
+                    'label' => __('Unpaid order retention (days)', 'aiya-core'),
+                    'description' => __('Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep).', 'aiya-core'),
+                    'default' => 30,
+                    'min' => 7,
+                    'max' => 365,
+                    'step' => 1,
+                ],
             ],
         ]);
     }
@@ -361,13 +385,25 @@ final class SponsorshipModule implements Module
     }
 
     /**
-     * Save-time guard: a tier with active holders — or a live checkout —
-     * cannot be deleted. The entitlement queue snapshots reference the
-     * tier key, the running grants are live business facts, and a pending
-     * checkout is a buyer mid-payment whose verified money would
-     * otherwise settle into a tier that no longer activates.
-     * Removed-but-unused tiers pass; the veto lists the offending keys on
-     * the settings page.
+     * Save-time guard: a tier with a live checkout — or with members
+     * currently riding it — cannot be deleted. Both vetoes, different
+     * concerns:
+     *
+     * - A live checkout is a buyer mid-payment: deleting the tier drops
+     *   its key from the gateway's callback whitelist, so their verified
+     *   push later dies before settlement — money collected on the
+     *   platform, nothing booked, nothing granted.
+     * - A covering member rides the tier right now. Their entitlement
+     *   keeps self-rotating either way (the queue runs from its own
+     *   frozen tier copy), but the product itself must not vanish from
+     *   under them — its price, renewal and configuration context go
+     *   with the row.
+     *
+     * Both measures are current-state only: aged `unpaid` checkouts are
+     * abandoned carts, expired windows are history — neither pins. (The
+     * pre-0.104.0 holder count read the never-flipping `status` column
+     * instead and so pinned "ever purchased" forever.) The offending
+     * keys are listed on the settings page.
      *
      * @param mixed $values normalized settings payload for the page
      * @param mixed $slug   settings page slug being saved
@@ -397,7 +433,7 @@ final class SponsorshipModule implements Module
             return $values;
         }
 
-        $counts = (new EntitlementService())->activeCountByTier($removed);
+        $counts = (new EntitlementService())->coveringCountByTier($removed);
         $counts += (new OrderService())->countPendingByTier($removed);
         $blocked = array_keys($counts);
         if ($blocked === []) {
@@ -407,7 +443,7 @@ final class SponsorshipModule implements Module
         return new WP_Error(
             'aiya_tier_in_use',
             sprintf(
-                // translators: %s: tier keys that still have active holders or live checkouts.
+                // translators: %s: tier keys that still have live checkouts or covering members.
                 __('These tiers still have active members or live checkouts and cannot be deleted: %s.', 'aiya-core'),
                 implode('、', $blocked)
             ),
