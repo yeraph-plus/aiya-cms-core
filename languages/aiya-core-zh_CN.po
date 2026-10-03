@@ -3229,3 +3229,66 @@ msgstr "发送至 %1$s —— 你收到这封邮件是因为账户内触发了�
 
 msgid "If the button does not work, copy this link into your browser:"
 msgstr "按钮不可用时，复制以下链接到浏览器打开："
+
+msgid "Reset password"
+msgstr "重设密码"
+
+msgid "Set password"
+msgstr "设置密码"
+
+msgid "[%s] Your account is ready."
+msgstr "【%s】你的账户已就绪。"
+
+msgid "Your account on %1$s has been created."
+msgstr "你在 %1$s 的账户已创建。"
+
+msgid "Open the link below within %d hours to set your password:"
+msgstr "请在 %d 小时内打开以下链接设置你的密码："
+
+msgid "[%1$s] New user registration"
+msgstr "【%1$s】新用户注册"
+
+msgid "A new user just registered on %1$s."
+msgstr "有新用户在 %1$s 完成了注册。"
+
+msgid "Username"
+msgstr "用户名"
+
+msgid "Email"
+msgstr "邮箱"
+
+msgid "[%s] Password changed"
+msgstr "【%s】密码已更改"
+
+msgid "Your password was just changed."
+msgstr "你的密码刚刚被更改。"
+
+msgid "If this was not you, someone else may have access — reset your password now:"
+msgstr "如果这不是你的操作，账户可能已被他人访问——请立即重设密码："
+
+msgid "[%s] Your email address was changed"
+msgstr "【%s】你的邮箱地址已更改"
+
+msgid "Your account email address was just changed."
+msgstr "你账户的邮箱地址刚刚被更改。"
+
+msgid "Old email"
+msgstr "旧邮箱"
+
+msgid "New email"
+msgstr "新邮箱"
+
+msgid "Password reset"
+msgstr "密码重置"
+
+msgid "Your account is ready"
+msgstr "你的账户已就绪"
+
+msgid "New user registration"
+msgstr "新用户注册"
+
+msgid "Password changed"
+msgstr "密码已更改"
+
+msgid "Email address changed"
+msgstr "邮箱地址已更改"

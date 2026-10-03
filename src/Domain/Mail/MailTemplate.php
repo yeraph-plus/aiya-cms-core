@@ -125,6 +125,32 @@ body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
     }
 
     /**
+     * The key-value panel (expiry reminders, account facts): label in the
+     * muted color, value emphasized; the LAST value renders in the theme
+     * color — put theurgent figure last.
+     *
+     * @param array<string, string> $rows label => value, values pre-escaped
+     */
+    public function rows(array $rows): string
+    {
+        $cells = '';
+        $last = array_key_last($rows);
+        foreach ($rows as $label => $value) {
+            $valueColor = $label === $last ? $this->color : '#18181b';
+            $cells .= '<tr>'
+                . '<td style="padding: 3px 0; color: #71717a; width: 96px;">' . esc_html($label) . '</td>'
+                . '<td style="padding: 3px 0; color: ' . $valueColor . '; font-weight: 600;">' . $value . '</td>'
+                . '</tr>';
+        }
+
+        return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 20px; background-color: #fafafa; border: 1px solid #e4e4e7; border-radius: 8px;">
+<tr><td style="padding: 14px 18px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px;">' . $cells . '</table>
+</td></tr>
+</table>';
+    }
+
+    /**
      * The bulletproof CTA button (table-based, Outlook-safe) with the
      * plain-link fallback line under it — the standard action component
      * for reset links and their kin.

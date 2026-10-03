@@ -48,6 +48,8 @@ final class MailModule implements Module
         add_filter('notify_post_author', static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
         add_filter('notify_moderator', static fn (mixed $maybeNotify): bool => false); // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- filter contract parameter
 
-        add_filter('wp_mail', [MailShell::fromSite(), 'apply'], 999);
+        $shell = MailShell::fromSite();
+        add_filter('wp_mail', [$shell, 'apply'], 999);
+        (new CoreMailRewrites($shell->template()))->register();
     }
 }

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-03T00:51:53+00:00\n"
+"POT-Creation-Date: 2026-10-03T01:19:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -82,11 +82,11 @@ msgid "Pattern"
 msgstr ""
 
 #: src/Admin/CoverMetabox.php:72
-#: src/Admin/DiscussionModerationPage.php:125
-#: src/Admin/DiscussionModerationPage.php:187
+#: src/Admin/DiscussionModerationPage.php:126
+#: src/Admin/DiscussionModerationPage.php:188
 #: src/Domain/Content/BlocksModule.php:197
-#: src/Domain/Notification/NotificationPage.php:79
-#: src/Domain/Notification/NotificationPage.php:107
+#: src/Domain/Notification/NotificationPage.php:80
+#: src/Domain/Notification/NotificationPage.php:108
 #: src/Domain/Parts/BuiltinParts.php:118
 #: src/Domain/Parts/BuiltinParts.php:129
 msgid "Title"
@@ -128,223 +128,223 @@ msgstr ""
 msgid "Cover generated."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:64
 #: src/Admin/DiscussionModerationPage.php:65
-#: src/Admin/DiscussionModerationPage.php:97
+#: src/Admin/DiscussionModerationPage.php:66
+#: src/Admin/DiscussionModerationPage.php:98
 msgid "Light Community"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:77
-#: src/Admin/DiscussionModerationPage.php:316
+#: src/Admin/DiscussionModerationPage.php:78
+#: src/Admin/DiscussionModerationPage.php:317
 msgid "You are not allowed to moderate the community."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:98
+#: src/Admin/DiscussionModerationPage.php:99
 msgid "Discussion threads live outside the post model; this screen is the admin surface for the headless community."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:105
+#: src/Admin/DiscussionModerationPage.php:106
 msgid "Search title or body…"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:107
+#: src/Admin/DiscussionModerationPage.php:108
 msgid "All boards"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:113
+#: src/Admin/DiscussionModerationPage.php:114
 msgid "All statuses"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:118
-#: src/Domain/DevTools/CronsPage.php:163
+#: src/Admin/DiscussionModerationPage.php:119
+#: src/Domain/DevTools/CronsPage.php:164
 #: src/Domain/DevTools/RewritesPage.php:85
 #: src/Domain/DevTools/ShortcodesPage.php:72
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:132
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:133
 msgid "Filter"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:119
-#: src/Admin/DiscussionModerationPage.php:233
+#: src/Admin/DiscussionModerationPage.php:120
+#: src/Admin/DiscussionModerationPage.php:234
 msgid "New thread"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:126
+#: src/Admin/DiscussionModerationPage.php:127
 msgid "Excerpt"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:127
+#: src/Admin/DiscussionModerationPage.php:128
 #: src/Domain/Content/ContentTypeModule.php:60
-#: src/Domain/Notification/NotificationPage.php:241
+#: src/Domain/Notification/NotificationPage.php:242
 msgid "Author"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:128
+#: src/Admin/DiscussionModerationPage.php:129
 msgid "Replies"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:129
+#: src/Admin/DiscussionModerationPage.php:130
 msgid "Last activity"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:130
-#: src/Admin/DiscussionModerationPage.php:412
-#: src/Domain/DevTools/CronsPage.php:172
-#: src/Domain/Notification/NotificationPage.php:112
+#: src/Admin/DiscussionModerationPage.php:131
+#: src/Admin/DiscussionModerationPage.php:413
+#: src/Domain/DevTools/CronsPage.php:173
+#: src/Domain/Notification/NotificationPage.php:113
 msgid "Actions"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:135
+#: src/Admin/DiscussionModerationPage.php:136
 msgid "No threads found."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:152
-#: src/Admin/DiscussionModerationPage.php:428
+#: src/Admin/DiscussionModerationPage.php:153
+#: src/Admin/DiscussionModerationPage.php:429
 msgid "Edit"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:154
+#: src/Admin/DiscussionModerationPage.php:155
 msgid "Delete this thread and all its replies?"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:155
-#: src/Admin/DiscussionModerationPage.php:437
-#: src/Domain/DevTools/CronsPage.php:189
-#: src/Domain/Notification/NotificationPage.php:141
+#: src/Admin/DiscussionModerationPage.php:156
+#: src/Admin/DiscussionModerationPage.php:438
+#: src/Domain/DevTools/CronsPage.php:190
+#: src/Domain/Notification/NotificationPage.php:142
 msgid "Delete"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:191
+#: src/Admin/DiscussionModerationPage.php:192
 msgid "Board"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:201
+#: src/Admin/DiscussionModerationPage.php:202
 #: src/Domain/Sponsorship/ConvertCodesPage.php:127
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:144
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:145
 msgid "Status"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:211
-#: src/Domain/Notification/NotificationPage.php:94
-#: src/Domain/Notification/NotificationPage.php:108
+#: src/Admin/DiscussionModerationPage.php:212
+#: src/Domain/Notification/NotificationPage.php:95
+#: src/Domain/Notification/NotificationPage.php:109
 msgid "Body"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:214
+#: src/Admin/DiscussionModerationPage.php:215
 msgid "HTML allowed; at most nine images per body."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:219
+#: src/Admin/DiscussionModerationPage.php:220
 #: src/Domain/Operations/OperationsPage.php:126
 msgid "Save"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:220
+#: src/Admin/DiscussionModerationPage.php:221
 #: src/Admin/PostTypeSwitchBulkAction.php:83
 #: src/Admin/TermMoveBulkAction.php:77
 #: src/Domain/Parts/PartModule.php:133
 msgid "Cancel"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:234
+#: src/Admin/DiscussionModerationPage.php:235
 msgid "Edit thread"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:300
-#: src/Admin/DiscussionModerationPage.php:335
-#: src/Admin/DiscussionModerationPage.php:511
-#: src/Domain/Credit/CreditsPage.php:456
+#: src/Admin/DiscussionModerationPage.php:301
+#: src/Admin/DiscussionModerationPage.php:336
+#: src/Admin/DiscussionModerationPage.php:512
+#: src/Domain/Credit/CreditsPage.php:457
 msgid "The operation failed."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:333
+#: src/Admin/DiscussionModerationPage.php:334
 msgid "Status updated."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:334
+#: src/Admin/DiscussionModerationPage.php:335
 msgid "Thread deleted."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:364
+#: src/Admin/DiscussionModerationPage.php:365
 msgid "Boards"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:372
-#: src/Admin/DiscussionModerationPage.php:408
+#: src/Admin/DiscussionModerationPage.php:373
+#: src/Admin/DiscussionModerationPage.php:409
 msgid "Slug"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:376
+#: src/Admin/DiscussionModerationPage.php:377
 msgid "The slug is fixed once threads reference it."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:379
+#: src/Admin/DiscussionModerationPage.php:380
 msgid "Lowercase letters, digits, dashes or underscores."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:384
-#: src/Admin/DiscussionModerationPage.php:407
+#: src/Admin/DiscussionModerationPage.php:385
+#: src/Admin/DiscussionModerationPage.php:408
 #: src/Admin/FileServeMetabox.php:288
 #: src/Domain/Sponsorship/SponsorshipModule.php:125
 msgid "Name"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:388
-#: src/Admin/DiscussionModerationPage.php:409
+#: src/Admin/DiscussionModerationPage.php:389
+#: src/Admin/DiscussionModerationPage.php:410
 #: src/Domain/Sponsorship/SponsorshipModule.php:131
 msgid "Description"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:392
-#: src/Admin/DiscussionModerationPage.php:410
+#: src/Admin/DiscussionModerationPage.php:393
+#: src/Admin/DiscussionModerationPage.php:411
 msgid "Sort order"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:397
+#: src/Admin/DiscussionModerationPage.php:398
 msgid "Save board"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:397
+#: src/Admin/DiscussionModerationPage.php:398
 msgid "Add board"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:399
+#: src/Admin/DiscussionModerationPage.php:400
 msgid "Cancel editing"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:411
+#: src/Admin/DiscussionModerationPage.php:412
 msgid "Threads"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:418
+#: src/Admin/DiscussionModerationPage.php:419
 msgid "No boards yet."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:436
+#: src/Admin/DiscussionModerationPage.php:437
 msgid "Delete this board? Its threads move to the first remaining board."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:453
-#: src/Admin/DiscussionModerationPage.php:486
+#: src/Admin/DiscussionModerationPage.php:454
+#: src/Admin/DiscussionModerationPage.php:487
 msgid "You are not allowed to manage the community."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:508
+#: src/Admin/DiscussionModerationPage.php:509
 msgid "Board created."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:509
+#: src/Admin/DiscussionModerationPage.php:510
 msgid "Board saved."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:510
+#: src/Admin/DiscussionModerationPage.php:511
 msgid "Board deleted."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:536
+#: src/Admin/DiscussionModerationPage.php:537
 msgid "Normal"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:537
+#: src/Admin/DiscussionModerationPage.php:538
 msgid "Closed"
 msgstr ""
 
@@ -894,7 +894,7 @@ msgid "Thread not found."
 msgstr ""
 
 #: src/Api/Rest/IntegrationsController.php:142
-#: src/Domain/Credit/CreditsPage.php:333
+#: src/Domain/Credit/CreditsPage.php:334
 #: src/Domain/Credit/LedgerService.php:105
 #: src/Domain/Credit/LedgerService.php:178
 msgid "The credit holder does not exist."
@@ -1552,7 +1552,7 @@ msgid "Daily check-in"
 msgstr ""
 
 #: src/Domain/Credit/CreditModule.php:80
-#: src/Domain/Credit/CreditsPage.php:481
+#: src/Domain/Credit/CreditsPage.php:482
 #: src/Domain/Operations/OperationsPage.php:387
 msgid "Check-in"
 msgstr ""
@@ -1577,136 +1577,136 @@ msgstr ""
 msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:125
 #: src/Domain/Credit/CreditsPage.php:126
-#: src/Domain/Credit/CreditsPage.php:147
-#: src/Domain/Credit/CreditsPage.php:253
+#: src/Domain/Credit/CreditsPage.php:127
+#: src/Domain/Credit/CreditsPage.php:148
+#: src/Domain/Credit/CreditsPage.php:254
 msgid "Credit ledger"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:137
-#: src/Domain/Credit/CreditsPage.php:327
-#: src/Domain/Credit/CreditsPage.php:368
+#: src/Domain/Credit/CreditsPage.php:138
+#: src/Domain/Credit/CreditsPage.php:328
+#: src/Domain/Credit/CreditsPage.php:369
 msgid "You are not allowed to manage credits."
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:148
+#: src/Domain/Credit/CreditsPage.php:149
 msgid "Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice."
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:202
+#: src/Domain/Credit/CreditsPage.php:203
 msgid "Manual grant"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:209
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:139
+#: src/Domain/Credit/CreditsPage.php:210
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:140
 msgid "User"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:212
-#: src/Domain/Credit/CreditsPage.php:258
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:122
+#: src/Domain/Credit/CreditsPage.php:213
+#: src/Domain/Credit/CreditsPage.php:259
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:123
 msgid "Type a username or name…"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:218
-#: src/Domain/Credit/CreditsPage.php:275
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:142
+#: src/Domain/Credit/CreditsPage.php:219
+#: src/Domain/Credit/CreditsPage.php:276
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:143
 msgid "Amount"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:224
+#: src/Domain/Credit/CreditsPage.php:225
 msgid "Validity (days)"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:227
+#: src/Domain/Credit/CreditsPage.php:228
 msgid "The bucket dies when this expires."
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:231
+#: src/Domain/Credit/CreditsPage.php:232
 msgid "Note"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:234
+#: src/Domain/Credit/CreditsPage.php:235
 msgid "Optional; recorded in the ledger reference."
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:238
+#: src/Domain/Credit/CreditsPage.php:239
 msgid "Grant credits"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:262
+#: src/Domain/Credit/CreditsPage.php:263
 msgid "View ledger"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:266
+#: src/Domain/Credit/CreditsPage.php:267
 msgid "Pick a user to browse their grants and spends."
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:271
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:138
+#: src/Domain/Credit/CreditsPage.php:272
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:139
 msgid "Time"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:272
+#: src/Domain/Credit/CreditsPage.php:273
 msgid "Direction"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:273
+#: src/Domain/Credit/CreditsPage.php:274
 #: src/Domain/Media/PicBedPage.php:284
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:145
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:146
 msgid "Source"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:274
+#: src/Domain/Credit/CreditsPage.php:275
 #: src/Domain/Parts/BuiltinParts.php:190
 msgid "Reference"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:276
+#: src/Domain/Credit/CreditsPage.php:277
 msgid "Bucket left"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:277
+#: src/Domain/Credit/CreditsPage.php:278
 msgid "Expires"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:282
+#: src/Domain/Credit/CreditsPage.php:283
 msgid "No ledger entries for this user yet."
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:342
+#: src/Domain/Credit/CreditsPage.php:343
 msgid "Amount and validity are required."
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:356
+#: src/Domain/Credit/CreditsPage.php:357
 msgid "An admin grant with this exact note already exists for this user."
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:414
+#: src/Domain/Credit/CreditsPage.php:415
 msgid "Credits"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:455
+#: src/Domain/Credit/CreditsPage.php:456
 msgid "Credits granted."
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:482
+#: src/Domain/Credit/CreditsPage.php:483
 msgid "Redeem code"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:483
+#: src/Domain/Credit/CreditsPage.php:484
 #: src/Domain/Operations/OperationsPage.php:388
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:232
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:233
 #: src/Domain/Sponsorship/SponsorshipModule.php:87
 msgid "Membership"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:484
+#: src/Domain/Credit/CreditsPage.php:485
 msgid "Admin grant"
 msgstr ""
 
-#: src/Domain/Credit/CreditsPage.php:485
+#: src/Domain/Credit/CreditsPage.php:486
 msgid "Download"
 msgstr ""
 
@@ -1741,134 +1741,134 @@ msgstr ""
 msgid "This spend was already recorded."
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:40
-#: src/Domain/DevTools/CronsPage.php:328
-#: src/Domain/DevTools/CronsPage.php:360
-#: src/Domain/DevTools/CronsPage.php:376
-#: src/Domain/DevTools/CronsPage.php:393
+#: src/Domain/DevTools/CronsPage.php:41
+#: src/Domain/DevTools/CronsPage.php:329
+#: src/Domain/DevTools/CronsPage.php:361
+#: src/Domain/DevTools/CronsPage.php:377
+#: src/Domain/DevTools/CronsPage.php:394
 msgid "You are not allowed to manage scheduled events."
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:45
+#: src/Domain/DevTools/CronsPage.php:46
 #: src/Domain/DevTools/DevToolsModule.php:91
 #: src/Domain/DevTools/DevToolsModule.php:92
 msgid "Crons"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:46
+#: src/Domain/DevTools/CronsPage.php:47
 msgid "Scheduled events of this site: run one now, remove a stray entry, or schedule a hook that has a live listener."
 msgstr ""
 
 #. translators: %d: number of orphaned events
-#: src/Domain/DevTools/CronsPage.php:81
+#: src/Domain/DevTools/CronsPage.php:82
 #, php-format
 msgid "%d scheduled events point at hooks without any listener anymore."
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:85
+#: src/Domain/DevTools/CronsPage.php:86
 msgid "Unschedule every orphaned event now?"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:85
+#: src/Domain/DevTools/CronsPage.php:86
 msgid "Clean up orphans"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:96
+#: src/Domain/DevTools/CronsPage.php:97
 msgid "Schedule an event"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:103
-#: src/Domain/DevTools/CronsPage.php:170
+#: src/Domain/DevTools/CronsPage.php:104
+#: src/Domain/DevTools/CronsPage.php:171
 msgid "Hook"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:105
+#: src/Domain/DevTools/CronsPage.php:106
 msgid "aiya_core_example_hook"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:106
+#: src/Domain/DevTools/CronsPage.php:107
 msgid "Only hooks that currently have a listener can be scheduled."
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:110
-#: src/Domain/DevTools/CronsPage.php:171
+#: src/Domain/DevTools/CronsPage.php:111
+#: src/Domain/DevTools/CronsPage.php:172
 msgid "Recurrence"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:113
-#: src/Domain/DevTools/CronsPage.php:305
+#: src/Domain/DevTools/CronsPage.php:114
+#: src/Domain/DevTools/CronsPage.php:306
 msgid "One-off"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:121
-#: src/Domain/DevTools/CronsPage.php:169
+#: src/Domain/DevTools/CronsPage.php:122
+#: src/Domain/DevTools/CronsPage.php:170
 msgid "Next run"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:124
+#: src/Domain/DevTools/CronsPage.php:125
 msgid "Local site time; defaults to one minute from now."
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:128
+#: src/Domain/DevTools/CronsPage.php:129
 msgid "Schedule event"
 msgstr ""
 
 #. translators: %d: number of scheduled events
-#: src/Domain/DevTools/CronsPage.php:155
+#: src/Domain/DevTools/CronsPage.php:156
 #, php-format
 msgid "Scheduled events (%d)"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:162
+#: src/Domain/DevTools/CronsPage.php:163
 msgid "Filter by hook name…"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:177
+#: src/Domain/DevTools/CronsPage.php:178
 msgid "No scheduled events match."
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:188
+#: src/Domain/DevTools/CronsPage.php:189
 msgid "Run this hook now?"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:188
+#: src/Domain/DevTools/CronsPage.php:189
 msgid "Run now"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:189
+#: src/Domain/DevTools/CronsPage.php:190
 msgid "Delete this scheduled event?"
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:422
+#: src/Domain/DevTools/CronsPage.php:423
 msgid "Event scheduled."
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:423
+#: src/Domain/DevTools/CronsPage.php:424
 msgid "Hook executed."
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:424
+#: src/Domain/DevTools/CronsPage.php:425
 msgid "Scheduled event deleted."
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:425
+#: src/Domain/DevTools/CronsPage.php:426
 msgid "The event could not be scheduled."
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:426
+#: src/Domain/DevTools/CronsPage.php:427
 msgid "The hook name is empty or malformed."
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:427
+#: src/Domain/DevTools/CronsPage.php:428
 msgid "That hook has no listener right now — schedule it from code first."
 msgstr ""
 
-#: src/Domain/DevTools/CronsPage.php:428
+#: src/Domain/DevTools/CronsPage.php:429
 msgid "That scheduled event no longer exists."
 msgstr ""
 
 #. translators: %d: number of removed events
-#: src/Domain/DevTools/CronsPage.php:431
+#: src/Domain/DevTools/CronsPage.php:432
 #, php-format
 msgid "Removed %d orphaned events."
 msgstr ""
@@ -2900,28 +2900,33 @@ msgstr ""
 
 #. translators: %s: site name.
 #: src/Domain/Identity/PasswordResetService.php:44
+#: src/Domain/Mail/CoreMailRewrites.php:52
 #, php-format
 msgid "[%s] Password reset"
 msgstr ""
 
 #. translators: %s: site name.
 #: src/Domain/Identity/PasswordResetService.php:50
+#: src/Domain/Mail/CoreMailRewrites.php:77
 #, php-format
 msgid "Someone requested a password reset for your account at %s."
 msgstr ""
 
 #. translators: %s: login email address.
 #: src/Domain/Identity/PasswordResetService.php:55
+#: src/Domain/Mail/CoreMailRewrites.php:82
 #, php-format
 msgid "Login email: %s"
 msgstr ""
 
 #: src/Domain/Identity/PasswordResetService.php:58
+#: src/Domain/Mail/CoreMailRewrites.php:85
 msgid "If this was not you, ignore this email and your password will stay unchanged."
 msgstr ""
 
 #. translators: %d: number of hours the reset link stays valid.
 #: src/Domain/Identity/PasswordResetService.php:61
+#: src/Domain/Mail/CoreMailRewrites.php:88
 #, php-format
 msgid "Open the link below within %d hours to choose a new password:"
 msgstr ""
@@ -2962,6 +2967,105 @@ msgstr ""
 msgid "This sign-in ticket is not valid."
 msgstr ""
 
+#: src/Domain/Mail/CoreMailRewrites.php:91
+#: src/Domain/Mail/CoreMailRewrites.php:175
+#: src/Domain/Mail/CoreMailRewrites.php:201
+msgid "Reset password"
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:93
+msgid "Password reset"
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Domain/Mail/CoreMailRewrites.php:111
+#, php-format
+msgid "Your account on %1$s has been created."
+msgstr ""
+
+#. translators: %d: number of hours the reset link stays valid.
+#: src/Domain/Mail/CoreMailRewrites.php:116
+#, php-format
+msgid "Open the link below within %d hours to set your password:"
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:119
+msgid "Set password"
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:121
+msgid "Your account is ready"
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Domain/Mail/CoreMailRewrites.php:124
+#, php-format
+msgid "[%1$s] Your account is ready."
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:140
+msgid "Username"
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:141
+msgid "Email"
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Domain/Mail/CoreMailRewrites.php:145
+#, php-format
+msgid "A new user just registered on %1$s."
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:150
+msgid "New user registration"
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Domain/Mail/CoreMailRewrites.php:153
+#, php-format
+msgid "[%1$s] New user registration"
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:173
+msgid "Your password was just changed."
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:174
+#: src/Domain/Mail/CoreMailRewrites.php:200
+msgid "If this was not you, someone else may have access — reset your password now:"
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:177
+msgid "Password changed"
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:178
+#, php-format
+msgid "[%s] Password changed"
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:195
+msgid "Old email"
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:196
+msgid "New email"
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:198
+msgid "Your account email address was just changed."
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:203
+msgid "Email address changed"
+msgstr ""
+
+#: src/Domain/Mail/CoreMailRewrites.php:204
+#, php-format
+msgid "[%s] Your email address was changed"
+msgstr ""
+
 #: src/Domain/Mail/MailTemplate.php:52
 #, php-format
 msgid "Sent to %1$s — you are receiving this message because of activity on your account."
@@ -2972,7 +3076,7 @@ msgstr ""
 msgid "This message was sent automatically by %1$s — do not reply."
 msgstr ""
 
-#: src/Domain/Mail/MailTemplate.php:141
+#: src/Domain/Mail/MailTemplate.php:167
 msgid "If the button does not work, copy this link into your browser:"
 msgstr ""
 
@@ -3131,205 +3235,205 @@ msgstr ""
 
 #. translators: %d: user ID.
 #: src/Domain/Media/PicBedPage.php:327
-#: src/Domain/Notification/NotificationPage.php:128
+#: src/Domain/Notification/NotificationPage.php:129
 #, php-format
 msgid "User #%d"
 msgstr ""
 
 #. translators: %1$s: commenter name.
-#: src/Domain/Notification/NotificationActions.php:155
+#: src/Domain/Notification/NotificationActions.php:156
 #, php-format
 msgid "%1$s replied to your comment."
 msgstr ""
 
 #. translators: 1: commenter name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:173
+#: src/Domain/Notification/NotificationActions.php:174
 #, php-format
 msgid "%1$s commented on your article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: commenter name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:192
+#: src/Domain/Notification/NotificationActions.php:193
 #, php-format
 msgid "%1$s mentioned you in a comment on \"%2$s\"."
 msgstr ""
 
 #. translators: %s: post title.
-#: src/Domain/Notification/NotificationActions.php:245
+#: src/Domain/Notification/NotificationActions.php:246
 #, php-format
 msgid "Your submission \"%1$s\" was approved and published."
 msgstr ""
 
 #. translators: 1: author name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:266
+#: src/Domain/Notification/NotificationActions.php:267
 #, php-format
 msgid "%1$s mentioned you in the article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: author name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:285
+#: src/Domain/Notification/NotificationActions.php:286
 #, php-format
 msgid "%1$s published a new article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: post title.
-#: src/Domain/Notification/NotificationActions.php:321
+#: src/Domain/Notification/NotificationActions.php:322
 #, php-format
 msgid "A post you favorited was updated: \"%1$s\"."
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:337
+#: src/Domain/Notification/NotificationActions.php:338
 msgid "Your account password was reset. If this was not you, please contact the administrator."
 msgstr ""
 
 #. translators: %d: credit amount.
-#: src/Domain/Notification/NotificationActions.php:362
+#: src/Domain/Notification/NotificationActions.php:363
 #, php-format
 msgid "Your account was granted +%1$d credits."
 msgstr ""
 
 #. translators: %s: replier name.
-#: src/Domain/Notification/NotificationActions.php:386
+#: src/Domain/Notification/NotificationActions.php:387
 #, php-format
 msgid "%s replied to your thread."
 msgstr ""
 
 #. translators: 1: replier name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:391
+#: src/Domain/Notification/NotificationActions.php:392
 #, php-format
 msgid "%1$s replied to your thread \"%2$s\"."
 msgstr ""
 
 #. translators: %s: actor name.
-#: src/Domain/Notification/NotificationActions.php:431
+#: src/Domain/Notification/NotificationActions.php:432
 #, php-format
 msgid "%s mentioned you in a community thread."
 msgstr ""
 
 #. translators: 1: actor name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:436
+#: src/Domain/Notification/NotificationActions.php:437
 #, php-format
 msgid "%1$s mentioned you in the thread \"%2$s\"."
 msgstr ""
 
 #. translators: %s: author name.
-#: src/Domain/Notification/NotificationActions.php:454
+#: src/Domain/Notification/NotificationActions.php:455
 #, php-format
 msgid "%s published a new thread."
 msgstr ""
 
 #. translators: 1: author name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:459
+#: src/Domain/Notification/NotificationActions.php:460
 #, php-format
 msgid "%1$s published a new thread \"%2$s\"."
 msgstr ""
 
 #. translators: %1$s: follower name.
-#: src/Domain/Notification/NotificationActions.php:502
+#: src/Domain/Notification/NotificationActions.php:503
 #, php-format
 msgid "%1$s followed you."
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:530
+#: src/Domain/Notification/NotificationActions.php:531
 #, php-format
 msgid "Your membership is active until %s. Thank you for the support!"
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:579
+#: src/Domain/Notification/NotificationActions.php:580
 #, php-format
 msgid "Your membership expires on %s. Renew to keep the perks."
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:49
 #: src/Domain/Notification/NotificationPage.php:50
-#: src/Domain/Notification/NotificationPage.php:68
+#: src/Domain/Notification/NotificationPage.php:51
+#: src/Domain/Notification/NotificationPage.php:69
 msgid "Notifications"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:60
-#: src/Domain/Notification/NotificationPage.php:173
-#: src/Domain/Notification/NotificationPage.php:195
+#: src/Domain/Notification/NotificationPage.php:61
+#: src/Domain/Notification/NotificationPage.php:174
+#: src/Domain/Notification/NotificationPage.php:196
 msgid "You are not allowed to manage notifications."
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:69
+#: src/Domain/Notification/NotificationPage.php:70
 msgid "Site-wide announcements for the headless front end. Rows expire automatically after the retention period; the front end tracks read state itself."
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:73
+#: src/Domain/Notification/NotificationPage.php:74
 msgid "Publish announcement"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:83
+#: src/Domain/Notification/NotificationPage.php:84
 msgid "Minimum visible role"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:90
+#: src/Domain/Notification/NotificationPage.php:91
 msgid "Viewers below this role will not see the announcement. Sponsor also requires a valid sponsorship."
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:98
+#: src/Domain/Notification/NotificationPage.php:99
 msgid "Publish"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:102
+#: src/Domain/Notification/NotificationPage.php:103
 msgid "Stored notifications"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:109
+#: src/Domain/Notification/NotificationPage.php:110
 msgid "Minimum role"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:110
+#: src/Domain/Notification/NotificationPage.php:111
 msgid "Scope"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:111
+#: src/Domain/Notification/NotificationPage.php:112
 #: src/Domain/Sponsorship/ConvertCodesPage.php:130
 msgid "Created"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:117
+#: src/Domain/Notification/NotificationPage.php:118
 msgid "No notifications stored."
 msgstr ""
 
 #. translators: %d: user ID.
-#: src/Domain/Notification/NotificationPage.php:128
+#: src/Domain/Notification/NotificationPage.php:129
 msgid "Broadcast"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:140
+#: src/Domain/Notification/NotificationPage.php:141
 msgid "Delete this notification?"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:213
+#: src/Domain/Notification/NotificationPage.php:214
 msgid "Notification published."
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:214
+#: src/Domain/Notification/NotificationPage.php:215
 msgid "Notification deleted."
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:215
+#: src/Domain/Notification/NotificationPage.php:216
 #: src/Domain/Sponsorship/ConvertCodesPage.php:223
 msgid "The operation failed — check the values and try again."
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:239
+#: src/Domain/Notification/NotificationPage.php:240
 msgid "Subscriber"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:240
+#: src/Domain/Notification/NotificationPage.php:241
 msgid "Sponsor"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:242
+#: src/Domain/Notification/NotificationPage.php:243
 msgid "Administrator"
 msgstr ""
 
-#: src/Domain/Notification/NotificationPage.php:243
+#: src/Domain/Notification/NotificationPage.php:244
 msgid "Guest"
 msgstr ""
 
@@ -3792,7 +3896,7 @@ msgstr ""
 
 #: src/Domain/Sponsorship/ConvertCodesPage.php:76
 #: src/Domain/Sponsorship/ConvertCodesPage.php:125
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:141
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:142
 msgid "Tier"
 msgstr ""
 
@@ -3806,7 +3910,7 @@ msgstr ""
 
 #: src/Domain/Sponsorship/ConvertCodesPage.php:94
 #: src/Domain/Sponsorship/ConvertCodesPage.php:126
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:143
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:144
 msgid "Cycles"
 msgstr ""
 
@@ -3906,49 +4010,49 @@ msgstr ""
 msgid "The order could not be stored."
 msgstr ""
 
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:59
 #: src/Domain/Sponsorship/PaymentsAuditPage.php:60
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:114
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:61
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:115
 msgid "Payment audit"
 msgstr ""
 
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:100
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:101
 msgid "You are not allowed to view payments."
 msgstr ""
 
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:115
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:116
 msgid "Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue."
 msgstr ""
 
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:127
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:128
 msgid "All sources"
 msgstr ""
 
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:140
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:141
 msgid "Order"
 msgstr ""
 
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:150
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:151
 msgid "No payments recorded yet."
 msgstr ""
 
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:291
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:292
 msgid "Epay"
 msgstr ""
 
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:292
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:293
 msgid "Afdian"
 msgstr ""
 
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:328
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:329
 msgid "Paid"
 msgstr ""
 
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:329
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:330
 msgid "Awaiting payment"
 msgstr ""
 
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:330
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:331
 msgid "Unpaid"
 msgstr ""
 

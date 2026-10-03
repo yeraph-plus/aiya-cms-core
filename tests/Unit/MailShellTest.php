@@ -83,12 +83,20 @@ final class MailShellTest extends TestCase
         self::assertSame(['Content-Type: text/html; charset=UTF-8'], $out['headers']);
     }
 
-    public function testAMarkedMessagePassesThroughUntouched(): void
+    public function testAMarkedMessageKeepsItsContentButShipsAsHtml(): void
     {
-        $marked = MailTemplate::SHELL_MARKER . '<html>已是成品</html>';
-        $args = ['to' => 'a@example.test', 'subject' => 'x', 'message' => $marked, 'headers' => []];
+        // A marked message is finished brand HTML — content stays byte-for-
+        // byte, but message-only filters cannot set headers, so the takeover
+        // normalises the Content-Type here or the document travels as text.
+        $out = $this->apply($this->shell(), [
+            'to' => 'a@example.test',
+            'subject' => 'x',
+            'message' => MailTemplate::SHELL_MARKER . '<html>已是成品</html>',
+            'headers' => [],
+        ]);
 
-        self::assertSame($args, $this->apply($this->shell(), $args));
+        self::assertSame(MailTemplate::SHELL_MARKER . '<html>已是成品</html>', $out['message']);
+        self::assertSame(['Content-Type: text/html; charset=UTF-8'], $out['headers']);
     }
 
     public function testAnEmptyMessagePassesThroughUntouched(): void

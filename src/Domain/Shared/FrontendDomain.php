@@ -18,12 +18,38 @@ namespace Aiya\Core\Domain\Shared;
  */
 final class FrontendDomain
 {
+    /** The front end's password-reset surface (request form and the
+        login/key deep link both live here). */
+    public const RESET_PATH = '/reset-password';
+
     /**
      * The configured front-end origin, or null when unset or unusable.
      */
     public static function origin(): ?string
     {
         return self::normalize((string) aiya_core_opt('frontend', 'frontend_domain', ''));
+    }
+
+    /**
+     * The front-end origin with a site-local fallback — the resolution
+     * every mail-facing link uses (mails cannot ship a relative path).
+     */
+    public static function originOrHome(): string
+    {
+        return self::origin() ?? (string) home_url();
+    }
+
+    /**
+     * The password-reset deep link on the front end: `login` and `key`
+     * are the exact query contract the reset page (and the REST flow)
+     * already speak.
+     */
+    public static function resetUrl(string $login, string $key): string
+    {
+        return add_query_arg(
+            ['login' => $login, 'key' => $key],
+            self::originOrHome() . self::RESET_PATH
+        );
     }
 
     /**

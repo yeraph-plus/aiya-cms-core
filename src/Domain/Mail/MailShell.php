@@ -29,6 +29,12 @@ final class MailShell
     {
     }
 
+    /** The renderer, for the per-mail rewrite layer that produces shell-marked documents of its own. */
+    public function template(): MailTemplate
+    {
+        return $this->template;
+    }
+
     /**
      * Assembles the shell from site configuration: the theme color from
      * the frontend settings, blogname and home URL from core options, and
@@ -67,6 +73,20 @@ final class MailShell
     {
         $message = (string) ($args['message'] ?? '');
         if ($message === '' || str_contains($message, MailTemplate::SHELL_MARKER)) {
+            if ($message === '') {
+                return $args;
+            }
+
+            // A marked message is finished brand HTML (this shell's or the
+            // rewrite layer's), but message-only filters like
+            // retrieve_password_message cannot touch headers — ship it as
+            // text/html here or the branded document travels as plain text.
+            $headers = $this->headerLines((array) ($args['headers'] ?? []));
+            $args['headers'] = array_values(array_merge(
+                array_values(array_filter($headers, static fn (string $line): bool => preg_match('/^content-type:/i', trim($line)) !== 1)),
+                [$this->htmlContentType()]
+            ));
+
             return $args;
         }
 
