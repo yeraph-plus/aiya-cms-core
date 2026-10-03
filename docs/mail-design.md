@@ -1,6 +1,33 @@
 # 邮件域重设计调研稿
 
-状态：**调研稿（登记待拍板，未实施，2026-10-03）**。对应「列入计划、本期不做」中的「邮件模板整套替换 + 事务性邮件（到期/过期提醒）」提前立项。目标：① 替换 WP 默认邮件模板与全部邮件行为（自有美观样式套入）；② 建立本系统自己的事务性邮件接入。本稿只做机制核实与方案推演，未写任何实现。
+状态：**已拍板（2026-10-03），待实施**。拍板记录与批次计划见下节；§四起的原始推演保留作机制依据（其中「pre_wp_mail 短路接管」的推荐已被拍板 ②⑥ 否弃，改走 `wp_mail` 参数过滤器最小侵入，见拍板记录的架构修正）。
+
+## 〇、拍板记录（站长，2026-10-03）与实施计划
+
+| # | 决定 |
+|---|---|
+| ① | **全站接管**：WP 自身邮件与后台手动邮件（SendMailPage）套入同一邮件样式模板 |
+| ② | **transport 不做**：无 SMTP/API 适配器、无高频邮件诉求，保持 WP 默认传输 |
+| ③ | **模板品牌**：主色 = 前端设置 `color_primary`；logo = WP 站点图标（`get_site_icon_url()`）；站名 = `blogname` |
+| ④ | 注册欢迎/验证邮件：下一轮计划（本批不做） |
+| ⑤ | 改邮箱/改密码等**链接回落 WP 页面**的邮件：按既有实现（`PasswordResetService` 的 `FrontendDomain::origin()` + 前台路径构建）**重写文案与链接**为前台地址 |
+| ⑥ | 无发送日志、无重试；**只替换文本与样式，发送行为保持 WP 原样不侵入** |
+
+**架构修正（拍板推导）**：原推荐的 `pre_wp_mail` 短路必然伴随自管 transport（短路后需自行实例化 PHPMailer 发送），与 ②⑥ 冲突——改走 **`wp_mail` 参数过滤器最小侵入**：只改写 message/headers（套壳/重写），发送仍走 WP 原生链路（默认 `isMail()`），过滤器不做任何传输决策。两层：
+
+1. **逐点重写层**（拍板 ⑤）：WP 自带的 per-mail filter 重写文案+链接为前台 URL 并产出**成品品牌 HTML**——`retrieve_password_message`（wp-login 兜底流的重置链接 → `FrontendDomain::origin() + /reset-password?login&key`，同 `PasswordResetService` 形状）、`wp_new_user_notification_email_user/_admin`、`send_password_change_email`、`send_email_change_email`（其正文里的 wp-login/资料页链接按前台对应面重写）。
+2. **通用套壳层**（拍板 ①）：`wp_mail` args filter 兜底——text/plain（core 管理邮件等）转义后进品牌壳内容槽；text/html（SendMailPage 手动邮件）原文进壳；逐点重写层产出打请求级标记防双壳。From/主题不额外改写（不侵入；From 美化留可选小项）。
+
+**批次计划**：
+
+| 批次 | 内容 |
+|---|---|
+| A | 模板壳（inline CSS、主色 `color_primary`、站点图标/站名头条、页脚免责；CTA/内容槽组件）+ `wp_mail` args 套壳层（plain 转义入壳 / html 入壳 / 标记跳过）+ SendMailPage 套壳 + 单测 |
+| B | 逐点重写层（⑤的四组 filter：找回密码兜底流/新用户通知/改密通知/改邮箱通知，前台链接复用 `FrontendDomain` origin 解析，成品 HTML 打标记）+ 单测 |
+| C | 到期提醒邮件副本（`onExpiryScan` 的邮件面——事务性邮件立项目标；范围待站长确认随本批或下批） |
+| 下一轮 | 注册欢迎/验证邮件（④）；From 地址美化（可选小项） |
+
+i18n：全部新文案走 `aiya-core` 文本域 + `wp-i18n-zh-cn` 流程。
 
 ---
 
