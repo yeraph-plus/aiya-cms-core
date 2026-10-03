@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Media;
+namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Media\PicBedStore;
+use Aiya\Core\Domain\Media\MediaPaths;
+use Aiya\Core\Domain\Media\MimeType;
 use Closure;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;

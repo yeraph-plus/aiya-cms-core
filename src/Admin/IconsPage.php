@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\DevTools;
+namespace Aiya\Core\Admin;
 
 /**
  * Dashicons list (the WPJAM Basic 图标列表 page, kept display-only):

@@ -37,7 +37,7 @@
 | B3 | REST 面收敛 | R-02、R-03、R-07、R-10、C-04、C-05、L-08 | 快照零 diff + 全路由冒烟 | ✅ 2026-10-03 |
 | B4 | 媒体与杂项收敛 | R-04、R-05、R-06、R-08、R-12、R-13、R-14、R-15、L-07、L-09 | 上传/封面/文件服务手工回归 | ✅ 2026-10-03 |
 | B5 | 卫生与测试补强 | H-03、H-04、H-05、H-06 | 新测试入套件、死代码零引用复核 | ✅ 2026-10-03 |
-| B6 | 架构裁决、文档与发布 | L-01、L-04、L-05、L-06、G-01～G-05（L-10 已随 0.102.0 关闭）+ C-01（漏派项，并入本批）| 快照比对 + 发布动作清单全过 | ☐ |
+| B6 | 架构裁决、文档与发布 | L-01、L-04、L-05、L-06、G-01～G-05 + C-01（站长拍板：L-02/L-03 提前实施）| 快照比对 + 发布动作清单全过 | ✅ 2026-10-03 |
 
 **统一验证基线**（每批收尾都要过）：容器内 Linux 原生盘跑 phpunit 全绿（基准 ≥625 tests，B5 后增长）；`phpstan analyse --memory-limit=2G` 0 errors（level 8）；phpcs 0 errors。每批按惯例盖版本戳并在 ROADMAP 追加条目、回写本台账状态位。
 
@@ -214,37 +214,37 @@
 
 ### 3.2 L 契约与层错位
 
-**L-01 [P1] Domain 命名空间内嵌 14 个 admin 页面类，放置约定分裂** ☐
+**L-01 [P1] Domain 命名空间内嵌 14 个 admin 页面类，放置约定分裂** ✅ B6（站长拍板迁 src/Admin，裁决入 ARCHITECTURE）
 - 位置：`src/Domain/` 下 14 个 `*Page.php`（Credit/DevTools×7/Mail/Media/Notification/Operations/Sponsorship×2）+ `AvatarModule.php:417-461`。
 - 证据：注册 admin_menu、读 superglobals（CreditsPage.php:141-347、SearchReplacePage.php:59-257）、部分直接 `wp_send_json_*`/挂 `wp_ajax_`；而同类页 `DiscussionModerationPage` 住 `src/Admin`。
 - 方向：B6 裁决二选一——迁入 `src/Admin`（域只留服务），或 ARCHITECTURE 明文豁免「域自带管理页」并划 superglobals/wp_send_json 边界。勿维持现状。
 - 复核：裁决结论出现在 ARCHITECTURE.md，目录形态与之一致。
 
-**L-02 [P1] 域服务直读请求超全局并依赖 Infrastructure/Http** ⏭️ 1.0 后（B6 落裁决）
+**L-02 [P1] 域服务直读请求超全局并依赖 Infrastructure/Http** ✅ B6（提前实施：VisitorFingerprint 上移，域只收字符串）
 - 位置：`src/Domain/Engagement/CounterService.php:232-238`（visitorHash）。
 - 证据：内联读 `$_SERVER['HTTP_USER_AGENT']` + 调 `Infrastructure\Http\ClientIp::forVisitor()`；正确范式见 `CommentsController.php:238`（REST 层取 IP 传入）。
 - 方向（1.0 后）：指纹由 REST 边界解析后作参数传入，域只收字符串。
 - 复核：Domain/ 无 `$_SERVER` 引用。
 
-**L-03 [P1] 账号安全不变量内联 REST 控制器，无 Domain 归宿** ⏭️ 1.0 后（B6 落裁决）
+**L-03 [P1] 账号安全不变量内联 REST 控制器，无 Domain 归宿** ✅ B6（提前实施：Identity/AccountService 三不变量）
 - 位置：`src/Api/Rest/UserController.php:352-371,401-432`、`AuthController.php:152-192,281-289`。
 - 证据：改邮箱强制重认证、改密先吊销全部会话（失败即中止）、注册 UUID 用户名铸造、email_exists 409——安全不变量以 wp_update_user 等直写在控制器；ARCHITECTURE 明言控制器 "never query WordPress directly"（读侧做到、写侧无域可走）。
 - 方向（1.0 后）：Identity 补 AccountService（changeEmail/changePassword/register）。
 - 复核：控制器无 wp_update_user/wp_set_password/wp_create_user 直调。
 
-**L-04 [P2] DiscussionDetail 双字段重复：contentHtml 与 content.html 同值并存** ☐
+**L-04 [P2] DiscussionDetail 双字段重复：contentHtml 与 content.html 同值并存** ✅ B6（docblock 登记收敛方向）
 - 位置：`src/Api/Contract/DiscussionDetail.php:30-38`。
 - 证据：detail 载荷同一 HTML 两种形状出现两次；list 载荷只有 contentHtml。v1 冻结下只能加法。
 - 方向：登记收敛——detail 消费方归 `content.html`，`contentHtml` 在 detail 面降级为兼容副本（B6 文档化）。
 - 复核：ARCHITECTURE/快照注释记载收敛方向。
 
-**L-05 [P2] `Seo::noindex` 恒值死字段** ☐
+**L-05 [P2] `Seo::noindex` 恒值死字段** ✅ B6（docblock 改保留字段语义）
 - 位置：`src/Api/Presenter/PostPresenter.php:167`、`src/Api/Contract/Seo.php`。
 - 证据：全仓唯一构造点恒传 false，docblock 声称 "backend decision surfaced verbatim" 但不存在后端写入方。
 - 方向：docblock 改写为「保留字段、恒 false、语义归前端」，或收缩构造。归 B6。
 - 复核：docblock 与现实一致。
 
-**L-06 [P2] `UserProfile.username` 与自身 docblock 矛盾** ☐
+**L-06 [P2] `UserProfile.username` 与自身 docblock 矛盾** ✅ B6
 - 位置：`src/Api/Contract/UserProfile.php:20-22`、`src/Api/Presenter/UserPresenter.php:42`。
 - 证据：docblock 写明 login "not part of the contract"，字段装载的恰是 UUID `user_login`（仅 /users/me 自视面，无泄漏面）。
 - 方向：改 docblock 或改字段语义。归 B6。
@@ -278,7 +278,7 @@
 
 > 前提：运行环境无外部对象缓存，wp_cache_* 为请求级；transient 落 options 表，过期行仅在同名键再读时惰性删除，核心无 GC cron。多条读路径把「对象缓存+TTL」当 freshness contract，当前部署下正确。
 
-**C-01 [P1] 过期 transient 无运行时 GC，限流滚动键永不复读，wp_options 永久增长** ☐
+**C-01 [P1] 过期 transient 无运行时 GC，限流滚动键永不复读，wp_options 永久增长** ✅ B6（TransientSweep 挂每日 cron 末位）
 - 位置：`src/Api/Rest/RateLimiter.php:46-50`（键含 `intdiv(time(), window)` 窗口号）、`src/Domain/Engagement/CounterService.php:109-115,133-139,162-174`（去重键 view 1h / like·rating 30d）。
 - 证据：窗口一过的键永不被 get_transient 命中→不触发惰性删除；counter_view 预算 120/60s 是全站最高频写面，单 IP 每分钟留 2 行（值行+timeout 行）直到卸载；uninstall.php:335-347 的前缀清扫恰证明无日常清理。影响 options 表膨胀拖慢备份与全场查询。
 - 方向：并入现有每日 cron 加前缀式过期清扫（`_transient_timeout_aiya_core_%`、`_transient_aiya_core_%`、`_transient_aiya_svc_ticket_%`），零新依赖。（归 B2 或 B1 皆可，建议 B2 顺 cron 面。）
@@ -428,24 +428,24 @@
 
 **Checklist（审查时点）**：版本一致性 ⚠️ · 插件头部 ⚠️ · uninstall 完备性 ✅ · 生命周期 ✅ · REST 发布面 ✅（60 条路由 0 缺 permission_callback）· cron 清单 ✅（9 事件双路清理）· 打包与依赖 ✅ · 壳主题同步 ✅（diff 零差异）· 契约冻结 ✅（活跑成功、51 DTO）· ROADMAP 遗留 ⚠️（无 1.0 阻塞项）。
 
-**G-01 [P1] 版本叙述漂移：ROADMAP 无 0.101.x 批次条目，AGENTS.md 摘要停在 0.101.0** ☐
+**G-01 [P1] 版本叙述漂移：ROADMAP 无 0.101.x 批次条目，AGENTS.md 摘要停在 0.101.0** ✅ B6（1.0.0 盖章 + AGENTS 摘要刷新）
 - 位置：`docs/ROADMAP.md`（最后版本戳条目 0.100.0 在 :1470 附近）；工作区 `AGENTS.md` 现状摘要。
 - 证据：提交 2aa9e47（Stamp 0.101.0）、edc2e4d（0.101.1）后 ROADMAP 再无版本号叙事；实装 0.101.1。
 - 方向：ROADMAP 补 0.101.x 收尾 + 1.0.0 批次；AGENTS.md 摘要同步。归 B6。
 - 复核：ROADMAP/AGENTS/插件头三方版本自洽。
 
-**G-02 [P1] `Requires at least: 6.4` 与 WP 7.1 基线的 1.0 拍板悬而未决** ☐
+**G-02 [P1] `Requires at least: 6.4` 与 WP 7.1 基线的 1.0 拍板悬而未决** ✅ B6（站长拍板 7.0）
 - 位置：`aiya-core.php:6`。
 - 证据：代码已按 7.x 语义验证过（0.98.0 读 7.1 核心 post.php 实证修订闸、add_submenu_page position），6.4 下限从未被测试。
 - 方向：1.0 前拍板——升 `7.0`/`7.1`（推荐，与 AGENTS「WordPress 7.1 基准」一致）或补 6.4 验证。归 B6。
 - 复核：头部值 = 拍板结论。
 
-**G-03 [P2] composer PHP 下限与插件头不一致** ☐
+**G-03 [P2] composer PHP 下限与插件头不一致** ✅ B6（>=8.5 对齐）
 - 位置：`composer.json:7` `"php": ">=8.4 <8.6"` vs `aiya-core.php:7` `Requires PHP: 8.5`。
 - 方向：require 改 `>=8.5` 对齐声明。归 B6。
 - 复核：两处一致。
 
-**G-04 [P2] 0.100.0–0.101.1 从未打 tag，线上 PUC 链停在 v0.99.0** ☐
+**G-04 [P2] 0.100.0–0.101.1 从未打 tag，线上 PUC 链停在 v0.99.0** ✅ B6（0.102.0 已上线对账，v1.0.0 tag 发布即闭环）
 - 证据：`git tag` 终于 v0.99.0；线上站点从未收到这三个版本。1.0 是首个走完整 release.yml 资产链的大版本；四个数据搬迁正是为 ≤0.94 线上库保留的。
 - 方向：上线时实测一次 0.99.0→1.0.0 升级路径（PUC 自动更新链 + 迁移幂等对账）。
 - 复核：线上升级后 `aiya_core_schema_version`=1.0.0、`aiya_core_last_migration_error` 不存在。

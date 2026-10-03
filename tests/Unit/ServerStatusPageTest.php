@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\DevTools\ServerStatusPage;
+use Aiya\Core\Admin\ServerStatusPage;
 use PHPUnit\Framework\TestCase;
 
 final class ServerStatusPageTest extends TestCase

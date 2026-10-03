@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\DevTools\SearchReplacePage;
+use Aiya\Core\Admin\SearchReplacePage;
 use PHPUnit\Framework\TestCase;
 
 /**

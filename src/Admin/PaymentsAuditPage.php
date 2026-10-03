@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Sponsorship;
+namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Sponsorship\AfdianGateway;
+use Aiya\Core\Domain\Sponsorship\EpayGateway;
+use Aiya\Core\Domain\Sponsorship\MembershipService;
+use Aiya\Core\Domain\Sponsorship\OrderService;
 use Aiya\Core\Domain\Shared\DateLabels;
 
 /**

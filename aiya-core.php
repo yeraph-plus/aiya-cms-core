@@ -2,8 +2,8 @@
 /**
  * Plugin Name: AIYA CMS - Headless Core
  * Description: Headless-first administration and content framework for AIYA CMS.
- * Version: 0.102.0
- * Requires at least: 6.4
+ * Version: 1.0.0
+ * Requires at least: 7.0
  * Requires PHP: 8.5
  * Author: Yeraph
  * License: GPL-3.0-or-later
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AIYA_CORE_VERSION', '0.102.0');
+define('AIYA_CORE_VERSION', '1.0.0');
 define('AIYA_CORE_FILE', __FILE__);
 define('AIYA_CORE_PATH', plugin_dir_path(__FILE__));
 define('AIYA_CORE_URL', plugin_dir_url(__FILE__));

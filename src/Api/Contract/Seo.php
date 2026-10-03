@@ -6,8 +6,10 @@ namespace Aiya\Core\Api\Contract;
 
 /**
  * SEO projection for the front end's `<head>`. `title` falls back to the
- * post title; `description` to the excerpt. `noindex` is a backend
- * decision surfaced verbatim.
+ * post title; `description` to the excerpt. `noindex` is a reserved
+ * field: the single construction site passes false and no backend writer
+ * exists — indexing decisions belong to the front end (its archive
+ * noindex logic), the field stays for v1 shape stability.
  */
 final class Seo
 {

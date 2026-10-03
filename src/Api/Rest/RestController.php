@@ -94,10 +94,11 @@ final class RestController implements Module
                 $authentication,
                 $policy,
                 new RateLimiter(),
-                $presenter
+                $presenter,
+                new \Aiya\Core\Domain\Identity\AccountService($tokens, $policy)
             ))->registerRoutes();
 
-            (new UserController($presenter, $this->avatars, $tokens, $policy, $postPresenter, $favorites, new FollowService(), new RateLimiter()))->registerRoutes();
+            (new UserController($presenter, $this->avatars, new \Aiya\Core\Domain\Identity\AccountService($tokens, $policy), $postPresenter, $favorites, new FollowService(), new RateLimiter()))->registerRoutes();
 
             (new CounterController(new CounterService(), new RateLimiter()))->registerRoutes();
 
@@ -135,8 +136,8 @@ final class RestController implements Module
 
             (new GatewayController(new OrderService(), $entitlements))->registerRoutes();
 
-            $threads = new DiscussionService();
-            (new DiscussionController($threads, new DiscussionPresenter($smiliesRenderer, $threads, new DiscussionLikeService(), $mentions), new DiscussionLikeService(), new RateLimiter()))->registerRoutes();
+            $threads = new DiscussionService($discussionLikes = new DiscussionLikeService());
+            (new DiscussionController($threads, new DiscussionPresenter($smiliesRenderer, $threads, $discussionLikes, $mentions), $discussionLikes, new RateLimiter()))->registerRoutes();
 
             (new FileServeController($this->files, $this->downloads, new FilePresenter(), new RateLimiter()))->registerRoutes();
         });

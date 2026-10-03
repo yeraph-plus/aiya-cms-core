@@ -42,7 +42,6 @@ final class AvatarModule implements Module
     /** The only accepted meta path prefix (rows from earlier shapes are dead data). */
     private const FILE_PATH_PREFIX = 'aiya_thumbnail/avatars/';
 
-    private const MIGRATION_VERSION = '1.0.0';
 
     /** Pre-generated square sizes; requests at or below 64 serve the small one. */
     private const FILE_SIZES = [128, 64];
@@ -77,11 +76,6 @@ final class AvatarModule implements Module
     public function register(): void
     {
         add_action('aiya_core_register', [$this, 'settings'], 11, 0);
-        add_filter('aiya_core_schema_migrations', function (array $migrations): array {
-            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'migrateDefaultAvatar']];
-
-            return $migrations;
-        });
         add_filter('get_avatar_data', [$this, 'localAvatarData'], 10, 2);
         add_filter('get_avatar_url', [$this, 'mirrorGravatar'], 999, 3);
         add_filter('avatar_defaults', [$this, 'registerDefaultChoice']);
@@ -221,41 +215,6 @@ final class AvatarModule implements Module
         return is_string($url) && $url !== '' ? $url : null;
     }
 
-    /**
-     * The default-avatar field switched from a hand-typed URL
-     * (`avatar_default_url`) to a media-library attachment
-     * (`avatar_default`). A local upload URL converts through
-     * attachment_url_to_postid; anything else (external URL, garbage)
-     * resets to empty — an off-site image was never a media attachment
-     * and cannot be carried over.
-     */
-    /** Carries the legacy URL value across: `avatar_default_url` (string) → `avatar_default` (attachment id). */
-    public static function migrateDefaultAvatar(): void
-    {
-        $optimization = get_option('aiya_core_optimization');
-        $optimization = is_array($optimization) ? $optimization : [];
-        if (!array_key_exists('avatar_default_url', $optimization)) {
-            return;
-        }
-
-        $legacy = trim((string) $optimization['avatar_default_url']);
-        unset($optimization['avatar_default_url']);
-        if ($legacy !== '' && !isset($optimization['avatar_default'])) {
-            // An unresolvable URL (external host, garbage) writes nothing:
-            // 0 is the field's "no attachment" state and the option key
-            // simply stays absent.
-            $attachmentId = attachment_url_to_postid($legacy);
-            if ($attachmentId > 0) {
-                $optimization['avatar_default'] = $attachmentId;
-            }
-        }
-
-        if ($optimization === []) {
-            delete_option('aiya_core_optimization');
-        } else {
-            update_option('aiya_core_optimization', $optimization, false);
-        }
-    }
 
     private function resolveUserId(mixed $idOrEmail): int
     {

@@ -6,8 +6,10 @@ namespace Aiya\Core\Api\Contract;
 
 /**
  * A user account as the owner sees it (the `/users/me` view). Login names
- * are server-generated UUIDs and not part of the contract; the email
- * address is the login identity.
+ * are server-generated UUIDs; the `username` field ships that UUID on the
+ * owner's own view only (never on public surfaces) and must not be used
+ * as a login credential by the front end — the email address is the
+ * login identity.
  *
  * `role` carries the legacy front-end level semantics
  * (administrator / author / sponsor / subscriber), where sponsor validity

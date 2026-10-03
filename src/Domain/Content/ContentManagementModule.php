@@ -26,21 +26,12 @@ use Aiya\Core\Settings\Registry;
  */
 final class ContentManagementModule implements Module
 {
-    public const MIGRATION_VERSION = '1.0.0';
 
     /**
      * The field ids that moved from the Frontend page option to this
      * page's option; the reader sites switched page keys in the same
      * batch, so the copy has to be exact.
      */
-    private const MIGRATED_FIELDS = [
-        'notification_retention',
-        'credit_retention',
-        'seo_keywords',
-        'seo_description',
-        'ga_measurement_id',
-    ];
-
     public function __construct(private Registry $settings)
     {
     }
@@ -60,12 +51,6 @@ final class ContentManagementModule implements Module
         add_action('delete_option_aiya_core_content', static function (): void {
             wp_cache_flush_group('aiya_core_content');
         }, 10, 0);
-
-        add_filter('aiya_core_schema_migrations', function (array $migrations): array {
-            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'migrateFrontendSplit']];
-
-            return $migrations;
-        });
     }
 
     public function settings(): void
@@ -189,40 +174,4 @@ final class ContentManagementModule implements Module
         ]);
     }
 
-    /**
-     * Moves the five settings that left the Frontend page to this page's
-     * option. Keys absent from the old option are skipped (the reader
-     * falls back to the field default, so copying nothing is exact);
-     * values already present on the new side are never overwritten.
-     */
-    public static function migrateFrontendSplit(): void
-    {
-        $frontend = get_option('aiya_core_frontend');
-        $frontend = is_array($frontend) ? $frontend : [];
-        $content = get_option('aiya_core_content');
-        $content = is_array($content) ? $content : [];
-
-        $moved = false;
-        foreach (self::MIGRATED_FIELDS as $field) {
-            if (!array_key_exists($field, $frontend)) {
-                continue;
-            }
-            if (!array_key_exists($field, $content)) {
-                $content[$field] = $frontend[$field];
-            }
-            unset($frontend[$field]);
-            $moved = true;
-        }
-
-        if (!$moved) {
-            return;
-        }
-
-        update_option('aiya_core_content', $content, false);
-        if ($frontend === []) {
-            delete_option('aiya_core_frontend');
-        } else {
-            update_option('aiya_core_frontend', $frontend, false);
-        }
-    }
 }

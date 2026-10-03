@@ -7,7 +7,10 @@ namespace Aiya\Core\Api\Contract;
 /**
  * Thread detail = the list-item shape plus the filtered HTML body and the
  * flat reply page. Replies are contract DTOs; pagination for deeper pages
- * goes through the replies endpoint.
+ * goes through the replies endpoint. The body rides twice by v1 shape:
+ * the thread's `contentHtml` (list parity) and the `content.html` object
+ * (the detail's own block) — new consumers read `content.html`;
+ * `contentHtml` is the compatibility copy.
  */
 final class DiscussionDetail
 {

@@ -8,6 +8,7 @@ use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Domain\Engagement\CounterService;
 use WP_Error;
 use WP_REST_Request;
+use Aiya\Core\Infrastructure\Http\VisitorFingerprint;
 use WP_REST_Server;
 
 /**
@@ -72,7 +73,7 @@ final class CounterController
             return RestGuard::rateLimited();
         }
 
-        $result = $this->counters->registerLike(absint((string) $request['id']), $this->counters->visitorHash());
+        $result = $this->counters->registerLike(absint((string) $request['id']), VisitorFingerprint::hash());
         if (is_wp_error($result)) {
             return $result;
         }
@@ -87,7 +88,7 @@ final class CounterController
             return RestGuard::rateLimited();
         }
 
-        $views = $this->counters->registerView(absint((string) $request['id']), $this->counters->visitorHash());
+        $views = $this->counters->registerView(absint((string) $request['id']), VisitorFingerprint::hash());
         if (is_wp_error($views)) {
             return $views;
         }
@@ -111,7 +112,7 @@ final class CounterController
             ? (int) (float) (string) $request['value']
             : 0;
 
-        $result = $this->counters->registerRating(absint((string) $request['id']), $value, $this->counters->visitorHash());
+        $result = $this->counters->registerRating(absint((string) $request['id']), $value, VisitorFingerprint::hash());
         if (is_wp_error($result)) {
             return $result;
         }

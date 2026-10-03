@@ -16,6 +16,7 @@ use Aiya\Core\Domain\Content\Mentions;
 use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Content\ReadingTime;
 use Aiya\Core\Domain\Engagement\CounterService;
+use Aiya\Core\Infrastructure\Http\VisitorFingerprint;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Shared\PublicType;
@@ -149,7 +150,7 @@ final class PostPresenter
         $viewerFavorited = false;
         $viewerRating = null;
         if ($viewerId > 0) {
-            $hash = $this->counters->visitorHash();
+            $hash = VisitorFingerprint::hash();
             $viewerLiked = $this->counters->hasLike((int) $post->ID, $hash);
             $viewerRating = $this->counters->ratingVote((int) $post->ID, $hash);
             $viewerFavorited = $this->favorites->has($viewerId, (int) $post->ID);

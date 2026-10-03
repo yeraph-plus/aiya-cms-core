@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\DevTools\ShortcodesPage;
+use Aiya\Core\Admin\ShortcodesPage;
 use PHPUnit\Framework\TestCase;
 
 final class ShortcodesPageTest extends TestCase

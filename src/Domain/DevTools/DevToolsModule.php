@@ -5,6 +5,13 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\DevTools;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Admin\ServerStatusPage;
+use Aiya\Core\Admin\CronsPage;
+use Aiya\Core\Admin\RewritesPage;
+use Aiya\Core\Admin\ShortcodesPage;
+use Aiya\Core\Admin\IconsPage;
+use Aiya\Core\Admin\SearchReplacePage;
+use Aiya\Core\Admin\SamplePage;
 use Aiya\Core\Settings\Registry;
 
 /**

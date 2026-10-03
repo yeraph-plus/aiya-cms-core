@@ -19,13 +19,14 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * The flattened chain: every migration entry lives at the single version
- * '1.0.0' — six dbDelta table installer entries (idempotent by
- * construction: they create fresh and reconcile pre-1.0 databases; the
- * discussion entry alone installs boards, threads, replies and likes)
- * plus four idempotent data carriers (option moves and the avatar value
- * conversion). A post-1.0 migration landing at a new version is a
- * conscious act that updates this test, never an accident of copying an
- * old constant.
+ * '1.0.0' and is a pure table installer (six dbDelta entries, idempotent
+ * by construction: they create fresh and reconcile pre-1.0 databases;
+ * the discussion entry alone installs boards, threads, replies and
+ * likes). The four data carriers of the pre-1.0 era retired with the
+ * 1.0.0 clean model — databases that need them were reconciled by the
+ * 0.102.0 chain before this trim landed. A post-1.0 migration landing
+ * at a new version is a conscious act that updates this test, never an
+ * accident of copying an old constant.
  */
 final class MigrationChainTest extends TestCase
 {
@@ -54,7 +55,7 @@ final class MigrationChainTest extends TestCase
 
         $migrations = apply_filters('aiya_core_schema_migrations', []);
 
-        self::assertCount(10, $migrations, 'six table installers plus four data carriers');
+        self::assertCount(6, $migrations, 'six table installers, the data carriers retired with the clean 1.0.0 model');
         foreach ($migrations as $migration) {
             self::assertSame('1.0.0', $migration['version'], 'the chain stays flat at one version');
             self::assertIsCallable($migration['callback']);

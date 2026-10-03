@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\DevTools;
+namespace Aiya\Core\Admin;
 
 /**
  * Server Status screen (the WPJAM Basic 系统信息 page, rebuilt on native

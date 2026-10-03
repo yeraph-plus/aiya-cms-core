@@ -24,17 +24,14 @@ use Aiya\Core\Domain\Credit\CreditModule;
  */
 final class OperationsModule implements Module
 {
-    // Both entries ride the flattened 1.0.0 chain: installTables creates
-    // the report tables fresh and lets dbDelta reconcile any pre-1.0
-    // database; migrateUnitCost carries the rate across from the
-    // membership option on databases that predate the move.
+    // Rides the flattened 1.0.0 chain: installTables creates the report
+    // tables fresh and lets dbDelta reconcile any pre-1.0 database.
     private const MIGRATION_VERSION = '1.0.0';
 
     public function register(): void
     {
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
             $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [StatsRecorder::class, 'installTables']];
-            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'migrateUnitCost']];
 
             return $migrations;
         });
@@ -98,30 +95,4 @@ final class OperationsModule implements Module
      * already holds one; anything else drops and the operator re-enters
      * it in place. An emptied sponsorship option is deleted.
      */
-    public static function migrateUnitCost(): void
-    {
-        $sponsorship = get_option('aiya_core_sponsorship');
-        $sponsorship = is_array($sponsorship) ? $sponsorship : [];
-        if (!array_key_exists('ops_unit_cost', $sponsorship)) {
-            return;
-        }
-
-        $legacy = $sponsorship['ops_unit_cost'];
-        unset($sponsorship['ops_unit_cost']);
-        $operations = get_option('aiya_core_operations');
-        $operations = is_array($operations) ? $operations : [];
-        $moved = false;
-        if (is_numeric($legacy) && !array_key_exists('ops_unit_cost', $operations)) {
-            $operations['ops_unit_cost'] = (float) $legacy;
-            $moved = true;
-        }
-        if ($moved) {
-            update_option('aiya_core_operations', $operations, false);
-        }
-        if ($sponsorship === []) {
-            delete_option('aiya_core_sponsorship');
-        } else {
-            update_option('aiya_core_sponsorship', $sponsorship, false);
-        }
-    }
 }

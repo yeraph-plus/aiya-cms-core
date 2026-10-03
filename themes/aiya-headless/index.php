@@ -16,7 +16,7 @@ get_header();
 ?>
 <div class="wrap">
     <?php if (!is_front_page()) : ?>
-        <h1><?php echo aiya_shell_page_title(); ?></h1>
+        <h1><?php echo esc_html(aiya_shell_page_title()); ?></h1>
     <?php endif; ?>
 
     <?php if (have_posts()) : ?>

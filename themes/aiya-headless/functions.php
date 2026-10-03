@@ -74,7 +74,9 @@ add_filter('comment_reply_link', static function (): string {
 function aiya_shell_page_title(): string
 {
     if (is_search()) {
-        return sprintf(__( 'Search Results for &#8220;%s&#8221;' ), get_search_query());
+        // The raw query: the single outlet esc_html()s the whole line
+        // (the curly quotes are literal characters, not entities).
+        return sprintf(__( 'Search Results for “%s”' ), get_search_query(false));
     }
 
     if (is_404()) {
@@ -89,7 +91,7 @@ function aiya_shell_page_title(): string
         $posts_page_id = (int) get_option('page_for_posts');
 
         return $posts_page_id > 0
-            ? esc_html((string) get_the_title($posts_page_id))
+            ? (string) get_the_title($posts_page_id)
             : (string) get_bloginfo('name');
     }
 

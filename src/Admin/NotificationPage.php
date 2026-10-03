@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Notification;
+namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Notification\RoleLevel;
+use Aiya\Core\Domain\Notification\NotificationService;
 use Aiya\Core\Domain\Shared\DateLabels;
 
 /**

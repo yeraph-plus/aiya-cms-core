@@ -37,7 +37,8 @@ final class MailShell
 
     /**
      * Assembles the shell from site configuration: the theme color from
-     * the frontend settings, blogname and home URL from core options, and
+     * the frontend settings, blogname and the front-end origin (the brand
+     * link lands on the site readers know), and
      * the site icon's attachment file when one is set.
      */
     public static function fromSite(): self
@@ -61,7 +62,7 @@ final class MailShell
             new MailTemplate(
                 $color,
                 wp_specialchars_decode((string) get_option('blogname'), ENT_QUOTES),
-                (string) home_url(),
+                \Aiya\Core\Domain\Shared\FrontendDomain::originOrHome(),
                 $iconPath !== null ? self::ICON_CID : null,
             ),
             $iconPath,

@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Credit;
+namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Credit\CreditSettings;
+use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Shared\DateLabels;
 
 /**

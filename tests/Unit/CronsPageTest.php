@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\DevTools\CronsPage;
+use Aiya\Core\Admin\CronsPage;
 use PHPUnit\Framework\TestCase;
 
 final class CronsPageTest extends TestCase

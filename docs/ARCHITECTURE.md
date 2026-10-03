@@ -159,6 +159,28 @@ live on the comment and community surfaces (marker form, `data-aiya-ref
 ="user"`); term / search / comment references are reserved vocabulary
 without usage surfaces yet.
 
+## Admin surfaces and the domain boundary (1.0.0 rulings)
+
+Three layering rulings settled with the 1.0.0 review batches:
+
+- **Page classes live in `src/Admin/`** — every `*Page.php` (settings-like
+  screens, tool screens, audit screens) is an Admin class, whichever
+  domain's data it serves. A domain *module* may still act as the
+  assembler that instantiates and registers its pages (the DevTools
+  module is the precedent): the boundary that matters is the class
+  placement and its `Aiya\Core\Admin` namespace, not which module wires it.
+- **HTTP transport knowledge stops at the infrastructure edge** — the
+  visitor fingerprint (`Infrastructure/Http/VisitorFingerprint`) is
+  resolved from the superglobals at the REST boundary and passed into
+  the engagement domain as a plain string; domain services never read
+  `$_SERVER` nor depend on the HTTP layer.
+- **Account writes route through the domain** —
+  `Domain/Identity/AccountService` owns the email-change re-auth gate,
+  the revoke-sessions-before-the-password-moves ordering, and
+  registration with server-minted UUID login names. Controllers collect
+  and validate parameters, then orchestrate; a second writer (CLI, admin)
+  must walk the same service.
+
 ## Error handling conventions
 
 - **REST layer** (`Api/Rest/`): every failure is a `WP_Error` with an

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\DevTools;
+namespace Aiya\Core\Admin;
 
 use Aiya\Core\Domain\Shared\PublicTypes;
 

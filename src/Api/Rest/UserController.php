@@ -35,8 +35,7 @@ final class UserController
     public function __construct(
         private UserPresenter $presenter,
         private AvatarModule $avatars,
-        private TokenStore $tokens,
-        private PasswordPolicy $policy,
+        private readonly \Aiya\Core\Domain\Identity\AccountService $accounts,
         private PostPresenter $postPresenter,
         private FavoriteService $favorites,
         private FollowService $follows,
@@ -335,17 +334,11 @@ final class UserController
             return new WP_Error('aiya_validation_failed', implode(' ', $errors), ['status' => 400]);
         }
 
-        // A stolen session must not be able to silently take over the
-        // mailbox (and through it the reset flow); re-authenticate.
-        if ($emailChanged) {
-            $current = (string) $request->get_param('currentPassword');
-            if ($current === '' || !wp_check_password($current, (string) $user->user_pass, (int) $user->ID)) {
-                return new WP_Error('aiya_reauth_required', __('Changing the email address requires the current password.', 'aiya-core'), ['status' => 403]);
-            }
-        }
-
-        if (count($userdata) > 1 && is_wp_error(wp_update_user($userdata))) {
-            return new WP_Error('aiya_update_failed', __('The profile could not be saved.', 'aiya-core'), ['status' => 500]);
+        // The re-auth gate and the write live in the domain (any second
+        // writer must walk the same gate).
+        $updated = $this->accounts->updateProfile($user, $userdata, (string) $request->get_param('currentPassword'));
+        if (is_wp_error($updated)) {
+            return $updated;
         }
 
         if ($showNsfw !== null) {
@@ -391,28 +384,15 @@ final class UserController
         if (!$this->rateLimiter->hitFor('change_password', (int) $this->currentUser()->ID, 10, 600)) {
             return RestGuard::rateLimited();
         }
-        $user = $this->currentUser();
-
-        $current = (string) $request->get_param('currentPassword');
-        if (!wp_check_password($current, (string) $user->user_pass, (int) $user->ID)) {
-            return new WP_Error('aiya_wrong_password', __('The current password is incorrect.', 'aiya-core'), ['status' => 400]);
+        $changed = $this->accounts->changePassword(
+            $this->currentUser(),
+            (string) $request->get_param('currentPassword'),
+            (string) $request->get_param('password'),
+            (string) $request->get_param('passwordConfirm')
+        );
+        if (is_wp_error($changed)) {
+            return $changed;
         }
-
-        $password = (string) $request->get_param('password');
-        $violations = $this->policy->validate($password, (string) $request->get_param('passwordConfirm'));
-        if ($violations !== []) {
-            return new WP_Error('aiya_invalid_password', implode(' ', $violations), ['status' => 400]);
-        }
-
-        // Sweep the sessions before the password moves: if the sweep fails,
-        // abort while the old password still applies. Old tokens must not
-        // outlive the change.
-        if (!$this->tokens->revokeAll((int) $user->ID)) {
-            return new WP_Error('aiya_server_error', __('Existing sessions could not be invalidated; the password was left unchanged.', 'aiya-core'), ['status' => 500]);
-        }
-
-        wp_set_password($password, (int) $user->ID);
-        wp_clear_auth_cookie();
 
         return new WP_REST_Response(['done' => true]);
     }

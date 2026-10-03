@@ -53,7 +53,6 @@ final class FrontendModule implements Module
         return self::defaultLanguage() ?? (string) get_locale();
     }
 
-    public const MIGRATION_VERSION = '1.0.0';
 
     public function __construct(private Registry $settings)
     {
@@ -62,12 +61,6 @@ final class FrontendModule implements Module
     public function register(): void
     {
         add_action('aiya_core_register', [$this, 'settings'], 10, 0);
-
-        add_filter('aiya_core_schema_migrations', static function (array $migrations): array {
-            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'migrateResetHostAllowlist']];
-
-            return $migrations;
-        });
     }
 
     public function settings(): void
@@ -239,50 +232,4 @@ final class FrontendModule implements Module
         ]);
     }
 
-    /**
-     * 0.97.0: the Security page's password-reset host allowlist became
-     * this page's single frontend domain. The first non-empty allowlist
-     * entry carries over — the documented use was the one front-end
-     * host, and the multi-host slack has no place in the canonical-domain
-     * model — unless the new field already holds a value. The old key
-     * leaves the security option either way.
-     */
-    public static function migrateResetHostAllowlist(): void
-    {
-        $security = get_option('aiya_core_security');
-        $security = is_array($security) ? $security : [];
-        if (!array_key_exists('password_reset_allowed_hosts', $security)) {
-            return;
-        }
-
-        $hosts = $security['password_reset_allowed_hosts'];
-        if (is_string($hosts)) {
-            $hosts = [$hosts];
-        }
-        $first = '';
-        foreach ((array) $hosts as $host) {
-            $host = trim((string) $host);
-            if ($host !== '') {
-                $first = $host;
-                break;
-            }
-        }
-
-        unset($security['password_reset_allowed_hosts']);
-
-        if ($first !== '') {
-            $frontend = get_option('aiya_core_frontend');
-            $frontend = is_array($frontend) ? $frontend : [];
-            if (!array_key_exists('frontend_domain', $frontend)) {
-                $frontend['frontend_domain'] = $first;
-            }
-            update_option('aiya_core_frontend', $frontend, false);
-        }
-
-        if ($security === []) {
-            delete_option('aiya_core_security');
-        } else {
-            update_option('aiya_core_security', $security, false);
-        }
-    }
 }

@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Operations;
+namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Operations\StatsMath;
+use Aiya\Core\Domain\Operations\StatsSettings;
+use Aiya\Core\Domain\Operations\StatsQuery;
 
 /**
  * The operations report (first entry of the membership menu group): one

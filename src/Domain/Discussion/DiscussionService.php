@@ -31,6 +31,14 @@ final class DiscussionService
 
     private const TITLE_LENGTH = 191;
 
+    /** Optional like-service companion for the delete purge; lazily built. */
+    private ?DiscussionLikeService $likes = null;
+
+    public function __construct(?DiscussionLikeService $likes = null)
+    {
+        $this->likes = $likes;
+    }
+
     /**
      * Creates a thread and returns its id.
      *
@@ -611,6 +619,12 @@ final class DiscussionService
         return true;
     }
 
+    /** The like companion, built on first use when not injected. */
+    private function likes(): DiscussionLikeService
+    {
+        return $this->likes ??= new DiscussionLikeService();
+    }
+
     /** @return true|WP_Error */
     public function delete(int $threadId, int $actorId): bool|WP_Error
     {
@@ -641,7 +655,7 @@ final class DiscussionService
             return new WP_Error('aiya_db_error', __('The thread could not be deleted.', 'aiya-core'));
         }
 
-        (new DiscussionLikeService())->purgeForThread($threadId);
+        $this->likes()->purgeForThread($threadId);
         $wpdb->query('COMMIT');
 
         return true;

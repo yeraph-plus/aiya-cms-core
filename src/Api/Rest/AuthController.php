@@ -39,6 +39,7 @@ final class AuthController
         private PasswordPolicy $policy,
         private RateLimiter $rateLimiter,
         private UserPresenter $presenter,
+        private readonly \Aiya\Core\Domain\Identity\AccountService $accounts,
     ) {
     }
 
@@ -138,27 +139,6 @@ final class AuthController
         if (!is_email($email)) {
             return $this->invalidParam(__('The email address is not valid.', 'aiya-core'));
         }
-        if (email_exists($email) !== false) {
-            // Distinct 409 is a knowing trade-off: registration UX needs
-            // the signal (reset flow deliberately stays uniform). Attempt
-            // budgeting on register/ reset-request blunts enumeration.
-            return new WP_Error('aiya_email_exists', __('This email address is already registered.', 'aiya-core'), ['status' => 409]);
-        }
-        $violations = $this->policy->validate($password, $confirmation);
-        if ($violations !== []) {
-            return new WP_Error('aiya_invalid_password', implode(' ', $violations), ['status' => 400]);
-        }
-
-        // Login names are never chosen by users: a UUID is minted here.
-        $username = wp_generate_uuid4();
-        $attempts = 0;
-        while (username_exists($username) !== false && $attempts < 5) {
-            $username = wp_generate_uuid4();
-            ++$attempts;
-        }
-        if (username_exists($username) !== false) {
-            return new WP_Error('aiya_registration_failed', __('The account could not be created, please retry.', 'aiya-core'), ['status' => 500]);
-        }
 
         // Optional interface language: lands on WP's native per-user locale
         // field, so the viewer's first render — and the script-variant exit
@@ -171,24 +151,10 @@ final class AuthController
             }
         }
 
-        $userId = wp_create_user($username, $password, $email);
+        // The mailbox/policy/UUID-minting invariants live in the domain.
+        $userId = $this->accounts->register($email, $password, $confirmation, $nickname, $locale);
         if (is_wp_error($userId)) {
-            return new WP_Error('aiya_registration_failed', __('The account could not be created, please retry.', 'aiya-core'), ['status' => 500]);
-        }
-
-        $userdata = [
-            'ID' => $userId,
-            'nickname' => $nickname,
-            'display_name' => $nickname,
-        ];
-        if ($locale !== null) {
-            $userdata['locale'] = $locale;
-        }
-        $updated = wp_update_user($userdata);
-        if ($updated instanceof WP_Error) {
-            // The account row exists but the profile write failed — the
-            // client must not read a clean 200 as "fully registered".
-            return new WP_Error('aiya_registration_failed', __('The account was created, but the profile could not be saved.', 'aiya-core'), ['status' => 500]);
+            return $userId;
         }
 
         // Front-end registration rides the default new-user notification

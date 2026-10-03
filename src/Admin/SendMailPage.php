@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Mail;
+namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
 use WP_Error;
