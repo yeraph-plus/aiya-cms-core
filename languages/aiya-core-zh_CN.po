@@ -3299,9 +3299,11 @@ msgstr "【%1$s】感谢支持，你的会员已生效。"
 msgid "Thank you for supporting %1$s — this email is your receipt."
 msgstr "感谢你对 %1$s 的支持——本邮件即你的订单回执。"
 
+msgctxt "membership receipt"
 msgid "Tier"
 msgstr "会员档位"
 
+msgctxt "membership receipt"
 msgid "Order"
 msgstr "订单号"
 

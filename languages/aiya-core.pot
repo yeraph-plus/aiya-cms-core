@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-03T02:46:42+00:00\n"
+"POT-Creation-Date: 2026-10-03T04:03:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -853,7 +853,7 @@ msgstr ""
 
 #: src/Api/Rest/CounterController.php:67
 #: src/Domain/Discussion/DiscussionLikeService.php:141
-#: src/Domain/Discussion/DiscussionLikeService.php:192
+#: src/Domain/Discussion/DiscussionLikeService.php:195
 msgid "Please log in to interact."
 msgstr ""
 
@@ -892,7 +892,7 @@ msgstr ""
 
 #: src/Api/Rest/DiscussionController.php:432
 #: src/Domain/Discussion/DiscussionLikeService.php:145
-#: src/Domain/Discussion/DiscussionLikeService.php:195
+#: src/Domain/Discussion/DiscussionLikeService.php:198
 #: src/Domain/Discussion/DiscussionService.php:470
 #: src/Domain/Discussion/DiscussionService.php:524
 #: src/Domain/Discussion/DiscussionService.php:581
@@ -2482,12 +2482,12 @@ msgid "This thread is closed; likes are no longer accepted."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionLikeService.php:167
-#: src/Domain/Discussion/DiscussionLikeService.php:179
+#: src/Domain/Discussion/DiscussionLikeService.php:182
 msgid "The like could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionLikeService.php:205
-#: src/Domain/Discussion/DiscussionLikeService.php:213
+#: src/Domain/Discussion/DiscussionLikeService.php:208
+#: src/Domain/Discussion/DiscussionLikeService.php:217
 msgid "The like could not be removed."
 msgstr ""
 
@@ -3061,17 +3061,19 @@ msgstr ""
 msgid "[%s] Your email address was changed"
 msgstr ""
 
-#: src/Domain/Mail/MailTemplate.php:52
+#. translators: 1: recipient email address.
+#: src/Domain/Mail/MailTemplate.php:54
 #, php-format
 msgid "Sent to %1$s — you are receiving this message because of activity on your account."
 msgstr ""
 
-#: src/Domain/Mail/MailTemplate.php:113
+#. translators: 1: site name, linked to the site home.
+#: src/Domain/Mail/MailTemplate.php:117
 #, php-format
 msgid "This message was sent automatically by %1$s — do not reply."
 msgstr ""
 
-#: src/Domain/Mail/MailTemplate.php:167
+#: src/Domain/Mail/MailTemplate.php:173
 msgid "If the button does not work, copy this link into your browser:"
 msgstr ""
 
@@ -3317,70 +3319,68 @@ msgstr ""
 msgid "Thank you for supporting %1$s — this email is your receipt."
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:481
-#: src/Domain/Sponsorship/ConvertCodesPage.php:76
-#: src/Domain/Sponsorship/ConvertCodesPage.php:125
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:142
+#: src/Domain/Notification/NotificationActions.php:484
+msgctxt "membership receipt"
 msgid "Tier"
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:482
-#: src/Domain/Sponsorship/PaymentsAuditPage.php:141
+#: src/Domain/Notification/NotificationActions.php:485
+msgctxt "membership receipt"
 msgid "Order"
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:483
+#: src/Domain/Notification/NotificationActions.php:486
 msgid "Active from"
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:484
+#: src/Domain/Notification/NotificationActions.php:487
 msgid "Active until"
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:486
+#: src/Domain/Notification/NotificationActions.php:489
 msgid "If your purchase covers multiple cycles, the next one starts automatically when the current subscription period ends."
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:487
+#: src/Domain/Notification/NotificationActions.php:490
 msgid "View membership"
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Domain/Notification/NotificationActions.php:491
+#: src/Domain/Notification/NotificationActions.php:494
 #, php-format
 msgid "[%1$s] Thank you — your membership is now active."
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:494
+#: src/Domain/Notification/NotificationActions.php:497
 msgid "Membership activated"
 msgstr ""
 
 #. translators: %s: author name.
-#: src/Domain/Notification/NotificationActions.php:514
+#: src/Domain/Notification/NotificationActions.php:517
 #, php-format
 msgid "%s published a new thread."
 msgstr ""
 
 #. translators: 1: author name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:519
+#: src/Domain/Notification/NotificationActions.php:522
 #, php-format
 msgid "%1$s published a new thread \"%2$s\"."
 msgstr ""
 
 #. translators: %1$s: follower name.
-#: src/Domain/Notification/NotificationActions.php:562
+#: src/Domain/Notification/NotificationActions.php:565
 #, php-format
 msgid "%1$s followed you."
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:590
+#: src/Domain/Notification/NotificationActions.php:593
 #, php-format
 msgid "Your membership is active until %s. Thank you for the support!"
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:643
+#: src/Domain/Notification/NotificationActions.php:646
 #, php-format
 msgid "Your membership expires on %s. Renew to keep the perks."
 msgstr ""
@@ -3933,6 +3933,12 @@ msgstr ""
 msgid "Quantity"
 msgstr ""
 
+#: src/Domain/Sponsorship/ConvertCodesPage.php:76
+#: src/Domain/Sponsorship/ConvertCodesPage.php:125
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:142
+msgid "Tier"
+msgstr ""
+
 #: src/Domain/Sponsorship/ConvertCodesPage.php:81
 msgid "— define tiers first —"
 msgstr ""
@@ -4059,6 +4065,10 @@ msgstr ""
 
 #: src/Domain/Sponsorship/PaymentsAuditPage.php:128
 msgid "All sources"
+msgstr ""
+
+#: src/Domain/Sponsorship/PaymentsAuditPage.php:141
+msgid "Order"
 msgstr ""
 
 #: src/Domain/Sponsorship/PaymentsAuditPage.php:151

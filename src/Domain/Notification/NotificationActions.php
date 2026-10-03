@@ -478,8 +478,11 @@ final class NotificationActions implements Module
             esc_html(wp_specialchars_decode((string) get_option('blogname'), ENT_QUOTES))
         ))
             . $template->rows([
-                __('Tier', 'aiya-core') => (string) $row->tier_name,
-                __('Order', 'aiya-core') => $orderId,
+                // Context-disambiguated: the generic "Tier"/"Order" strings
+                // already exist for the admin tables; the receipt translates
+                // them differently and gettext forbids duplicate msgids.
+                _x('Tier', 'membership receipt', 'aiya-core') => (string) $row->tier_name,
+                _x('Order', 'membership receipt', 'aiya-core') => $orderId,
                 __('Active from', 'aiya-core') => DateLabels::fromGmt((string) $row->starts_at, false),
                 __('Active until', 'aiya-core') => DateLabels::fromGmt((string) $row->ends_at, false),
             ])
