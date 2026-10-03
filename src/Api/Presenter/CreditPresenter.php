@@ -45,5 +45,4 @@ final class CreditPresenter
 
         return $items;
     }
-
 }

@@ -9,12 +9,14 @@ namespace Aiya\Core\Admin;
  * reads the redirect's counters off the query string, prints a _n()'d
  * line per counter above zero (or the fallback sentence when everything
  * came back zero) inside a dismissible info notice. Each action only
- * supplies its counter map — param name → [singular, plural].
+ * supplies its counter map — param name → line factory; keeping the _n()
+ * literals at the call site is what leaves them visible to the i18n
+ * extractor (and to the literal-string sniff).
  */
 final class BulkActionNotice
 {
     /**
-     * @param array<string, array{0: string, 1: string}> $counters param name => [singular, plural]
+     * @param array<string, callable(int): string> $counters param name => notice line factory (receives the parsed count)
      */
     public static function render(array $counters, string $emptyMessage): void
     {
@@ -31,11 +33,11 @@ final class BulkActionNotice
         }
 
         $messages = [];
-        foreach ($counters as $param => [$singular, $plural]) {
+        foreach ($counters as $param => $line) {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect counters
             $count = absint((string) ($_GET[$param] ?? '0'));
             if ($count > 0) {
-                $messages[] = sprintf(_n($singular, $plural, $count, 'aiya-core'), $count);
+                $messages[] = $line($count);
             }
         }
         if ($messages === []) {

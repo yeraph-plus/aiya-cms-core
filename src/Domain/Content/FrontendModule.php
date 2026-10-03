@@ -231,5 +231,4 @@ final class FrontendModule implements Module
             ],
         ]);
     }
-
 }

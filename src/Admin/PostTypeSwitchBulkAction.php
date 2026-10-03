@@ -162,14 +162,10 @@ final class PostTypeSwitchBulkAction implements Module
     public function notice(): void
     {
         BulkActionNotice::render([
-            'aiya_switch_done' => [
-                '%d item switched to the new post type.',
-                '%d items switched to the new post type.',
-            ],
-            'aiya_switch_skipped' => [
-                '%d item skipped (unchanged or not permitted).',
-                '%d items skipped (unchanged or not permitted).',
-            ],
+            // translators: %d: switched item count.
+            'aiya_switch_done' => static fn (int $count): string => sprintf(_n('%d item switched to the new post type.', '%d items switched to the new post type.', $count, 'aiya-core'), $count),
+            // translators: %d: skipped item count.
+            'aiya_switch_skipped' => static fn (int $count): string => sprintf(_n('%d item skipped (unchanged or not permitted).', '%d items skipped (unchanged or not permitted).', $count, 'aiya-core'), $count),
         ], __('Nothing was switched.', 'aiya-core'));
     }
 }

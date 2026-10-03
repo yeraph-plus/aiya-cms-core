@@ -556,7 +556,7 @@
 | R4 | P2 | DiscussionService::delete 内联 new DiscussionLikeService | ✅ B6（构造注入 + 惰性兜底，RestController 三方共享） |
 | R5 | P2 | 壳主题标题助手转义不一致（当前值均管理端可控，风险低） | ✅ B6（单一出口 esc_html，搜索串字面弯引号避双编） |
 | R6 | P2 | 壳页脚品牌链接 home_url vs 前端 origin | ✅ B6（MailShell 改 FrontendDomain::originOrHome） |
-| R7 | P2 | 测试 shim 不跑 wp_mail filter（CID bug 漏网的结构性原因） | ◐ 已补 marker-embeds/multipart/死路径回归用例；垫片跑 filter 归 B5 |
+| R7 | P2 | 测试 shim 不跑 wp_mail filter（CID bug 漏网的结构性原因） | ✅ 0.105（垫片复刻生产流程：`wp_mail` args filter + `pre_wp_mail` 短路 + `embeds` 六键透传，MailShellTest 补端到端与短路两例） |
 
 **同批退役**：`docs/discussion-likes-design.md` 与 `docs/mentions-design.md` 删除（语义已永久化——点赞见 ROADMAP 0.102.0 条目、mentions 见 ARCHITECTURE 零路由节 + ROADMAP「@提及通知落地」条目；git 历史取回原文）；三处 src docblock 指针改指 ARCHITECTURE/ROADMAP。**H-07 归零**：phpcs 0 error 0 warning（三条豁免注释）。**工具链终态**：phpunit 650/1904、phpstan 0、phpcs 0/0、vitest 342/342。
 
@@ -577,8 +577,12 @@
 | S7 | P2 | uninstall icon/seo_keywords 平删误伤第三方同名键 | ✅ 套同款 taxonomy 白名单 |
 | S8 | P2 | TransientSweep：drop-in 前提未标注 + 孤儿超时行不清 | ✅ 注释补 + 孤儿清扫第二遍 |
 | S9 | P2 | FileServeDownloadTest/PostCardTest/UserBanTest caps 泄漏（靠字母序自愈） | ✅ tearDown 统一恢复 |
-| S10 | P2 | LedgerExpiryTest FIFO 断言假绿（shim 不模拟 ORDER BY） | ⏭️ shim 补排序模拟或改测 Allocator 纯函数 |
+| S10 | P2 | LedgerExpiryTest FIFO 断言假绿（shim 不模拟 ORDER BY） | ✅ 0.105（垫片 `get_results` 模拟 `ORDER BY expires_at IS NULL ASC, expires_at ASC, id ASC`；测试改反 FIFO 序播种——开放桶持小 id，断言真正依赖排序，查询或模拟任一失序即炸） |
 | S11 | P2 | SponsorshipTestWpdb get_results 无视 output 参数（runCycleGrants 入测即炸的潜伏缺口） | ✅ 补双形状 |
 | S12 | P2 | 0.99 老库直跳 0.103 会静默丢三处设置（跳过搬迁） | 登记单向约束（ROADMAP）：0.99 库须先过 0.102.x |
 | S13 | P2 | 快照同步口径（语义相等 vs 逐字节） | 登记口径=JSON 语义相等 |
-| S14 | P3 | DiscussionLikeService 两处 401 旧文案、like 失败路径 last_error、count($userdata)>1 显式化、test-native 守卫收紧、PO 陈旧条目清理 | ⏭️ 登记缓办 |
+| S14 | P3 | DiscussionLikeService 两处 401 旧文案、like 失败路径 last_error、count($userdata)>1 显式化、test-native 守卫收紧、PO 陈旧条目清理 | ◐ 0.105 落两项：test-native 守卫收紧（600 tests/1500 assertions 钉板下限替换三位数守门）、BulkActionNotice 闭包工厂重构令 6 串提取器可见（白名单登记作废，PO 五对升 msgid_plural）；余项（401 文案/last_error/count 显式化/PO 14 条陈旧条目）→ v0.106 |
+
+## 8. v0.105.0 测试执法批（2026-10-04，站长 0.104 合入后顺延）
+
+台账收尾批 + 全仓 phpcs 门重新归零（0.103 二轮与 0.104 合入期间累计 13E+2W 存量违例——豁免注释与被豁免语句被 @phpstan 注释行隔断失效×3、类尾花括号×5（phpcbf 自动修）、BulkActionNotice `_n()` 变量字面量、RestController 内联双赋值、LedgerService `prepare($countSql)` 无豁免、DiscussionService 动态 IN 两处、AfdianGateway 缺 translators 注释——全部清零，规则集无版本漂移，纯代码成因）。**S10**：垫片 `get_results` 补 FIFO ORDER BY 模拟 + 测试反序播种执法。**R7**：wp_mail 垫片复刻生产 filter 流程（args filter @999 → pre_wp_mail 短路 → 记录），MailShellTest 补端到端/短路两例，垫片签名补 `embeds` 第六键。**caps 泄漏复核**：全仓扫描 17 个 caps/current_user_id 消费文件，4 个中段改写无恢复（ContentGate/NsfwFilter/PostDetailViewerState/PostVisibility）统一补 tearDown 恢复默认姿态。**S14 部分**：test-native 守卫钉板（600/1500 下限替换三位数）；BulkActionNotice 改闭包工厂——`_n()` 字面量回调用点，提取器可见（白名单登记方案作废），POT 重建后 PO 五对条目升 msgid_plural 形态、MO 重编、POT/PO 集合差 0、(msgctxt,msgid) 重复 0。**工具链终态**：phpunit 644/1902、phpstan 0、phpcs 0/0、lint 304 文件全绿。CoreMailRewrites 三条缺 translators 注释（make-pot warning，非 error）→ v0.106 顺带。

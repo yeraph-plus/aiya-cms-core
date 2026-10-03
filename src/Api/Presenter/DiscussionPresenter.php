@@ -277,5 +277,4 @@ final class DiscussionPresenter
     {
         return $this->threads->canModerate($ownerId, $viewerId);
     }
-
 }

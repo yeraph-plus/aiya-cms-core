@@ -28,6 +28,13 @@ final class NsfwFilterTest extends TestCase
         $GLOBALS['__aiya_test_current_user_id'] = 0;
     }
 
+    protected function tearDown(): void
+    {
+        // Restore the default posture; downstream suites read these globals.
+        $GLOBALS['__aiya_test_caps'] = true;
+        $GLOBALS['__aiya_test_current_user_id'] = 0;
+    }
+
     /** @param array<string, mixed> $fields */
     private function term(int $id, int $ttId, string $taxonomy): WP_Term
     {

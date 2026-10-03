@@ -110,14 +110,10 @@ final class CardThumbnailBulkAction implements Module
     public function notice(): void
     {
         BulkActionNotice::render([
-            'aiya_thumbs_done' => [
-                '%d item queued for a thumbnail refresh.',
-                '%d items queued for a thumbnail refresh.',
-            ],
-            'aiya_thumbs_skipped' => [
-                '%d item skipped (nothing to refresh or not permitted).',
-                '%d items skipped (nothing to refresh or not permitted).',
-            ],
+            // translators: %d: queued item count.
+            'aiya_thumbs_done' => static fn (int $count): string => sprintf(_n('%d item queued for a thumbnail refresh.', '%d items queued for a thumbnail refresh.', $count, 'aiya-core'), $count),
+            // translators: %d: skipped item count.
+            'aiya_thumbs_skipped' => static fn (int $count): string => sprintf(_n('%d item skipped (nothing to refresh or not permitted).', '%d items skipped (nothing to refresh or not permitted).', $count, 'aiya-core'), $count),
         ], __('No thumbnails were refreshed.', 'aiya-core'));
     }
 }

@@ -88,6 +88,7 @@ final class AfdianGateway implements PaymentGateway
                 $primaryPlan === '' ? null : $planTiers[$primaryPlan]['key'],
                 // The remark rides the outbound payment page, so it reads in
                 // the site language like every other buyer-facing string.
+                /* translators: %s: site name. */
                 sprintf(__('A membership order from %s', 'aiya-core'), wp_specialchars_decode((string) get_bloginfo('name'), ENT_QUOTES))
             ),
             true,

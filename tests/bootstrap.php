@@ -1253,8 +1253,8 @@ if (!class_exists('wpdb')) {
                 return [];
             }
 
-            $rows = [];
-            foreach ($this->aiya_test_rows[$table] ?? [] as $index => $row) {
+            $matched = [];
+            foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
                 if (str_contains($sql, "direction = 'in'") && ($row['direction'] ?? '') !== 'in') {
                     continue;
                 }
@@ -1288,6 +1288,22 @@ if (!class_exists('wpdb')) {
                     continue;
                 }
 
+                $matched[] = $row;
+            }
+
+            // The ledger's FIFO sweep orders by `expires_at IS NULL ASC,
+            // expires_at ASC, id ASC`; simulating it is what keeps the
+            // expiry test honest — its seeds deliberately contradict the
+            // natural row order, so the spend dies here if the query (or
+            // this simulation) ever loses the ordering.
+            if (str_contains($sql, 'ORDER BY expires_at IS NULL ASC')) {
+                usort($matched, static fn (array $a, array $b): int =>
+                    [($a['expires_at'] ?? null) === null, (string) ($a['expires_at'] ?? ''), (int) ($a['id'] ?? 0)]
+                        <=> [($b['expires_at'] ?? null) === null, (string) ($b['expires_at'] ?? ''), (int) ($b['id'] ?? 0)]);
+            }
+
+            $rows = [];
+            foreach ($matched as $row) {
                 // A `col AS alias` select projects one column (the follow
                 // sweep's target ids); honour it the way MySQL would.
                 $projected = $row;
@@ -1984,13 +2000,26 @@ if (!function_exists('has_action')) {
 if (!function_exists('wp_mail')) {
     /** Captures every send for assertions; the branded shell arrives here
         exactly as a real MTA would receive it. */
-    function wp_mail(string|array $to, string $subject, string $message, array|string $headers = [], array|string $attachments = []): bool
+    function wp_mail(string|array $to, string $subject, string $message, array|string $headers = [], array|string $attachments = [], array|string $embeds = []): bool
     {
+        // Mirror production's flow: the envelope goes through the
+        // 'wp_mail' args filter (then the pre_wp_mail short-circuit)
+        // before transport. A shim that skipped the filter stage recorded
+        // raw text and hid the whole args-rewriter class of bugs (the CID
+        // embeds regression slipped through exactly this hole).
+        $atts = apply_filters('wp_mail', compact('to', 'subject', 'message', 'headers', 'attachments', 'embeds'));
+
+        $pre = apply_filters('pre_wp_mail', null, $atts);
+        if ($pre !== null) {
+            return (bool) $pre;
+        }
+
         $GLOBALS['__aiya_test_mails'][] = [
-            'to' => $to,
-            'subject' => $subject,
-            'message' => $message,
-            'headers' => $headers,
+            'to' => $atts['to'] ?? $to,
+            'subject' => $atts['subject'] ?? $subject,
+            'message' => $atts['message'] ?? $message,
+            'headers' => $atts['headers'] ?? $headers,
+            'embeds' => $atts['embeds'] ?? $embeds,
         ];
 
         return true;

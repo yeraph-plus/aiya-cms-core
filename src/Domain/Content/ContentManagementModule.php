@@ -173,5 +173,4 @@ final class ContentManagementModule implements Module
             'fields' => $fields,
         ]);
     }
-
 }

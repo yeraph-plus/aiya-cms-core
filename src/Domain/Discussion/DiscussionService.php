@@ -224,14 +224,11 @@ final class DiscussionService
         global $wpdb;
         /** @var \wpdb $wpdb */
         $placeholders = implode(', ', array_fill(0, count($ids), '%d'));
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- id list built from the sanitized ints above
+        $sql = "SELECT d.id, d.user_id, d.board_id, b.slug AS board_slug, b.name AS board_name, d.status, d.title, d.content, d.post_id, d.reply_count, d.last_reply_user_id, d.last_reply_at, d.created_at, d.updated_at
+             FROM %i d LEFT JOIN %i b ON b.id = d.board_id WHERE d.id IN ($placeholders)";
         /** @var list<object{id:int,user_id:int,board_id:int,board_slug:string|null,board_name:string|null,status:string,title:string,content:string,post_id:int,reply_count:int,last_reply_user_id:int,last_reply_at:string|null,created_at:string,updated_at:string}>|null $rows */
-        $rows = $wpdb->get_results($wpdb->prepare(
-            "SELECT d.id, d.user_id, d.board_id, b.slug AS board_slug, b.name AS board_name, d.status, d.title, d.content, d.post_id, d.reply_count, d.last_reply_user_id, d.last_reply_at, d.created_at, d.updated_at
-             FROM %i d LEFT JOIN %i b ON b.id = d.board_id WHERE d.id IN ($placeholders)",
-            $this->threadsTable(),
-            $this->boardsTable(),
-            ...$ids
-        ));
+        $rows = $wpdb->get_results($wpdb->prepare($sql, $this->threadsTable(), $this->boardsTable(), ...$ids)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- id-list SQL built above, prepared on the spot
 
         $out = [];
         foreach (is_array($rows) ? $rows : [] as $row) {
@@ -892,8 +889,8 @@ final class DiscussionService
 
         // Legacy rows predate bumped_at: activity = the last reply, else
         // creation. The WHERE keeps the statement a no-op once filled.
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed table name, no inputs (same shape as the CREATE above)
         $wpdb->query(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed table name, no inputs (same shape as the CREATE above)
             "UPDATE {$threads} SET bumped_at = COALESCE(last_reply_at, created_at) WHERE bumped_at < '2000-01-01 00:00:01'"
         );
 

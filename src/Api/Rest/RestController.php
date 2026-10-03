@@ -136,7 +136,8 @@ final class RestController implements Module
 
             (new GatewayController(new OrderService(), $entitlements))->registerRoutes();
 
-            $threads = new DiscussionService($discussionLikes = new DiscussionLikeService());
+            $discussionLikes = new DiscussionLikeService();
+            $threads = new DiscussionService($discussionLikes);
             (new DiscussionController($threads, new DiscussionPresenter($smiliesRenderer, $threads, $discussionLikes, $mentions), $discussionLikes, new RateLimiter()))->registerRoutes();
 
             (new FileServeController($this->files, $this->downloads, new FilePresenter(), new RateLimiter()))->registerRoutes();

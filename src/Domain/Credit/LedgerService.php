@@ -308,7 +308,7 @@ final class LedgerService
 
         $total = (int) $wpdb->get_var(
             // @phpstan-ignore argument.type (whitelist interpolation)
-            $wpdb->prepare($countSql, $table)
+            $wpdb->prepare($countSql, $table) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- whitelist-built SQL, see note above
         );
 
         $items = [];

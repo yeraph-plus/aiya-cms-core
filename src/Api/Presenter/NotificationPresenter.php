@@ -55,5 +55,4 @@ final class NotificationPresenter
 
         return $out;
     }
-
 }

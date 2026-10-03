@@ -332,15 +332,13 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
         'resource_other',
     ];
     $taxonomyPlaceholders = implode(', ', array_fill(0, count($contractTaxonomies), '%s'));
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrong -- placeholder string built from the fixed contract list above; prepared on the spot
     // @phpstan-ignore-next-line argument.type (same fixed-list interpolation)
-    $run($wpdb->prepare("DELETE tm FROM {$wpdb->termmeta} tm JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = tm.term_id WHERE tm.meta_key = 'thumbnail_id' AND tt.taxonomy IN ($taxonomyPlaceholders)", $contractTaxonomies));
+    $run($wpdb->prepare("DELETE tm FROM {$wpdb->termmeta} tm JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = tm.term_id WHERE tm.meta_key = 'thumbnail_id' AND tt.taxonomy IN ($taxonomyPlaceholders)", $contractTaxonomies)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- placeholder string built from the fixed contract list above
     // icon/seo_keywords are plugin-owned names too — the same scoping
     // keeps a third party's identically-named term meta alive.
     foreach (['icon', 'seo_keywords'] as $termMetaKey) {
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrong -- same fixed-list interpolation as thumbnail_id above
         // @phpstan-ignore-next-line argument.type (same fixed-list interpolation)
-        $run($wpdb->prepare("DELETE tm FROM {$wpdb->termmeta} tm JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = tm.term_id WHERE tm.meta_key = %s AND tt.taxonomy IN ($taxonomyPlaceholders)", array_merge([$termMetaKey], $contractTaxonomies)));
+        $run($wpdb->prepare("DELETE tm FROM {$wpdb->termmeta} tm JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = tm.term_id WHERE tm.meta_key = %s AND tt.taxonomy IN ($taxonomyPlaceholders)", array_merge([$termMetaKey], $contractTaxonomies))); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- same fixed-list interpolation as thumbnail_id above
     }
 
     // Webhook debug logs (payment payloads) and the stale rewrite cache.

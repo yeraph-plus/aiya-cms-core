@@ -32,10 +32,12 @@ msgid "Refresh thumbnails"
 msgstr "刷新缩略图"
 
 msgid "%d item queued for a thumbnail refresh."
-msgstr "%d 项已加入缩略图刷新队列。"
+msgid_plural "%d items queued for a thumbnail refresh."
+msgstr[0] "%d 项已加入缩略图刷新队列。"
 
 msgid "%d item skipped (nothing to refresh or not permitted)."
-msgstr "已跳过 %d 项（无可刷新或不具备权限）。"
+msgid_plural "%d items skipped (nothing to refresh or not permitted)."
+msgstr[0] "已跳过 %d 项（无可刷新或不具备权限）。"
 
 msgid "No thumbnails were refreshed."
 msgstr "没有刷新任何缩略图。"
@@ -332,10 +334,12 @@ msgid "Move %d selected item to:"
 msgstr "将选中的 %d 项移动到："
 
 msgid "%d item switched to the new post type."
-msgstr "已切换 %d 项到新文章类型。"
+msgid_plural "%d items switched to the new post type."
+msgstr[0] "已切换 %d 项到新文章类型。"
 
 msgid "%d item skipped (unchanged or not permitted)."
-msgstr "跳过 %d 项（类型未变或无权限）。"
+msgid_plural "%d items skipped (unchanged or not permitted)."
+msgstr[0] "跳过 %d 项（类型未变或无权限）。"
 
 msgid "Nothing was switched."
 msgstr "没有切换任何内容。"
@@ -407,10 +411,12 @@ msgid "Resource tags — other"
 msgstr "资源标签（其他）"
 
 msgid "%d term moved to the new taxonomy."
-msgstr "已移动 %d 个术语到新分类法。"
+msgid_plural "%d terms moved to the new taxonomy."
+msgstr[0] "已移动 %d 个术语到新分类法。"
 
 msgid "%d term skipped (unchanged or not permitted)."
-msgstr "跳过 %d 个术语（未变化或无权限）。"
+msgid_plural "%d terms skipped (unchanged or not permitted)."
+msgstr[0] "跳过 %d 个术语（未变化或无权限）。"
 
 msgid "Nothing was moved."
 msgstr "没有移动任何内容。"

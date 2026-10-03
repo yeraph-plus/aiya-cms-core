@@ -25,6 +25,15 @@ final class MailShellTest extends TestCase
     {
         $GLOBALS['__aiya_test_options'] = [];
         $GLOBALS['__aiya_test_attached_files'] = [];
+        $GLOBALS['__aiya_test_mails'] = [];
+        $GLOBALS['__aiya_test_filters'] = [];
+    }
+
+    protected function tearDown(): void
+    {
+        // A filter registered for one test must not rewrite another
+        // file's mail flow (downstream suites read __aiya_test_mails).
+        $GLOBALS['__aiya_test_filters'] = [];
     }
 
     private function shell(?string $iconPath = null): MailShell
@@ -175,6 +184,32 @@ final class MailShellTest extends TestCase
 
         self::assertStringContainsString('Sent to real@example.test', (string) $out['message']);
         self::assertStringNotContainsString('bogus', (string) $out['message']);
+    }
+
+    public function testWpMailRunsTheArgsFilterBeforeRecording(): void
+    {
+        // The shim must mirror production: wp_mail() applies the 'wp_mail'
+        // args filter before transport, so a caller that merely calls
+        // wp_mail() while MailShell is registered still ships the wrapped
+        // document. Recording raw text instead is the hole the embeds/CID
+        // regression slipped through (ledger R7).
+        \add_filter('wp_mail', $this->shell('/var/www/uploads/icon.png')->apply(...), 999);
+
+        \wp_mail('reader@example.test', '主题', '正文');
+
+        $mail = $GLOBALS['__aiya_test_mails'][0];
+        self::assertStringContainsString(MailTemplate::SHELL_MARKER, (string) $mail['message']);
+        self::assertStringContainsString('<p>正文</p>', (string) $mail['message']);
+        self::assertSame(['Content-Type: text/html; charset=UTF-8'], $mail['headers']);
+        self::assertSame([MailShell::ICON_CID => '/var/www/uploads/icon.png'], $mail['embeds']);
+    }
+
+    public function testWpMailHonoursThePreWpMailShortCircuit(): void
+    {
+        \add_filter('pre_wp_mail', static fn ($return): bool => false);
+
+        self::assertFalse(\wp_mail('reader@example.test', '主题', '正文'));
+        self::assertSame([], $GLOBALS['__aiya_test_mails'], 'a short-circuited mail never reaches the recorded transport');
     }
 
     public function testFromSiteReadsTheSiteIconAndKeepsStoredEntities(): void

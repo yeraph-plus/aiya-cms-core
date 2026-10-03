@@ -78,16 +78,18 @@ final class LedgerExpiryTest extends TestCase
 
     public function testTheExpiringBucketIsSpentFirst(): void
     {
-        // Two live buckets: the soonest expiry must burn first, or the
-        // dying credit rots behind the open-ended one.
-        $this->seed(1, 10, '2027-06-01 00:00:00');
-        $this->seed(2, 10, null);
+        // Two live buckets, seeded against natural order on purpose: the
+        // open-ended bucket holds the lower id, so only the FIFO ORDER BY
+        // (the wpdb fixture simulates it) puts the dated bucket in front —
+        // the spend dies here if the query ever loses its ordering.
+        $this->seed(1, 10, null);
+        $this->seed(2, 10, '2027-06-01 00:00:00');
         $ledger = $this->service();
 
         $spent = $ledger->spend(7, 10, 'test', 'spend-3');
         self::assertNotInstanceOf(WP_Error::class, $spent);
-        self::assertSame(0, $this->ledgerRemaining(1), 'the dated bucket empties first');
-        self::assertSame(10, $this->ledgerRemaining(2));
+        self::assertSame(0, $this->ledgerRemaining(2), 'the dated bucket empties first');
+        self::assertSame(10, $this->ledgerRemaining(1), 'the open-ended bucket survives for later');
     }
 
     public function testGrantWritesTheExpiryOntoTheBucket(): void

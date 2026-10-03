@@ -22,6 +22,13 @@ final class PostVisibilityTest extends TestCase
         $GLOBALS['__aiya_test_current_user_id'] = 0;
     }
 
+    protected function tearDown(): void
+    {
+        // Restore the default posture; downstream suites read these globals.
+        $GLOBALS['__aiya_test_caps'] = true;
+        $GLOBALS['__aiya_test_current_user_id'] = 0;
+    }
+
     private function service(bool $viewerIsMember = false): PostVisibility
     {
         return new PostVisibility(static fn (int $userId): bool => $viewerIsMember);

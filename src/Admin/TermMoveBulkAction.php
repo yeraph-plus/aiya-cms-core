@@ -168,14 +168,10 @@ final class TermMoveBulkAction implements Module
     public function notice(): void
     {
         BulkActionNotice::render([
-            'aiya_term_moved' => [
-                '%d term moved to the new taxonomy.',
-                '%d terms moved to the new taxonomy.',
-            ],
-            'aiya_term_skipped' => [
-                '%d term skipped (unchanged or not permitted).',
-                '%d terms skipped (unchanged or not permitted).',
-            ],
+            // translators: %d: moved term count.
+            'aiya_term_moved' => static fn (int $count): string => sprintf(_n('%d term moved to the new taxonomy.', '%d terms moved to the new taxonomy.', $count, 'aiya-core'), $count),
+            // translators: %d: skipped term count.
+            'aiya_term_skipped' => static fn (int $count): string => sprintf(_n('%d term skipped (unchanged or not permitted).', '%d terms skipped (unchanged or not permitted).', $count, 'aiya-core'), $count),
         ], __('Nothing was moved.', 'aiya-core'));
     }
 }

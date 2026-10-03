@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-03T19:26:09+00:00\n"
+"POT-Creation-Date: 2026-10-03T19:58:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -41,7 +41,23 @@ msgstr ""
 msgid "Refresh thumbnails"
 msgstr ""
 
-#: src/Admin/CardThumbnailBulkAction.php:121
+#. translators: %d: queued item count.
+#: src/Admin/CardThumbnailBulkAction.php:114
+#, php-format
+msgid "%d item queued for a thumbnail refresh."
+msgid_plural "%d items queued for a thumbnail refresh."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: skipped item count.
+#: src/Admin/CardThumbnailBulkAction.php:116
+#, php-format
+msgid "%d item skipped (nothing to refresh or not permitted)."
+msgid_plural "%d items skipped (nothing to refresh or not permitted)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/CardThumbnailBulkAction.php:117
 msgid "No thumbnails were refreshed."
 msgstr ""
 
@@ -1327,7 +1343,23 @@ msgid_plural "Move %d selected items to:"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/PostTypeSwitchBulkAction.php:173
+#. translators: %d: switched item count.
+#: src/Admin/PostTypeSwitchBulkAction.php:166
+#, php-format
+msgid "%d item switched to the new post type."
+msgid_plural "%d items switched to the new post type."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: skipped item count.
+#: src/Admin/PostTypeSwitchBulkAction.php:168
+#, php-format
+msgid "%d item skipped (unchanged or not permitted)."
+msgid_plural "%d items skipped (unchanged or not permitted)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/PostTypeSwitchBulkAction.php:169
 msgid "Nothing was switched."
 msgstr ""
 
@@ -2073,7 +2105,23 @@ msgstr ""
 msgid "Resource tags — other"
 msgstr ""
 
-#: src/Admin/TermMoveBulkAction.php:179
+#. translators: %d: moved term count.
+#: src/Admin/TermMoveBulkAction.php:172
+#, php-format
+msgid "%d term moved to the new taxonomy."
+msgid_plural "%d terms moved to the new taxonomy."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: skipped term count.
+#: src/Admin/TermMoveBulkAction.php:174
+#, php-format
+msgid "%d term skipped (unchanged or not permitted)."
+msgid_plural "%d terms skipped (unchanged or not permitted)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/TermMoveBulkAction.php:175
 msgid "Nothing was moved."
 msgstr ""
 
@@ -2243,16 +2291,16 @@ msgstr ""
 
 #: src/Api/Rest/DiscussionController.php:414
 #: src/Domain/Discussion/DiscussionService.php:56
-#: src/Domain/Discussion/DiscussionService.php:595
+#: src/Domain/Discussion/DiscussionService.php:592
 msgid "Unknown board."
 msgstr ""
 
 #: src/Api/Rest/DiscussionController.php:423
 #: src/Domain/Discussion/DiscussionLikeService.php:148
 #: src/Domain/Discussion/DiscussionLikeService.php:201
-#: src/Domain/Discussion/DiscussionService.php:516
-#: src/Domain/Discussion/DiscussionService.php:570
-#: src/Domain/Discussion/DiscussionService.php:633
+#: src/Domain/Discussion/DiscussionService.php:513
+#: src/Domain/Discussion/DiscussionService.php:567
+#: src/Domain/Discussion/DiscussionService.php:630
 msgid "Thread not found."
 msgstr ""
 
@@ -2934,12 +2982,12 @@ msgid "The thread author does not exist."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:59
-#: src/Domain/Discussion/DiscussionService.php:584
+#: src/Domain/Discussion/DiscussionService.php:581
 msgid "The thread body is required."
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionService.php:63
-#: src/Domain/Discussion/DiscussionService.php:588
+#: src/Domain/Discussion/DiscussionService.php:585
 msgid "A thread can carry at most nine images."
 msgstr ""
 
@@ -2947,113 +2995,113 @@ msgstr ""
 msgid "The thread could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:381
+#: src/Domain/Discussion/DiscussionService.php:378
 msgid "The board slug must be lowercase letters, digits, dashes or underscores."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:384
-#: src/Domain/Discussion/DiscussionService.php:427
+#: src/Domain/Discussion/DiscussionService.php:381
+#: src/Domain/Discussion/DiscussionService.php:424
 msgid "The board name is required."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:387
+#: src/Domain/Discussion/DiscussionService.php:384
 msgid "A board with this slug already exists."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:405
+#: src/Domain/Discussion/DiscussionService.php:402
 msgid "The board could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:420
-#: src/Domain/Discussion/DiscussionService.php:461
+#: src/Domain/Discussion/DiscussionService.php:417
+#: src/Domain/Discussion/DiscussionService.php:458
 msgid "Board not found."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:446
+#: src/Domain/Discussion/DiscussionService.php:443
 msgid "The board could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:474
+#: src/Domain/Discussion/DiscussionService.php:471
 msgid "The last board cannot be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:487
+#: src/Domain/Discussion/DiscussionService.php:484
 msgid "The board threads could not be moved."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:491
+#: src/Domain/Discussion/DiscussionService.php:488
 msgid "The board could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:519
+#: src/Domain/Discussion/DiscussionService.php:516
 msgid "This thread is closed to new replies."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:522
+#: src/Domain/Discussion/DiscussionService.php:519
 msgid "The replying user does not exist."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:525
-#: src/Domain/Discussion/DiscussionService.php:685
+#: src/Domain/Discussion/DiscussionService.php:522
+#: src/Domain/Discussion/DiscussionService.php:682
 msgid "The reply body is required."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:529
-#: src/Domain/Discussion/DiscussionService.php:689
+#: src/Domain/Discussion/DiscussionService.php:526
+#: src/Domain/Discussion/DiscussionService.php:686
 msgid "A reply can carry at most nine images."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:547
+#: src/Domain/Discussion/DiscussionService.php:544
 msgid "The reply could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:573
+#: src/Domain/Discussion/DiscussionService.php:570
 msgid "You are not allowed to edit this thread."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:602
+#: src/Domain/Discussion/DiscussionService.php:599
 msgid "Unknown thread status."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:616
+#: src/Domain/Discussion/DiscussionService.php:613
 msgid "The thread could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:636
+#: src/Domain/Discussion/DiscussionService.php:633
 msgid "You are not allowed to delete this thread."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:649
+#: src/Domain/Discussion/DiscussionService.php:646
 msgid "The thread replies could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:655
-#: src/Domain/Discussion/DiscussionService.php:661
+#: src/Domain/Discussion/DiscussionService.php:652
+#: src/Domain/Discussion/DiscussionService.php:658
 msgid "The thread could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:679
-#: src/Domain/Discussion/DiscussionService.php:711
+#: src/Domain/Discussion/DiscussionService.php:676
+#: src/Domain/Discussion/DiscussionService.php:708
 msgid "Reply not found."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:682
+#: src/Domain/Discussion/DiscussionService.php:679
 msgid "You are not allowed to edit this reply."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:700
+#: src/Domain/Discussion/DiscussionService.php:697
 msgid "The reply could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:714
+#: src/Domain/Discussion/DiscussionService.php:711
 msgid "You are not allowed to delete this reply."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:721
+#: src/Domain/Discussion/DiscussionService.php:718
 msgid "The reply could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:787
+#: src/Domain/Discussion/DiscussionService.php:784
 msgid "The bound content does not exist or cannot carry discussions."
 msgstr ""
 
@@ -3957,7 +4005,8 @@ msgstr ""
 msgid "The order carries no account binding — activate it from the account page with the order number."
 msgstr ""
 
-#: src/Domain/Sponsorship/AfdianGateway.php:91
+#. translators: %s: site name.
+#: src/Domain/Sponsorship/AfdianGateway.php:92
 #, php-format
 msgid "A membership order from %s"
 msgstr ""
