@@ -6,7 +6,6 @@ namespace Aiya\Core\Domain\Content;
 
 use Aiya\Core\Domain\Shared\PublicType;
 use WP_Post;
-use WP_Query;
 use WP_Term;
 
 /**
@@ -19,9 +18,9 @@ use WP_Term;
  *
  * The ranking itself is one SQL pass — INNER JOIN on term_relationships
  * restricted to the origin's term taxonomy ids, GROUP BY the joined row
- * and ORDER BY the distinct shared-term count — installed as a
- * `posts_clauses` filter scoped to this single query via an orderby
- * marker, never globally.
+ * and ORDER BY the distinct shared-term count. The query rides
+ * MarkedQuery's shared marker mechanics; the clause assembly below is
+ * this query's own.
  *
  * Visibility mirrors ContentQuery's list reads: `publish` + no password
  * only, plus the login/member gate exclusions (viewer-relative, same
@@ -31,8 +30,8 @@ use WP_Term;
 final class RelatedPostsQuery
 {
     public const DEFAULT_NUMBER = 5;
-    public const MAX_NUMBER = 20;
-    public const MAX_DAYS = 365;
+    public const MAX_NUMBER = MarkedQuery::MAX_NUMBER;
+    public const MAX_DAYS = MarkedQuery::MAX_DAYS;
 
     public function __construct(private PostVisibility $visibility)
     {
@@ -52,57 +51,20 @@ final class RelatedPostsQuery
             return [];
         }
 
-        $args = [
-            'post_type' => $type->postTypes,
-            'post_status' => 'publish',
-            'has_password' => false,
-            'post__not_in' => [(int) $post->ID],
-            'posts_per_page' => min(self::MAX_NUMBER, max(1, $number)),
-            'no_found_rows' => true,
-            'ignore_sticky_posts' => true,
-            // Marker consumed by the clause filter below; unknown to
-            // WP's own orderby parser, which is fine — the filter
-            // replaces the clause outright.
-            'orderby' => 'related',
-            'term_taxonomy_ids' => $ttIds,
-        ];
-        $gateClause = $this->visibility->listExclusions();
-        if ($gateClause !== []) {
-            $args['meta_query'] = $gateClause;
-        }
-        if ($days > 0) {
-            $args['date_query'] = [
-                [
-                    'column' => 'post_date_gmt',
-                    'after' => gmdate('Y-m-d', time() - min($days, self::MAX_DAYS) * DAY_IN_SECONDS) . ' 00:00:00',
-                ],
-            ];
-        }
-
-        $filter = static function (array $clauses, WP_Query $query) use ($ttIds, $excludeTermTaxonomyIds): array {
-            // Nested queries can run inside our window; only the marked
-            // one (same origin id) takes the ranking clauses.
-            if ($query->get('orderby') === 'related' && $query->get('term_taxonomy_ids') === $ttIds) {
-                $clauses = self::applyClauses($clauses, $ttIds);
-                if ($excludeTermTaxonomyIds !== []) {
-                    $clauses = ContentQuery::applyTermExclusion($clauses, $excludeTermTaxonomyIds);
-                }
-            }
-
-            return $clauses;
-        };
-        add_filter('posts_clauses', $filter, 10, 2);
-        $query = new WP_Query($args);
-        remove_filter('posts_clauses', $filter, 10);
-
-        $rows = [];
-        foreach (is_array($query->posts) ? $query->posts : [] as $row) {
-            if ($row instanceof WP_Post) {
-                $rows[] = $row;
-            }
-        }
-
-        return $rows;
+        return MarkedQuery::run(
+            MarkedQuery::baseArgs($this->visibility, $type, $number, $days, [
+                // Marker consumed by the clause filter below; unknown to
+                // WP's own orderby parser, which is fine — the filter
+                // replaces the clause outright.
+                'orderby' => 'related',
+                'term_taxonomy_ids' => $ttIds,
+                'post__not_in' => [(int) $post->ID],
+            ]),
+            'term_taxonomy_ids',
+            $ttIds,
+            static fn (array $clauses): array => self::applyClauses($clauses, $ttIds),
+            $excludeTermTaxonomyIds
+        );
     }
 
     /**

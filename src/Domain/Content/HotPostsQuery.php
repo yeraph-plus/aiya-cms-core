@@ -6,7 +6,6 @@ namespace Aiya\Core\Domain\Content;
 
 use Aiya\Core\Domain\Shared\PublicType;
 use WP_Post;
-use WP_Query;
 
 /**
  * The popularity leaderboard: publish-window content ranked by an
@@ -26,18 +25,15 @@ use WP_Query;
  * that was deliberately not built — the publish window is the honest
  * simple form).
  *
- * The scan mirrors RelatedPostsQuery's mechanics: a marker orderby unknown
- * to WP's parser plus a posts_clauses filter that only fires for the
- * marked query (nested WP_Query calls are safe), replacing the order with
- * the weighted expression and appending the visibility exclusions the
- * lists use.
+ * The query rides MarkedQuery's shared marker mechanics; the score
+ * expression below is this query's own.
  */
 final class HotPostsQuery
 {
     public const DEFAULT_NUMBER = 10;
-    public const MAX_NUMBER = 20;
-    public const MAX_DAYS = 365;
+    public const MAX_NUMBER = MarkedQuery::MAX_NUMBER;
     public const DEFAULT_DAYS = 30;
+    public const MAX_DAYS = MarkedQuery::MAX_DAYS;
 
     /** The metric set a type's score is built from. @var array<string, array{like: bool, view: bool, rating: bool}> */
     private const METRICS = [
@@ -62,57 +58,24 @@ final class HotPostsQuery
             return [];
         }
 
-        $args = [
-            'post_type' => $type->postTypes,
-            'post_status' => 'publish',
-            'has_password' => false,
-            'posts_per_page' => min(self::MAX_NUMBER, max(1, $number)),
-            'no_found_rows' => true,
-            'ignore_sticky_posts' => true,
-            // Marker consumed by the clause filter below; unknown to WP's
-            // own orderby parser, which is fine — the filter replaces the
-            // clause outright.
-            'orderby' => 'hot',
-            'hot_metrics' => $metrics,
-        ];
-        $gateClause = $this->visibility->listExclusions();
-        if ($gateClause !== []) {
-            $args['meta_query'] = $gateClause;
-        }
-        if ($days > 0) {
-            $args['date_query'] = [
-                [
-                    'column' => 'post_date_gmt',
-                    'after' => gmdate('Y-m-d', time() - min($days, self::MAX_DAYS) * DAY_IN_SECONDS) . ' 00:00:00',
-                ],
-            ];
-        }
-
-        $filter = static function (array $clauses, WP_Query $query) use ($metrics, $excludeTermTaxonomyIds): array {
-            // Nested queries can run inside our window; only the marked
-            // one (same metric set) takes the ranking clauses.
-            if ($query->get('orderby') === 'hot' && $query->get('hot_metrics') === $metrics) {
+        return MarkedQuery::run(
+            MarkedQuery::baseArgs($this->visibility, $type, $number, $days, [
+                // Marker consumed by the clause filter below; unknown to WP's
+                // own orderby parser, which is fine — the filter replaces the
+                // clause outright.
+                'orderby' => 'hot',
+                'hot_metrics' => $metrics,
+            ]),
+            'hot_metrics',
+            $metrics,
+            static function (array $clauses) use ($metrics): array {
                 $clauses['join'] .= self::joinClause();
                 $clauses['orderby'] = self::orderByClause($metrics);
-                if ($excludeTermTaxonomyIds !== []) {
-                    $clauses = ContentQuery::applyTermExclusion($clauses, $excludeTermTaxonomyIds);
-                }
-            }
 
-            return $clauses;
-        };
-        add_filter('posts_clauses', $filter, 10, 2);
-        $query = new WP_Query($args);
-        remove_filter('posts_clauses', $filter, 10);
-
-        $rows = [];
-        foreach (is_array($query->posts) ? $query->posts : [] as $row) {
-            if ($row instanceof WP_Post) {
-                $rows[] = $row;
-            }
-        }
-
-        return $rows;
+                return $clauses;
+            },
+            $excludeTermTaxonomyIds
+        );
     }
 
     /** The counter meta JOINs; aliases must stay in sync with the score expression. */

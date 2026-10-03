@@ -32,45 +32,30 @@ final class FollowService
             return new WP_Error('aiya_user_missing', __('The user to follow does not exist.', 'aiya-core'), ['status' => 404]);
         }
 
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        // Same suppression contract as FavoriteService::add: a duplicate
-        // key is the expected re-follow path, and an unsuppressed wpdb
-        // would print its error HTML straight into the JSON response.
-        $suppress = $wpdb->suppress_errors(true);
-        $inserted = $wpdb->insert(
+        $result = RelationStore::insertOrNoop(
             $this->table(),
             ['follower_id' => $followerId, 'followed_id' => $followedId, 'created_at' => current_time('mysql', true)],
-            ['%d', '%d', '%s']
+            ['%d', '%d', '%s'],
+            'follower_id',
+            'followed_id',
+            $followerId,
+            $followedId,
+            __('The follow could not be stored.', 'aiya-core')
         );
-        $wpdb->suppress_errors($suppress);
-
-        if ($inserted !== false) {
+        if ($result instanceof WP_Error) {
+            return $result;
+        }
+        if ($result['inserted']) {
             do_action('aiya_core_user_followed', $followerId, $followedId);
         }
 
-        // Duplicate-key failures are the expected re-follow path.
-        return $inserted === false && (int) $wpdb->get_var($wpdb->prepare(
-            'SELECT id FROM %i WHERE follower_id = %d AND followed_id = %d',
-            $this->table(),
-            $followerId,
-            $followedId
-        )) === 0
-            ? new WP_Error('aiya_db_error', __('The follow could not be stored.', 'aiya-core'), ['status' => 500])
-            : true;
+        return true;
     }
 
     /** Removes a follow; false only on a DB failure (absent rows are a no-op success). */
     public function unfollow(int $followerId, int $followedId): bool
     {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $sql = $wpdb->prepare('DELETE FROM %i WHERE follower_id = %d AND followed_id = %d', $this->table(), $followerId, $followedId);
-        if (is_string($sql)) {
-            return $wpdb->query($sql) !== false; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
-        }
-
-        return false;
+        return RelationStore::deletePair($this->table(), 'follower_id', 'followed_id', $followerId, $followedId);
     }
 
     public function isFollowing(int $followerId, int $followedId): bool

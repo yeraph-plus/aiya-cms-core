@@ -34,41 +34,24 @@ final class FavoriteService
             return $postId;
         }
 
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        // A re-favorite is the expected duplicate-key path, not a site error:
-        // unsuppressed, wpdb prints its error HTML straight into the JSON
-        // response body and the front end reads the write as a failure.
-        $suppress = $wpdb->suppress_errors(true);
-        $inserted = $wpdb->insert(
+        $result = RelationStore::insertOrNoop(
             $this->table(),
             ['user_id' => $userId, 'post_id' => $postId, 'created_at' => current_time('mysql', true)],
-            ['%d', '%d', '%s']
-        );
-        $wpdb->suppress_errors($suppress);
-
-        // Duplicate-key failures are the expected re-favorite path.
-        return $inserted === false && (int) $wpdb->get_var($wpdb->prepare(
-            'SELECT id FROM %i WHERE user_id = %d AND post_id = %d',
-            $this->table(),
+            ['%d', '%d', '%s'],
+            'user_id',
+            'post_id',
             $userId,
-            $postId
-        )) === 0
-            ? new WP_Error('aiya_db_error', __('The favorite could not be stored.', 'aiya-core'))
-            : true;
+            $postId,
+            __('The favorite could not be stored.', 'aiya-core')
+        );
+
+        return $result instanceof WP_Error ? $result : true;
     }
 
     /** Removes a favorite; false only on a DB failure (absent rows are a no-op success). */
     public function remove(int $userId, int $postId): bool
     {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $sql = $wpdb->prepare('DELETE FROM %i WHERE user_id = %d AND post_id = %d', $this->table(), $userId, $postId);
-        if (is_string($sql)) {
-            return $wpdb->query($sql) !== false; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
-        }
-
-        return false;
+        return RelationStore::deletePair($this->table(), 'user_id', 'post_id', $userId, $postId);
     }
 
     public function has(int $userId, int $postId): bool

@@ -1,5 +1,7 @@
-# AIYA Core 1.0 发布前全量代码审查台账（2026-10-03）
+# AIYA Core 1.0 发布前全量代码审查台账（2026-10-03，已归档）
 
+> **归档说明（2026-10-04，v0.107.0）**：本文已随 1.0 前批次全部收口而**封存归档**——58 项发现 + §6 0.102 专项 + §7 二轮复核 + §8 v0.105/v0.106 批次全部到达终态（✅ 已修，或「登记不动/记录在案」的设计取舍与联测项），无 ☐/⏭️ 存留；R-09/R-11 经站长拍板随 0.107.0 提前修复，台账零延后项。此后不再回写本文：线上测试驱动的后续修复按版本直接记录于 `ROADMAP.md`。本文仅作审查过程的完整档案留存，语义性结论（快照口径、零路由、发布门要素）以 `ARCHITECTURE.md` 与 `ROADMAP.md` 为准。
+>
 > 本文是 1.0 发布门审查的**完整登记与复核台账**：六路审查的发现全量在案，每条带编号、证据与状态位。处置按第 2 节批次计划推进，每批完工即回写本文状态位，批次叙事仍按惯例进 `ROADMAP.md`——本文只管发现与状态，不替代 ROADMAP。
 >
 > 复核方式：每条带「复核」行（grep/读码/跑测的锚点），回头逐条验证是否已按方向修复；批次完成后重跑第 5 节工具链基线，数字不得劣化。
@@ -109,8 +111,8 @@
 
 | 编号 | 处置 | 理由 |
 |---|---|---|
-| R-09 / R-11 | ⏭️ 1.0 后 | 骨架复制属抽象度权衡，收益低 |
-| L-02 / L-03 | ⏭️ 1.0 后（B6 落裁决） | 改动面大，非发布门阻塞 |
+| R-09 / R-11 | ✅ 0.107（站长拍板提前） | 共享机械核各自落 `MarkedQuery` / `RelationStore`，排序子句与可见性联表仍归各类 |
+| L-02 / L-03 | ✅ B6（提前实施） | VisitorFingerprint 上移 + AccountService 三不变量；本表原挂 ⏭️ 系状态滞后，归档前修正 |
 | C-03 | 登记不动 | 已文档化的 TTL 契约，仅未来加装对象缓存时补 flush 钩子 |
 | S-09 / S-10 / S-11 / S-12 | 登记不动 | 已知取舍或得不偿失，理由见各条 |
 | G-06 / G-07 / G-08 | 记录在案 | 联测项/合理选择/设计意图 |
@@ -170,9 +172,10 @@
 - 方向：`MediaPaths::coverFilename($format)` + `isManagedCoverFile($path)`。
 - 复核：配方字面量只在 MediaPaths 一处。
 
-**R-09 [P2] HotPostsQuery / RelatedPostsQuery 镜像骨架** ⏭️ 1.0 后
+**R-09 [P2] HotPostsQuery / RelatedPostsQuery 镜像骨架** ✅ 0.107
 - 位置：`src/Domain/Content/HotPostsQuery.php:82-115` 与 `RelatedPostsQuery.php:73-105`。
 - 证据：marker orderby + posts_clauses 过滤器 + 可见性门 + 日期窗口骨架重复，docblock 自认镜像；date_query 窗口行逐字一致。
+- 落地（站长拍板提前）：共享机械核收敛 `Domain/Content/MarkedQuery`（baseArgs 含可见性门/日期窗口 + run 含标记过滤与 NSFW 排除组合）；排序子句与 MAX 常量委派（`HotPostsQuery::MAX_DAYS = MarkedQuery::MAX_DAYS`），排序表达式/连接子句仍归各类。
 - 方向（1.0 后）：提取 `runMarkedQuery($args, $filter)` 私有助手防双处漂移；核心排序子句不同，不做整类抽象。
 - 复核：两文件共享助手被引用。
 
@@ -182,11 +185,10 @@
 - 方向：删夹取，统一依赖 schema 校验。归 B3。
 - 复核：三处无夹取分支。
 
-**R-11 [P2] FollowService / FavoriteService 关系表存储骨架复制** ⏭️ 1.0 后
+**R-11 [P2] FollowService / FavoriteService 关系表存储骨架复制** ✅ 0.107
 - 位置：`src/Domain/Identity/FollowService.php:35-60` 与 `FavoriteService.php:37-58`。
 - 证据：suppress_errors 插入+重复键回查、absent 即成功 delete、count、分页 ids 约 40 行可共享；语义有差（favorite 带可见性门），整类抽象过度。
-- 方向（1.0 后）：仅共享 ids()/插入回查。
-- 复核：共享段单一来源。
+- 落地（站长拍板提前）：机械核收敛 `Domain/Identity/RelationStore`（insertOrNoop 携 inserted 标志保 follow 的动作只在新插入沿触发；deletePair）；ids() 实测不可共享（favorite 分页是带 publish/类型/密码门与可见性 NOT EXISTS 的联表查询），count 同理不共享——原方向中「共享 ids()」部分作废，仅插入回查与配对删除入助手。
 
 **R-12 [P2] Gofile / OpenList 两模块 transport 闭包近似复制** ✅ B4（WireTransport 工厂，签名适配留模块侧）
 - 位置：`src/Modules/GofileModule.php:88-103` 与 `OpenListModule.php:252-273`。
