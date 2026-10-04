@@ -35,16 +35,16 @@ final class SamplePage implements Module
 
         $this->registry->addPage([
             'slug' => 'devtools-sample',
-            'title' => __('Sample', 'aiya-core'),
-            'menu_title' => __('Sample', 'aiya-core'),
+            'title' => __('Settings Kit', 'aiya-core'),
+            'menu_title' => __('Settings Kit', 'aiya-core'),
             'parent' => 'aiya-core-devtools',
-            'menu_position' => 1, // right after the server status mirror, ahead of the diagnostic pages
+            'menu_position' => 7, // after the server status mirror, ahead of the UI Kit sandbox
             'option_name' => 'aiya_core_sample',
             'fields' => [
                 [
                     'id' => 'sandbox_note',
                     'type' => 'note',
-                    'label' => __('Developer sandbox: every persisted field type of the settings framework appears on this page.', 'aiya-core'),
+                    'label' => __('Declarative field form parts: a field definition array renders as form-table rows through the settings pipeline, with one save and reset endpoint for the whole page. Every persisted field type of the framework is exercised below.', 'aiya-core'),
                     'variant' => 'info',
                 ],
                 [
@@ -56,7 +56,7 @@ final class SamplePage implements Module
                     'id' => 'site_title',
                     'type' => 'text',
                     'label' => __('Site title', 'aiya-core'),
-                    'description' => __('A required text field.', 'aiya-core'),
+                    'description' => __('Required text field.', 'aiya-core'),
                     'default' => 'AIYA CMS Core',
                     'required' => true,
                     'attributes' => ['autocomplete' => 'off'],
@@ -65,14 +65,14 @@ final class SamplePage implements Module
                     'id' => 'site_description',
                     'type' => 'textarea',
                     'label' => __('Site description', 'aiya-core'),
-                    'description' => __('Plain multiline text is sanitized before storage.', 'aiya-core'),
+                    'description' => __('Multiline text stored through sanitize_textarea_field.', 'aiya-core'),
                     'default' => '',
                 ],
                 [
                     'id' => 'cache_ttl',
                     'type' => 'number',
                     'label' => __('Cache lifetime', 'aiya-core'),
-                    'description' => __('Optional numeric field with minimum, maximum and step constraints.', 'aiya-core'),
+                    'description' => __('Numeric field with min, max and step constraints.', 'aiya-core'),
                     'default' => 3600,
                     'min' => 0,
                     'max' => 86400,
@@ -88,7 +88,7 @@ final class SamplePage implements Module
                     'id' => 'public_url',
                     'type' => 'url',
                     'label' => __('Public URL', 'aiya-core'),
-                    'description' => __('Useful for testing URL validation.', 'aiya-core'),
+                    'description' => __('URL field, validated on save.', 'aiya-core'),
                     'default' => '',
                     'attributes' => ['placeholder' => 'https://example.com'],
                 ],
@@ -96,7 +96,7 @@ final class SamplePage implements Module
                     'id' => 'sample_api_key',
                     'type' => 'password',
                     'label' => __('Sample API key', 'aiya-core'),
-                    'description' => __('Write-only field: a saved value is never rendered back into the page.', 'aiya-core'),
+                    'description' => __('Write-only password field, the stored value is never echoed back.', 'aiya-core'),
                     'default' => '',
                 ],
                 [
@@ -114,6 +114,7 @@ final class SamplePage implements Module
                     'type' => 'checkbox',
                     'label' => __('Feature flag', 'aiya-core'),
                     'checkbox_label' => __('Enable the sample feature', 'aiya-core'),
+                    'description' => __('The plain checkbox: a hidden value=0 input carries an unticked state through the submission.', 'aiya-core'),
                     'default' => true,
                 ],
                 [
@@ -121,6 +122,7 @@ final class SamplePage implements Module
                     'type' => 'switch',
                     'label' => __('Debug mode', 'aiya-core'),
                     'checkbox_label' => __('Enable debug mode', 'aiya-core'),
+                    'description' => __('The boolean switch: native checkbox semantics under a styled track, the stored value stays 0 or 1.', 'aiya-core'),
                     'default' => false,
                 ],
                 [
@@ -138,7 +140,7 @@ final class SamplePage implements Module
                     'id' => 'default_locale',
                     'type' => 'radio',
                     'label' => __('Default locale', 'aiya-core'),
-                    'description' => __('Radio controls render inline with spacing between options.', 'aiya-core'),
+                    'description' => __('Radio options render inline with even spacing.', 'aiya-core'),
                     'default' => 'zh_CN',
                     'options' => [
                         'zh_CN' => __('Simplified Chinese', 'aiya-core'),
@@ -150,7 +152,7 @@ final class SamplePage implements Module
                     'id' => 'sample_features',
                     'type' => 'multicheck',
                     'label' => __('Enabled modules', 'aiya-core'),
-                    'description' => __('Multiple checkboxes render inline with spacing between options.', 'aiya-core'),
+                    'description' => __('Checkbox options render inline with even spacing.', 'aiya-core'),
                     'default' => ['seo', 'cache'],
                     'options' => [
                         'seo' => __('SEO', 'aiya-core'),
@@ -167,7 +169,7 @@ final class SamplePage implements Module
                 [
                     'id' => 'color_warning',
                     'type' => 'note',
-                    'label' => __('Stored values only: the password field never echoes back and media fields keep attachment IDs.', 'aiya-core'),
+                    'label' => __('Media fields store the attachment ID.', 'aiya-core'),
                     'variant' => 'warning',
                 ],
                 [
@@ -206,7 +208,7 @@ final class SamplePage implements Module
                     'id' => 'sample_json',
                     'type' => 'code',
                     'label' => __('JSON configuration', 'aiya-core'),
-                    'description' => __('Uses the Code Editor bundled with WordPress.', 'aiya-core'),
+                    'description' => __('Uses the WP code editor (wp.codeEditor).', 'aiya-core'),
                     'mime' => 'application/json',
                     'default' => "{\n  \"enabled\": true\n}",
                 ],
@@ -214,7 +216,7 @@ final class SamplePage implements Module
                     'id' => 'editor_content',
                     'type' => 'tinymce',
                     'label' => __('Classic editor content', 'aiya-core'),
-                    'description' => __('Uses wp_editor and TinyMCE; Gutenberg and React are not required.', 'aiya-core'),
+                    'description' => __('Uses the classic editor through wp_editor with TinyMCE.', 'aiya-core'),
                     'default' => '<p>AIYA CMS Core classic editor sample.</p>',
                 ],
                 [

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Settings\Schema\Page;
+use Aiya\Core\Settings\Registry;
 use Aiya\Core\Domain\Credit\CreditSettings;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Shared\DateLabels;
@@ -46,11 +48,7 @@ final class CreditsPage implements Module
 
     public function register(): void
     {
-        // Priority 35: the membership top-level menu is registered by
-        // SettingsAdmin at 30 — add_submenu_page before the parent exists
-        // degrades the page hook to admin_page_* and the request-time access
-        // check denies the screen (the SendMailPage lesson).
-        add_action('admin_menu', [$this, 'menu'], 35);
+        add_action('aiya_core_register', [$this, 'registerPage']);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
         add_action('admin_post_' . self::ACTION_GRANT, [$this, 'handleGrant']);
         add_action('wp_ajax_' . self::AJAX_SEARCH, [$this, 'handleSearch']);
@@ -123,17 +121,18 @@ final class CreditsPage implements Module
      * Priority 35: the membership top-level menu is registered by
      * SettingsAdmin at 30 — see register() for the hookname timing.
      */
-    public function menu(): void
+    /** Registers through the shared settings pipeline as a callback page. */
+    public function registerPage(Registry $registry): void
     {
-        add_submenu_page(
-            self::PARENT_SLUG,
-            __('Credit ledger', 'aiya-core'),
-            __('Credit ledger', 'aiya-core'),
-            'manage_options',
-            self::MENU_SLUG,
-            [$this, 'render'],
-            1 // right after the mirrored settings form
-        );
+        $registry->addPage([
+            'slug' => 'credits',
+            'title' => __('Credit ledger', 'aiya-core'),
+            'menu_title' => __('Credit ledger', 'aiya-core'),
+            'parent' => self::PARENT_SLUG,
+            'menu_position' => 1,
+            'kind' => Page::KIND_CALLBACK,
+            'render' => [$this, 'render'],
+        ]);
     }
 
     public function render(): void

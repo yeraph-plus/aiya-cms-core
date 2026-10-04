@@ -1207,14 +1207,14 @@ msgstr "开发工具"
 msgid "Server Status"
 msgstr "系统信息"
 
-msgid "Rewrites"
-msgstr "Rewrites"
+#~ msgid "Rewrites"
+#~ msgstr "Rewrites"
 
 msgid "Shortcodes"
 msgstr "短代码"
 
 msgid "Icons"
-msgstr "图标"
+msgstr "图标库"
 
 msgid "Search & Replace"
 msgstr "搜索替换"
@@ -1267,11 +1267,11 @@ msgstr "Rewrite 规则已重新生成。"
 msgid "You are not allowed to flush the rewrite rules."
 msgstr "您无权刷新 Rewrite 规则。"
 
-msgid "Sample"
-msgstr "Sample"
+#~ msgid "Sample"
+#~ msgstr "Sample"
 
-msgid "Developer sandbox: every persisted field type of the settings framework appears on this page."
-msgstr "开发者沙盒：设置框架的所有持久化字段类型都在本页展示。"
+#~ msgid "Developer sandbox: every persisted field type of the settings framework appears on this page."
+#~ msgstr "开发者沙盒：设置框架的所有持久化字段类型都在本页展示。"
 
 msgid "Text inputs"
 msgstr "文本输入"
@@ -1279,20 +1279,20 @@ msgstr "文本输入"
 msgid "Site title"
 msgstr "站点标题"
 
-msgid "A required text field."
-msgstr "必填的文本字段。"
+#~ msgid "A required text field."
+#~ msgstr "必填的文本字段。"
 
 msgid "Site description"
 msgstr "站点描述"
 
-msgid "Plain multiline text is sanitized before storage."
-msgstr "多行纯文本，存储前会做净化处理。"
+#~ msgid "Plain multiline text is sanitized before storage."
+#~ msgstr "多行纯文本，存储前会做净化处理。"
 
 msgid "Cache lifetime"
 msgstr "缓存时长"
 
-msgid "Optional numeric field with minimum, maximum and step constraints."
-msgstr "可选数字字段，支持最小值、最大值与步长约束。"
+#~ msgid "Optional numeric field with minimum, maximum and step constraints."
+#~ msgstr "可选数字字段，支持最小值、最大值与步长约束。"
 
 msgid "Contact email"
 msgstr "联系邮箱"
@@ -1300,14 +1300,14 @@ msgstr "联系邮箱"
 msgid "Public URL"
 msgstr "公开 URL"
 
-msgid "Useful for testing URL validation."
-msgstr "用于测试 URL 校验。"
+#~ msgid "Useful for testing URL validation."
+#~ msgstr "用于测试 URL 校验。"
 
 msgid "Sample API key"
 msgstr "示例 API 密钥"
 
-msgid "Write-only field: a saved value is never rendered back into the page."
-msgstr "只写字段：保存后的值不会回显到页面。"
+#~ msgid "Write-only field: a saved value is never rendered back into the page."
+#~ msgstr "只写字段：保存后的值不会回显到页面。"
 
 msgid "Choices"
 msgstr "选项"
@@ -1339,8 +1339,8 @@ msgstr "无头"
 msgid "Default locale"
 msgstr "默认语言"
 
-msgid "Radio controls render inline with spacing between options."
-msgstr "单选框横向排列，选项之间保留间距。"
+#~ msgid "Radio controls render inline with spacing between options."
+#~ msgstr "单选框横向排列，选项之间保留间距。"
 
 msgid "Simplified Chinese"
 msgstr "简体中文"
@@ -1354,8 +1354,8 @@ msgstr "英语"
 msgid "Enabled modules"
 msgstr "启用模块"
 
-msgid "Multiple checkboxes render inline with spacing between options."
-msgstr "复选框横向排列，选项之间保留间距。"
+#~ msgid "Multiple checkboxes render inline with spacing between options."
+#~ msgstr "复选框横向排列，选项之间保留间距。"
 
 msgid "SEO"
 msgstr "SEO"
@@ -1372,8 +1372,8 @@ msgstr "CDN"
 msgid "Media and value lists"
 msgstr "媒体与值列表"
 
-msgid "Stored values only: the password field never echoes back and media fields keep attachment IDs."
-msgstr "仅存储值：密码字段不回显，媒体字段保存附件 ID。"
+#~ msgid "Stored values only: the password field never echoes back and media fields keep attachment IDs."
+#~ msgstr "仅存储值：密码字段不回显，媒体字段保存附件 ID。"
 
 msgid "Accent color"
 msgstr "强调色"
@@ -1388,13 +1388,13 @@ msgid "Allowed hosts"
 msgstr "允许的主机"
 
 msgid "Enter comma-separated values."
-msgstr "输入以逗号分隔的值。"
+msgstr "输入以逗号分隔的值"
 
 msgid "Custom headers"
 msgstr "自定义请求头"
 
 msgid "One \"key: value\" pair per line; keys are normalized through sanitize_key()."
-msgstr "每行一对「key: value」；键名会经 sanitize_key() 归一化。"
+msgstr "每行一对「key: value」；键名会经 sanitize_key() 归一化"
 
 msgid "Editor content"
 msgstr "编辑器内容"
@@ -1402,14 +1402,14 @@ msgstr "编辑器内容"
 msgid "JSON configuration"
 msgstr "JSON 配置"
 
-msgid "Uses the Code Editor bundled with WordPress."
-msgstr "使用 WordPress 内置的代码编辑器。"
+#~ msgid "Uses the Code Editor bundled with WordPress."
+#~ msgstr "使用 WordPress 内置的代码编辑器。"
 
 msgid "Classic editor content"
 msgstr "经典编辑器内容"
 
-msgid "Uses wp_editor and TinyMCE; Gutenberg and React are not required."
-msgstr "使用 wp_editor 与 TinyMCE；无需 Gutenberg 与 React。"
+#~ msgid "Uses wp_editor and TinyMCE; Gutenberg and React are not required."
+#~ msgstr "使用 wp_editor 与 TinyMCE；无需 Gutenberg 与 React。"
 
 msgid "Dynamic rows"
 msgstr "动态行"
@@ -1418,7 +1418,7 @@ msgid "Navigation links"
 msgstr "导航链接"
 
 msgid "Backbone manages item creation; jQuery UI provides drag sorting."
-msgstr "条目创建由 Backbone 管理；拖拽排序由 jQuery UI 提供。"
+msgstr "条目创建由 Backbone 管理；拖拽排序由 jQuery UI 提供"
 
 msgid "Priority"
 msgstr "优先级"
@@ -3313,3 +3313,358 @@ msgstr "订单记录"
 msgid "No ledger entries yet."
 msgstr "暂无流水记录。"
 
+msgid "(no title)"
+msgstr "（无标题）"
+
+msgid "You are not allowed to view Dev Tools."
+msgstr "您无权查看 Dev Tools。"
+
+#~ msgid "Ui components"
+#~ msgstr "Ui 组件"
+
+#~ msgid "Living preview of the shared admin render pieces — every section below is the real component with real behavior, not a mockup. The page owns no data and writes nothing."
+#~ msgstr "共享后台渲染件的实弹预览——下面每一段都是真实组件、真实行为，不是效果图。本页不持有数据、不做任何写入。"
+
+#~ msgid "Flash notice variants — click a link to come back with the matching note:"
+#~ msgstr "回执通知变体——点击链接带着对应回执键跳回本页："
+
+#~ msgid "The success flash note."
+#~ msgstr "这是 success 变体的回执。"
+
+#~ msgid "The warning flash note."
+#~ msgstr "这是 warning 变体的回执。"
+
+#~ msgid "The error flash note."
+#~ msgstr "这是 error 变体的回执。"
+
+#~ msgid "Collapsible card — collapsed by default"
+#~ msgstr "折叠卡片——默认折叠"
+
+#~ msgid "Click the summary bar to expand."
+#~ msgstr "点击标题栏展开。"
+
+msgid "List table & pagination"
+msgstr "列表件与分页"
+
+#~ msgid "Fake rows, real pagination on top and bottom bars with a per-page switch — any ?paged beyond the row count renders the empty state."
+#~ msgstr "假数据、真分页，上下双栏操作条带每页行数切换——任何超出行数的 ?paged 都会渲染出空态行。"
+
+#~ msgid "Nothing here — you found the empty state."
+#~ msgstr "这里什么都没有——你找到了空态。"
+
+#~ msgid "Filter bar"
+#~ msgstr "筛选条"
+
+#~ msgid "Filter received: %s"
+#~ msgstr "收到筛选值：%s"
+
+msgid "User typeahead"
+msgstr "用户搜索"
+
+#~ msgid "Live search over real users — picking fills the hidden id, retyping clears it."
+#~ msgstr "对真实用户做实时搜索——选中回填隐藏 id，重新输入即清除。"
+
+msgid "Search users…"
+msgstr "搜索用户…"
+
+#~ msgid "Button parts accept a dashicon mount:"
+#~ msgstr "按钮零件可挂载 dashicon 图标："
+
+msgid "Copied."
+msgstr "已复制。"
+
+msgid "Copy"
+msgstr "复制"
+
+msgid "Selected: %s"
+msgstr "已选：%s"
+
+msgid "Bulk actions"
+msgstr "批量操作"
+
+msgid "Apply"
+msgstr "应用"
+
+msgid "Select all"
+msgstr "全选"
+
+#~ msgid "Bulk demo received %1$d ids (%2$s)."
+#~ msgstr "批量演示收到 %1$d 个 id（%2$s）。"
+
+msgid "Tabs"
+msgstr "页内标签"
+
+#~ msgid "Client-side panels on the native nav-tab look — every panel stays in the page, the hash remembers the open tab."
+#~ msgstr "原生导航标签样式的客户端面板——每个面板都留在页面里，打开的标签由 hash 记住。"
+
+msgid "Overview"
+msgstr "概览"
+
+#~ msgid "First panel body — switching only toggles visibility, so a surrounding form submits every panel."
+#~ msgstr "第一面板正文——切换只改可见性，外层表单仍会提交所有面板。"
+
+msgid "Form panel"
+msgstr "表单面板"
+
+msgid "Required field"
+msgstr "必填字段"
+
+msgid "Notes"
+msgstr "说明"
+
+#~ msgid "Submitting while a panel is hidden jumps back to the panel holding the invalid field."
+#~ msgstr "在面板收起时提交，会自动跳回持有未通过字段的面板。"
+
+msgid "Charts"
+msgstr "图表"
+
+#~ msgid "The operations-report shape: a monthly trend and the grants-by-source stack. The tables remain the source of truth."
+#~ msgstr "运营月报的形态：月度趋势线与发放来源堆叠柱。表格仍是数据的权威来源。"
+
+msgid "Credits granted, consumed and expired over the trailing 12 months (demo data)"
+msgstr "近 12 个月的积分发放、消耗与过期（演示数据）"
+
+msgid "Credits granted by source over the trailing 12 months (demo data)"
+msgstr "近 12 个月按来源的积分发放（演示数据）"
+
+msgid "One-click copy"
+msgstr "一键复制"
+
+#~ msgid "Clipboard write with a textarea fallback; the button flashes the confirmation and restores itself."
+#~ msgstr "写剪贴板，带 textarea 兜底；按钮短暂显示确认文案后自动还原。"
+
+msgid "Copy code"
+msgstr "复制兑换码"
+
+msgid "Bulk selection"
+msgstr "批量选择"
+
+#~ msgid "Echo selection (demo)"
+#~ msgstr "回显所选（演示）"
+
+#~ msgid "Echo with confirm"
+#~ msgstr "带确认回显"
+
+#~ msgid "Demo confirm: proceed with the selected rows?"
+#~ msgstr "演示确认：继续处理所选行？"
+
+msgid "Modal"
+msgstr "模态框"
+
+#~ msgid "Declarative triggers open the shell; row-edit style filling stays page-side — the Edit buttons prefill from data attributes."
+#~ msgstr "声明式触发负责开壳；行编辑式的填充留在页侧——Edit 按钮从 data 属性预填。"
+
+msgid "Open modal"
+msgstr "打开模态框"
+
+msgid "Demo modal"
+msgstr "演示模态框"
+
+msgid "%s item"
+msgid_plural "%s items"
+msgstr[0] "%s 项"
+
+msgid "First page"
+msgstr "第一页"
+
+msgid "Previous page"
+msgstr "上一页"
+
+msgid "Current Page"
+msgstr "当前页"
+
+msgctxt "paging"
+msgid "%1$s of %2$s"
+msgstr "第 %1$s / 共 %2$s 页"
+
+msgid "Next page"
+msgstr "下一页"
+
+msgid "Last page"
+msgstr "尾页"
+
+msgid "%d / page"
+msgstr "%d / 页"
+
+msgid "Items per page"
+msgstr "每页行数"
+
+#~ msgid "Collapsible card — default (open)"
+#~ msgstr "折叠卡片——默认展开"
+
+#~ msgid "Cards are collapsible details by default; pass the open flag to seed them collapsed."
+#~ msgstr "卡片默认就是可折叠的 details；传入 open 参数可改为收起态。"
+
+#~ msgid "Same shell as the plain list table — bulk bar, select parts and the shared pagination, all posting ids[] through one admin_post round trip; the demo handler echoes the selection back and writes nothing."
+#~ msgstr "与普通列表同构外壳——批量条、select 零件与共享分页器，全部经一次 admin_post 往返提交 ids[]；演示 handler 仅回显所选，不写任何数据。"
+
+msgid "Permalinks"
+msgstr "固定链接"
+
+
+msgid "Small parts"
+msgstr "小件"
+
+
+msgid "Settings Kit"
+msgstr "Settings Kit"
+
+
+msgid "UI Kit"
+msgstr "UI Kit"
+
+msgid "Declarative render components: stateless PHP parts that echo markup carrying data-* contracts, which assets/js/admin.js binds its behaviors to. Input is each part's arguments array, output is the markup; every component appears once below."
+msgstr "声明式渲染组件：无状态 PHP 零件，输出携带 data-* 契约的标记，行为层按属性挂接。入参为各零件的参数数组，出参为标记，每个组件仅演示一次"
+
+
+msgid "Stateless controls for operation bars: button with variant and dashicon mount, input in five whitelisted types, select with a selected value. Values travel by name, persistence stays with the surrounding form."
+msgstr "操作栏的无状态控件：button 支持变体与 dashicon 挂载，input 支持五种白名单类型，select 携带选中值。值经 name 传输，持久化归外层表单"
+
+
+#~ msgid "Round-trip notice"
+#~ msgstr "往返回执"
+
+
+#~ msgid "The round-trip notice: flash reads the note key this page's own redirect just set and renders the matching dismissible core notice. Input is a query key plus a map of note to text and variant; unknown notes render nothing. Production pages wire it through Ui::redirect."
+#~ msgstr "往返回执：flash 读取本页重定向刚设置的 note 键，渲染对应的核心可消除通知。入参为查询键与 note 到文案、变体的映射，未知 note 不渲染。生产页经 Ui::redirect 接线"
+
+
+#~ msgid "listTable takes a columns spec, a rows iterable and a cell callable, and renders the shared table baseline with a uniform empty state. listNav replicates the core list-table anatomy: a jump input on the top bar, a static readout on the bottom bar, opt-in jump and per-page switches. filterBar is the GET form shell composed into the top bar."
+#~ msgstr "listTable 接收列定义、行迭代器与单元格回调，渲染统一基线的表格与空态。listNav 复刻核心列表屏解剖：顶栏跳页输入、底栏静态读数、可选的跳页与每页行数开关。filterBar 是合成进顶栏的 GET 表单壳"
+
+
+msgid "listTable with a checkbox column and a bulk bar: select-all with indeterminate state, a live count, one admin_post round trip posting ids[]. Destructive actions declare their confirm text per action value."
+msgstr "带复选列与批量条的列表：全选含半选态、实时计数、一次 admin_post 往返提交 ids[]。危险动作按动作值声明确认文案"
+
+
+msgid "Cards"
+msgstr "卡片"
+
+
+msgid "A collapsible details shell; the body is a callable so it cannot be left unclosed. Open by default, the open flag seeds it collapsed."
+msgstr "可折叠 details 壳：内容为回调，不会漏闭环。默认展开，open 标志设定初始折叠"
+
+
+msgid "Collapsible card"
+msgstr "折叠卡片"
+
+
+msgid "Card body content."
+msgstr "卡片内容"
+
+
+msgid "Panel body content."
+msgstr "面板内容"
+
+
+msgid "The typeahead switch on input rides the shared UserPickerView: config rides data attributes, queries run through wp_ajax and return id, name and email. fill id keeps the pick in a hidden input, fill email writes the address back."
+msgstr "input 的 typeahead 开关挂接共享 UserPickerView：配置走 data 属性，查询经 wp_ajax 返回 id、name 与 email。fill 为 id 时选中值存入隐藏域，为 email 时回填邮箱"
+
+
+msgid "Native nav-tab look with client-side panels; every panel stays in the DOM so a surrounding form submits all fields. The hash remembers the open tab and submit reveals the panel of the first invalid field."
+msgstr "原生导航标签外观的客户端面板：面板全部留在 DOM，外层表单照常提交全部字段。hash 记忆当前页，提交时自动切到首个失效字段所在面板"
+
+
+msgid "Each canvas carries its Chart.js config as JSON beside it, instantiated by the behavior layer against the vendored build enqueued through chartAssets. Input is a type, data and options array in Chart.js shape."
+msgstr "每个 canvas 旁内联 Chart.js 的 JSON 配置，行为层以 vendored 构建实例化（经 chartAssets 入队）。入参为 Chart.js 形状的 type、data 与 options 数组"
+
+
+msgid "A button that writes its data attribute to the clipboard through navigator.clipboard, with a hidden textarea execCommand fallback, then flashes the done text."
+msgstr "按钮把 data 属性写入剪贴板：走 navigator.clipboard，非安全上下文回退隐藏 textarea 的 execCommand，成功后短暂显示完成文案"
+
+
+msgid "A jquery-ui-dialog shell on the core wp-jquery-ui-dialog styling, opened by data-aiya-modal-open and closed by data-aiya-modal-close. Fill and submit stay with the page, as the row-edit example shows."
+msgstr "jquery-ui-dialog 壳搭配核心 wp-jquery-ui-dialog 样式：data-aiya-modal-open 声明式打开，data-aiya-modal-close 关闭。填充与提交归页面侧，如行编辑示例"
+
+
+msgid "No rows."
+msgstr "暂无数据"
+
+
+msgid "Delete selected"
+msgstr "删除选中"
+
+
+msgid "Delete the selected rows?"
+msgstr "删除选中的行？"
+
+
+msgid "Declarative field form parts: a field definition array renders as form-table rows through the settings pipeline, with one save and reset endpoint for the whole page. Every persisted field type of the framework is exercised below."
+msgstr "field 声明式表单零件：字段定义数组经设置管线渲染为 form-table 行，整页共用一个保存与重置端点。框架的全部持久化字段类型在下方逐一演练"
+
+
+msgid "Required text field."
+msgstr "必填文本字段"
+
+
+msgid "Multiline text stored through sanitize_textarea_field."
+msgstr "多行文本，经 sanitize_textarea_field 清洗入库"
+
+
+msgid "Numeric field with min, max and step constraints."
+msgstr "带最小值、最大值与步进约束的数字字段"
+
+
+msgid "URL field, validated on save."
+msgstr "URL 字段，保存时校验"
+
+
+msgid "Write-only password field, the stored value is never echoed back."
+msgstr "只写密码字段，存储值不回显"
+
+
+msgid "Radio options render inline with even spacing."
+msgstr "单选选项以均匀间距内联排布"
+
+
+msgid "Checkbox options render inline with even spacing."
+msgstr "复选选项以均匀间距内联排布"
+
+
+msgid "Media fields store the attachment ID."
+msgstr "媒体字段存储附件 ID"
+
+
+msgid "Uses the WP code editor (wp.codeEditor)."
+msgstr "调用 WP 代码编辑器组件（wp.codeEditor）"
+
+
+msgid "Uses the classic editor through wp_editor with TinyMCE."
+msgstr "经 wp_editor 与 TinyMCE 调用经典编辑器"
+
+#: src/Admin/UiSamplePage.php:79
+msgid "Notice banners"
+msgstr "通知横幅"
+
+#: src/Admin/UiSamplePage.php:80
+msgid "notice clamps the variant to the four core notice states and renders one banner through wp_kses_post, with optional is-dismissible and the inline form for table rows. flash rides it for the round trip: the note key this page\'s own redirect set picks the message and adds is-dismissible, unknown notes render nothing."
+msgstr "notice 把变体夹逼到 WP 核心的四种通知状态，经 wp_kses_post 渲染一条横幅，可选 is-dismissible 与表格行用的 inline 形态；flash 在其上承接往返回执：本页跳转写入的 note 键选出消息并追加 is-dismissible，未知 note 不渲染"
+
+#: src/Admin/UiSamplePage.php:81
+msgid "A plain informational banner."
+msgstr "普通信息横幅"
+
+#: src/Admin/UiSamplePage.php:82
+msgid "A dismissible warning banner."
+msgstr "可关闭的警告横幅"
+
+#: src/Admin/UiSamplePage.php:84
+msgid "Section heading"
+msgstr "分区标题"
+
+#: src/Admin/UiSamplePage.php:85
+msgid "heading echoes h1, h2 or h3 with the class aiya-core-heading; the level clamps to 1-3 and the spacing lives in the kit stylesheet. Every section title on this page renders through it."
+msgstr "heading 输出携带 aiya-core-heading 类的 h1、h2 或 h3，级别夹逼在 1 到 3，间距由 kit 样式表承载；本页每个章节标题都经它渲染"
+
+#: src/Admin/UiSamplePage.php:88
+msgid "listTable takes a columns spec, a rows iterable and a cell callable, and renders the shared table baseline with a uniform empty state. listNav is a kit-owned one-line bar whose parts are the plain kit controls: arrow links with the shared button classes, a jump input on the top bar, a static readout on the bottom bar, opt-in jump and per-page switches. filterBar is the GET form shell composed into the top bar."
+msgstr "listTable 接收列定义、行迭代器与单元格回调，渲染统一基线的表格与空态。listNav 是 kit 自有的一段式导航条，零件即裸 kit 控件：携带共享按钮类的箭头链接、顶栏跳页输入框、底栏静态读数，可选的跳页与每页行数开关。filterBar 是合成进顶栏的 GET 表单壳"
+
+
+#: src/Admin/SamplePage.php:118
+msgid "The plain checkbox: a hidden value=0 input carries an unticked state through the submission."
+msgstr "素复选框：隐藏的 value=0 输入框把未勾选状态带进提交"
+
+#: src/Admin/SamplePage.php:125
+msgid "The boolean switch: native checkbox semantics under a styled track, the stored value stays 0 or 1."
+msgstr "布尔开关：样式轨道之下是原生 checkbox 语义，存储值仍为 0 或 1"

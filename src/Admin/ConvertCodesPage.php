@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Settings\Schema\Page;
+use Aiya\Core\Settings\Registry;
 use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
 use Aiya\Core\Domain\Sponsorship\SponsorshipSettings;
 
@@ -30,23 +32,22 @@ final class ConvertCodesPage implements Module
 
     public function register(): void
     {
-        // Priority 35: the membership top-level menu is registered by
-        // SettingsAdmin at 30 — see CreditsPage for the hookname timing.
-        add_action('admin_menu', [$this, 'menu'], 35);
+        add_action('aiya_core_register', [$this, 'registerPage']);
         add_action('admin_post_' . self::ACTION_GENERATE, [$this, 'handleGenerate']);
         add_action('admin_post_' . self::ACTION_DELETE_ALL, [$this, 'handleDeleteAll']);
     }
 
-    public function menu(): void
+    /** Registers through the shared settings pipeline as a callback page. */
+    public function registerPage(Registry $registry): void
     {
-        add_submenu_page(
-            self::PARENT_SLUG,
-            __('Redemption codes', 'aiya-core'),
-            __('Redemption codes', 'aiya-core'),
-            'manage_options',
-            self::MENU_SLUG,
-            [$this, 'render']
-        );
+        $registry->addPage([
+            'slug' => 'convert-codes',
+            'title' => __('Redemption codes', 'aiya-core'),
+            'menu_title' => __('Redemption codes', 'aiya-core'),
+            'parent' => self::PARENT_SLUG,
+            'kind' => Page::KIND_CALLBACK,
+            'render' => [$this, 'render'],
+        ]);
     }
 
     public function render(): void

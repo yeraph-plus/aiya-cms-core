@@ -71,7 +71,7 @@ final class SettingsAdmin implements Module
         }
 
         $version = $this->assetVersion('assets/css/admin.css');
-        wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], $version);
+        wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons', 'list-tables'], $version);
         wp_enqueue_script(
             'aiya-core-admin',
             AIYA_CORE_URL . 'assets/js/admin.js',
@@ -83,6 +83,11 @@ final class SettingsAdmin implements Module
             'codeEditors' => $codeSettings,
             'mediaTitle' => __('Select media', 'aiya-core'),
         ]) . ';', 'before');
+
+        $pageAssets = $page->assets();
+        if ($pageAssets !== null) {
+            $pageAssets();
+        }
     }
 
     public function save(): void
@@ -126,29 +131,124 @@ final class SettingsAdmin implements Module
 
     private function registerMenus(bool $network): void
     {
-        foreach ($this->registry->pages() as $page) {
-            if ($page->network() !== $network) {
+        // Two passes, tops first: a child's add_submenu_page derives its
+        // page-hook name from the parent's registered (localized) menu
+        // title, so every add_menu_page must exist before any child is
+        // attached — registry insertion order cannot be relied on (the
+        // batch-B lesson, same timing class as the old priority-35 dance).
+        $pages = array_filter(
+            $this->registry->pages(),
+            static fn (Page $page): bool => $page->network() === $network
+        );
+        foreach ($pages as $page) {
+            if ($page->parent() !== '') {
                 continue;
             }
-            $callback = fn (): null => $this->render($page);
-            $slug = 'aiya-core-' . $page->slug();
-            $hook = $page->parent() === ''
-                ? add_menu_page($page->title(), $page->menuTitle(), $page->capability(), $slug, $callback, $page->icon(), $page->position())
-                : add_submenu_page($page->parent(), $page->title(), $page->menuTitle(), $page->capability(), $slug, $callback, $page->menuPosition());
+            $this->registerTopLevel($page);
+        }
+        foreach ($pages as $page) {
             if ($page->parent() === '') {
-                // Core idiom: the first submenu mirrors the parent slug, so
-                // the top-level menu lands on the page itself instead of
-                // being re-parented to the first registered sibling. No
-                // callback: the top-level's own hook renders the page.
-                // The mirror label defaults to the menu title; a page whose
-                // outermost entry carries a group name (another entry leads
-                // the group instead) splits it via mirror_title.
-                add_submenu_page($slug, $page->title(), $page->mirrorTitle(), $page->capability(), $slug, '');
+                continue;
             }
-            if (is_string($hook)) {
-                $this->screens[$hook] = $page->slug();
+            $this->registerSubmenu($page);
+        }
+        $this->orderSubmenus();
+    }
+
+    /**
+     * menu_position is an order key, not core's insertion index:
+     * add_submenu_page() splices at the given offset, so a rail's order
+     * would depend on registration sequence — the batch-B insertion-order
+     * trap in another costume. Once every page is registered, each rail
+     * that carries at least one order key is stably sorted by them;
+     * slugs without a key keep their registered relative order behind
+     * the keyed ones, and rails without any key are left exactly as
+     * core built them.
+     */
+    private function orderSubmenus(): void
+    {
+        if (!isset($GLOBALS['submenu']) || !is_array($GLOBALS['submenu'])) {
+            return;
+        }
+        $keys = [];
+        foreach ($this->registry->pages() as $page) {
+            if ($page->menuPosition() !== null) {
+                $keys['aiya-core-' . $page->slug()] = $page->menuPosition();
             }
         }
+        if ($keys === []) {
+            return;
+        }
+        $order = static fn ($item): int => is_array($item) && isset($keys[$item[2]])
+            ? $keys[$item[2]]
+            : PHP_INT_MAX;
+        foreach (array_keys($GLOBALS['submenu']) as $parent) {
+            $items = $GLOBALS['submenu'][$parent];
+            if (!is_array($items) || $items === []) {
+                continue;
+            }
+            $keyed = false;
+            foreach ($items as $item) {
+                if (is_array($item) && isset($keys[$item[2]])) {
+                    $keyed = true;
+                    break;
+                }
+            }
+            if (!$keyed) {
+                continue;
+            }
+            usort($items, static fn ($a, $b): int => $order($a) <=> $order($b));
+            // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- reordering the rail is only possible through the menu global; core plugins do the same
+            $GLOBALS['submenu'][$parent] = $items;
+        }
+    }
+
+    private function registerTopLevel(Page $page): void
+    {
+        $callback = fn (): null => $this->renderPage($page);
+        $slug = 'aiya-core-' . $page->slug();
+        $hook = add_menu_page($page->title(), $page->menuTitle(), $page->capability(), $slug, $callback, $page->icon(), $page->position());
+        // Core idiom: the first submenu mirrors the parent slug, so
+        // the top-level menu lands on the page itself instead of
+        // being re-parented to the first registered sibling. No
+        // callback: the top-level's own hook renders the page.
+        // The mirror label defaults to the menu title; a page whose
+        // outermost entry carries a group name (another entry leads
+        // the group instead) splits it via mirror_title. The mirror
+        // joins the orderSubmenus() rail sort through menu_position
+        // like every other page; null keeps the append behavior.
+        add_submenu_page($slug, $page->title(), $page->mirrorTitle(), $page->capability(), $slug, '', $page->menuPosition());
+        if (is_string($hook)) {
+            $this->screens[$hook] = $page->slug();
+        }
+    }
+
+    private function registerSubmenu(Page $page): void
+    {
+        $callback = fn (): null => $this->renderPage($page);
+        $slug = 'aiya-core-' . $page->slug();
+        $hook = add_submenu_page($page->parent(), $page->title(), $page->menuTitle(), $page->capability(), $slug, $callback, $page->menuPosition());
+        if (is_string($hook)) {
+            $this->screens[$hook] = $page->slug();
+        }
+    }
+
+    /** Central render dispatch: capability gate, then the page's kind. */
+    private function renderPage(Page $page): null
+    {
+        if (!current_user_can($page->capability())) {
+            wp_die(esc_html__('You are not allowed to view these settings.', 'aiya-core'));
+        }
+        if ($page->kind() === Page::KIND_CALLBACK) {
+            $render = $page->render();
+            if ($render !== null) {
+                $render();
+            }
+
+            return null;
+        }
+
+        return $this->render($page);
     }
 
     /** @param list<Field> $fields
@@ -190,12 +290,12 @@ final class SettingsAdmin implements Module
         $status = sanitize_key((string) ($_GET['aiya_status'] ?? ''));
         echo '<div class="wrap aiya-core-settings"><h1>' . esc_html($page->title()) . '</h1>';
         if ($status === 'saved') {
-            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved.', 'aiya-core') . '</p></div>';
+            Ui::notice(__('Settings saved.', 'aiya-core'), ['variant' => 'success', 'dismissible' => true]);
         } elseif ($status === 'reset') {
-            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings reset.', 'aiya-core') . '</p></div>';
+            Ui::notice(__('Settings reset.', 'aiya-core'), ['variant' => 'success', 'dismissible' => true]);
         } elseif ($status === 'error') {
-            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect message, sanitized below.
-            echo '<div class="notice notice-error"><p>' . esc_html((string) ($_GET['message'] ?? __('Unable to save settings.', 'aiya-core'))) . '</p></div>';
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect message, escaped inline.
+            Ui::notice(esc_html((string) ($_GET['message'] ?? __('Unable to save settings.', 'aiya-core'))), ['variant' => 'error']);
         }
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         echo '<input type="hidden" name="action" value="aiya_core_save_settings"><input type="hidden" name="page_slug" value="' . esc_attr($page->slug()) . '">';

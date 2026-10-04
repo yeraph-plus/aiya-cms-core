@@ -46,15 +46,27 @@ final class SearchReplacePage
             wp_die(esc_html__('You are not allowed to run search and replace.', 'aiya-core'));
         }
 
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Search & Replace', 'aiya-core'); ?></h1>
-            <p class="description"><?php esc_html_e('Direct wp_posts search and replace: query first, then execute. Raw SQL — no hooks fire, no revisions, no modified-date bump, meta and options untouched. Back up the database before executing; the match is case-sensitive and cannot be undone.', 'aiya-core'); ?></p>
-            <?php $this->notice(); ?>
-            <?php $this->formCard(); ?>
-            <?php $this->previewSection(); ?>
-        </div>
-        <?php
+        Ui::pageHead(
+            __('Search & Replace', 'aiya-core'),
+            __('Direct wp_posts search and replace: query first, then execute. Raw SQL — no hooks fire, no revisions, no modified-date bump, meta and options untouched. Back up the database before executing; the match is case-sensitive and cannot be undone.', 'aiya-core')
+        );
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect counter
+        $count = absint((string) ($_GET['aiya_devtools_count'] ?? '0'));
+        Ui::flash('aiya_devtools_note', [
+            'replace_done' => [
+                sprintf(
+                    /* translators: %d: number of updated rows */
+                    __('Updated %d rows in the posts table.', 'aiya-core'),
+                    $count
+                ),
+                'success',
+            ],
+            'replace_none' => [__('Nothing matched — nothing was updated.', 'aiya-core'), 'success'],
+            'replace_missing_search' => [__('The search string is empty.', 'aiya-core'), 'success'],
+        ]);
+        $this->formCard();
+        $this->previewSection();
+        Ui::pageFoot();
     }
 
     /** The query form; submitting it re-renders the page with the preview. */
@@ -65,67 +77,64 @@ final class SearchReplacePage
         $columns = self::sanitizeColumns($_GET['sr_cols'] ?? []); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only form repopulation, the query itself is gated below
         $types = self::sanitizeTypes($_GET['sr_types'] ?? []); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above
         $status = sanitize_key($this->getInput('sr_status'));
-        ?>
-        <details class="aiya-core-card" open>
-            <summary><?php esc_html_e('Search & replace', 'aiya-core'); ?></summary>
-            <div class="aiya-core-card__body">
-                <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>">
-                    <input type="hidden" name="page" value="<?php echo esc_attr(self::MENU_SUFFIX); ?>">
-                    <?php wp_nonce_field(self::NONCE_PREVIEW); ?>
-                    <table class="form-table" role="presentation"><tbody>
-                        <tr>
-                            <th scope="row"><label for="aiya-devtools-sr-search"><?php esc_html_e('Search', 'aiya-core'); ?></label></th>
-                            <td>
-                                <input type="text" id="aiya-devtools-sr-search" name="sr_search" class="regular-text" required value="<?php echo esc_attr($search); ?>">
-                                <span class="description"><?php esc_html_e('Case-sensitive, matched byte-exactly.', 'aiya-core'); ?></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="aiya-devtools-sr-replace"><?php esc_html_e('Replace with', 'aiya-core'); ?></label></th>
-                            <td>
-                                <input type="text" id="aiya-devtools-sr-replace" name="sr_replace" class="regular-text" value="<?php echo esc_attr($replace); ?>">
-                                <span class="description"><?php esc_html_e('Leave empty to remove every occurrence of the search string.', 'aiya-core'); ?></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><?php esc_html_e('Columns', 'aiya-core'); ?></th>
-                            <td>
-                                <?php foreach (self::COLUMNS as $column) : ?>
-                                    <label style="margin-right:12px;">
-                                        <input type="checkbox" name="sr_cols[]" value="<?php echo esc_attr($column); ?>" <?php checked(in_array($column, $columns, true)); ?>>
-                                        <?php echo esc_html((string) $column); ?>
-                                    </label>
-                                <?php endforeach; ?>
-                                <span class="description"><?php esc_html_e('At least one; defaults to post_content.', 'aiya-core'); ?></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><?php esc_html_e('Post types', 'aiya-core'); ?></th>
-                            <td>
-                                <?php foreach (PublicTypes::wpPostTypes() as $type) : ?>
-                                    <label style="margin-right:12px;">
-                                        <input type="checkbox" name="sr_types[]" value="<?php echo esc_attr($type); ?>" <?php checked(in_array($type, $types, true)); ?>>
-                                        <?php echo esc_html($type); ?>
-                                    </label>
-                                <?php endforeach; ?>
-                                <span class="description"><?php esc_html_e('Empty selection means every public type.', 'aiya-core'); ?></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="aiya-devtools-sr-status"><?php esc_html_e('Statuses', 'aiya-core'); ?></label></th>
-                            <td>
-                                <select id="aiya-devtools-sr-status" name="sr_status">
-                                    <option value="publish" <?php selected($status, 'publish'); ?>><?php esc_html_e('Published only', 'aiya-core'); ?></option>
-                                    <option value="all" <?php selected($status, 'all'); ?>><?php esc_html_e('All real statuses (no trash, no auto-draft)', 'aiya-core'); ?></option>
-                                </select>
-                            </td>
-                        </tr>
-                    </tbody></table>
-                    <p><button type="submit" class="button button-primary"><?php esc_html_e('Query only', 'aiya-core'); ?></button></p>
-                </form>
-            </div>
-        </details>
-        <?php
+        Ui::card(__('Search & replace', 'aiya-core'), static function () use ($search, $replace, $columns, $types, $status): void {
+            ?>
+            <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>">
+                <input type="hidden" name="page" value="<?php echo esc_attr(SearchReplacePage::MENU_SUFFIX); ?>">
+                <?php wp_nonce_field(SearchReplacePage::NONCE_PREVIEW); ?>
+                <table class="form-table" role="presentation"><tbody>
+                    <tr>
+                        <th scope="row"><label for="aiya-devtools-sr-search"><?php esc_html_e('Search', 'aiya-core'); ?></label></th>
+                        <td>
+                            <input type="text" id="aiya-devtools-sr-search" name="sr_search" class="regular-text" required value="<?php echo esc_attr($search); ?>">
+                            <span class="description"><?php esc_html_e('Case-sensitive, matched byte-exactly.', 'aiya-core'); ?></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aiya-devtools-sr-replace"><?php esc_html_e('Replace with', 'aiya-core'); ?></label></th>
+                        <td>
+                            <input type="text" id="aiya-devtools-sr-replace" name="sr_replace" class="regular-text" value="<?php echo esc_attr($replace); ?>">
+                            <span class="description"><?php esc_html_e('Leave empty to remove every occurrence of the search string.', 'aiya-core'); ?></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e('Columns', 'aiya-core'); ?></th>
+                        <td>
+                            <?php foreach (SearchReplacePage::COLUMNS as $column) : ?>
+                                <label style="margin-right:12px;">
+                                    <input type="checkbox" name="sr_cols[]" value="<?php echo esc_attr($column); ?>" <?php checked(in_array($column, $columns, true)); ?>>
+                                    <?php echo esc_html((string) $column); ?>
+                                </label>
+                            <?php endforeach; ?>
+                            <span class="description"><?php esc_html_e('At least one; defaults to post_content.', 'aiya-core'); ?></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e('Post types', 'aiya-core'); ?></th>
+                        <td>
+                            <?php foreach (PublicTypes::wpPostTypes() as $type) : ?>
+                                <label style="margin-right:12px;">
+                                    <input type="checkbox" name="sr_types[]" value="<?php echo esc_attr($type); ?>" <?php checked(in_array($type, $types, true)); ?>>
+                                    <?php echo esc_html($type); ?>
+                                </label>
+                            <?php endforeach; ?>
+                            <span class="description"><?php esc_html_e('Empty selection means every public type.', 'aiya-core'); ?></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aiya-devtools-sr-status"><?php esc_html_e('Statuses', 'aiya-core'); ?></label></th>
+                        <td>
+                            <select id="aiya-devtools-sr-status" name="sr_status">
+                                <option value="publish" <?php selected($status, 'publish'); ?>><?php esc_html_e('Published only', 'aiya-core'); ?></option>
+                                <option value="all" <?php selected($status, 'all'); ?>><?php esc_html_e('All real statuses (no trash, no auto-draft)', 'aiya-core'); ?></option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody></table>
+                <p><button type="submit" class="button button-primary"><?php esc_html_e('Query only', 'aiya-core'); ?></button></p>
+            </form>
+            <?php
+        }, true);
     }
 
     /** Per-column counts, sample rows, the statement preview and the execute form. */
@@ -144,6 +153,7 @@ final class SearchReplacePage
         $columns = self::sanitizeColumns($_GET['sr_cols'] ?? []); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above
         $types = self::sanitizeTypes($_GET['sr_types'] ?? []); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above
         $statuses = self::statusesFor(sanitize_key($this->getInput('sr_status')));
+        $statusInput = $this->getInput('sr_status');
         $replace = $this->getInput('sr_replace');
         $like = '%' . self::escLike($search) . '%';
 
@@ -160,95 +170,96 @@ final class SearchReplacePage
             $total += $count;
         }
 
-        echo '<details class="aiya-core-card" open><summary>';
-        printf(
+        // Sample rows and the statement preview only exist for a non-empty
+        // match set; the empty branch below prints its own note.
+        $sampleRows = [];
+        $updateSql = '';
+        if ($total > 0) {
+            [$where, $params] = self::buildWhere($columns, $types, $statuses, $like);
+            // @phpstan-ignore argument.type (whitelist interpolation)
+            $samples = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_content, post_excerpt FROM {$wpdb->posts} WHERE {$where} ORDER BY ID DESC LIMIT " . self::SAMPLE_LIMIT, $params)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- whitelist-built SQL, see buildWhere
+            $sampleRows = is_array($samples) ? $samples : [];
+            // The statement preview carries the sample ids only: the execute
+            // pass runs in bounded batches (never one statement with every
+            // matching id), so a full id sweep here would buy nothing but
+            // memory pressure on large matches.
+            $sampleIds = array_map(static fn ($row): int => (int) $row->ID, $sampleRows);
+            [$updateSql] = self::buildUpdateSql($columns, $search, $replace, $sampleIds, $wpdb->posts);
+        }
+
+        Ui::card(sprintf(
             /* translators: %s: search string. */
-            esc_html__('Preview for "%s"', 'aiya-core'),
-            esc_html($search)
-        );
-        echo '</summary><div class="aiya-core-card__body">';
-
-        if ($total === 0) {
-            echo '<p><em>';
-            esc_html_e('No matches in the selected columns, types and statuses.', 'aiya-core');
-            echo '</em></p></div></details>';
-            return;
-        }
-
-        echo '<table class="widefat striped" style="max-width:640px;"><tbody>';
-        foreach ($counts as $column => $count) {
-            printf(
-                '<tr><td><code>%s</code></td><td>%d</td></tr>',
-                esc_html((string) $column),
-                (int) $count
-            );
-        }
-        echo '</tbody></table>';
-
-        [$where, $params] = self::buildWhere($columns, $types, $statuses, $like);
-        // @phpstan-ignore argument.type (whitelist interpolation)
-        $samples = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_content, post_excerpt FROM {$wpdb->posts} WHERE {$where} ORDER BY ID DESC LIMIT " . self::SAMPLE_LIMIT, $params)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- whitelist-built SQL, see buildWhere
-        $sampleRows = is_array($samples) ? $samples : [];
-        if ($sampleRows !== []) {
-            echo '<h3 style="margin-top:16px;">' . esc_html__('Sample matches (newest first)', 'aiya-core') . '</h3>';
-            echo '<table class="widefat striped"><tbody>';
-        }
-        foreach ($sampleRows as $row) {
-            // The snippet walks content → excerpt → title so a title-only
-            // match still shows its context.
-            $snippet = self::snippet((string) $row->post_content, $search);
-            if ($snippet === '') {
-                $snippet = self::snippet((string) $row->post_excerpt, $search);
+            __('Preview for "%s"', 'aiya-core'),
+            $search
+        ), static function () use ($search, $columns, $types, $replace, $statusInput, $counts, $total, $sampleRows, $updateSql): void {
+            if ($total === 0) {
+                echo '<p><em>';
+                esc_html_e('No matches in the selected columns, types and statuses.', 'aiya-core');
+                echo '</em></p>';
+                return;
             }
-            if ($snippet === '') {
-                $snippet = self::snippet((string) $row->post_title, $search);
+
+            echo '<table class="widefat striped" style="max-width:640px;"><tbody>';
+            foreach ($counts as $column => $count) {
+                printf(
+                    '<tr><td><code>%s</code></td><td>%d</td></tr>',
+                    esc_html((string) $column),
+                    (int) $count
+                );
             }
-            printf(
-                '<tr><td>#%d</td><td><strong>%s</strong></td><td>%s</td></tr>',
-                (int) $row->ID,
-                esc_html((string) $row->post_title),
-                $snippet // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- snippet escapes every fragment before assembly
-            );
-        }
-        if ($sampleRows !== []) {
             echo '</tbody></table>';
-        }
 
-        // The statement preview carries the sample ids only: the execute
-        // pass runs in bounded batches (never one statement with every
-        // matching id), so a full id sweep here would buy nothing but
-        // memory pressure on large matches.
-        $sampleIds = array_map(static fn ($row): int => (int) $row->ID, $sampleRows);
+            if ($sampleRows !== []) {
+                Ui::heading(__('Sample matches (newest first)', 'aiya-core'), 3);
+                echo '<table class="widefat striped"><tbody>';
+            }
+            foreach ($sampleRows as $row) {
+                // The snippet walks content → excerpt → title so a title-only
+                // match still shows its context.
+                $snippet = self::snippet((string) $row->post_content, $search);
+                if ($snippet === '') {
+                    $snippet = self::snippet((string) $row->post_excerpt, $search);
+                }
+                if ($snippet === '') {
+                    $snippet = self::snippet((string) $row->post_title, $search);
+                }
+                printf(
+                    '<tr><td>#%d</td><td><strong>%s</strong></td><td>%s</td></tr>',
+                    (int) $row->ID,
+                    esc_html((string) $row->post_title),
+                    $snippet // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- snippet escapes every fragment before assembly
+                );
+            }
+            if ($sampleRows !== []) {
+                echo '</tbody></table>';
+            }
 
-        [$updateSql] = self::buildUpdateSql($columns, $search, $replace, $sampleIds, $wpdb->posts);
-        echo '<h3 style="margin-top:16px;">' . esc_html__('Statement', 'aiya-core') . '</h3>';
-        echo '<p><code>' . esc_html($updateSql) . '</code></p>';
-        echo '<p class="description">'
-            . esc_html(sprintf(
-                /* translators: %d: batch size. */
-                __('Execution runs this replace in batches of %d posts until no match remains; the ids above are a sample window.', 'aiya-core'),
-                self::REPLACE_BATCH
-            ))
-            . '</p>';
-
-        $executeUrl = admin_url('admin-post.php');
-        ?>
-        <form method="post" action="<?php echo esc_url($executeUrl); ?>" style="margin-top:12px;">
-            <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_EXECUTE); ?>">
-            <input type="hidden" name="sr_search" value="<?php echo esc_attr($search); ?>">
-            <input type="hidden" name="sr_replace" value="<?php echo esc_attr($replace); ?>">
-            <input type="hidden" name="sr_status" value="<?php echo esc_attr($this->getInput('sr_status')); ?>">
-            <?php foreach ($columns as $column) : ?>
-                <input type="hidden" name="sr_cols[]" value="<?php echo esc_attr($column); ?>">
-            <?php endforeach; ?>
-            <?php foreach ($types as $type) : ?>
-                <input type="hidden" name="sr_types[]" value="<?php echo esc_attr($type); ?>">
-            <?php endforeach; ?>
-            <?php wp_nonce_field(self::ACTION_EXECUTE); ?>
-            <button type="submit" class="button button-primary" onclick="return window.confirm(<?php echo esc_attr((string) wp_json_encode(__('Run the replace on the posts table now? This cannot be undone.', 'aiya-core'))); ?>);"><?php esc_html_e('Execute replace', 'aiya-core'); ?></button>
-        </form>
-        <?php
-        echo '</div></details>';
+            Ui::heading(__('Statement', 'aiya-core'), 3);
+            echo '<p><code>' . esc_html($updateSql) . '</code></p>';
+            echo '<p class="description">'
+                . esc_html(sprintf(
+                    /* translators: %d: batch size. */
+                    __('Execution runs this replace in batches of %d posts until no match remains; the ids above are a sample window.', 'aiya-core'),
+                    self::REPLACE_BATCH
+                ))
+                . '</p>';
+            ?>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-top:12px;">
+                <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_EXECUTE); ?>">
+                <input type="hidden" name="sr_search" value="<?php echo esc_attr($search); ?>">
+                <input type="hidden" name="sr_replace" value="<?php echo esc_attr($replace); ?>">
+                <input type="hidden" name="sr_status" value="<?php echo esc_attr($statusInput); ?>">
+                <?php foreach ($columns as $column) : ?>
+                    <input type="hidden" name="sr_cols[]" value="<?php echo esc_attr($column); ?>">
+                <?php endforeach; ?>
+                <?php foreach ($types as $type) : ?>
+                    <input type="hidden" name="sr_types[]" value="<?php echo esc_attr($type); ?>">
+                <?php endforeach; ?>
+                <?php wp_nonce_field(self::ACTION_EXECUTE); ?>
+                <button type="submit" class="button button-primary" onclick="return window.confirm(<?php echo esc_attr((string) wp_json_encode(__('Run the replace on the posts table now? This cannot be undone.', 'aiya-core'))); ?>);"><?php esc_html_e('Execute replace', 'aiya-core'); ?></button>
+            </form>
+            <?php
+        }, true);
     }
 
     /** Collects the affected ids, runs the UPDATE and cleans the post caches. */
@@ -261,7 +272,7 @@ final class SearchReplacePage
 
         $search = sanitize_text_field(wp_unslash((string) ($_POST['sr_search'] ?? '')));
         if ($search === '') {
-            $this->redirectBack(['aiya_devtools_note' => 'replace_missing_search']);
+            Ui::redirect(self::pageUrl(), ['aiya_devtools_note' => 'replace_missing_search']);
         }
 
         // Byte-exact by contract, same as the preview: raw input, escaping
@@ -305,43 +316,16 @@ final class SearchReplacePage
         }
 
         if ($updated === 0) {
-            $this->redirectBack(['aiya_devtools_note' => 'replace_none']);
+            Ui::redirect(self::pageUrl(), ['aiya_devtools_note' => 'replace_none']);
         }
 
-        $this->redirectBack(['aiya_devtools_note' => 'replace_done', 'aiya_devtools_count' => (string) $updated]);
+        Ui::redirect(self::pageUrl(), ['aiya_devtools_note' => 'replace_done', 'aiya_devtools_count' => (string) $updated]);
     }
 
-    private function notice(): void
+    /** The page's own admin URL, the Ui::redirect base for every round trip. */
+    private static function pageUrl(): string
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
-        $note = sanitize_key((string) ($_GET['aiya_devtools_note'] ?? ''));
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect counter
-        $count = absint((string) ($_GET['aiya_devtools_count'] ?? '0'));
-        $messages = [
-            'replace_done' => sprintf(
-                /* translators: %d: number of updated rows */
-                __('Updated %d rows in the posts table.', 'aiya-core'),
-                $count
-            ),
-            'replace_none' => __('Nothing matched — nothing was updated.', 'aiya-core'),
-            'replace_missing_search' => __('The search string is empty.', 'aiya-core'),
-        ];
-
-        if (!isset($messages[$note])) {
-            return;
-        }
-
-        printf(
-            '<div class="notice notice-success is-dismissible"><p>%s</p></div>',
-            esc_html((string) $messages[$note])
-        );
-    }
-
-    /** @param array<string, string> $args */
-    private function redirectBack(array $args): never
-    {
-        wp_safe_redirect(add_query_arg($args, admin_url('admin.php?page=' . self::MENU_SUFFIX)));
-        exit;
+        return admin_url('admin.php?page=' . self::MENU_SUFFIX);
     }
 
     private function getInput(string $key): string

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Settings\Schema\Page;
+use Aiya\Core\Settings\Registry;
 use WP_Error;
 use WP_User;
 use WP_User_Query;
@@ -38,28 +40,25 @@ final class SendMailPage implements Module
 
     public function register(): void
     {
-        // Priority 35: the parent AIYA CMS Core menu is registered by
-        // SettingsAdmin at 30. add_submenu_page resolves the page hookname
-        // from the parent's registered title at call time — running before
-        // it degrades the hook to admin_page_* and the request-time access
-        // check (which recomputes aiya-core_page_*) denies the screen.
-        add_action('admin_menu', [$this, 'menu'], 35);
+        add_action('aiya_core_register', [$this, 'registerPage']);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
         add_filter('user_row_actions', [$this, 'rowAction'], 10, 2);
         add_action('wp_ajax_' . self::AJAX_ACTION, [$this, 'handleSend']);
         add_action('wp_ajax_' . self::AJAX_SEARCH, [$this, 'handleSearch']);
     }
 
-    public function menu(): void
+    /** Registers through the shared settings pipeline as a callback page. */
+    public function registerPage(Registry $registry): void
     {
-        add_submenu_page(
-            self::PARENT_SLUG,
-            __('Send Mail', 'aiya-core'),
-            __('Send Mail', 'aiya-core'),
-            'edit_users',
-            self::MENU_SLUG,
-            [$this, 'render']
-        );
+        $registry->addPage([
+            'slug' => 'send-mail',
+            'title' => __('Send Mail', 'aiya-core'),
+            'menu_title' => __('Send Mail', 'aiya-core'),
+            'capability' => 'edit_users',
+            'parent' => self::PARENT_SLUG,
+            'kind' => Page::KIND_CALLBACK,
+            'render' => [$this, 'render'],
+        ]);
     }
 
     /** Loads the classic editor assets on this screen only. */

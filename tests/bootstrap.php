@@ -323,6 +323,85 @@ if (!function_exists('sanitize_key')) {
     }
 }
 
+if (!function_exists('sanitize_html_class')) {
+    function sanitize_html_class(string $class, string $fallback = ''): string
+    {
+        // Mirrors core: strip percent-encoding pairs, then everything
+        // outside [A-Za-z0-9_-]; empty results may take the fallback.
+        $sanitized = preg_replace('|%[a-f0-9][a-f0-9]|i', '', $class) ?? '';
+        $sanitized = preg_replace('/[^A-Za-z0-9_\-]/', '', $sanitized) ?? '';
+        if ($sanitized === '' && $fallback !== '') {
+            return $fallback;
+        }
+
+        return $sanitized;
+    }
+}
+
+if (!function_exists('admin_url')) {
+    function admin_url(string $path = ''): string
+    {
+        return 'https://example.com/wp-admin/' . ltrim($path, '/');
+    }
+}
+
+if (!function_exists('selected')) {
+    function selected(mixed $selected, mixed $current = true, bool $display = true): string
+    {
+        $result = (string) $selected === (string) $current ? " selected='selected'" : '';
+        if ($display) {
+            echo $result;
+        }
+
+        return $result;
+    }
+}
+
+if (!function_exists('checked')) {
+    function checked(mixed $checked, mixed $current = true, bool $display = true): string
+    {
+        $result = (string) $checked === (string) $current ? " checked='checked'" : '';
+        if ($display) {
+            echo $result;
+        }
+
+        return $result;
+    }
+}
+
+if (!function_exists('remove_query_arg')) {
+    function remove_query_arg(string|array $keys, string|false $uri = false): string
+    {
+        $uri = $uri === false ? ($_SERVER['REQUEST_URI'] ?? '') : $uri;
+        $pos = strpos($uri, '?');
+        if ($pos === false) {
+            return $uri;
+        }
+        $base = substr($uri, 0, $pos);
+        parse_str(substr($uri, $pos + 1), $query);
+        foreach ((array) $keys as $key) {
+            unset($query[$key]);
+        }
+        $remainder = http_build_query($query);
+
+        return $remainder === '' ? $base : $base . '?' . $remainder;
+    }
+}
+
+if (!function_exists('_n')) {
+    function _n(string $single, string $plural, int $number, string $domain = 'default'): string
+    {
+        return $number === 1 ? $single : $plural;
+    }
+}
+
+if (!function_exists('number_format_i18n')) {
+    function number_format_i18n(float|int $number, int $decimals = 0): string
+    {
+        return number_format($number, $decimals);
+    }
+}
+
 if (!function_exists('sanitize_text_field')) {
     function sanitize_text_field(string $str): string
     {

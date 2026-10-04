@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Settings\Schema\Page;
+use Aiya\Core\Settings\Registry;
 use Aiya\Core\Domain\Sponsorship\AfdianGateway;
 use Aiya\Core\Domain\Sponsorship\EpayGateway;
 use Aiya\Core\Domain\Sponsorship\MembershipService;
@@ -45,10 +47,7 @@ final class PaymentsAuditPage implements Module
 
     public function register(): void
     {
-        // Priority 35: the membership top-level menu is registered by
-        // SettingsAdmin at 30 — see CreditsPage for the hookname timing.
-        add_action('admin_menu', [$this, 'menu'], 35);
-        add_action('admin_enqueue_scripts', [$this, 'assets']);
+        add_action('aiya_core_register', [$this, 'registerPage']);
         add_filter('manage_users_columns', [$this, 'usersColumn']);
         add_filter('manage_users_custom_column', [$this, 'usersColumnValue'], 10, 3);
         // The users list runs its query before any cell renders; capture
@@ -57,17 +56,18 @@ final class PaymentsAuditPage implements Module
         add_action('pre_user_query', [$this, 'captureUsersQuery']);
     }
 
-    public function menu(): void
+    /** Registers through the shared settings pipeline as a callback page. */
+    public function registerPage(Registry $registry): void
     {
-        add_submenu_page(
-            self::PARENT_SLUG,
-            __('Order records', 'aiya-core'),
-            __('Order records', 'aiya-core'),
-            'manage_options',
-            self::MENU_SLUG,
-            [$this, 'render'],
-            2 // credits ledger first, then the order records
-        );
+        $registry->addPage([
+            'slug' => 'payments',
+            'title' => __('Order records', 'aiya-core'),
+            'menu_title' => __('Order records', 'aiya-core'),
+            'parent' => self::PARENT_SLUG,
+            'menu_position' => 2,
+            'kind' => Page::KIND_CALLBACK,
+            'render' => [$this, 'render'],
+        ]);
     }
 
     /** The shared admin stylesheet carries the picker/filter styles. */

@@ -12,7 +12,9 @@ use Aiya\Core\Admin\ShortcodesPage;
 use Aiya\Core\Admin\IconsPage;
 use Aiya\Core\Admin\SearchReplacePage;
 use Aiya\Core\Admin\SamplePage;
+use Aiya\Core\Admin\UiSamplePage;
 use Aiya\Core\Settings\Registry;
+use Aiya\Core\Settings\Schema\Page;
 
 /**
  * Dev Tools domain — the WP_DEBUG-only admin workshop. Owns the top-level
@@ -37,6 +39,7 @@ final class DevToolsModule implements Module
     private IconsPage $icons;
     private SearchReplacePage $searchReplace;
     private SamplePage $sample;
+    private UiSamplePage $uiSample;
 
     public function __construct(Registry $registry)
     {
@@ -47,6 +50,7 @@ final class DevToolsModule implements Module
         $this->icons = new IconsPage();
         $this->searchReplace = new SearchReplacePage();
         $this->sample = new SamplePage($registry);
+        $this->uiSample = new UiSamplePage();
     }
 
     public function register(): void
@@ -55,98 +59,88 @@ final class DevToolsModule implements Module
             return;
         }
 
-        add_action('admin_menu', [$this, 'menu'], 9);
-        add_action('admin_enqueue_scripts', [$this, 'assets']);
-
         $this->serverStatus->register();
         $this->crons->register();
         $this->rewrites->register();
-        $this->shortcodes->register();
-        $this->icons->register();
         $this->searchReplace->register();
         $this->sample->register();
-    }
+        $this->uiSample->register();
 
-    /**
-     * Menu layout (the first submenu mirrors the parent slug, the core
-     * idiom, so the menu lands on Server Status):
-     *   Dev Tools → Server Status · Sample · Crons · Rewrites · Shortcodes · Icons.
-     * Sample itself registers through the settings pipeline with the
-     * same parent slug (SettingsAdmin renders it as a submenu).
-     */
-    public function menu(): void
-    {
-        add_menu_page(
-            __('Dev Tools', 'aiya-core'),
-            __('Dev Tools', 'aiya-core'),
-            'manage_options',
-            self::MENU_SLUG,
-            [$this->serverStatus, 'render'],
-            'dashicons-admin-tools',
-            self::POSITION
-        );
-        add_submenu_page(
-            self::MENU_SLUG,
-            __('Server Status', 'aiya-core'),
-            __('Server Status', 'aiya-core'),
-            'manage_options',
-            self::MENU_SLUG,
-            [$this->serverStatus, 'render']
-        );
-        add_submenu_page(
-            self::MENU_SLUG,
-            __('Crons', 'aiya-core'),
-            __('Crons', 'aiya-core'),
-            'manage_options',
-            'aiya-core-devtools-crons',
-            [$this->crons, 'render']
-        );
-        add_submenu_page(
-            self::MENU_SLUG,
-            __('Rewrites', 'aiya-core'),
-            __('Rewrites', 'aiya-core'),
-            'manage_options',
-            'aiya-core-devtools-rewrites',
-            [$this->rewrites, 'render']
-        );
-        add_submenu_page(
-            self::MENU_SLUG,
-            __('Shortcodes', 'aiya-core'),
-            __('Shortcodes', 'aiya-core'),
-            'manage_options',
-            'aiya-core-devtools-shortcodes',
-            [$this->shortcodes, 'render']
-        );
-        add_submenu_page(
-            self::MENU_SLUG,
-            __('Icons', 'aiya-core'),
-            __('Icons', 'aiya-core'),
-            'manage_options',
-            'aiya-core-devtools-icons',
-            [$this->icons, 'render']
-        );
-        add_submenu_page(
-            self::MENU_SLUG,
-            __('Search & Replace', 'aiya-core'),
-            __('Search & Replace', 'aiya-core'),
-            'manage_options',
-            'aiya-core-devtools-search-replace',
-            [$this->searchReplace, 'render']
-        );
-    }
-
-    /** The shared admin stylesheet covers the card, table and bar styles. */
-    public function assets(string $hook): void
-    {
-        if (!str_contains($hook, 'aiya-core-devtools')) {
-            return;
-        }
-
-        $version = AIYA_CORE_VERSION;
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            $mtime = (int) filemtime(AIYA_CORE_PATH . 'assets/css/admin.css');
-            $version .= $mtime > 0 ? '.' . $mtime : '';
-        }
-        wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], $version);
+        // Every Dev Tools screen rides the shared settings pipeline as a
+        // callback page (batch B); their admin_post endpoints stay on the
+        // page classes and the shared Ui kit assets flow from
+        // SettingsAdmin::assets() for every registered screen. Registration
+        // defers to aiya_core_register: the titles are gettext lookups and
+        // register() runs before the translations load. Positions follow
+        // the site owner's rail order: search & replace leads, the server
+        // status mirror sits sixth, the two sandboxes trail.
+        add_action('aiya_core_register', function (Registry $registry): void {
+            $registry->addPage([
+                'slug' => 'devtools',
+                'title' => __('Server Status', 'aiya-core'),
+                'menu_title' => __('Dev Tools', 'aiya-core'),
+                'mirror_title' => __('Server Status', 'aiya-core'),
+                'icon' => 'dashicons-admin-tools',
+                'position' => self::POSITION,
+                'menu_position' => 6,
+                'kind' => Page::KIND_CALLBACK,
+                'render' => [$this->serverStatus, 'render'],
+            ]);
+            $registry->addPage([
+                'slug' => 'devtools-crons',
+                'title' => __('Crons', 'aiya-core'),
+                'menu_title' => __('Crons', 'aiya-core'),
+                'parent' => self::MENU_SLUG,
+                'menu_position' => 2,
+                'kind' => Page::KIND_CALLBACK,
+                'render' => [$this->crons, 'render'],
+            ]);
+            $registry->addPage([
+                'slug' => 'devtools-rewrites',
+                'title' => __('Permalinks', 'aiya-core'),
+                'menu_title' => __('Permalinks', 'aiya-core'),
+                'parent' => self::MENU_SLUG,
+                'menu_position' => 3,
+                'kind' => Page::KIND_CALLBACK,
+                'render' => [$this->rewrites, 'render'],
+            ]);
+            $registry->addPage([
+                'slug' => 'devtools-shortcodes',
+                'title' => __('Shortcodes', 'aiya-core'),
+                'menu_title' => __('Shortcodes', 'aiya-core'),
+                'parent' => self::MENU_SLUG,
+                'menu_position' => 4,
+                'kind' => Page::KIND_CALLBACK,
+                'render' => [$this->shortcodes, 'render'],
+            ]);
+            $registry->addPage([
+                'slug' => 'devtools-icons',
+                'title' => __('Icons', 'aiya-core'),
+                'menu_title' => __('Icons', 'aiya-core'),
+                'parent' => self::MENU_SLUG,
+                'menu_position' => 5,
+                'kind' => Page::KIND_CALLBACK,
+                'render' => [$this->icons, 'render'],
+            ]);
+            $registry->addPage([
+                'slug' => 'devtools-search-replace',
+                'title' => __('Search & Replace', 'aiya-core'),
+                'menu_title' => __('Search & Replace', 'aiya-core'),
+                'parent' => self::MENU_SLUG,
+                'menu_position' => 1,
+                'kind' => Page::KIND_CALLBACK,
+                'render' => [$this->searchReplace, 'render'],
+            ]);
+            $registry->addPage([
+                'slug' => 'devtools-ui',
+                'title' => __('UI Kit', 'aiya-core'),
+                'menu_title' => __('UI Kit', 'aiya-core'),
+                'parent' => self::MENU_SLUG,
+                'menu_position' => 8,
+                'kind' => Page::KIND_CALLBACK,
+                'render' => [$this->uiSample, 'render'],
+                'assets' => [$this->uiSample, 'pageAssets'],
+            ]);
+        });
     }
 }

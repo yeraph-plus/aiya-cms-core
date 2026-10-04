@@ -15,7 +15,8 @@ final class RewritesPage
 {
     private const MENU_SUFFIX = 'aiya-core-devtools-rewrites';
     private const ACTION_FLUSH = 'aiya_core_devtools_rewrite_flush';
-    private const PER_PAGE = 50;
+    private const DEFAULT_PER_PAGE = 50;
+    private const PER_PAGE_CHOICES = [10, 20, 50, 100];
 
     public function register(): void
     {
@@ -28,24 +29,25 @@ final class RewritesPage
             wp_die(esc_html__('You are not allowed to view the rewrite rules.', 'aiya-core'));
         }
 
+        Ui::pageHead(
+            __('Permalinks', 'aiya-core'),
+            __('The cached rewrite rules of this site — what a request path is matched against before any rule regeneration.', 'aiya-core')
+        );
+        Ui::flash('aiya_devtools_note', [
+            'rewrite_flushed' => [__('Rewrite rules regenerated.', 'aiya-core'), 'success'],
+        ]);
+        $flushUrl = wp_nonce_url(
+            admin_url('admin-post.php?action=' . self::ACTION_FLUSH),
+            self::ACTION_FLUSH
+        );
         ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Rewrites', 'aiya-core'); ?></h1>
-            <p class="description"><?php esc_html_e('The cached rewrite rules of this site — what a request path is matched against before any rule regeneration.', 'aiya-core'); ?></p>
-            <?php $this->notice(); ?>
-            <p>
-                <?php
-                $flushUrl = wp_nonce_url(
-                    admin_url('admin-post.php?action=' . self::ACTION_FLUSH),
-                    self::ACTION_FLUSH
-                );
-                ?>
-                <a href="<?php echo esc_url($flushUrl); ?>" class="button" onclick="return window.confirm(<?php echo esc_attr((string) wp_json_encode(__('Regenerate all rewrite rules from the current settings?', 'aiya-core'))); ?>);"><?php esc_html_e('Flush rules', 'aiya-core'); ?></a>
-                <span class="description"><?php esc_html_e('Rebuilds the cached rule set from the registered permalinks, post types and taxonomies.', 'aiya-core'); ?></span>
-            </p>
-            <?php $this->listSection(); ?>
-        </div>
+        <p>
+            <a href="<?php echo esc_url($flushUrl); ?>" class="button" onclick="return window.confirm(<?php echo esc_attr((string) wp_json_encode(__('Regenerate all rewrite rules from the current settings?', 'aiya-core'))); ?>);"><?php esc_html_e('Flush rules', 'aiya-core'); ?></a>
+            <span class="description"><?php esc_html_e('Rebuilds the cached rule set from the registered permalinks, post types and taxonomies.', 'aiya-core'); ?></span>
+        </p>
         <?php
+        $this->listSection();
+        Ui::pageFoot();
     }
 
     private function listSection(): void
@@ -54,6 +56,9 @@ final class RewritesPage
         $search = sanitize_text_field(wp_unslash((string) ($_GET['s'] ?? '')));
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination
         $paged = max(1, absint((string) ($_GET['paged'] ?? '1')));
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page size
+        $requested = (int) ($_GET['per_page'] ?? (string) self::DEFAULT_PER_PAGE);
+        $perPage = in_array($requested, self::PER_PAGE_CHOICES, true) ? $requested : self::DEFAULT_PER_PAGE;
 
         $rules = get_option('rewrite_rules');
         $rules = is_array($rules) ? $rules : [];
@@ -67,77 +72,34 @@ final class RewritesPage
             $rows = array_values(array_filter($rows, static fn (array $row): bool => str_contains($row['regex'], $search) || str_contains($row['query'], $search)));
         }
         $filtered = count($rows);
-        $pages = (int) ceil($filtered / self::PER_PAGE);
-        $rows = array_slice($rows, ($paged - 1) * self::PER_PAGE, self::PER_PAGE);
-        ?>
-        <h2 class="title" style="margin-top:24px;">
-            <?php
-            printf(
-                /* translators: %d: number of rewrite rules */
-                esc_html__('Rewrite rules (%d)', 'aiya-core'),
-                (int) $total
-            );
-            ?>
-        </h2>
-        <form method="get" class="aiya-core-filters" style="margin-bottom:12px;">
-            <input type="hidden" name="page" value="<?php echo esc_attr(self::MENU_SUFFIX); ?>">
-            <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('Filter by regex or query…', 'aiya-core'); ?>">
-            <button type="submit" class="button"><?php esc_html_e('Filter', 'aiya-core'); ?></button>
-        </form>
-
-        <table class="wp-list-table widefat fixed striped">
-            <thead>
-                <tr>
-                    <th style="width:45%;"><?php esc_html_e('Match regex', 'aiya-core'); ?></th>
-                    <th><?php esc_html_e('Rewrites to query', 'aiya-core'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if ($rows === []) : ?>
-                    <tr><td colspan="2"><?php esc_html_e('No rewrite rules match.', 'aiya-core'); ?></td></tr>
-                <?php else : ?>
-                    <?php foreach ($rows as $row) : ?>
-                        <tr>
-                            <td><code><?php echo esc_html($row['regex']); ?></code></td>
-                            <td><code><?php echo esc_html($row['query']); ?></code></td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-        <?php
-        if ($pages > 1) {
-            echo '<div class="tablenav bottom"><div class="tablenav-pages">';
-            echo wp_kses_post(
-                (string) paginate_links([
-                    'base' => add_query_arg('paged', '%#%'),
-                    'format' => '',
-                    'current' => $paged,
-                    'total' => $pages,
-                    'prev_text' => '&laquo;',
-                    'next_text' => '&raquo;',
-                ])
-            );
-            echo '</div></div>';
-        }
-    }
-
-    private function notice(): void
-    {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
-        $note = sanitize_key((string) ($_GET['aiya_devtools_note'] ?? ''));
-        $messages = [
-            'rewrite_flushed' => __('Rewrite rules regenerated.', 'aiya-core'),
-        ];
-
-        if (!isset($messages[$note])) {
-            return;
-        }
-
-        printf(
-            '<div class="notice notice-success is-dismissible"><p>%s</p></div>',
-            esc_html($messages[$note])
+        $totalPages = max(1, (int) ceil($filtered / $perPage));
+        $paged = min($paged, $totalPages);
+        $rows = array_slice($rows, ($paged - 1) * $perPage, $perPage);
+        Ui::heading(sprintf(
+            /* translators: %d: number of rewrite rules */
+            esc_html__('Rewrite rules (%d)', 'aiya-core'),
+            (int) $total
+        ));
+        $navArgs = ['jump_nav' => true, 'per_page_nav' => true, 'per_page_choices' => self::PER_PAGE_CHOICES];
+        Ui::listNav($filtered, $paged, $perPage, 'top', $navArgs + [
+            'actions' => static function () use ($search): void {
+                Ui::filterBar(__('Filter', 'aiya-core'), static function () use ($search): void {
+                    Ui::input('s', 'search', $search, ['placeholder' => __('Filter by regex or query…', 'aiya-core')]);
+                }, ['page' => self::MENU_SUFFIX]);
+            },
+        ]);
+        Ui::listTable(
+            [
+                'regex' => ['label' => __('Match regex', 'aiya-core'), 'width' => '45%'],
+                'query' => ['label' => __('Rewrites to query', 'aiya-core')],
+            ],
+            $rows,
+            static function (array $row, string $column): void {
+                echo '<code>' . esc_html($row[$column]) . '</code>';
+            },
+            __('No rewrite rules match.', 'aiya-core')
         );
+        Ui::listNav($filtered, $paged, $perPage, 'bottom', $navArgs);
     }
 
     public function handleFlush(): void
@@ -149,10 +111,12 @@ final class RewritesPage
 
         flush_rewrite_rules();
 
-        wp_safe_redirect(add_query_arg(
-            ['page' => self::MENU_SUFFIX, 'aiya_devtools_note' => 'rewrite_flushed'],
-            admin_url('admin.php')
-        ));
-        exit;
+        Ui::redirect(self::pageUrl(), ['aiya_devtools_note' => 'rewrite_flushed']);
+    }
+
+    /** The page's own admin URL, the Ui::redirect base for every round trip. */
+    private static function pageUrl(): string
+    {
+        return admin_url('admin.php?page=' . self::MENU_SUFFIX);
     }
 }

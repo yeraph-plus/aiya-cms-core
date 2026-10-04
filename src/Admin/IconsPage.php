@@ -12,38 +12,30 @@ namespace Aiya\Core\Admin;
  */
 final class IconsPage
 {
-    public function register(): void
-    {
-    }
-
     public function render(): void
     {
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('You are not allowed to view the icon list.', 'aiya-core'));
         }
 
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Icons', 'aiya-core'); ?></h1>
-            <?php $this->gridSection(); ?>
-        </div>
-        <?php
+        Ui::pageHead(__('Icons', 'aiya-core'), sprintf(
+            /* translators: %s: dashicons.css path */
+            __('Every glyph in the core dashicons font, parsed from %s.', 'aiya-core'),
+            '<code>' . esc_html(WPINC . '/css/dashicons.css') . '</code>'
+        ));
+        $this->gridSection();
+        Ui::pageFoot();
     }
 
     private function gridSection(): void
     {
         $path = ABSPATH . WPINC . '/css/dashicons.css';
         if (!is_readable($path)) {
-            printf(
-                '<div class="notice notice-error"><p>%s</p></div>',
-                esc_html(
-                    sprintf(
-                        /* translators: %s: dashicons.css path */
-                        __('The dashicons stylesheet was not found at %s.', 'aiya-core'),
-                        $path
-                    )
-                )
-            );
+            Ui::notice(sprintf(
+                /* translators: %s: dashicons.css path */
+                __('The dashicons stylesheet was not found at %s.', 'aiya-core'),
+                $path
+            ), ['variant' => 'error']);
 
             return;
         }
@@ -51,23 +43,11 @@ final class IconsPage
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local core stylesheet, wp_remote_get does not apply
         $icons = self::parseIconNames((string) file_get_contents($path));
         if ($icons === []) {
-            printf(
-                '<div class="notice notice-error"><p>%s</p></div>',
-                esc_html(__('No dashicons were found in the stylesheet.', 'aiya-core'))
-            );
+            Ui::notice(__('No dashicons were found in the stylesheet.', 'aiya-core'), ['variant' => 'error']);
 
             return;
         }
         ?>
-        <p class="description">
-            <?php
-            printf(
-                /* translators: %s: dashicons.css path */
-                esc_html__('Every glyph in the core dashicons font, parsed from %s.', 'aiya-core'),
-                '<code>' . esc_html(WPINC . '/css/dashicons.css') . '</code>'
-            );
-            ?>
-        </p>
         <div class="aiya-icons-grid">
             <?php foreach ($icons as $icon) : ?>
                 <span class="aiya-icon-card">

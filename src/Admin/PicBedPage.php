@@ -8,6 +8,8 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Media\PicBedStore;
 use Aiya\Core\Domain\Media\MediaPaths;
 use Aiya\Core\Domain\Media\MimeType;
+use Aiya\Core\Settings\Registry;
+use Aiya\Core\Settings\Schema\Page;
 use Closure;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
@@ -48,21 +50,23 @@ final class PicBedPage implements Module
 
     public function register(): void
     {
-        add_action('admin_menu', [$this, 'menu'], 20);
+        add_action('aiya_core_register', [$this, 'registerPage']);
         add_action('wp_ajax_' . self::AJAX_ACTION, [$this, 'handleUpload']);
     }
 
-    public function menu(): void
+    /** Registers through the shared settings pipeline as a callback page. */
+    public function registerPage(Registry $registry): void
     {
-        add_menu_page(
-            __('Pic bed', 'aiya-core'),
-            __('Pic bed', 'aiya-core'),
-            'upload_files',
-            'aiya-core-pic-bed',
-            [$this, 'render'],
-            'dashicons-format-image',
-            82
-        );
+        $registry->addPage([
+            'slug' => 'pic-bed',
+            'title' => __('Pic bed', 'aiya-core'),
+            'menu_title' => __('Pic bed', 'aiya-core'),
+            'capability' => 'upload_files',
+            'icon' => 'dashicons-format-image',
+            'position' => 82,
+            'kind' => Page::KIND_CALLBACK,
+            'render' => [$this, 'render'],
+        ]);
     }
 
     public function render(): void

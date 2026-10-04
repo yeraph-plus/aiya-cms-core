@@ -44,9 +44,6 @@ final class BulkActionNotice
             $messages[] = $emptyMessage;
         }
 
-        printf(
-            '<div class="notice notice-info is-dismissible"><p>%s</p></div>',
-            esc_html(implode(' ', $messages))
-        );
+        Ui::notice(implode(' ', $messages), ['variant' => 'info', 'dismissible' => true]);
     }
 }

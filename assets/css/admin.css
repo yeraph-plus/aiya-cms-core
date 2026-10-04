@@ -37,26 +37,232 @@
     vertical-align: top;
 }
 
-/* Presentation rows: headings line up with the field labels at the table
-   edge; notices span the full table width like .wrap notices. */
-.aiya-core-settings .aiya-core-row--heading > td {
+/* Presentation rows sit flush at the table edge: with the shared td
+   spanning both columns, a padded notice would hang 10px right of the
+   headings around it. Core's .wrap .notice margin supplies the spacing. */
+.aiya-core-settings .aiya-core-row--heading > td,
+.aiya-core-settings .aiya-core-row--note > td {
     padding: 0;
 }
 
-.aiya-core-settings .aiya-core-heading {
+.aiya-core-settings .aiya-core-field--hidden > td {
+    padding: 0;
+}
+
+/* Radio and multicheck options run inline with a fixed gap between them. */
+.aiya-core-settings .aiya-core-radio,
+.aiya-core-settings .aiya-core-multicheck-item {
+    align-items: center;
+    display: inline-flex;
+    margin: 0 16px 0 0;
+}
+
+.aiya-core-settings .aiya-core-radio input[type="radio"],
+.aiya-core-settings .aiya-core-multicheck-item input[type="checkbox"] {
+    margin-top: 0;
+}
+
+/* Boolean switch (switch fields): native checkbox semantics under a
+   styled track. The input is visually hidden but keyboard-focusable;
+   the track is its aria-hidden sibling — checked slides the knob and
+   tints the track with the admin theme color, focus-visible rings it. */
+.aiya-core-switch {
+    align-items: center;
+    cursor: pointer;
+    display: inline-flex;
+    gap: 8px;
+    position: relative;
+}
+
+.aiya-core-switch-input {
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.aiya-core-switch-track {
+    background: #dcdcde;
+    border-radius: 12px;
+    box-shadow: inset 0 0 0 1px #c3c4c7;
+    display: inline-block;
+    flex: none;
+    height: 20px;
+    position: relative;
+    transition: background 0.15s ease;
+    width: 36px;
+}
+
+.aiya-core-switch-track::before {
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    content: "";
+    height: 16px;
+    left: 2px;
+    position: absolute;
+    top: 2px;
+    transition: transform 0.15s ease;
+    width: 16px;
+}
+
+.aiya-core-switch-input:checked + .aiya-core-switch-track {
+    background: var(--wp-admin-theme-color, #2271b1);
+    box-shadow: none;
+}
+
+.aiya-core-switch-input:checked + .aiya-core-switch-track::before {
+    transform: translateX(16px);
+}
+
+.aiya-core-switch-input:focus-visible + .aiya-core-switch-track {
+    box-shadow: 0 0 0 var(--wp-admin-border-width-focus, 1.5px) var(--wp-admin-theme-color, #2271b1);
+}
+
+.aiya-core-media-preview img {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    display: block;
+    height: auto;
+    margin: 0 0 8px;
+    max-height: 320px;
+    max-width: 320px;
+    width: auto;
+}
+
+/* Select and remove sit as two equal buttons, vertically centered. */
+.aiya-core-media-actions {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+}
+
+.aiya-core-media-remove {
+    color: #d63638;
+}
+
+.aiya-core-media-remove:hover,
+.aiya-core-media-remove:focus {
+    color: #d63638;
+}
+
+.aiya-core-repeater-item {
+    margin: 0 0 10px;
+    max-width: 720px;
+}
+
+/* Header row: the move icon is the sole drag handle so a click on the
+   title button toggles the card instead of fighting the sortable. */
+.aiya-core-repeater-handle {
+    align-items: center;
+    border-bottom: 1px solid #dcdcde;
+    display: flex;
+    gap: 4px;
+    padding: 4px 8px 4px 6px;
+}
+
+.aiya-core-repeater-drag {
+    color: #787c82;
+    cursor: move;
+    height: 32px;
+    line-height: 32px;
+    width: 32px;
+}
+
+/* Chevron is a dashicon (the text glyph read too small); collapsed points
+   right, expanded rotates down. The button text-aligns left because
+   buttons center by default. */
+.aiya-core-repeater-toggle {
+    align-items: center;
+    display: flex;
+    flex: 1;
+    min-height: 32px;
+    min-width: 0;
+    padding: 0 4px;
+    text-align: left;
+}
+
+.aiya-core-repeater-toggle .dashicons {
+    color: #787c82;
+    margin-right: 8px;
+    transition: transform 0.15s ease;
+}
+
+.aiya-core-repeater-item:not(.aiya-core-repeater-item--collapsed) .aiya-core-repeater-toggle .dashicons {
+    transform: rotate(90deg);
+}
+
+.aiya-core-repeater-title {
+    color: #1d2327;
+    font-size: 14px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.aiya-core-repeater-toggle:hover .aiya-core-repeater-title,
+.aiya-core-repeater-toggle:focus .aiya-core-repeater-title {
+    color: #0073aa;
+}
+
+/* Collapsed cards keep their inputs submitting: display:none hides the
+   body visually only. The border drops out so the bar reads as one row. */
+.aiya-core-repeater-item--collapsed .inside {
+    display: none;
+}
+
+.aiya-core-repeater-item--collapsed .aiya-core-repeater-handle {
+    border-bottom-color: transparent;
+}
+
+.aiya-core-repeater-item .inside {
+    margin: 0;
+    padding: 12px;
+}
+
+.aiya-core-repeater-item .regular-text,
+.aiya-core-repeater-item .large-text {
+    width: 100%;
+}
+
+.aiya-core-sort-placeholder {
+    border: 1px dashed #8c8f94;
+    height: 72px;
+    margin-bottom: 10px;
+    max-width: 720px;
+}
+
+/* "Clear the stored value" under a password field: its own line with real
+   breathing room from the input, so the checkbox is not a mis-click target. */
+.aiya-core-secret-clear {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 10px;
+}
+
+/*
+ * Shared components — the parts every bespoke screen composes from
+ * (src/Admin/Ui.php renders the markup, this section styles it).
+ */
+
+/* Ui::heading section titles: the top spacing lives with the component
+   so page bodies and form-table rows carry no inline margins; h3 nests
+   tighter under its parent section. */
+.aiya-core-heading {
     margin: 24px 0 0;
 }
 
-.aiya-core-settings h3.aiya-core-heading {
+h3.aiya-core-heading {
     margin: 16px 0 0;
 }
 
-.aiya-core-settings .aiya-core-row--note > td,
-.aiya-core-settings .aiya-core-field--hidden > td {
-    padding: 0 10px;
-}
-
-/* Collapsible card on custom admin screens (community boards manager). */
+/* Collapsible card (Ui::card): the shared details/summary shell of the
+   bespoke screens — operation forms, diagnostics, previews. */
 .aiya-core-card {
     background: #fff;
     border: 1px solid #c3c4c7;
@@ -82,9 +288,8 @@
     content: "";
 }
 
-.aiya-core-card > summary::before {
+.aiya-core-card > summary .dashicons {
     color: #787c82;
-    content: "\25B8";
     margin-right: 8px;
     transition: transform 0.15s ease;
 }
@@ -93,7 +298,7 @@
     border-bottom-color: #dcdcde;
 }
 
-.aiya-core-card[open] > summary::before {
+.aiya-core-card[open] > summary .dashicons {
     transform: rotate(90deg);
 }
 
@@ -101,8 +306,29 @@
     padding: 0 14px 14px;
 }
 
-/* Light Community moderation list: aligned filter bar, two-line excerpt,
-   red delete button, dialog form spacing. */
+/* Tables that sit straight inside a card body (Dev Tools diagnostics):
+   without a top margin the widefat border hugs the summary row and the
+   stack reads as one merged block. */
+.aiya-core-card__body > .wp-list-table {
+    margin-top: 12px;
+}
+
+/* User picker: the shared typeahead (the Ui::input typeahead switch +
+   the UserPickerView behavior, optionally composed by Ui::userPicker).
+   Suggestions are a plain button stack that only occupies space while it
+   has content; the view creates the list beside the input when the host
+   does not render one. */
+.aiya-user-suggestions .aiya-user-suggestion {
+    display: block;
+    padding: 2px 0;
+}
+
+.aiya-user-suggestions:empty {
+    display: none;
+}
+
+/* The shared GET filter bar (Ui::filterBar): fields inline with the
+   submit button, wrapping on narrow rails. */
 .aiya-core-filters {
     align-items: center;
     display: flex;
@@ -115,6 +341,152 @@
     margin-left: 0;
 }
 
+/* Tab panels (Ui::tabs): breathe below the native nav-tab bar; the
+   panels themselves stay plain. */
+.aiya-core-tab-panel {
+    padding-top: 12px;
+}
+
+/* Bulk selection (Ui::bulkTable): the bulk controls ride the shared
+   listnav bar's operation slot; the checkbox column borrows core's
+   .check-column sizing. */
+.aiya-core-bulk .check-column {
+    padding: 8px 0 8px 3px;
+    width: 2.2em;
+}
+
+/* Chart canvas (Ui::chart): the wrapper is the sizing box; configs set
+   maintainAspectRatio:false so the chart fills it. */
+.aiya-core-chart-wrap {
+    height: 300px;
+    margin: 12px 0 16px;
+    max-width: 860px;
+    position: relative;
+}
+
+/* Meter bars (Dev Tools server status opcache/usage rows, the operations
+   report's ratios): a thin track with a filled span, kept to core admin
+   grays/blues. One rule, two owners. */
+.aiya-devtools-bar,
+.aiya-core-meter {
+    display: inline-block;
+    vertical-align: middle;
+    width: 220px;
+    max-width: 60%;
+    height: 10px;
+    margin-right: 8px;
+    background: #dcdcde;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.aiya-devtools-bar > span,
+.aiya-core-meter > span {
+    display: block;
+    height: 100%;
+    background: #2271b1;
+    border-radius: 5px;
+}
+
+/* Kit list navigation rows: a kit-owned one-line flex bar — operations
+   left, pagination right — with no core tablenav classes. The parts are
+   the plain kit controls (Ui::button arrows, the shared input and
+   select) riding the native control line, so the bar owns only layout
+   and spacing: its margins keep button shadows clear of the table
+   border, and the table styles only its own body. */
+.aiya-core-listnav {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    justify-content: flex-end;
+}
+
+.aiya-core-listnav.top {
+    margin: 16px 0 12px;
+}
+
+.aiya-core-listnav.top.aiya-core-listnav--actions {
+    justify-content: space-between;
+}
+
+.aiya-core-listnav.bottom {
+    margin: 12px 0 16px;
+}
+
+.aiya-core-listnav.one-page .aiya-core-listnav-links {
+    display: none;
+}
+
+.aiya-core-listnav-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.aiya-core-listnav .aiya-core-filters {
+    margin: 0;
+}
+
+.aiya-core-listnav-pages {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+}
+
+.aiya-core-listnav-links {
+    align-items: center;
+    display: flex;
+    gap: 4px;
+}
+
+.aiya-core-listnav-count {
+    align-items: center;
+    display: inline-flex;
+    gap: 4px;
+}
+
+.aiya-core-listnav-num {
+    color: #646970;
+    font-size: 12px;
+}
+
+/* Kit buttons. Every Ui::button carries aiya-core-button so mixed rows
+   (icon-bearing and plain) share one inline alignment: core aligns
+   buttons on their text baseline while an inline-flex box derives its
+   baseline from the first flex item — a mixed row would sit lopsided.
+   middle pins every control to the same line; the .wp-core-ui
+   ancestor out-specifies core's own .wp-core-ui p .button baseline
+   rule (same specificity, later stylesheet wins the tie). Icon-bearing
+   buttons flex the glyph first — left of the label — with the gap
+   owned by the flex box; the dashicons 20px box is clamped to 16px to
+   optically match the 13px label. */
+.wp-core-ui .button.aiya-core-button {
+    vertical-align: middle;
+}
+
+.button.aiya-core-button--icon {
+    align-items: center;
+    display: inline-flex;
+    gap: 4px;
+}
+
+.button.aiya-core-button--icon .dashicons {
+    font-size: 16px;
+    height: 16px;
+    line-height: 1;
+    margin: 0;
+    width: 16px;
+}
+
+/*
+ * Page-specific residue — styles owned by one screen. Rules here are
+ * candidates to retire with the owning page's Ui migration.
+ */
+
+/* Light Community moderation list: two-line excerpt, red delete button,
+   dialog form spacing. */
 .aiya-core-thread-excerpt {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -162,79 +534,7 @@
     width: 100%;
 }
 
-/* Radio and multicheck options run inline with a fixed gap between them. */
-.aiya-core-settings .aiya-core-radio,
-.aiya-core-settings .aiya-core-multicheck-item {
-    align-items: center;
-    display: inline-flex;
-    margin: 0 16px 0 0;
-}
-
-.aiya-core-settings .aiya-core-radio input[type="radio"],
-.aiya-core-settings .aiya-core-multicheck-item input[type="checkbox"] {
-    margin-top: 0;
-}
-
-.aiya-core-media-preview img {
-    background: #fff;
-    border: 1px solid #dcdcde;
-    border-radius: 4px;
-    display: block;
-    height: auto;
-    margin: 0 0 8px;
-    max-height: 320px;
-    max-width: 320px;
-    width: auto;
-}
-
-/* Select and remove sit as two equal buttons, vertically centered. */
-.aiya-core-media-actions {
-    align-items: center;
-    display: flex;
-    gap: 8px;
-}
-
-.aiya-core-media-remove {
-    color: #d63638;
-}
-
-.aiya-core-media-remove:hover,
-.aiya-core-media-remove:focus {
-    color: #d63638;
-}
-
-.aiya-core-repeater-item {
-    margin: 0 0 10px;
-    max-width: 720px;
-}
-
-.aiya-core-repeater-handle {
-    align-items: center;
-    border-bottom: 1px solid #dcdcde;
-    cursor: move;
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 12px;
-}
-
-.aiya-core-repeater-item .inside {
-    margin: 0;
-    padding: 12px;
-}
-
-.aiya-core-repeater-item .regular-text,
-.aiya-core-repeater-item .large-text {
-    width: 100%;
-}
-
-.aiya-core-sort-placeholder {
-    border: 1px dashed #8c8f94;
-    height: 72px;
-    margin-bottom: 10px;
-    max-width: 720px;
-}
-
-/* Credits page: direction colors and the user-picker suggestion list. */
+/* Credits page: direction colors for the ledger amount cells. */
 .aiya-core-credit-in {
     color: #00a32a;
     font-weight: 600;
@@ -245,43 +545,15 @@
     font-weight: 600;
 }
 
+/* Order records page typeahead: the pre-kit aiya-credit-user classes,
+   still live until that page's Ui::userPicker migration (batch 2)
+   renames them. */
 .aiya-credit-user-suggestions {
     margin-top: 4px;
 }
 
 .aiya-credit-user-suggestions:empty {
     display: none;
-}
-
-/* Meter bars (Dev Tools server status opcache/usage rows, the operations
-   report's ratios): a thin track with a filled span, kept to core admin
-   grays/blues. One rule, two owners. */
-.aiya-devtools-bar,
-.aiya-core-meter {
-    display: inline-block;
-    vertical-align: middle;
-    width: 220px;
-    max-width: 60%;
-    height: 10px;
-    margin-right: 8px;
-    background: #dcdcde;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.aiya-devtools-bar > span,
-.aiya-core-meter > span {
-    display: block;
-    height: 100%;
-    background: #2271b1;
-    border-radius: 5px;
-}
-
-/* Tables that sit straight inside a card body (Dev Tools diagnostics):
-   without a top margin the widefat border hugs the summary row and the
-   stack reads as one merged block. */
-.aiya-core-card__body > .wp-list-table {
-    margin-top: 12px;
 }
 
 /* Dev Tools icon list (dashicons grid): static native-styled cards —
@@ -319,15 +591,6 @@
     overflow-wrap: anywhere;
 }
 
-/* "Clear the stored value" under a password field: its own line with real
-   breathing room from the input, so the checkbox is not a mis-click target. */
-.aiya-core-secret-clear {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 10px;
-}
-
 /* Operations page: the report's single input as a one-row form. */
 .aiya-core-ops-cost {
     display: flex;
@@ -340,9 +603,4 @@
     background: #fff;
     border: 1px solid #c3c4c7;
     border-radius: 4px;
-}
-
-.aiya-core-ops-cost .description {
-    flex-basis: 100%;
-    margin: 0;
 }

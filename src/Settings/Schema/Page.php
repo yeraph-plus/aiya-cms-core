@@ -8,6 +8,12 @@ use InvalidArgumentException;
 
 final class Page
 {
+    /** Page render kinds: the shared form pipeline, or a page-owned callable. */
+    public const KIND_FORM = 'form';
+    public const KIND_CALLBACK = 'callback';
+
+    private const KINDS = [self::KIND_FORM, self::KIND_CALLBACK];
+
     /** @param list<Field> $fields */
     private function __construct(
         private string $slug,
@@ -22,6 +28,11 @@ final class Page
         private string $optionName,
         private bool $network,
         private array $fields,
+        private string $kind = self::KIND_FORM,
+        // PHP forbids `callable` on typed properties; the values were
+        // validated with is_callable() in fromArray().
+        private mixed $render = null,
+        private mixed $assets = null,
     ) {
     }
 
@@ -41,6 +52,25 @@ final class Page
         $menuTitle = (string) ($definition['menu_title'] ?? $title);
         $menuPosition = isset($definition['menu_position']) ? (int) $definition['menu_position'] : null;
 
+        $kind = (string) ($definition['kind'] ?? self::KIND_FORM);
+        if (!in_array($kind, self::KINDS, true)) {
+            throw new InvalidArgumentException(sprintf('The page kind "%s" is not supported.', $kind));
+        }
+        $render = $definition['render'] ?? null;
+        if ($render !== null && !is_callable($render)) {
+            throw new InvalidArgumentException('The page render must be a callable.');
+        }
+        if ($kind === self::KIND_CALLBACK && $render === null) {
+            throw new InvalidArgumentException('A callback page requires a callable render.');
+        }
+        $assets = $definition['assets'] ?? null;
+        if ($assets !== null && !is_callable($assets)) {
+            throw new InvalidArgumentException('The page assets must be a callable.');
+        }
+        if (!empty($definition['network']) && $kind === self::KIND_CALLBACK) {
+            throw new InvalidArgumentException('Callback pages do not support network registration.');
+        }
+
         return new self(
             $slug,
             $title,
@@ -54,6 +84,9 @@ final class Page
             sanitize_key((string) ($definition['option_name'] ?? 'aiya_core_' . $slug)),
             (bool) ($definition['network'] ?? false),
             $fields,
+            $kind,
+            $render,
+            $assets,
         );
     }
 
@@ -81,6 +114,15 @@ final class Page
     public function menuPosition(): ?int { return $this->menuPosition; }
     public function optionName(): string { return $this->optionName; }
     public function network(): bool { return $this->network; }
+
+    /** The render pipeline this page rides: the shared form, or a callable. */
+    public function kind(): string { return $this->kind; }
+
+    /** The page-owned render callable (callback kind only; null on form pages). */
+    public function render(): ?callable { return is_callable($this->render) ? $this->render : null; }
+
+    /** Optional assets hook, invoked by SettingsAdmin when the page's screen loads. */
+    public function assets(): ?callable { return is_callable($this->assets) ? $this->assets : null; }
 
     /** @return list<Field> */
     public function fields(): array { return $this->fields; }

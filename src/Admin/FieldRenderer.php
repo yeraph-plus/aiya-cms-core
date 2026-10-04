@@ -76,7 +76,19 @@ final class FieldRenderer
             echo '<label><input type="checkbox" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '" value="1"> ' . esc_html((string) $field->setting('checkbox_label', '')) . '</label>';
             return;
         }
-        if (in_array($type, ['checkbox', 'switch'], true)) {
+        if ($type === 'switch') {
+            // Boolean toggle: the checkbox keeps native semantics (the
+            // behavior stays keyboard- and screen-reader-operable); the
+            // styled track is its aria-hidden sibling in the stylesheet.
+            echo '<input type="hidden" name="' . esc_attr($name) . '" value="0">';
+            echo '<label class="aiya-core-switch">';
+            echo '<input type="checkbox" class="aiya-core-switch-input" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '" value="1" ' . checked((bool) $value, true, false) . '>';
+            echo '<span class="aiya-core-switch-track" aria-hidden="true"></span>';
+            echo '<span class="aiya-core-switch-text">' . esc_html((string) $field->setting('checkbox_label', '')) . '</span>';
+            echo '</label>';
+            return;
+        }
+        if ($type === 'checkbox') {
             echo '<input type="hidden" name="' . esc_attr($name) . '" value="0">';
             echo '<label><input type="checkbox" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '" value="1" ' . checked((bool) $value, true, false) . '> ' . esc_html((string) $field->setting('checkbox_label', '')) . '</label>';
             return;
@@ -165,18 +177,47 @@ final class FieldRenderer
     {
         echo '<div class="aiya-core-repeater" id="' . esc_attr($id) . '"><div class="aiya-core-repeater-items">';
         foreach ($rows as $index => $row) {
-            $this->repeaterItem($field, is_array($row) ? $row : [], $name, (string) $index);
+            $this->repeaterItem($field, is_array($row) ? $row : [], $name, (string) $index, true);
         }
         echo '</div><button type="button" class="button aiya-core-repeater-add">' . esc_html__('Add item', 'aiya-core') . '</button>';
         echo '<script type="text/template" class="aiya-core-repeater-template">';
-        $this->repeaterItem($field, [], $name, '__INDEX__');
+        // Template rows render expanded: a freshly added item should show
+        // its fields immediately; stored rows start collapsed instead.
+        $this->repeaterItem($field, [], $name, '__INDEX__', false);
         echo '</script></div>';
     }
 
     /** @param array<string, mixed> $row */
-    private function repeaterItem(Field $field, array $row, string $name, string $index): void
+    private function repeaterItem(Field $field, array $row, string $name, string $index, bool $collapsed): void
     {
-        echo '<div class="aiya-core-repeater-item postbox"><div class="aiya-core-repeater-handle"><span class="dashicons dashicons-move"></span><button type="button" class="button-link button-link-delete aiya-core-repeater-remove">' . esc_html__('Remove', 'aiya-core') . '</button></div><div class="inside">';
+        $titleChild = null;
+        foreach ($field->children() as $child) {
+            if (in_array($child->type(), ['text', 'url', 'email'], true)) {
+                $titleChild = $child;
+                break;
+            }
+        }
+        $title = '';
+        if ($titleChild) {
+            $title = trim((string) ($row[$titleChild->id()] ?? ''));
+        }
+        $untitled = __('(no title)', 'aiya-core');
+
+        echo '<div class="aiya-core-repeater-item postbox' . ($collapsed ? ' aiya-core-repeater-item--collapsed' : '') . '"';
+        if ($titleChild) {
+            // The collapsible title tracks this input; the id carries the
+            // row index, so template clones re-resolve after __INDEX__.
+            echo ' data-aiya-title="' . esc_attr(sanitize_html_class($field->id() . '-' . $index . '-' . $titleChild->id())) . '"';
+        }
+        echo ' data-aiya-untitled="' . esc_attr($untitled) . '">';
+        echo '<div class="aiya-core-repeater-handle">';
+        echo '<span class="dashicons dashicons-move aiya-core-repeater-drag" aria-hidden="true"></span>';
+        echo '<button type="button" class="button-link aiya-core-repeater-toggle" aria-expanded="' . ($collapsed ? 'false' : 'true') . '">';
+        echo '<span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>';
+        echo '<span class="aiya-core-repeater-title">' . esc_html($title !== '' ? $title : $untitled) . '</span>';
+        echo '</button>';
+        echo '<button type="button" class="button-link button-link-delete aiya-core-repeater-remove">' . esc_html__('Remove', 'aiya-core') . '</button>';
+        echo '</div><div class="inside">';
         foreach ($field->children() as $child) {
             $childName = $name . '[' . $index . '][' . $child->id() . ']';
             $childId = sanitize_html_class($field->id() . '-' . $index . '-' . $child->id());
@@ -205,25 +246,12 @@ final class FieldRenderer
     private function renderPresentation(Field $field): void
     {
         if ($field->type() === 'heading') {
-            $level = in_array((string) $field->setting('level', '2'), ['1', '2', '3'], true) ? (int) $field->setting('level', '2') : 2;
-            if ($level === 1) {
-                echo '<h1 class="aiya-core-heading">' . esc_html($field->label()) . '</h1>';
-                return;
-            }
-            if ($level === 3) {
-                echo '<h3 class="aiya-core-heading">' . esc_html($field->label()) . '</h3>';
-                return;
-            }
-            echo '<h2 class="aiya-core-heading">' . esc_html($field->label()) . '</h2>';
+            Ui::heading($field->label(), (int) $field->setting('level', '2'));
             return;
         }
 
-        $variant = (string) $field->setting('variant', 'info');
-        if (!in_array($variant, ['info', 'success', 'warning', 'error'], true)) {
-            $variant = 'info';
-        }
         $text = $field->description() !== '' ? $field->description() : $field->label();
-        echo '<div class="notice notice-' . esc_attr($variant) . ' inline"><p>' . wp_kses_post($text) . '</p></div>';
+        Ui::notice($text, ['variant' => (string) $field->setting('variant', 'info'), 'inline' => true]);
     }
 
     private function attributes(Field $field): string

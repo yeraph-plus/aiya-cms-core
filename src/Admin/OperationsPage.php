@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Settings\Schema\Page;
+use Aiya\Core\Settings\Registry;
 use Aiya\Core\Domain\Operations\StatsMath;
 use Aiya\Core\Domain\Operations\StatsSettings;
 use Aiya\Core\Domain\Operations\StatsQuery;
@@ -38,12 +40,7 @@ final class OperationsPage implements Module
 
     public function register(): void
     {
-        // Priority 35: the membership top-level menu is registered by
-        // SettingsAdmin at 30 — add_submenu_page before the parent exists
-        // degrades the page hook to admin_page_* and the request-time access
-        // check denies the screen (the SendMailPage lesson).
-        add_action('admin_menu', [$this, 'menu'], 35);
-        add_action('admin_enqueue_scripts', [$this, 'assets']);
+        add_action('aiya_core_register', [$this, 'registerPage']);
         add_action('admin_post_' . self::ACTION_COST, [$this, 'handleCost']);
     }
 
@@ -64,17 +61,18 @@ final class OperationsPage implements Module
         wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], $version);
     }
 
-    public function menu(): void
+    /** Registers through the shared settings pipeline as a callback page. */
+    public function registerPage(Registry $registry): void
     {
-        add_submenu_page(
-            self::PARENT_SLUG,
-            __('Operations report', 'aiya-core'),
-            __('Operations report', 'aiya-core'),
-            'manage_options',
-            self::MENU_SLUG,
-            [$this, 'render'],
-            0 // first in the group — ahead of the mirrored settings form
-        );
+        $registry->addPage([
+            'slug' => 'operations',
+            'title' => __('Operations report', 'aiya-core'),
+            'menu_title' => __('Operations report', 'aiya-core'),
+            'parent' => self::PARENT_SLUG,
+            'menu_position' => 0,
+            'kind' => Page::KIND_CALLBACK,
+            'render' => [$this, 'render'],
+        ]);
     }
 
     public function render(): void

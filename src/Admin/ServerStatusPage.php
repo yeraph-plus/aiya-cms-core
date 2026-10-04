@@ -34,17 +34,18 @@ final class ServerStatusPage
             wp_die(esc_html__('You are not allowed to view the server status.', 'aiya-core'));
         }
 
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Server Status', 'aiya-core'); ?></h1>
-            <p class="description"><?php esc_html_e('Live read-only diagnostics of the host, the runtime and the opcode cache.', 'aiya-core'); ?></p>
-            <?php $this->notice(); ?>
-            <?php $this->serverCard(); ?>
-            <?php $this->versionCard(); ?>
-            <?php $this->extensionsCard(); ?>
-            <?php $this->opcacheCard(); ?>
-        </div>
-        <?php
+        Ui::pageHead(
+            __('Server Status', 'aiya-core'),
+            __('Live read-only diagnostics of the host, the runtime and the opcode cache.', 'aiya-core')
+        );
+        Ui::flash('aiya_devtools_note', [
+            'opcache_reset' => [__('Opcode cache reset.', 'aiya-core'), 'success'],
+        ]);
+        $this->serverCard();
+        $this->versionCard();
+        $this->extensionsCard();
+        $this->opcacheCard();
+        Ui::pageFoot();
     }
 
     /** Server identity, capacity and load. */
@@ -150,96 +151,93 @@ final class ServerStatusPage
             admin_url('admin-post.php?action=' . self::ACTION_RESET_OPCACHE),
             self::ACTION_RESET_OPCACHE
         );
+        $directives = is_array($config) ? ($config['directives'] ?? []) : [];
 
-        ?>
-        <details class="aiya-core-card" open>
-            <summary><?php esc_html_e('Opcache', 'aiya-core'); ?></summary>
-            <div class="aiya-core-card__body">
-                <p>
-                    <a href="<?php echo esc_url($resetUrl); ?>" class="button" onclick="return window.confirm(<?php echo esc_attr((string) wp_json_encode(__('Reset the opcode cache now?', 'aiya-core'))); ?>);"><?php esc_html_e('Reset cache', 'aiya-core'); ?></a>
-                </p>
-                <table class="wp-list-table widefat fixed striped">
-                    <tbody>
-                        <tr>
-                            <th style="width:220px;"><?php esc_html_e('Memory usage', 'aiya-core'); ?></th>
-                            <td>
-                                <?php $this->bar((int) ($memory['used_memory'] ?? 0), $memoryTotal); ?>
-                                <span class="description">
-                                    <?php
-                                    printf(
-                                        /* translators: 1: used, 2: free, 3: wasted memory */
-                                        esc_html__('Used %1$s · free %2$s · wasted %3$s', 'aiya-core'),
-                                        esc_html((string) size_format((int) ($memory['used_memory'] ?? 0))),
-                                        esc_html((string) size_format((int) ($memory['free_memory'] ?? 0))),
-                                        esc_html((string) size_format((int) ($memory['wasted_memory'] ?? 0)))
-                                    );
-                                    ?>
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?php esc_html_e('Hit rate', 'aiya-core'); ?></th>
-                            <td>
-                                <?php $this->bar((int) ($stats['hits'] ?? 0), max(1, $calls)); ?>
-                                <span class="description">
-                                    <?php
-                                    printf(
-                                        /* translators: 1: hits, 2: misses */
-                                        esc_html__('%1$s hits · %2$s misses', 'aiya-core'),
-                                        esc_html((string) ($stats['hits'] ?? 0)),
-                                        esc_html((string) ($stats['misses'] ?? 0))
-                                    );
-                                    ?>
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?php esc_html_e('Cached keys', 'aiya-core'); ?></th>
-                            <td>
-                                <?php $this->bar((int) ($stats['num_cached_keys'] ?? 0), $keysMax); ?>
-                                <span class="description">
-                                    <?php
-                                    printf(
-                                        /* translators: 1: used keys, 2: key capacity */
-                                        esc_html__('%1$s of %2$s key slots', 'aiya-core'),
-                                        esc_html((string) ($stats['num_cached_keys'] ?? 0)),
-                                        esc_html((string) $keysMax)
-                                    );
-                                    ?>
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?php esc_html_e('Opcache version', 'aiya-core'); ?></th>
-                            <td><?php echo esc_html($opcacheVersion); ?></td>
-                        </tr>
-                        <tr>
-                            <th><?php esc_html_e('Key directives', 'aiya-core'); ?></th>
-                            <td>
+        Ui::card(__('Opcache', 'aiya-core'), function () use ($resetUrl, $memory, $memoryTotal, $stats, $keysMax, $calls, $opcacheVersion, $directives): void {
+            ?>
+            <p>
+                <a href="<?php echo esc_url($resetUrl); ?>" class="button" onclick="return window.confirm(<?php echo esc_attr((string) wp_json_encode(__('Reset the opcode cache now?', 'aiya-core'))); ?>);"><?php esc_html_e('Reset cache', 'aiya-core'); ?></a>
+            </p>
+            <table class="wp-list-table widefat fixed striped">
+                <tbody>
+                    <tr>
+                        <th style="width:220px;"><?php esc_html_e('Memory usage', 'aiya-core'); ?></th>
+                        <td>
+                            <?php $this->bar((int) ($memory['used_memory'] ?? 0), $memoryTotal); ?>
+                            <span class="description">
                                 <?php
-                                $directives = $config['directives'] ?? [];
-                                $picks = [
-                                    'opcache.memory_consumption',
-                                    'opcache.max_accelerated_files',
-                                    'opcache.validate_timestamps',
-                                    'opcache.revalidate_freq',
-                                ];
-                                $out = [];
-                                foreach ($picks as $key) {
-                                    if (array_key_exists($key, $directives)) {
-                                        $value = is_bool($directives[$key]) ? ($directives[$key] ? 'true' : 'false') : (string) $directives[$key];
-                                        $out[] = '<code>' . esc_html($key) . '</code> = ' . esc_html($value);
-                                    }
-                                }
-                                echo implode('<br>', $out); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each part escaped above
+                                printf(
+                                    /* translators: 1: used, 2: free, 3: wasted memory */
+                                    esc_html__('Used %1$s · free %2$s · wasted %3$s', 'aiya-core'),
+                                    esc_html((string) size_format((int) ($memory['used_memory'] ?? 0))),
+                                    esc_html((string) size_format((int) ($memory['free_memory'] ?? 0))),
+                                    esc_html((string) size_format((int) ($memory['wasted_memory'] ?? 0)))
+                                );
                                 ?>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </details>
-        <?php
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><?php esc_html_e('Hit rate', 'aiya-core'); ?></th>
+                        <td>
+                            <?php $this->bar((int) ($stats['hits'] ?? 0), max(1, $calls)); ?>
+                            <span class="description">
+                                <?php
+                                printf(
+                                    /* translators: 1: hits, 2: misses */
+                                    esc_html__('%1$s hits · %2$s misses', 'aiya-core'),
+                                    esc_html((string) ($stats['hits'] ?? 0)),
+                                    esc_html((string) ($stats['misses'] ?? 0))
+                                );
+                                ?>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><?php esc_html_e('Cached keys', 'aiya-core'); ?></th>
+                        <td>
+                            <?php $this->bar((int) ($stats['num_cached_keys'] ?? 0), $keysMax); ?>
+                            <span class="description">
+                                <?php
+                                printf(
+                                    /* translators: 1: used keys, 2: key capacity */
+                                    esc_html__('%1$s of %2$s key slots', 'aiya-core'),
+                                    esc_html((string) ($stats['num_cached_keys'] ?? 0)),
+                                    esc_html((string) $keysMax)
+                                );
+                                ?>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><?php esc_html_e('Opcache version', 'aiya-core'); ?></th>
+                        <td><?php echo esc_html($opcacheVersion); ?></td>
+                    </tr>
+                    <tr>
+                        <th><?php esc_html_e('Key directives', 'aiya-core'); ?></th>
+                        <td>
+                            <?php
+                            $picks = [
+                                'opcache.memory_consumption',
+                                'opcache.max_accelerated_files',
+                                'opcache.validate_timestamps',
+                                'opcache.revalidate_freq',
+                            ];
+                            $out = [];
+                            foreach ($picks as $key) {
+                                if (array_key_exists($key, $directives)) {
+                                    $value = is_bool($directives[$key]) ? ($directives[$key] ? 'true' : 'false') : (string) $directives[$key];
+                                    $out[] = '<code>' . esc_html($key) . '</code> = ' . esc_html($value);
+                                }
+                            }
+                            echo implode('<br>', $out); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each part escaped above
+                            ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <?php
+        }, true);
     }
 
     /** One usage row: a meter bar plus the percentage. */
@@ -259,37 +257,15 @@ final class ServerStatusPage
      */
     private function card(string $title, array $rows): void
     {
-        ?>
-        <details class="aiya-core-card" open>
-            <summary><?php echo esc_html($title); ?></summary>
-            <div class="aiya-core-card__body">
-                <table class="wp-list-table widefat fixed striped">
-                    <tbody>
-                        <?php foreach ($rows as $row) : ?>
-                            <tr>
-                                <th style="width:220px;"><?php echo esc_html((string) $row[0]); ?></th>
-                                <td><?php echo wp_kses((string) $row[1], ['code' => [], 'strong' => [], 'br' => []]); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </details>
-        <?php
-    }
-
-    private function notice(): void
-    {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
-        $note = sanitize_key((string) ($_GET['aiya_devtools_note'] ?? ''));
-        if ($note !== 'opcache_reset') {
-            return;
-        }
-
-        printf(
-            '<div class="notice notice-success is-dismissible"><p>%s</p></div>',
-            esc_html(__('Opcode cache reset.', 'aiya-core'))
-        );
+        Ui::card($title, static function () use ($rows): void {
+            echo '<table class="wp-list-table widefat fixed striped"><tbody>';
+            foreach ($rows as $row) {
+                echo '<tr><th style="width:220px;">' . esc_html((string) $row[0]) . '</th><td>'
+                    . wp_kses((string) $row[1], ['code' => [], 'strong' => [], 'br' => []])
+                    . '</td></tr>';
+            }
+            echo '</tbody></table>';
+        }, true);
     }
 
     public function handleResetOpcache(): void
@@ -303,8 +279,7 @@ final class ServerStatusPage
             opcache_reset();
         }
 
-        wp_safe_redirect(add_query_arg(['page' => $this->parentSlug, 'aiya_devtools_note' => 'opcache_reset'], admin_url('admin.php')));
-        exit;
+        Ui::redirect(admin_url('admin.php'), ['page' => $this->parentSlug, 'aiya_devtools_note' => 'opcache_reset']);
     }
 
     /** CPU core count from /proc/cpuinfo, null when the file is unreadable. */

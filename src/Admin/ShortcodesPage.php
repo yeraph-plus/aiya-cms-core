@@ -16,11 +16,8 @@ use Closure;
 final class ShortcodesPage
 {
     private const MENU_SUFFIX = 'aiya-core-devtools-shortcodes';
-    private const PER_PAGE = 50;
-
-    public function register(): void
-    {
-    }
+    private const DEFAULT_PER_PAGE = 50;
+    private const PER_PAGE_CHOICES = [10, 20, 50, 100];
 
     public function render(): void
     {
@@ -28,13 +25,12 @@ final class ShortcodesPage
             wp_die(esc_html__('You are not allowed to view the shortcode registry.', 'aiya-core'));
         }
 
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Shortcodes', 'aiya-core'); ?></h1>
-            <p class="description"><?php esc_html_e('Every shortcode registered in this request, with its callback. Content bodies may reference these; rendering stays a front-end concern.', 'aiya-core'); ?></p>
-            <?php $this->listSection(); ?>
-        </div>
-        <?php
+        Ui::pageHead(
+            __('Shortcodes', 'aiya-core'),
+            __('Every shortcode registered in this request, with its callback. Content bodies may reference these; rendering stays a front-end concern.', 'aiya-core')
+        );
+        $this->listSection();
+        Ui::pageFoot();
     }
 
     private function listSection(): void
@@ -43,6 +39,9 @@ final class ShortcodesPage
         $search = sanitize_text_field(wp_unslash((string) ($_GET['s'] ?? '')));
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination
         $paged = max(1, absint((string) ($_GET['paged'] ?? '1')));
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page size
+        $requested = (int) ($_GET['per_page'] ?? (string) self::DEFAULT_PER_PAGE);
+        $perPage = in_array($requested, self::PER_PAGE_CHOICES, true) ? $requested : self::DEFAULT_PER_PAGE;
 
         $rows = [];
         foreach ($GLOBALS['shortcode_tags'] ?? [] as $tag => $callback) {
@@ -54,59 +53,34 @@ final class ShortcodesPage
             $rows = array_values(array_filter($rows, static fn (array $row): bool => str_contains($row['tag'], $search) || str_contains($row['callback'], $search)));
         }
         $filtered = count($rows);
-        $pages = (int) ceil($filtered / self::PER_PAGE);
-        $rows = array_slice($rows, ($paged - 1) * self::PER_PAGE, self::PER_PAGE);
-        ?>
-        <h2 class="title" style="margin-top:24px;">
-            <?php
-            printf(
-                /* translators: %d: number of registered shortcodes */
-                esc_html__('Registered shortcodes (%d)', 'aiya-core'),
-                (int) $total
-            );
-            ?>
-        </h2>
-        <form method="get" class="aiya-core-filters" style="margin-bottom:12px;">
-            <input type="hidden" name="page" value="<?php echo esc_attr(self::MENU_SUFFIX); ?>">
-            <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('Filter by tag or callback…', 'aiya-core'); ?>">
-            <button type="submit" class="button"><?php esc_html_e('Filter', 'aiya-core'); ?></button>
-        </form>
-
-        <table class="wp-list-table widefat fixed striped">
-            <thead>
-                <tr>
-                    <th style="width:30%;"><?php esc_html_e('Tag', 'aiya-core'); ?></th>
-                    <th><?php esc_html_e('Callback', 'aiya-core'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if ($rows === []) : ?>
-                    <tr><td colspan="2"><?php esc_html_e('No shortcodes match.', 'aiya-core'); ?></td></tr>
-                <?php else : ?>
-                    <?php foreach ($rows as $row) : ?>
-                        <tr>
-                            <td><code><?php echo esc_html($row['tag']); ?></code></td>
-                            <td><code><?php echo esc_html($row['callback']); ?></code></td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-        <?php
-        if ($pages > 1) {
-            echo '<div class="tablenav bottom"><div class="tablenav-pages">';
-            echo wp_kses_post(
-                (string) paginate_links([
-                    'base' => add_query_arg('paged', '%#%'),
-                    'format' => '',
-                    'current' => $paged,
-                    'total' => $pages,
-                    'prev_text' => '&laquo;',
-                    'next_text' => '&raquo;',
-                ])
-            );
-            echo '</div></div>';
-        }
+        $totalPages = max(1, (int) ceil($filtered / $perPage));
+        $paged = min($paged, $totalPages);
+        $rows = array_slice($rows, ($paged - 1) * $perPage, $perPage);
+        Ui::heading(sprintf(
+            /* translators: %d: number of registered shortcodes */
+            esc_html__('Registered shortcodes (%d)', 'aiya-core'),
+            (int) $total
+        ));
+        $navArgs = ['jump_nav' => true, 'per_page_nav' => true, 'per_page_choices' => self::PER_PAGE_CHOICES];
+        Ui::listNav($filtered, $paged, $perPage, 'top', $navArgs + [
+            'actions' => static function () use ($search): void {
+                Ui::filterBar(__('Filter', 'aiya-core'), static function () use ($search): void {
+                    Ui::input('s', 'search', $search, ['placeholder' => __('Filter by tag or callback…', 'aiya-core')]);
+                }, ['page' => self::MENU_SUFFIX]);
+            },
+        ]);
+        Ui::listTable(
+            [
+                'tag' => ['label' => __('Tag', 'aiya-core'), 'width' => '30%'],
+                'callback' => ['label' => __('Callback', 'aiya-core')],
+            ],
+            $rows,
+            static function (array $row, string $column): void {
+                echo '<code>' . esc_html($row[$column]) . '</code>';
+            },
+            __('No shortcodes match.', 'aiya-core')
+        );
+        Ui::listNav($filtered, $paged, $perPage, 'bottom', $navArgs);
     }
 
     /**

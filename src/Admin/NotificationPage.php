@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Settings\Schema\Page;
+use Aiya\Core\Settings\Registry;
 use Aiya\Core\Domain\Notification\RoleLevel;
 use Aiya\Core\Domain\Notification\NotificationService;
 use Aiya\Core\Domain\Shared\DateLabels;
@@ -38,23 +40,22 @@ final class NotificationPage implements Module
 
     public function register(): void
     {
-        // Priority 35: the parent AIYA CMS Core menu is registered by
-        // SettingsAdmin at 30 — see SendMailPage for the hookname timing.
-        add_action('admin_menu', [$this, 'menu'], 35);
+        add_action('aiya_core_register', [$this, 'registerPage']);
         add_action('admin_post_' . self::ACTION_CREATE, [$this, 'handleCreate']);
         add_action('admin_post_' . self::ACTION_DELETE, [$this, 'handleDelete']);
     }
 
-    public function menu(): void
+    /** Registers through the shared settings pipeline as a callback page. */
+    public function registerPage(Registry $registry): void
     {
-        add_submenu_page(
-            self::PARENT_SLUG,
-            __('Notifications', 'aiya-core'),
-            __('Notifications', 'aiya-core'),
-            'manage_options',
-            self::MENU_SLUG,
-            [$this, 'render']
-        );
+        $registry->addPage([
+            'slug' => 'notifications',
+            'title' => __('Notifications', 'aiya-core'),
+            'menu_title' => __('Notifications', 'aiya-core'),
+            'parent' => self::PARENT_SLUG,
+            'kind' => Page::KIND_CALLBACK,
+            'render' => [$this, 'render'],
+        ]);
     }
 
     public function render(): void

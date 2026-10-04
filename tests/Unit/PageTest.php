@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Core\Settings\Schema\Page;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -57,5 +58,60 @@ final class PageTest extends TestCase
         self::assertNull(Page::fromArray(['slug' => 'example'])->menuPosition());
         self::assertSame(1, Page::fromArray(['slug' => 'example', 'menu_position' => 1])->menuPosition());
         self::assertSame(0, Page::fromArray(['slug' => 'example', 'menu_position' => 0])->menuPosition());
+    }
+
+    public function testDefaultsToFormKind(): void
+    {
+        $page = Page::fromArray(['slug' => 'example']);
+        self::assertSame(Page::KIND_FORM, $page->kind());
+        self::assertNull($page->render());
+        self::assertNull($page->assets());
+    }
+
+    public function testCallbackRoundTripsCallables(): void
+    {
+        $render = static function (): void {
+        };
+        $assets = static function (): void {
+        };
+        $page = Page::fromArray([
+            'slug' => 'example',
+            'kind' => Page::KIND_CALLBACK,
+            'render' => $render,
+            'assets' => $assets,
+        ]);
+        self::assertSame(Page::KIND_CALLBACK, $page->kind());
+        self::assertSame($render, $page->render());
+        self::assertSame($assets, $page->assets());
+    }
+
+    public function testCallbackRequiresRender(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Page::fromArray(['slug' => 'example', 'kind' => Page::KIND_CALLBACK]);
+    }
+
+    public function testRejectsUnknownKind(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Page::fromArray(['slug' => 'example', 'kind' => 'wizard']);
+    }
+
+    public function testRejectsNonCallableRender(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Page::fromArray(['slug' => 'example', 'render' => 'nope']);
+    }
+
+    public function testCallbackRejectsNetwork(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Page::fromArray([
+            'slug' => 'example',
+            'kind' => Page::KIND_CALLBACK,
+            'render' => static function (): void {
+            },
+            'network' => true,
+        ]);
     }
 }

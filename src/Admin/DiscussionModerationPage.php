@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Settings\Schema\Page;
+use Aiya\Core\Settings\Registry;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Discussion\ThreadStatus;
 use Aiya\Core\Domain\Shared\DateLabels;
@@ -35,8 +37,7 @@ final class DiscussionModerationPage implements Module
 
     public function register(): void
     {
-        add_action('admin_menu', [$this, 'menu'], 20);
-        add_action('admin_enqueue_scripts', [$this, 'assets']);
+        add_action('aiya_core_register', [$this, 'registerPage']);
         add_action('admin_post_' . self::ACTION_DELETE, [$this, 'handleDelete']);
         add_action('admin_post_' . self::BOARD_ACTION_SAVE, [$this, 'handleBoardSave']);
         add_action('admin_post_' . self::BOARD_ACTION_DELETE, [$this, 'handleBoardDelete']);
@@ -58,18 +59,28 @@ final class DiscussionModerationPage implements Module
         wp_enqueue_script('jquery-ui-dialog');
     }
 
-    public function menu(): void
+    /** Registers through the shared settings pipeline as a callback page. */
+    public function registerPage(Registry $registry): void
     {
-        // Position 26 keeps the entry right below Comments (25).
-        add_menu_page(
-            __('Light Community', 'aiya-core'),
-            __('Light Community', 'aiya-core'),
-            'manage_options',
-            self::MENU_SLUG,
-            [$this, 'render'],
-            'dashicons-format-chat',
-            26
-        );
+        $registry->addPage([
+            'slug' => 'discussions',
+            'title' => __('Light Community', 'aiya-core'),
+            'menu_title' => __('Light Community', 'aiya-core'),
+            'icon' => 'dashicons-format-chat',
+            'position' => 26,
+            'kind' => Page::KIND_CALLBACK,
+            'render' => [$this, 'render'],
+            // The thread dialog needs the dialog stack; the kit styles come
+            // from SettingsAdmin's uniform screen assets.
+            'assets' => [$this, 'dialogAssets'],
+        ]);
+    }
+
+    /** Dialog stack for the thread editor; the kit styles come from SettingsAdmin. */
+    public function dialogAssets(): void
+    {
+        wp_enqueue_style('wp-jquery-ui-dialog');
+        wp_enqueue_script('jquery-ui-dialog');
     }
 
     public function render(): void
