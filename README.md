@@ -48,7 +48,7 @@ composer install            # deps + phpunit/phpcs/phpstan tooling
 composer php:unit           # PHPUnit (Unit suite)
 composer php:cs             # WordPressCodingStandard pass
 composer php:stan           # PHPStan (level 8, WP stubs)
-i18n                        # see .agents/skills/wp-i18n-zh-cn (host python)
+i18n                        # see .agents/skills/aiya-i18n-zh-cn (host python)
 ```
 
 After activation the plugin runs its five clean-install migrations
