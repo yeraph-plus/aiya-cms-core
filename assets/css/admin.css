@@ -150,18 +150,82 @@
 }
 
 .aiya-core-repeater-item {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
     margin: 0 0 10px;
     max-width: 720px;
 }
 
-/* Header row: the move icon is the sole drag handle so a click on the
-   title button toggles the card instead of fighting the sortable. */
+/* Header row: the collapse chevron is the far-left sole click target
+   (the bar itself never toggles, so selection and the sortable stay
+   unobstructed); the drag icon and the delete icon cluster right. No
+   divider — the header reads as one quiet row. */
 .aiya-core-repeater-handle {
     align-items: center;
-    border-bottom: 1px solid #dcdcde;
     display: flex;
     gap: 4px;
-    padding: 4px 8px 4px 6px;
+    padding: 4px 8px 4px 4px;
+}
+
+/* Icon buttons carry kit classes only: WP's button-link underline,
+   theme-color hover and the postbox shell are all kept out of this
+   component. Hover feedback is the glyph darkening, nothing else. */
+.aiya-core-repeater-toggle,
+.aiya-core-repeater-remove {
+    align-items: center;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    cursor: pointer;
+    display: flex;
+    margin: 0;
+    min-height: 32px;
+    padding: 0 4px;
+    text-decoration: none;
+}
+
+.aiya-core-repeater-toggle .dashicons {
+    color: #787c82;
+    transition: transform 0.15s ease;
+}
+
+/* The delete glyph keeps the core delete red; hover darkens it. */
+.aiya-core-repeater-remove .dashicons {
+    color: #d63638;
+}
+
+.aiya-core-repeater-toggle:hover .dashicons,
+.aiya-core-repeater-toggle:focus .dashicons {
+    color: #1d2327;
+}
+
+.aiya-core-repeater-remove:hover .dashicons,
+.aiya-core-repeater-remove:focus .dashicons {
+    color: #b32d2e;
+}
+
+.aiya-core-repeater-item:not(.aiya-core-repeater-item--collapsed) .aiya-core-repeater-toggle .dashicons {
+    transform: rotate(90deg);
+}
+
+.aiya-core-repeater-title {
+    color: #1d2327;
+    flex: 1 1 auto;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 0;
+    overflow: hidden;
+    padding-right: 8px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.aiya-core-repeater-actions {
+    align-items: center;
+    display: inline-flex;
+    gap: 2px;
+    margin-left: auto;
 }
 
 .aiya-core-repeater-drag {
@@ -172,51 +236,17 @@
     width: 32px;
 }
 
-/* Chevron is a dashicon (the text glyph read too small); collapsed points
-   right, expanded rotates down. The button text-aligns left because
-   buttons center by default. */
-.aiya-core-repeater-toggle {
-    align-items: center;
-    display: flex;
-    flex: 1;
-    min-height: 32px;
-    min-width: 0;
-    padding: 0 4px;
-    text-align: left;
-}
-
-.aiya-core-repeater-toggle .dashicons {
-    color: #787c82;
-    margin-right: 8px;
-    transition: transform 0.15s ease;
-}
-
-.aiya-core-repeater-item:not(.aiya-core-repeater-item--collapsed) .aiya-core-repeater-toggle .dashicons {
-    transform: rotate(90deg);
-}
-
-.aiya-core-repeater-title {
-    color: #1d2327;
-    font-size: 14px;
-    font-weight: 600;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.aiya-core-repeater-confirm {
+    color: #d63638;
+    font-size: 13px;
+    padding: 0 4px 0 2px;
     white-space: nowrap;
-}
-
-.aiya-core-repeater-toggle:hover .aiya-core-repeater-title,
-.aiya-core-repeater-toggle:focus .aiya-core-repeater-title {
-    color: #0073aa;
 }
 
 /* Collapsed cards keep their inputs submitting: display:none hides the
    body visually only. The border drops out so the bar reads as one row. */
 .aiya-core-repeater-item--collapsed .inside {
     display: none;
-}
-
-.aiya-core-repeater-item--collapsed .aiya-core-repeater-handle {
-    border-bottom-color: transparent;
 }
 
 .aiya-core-repeater-item .inside {
@@ -254,11 +284,11 @@
    so page bodies and form-table rows carry no inline margins; h3 nests
    tighter under its parent section. */
 .aiya-core-heading {
-    margin: 24px 0 0;
+    margin: 24px 0 12px;
 }
 
 h3.aiya-core-heading {
-    margin: 16px 0 0;
+    margin: 16px 0 8px;
 }
 
 /* Collapsible card (Ui::card): the shared details/summary shell of the
@@ -271,7 +301,7 @@ h3.aiya-core-heading {
     margin: 16px 0 20px;
 }
 
-.aiya-core-card > summary {
+.aiya-core-card__summary {
     align-items: center;
     border-bottom: 1px solid transparent;
     cursor: pointer;
@@ -282,35 +312,35 @@ h3.aiya-core-heading {
     padding: 10px 14px;
 }
 
-.aiya-core-card > summary::-webkit-details-marker,
-.aiya-core-card > summary::marker {
+details.aiya-core-card > .aiya-core-card__summary::-webkit-details-marker,
+details.aiya-core-card > .aiya-core-card__summary::marker {
     display: none;
     content: "";
 }
 
-.aiya-core-card > summary .dashicons {
+.aiya-core-card__summary .dashicons {
     color: #787c82;
     margin-right: 8px;
     transition: transform 0.15s ease;
 }
 
-.aiya-core-card[open] > summary {
+.aiya-core-card[open] > .aiya-core-card__summary {
     border-bottom-color: #dcdcde;
 }
 
-.aiya-core-card[open] > summary .dashicons {
+.aiya-core-card[open] > .aiya-core-card__summary .dashicons {
     transform: rotate(90deg);
 }
 
-.aiya-core-card__body {
-    padding: 0 14px 14px;
+/* The static variant carries no toggle: the header divider stays and the
+   header is not a pointer. */
+.aiya-core-card--static > .aiya-core-card__summary {
+    border-bottom-color: #dcdcde;
+    cursor: default;
 }
 
-/* Tables that sit straight inside a card body (Dev Tools diagnostics):
-   without a top margin the widefat border hugs the summary row and the
-   stack reads as one merged block. */
-.aiya-core-card__body > .wp-list-table {
-    margin-top: 12px;
+.aiya-core-card__body {
+    padding: 12px 14px 14px;
 }
 
 /* User picker: the shared typeahead (the Ui::input typeahead switch +

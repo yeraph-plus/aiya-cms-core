@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Admin;
 
+use Aiya\Core\Domain\DevTools\CronManagement;
 use Aiya\Core\Domain\Shared\DateLabels;
 use DateTimeImmutable;
 
@@ -12,11 +13,10 @@ use DateTimeImmutable;
  * searchable, paginated view of the cron array with row actions to run
  * or delete an event, a scheduler form for hooks that have live
  * listeners, and a one-click cleanup of orphaned events whose hooks no
- * longer have any callback. WPJAM's weight-based job queue lives on the
- * `wpjam_scheduled` hook and was deliberately not ported.
- *
- * Every mutating action re-validates the event id against the live cron
- * array — ids are parsed, never trusted.
+ * longer have any callback. The event vocabulary and the mutating
+ * operations live in Domain\DevTools\CronManagement; this page is the
+ * assembly around them — the list, the scheduler form and the
+ * admin_post round trips with nonce, capability and redirect handling.
  */
 final class CronsPage
 {
@@ -27,6 +27,13 @@ final class CronsPage
     private const ACTION_CLEANUP = 'aiya_core_devtools_cron_cleanup';
     private const DEFAULT_PER_PAGE = 20;
     private const PER_PAGE_CHOICES = [10, 20, 50, 100];
+
+    private CronManagement $crons;
+
+    public function __construct(CronManagement $crons)
+    {
+        $this->crons = $crons;
+    }
 
     public function register(): void
     {
@@ -74,15 +81,7 @@ final class CronsPage
     /** Orphan summary plus the cleanup button — hidden when none exist. */
     private function cleanupSection(): void
     {
-        $crons = self::cronArray();
-        $orphanEvents = 0;
-        foreach ($crons as $ts => $hooks) {
-            foreach ($hooks as $hook => $dings) {
-                if (!has_filter((string) $hook)) {
-                    $orphanEvents += count($dings);
-                }
-            }
-        }
+        $orphanEvents = $this->crons->orphanCount();
         if ($orphanEvents === 0) {
             return;
         }
@@ -153,7 +152,7 @@ final class CronsPage
         $requested = (int) ($_GET['per_page'] ?? (string) self::DEFAULT_PER_PAGE);
         $perPage = in_array($requested, self::PER_PAGE_CHOICES, true) ? $requested : self::DEFAULT_PER_PAGE;
 
-        $rows = self::flatten(self::cronArray());
+        $rows = CronManagement::flatten($this->crons->cronArray());
         $total = count($rows);
         if ($search !== '') {
             $rows = array_values(array_filter($rows, static fn (array $row): bool => str_contains($row['hook'], $search)));
@@ -193,7 +192,7 @@ final class CronsPage
                         echo '<code>' . esc_html($row['hook']) . '</code>';
                         break;
                     case 'schedule':
-                        echo esc_html($this->scheduleLabel($row['schedule']));
+                        echo esc_html($this->crons->scheduleLabel($row['schedule']));
                         break;
                     case 'actions':
                         ?>
@@ -206,104 +205,6 @@ final class CronsPage
             __('No scheduled events match.', 'aiya-core')
         );
         Ui::listNav($filtered, $paged, $perPage, 'bottom', $navArgs);
-    }
-
-    /**
-     * Flattens the nested cron array into display rows. The `id` encodes
-     * timestamp, event key and hook so an action can point back at
-     * exactly one stored event. Core keys duplicate events by the md5 of
-     * their args, so the key is an opaque string, never an index.
-     *
-     * @param array<int|string, array<string, array<int|string, array<string, mixed>>>> $crons
-     * @return list<array{id: string, timestamp: int, hook: string, schedule: string, args: mixed}>
-     */
-    public static function flatten(array $crons): array
-    {
-        $rows = [];
-        foreach ($crons as $ts => $hooks) {
-            $timestamp = (int) $ts;
-            foreach ($hooks as $hook => $dings) {
-                foreach ((array) $dings as $key => $data) {
-                    $data = is_array($data) ? $data : [];
-                    $rows[] = [
-                        'id' => $timestamp . '|' . rawurlencode((string) $key) . '|' . rawurlencode((string) $hook),
-                        'timestamp' => $timestamp,
-                        'hook' => (string) $hook,
-                        'schedule' => (string) ($data['schedule'] ?? ''),
-                        'args' => $data['args'] ?? [],
-                    ];
-                }
-            }
-        }
-
-        return $rows;
-    }
-
-    /**
-     * Reverses an event id into its parts; the caller must still verify
-     * the triple against the live cron array before acting on it.
-     *
-     * @return array{timestamp: int, key: string, hook: non-empty-string}|null
-     */
-    public static function parseEventId(string $id): ?array
-    {
-        $parts = explode('|', $id);
-        if (count($parts) !== 3 || !ctype_digit($parts[0]) || $parts[1] === '') {
-            return null;
-        }
-        $hook = rawurldecode($parts[2]);
-
-        return $hook === '' ? null : ['timestamp' => (int) $parts[0], 'key' => rawurldecode($parts[1]), 'hook' => $hook];
-    }
-
-    /**
-     * Looks up one event by parsed id in the live cron array; null when
-     * it is no longer (or never was) scheduled exactly like this.
-     *
-     * @return array{timestamp: int, hook: non-empty-string, args: list<mixed>}|null
-     */
-    public static function findEvent(string $id): ?array
-    {
-        $parsed = self::parseEventId($id);
-        if ($parsed === null) {
-            return null;
-        }
-        $event = self::cronArray()[$parsed['timestamp']][$parsed['hook']][$parsed['key']] ?? null;
-        if (!is_array($event)) {
-            return null;
-        }
-        $args = is_array($event['args'] ?? null) ? $event['args'] : [];
-
-        return [
-            'timestamp' => $parsed['timestamp'],
-            'hook' => $parsed['hook'],
-            'args' => array_values($args),
-        ];
-    }
-
-    /**
-     * The stored cron option, with the legacy "version" key stripped.
-     *
-     * @return array<int|string, mixed>
-     */
-    public static function cronArray(): array
-    {
-        $crons = get_option('cron');
-        if (!is_array($crons)) {
-            return [];
-        }
-        unset($crons['version']);
-
-        return $crons;
-    }
-
-    public static function scheduleLabel(string $schedule): string
-    {
-        if ($schedule === '') {
-            return __('One-off', 'aiya-core');
-        }
-
-        return (string) (wp_get_schedules()[$schedule]['display'] ?? $schedule);
     }
 
     private function timeLabel(int $timestamp): string
@@ -334,7 +235,7 @@ final class CronsPage
         if ($hook === '' || !preg_match('/^[A-Za-z0-9_\-.]{1,128}$/', $hook)) {
             Ui::redirect(self::pageUrl(), ['aiya_devtools_note' => 'cron_invalid_hook']);
         }
-        if (!has_filter($hook)) {
+        if (!$this->crons->hasListener($hook)) {
             Ui::redirect(self::pageUrl(), ['aiya_devtools_note' => 'cron_no_listener']);
         }
 
@@ -345,9 +246,7 @@ final class CronsPage
         }
         $timestamp = $timestamp > 0 ? $timestamp : time() + MINUTE_IN_SECONDS;
 
-        $scheduled = $schedule !== '' && isset(wp_get_schedules()[$schedule])
-            ? wp_schedule_event($timestamp, $schedule, $hook)
-            : wp_schedule_single_event($timestamp, $hook);
+        $scheduled = $this->crons->schedule($hook, $schedule, $timestamp);
 
         Ui::redirect(self::pageUrl(), ['aiya_devtools_note' => $scheduled ? 'cron_added' : 'cron_failed']);
     }
@@ -357,13 +256,13 @@ final class CronsPage
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('You are not allowed to manage scheduled events.', 'aiya-core'));
         }
-        $event = self::findEvent((string) ($_GET['event'] ?? ''));
+        $event = $this->crons->findEvent((string) ($_GET['event'] ?? ''));
         if ($event === null) {
             Ui::redirect(self::pageUrl(), ['aiya_devtools_note' => 'cron_missing']);
         }
         check_admin_referer(self::ACTION_RUN);
 
-        do_action_ref_array($event['hook'], $event['args']);
+        $this->crons->run($event);
 
         Ui::redirect(self::pageUrl(), ['aiya_devtools_note' => 'cron_ran']);
     }
@@ -373,13 +272,13 @@ final class CronsPage
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('You are not allowed to manage scheduled events.', 'aiya-core'));
         }
-        $event = self::findEvent((string) ($_GET['event'] ?? ''));
+        $event = $this->crons->findEvent((string) ($_GET['event'] ?? ''));
         if ($event === null) {
             Ui::redirect(self::pageUrl(), ['aiya_devtools_note' => 'cron_missing']);
         }
         check_admin_referer(self::ACTION_DELETE);
 
-        wp_unschedule_event($event['timestamp'], $event['hook'], $event['args']);
+        $this->crons->unschedule($event);
 
         Ui::redirect(self::pageUrl(), ['aiya_devtools_note' => 'cron_deleted']);
     }
@@ -392,20 +291,7 @@ final class CronsPage
         }
         check_admin_referer(self::ACTION_CLEANUP);
 
-        $removed = 0;
-        foreach (self::cronArray() as $ts => $hooks) {
-            foreach ($hooks as $hook => $dings) {
-                if (has_filter((string) $hook)) {
-                    continue;
-                }
-                foreach ((array) $dings as $data) {
-                    $args = is_array($data) && is_array($data['args'] ?? null) ? array_values($data['args']) : [];
-                    if (wp_unschedule_event((int) $ts, (string) $hook, $args)) {
-                        ++$removed;
-                    }
-                }
-            }
-        }
+        $removed = $this->crons->cleanupOrphans();
 
         Ui::redirect(self::pageUrl(), ['aiya_devtools_note' => 'cron_cleaned', 'aiya_devtools_count' => (string) $removed]);
     }

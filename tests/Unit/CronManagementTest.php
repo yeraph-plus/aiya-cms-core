@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Admin\CronsPage;
+use Aiya\Core\Domain\DevTools\CronManagement;
 use PHPUnit\Framework\TestCase;
 
-final class CronsPageTest extends TestCase
+final class CronManagementTest extends TestCase
 {
     public function testFlattensTheCronArrayIntoReversibleRows(): void
     {
@@ -25,7 +25,7 @@ final class CronsPageTest extends TestCase
             ],
         ];
 
-        $rows = CronsPage::flatten($crons);
+        $rows = CronManagement::flatten($crons);
 
         self::assertCount(3, $rows);
         self::assertSame('aiya_hook_a', $rows[0]['hook']);
@@ -36,7 +36,7 @@ final class CronsPageTest extends TestCase
 
         // Every id parses back to exactly the event it came from.
         foreach ($rows as $row) {
-            $parsed = CronsPage::parseEventId($row['id']);
+            $parsed = CronManagement::parseEventId($row['id']);
             self::assertNotNull($parsed);
             self::assertSame($row['timestamp'], $parsed['timestamp']);
             self::assertSame($row['hook'], $parsed['hook']);
@@ -45,8 +45,8 @@ final class CronsPageTest extends TestCase
 
     public function testRoundTripsHooksWithSpecialCharacters(): void
     {
-        $rows = CronsPage::flatten([42 => ['weird/hook name.x' => [['schedule' => '', 'args' => []]]]]);
-        $parsed = CronsPage::parseEventId($rows[0]['id']);
+        $rows = CronManagement::flatten([42 => ['weird/hook name.x' => [['schedule' => '', 'args' => []]]]]);
+        $parsed = CronManagement::parseEventId($rows[0]['id']);
 
         self::assertNotNull($parsed);
         self::assertSame('weird/hook name.x', $parsed['hook']);
@@ -59,22 +59,22 @@ final class CronsPageTest extends TestCase
         // wp_schedule_single_event keys duplicate events by md5(args) —
         // the id must survive a hex-string key, not just integers.
         $md5 = md5('payload');
-        $rows = CronsPage::flatten([99 => ['aiya_hook' => [$md5 => ['schedule' => 'daily', 'args' => ['payload']]]]]);
+        $rows = CronManagement::flatten([99 => ['aiya_hook' => [$md5 => ['schedule' => 'daily', 'args' => ['payload']]]]]);
 
         self::assertCount(1, $rows);
         self::assertSame(['payload'], $rows[0]['args']);
 
-        $parsed = CronsPage::parseEventId($rows[0]['id']);
+        $parsed = CronManagement::parseEventId($rows[0]['id']);
         self::assertNotNull($parsed);
         self::assertSame($md5, $parsed['key']);
     }
 
     public function testRejectsMalformedEventIds(): void
     {
-        self::assertNull(CronsPage::parseEventId(''));
-        self::assertNull(CronsPage::parseEventId('no-separators'));
-        self::assertNull(CronsPage::parseEventId('abc|0|hook'));
-        self::assertNull(CronsPage::parseEventId('1||hook'));
-        self::assertNull(CronsPage::parseEventId('1|0|'));
+        self::assertNull(CronManagement::parseEventId(''));
+        self::assertNull(CronManagement::parseEventId('no-separators'));
+        self::assertNull(CronManagement::parseEventId('abc|0|hook'));
+        self::assertNull(CronManagement::parseEventId('1||hook'));
+        self::assertNull(CronManagement::parseEventId('1|0|'));
     }
 }

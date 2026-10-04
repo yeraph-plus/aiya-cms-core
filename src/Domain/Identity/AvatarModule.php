@@ -82,8 +82,6 @@ final class AvatarModule implements Module
         add_filter('pre_option_avatar_default', [$this, 'forceDefaultAvatar']);
         add_action('show_user_profile', [$this, 'renderProfileField']);
         add_action('edit_user_profile', [$this, 'renderProfileField']);
-        add_action('wp_ajax_aiya_core_avatar_upload', [$this, 'handleAjaxUpload']);
-        add_action('wp_ajax_aiya_core_avatar_remove', [$this, 'handleAjaxRemove']);
         add_action('delete_user', [$this, 'deleteUserAvatars']);
     }
 
@@ -370,47 +368,12 @@ final class AvatarModule implements Module
     }
 
     /**
-     * AJAX upload: validates and processes the file immediately, returns the
-     * fresh preview URL. Nonce is bound to the target user.
+     * The versioned URL of a user's large file avatar, as the AJAX
+     * adapters hand it back after a store or remove round trip.
      */
-    public function handleAjaxUpload(): void
+    public function versionedUrl(int $userId): string
     {
-        $userId = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
-        if ($userId <= 0 || !current_user_can('edit_user', $userId)) {
-            wp_send_json_error(['message' => __('You are not allowed to edit this user.', 'aiya-core')], 403);
-        }
-        check_ajax_referer('aiya_core_avatar_' . $userId, 'nonce');
-
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked above.
-        $file = $_FILES['avatar'] ?? null;
-        if (!is_array($file) || empty($file['tmp_name']) || !is_string($file['tmp_name'])) {
-            wp_send_json_error(['message' => __('No file was uploaded.', 'aiya-core')]);
-        }
-
-        try {
-            $this->storeUploadedAvatar($userId, $file);
-        } catch (RuntimeException $error) {
-            wp_send_json_error(['message' => $error->getMessage()]);
-        }
-
-        wp_send_json_success([
-            'url' => content_url('/aiya_thumbnail/avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg?v=' . $this->fileAvatarVersion($userId)),
-            'nonce' => wp_create_nonce('aiya_core_avatar_' . $userId),
-        ]);
-    }
-
-    /** AJAX removal: clears the pooled files and the protocol meta. */
-    public function handleAjaxRemove(): void
-    {
-        $userId = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
-        if ($userId <= 0 || !current_user_can('edit_user', $userId)) {
-            wp_send_json_error(['message' => __('You are not allowed to edit this user.', 'aiya-core')], 403);
-        }
-        check_ajax_referer('aiya_core_avatar_' . $userId, 'nonce');
-
-        $this->removeAvatar($userId);
-
-        wp_send_json_success(['nonce' => wp_create_nonce('aiya_core_avatar_' . $userId)]);
+        return content_url('/aiya_thumbnail/avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg?v=' . $this->fileAvatarVersion($userId));
     }
 
     /**

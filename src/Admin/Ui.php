@@ -115,10 +115,26 @@ final class Ui
     public static function card(string $summary, callable $body, bool $open = true): void
     {
         echo '<details class="aiya-core-card"' . ($open ? ' open' : '') . '>';
-        echo '<summary><span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>' . esc_html($summary) . '</summary>';
+        echo '<summary class="aiya-core-card__summary"><span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>' . esc_html($summary) . '</summary>';
         echo '<div class="aiya-core-card__body">';
         $body();
         echo '</div></details>';
+    }
+
+    /**
+     * The non-collapsible card: the same shell as card() without the
+     * toggle semantics — for content that is always on display (upload
+     * forms, operation surfaces). No dashicon, the header divider stays.
+     *
+     * @param callable(): void $body
+     */
+    public static function staticCard(string $summary, callable $body): void
+    {
+        echo '<div class="aiya-core-card aiya-core-card--static">';
+        echo '<div class="aiya-core-card__summary">' . esc_html($summary) . '</div>';
+        echo '<div class="aiya-core-card__body">';
+        $body();
+        echo '</div></div>';
     }
 
     /**

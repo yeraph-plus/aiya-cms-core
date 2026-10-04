@@ -80,12 +80,7 @@ final class FieldRenderer
             // Boolean toggle: the checkbox keeps native semantics (the
             // behavior stays keyboard- and screen-reader-operable); the
             // styled track is its aria-hidden sibling in the stylesheet.
-            echo '<input type="hidden" name="' . esc_attr($name) . '" value="0">';
-            echo '<label class="aiya-core-switch">';
-            echo '<input type="checkbox" class="aiya-core-switch-input" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '" value="1" ' . checked((bool) $value, true, false) . '>';
-            echo '<span class="aiya-core-switch-track" aria-hidden="true"></span>';
-            echo '<span class="aiya-core-switch-text">' . esc_html((string) $field->setting('checkbox_label', '')) . '</span>';
-            echo '</label>';
+            $this->renderSwitch((string) $field->setting('checkbox_label', ''), (bool) $value, $name, $id);
             return;
         }
         if ($type === 'checkbox') {
@@ -203,7 +198,7 @@ final class FieldRenderer
         }
         $untitled = __('(no title)', 'aiya-core');
 
-        echo '<div class="aiya-core-repeater-item postbox' . ($collapsed ? ' aiya-core-repeater-item--collapsed' : '') . '"';
+        echo '<div class="aiya-core-repeater-item' . ($collapsed ? ' aiya-core-repeater-item--collapsed' : '') . '"';
         if ($titleChild) {
             // The collapsible title tracks this input; the id carries the
             // row index, so template clones re-resolve after __INDEX__.
@@ -211,16 +206,35 @@ final class FieldRenderer
         }
         echo ' data-aiya-untitled="' . esc_attr($untitled) . '">';
         echo '<div class="aiya-core-repeater-handle">';
-        echo '<span class="dashicons dashicons-move aiya-core-repeater-drag" aria-hidden="true"></span>';
-        echo '<button type="button" class="button-link aiya-core-repeater-toggle" aria-expanded="' . ($collapsed ? 'false' : 'true') . '">';
+        // The collapse toggle is a small control at the far left; the rest
+        // of the bar is never a click target, so text selection and the
+        // sortable stay unobstructed. The buttons carry kit classes only —
+        // WP's button-link/postbox styling (underlines, theme hovers) is
+        // deliberately left out of this component.
+        echo '<button type="button" class="aiya-core-repeater-toggle" aria-expanded="' . ($collapsed ? 'false' : 'true') . '">';
         echo '<span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>';
-        echo '<span class="aiya-core-repeater-title">' . esc_html($title !== '' ? $title : $untitled) . '</span>';
         echo '</button>';
-        echo '<button type="button" class="button-link button-link-delete aiya-core-repeater-remove">' . esc_html__('Remove', 'aiya-core') . '</button>';
+        echo '<span class="aiya-core-repeater-title">' . esc_html($title !== '' ? $title : $untitled) . '</span>';
+        echo '<span class="aiya-core-repeater-actions">';
+        echo '<span class="dashicons dashicons-move aiya-core-repeater-drag" aria-hidden="true"></span>';
+        // Delete arms on the first click (the confirmation text appears
+        // inside the button, right of the icon) and removes on the second.
+        echo '<button type="button" class="aiya-core-repeater-remove" aria-label="' . esc_attr__('Remove', 'aiya-core') . '">';
+        echo '<span class="dashicons dashicons-trash" aria-hidden="true"></span>';
+        echo '<span class="aiya-core-repeater-confirm" hidden>' . esc_html__('Confirm delete?', 'aiya-core') . '</span>';
+        echo '</button>';
+        echo '</span>';
         echo '</div><div class="inside">';
         foreach ($field->children() as $child) {
             $childName = $name . '[' . $index . '][' . $child->id() . ']';
             $childId = sanitize_html_class($field->id() . '-' . $index . '-' . $child->id());
+            if ($child->type() === 'checkbox') {
+                // The switch carries its own label text — no extra row label.
+                echo '<p>';
+                $this->renderSwitch($child->label(), (bool) ($row[$child->id()] ?? $child->defaultValue()), $childName, $childId);
+                echo '</p>';
+                continue;
+            }
             echo '<p><label><strong>' . esc_html($child->label()) . '</strong></label><br>';
             $this->control($child, $row[$child->id()] ?? $child->defaultValue(), $childName, $childId);
             echo '</p>';
@@ -252,6 +266,17 @@ final class FieldRenderer
 
         $text = $field->description() !== '' ? $field->description() : $field->label();
         Ui::notice($text, ['variant' => (string) $field->setting('variant', 'info'), 'inline' => true]);
+    }
+
+    /** The boolean toggle control: a hidden untick input plus the switch label. */
+    private function renderSwitch(string $text, bool $checked, string $name, string $id): void
+    {
+        echo '<input type="hidden" name="' . esc_attr($name) . '" value="0">';
+        echo '<label class="aiya-core-switch">';
+        echo '<input type="checkbox" class="aiya-core-switch-input" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '" value="1" ' . checked($checked, true, false) . '>';
+        echo '<span class="aiya-core-switch-track" aria-hidden="true"></span>';
+        echo '<span class="aiya-core-switch-text">' . esc_html($text) . '</span>';
+        echo '</label>';
     }
 
     private function attributes(Field $field): string

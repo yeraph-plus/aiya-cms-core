@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-04T20:18:02+00:00\n"
+"POT-Creation-Date: 2026-10-04T23:23:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -207,8 +207,8 @@ msgstr ""
 #: src/Admin/NotificationPage.php:111
 #: src/Admin/UiSamplePage.php:115
 #: src/Admin/UiSamplePage.php:160
-#: src/Admin/UiSamplePage.php:282
-#: src/Admin/UiSamplePage.php:294
+#: src/Admin/UiSamplePage.php:285
+#: src/Admin/UiSamplePage.php:297
 #: src/Domain/Content/BlocksModule.php:197
 #: src/Domain/Parts/BuiltinParts.php:118
 #: src/Domain/Parts/BuiltinParts.php:129
@@ -238,7 +238,7 @@ msgstr ""
 #: src/Admin/CoverMetabox.php:112
 #: src/Admin/FileServeMetabox.php:294
 #: src/Admin/SendMailPage.php:201
-#: src/Domain/Identity/AvatarModule.php:325
+#: src/Domain/Identity/AvatarModule.php:323
 msgid "Request failed."
 msgstr ""
 
@@ -311,9 +311,10 @@ msgid "Grant credits"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:275
-#: src/Admin/CronsPage.php:173
+#: src/Admin/CronsPage.php:172
 #: src/Admin/DiscussionModerationPage.php:130
 #: src/Admin/PaymentsAuditPage.php:137
+#: src/Admin/PicBedPage.php:227
 #: src/Admin/RewritesPage.php:86
 #: src/Admin/ShortcodesPage.php:67
 #: src/Admin/UiSamplePage.php:58
@@ -332,7 +333,6 @@ msgstr ""
 
 #: src/Admin/CreditsPage.php:284
 #: src/Admin/PaymentsAuditPage.php:150
-#: src/Admin/PicBedPage.php:256
 msgid "Source"
 msgstr ""
 
@@ -389,7 +389,7 @@ msgstr ""
 
 #: src/Admin/CreditsPage.php:498
 #: src/Admin/OperationsPage.php:388
-#: src/Admin/UiSamplePage.php:257
+#: src/Admin/UiSamplePage.php:260
 #: src/Domain/Credit/CreditModule.php:80
 msgid "Check-in"
 msgstr ""
@@ -401,7 +401,7 @@ msgstr ""
 #: src/Admin/CreditsPage.php:500
 #: src/Admin/OperationsPage.php:389
 #: src/Admin/PaymentsAuditPage.php:237
-#: src/Admin/UiSamplePage.php:258
+#: src/Admin/UiSamplePage.php:261
 #: src/Domain/Sponsorship/SponsorshipModule.php:95
 msgid "Membership"
 msgstr ""
@@ -414,151 +414,152 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-#: src/Admin/CronsPage.php:42
-#: src/Admin/CronsPage.php:326
-#: src/Admin/CronsPage.php:358
-#: src/Admin/CronsPage.php:374
-#: src/Admin/CronsPage.php:391
+#: src/Admin/CronsPage.php:49
+#: src/Admin/CronsPage.php:227
+#: src/Admin/CronsPage.php:257
+#: src/Admin/CronsPage.php:273
+#: src/Admin/CronsPage.php:290
 msgid "You are not allowed to manage scheduled events."
 msgstr ""
 
-#: src/Admin/CronsPage.php:46
-#: src/Domain/DevTools/DevToolsModule.php:91
-#: src/Domain/DevTools/DevToolsModule.php:92
+#: src/Admin/CronsPage.php:53
+#: src/Domain/DevTools/DevToolsModule.php:105
+#: src/Domain/DevTools/DevToolsModule.php:106
 msgid "Crons"
 msgstr ""
 
-#: src/Admin/CronsPage.php:47
+#: src/Admin/CronsPage.php:54
 msgid "Scheduled events of this site: run one now, remove a stray entry, or schedule a hook that has a live listener."
 msgstr ""
 
-#: src/Admin/CronsPage.php:52
+#: src/Admin/CronsPage.php:59
 msgid "Event scheduled."
 msgstr ""
 
-#: src/Admin/CronsPage.php:53
+#: src/Admin/CronsPage.php:60
 msgid "Hook executed."
 msgstr ""
 
-#: src/Admin/CronsPage.php:54
+#: src/Admin/CronsPage.php:61
 msgid "Scheduled event deleted."
 msgstr ""
 
-#: src/Admin/CronsPage.php:55
+#: src/Admin/CronsPage.php:62
 msgid "The event could not be scheduled."
 msgstr ""
 
-#: src/Admin/CronsPage.php:56
+#: src/Admin/CronsPage.php:63
 msgid "The hook name is empty or malformed."
 msgstr ""
 
-#: src/Admin/CronsPage.php:57
+#: src/Admin/CronsPage.php:64
 msgid "That hook has no listener right now — schedule it from code first."
 msgstr ""
 
-#: src/Admin/CronsPage.php:58
+#: src/Admin/CronsPage.php:65
 msgid "That scheduled event no longer exists."
 msgstr ""
 
 #. translators: %d: number of removed events
-#: src/Admin/CronsPage.php:62
+#: src/Admin/CronsPage.php:69
 #, php-format
 msgid "Removed %d orphaned events."
 msgstr ""
 
 #. translators: %d: number of orphaned events
-#: src/Admin/CronsPage.php:97
+#: src/Admin/CronsPage.php:96
 #, php-format
 msgid "%d scheduled events point at hooks without any listener anymore."
 msgstr ""
 
-#: src/Admin/CronsPage.php:100
+#: src/Admin/CronsPage.php:99
 msgid "Unschedule every orphaned event now?"
 msgstr ""
 
-#: src/Admin/CronsPage.php:100
+#: src/Admin/CronsPage.php:99
 msgid "Clean up orphans"
 msgstr ""
 
-#: src/Admin/CronsPage.php:108
+#: src/Admin/CronsPage.php:107
 msgid "Schedule an event"
 msgstr ""
 
-#: src/Admin/CronsPage.php:115
-#: src/Admin/CronsPage.php:181
+#: src/Admin/CronsPage.php:114
+#: src/Admin/CronsPage.php:180
 msgid "Hook"
 msgstr ""
 
-#: src/Admin/CronsPage.php:117
+#: src/Admin/CronsPage.php:116
 msgid "aiya_core_example_hook"
 msgstr ""
 
-#: src/Admin/CronsPage.php:118
+#: src/Admin/CronsPage.php:117
 msgid "Only hooks that currently have a listener can be scheduled."
 msgstr ""
 
-#: src/Admin/CronsPage.php:122
-#: src/Admin/CronsPage.php:182
+#: src/Admin/CronsPage.php:121
+#: src/Admin/CronsPage.php:181
 msgid "Recurrence"
 msgstr ""
 
-#: src/Admin/CronsPage.php:125
-#: src/Admin/CronsPage.php:303
+#: src/Admin/CronsPage.php:124
+#: src/Domain/DevTools/CronManagement.php:112
 msgid "One-off"
 msgstr ""
 
-#: src/Admin/CronsPage.php:133
-#: src/Admin/CronsPage.php:180
+#: src/Admin/CronsPage.php:132
+#: src/Admin/CronsPage.php:179
 msgid "Next run"
 msgstr ""
 
-#: src/Admin/CronsPage.php:136
+#: src/Admin/CronsPage.php:135
 msgid "Local site time; defaults to one minute from now."
 msgstr ""
 
-#: src/Admin/CronsPage.php:140
+#: src/Admin/CronsPage.php:139
 msgid "Schedule event"
 msgstr ""
 
 #. translators: %d: number of scheduled events
-#: src/Admin/CronsPage.php:167
+#: src/Admin/CronsPage.php:166
 #, php-format
 msgid "Scheduled events (%d)"
 msgstr ""
 
-#: src/Admin/CronsPage.php:174
+#: src/Admin/CronsPage.php:173
 msgid "Filter by hook name…"
 msgstr ""
 
-#: src/Admin/CronsPage.php:183
+#: src/Admin/CronsPage.php:182
 #: src/Admin/DiscussionModerationPage.php:142
 #: src/Admin/DiscussionModerationPage.php:426
 #: src/Admin/NotificationPage.php:116
-#: src/Admin/UiSamplePage.php:282
+#: src/Admin/PicBedPage.php:264
+#: src/Admin/UiSamplePage.php:285
 msgid "Actions"
 msgstr ""
 
-#: src/Admin/CronsPage.php:200
+#: src/Admin/CronsPage.php:199
 msgid "Run this hook now?"
 msgstr ""
 
-#: src/Admin/CronsPage.php:200
+#: src/Admin/CronsPage.php:199
 #: src/Admin/UiSamplePage.php:64
 msgid "Run now"
 msgstr ""
 
-#: src/Admin/CronsPage.php:201
+#: src/Admin/CronsPage.php:200
 msgid "Delete this scheduled event?"
 msgstr ""
 
-#: src/Admin/CronsPage.php:201
+#: src/Admin/CronsPage.php:200
 #: src/Admin/DiscussionModerationPage.php:167
 #: src/Admin/DiscussionModerationPage.php:451
 #: src/Admin/NotificationPage.php:145
 msgid "Delete"
 msgstr ""
 
-#: src/Admin/CronsPage.php:206
+#: src/Admin/CronsPage.php:205
 msgid "No scheduled events match."
 msgstr ""
 
@@ -618,7 +619,7 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:164
 #: src/Admin/DiscussionModerationPage.php:442
-#: src/Admin/UiSamplePage.php:287
+#: src/Admin/UiSamplePage.php:290
 msgid "Edit"
 msgstr ""
 
@@ -648,7 +649,7 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:232
 #: src/Admin/PostTypeSwitchBulkAction.php:83
 #: src/Admin/TermMoveBulkAction.php:77
-#: src/Admin/UiSamplePage.php:300
+#: src/Admin/UiSamplePage.php:303
 #: src/Domain/Parts/PartModule.php:133
 msgid "Cancel"
 msgstr ""
@@ -749,38 +750,42 @@ msgstr ""
 msgid "Closed"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:116
+#: src/Admin/FieldRenderer.php:111
 #: src/Admin/SettingsAdmin.php:84
 msgid "Select media"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:117
-#: src/Admin/FieldRenderer.php:219
+#: src/Admin/FieldRenderer.php:112
+#: src/Admin/FieldRenderer.php:220
 msgid "Remove"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:140
+#: src/Admin/FieldRenderer.php:135
 msgid "cache_ttl: 3600"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:150
+#: src/Admin/FieldRenderer.php:145
 msgid "A value is stored; leave blank to keep it"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:155
+#: src/Admin/FieldRenderer.php:150
 msgid "Generate a random key"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:158
+#: src/Admin/FieldRenderer.php:153
 msgid "Clear the stored value"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:182
+#: src/Admin/FieldRenderer.php:177
 msgid "Add item"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:204
+#: src/Admin/FieldRenderer.php:199
 msgid "(no title)"
+msgstr ""
+
+#: src/Admin/FieldRenderer.php:223
+msgid "Confirm delete?"
 msgstr ""
 
 #: src/Admin/FileServeMetabox.php:64
@@ -861,7 +866,7 @@ msgid "Size"
 msgstr ""
 
 #: src/Admin/FileServeMetabox.php:291
-#: src/Admin/PicBedPage.php:255
+#: src/Admin/PicBedPage.php:262
 msgid "Preview"
 msgstr ""
 
@@ -878,8 +883,8 @@ msgid "You are not allowed to view the icon list."
 msgstr ""
 
 #: src/Admin/IconsPage.php:21
-#: src/Domain/DevTools/DevToolsModule.php:118
-#: src/Domain/DevTools/DevToolsModule.php:119
+#: src/Domain/DevTools/DevToolsModule.php:132
+#: src/Domain/DevTools/DevToolsModule.php:133
 msgid "Icons"
 msgstr ""
 
@@ -957,7 +962,6 @@ msgstr ""
 
 #. translators: %d: user ID.
 #: src/Admin/NotificationPage.php:132
-#: src/Admin/PicBedPage.php:299
 #, php-format
 msgid "User #%d"
 msgstr ""
@@ -1157,17 +1161,17 @@ msgid "Trailing 12 months"
 msgstr ""
 
 #: src/Admin/OperationsPage.php:326
-#: src/Admin/UiSamplePage.php:241
+#: src/Admin/UiSamplePage.php:244
 msgid "Granted"
 msgstr ""
 
 #: src/Admin/OperationsPage.php:327
-#: src/Admin/UiSamplePage.php:242
+#: src/Admin/UiSamplePage.php:245
 msgid "Consumed"
 msgstr ""
 
 #: src/Admin/OperationsPage.php:328
-#: src/Admin/UiSamplePage.php:243
+#: src/Admin/UiSamplePage.php:246
 msgid "Expired"
 msgstr ""
 
@@ -1184,12 +1188,12 @@ msgid "Grants by source"
 msgstr ""
 
 #: src/Admin/OperationsPage.php:390
-#: src/Admin/UiSamplePage.php:259
+#: src/Admin/UiSamplePage.php:262
 msgid "Codes"
 msgstr ""
 
 #: src/Admin/OperationsPage.php:391
-#: src/Admin/UiSamplePage.php:260
+#: src/Admin/UiSamplePage.php:263
 msgid "Manual"
 msgstr ""
 
@@ -1239,93 +1243,109 @@ msgstr ""
 msgid "Awaiting payment"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:62
-#: src/Admin/PicBedPage.php:63
-#: src/Admin/PicBedPage.php:80
+#: src/Admin/PicBedPage.php:66
+#: src/Admin/PicBedPage.php:67
+#: src/Admin/PicBedPage.php:83
 msgid "Pic bed"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:75
+#: src/Admin/PicBedPage.php:79
 msgid "You are not allowed to manage the pic bed."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:82
-msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk."
+#: src/Admin/PicBedPage.php:84
+msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk. Admin uploads land under the dated root; the headless route files them under u/{user id}."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:85
+#: src/Admin/PicBedPage.php:87
 msgid "Upload"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:90
-#: src/Admin/PicBedPage.php:165
+#: src/Admin/PicBedPage.php:92
+#: src/Admin/PicBedPage.php:173
 #: src/Admin/UiSamplePage.php:62
 msgid "Upload image"
 msgstr ""
 
 #. translators: %d: maximum upload size in megabytes.
-#: src/Admin/PicBedPage.php:95
+#: src/Admin/PicBedPage.php:97
 #, php-format
 msgid "JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:108
+#: src/Admin/PicBedPage.php:109
 msgid "Dimensions"
 msgstr ""
 
 #: src/Admin/PicBedPage.php:110
-#: src/Admin/PicBedPage.php:257
+msgid "Relative path"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:111
+#: src/Admin/PicBedPage.php:263
 #: src/Admin/SamplePage.php:243
 #: src/Domain/Content/BlocksModule.php:124
 #: src/Domain/Parts/BuiltinParts.php:153
 msgid "URL"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:112
-#: src/Admin/PicBedPage.php:258
-msgid "Relative path"
+#: src/Admin/PicBedPage.php:114
+#: src/Admin/Ui.php:555
+msgid "Copy"
 msgstr ""
 
 #: src/Admin/PicBedPage.php:120
 msgid "Uploaded images"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:135
+#: src/Admin/PicBedPage.php:136
 msgid "Uploading…"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:154
+#: src/Admin/PicBedPage.php:156
 msgid "Upload failed."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:186
+#: src/Admin/PicBedPage.php:194
 msgid "Insufficient permissions."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:192
+#: src/Admin/PicBedPage.php:200
 #: src/Api/Rest/UploadsController.php:70
-#: src/Domain/Identity/AvatarModule.php:387
 #: src/Domain/Media/PicBedStore.php:45
+#: src/Modules/AvatarAjaxModule.php:44
 msgid "No file was uploaded."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:217
-#: src/Admin/PicBedPage.php:232
-msgid "No uploads yet."
+#: src/Admin/PicBedPage.php:229
+#: src/Domain/Parts/BuiltinParts.php:195
+msgid "User ID"
 msgstr ""
 
-#. translators: %d: number of older files not listed.
-#: src/Admin/PicBedPage.php:249
-#, php-format
-msgid "The %d oldest file is not listed."
-msgid_plural "The %d oldest files are not listed."
-msgstr[0] ""
-msgstr[1] ""
+#: src/Admin/PicBedPage.php:230
+msgid "empty lists the root pool"
+msgstr ""
 
-#. translators: 1: user display name or login, 2: user ID.
-#: src/Admin/PicBedPage.php:293
+#. translators: 1: user display name or login, 2: user ID, 3: link to the user page.
+#: src/Admin/PicBedPage.php:241
 #, php-format
-msgid "User %1$s (#%2$d)"
+msgid "Listing files uploaded by %1$s (#%2$d); %3$s."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:244
+msgid "open the user page"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:248
+msgid "That user id does not exist; the list stays empty."
+msgstr ""
+
+#: src/Admin/PicBedPage.php:273
+msgid "Copy img tag"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:278
+msgid "No uploads yet."
 msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:50
@@ -1395,8 +1415,8 @@ msgid "You are not allowed to view the rewrite rules."
 msgstr ""
 
 #: src/Admin/RewritesPage.php:33
-#: src/Domain/DevTools/DevToolsModule.php:100
-#: src/Domain/DevTools/DevToolsModule.php:101
+#: src/Domain/DevTools/DevToolsModule.php:114
+#: src/Domain/DevTools/DevToolsModule.php:115
 msgid "Permalinks"
 msgstr ""
 
@@ -1673,117 +1693,117 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:46
-#: src/Admin/SearchReplacePage.php:269
+#: src/Admin/SearchReplacePage.php:39
+#: src/Admin/SearchReplacePage.php:248
 msgid "You are not allowed to run search and replace."
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:50
-#: src/Domain/DevTools/DevToolsModule.php:127
-#: src/Domain/DevTools/DevToolsModule.php:128
+#: src/Admin/SearchReplacePage.php:43
+#: src/Domain/DevTools/DevToolsModule.php:141
+#: src/Domain/DevTools/DevToolsModule.php:142
 msgid "Search & Replace"
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:51
+#: src/Admin/SearchReplacePage.php:44
 msgid "Direct wp_posts search and replace: query first, then execute. Raw SQL — no hooks fire, no revisions, no modified-date bump, meta and options untouched. Back up the database before executing; the match is case-sensitive and cannot be undone."
 msgstr ""
 
 #. translators: %d: number of updated rows
-#: src/Admin/SearchReplacePage.php:59
+#: src/Admin/SearchReplacePage.php:52
 #, php-format
 msgid "Updated %d rows in the posts table."
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:64
+#: src/Admin/SearchReplacePage.php:57
 msgid "Nothing matched — nothing was updated."
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:65
+#: src/Admin/SearchReplacePage.php:58
 msgid "The search string is empty."
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:80
+#: src/Admin/SearchReplacePage.php:73
 msgid "Search & replace"
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:87
+#: src/Admin/SearchReplacePage.php:80
 #: src/Admin/UiSamplePage.php:69
 msgid "Search"
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:90
+#: src/Admin/SearchReplacePage.php:83
 msgid "Case-sensitive, matched byte-exactly."
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:94
+#: src/Admin/SearchReplacePage.php:87
 msgid "Replace with"
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:97
+#: src/Admin/SearchReplacePage.php:90
 msgid "Leave empty to remove every occurrence of the search string."
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:101
+#: src/Admin/SearchReplacePage.php:94
 msgid "Columns"
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:109
+#: src/Admin/SearchReplacePage.php:102
 msgid "At least one; defaults to post_content."
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:113
+#: src/Admin/SearchReplacePage.php:106
 msgid "Post types"
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:121
+#: src/Admin/SearchReplacePage.php:114
 msgid "Empty selection means every public type."
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:125
+#: src/Admin/SearchReplacePage.php:118
 msgid "Statuses"
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:128
+#: src/Admin/SearchReplacePage.php:121
 msgid "Published only"
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:129
+#: src/Admin/SearchReplacePage.php:122
 msgid "All real statuses (no trash, no auto-draft)"
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:134
+#: src/Admin/SearchReplacePage.php:127
 msgid "Query only"
 msgstr ""
 
 #. translators: %s: search string.
-#: src/Admin/SearchReplacePage.php:192
+#: src/Admin/SearchReplacePage.php:171
 #, php-format
 msgid "Preview for \"%s\""
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:197
+#: src/Admin/SearchReplacePage.php:176
 msgid "No matches in the selected columns, types and statuses."
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:213
+#: src/Admin/SearchReplacePage.php:192
 msgid "Sample matches (newest first)"
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:237
+#: src/Admin/SearchReplacePage.php:216
 msgid "Statement"
 msgstr ""
 
 #. translators: %d: batch size.
-#: src/Admin/SearchReplacePage.php:242
+#: src/Admin/SearchReplacePage.php:221
 #, php-format
 msgid "Execution runs this replace in batches of %d posts until no match remains; the ids above are a sample window."
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:259
+#: src/Admin/SearchReplacePage.php:238
 msgid "Run the replace on the posts table now? This cannot be undone."
 msgstr ""
 
-#: src/Admin/SearchReplacePage.php:259
+#: src/Admin/SearchReplacePage.php:238
 msgid "Execute replace"
 msgstr ""
 
@@ -1860,8 +1880,8 @@ msgid "You are not allowed to view the server status."
 msgstr ""
 
 #: src/Admin/ServerStatusPage.php:38
-#: src/Domain/DevTools/DevToolsModule.php:80
-#: src/Domain/DevTools/DevToolsModule.php:82
+#: src/Domain/DevTools/DevToolsModule.php:94
+#: src/Domain/DevTools/DevToolsModule.php:96
 msgid "Server Status"
 msgstr ""
 
@@ -2035,8 +2055,8 @@ msgid "Unable to save settings."
 msgstr ""
 
 #: src/Admin/SettingsAdmin.php:304
-#: src/Admin/UiSamplePage.php:221
-#: src/Admin/UiSamplePage.php:299
+#: src/Admin/UiSamplePage.php:224
+#: src/Admin/UiSamplePage.php:302
 msgid "Save changes"
 msgstr ""
 
@@ -2053,8 +2073,8 @@ msgid "You are not allowed to view the shortcode registry."
 msgstr ""
 
 #: src/Admin/ShortcodesPage.php:29
-#: src/Domain/DevTools/DevToolsModule.php:109
-#: src/Domain/DevTools/DevToolsModule.php:110
+#: src/Domain/DevTools/DevToolsModule.php:123
+#: src/Domain/DevTools/DevToolsModule.php:124
 msgid "Shortcodes"
 msgstr ""
 
@@ -2165,86 +2185,82 @@ msgid "Nothing was moved."
 msgstr ""
 
 #. translators: %s: number of items.
-#: src/Admin/Ui.php:217
+#: src/Admin/Ui.php:233
 #, php-format
 msgid "%s item"
 msgid_plural "%s items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Ui.php:239
+#: src/Admin/Ui.php:255
 msgid "First page"
 msgstr ""
 
-#: src/Admin/Ui.php:240
+#: src/Admin/Ui.php:256
 msgid "Previous page"
 msgstr ""
 
-#: src/Admin/Ui.php:245
+#: src/Admin/Ui.php:261
 msgid "Current Page"
 msgstr ""
 
 #. translators: 1: current page number, 2: total number of pages.
-#: src/Admin/Ui.php:253
+#: src/Admin/Ui.php:269
 #, php-format
 msgctxt "paging"
 msgid "%1$s of %2$s"
 msgstr ""
 
-#: src/Admin/Ui.php:260
+#: src/Admin/Ui.php:276
 msgid "Next page"
 msgstr ""
 
-#: src/Admin/Ui.php:261
+#: src/Admin/Ui.php:277
 msgid "Last page"
 msgstr ""
 
 #. translators: %d: rows per page.
-#: src/Admin/Ui.php:273
+#: src/Admin/Ui.php:289
 #, php-format
 msgid "%d / page"
 msgstr ""
 
-#: src/Admin/Ui.php:276
+#: src/Admin/Ui.php:292
 msgid "Items per page"
 msgstr ""
 
-#: src/Admin/Ui.php:538
+#: src/Admin/Ui.php:554
 msgid "Copied."
 msgstr ""
 
-#: src/Admin/Ui.php:539
-msgid "Copy"
-msgstr ""
-
 #. translators: %s: number of rows currently checked.
-#: src/Admin/Ui.php:586
+#: src/Admin/Ui.php:602
 #, php-format
 msgid "Selected: %s"
 msgstr ""
 
-#: src/Admin/Ui.php:596
+#: src/Admin/Ui.php:612
 msgid "Bulk actions"
 msgstr ""
 
-#: src/Admin/Ui.php:597
+#: src/Admin/Ui.php:613
 #: src/Admin/UiSamplePage.php:60
 msgid "Apply"
 msgstr ""
 
-#: src/Admin/Ui.php:608
+#: src/Admin/Ui.php:624
 msgid "Select all"
 msgstr ""
 
 #: src/Admin/UiSamplePage.php:42
-#: src/Admin/UiSamplePage.php:323
-#: src/Admin/UiSamplePage.php:354
+#: src/Admin/UiSamplePage.php:326
+#: src/Admin/UiSamplePage.php:357
 msgid "You are not allowed to view Dev Tools."
 msgstr ""
 
 #: src/Admin/UiSamplePage.php:51
-#: src/Domain/DevTools/DevToolsModule.php:136
-#: src/Domain/DevTools/DevToolsModule.php:137
+#: src/Domain/DevTools/DevToolsModule.php:150
+#: src/Domain/DevTools/DevToolsModule.php:151
 msgid "UI Kit"
 msgstr ""
 
@@ -2261,7 +2277,7 @@ msgid "Stateless controls for operation bars: button with variant and dashicon m
 msgstr ""
 
 #: src/Admin/UiSamplePage.php:71
-#: src/Admin/UiSamplePage.php:203
+#: src/Admin/UiSamplePage.php:206
 msgid "Search users…"
 msgstr ""
 
@@ -2323,7 +2339,7 @@ msgid "Cards"
 msgstr ""
 
 #: src/Admin/UiSamplePage.php:190
-msgid "A collapsible details shell; the body is a callable so it cannot be left unclosed. Open by default, the open flag seeds it collapsed."
+msgid "Two shells from one part: the collapsible details card (open by default, the open flag seeds it collapsed) and the static card without toggle semantics; the body is a callable so it cannot be left unclosed."
 msgstr ""
 
 #: src/Admin/UiSamplePage.php:191
@@ -2331,87 +2347,92 @@ msgid "Collapsible card"
 msgstr ""
 
 #: src/Admin/UiSamplePage.php:192
+#: src/Admin/UiSamplePage.php:195
 msgid "Card body content."
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:195
+#: src/Admin/UiSamplePage.php:194
+msgid "Static card"
+msgstr ""
+
+#: src/Admin/UiSamplePage.php:198
 msgid "User typeahead"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:196
+#: src/Admin/UiSamplePage.php:199
 msgid "The typeahead switch on input rides the shared UserPickerView: config rides data attributes, queries run through wp_ajax and return id, name and email. fill id keeps the pick in a hidden input, fill email writes the address back."
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:207
+#: src/Admin/UiSamplePage.php:210
 msgid "Tabs"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:208
+#: src/Admin/UiSamplePage.php:211
 msgid "Native nav-tab look with client-side panels; every panel stays in the DOM so a surrounding form submits all fields. The hash remembers the open tab and submit reveals the panel of the first invalid field."
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:211
+#: src/Admin/UiSamplePage.php:214
 msgid "Overview"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:212
-#: src/Admin/UiSamplePage.php:218
+#: src/Admin/UiSamplePage.php:215
+#: src/Admin/UiSamplePage.php:221
 msgid "Panel body content."
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:214
+#: src/Admin/UiSamplePage.php:217
 msgid "Form panel"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:215
+#: src/Admin/UiSamplePage.php:218
 msgid "Required field"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:217
+#: src/Admin/UiSamplePage.php:220
 msgid "Notes"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:224
+#: src/Admin/UiSamplePage.php:227
 msgid "Charts"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:225
+#: src/Admin/UiSamplePage.php:228
 msgid "Each canvas carries its Chart.js config as JSON beside it, instantiated by the behavior layer against the vendored build enqueued through chartAssets. Input is a type, data and options array in Chart.js shape."
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:251
+#: src/Admin/UiSamplePage.php:254
 msgid "Credits granted, consumed and expired over the trailing 12 months (demo data)"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:268
+#: src/Admin/UiSamplePage.php:271
 msgid "Credits granted by source over the trailing 12 months (demo data)"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:270
+#: src/Admin/UiSamplePage.php:273
 msgid "One-click copy"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:271
+#: src/Admin/UiSamplePage.php:274
 msgid "A button that writes its data attribute to the clipboard through navigator.clipboard, with a hidden textarea execCommand fallback, then flashes the done text."
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:275
+#: src/Admin/UiSamplePage.php:278
 msgid "Copy code"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:278
+#: src/Admin/UiSamplePage.php:281
 msgid "Modal"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:279
+#: src/Admin/UiSamplePage.php:282
 msgid "A jquery-ui-dialog shell on the core wp-jquery-ui-dialog styling, opened by data-aiya-modal-open and closed by data-aiya-modal-close. Fill and submit stay with the page, as the row-edit example shows."
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:280
+#: src/Admin/UiSamplePage.php:283
 msgid "Open modal"
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:290
+#: src/Admin/UiSamplePage.php:293
 msgid "Demo modal"
 msgstr ""
 
@@ -3048,7 +3069,7 @@ msgstr ""
 
 #: src/Domain/Content/SlugModule.php:75
 #: src/Domain/Content/SlugModule.php:95
-#: src/Domain/Identity/AvatarModule.php:109
+#: src/Domain/Identity/AvatarModule.php:107
 #: src/Infrastructure/Security/SecurityModule.php:126
 msgid "Off"
 msgstr ""
@@ -3245,7 +3266,7 @@ msgstr ""
 msgid "This spend was already recorded."
 msgstr ""
 
-#: src/Domain/DevTools/DevToolsModule.php:81
+#: src/Domain/DevTools/DevToolsModule.php:95
 msgid "Dev Tools"
 msgstr ""
 
@@ -3569,96 +3590,91 @@ msgstr ""
 msgid "The account was created, but the profile could not be saved."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:100
+#: src/Domain/Identity/AvatarModule.php:98
 msgid "Avatar settings"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:105
+#: src/Domain/Identity/AvatarModule.php:103
 msgid "Gravatar mirror"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:106
+#: src/Domain/Identity/AvatarModule.php:104
 msgid "Rewrites gravatar.com hosts to a reachable mirror. Local avatars always win. Loli and v2ex are defunct and not offered."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:110
+#: src/Domain/Identity/AvatarModule.php:108
 msgid "Qiniu (dn-qiniu-avatar.qbox.me)"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:111
+#: src/Domain/Identity/AvatarModule.php:109
 msgid "WeAvatar (weavatar.com)"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:117
+#: src/Domain/Identity/AvatarModule.php:115
 msgid "Default avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:118
+#: src/Domain/Identity/AvatarModule.php:116
 msgid "Uploaded image shown whenever a user has neither a local avatar nor a gravatar. Overrides the Discussion settings choice while set."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:189
+#: src/Domain/Identity/AvatarModule.php:187
 msgid "Custom default"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:290
+#: src/Domain/Identity/AvatarModule.php:288
 msgid "Local avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:297
+#: src/Domain/Identity/AvatarModule.php:295
 msgid "Upload avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:298
+#: src/Domain/Identity/AvatarModule.php:296
 msgid "Remove local avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:300
+#: src/Domain/Identity/AvatarModule.php:298
 msgid "JPEG, PNG, WebP or GIF up to 4 MB. The image is center-cropped and stored as 128px and 64px copies; the uploaded original is not kept."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:319
+#: src/Domain/Identity/AvatarModule.php:317
 msgid "Operation failed."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:335
+#: src/Domain/Identity/AvatarModule.php:333
 msgid "Choose an image first."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:348
+#: src/Domain/Identity/AvatarModule.php:346
 msgid "Avatar updated."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:355
+#: src/Domain/Identity/AvatarModule.php:353
 msgid "Remove the local avatar?"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:380
-#: src/Domain/Identity/AvatarModule.php:407
-msgid "You are not allowed to edit this user."
-msgstr ""
-
-#: src/Domain/Identity/AvatarModule.php:440
+#: src/Domain/Identity/AvatarModule.php:403
 msgid "No avatar image was provided."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:450
+#: src/Domain/Identity/AvatarModule.php:413
 msgid "The avatar could not be processed."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:507
+#: src/Domain/Identity/AvatarModule.php:470
 msgid "Invalid avatar upload."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:510
+#: src/Domain/Identity/AvatarModule.php:473
 msgid "The upload failed with a file error."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:513
+#: src/Domain/Identity/AvatarModule.php:476
 msgid "The avatar image is too large (4 MB maximum)."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:532
+#: src/Domain/Identity/AvatarModule.php:495
 msgid "Only JPEG, PNG, WebP and GIF images can be used as an avatar."
 msgstr ""
 
@@ -4212,10 +4228,6 @@ msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:194
 msgid "Post ID"
-msgstr ""
-
-#: src/Domain/Parts/BuiltinParts.php:195
-msgid "User ID"
 msgstr ""
 
 #: src/Domain/Parts/BuiltinParts.php:196
@@ -4801,6 +4813,11 @@ msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:362
 msgid "Continue to the sign-in form"
+msgstr ""
+
+#: src/Modules/AvatarAjaxModule.php:37
+#: src/Modules/AvatarAjaxModule.php:64
+msgid "You are not allowed to edit this user."
 msgstr ""
 
 #: src/Modules/GofileModule.php:62

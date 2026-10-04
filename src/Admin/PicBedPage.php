@@ -12,13 +12,14 @@ use Aiya\Core\Settings\Registry;
 use Aiya\Core\Settings\Schema\Page;
 use Closure;
 use FilesystemIterator;
+use RecursiveCallbackFilterIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use SplFileInfo;
 
 /**
- * Standalone pic-bed screen (legacy internal-pic-bed): uploads images
+ * Pic-bed screen (legacy internal-pic-bed): uploads images
  * straight into wp-content/aiya_upload_pics/YYYY/MM/ without touching the media
  * library — no attachment IDs, no WP thumbnail generation, nothing lands in
  * wp-content/uploads. Files are addressed by path; the headless front end
@@ -30,14 +31,17 @@ use SplFileInfo;
  * adapter, and the processed file is the only artifact written to disk.
  * Front-end community uploads share this pipeline through the REST
  * uploads controller and land in the pool's per-user namespace instead.
+ *
+ * The screen renders through the shared Admin\Ui parts; the upload flow
+ * (multipart round trip, result fill, inline failure notice) stays page
+ * domain in the inline script.
  */
 final class PicBedPage implements Module
 {
+    private const MENU_SLUG = 'aiya-core-pic-bed';
     private const AJAX_ACTION = 'aiya_core_pic_bed_upload';
     private const NONCE_ACTION = 'aiya_core_pic_bed_upload';
     private const MAX_SIZE_MB = 10;
-    /** Rendered rows per page load — the pool can grow unbounded. */
-    private const LIST_LIMIT = 200;
 
     /**
      * @param Closure(string): (string|false) $processUpload Media pipeline.
@@ -75,56 +79,53 @@ final class PicBedPage implements Module
             wp_die(esc_html__('You are not allowed to manage the pic bed.', 'aiya-core'));
         }
         $accept = implode(',', array_keys(MimeType::EXTENSIONS));
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Pic bed', 'aiya-core'); ?></h1>
-            <p class="description">
-                <?php esc_html_e('Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk.', 'aiya-core'); ?>
-            </p>
+        Ui::pageHead(
+            __('Pic bed', 'aiya-core'),
+            __('Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk. Admin uploads land under the dated root; the headless route files them under u/{user id}.', 'aiya-core')
+        );
 
-            <h2><?php esc_html_e('Upload', 'aiya-core'); ?></h2>
-            <form id="aiya-core-picbed-form">
-                <input type="file" id="aiya-core-picbed-file" name="image" accept="<?php echo esc_attr($accept); ?>" required>
-                <input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce(self::NONCE_ACTION)); ?>">
-                <button type="submit" class="button button-primary"
-                    id="aiya-core-picbed-submit"><?php esc_html_e('Upload image', 'aiya-core'); ?></button>
-            </form>
-            <p class="description">
-                <?php
+        Ui::staticCard(__('Upload', 'aiya-core'), function (): void {
+            echo '<form id="aiya-core-picbed-form">';
+            $accept = implode(',', array_keys(MimeType::EXTENSIONS));
+            echo '<input type="file" id="aiya-core-picbed-file" name="image" accept="' . esc_attr($accept) . '" required> ';
+            echo '<input type="hidden" name="nonce" value="' . esc_attr(wp_create_nonce(self::NONCE_ACTION)) . '">';
+            Ui::button(__('Upload image', 'aiya-core'), ['type' => 'submit', 'variant' => 'button-primary', 'id' => 'aiya-core-picbed-submit']);
+            echo '</form>';
+            echo '<p class="description">';
+            printf(
                 /* translators: %d: maximum upload size in megabytes. */
-                echo esc_html(sprintf(__('JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB.', 'aiya-core'), self::MAX_SIZE_MB));
-                ?>
-            </p>
+                esc_html__('JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB.', 'aiya-core'),
+                (int) self::MAX_SIZE_MB
+            );
+            echo '</p>';
+            // The failure notice shell is page domain: the message arrives with
+            // the upload round trip and is filled by the inline script.
+            echo '<div id="aiya-core-picbed-error" class="notice notice-error inline" hidden><p></p></div>';
 
-            <div id="aiya-core-picbed-result" style="display:none;">
-                <table class="widefat striped">
-                    <tbody>
-                        <tr>
-                            <td style="width:110px;">
-                                <img id="aiya-core-picbed-preview" src="" alt="" loading="lazy" decoding="async"
-                                    style="max-width:280px;width:auto;height:auto;display:block;">
-                            </td>
-                            <td>
-                                <p><strong><?php esc_html_e('Dimensions', 'aiya-core'); ?>:</strong> <span
-                                        id="aiya-core-picbed-dims"></span> — <span id="aiya-core-picbed-mime"></span></p>
-                                <p><strong><?php esc_html_e('URL', 'aiya-core'); ?>:</strong><br><input type="text"
-                                        class="regular-text" id="aiya-core-picbed-url" readonly></p>
-                                <p><strong><?php esc_html_e('Relative path', 'aiya-core'); ?>:</strong><br><input type="text"
-                                        class="regular-text" id="aiya-core-picbed-path" readonly></p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            echo '<div id="aiya-core-picbed-result" hidden>';
+            echo '<table class="widefat striped"><tbody><tr>';
+            echo '<td style="width:300px;"><img id="aiya-core-picbed-preview" src="" alt="" loading="lazy" decoding="async" style="max-width:280px;width:auto;height:auto;display:block;"></td>';
+            echo '<td>';
+            echo '<p><strong>' . esc_html__('Dimensions', 'aiya-core') . ':</strong> <span id="aiya-core-picbed-dims"></span> — <span id="aiya-core-picbed-mime"></span><br>'
+                . '<span class="description"><strong>' . esc_html__('Relative path', 'aiya-core') . ':</strong> <code id="aiya-core-picbed-path"></code></span></p>';
+            echo '<p><strong>' . esc_html__('URL', 'aiya-core') . ':</strong><br>';
+            echo '<input type="text" class="regular-text" id="aiya-core-picbed-url" readonly> ';
+            echo '<span id="aiya-core-picbed-url-copy">';
+            Ui::copyText('', __('Copy', 'aiya-core'));
+            echo '</span></p>';
+            echo '</td></tr></tbody></table>';
+            echo '</div>';
+        });
 
-            <h2><?php esc_html_e('Uploaded images', 'aiya-core'); ?></h2>
-            <div id="aiya-core-picbed-list">
-                <?php $this->renderList(); ?>
-            </div>
-        </div>
-
+        Ui::heading(__('Uploaded images', 'aiya-core'));
+        echo '<div id="aiya-core-picbed-list">';
+        $this->renderList();
+        echo '</div>';
+        Ui::pageFoot();
+        ?>
         <script>
             jQuery(function ($) {
+                var error = $('#aiya-core-picbed-error');
                 $('#aiya-core-picbed-form').on('submit', function (e) {
                     e.preventDefault();
                     var file = document.getElementById('aiya-core-picbed-file');
@@ -133,6 +134,7 @@ final class PicBedPage implements Module
                     }
                     var $button = $('#aiya-core-picbed-submit');
                     $button.prop('disabled', true).text(<?php echo wp_json_encode(__('Uploading…', 'aiya-core')); ?>);
+                    error.prop('hidden', true);
 
                     var data = new FormData();
                     data.append('action', <?php echo wp_json_encode(self::AJAX_ACTION); ?>);
@@ -151,15 +153,21 @@ final class PicBedPage implements Module
                         dataType: 'json'
                     }).done(function (res) {
                         if (!res || !res.success) {
-                            window.alert(res && res.data && res.data.message ? res.data.message : <?php echo wp_json_encode(__('Upload failed.', 'aiya-core')); ?>);
+                            error.find('p').text(res && res.data && res.data.message ? res.data.message : <?php echo wp_json_encode(__('Upload failed.', 'aiya-core')); ?>);
+                            error.prop('hidden', false);
                             return;
                         }
-                        $('#aiya-core-picbed-result').show();
+                        $('#aiya-core-picbed-result').prop('hidden', false);
                         $('#aiya-core-picbed-preview').attr('src', res.data.url);
                         $('#aiya-core-picbed-dims').text(res.data.image.width + ' × ' + res.data.image.height);
                         $('#aiya-core-picbed-mime').text(res.data.image.mime);
                         $('#aiya-core-picbed-url').val(res.data.url);
-                        $('#aiya-core-picbed-path').val(res.data.path);
+                        $('#aiya-core-picbed-path').text(res.data.path);
+                        // The copy part reads its payload attribute per click,
+                        // so filling it after the round trip is enough — the
+                        // payload is the ready-to-paste img tag, the same
+                        // shape the list's action column copies.
+                        $('#aiya-core-picbed-url-copy .aiya-core-copy').attr('data-aiya-copy', '<img src="' + res.data.url + '" alt="">');
                         $('#aiya-core-picbed-file').val('');
                     }).always(function () {
                         $button.prop('disabled', false).text(<?php echo wp_json_encode(__('Upload image', 'aiya-core')); ?>);
@@ -209,18 +217,97 @@ final class PicBedPage implements Module
         ];
     }
 
-    /** Renders every pooled image grouped by month, newest first. */
+    /** Renders the pool listing: root view by default, or one user's namespace. */
     private function renderList(): void
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view filter
+        $userId = absint((string) ($_GET['pic_user'] ?? ''));
+        $files = $this->pooledFiles($userId);
+
+        Ui::filterBar(__('Filter', 'aiya-core'), static function () use ($userId): void {
+            Ui::input('pic_user', 'text', $userId > 0 ? (string) $userId : '', [
+                'label' => __('User ID', 'aiya-core'),
+                'placeholder' => __('empty lists the root pool', 'aiya-core'),
+                'size' => 8,
+            ]);
+        }, ['page' => self::MENU_SLUG]);
+        if ($userId > 0) {
+            $user = get_userdata($userId);
+            if ($user !== false) {
+                $label = $user->display_name !== '' ? $user->display_name : $user->user_login;
+                echo '<p class="description">'
+                    . sprintf(
+                        /* translators: 1: user display name or login, 2: user ID, 3: link to the user page. */
+                        esc_html__('Listing files uploaded by %1$s (#%2$d); %3$s.', 'aiya-core'),
+                        esc_html($label),
+                        (int) $userId,
+                        '<a href="' . esc_url(admin_url('user-edit.php?user_id=' . $userId)) . '">' . esc_html__('open the user page', 'aiya-core') . '</a>'
+                    )
+                    . '</p>';
+            } else {
+                echo '<p class="description">' . esc_html(__('That user id does not exist; the list stays empty.', 'aiya-core')) . '</p>';
+            }
+        }
+
+        $rows = [];
+        foreach ($files as $file) {
+            $url = $this->paths->localToUrl($file);
+            if ($url === null) {
+                continue;
+            }
+            $rows[] = ['url' => $url];
+        }
+        Ui::listTable(
+            [
+                'preview' => ['label' => __('Preview', 'aiya-core'), 'width' => '110px'],
+                'url' => ['label' => __('URL', 'aiya-core')],
+                'actions' => ['label' => __('Actions', 'aiya-core'), 'width' => '120px'],
+            ],
+            $rows,
+            static function (array $row, string $column): void {
+                if ($column === 'preview') {
+                    echo '<img src="' . esc_url($row['url']) . '" alt="" loading="lazy" decoding="async" style="max-width:96px;max-height:72px;width:auto;height:auto;">';
+                    return;
+                }
+                if ($column === 'actions') {
+                    Ui::copyText('<img src="' . $row['url'] . '" alt="">', __('Copy img tag', 'aiya-core'));
+                    return;
+                }
+                echo '<code style="word-break:break-all;">' . esc_html($row['url']) . '</code>';
+            },
+            __('No uploads yet.', 'aiya-core')
+        );
+    }
+
+    /**
+     * Absolute pool paths, newest first. Without a user id the dated root
+     * pool is listed with the per-user namespaces pruned; an id narrows
+     * the walk to that user's own tree.
+     *
+     * @return list<string>
+     */
+    private function pooledFiles(int $userId): array
     {
         $root = $this->paths->picBedRoot();
         if (!is_dir($root)) {
-            echo '<p>' . esc_html__('No uploads yet.', 'aiya-core') . '</p>';
+            return [];
+        }
 
-            return;
+        $base = $userId > 0 ? $root . '/u/' . $userId : $root;
+        if (!is_dir($base)) {
+            return [];
+        }
+
+        $inner = new RecursiveDirectoryIterator($base, FilesystemIterator::SKIP_DOTS);
+        if ($userId === 0) {
+            // Root view: the per-user namespaces (root/u/{id}) stay out.
+            $inner = new RecursiveCallbackFilterIterator($inner, static function (SplFileInfo $current): bool {
+                return !($current->isDir() && $current->getFilename() === 'u');
+            });
         }
 
         $files = [];
-        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
+        $iterator = new RecursiveIteratorIterator($inner);
         foreach ($iterator as $file) {
             // RecursiveDirectoryIterator's default current is SplFileInfo
             // (CURRENT_AS_FILEINFO), not a DirectoryIterator instance.
@@ -228,78 +315,8 @@ final class PicBedPage implements Module
                 $files[] = str_replace('\\', '/', $file->getPathname());
             }
         }
-        if ($files === []) {
-            echo '<p>' . esc_html__('No uploads yet.', 'aiya-core') . '</p>';
-
-            return;
-        }
         rsort($files, SORT_STRING);
 
-        // A plain table keeps the screen light for large pools: browser-side
-        // lazy loading defers the previews until they are scrolled into view.
-        // The listing is capped — an unbounded pool must not drag the page
-        // down; the newest files (the ones being worked on) come first.
-        $shown = array_slice($files, 0, self::LIST_LIMIT);
-        $hidden = count($files) - count($shown);
-        if ($hidden > 0) {
-            printf(
-                '<p class="description">%s</p>',
-                esc_html(sprintf(
-                    /* translators: %d: number of older files not listed. */
-                    _n('The %d oldest file is not listed.', 'The %d oldest files are not listed.', $hidden, 'aiya-core'),
-                    $hidden
-                ))
-            );
-        }
-        echo '<table class="widefat striped"><thead><tr>';
-        echo '<th style="width:80px;">' . esc_html__('Preview', 'aiya-core') . '</th>';
-        echo '<th style="width:130px;">' . esc_html__('Source', 'aiya-core') . '</th>';
-        echo '<th>' . esc_html__('URL', 'aiya-core') . '</th>';
-        echo '<th>' . esc_html__('Relative path', 'aiya-core') . '</th>';
-        echo '</tr></thead><tbody>';
-        foreach ($shown as $file) {
-            $url = $this->paths->localToUrl($file);
-            $path = $this->paths->relativePath($file);
-            if ($url === null || $path === null) {
-                continue;
-            }
-            echo '<tr>';
-            echo '<td><img src="' . esc_url($url) . '" alt="" loading="lazy" decoding="async" style="max-width:64px;max-height:48px;width:auto;height:auto;"></td>';
-            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sourceCell() escapes label and URL internally.
-            echo '<td>' . $this->sourceCell($path) . '</td>';
-            echo '<td><code style="word-break:break-all;">' . esc_html($url) . '</code></td>';
-            echo '<td><code style="word-break:break-all;">' . esc_html($path) . '</code></td>';
-            echo '</tr>';
-        }
-        echo '</tbody></table>';
-    }
-
-    /**
-     * Community uploads live in the pool's per-user namespace
-     * (`aiya_upload_pics/u/{id}/…`) and are labeled with a link to the author;
-     * operator rows carry no marker.
-     */
-    private function sourceCell(string $path): string
-    {
-        if (!preg_match('#^aiya_upload_pics/u/(\d+)/#', $path, $matches)) {
-            return '—';
-        }
-
-        $userId = (int) $matches[1];
-        $user = get_userdata($userId);
-        $label = $user !== false
-            ? sprintf(
-                /* translators: 1: user display name or login, 2: user ID. */
-                __('User %1$s (#%2$d)', 'aiya-core'),
-                $user->display_name !== '' ? $user->display_name : $user->user_login,
-                $userId
-            )
-            : sprintf(
-                /* translators: %d: user ID. */
-                __('User #%d', 'aiya-core'),
-                $userId
-            );
-
-        return '<a href="' . esc_url(admin_url('user-edit.php?user_id=' . $userId)) . '">' . esc_html($label) . '</a>';
+        return $files;
     }
 }

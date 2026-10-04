@@ -44,11 +44,11 @@ final class DevToolsModule implements Module
     public function __construct(Registry $registry)
     {
         $this->serverStatus = new ServerStatusPage(self::MENU_SLUG);
-        $this->crons = new CronsPage();
+        $this->crons = new CronsPage(new CronManagement());
         $this->rewrites = new RewritesPage();
         $this->shortcodes = new ShortcodesPage();
         $this->icons = new IconsPage();
-        $this->searchReplace = new SearchReplacePage();
+        $this->searchReplace = new SearchReplacePage(new SearchReplace());
         $this->sample = new SamplePage($registry);
         $this->uiSample = new UiSamplePage();
     }
@@ -59,22 +59,36 @@ final class DevToolsModule implements Module
             return;
         }
 
-        $this->serverStatus->register();
-        $this->crons->register();
-        $this->rewrites->register();
-        $this->searchReplace->register();
-        $this->sample->register();
-        $this->uiSample->register();
-
-        // Every Dev Tools screen rides the shared settings pipeline as a
-        // callback page (batch B); their admin_post endpoints stay on the
-        // page classes and the shared Ui kit assets flow from
-        // SettingsAdmin::assets() for every registered screen. Registration
-        // defers to aiya_core_register: the titles are gettext lookups and
-        // register() runs before the translations load. Positions follow
-        // the site owner's rail order: search & replace leads, the server
-        // status mirror sits sixth, the two sandboxes trail.
+        // The administrator half of the gate rides the registry bus:
+        // aiya_core_register fires at init 0, where the current user is
+        // loaded, while register() itself runs during plugin inclusion —
+        // before pluggable.php even exists. A non-admin therefore never
+        // hooks the admin_post and ajax endpoints and never enters the
+        // registry: the whole domain stays invisible to anyone but an
+        // administrator, no matter what any page's own capability says.
+        // SamplePage's own bus hook is bypassed (a hook added while its
+        // bus is mid-fire is not reliable) — settings() is invoked
+        // directly and re-checks WP_DEBUG as defense in depth.
         add_action('aiya_core_register', function (Registry $registry): void {
+            if (!current_user_can('manage_options')) {
+                return;
+            }
+
+            $this->serverStatus->register();
+            $this->crons->register();
+            $this->rewrites->register();
+            $this->searchReplace->register();
+            $this->sample->settings();
+            $this->uiSample->register();
+
+            // Every Dev Tools screen rides the shared settings pipeline as a
+            // callback page (batch B); their admin_post endpoints stay on the
+            // page classes and the shared Ui kit assets flow from
+            // SettingsAdmin::assets() for every registered screen. The titles
+            // are gettext lookups — translations load before init 0.
+            // Positions follow the site owner's rail order: search & replace
+            // leads, the server status mirror sits sixth, the two sandboxes
+            // trail.
             $registry->addPage([
                 'slug' => 'devtools',
                 'title' => __('Server Status', 'aiya-core'),

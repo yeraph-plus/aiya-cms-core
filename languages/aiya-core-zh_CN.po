@@ -2032,8 +2032,8 @@ msgstr "图床"
 msgid "You are not allowed to manage the pic bed."
 msgstr "您无权管理图床。"
 
-msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk."
-msgstr "将图片上传到 wp-content/aiya_upload_pics，不占用媒体库与 uploads 目录：无附件 ID、不生成 WP 缩略图。每张图都会经过图像处理器处理一次，落盘的即是处理后的文件。"
+#~ msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk."
+#~ msgstr "将图片上传到 wp-content/aiya_upload_pics，不占用媒体库与 uploads 目录：无附件 ID、不生成 WP 缩略图。每张图都会经过图像处理器处理一次，落盘的即是处理后的文件。"
 
 msgid "Upload"
 msgstr "上传"
@@ -2065,11 +2065,11 @@ msgstr "权限不足。"
 msgid "No uploads yet."
 msgstr "还没有上传记录。"
 
-msgid "The %d oldest file is not listed."
-msgstr "最早的 %d 个文件未列出。"
+#~ msgid "The %d oldest file is not listed."
+#~ msgstr "最早的 %d 个文件未列出。"
 
-msgid "User %1$s (#%2$d)"
-msgstr "用户 %1$s（#%2$d）"
+#~ msgid "User %1$s (#%2$d)"
+#~ msgstr "用户 %1$s（#%2$d）"
 
 msgid "User #%d"
 msgstr "用户 #%d"
@@ -3541,8 +3541,8 @@ msgid "Cards"
 msgstr "卡片"
 
 
-msgid "A collapsible details shell; the body is a callable so it cannot be left unclosed. Open by default, the open flag seeds it collapsed."
-msgstr "可折叠 details 壳：内容为回调，不会漏闭环。默认展开，open 标志设定初始折叠"
+#~ msgid "A collapsible details shell; the body is a callable so it cannot be left unclosed. Open by default, the open flag seeds it collapsed."
+#~ msgstr "可折叠 details 壳：内容为回调，不会漏闭环。默认展开，open 标志设定初始折叠"
 
 
 msgid "Collapsible card"
@@ -3668,3 +3668,41 @@ msgstr "素复选框：隐藏的 value=0 输入框把未勾选状态带进提交
 #: src/Admin/SamplePage.php:125
 msgid "The boolean switch: native checkbox semantics under a styled track, the stored value stays 0 or 1."
 msgstr "布尔开关：样式轨道之下是原生 checkbox 语义，存储值仍为 0 或 1"
+
+#: src/Admin/PicBedPage.php:29
+msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk. Admin uploads land under the dated root; the headless route files them under u/{user id}."
+msgstr "将图片上传到 wp-content/aiya_upload_pics，不经媒体库与 uploads 目录：无附件 ID、不生成 WP 缩略图。每张图只经图像处理器处理一次，落盘即处理后的文件。管理端上传落在按日期的根池；无头端路由按 u/{用户 ID} 归档"
+
+#: src/Admin/PicBedPage.php:232
+msgid "empty lists the root pool"
+msgstr "留空列出根池文件"
+
+#: src/Admin/PicBedPage.php:255
+msgid "Copy img tag"
+msgstr "复制 img 标签"
+
+
+#: src/Admin/PicBedPage.php:245
+msgid "Listing files uploaded by %1$s (#%2$d); %3$s."
+msgstr "正在列出 %1$s（#%2$d）上传的文件；%3$s"
+
+#: src/Admin/PicBedPage.php:247
+msgid "open the user page"
+msgstr "打开用户页"
+
+#: src/Admin/PicBedPage.php:251
+msgid "That user id does not exist; the list stays empty."
+msgstr "该用户 ID 不存在，列表为空"
+
+#: src/Admin/UiSamplePage.php:196
+msgid "Static card"
+msgstr "静态卡片"
+
+#: src/Admin/UiSamplePage.php:192
+msgid "Two shells from one part: the collapsible details card (open by default, the open flag seeds it collapsed) and the static card without toggle semantics; the body is a callable so it cannot be left unclosed."
+msgstr "同一零件的两种外壳：可折叠的 details 卡片（默认展开，open 标志决定初始折叠态）与不带切换语义的静态卡片；卡体是回调，不会漏闭合"
+
+
+#: src/Admin/FieldRenderer.php:315
+msgid "Confirm delete?"
+msgstr "确认删除？"

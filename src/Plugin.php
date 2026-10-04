@@ -52,6 +52,7 @@ use Aiya\Core\Domain\Credit\CreditModule;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Engagement\CounterService;
 use Aiya\Core\Domain\Identity\AvatarModule;
+use Aiya\Core\Modules\AvatarAjaxModule;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\IdentityModule;
 use Aiya\Core\Domain\Integrations\IntegrationsModule;
@@ -128,6 +129,7 @@ final class Plugin
         $this->addModule(new UpdateCheckerModule());
         $avatar = new AvatarModule($this->settings);
         $this->addModule($avatar);
+        $this->addModule(new AvatarAjaxModule($avatar));
         // One gate instance for every consumer: the metabox, the REST
         // controllers and the related-post card's summary projection.
         $visibility = new PostVisibility(fn (int $userId): bool => (new MembershipService())->isSponsor($userId));

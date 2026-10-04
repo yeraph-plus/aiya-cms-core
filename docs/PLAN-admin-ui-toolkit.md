@@ -228,7 +228,33 @@ repeater 折叠样式原样保留）。
   Operations（ops-cost 并入静态卡 + 两图接 Chart.js，表格保留）；
 - **批 3（前台域，菜单=前台设置）**：Notifications（批量删除 bulkTable）+
   SendMail（typeahead 段换 userPicker、裸 form-table→静态卡）+ PicBed
-  （copyText 落 URL/路径框 + alert() 内联化）；
+  （copyText 落 URL/路径框 + alert() 内联化）。**PicBed 已完成（2026-10-05
+  站长点名提前）**：页面壳迁 Ui::pageHead/heading/foot，上传按钮走 Ui::button
+  （kit 首个带 id 的提交按钮），上传失败 alert() 改页域内联 notice（消息随
+  上传往返到达，壳由内联脚本填充——同 Discussion 错误位模式），上传结果块的
+  URL/相对路径挂 copyText（CopyView 点击时读 data 属性，回填即可用），图片池
+  列表迁 Ui::listTable（预览/来源/URL/相对路径，宽度入列 spec，空态由组件
+  出）；上传流仍为页域内联脚本（既定决策）。i18n 零新串（POT 原生盘重扫
+  1169 行零漂移）；门禁 682 tests / 2047 assertions；浏览器过页面结构、模拟
+  回填的结果块与 copy 接线、22 行真实池列表。
+  **完善轮（同日站长拍板）**：上传表单 + 回显块套入 Ui::card 一体壳；kit 标题
+  行补底部间距（h2 `24px 0 12px`、h3 `16px 0 8px`——原先仅上边距，标题与下方
+  零件贴合）；已上传列表改版——取消 200 行截断与「最早未列出」提示，新增
+  `pic_user` 过滤参数（filterBar + User ID 输入）：留空列根池（递归剪除 u/
+  子树）、写了用户 ID 只列 `u/{id}/` 树；去来源列（不再逐行查用户，
+  `sourceCell` 与 User 两串退役）；相对路径列换「操作」列——一枚
+  `copyText` 直出完整 `<img src="…" alt="">` 标签；预览放大至 96×72。
+  **Media 域分界核查结论**（三项均已成立，零改码）：Admin 零图像处理
+  （CoverMetabox/CardThumbnailBulkAction 纯委托）；上传双路径由 `PicBedStore`
+  单管线承接——管理页传 `picBedDir()`（根+日期）、REST 传
+  `userPicBedDir()`（u/{id}+日期），目录差异即全部差异；编辑器走 WP 媒体库、
+  落盘被 `wp_handle_upload` 过滤器（MediaModule::handleUpload，
+  image_take_over_uploads 开关默认开）接管处理。avatar 存储留 Identity 的
+  评估另见会话记录（叶子裁决 + 零消费方交集）。i18n 净 -1 串（+3 新：
+  复制 img 标签等；-4 退役）；四门禁 682/2047；浏览器过根池视图（0 泄漏
+  u/ 路径）、pic_user=43 视图（15 行全 /u/43/）、卡片壳、复制列与标题间距。
+  用户筛选补提示行：填 ID 显示「正在列出 {用户}（#id）上传的文件；打开用户页」
+  （链接 user-edit），ID 不存在时明确提示列表为空（+3 串）。
 - **批 4（社区域）**：DiscussionModeration 批量 handler ×2（关闭/重开、删除）+
   线程编辑弹窗迁移 `Ui::modal` + confirm GET 链接改 POST；批量条四串 + 模态框
   壳零新串已随样例页入池；
@@ -604,3 +630,89 @@ Registry +~15 行；各迁移页 −10~15 行（menu/assets 样板删除）；�
   闭包漏 `use ($actions)` 被 phpstan/phpunit 双双抓获（array + null TypeError）。
   门禁 680 tests / 2036 assertions；浏览器过批量区勾选联动（应用解禁、计数回显、
   还原禁用）与底栏贴右。
+
+## 十六、域逻辑归位轮（2026-10-05 站长拍板：域持逻辑与接口，Admin 只做组装）
+
+> 依「Admin surfaces and the domain boundary (1.0.0 rulings)」的 L-01/L-02
+> 口径对 Admin 页做逻辑归属复查：域→Admin 引用仅 DevToolsModule 装配器
+> （豁免形态）、批量动作三件套与 Credits/Notification/Discussion 均走域服务
+> ——合规；三处页面持运行逻辑的实锤本轮收口。
+
+- **① SearchReplace 引擎**：`Domain/DevTools/SearchReplace` 承接全套——纯静态
+  白名单与 SQL 构建器（sanitizeColumns/sanitizeTypes/statusesFor/escLike/
+  buildWhere/buildUpdateSql）+ 存储操作（counts/samples/statement/
+  executeAll，批量 REPLACE 循环与逐 id 清缓存内聚于此）。页面退化为表单、
+  预览渲染（snippet 展示件留页）与 admin_post 往返，零 `$wpdb`。
+  测试拆分：引擎契约入 `SearchReplaceTest`，snippet 留 `SearchReplacePageTest`。
+- **② CronManagement 服务**：`Domain/DevTools/CronManagement` 承接事件词汇
+  （flatten/parseEventId 纯静态 + cronArray/findEvent/scheduleLabel）与全部
+  变更动作（schedule + hasListener 区分 no_listener/failed 两回执、run、
+  unschedule、orphanCount、cleanupOrphans）。页面留列表组装、调度表单与四个
+  admin_post 往返。`CronsPageTest` 迁为 `CronManagementTest`。
+- **③ Avatar AJAX 处理器上移**：`Modules/AvatarAjaxModule`（新适配器）持有
+  两个 wp_ajax 端点——超全局读取、edit_user 门与 nonce 校验、JSON 信封全在
+  适配层；域内（AvatarModule）只余纯值入参的管线（storeUploadedAvatar/
+  storeAvatar/removeAvatar，REST 路由同源复用），新增 `versionedUrl()` 供
+  回执。L-02「传输知识止步域外」的字面违规清零；端点 action 名不变，客户端
+  零感知。phpcs 教训：nonce 门禁与 `$_POST` 读必须同函数（嗅探器不跨方法追）。
+- **验证**：682 tests / 2047 assertions 全绿；浏览器过定时作业（77 事件列表
+  走新服务）、搜索替换（真实查询：11 处命中、5 行样例、语句预览与执行表单）、
+  avatar 两端点钩子注册探针。i18n 零新串。
+
+## 十九、repeater 交互重做（2026-10-05 站长拍板五点）
+
+> 旧形态的病根：折叠 toggle 以 `flex:1` 覆盖整条 header bar——点选/拖选文字
+> 都会触发折叠，交互状态怪异。本轮重排为「左折叠钮 + 标题 + 右操作簇」。
+
+- **折叠钮最左、取消整区可点**：chevron 缩为最左的小图标钮（20px），标题改
+  纯文本 span（`flex:1` 承担推右职责，不再进任何按钮）。
+- **拖动与删除右移、去分隔线**：`dashicons-move` 与删除图标聚成
+  `.aiya-core-repeater-actions`（margin-left:auto），handle 的 border-bottom
+  移除（含折叠态透明化规则一并退役）。
+- **删除图标化 + 双击确认**：删除钮换 `dashicons-trash`；首点在其右侧亮出
+  「确认删除？」红字（`.aiya-core-repeater-confirm` hidden 属性切换），再点
+  才移除。JS `removeItem` 两态化；模板克隆自带 hidden 初始态。
+- **repeater 子字段 checkbox → 开关外观**：`renderSwitch()` 从 switch 分支
+  抽取（含隐藏 untick 输入），子字段 checkbox 复用之（自带标签文本，免额外
+  行标签）——`Enabled` 等子字段即开关。
+- **既有条目折叠、新建展开**：维持既有 PHP 语义（存量行 collapsed、模板行
+  expanded），浏览器复测通过。i18n +1 串（确认删除？）；四门禁 683/2053
+  全绿；浏览器过折叠钮切换、title 不可点、双击删除与开关子字段。
+- **去 WP 化扫尾（同日复检）**：条目类不再骑 `postbox`（竖线、hover 选中
+  态、内边距全部来自该壳），删除/折叠钮不再用 `button-link`（其
+  `text-decoration: underline` 即 trash 图标下横线的来源，主题色 hover 同
+  出此门）——两者改纯 kit 类并自带基线样式（无边框无底色、悬停仅图标加深
+  `#1d2327`），条目自带 `1px #dcdcde` 圆角白底。浏览器实测：无下划线、无
+  hover 染色、无分隔线。确认文本改注入按钮内部（trash 右侧同按钮），删除
+  红色（#d63638，hover 加深）归还删除图标——原灰色系是去 WP 化时的过度收敛。
+
+## 十八、卡片零件迭代（2026-10-05 站长拍板：静态变体 + 卡体内边距）
+
+- **`Ui::staticCard()`**：与 `card()` 同壳、无切换语义的非折叠卡片
+  （`div.aiya-core-card--static`，表头无 dashicon、分隔线常显、非指针）——
+  供常显内容（上传表单等操作面）使用；图床上传区已换装。summary 由元素
+  选择器改为 `.aiya-core-card__summary` 类选择器，两变体共享排版。
+- **卡体内边距**：`__body` 原 `padding-top: 0`（内容贴死表头横线），改
+  `12px 14px 14px`；随之退役「卡内表格补 12px 顶距」的补偿规则。
+  演示页卡片节展示双变体（描述串更新，+2 新串 −1 退役）。UiTest 增
+  staticCard 契约。683 tests / 2053 assertions 全绿；浏览器过图床静态卡
+  （12px 顶距实测）与演示页双变体。
+
+## 十七、Dev Tools 双因子门禁（2026-10-05 站长拍板：WP_DEBUG ∧ 管理员）
+
+> 原门禁只有 WP_DEBUG 一因子；WP_DEBUG 开启时，域内各页其实已各自收
+> `manage_options`，但那是分散契约——本轮把「管理员」升格为域级单点门禁，
+> 非管理员对整个域隐身，与任何单页能力声明漂移无关。
+
+- **落点与时机**：门禁骑 `aiya_core_register` 总线（init 优先级 0）——此刻当前
+  用户已装载，而 `register()` 本体在插件包含期执行、彼时 pluggable.php 尚未
+  存在（字面 `current_user_can` 会 fatal）。非管理员由此**不注册 admin_post/
+  ajax 端点、不入注册表**：菜单零渲染、直连 URL 落核心 403、端点未挂钩。
+  SamplePage 自挂总线的钩子改为门内直调 `settings()`（总线 mid-fire 期间
+  追加钩子不可靠），其 WP_DEBUG 再查保留为纵深防御。
+- **时机考证**（wp-settings.php 实序）：cookie 常量 555 行、pluggable 612 行、
+  plugins_loaded 630 行、init 779 行——init 时刻用户可用性成立。
+- **三态实测**：管理员 + WP_DEBUG 正路径照常（菜单 10 链接、搜索替换渲染）；
+  订阅者探针（curl 邮箱登录）直连页 **403**、仪表盘 **0 个 devtools 链接**；
+  无用户上下文（wp-cli）注册表 **0 页 devtools**。门禁 682 tests / 2047
+  assertions 全绿；i18n 零新串。

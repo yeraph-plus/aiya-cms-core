@@ -170,6 +170,19 @@ final class UiTest extends TestCase
         self::assertStringNotContainsString(' open>', $collapsed);
     }
 
+    public function testStaticCardIsTheSameShellWithoutToggleSemantics(): void
+    {
+        $out = $this->captureOut(fn () => Ui::staticCard('S <x>', static function (): void {
+            echo 'body-content';
+        }));
+        self::assertStringContainsString('<div class="aiya-core-card aiya-core-card--static">', $out);
+        self::assertStringContainsString('<div class="aiya-core-card__summary">S &lt;x&gt;</div>', $out);
+        self::assertStringContainsString('<div class="aiya-core-card__body">body-content</div>', $out);
+        self::assertStringNotContainsString('<details', $out);
+        self::assertStringNotContainsString('<summary', $out);
+        self::assertStringNotContainsString('dashicons', $out);
+    }
+
     public function testListNavWrapsInKitBar(): void
     {
         $_SERVER['REQUEST_URI'] = '/wp-admin/admin.php?page=demo';

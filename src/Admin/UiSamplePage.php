@@ -187,9 +187,12 @@ final class UiSamplePage implements Module
         );
 
         Ui::heading(__('Cards', 'aiya-core'));
-        echo '<p class="description">' . esc_html__('A collapsible details shell; the body is a callable so it cannot be left unclosed. Open by default, the open flag seeds it collapsed.', 'aiya-core') . '</p>';
+        echo '<p class="description">' . esc_html__('Two shells from one part: the collapsible details card (open by default, the open flag seeds it collapsed) and the static card without toggle semantics; the body is a callable so it cannot be left unclosed.', 'aiya-core') . '</p>';
         Ui::card(__('Collapsible card', 'aiya-core'), static function (): void {
-            echo '<p class="description" style="margin:12px 0 0;">' . esc_html__('Card body content.', 'aiya-core') . '</p>';
+            echo '<p class="description">' . esc_html__('Card body content.', 'aiya-core') . '</p>';
+        });
+        Ui::staticCard(__('Static card', 'aiya-core'), static function (): void {
+            echo '<p class="description">' . esc_html__('Card body content.', 'aiya-core') . '</p>';
         });
 
         Ui::heading(__('User typeahead', 'aiya-core'));

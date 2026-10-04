@@ -66,7 +66,16 @@
         },
         removeItem(event) {
             event.preventDefault();
-            $(event.currentTarget).closest('.aiya-core-repeater-item').remove();
+            const button = $(event.currentTarget);
+            // Two-click confirm: the first click arms the control (the
+            // confirmation text appears inside the button, right of the
+            // icon), the second removes.
+            const confirm = button.find('.aiya-core-repeater-confirm').first();
+            if (confirm.prop('hidden')) {
+                confirm.prop('hidden', false);
+                return;
+            }
+            button.closest('.aiya-core-repeater-item').remove();
         },
         toggleItem(event) {
             event.preventDefault();
