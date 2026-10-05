@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
-use Aiya\Core\Domain\Sponsorship\AfdianActivator;
-use Aiya\Core\Domain\Sponsorship\EpayGateway;
-use Aiya\Core\Domain\Sponsorship\EntitlementService;
-use Aiya\Core\Domain\Sponsorship\OrderService;
-use Aiya\Core\Domain\Sponsorship\PaymentGateway;
-use Aiya\Core\Domain\Sponsorship\SponsorshipSettings;
-use Aiya\Core\Domain\Sponsorship\WebhookLogger;
+use Aiya\Core\Domain\Membership\AfdianActivator;
+use Aiya\Core\Domain\Membership\EpayGateway;
+use Aiya\Core\Domain\Membership\EntitlementService;
+use Aiya\Core\Domain\Membership\OrderService;
+use Aiya\Core\Domain\Membership\PaymentGateway;
+use Aiya\Core\Domain\Membership\MembershipSettings;
+use Aiya\Core\Domain\Membership\WebhookLogger;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -168,7 +168,7 @@ final class GatewayController
             }
         }
 
-        $tier = SponsorshipSettings::tierByKey(SponsorshipSettings::read()['tiers'], $row['tier_key']);
+        $tier = MembershipSettings::tierByKey(MembershipSettings::read()['tiers'], $row['tier_key']);
 
         if ($tier === null) {
             WebhookLogger::write("The order {$orderId} names tier {$row['tier_key']}, which the site no longer sells; money stays booked.", '');

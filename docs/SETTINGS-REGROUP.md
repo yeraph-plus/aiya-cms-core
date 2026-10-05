@@ -15,8 +15,8 @@
 | optimization（优化） | 前台设置 | `aiya_core_optimization` | 25 | heading×4 · media×1 · multicheck×1 · note×1 · radio×3 · switch×14 · text×1 |
 | security（安全加固） | 前台设置 | `aiya_core_security` | 11 | array×1 · heading×4 · note×1 · select×1 · switch×4 |
 | blocks（页面区块） | 前台设置 | `aiya_core_blocks` | 25 | media×2 · multicheck×1 · note×1 · number×1 · radio×1 · repeater×5 · select×2 · text×7 · url×5 |
-| membership（会员设置） | 顶级 | `aiya_core_sponsorship` | 14 | heading×2 · number×6 · repeater×1 · switch×2 · text×2 · textarea×1 |
-| sponsorship-payments（支付） | 会员设置 | `aiya_core_sponsorship_payments` | 17 | heading×3 · multicheck×1 · note×1 · number×1 · password×2 · repeater×1 · select×2 · switch×2 · text×3 · url×1 |
+| membership（会员设置） | 顶级 | `aiya_core_membership` | 14 | heading×2 · number×6 · repeater×1 · switch×2 · text×2 · textarea×1 |
+| membership-payments（支付） | 会员设置 | `aiya_core_membership_payments` | 17 | heading×3 · multicheck×1 · note×1 · number×1 · password×2 · repeater×1 · select×2 · switch×2 · text×3 · url×1 |
 | image（图像处理器） | 前台设置 | `aiya_core_image` | 13 | heading×2 · media×1 · number×4 · radio×2 · select×1 · switch×1 · text×2 |
 | fileserve（文件下载） | 前台设置 | `aiya_core_fileserve` | 14 | heading×4 · number×2 · password×3 · radio×1 · switch×1 · text×1 · url×2 |
 
@@ -179,7 +179,7 @@
 | `ads_bottom[].label` | text | 链接文本 | 链接文本 | | |
 | `ads_bottom[].image` | media | 广告图 | 广告图 | | |
 
-### membership（会员设置）— `aiya_core_sponsorship`
+### membership（会员设置）— `aiya_core_membership`
 
 | 键 | 类型 | 现行英文源串 | 现行中文 | 拟改中文 | 拟归属 |
 |---|---|---|---|---|---|
@@ -198,7 +198,7 @@
 | `checkin_credits` | number | 签到发放额 | 签到发放额 | | |
 | `credit_validity_days` | number | 积分有效期（天） | 积分有效期（天） | | |
 
-### sponsorship-payments（支付）— `aiya_core_sponsorship_payments`
+### membership-payments（支付）— `aiya_core_membership_payments`
 
 | 键 | 类型 | 现行英文源串 | 现行中文 | 拟改中文 | 拟归属 |
 |---|---|---|---|---|---|

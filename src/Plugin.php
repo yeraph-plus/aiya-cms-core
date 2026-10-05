@@ -31,6 +31,7 @@ use Aiya\Core\Api\Rest\RestController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\ContentManagementModule;
+use Aiya\Core\Domain\Content\ContentEventsModule;
 use Aiya\Core\Domain\Content\ContentTypeModule;
 use Aiya\Core\Domain\Content\ContentTypeRegistry;
 use Aiya\Core\Domain\Content\FrontendModule;
@@ -63,11 +64,11 @@ use Aiya\Core\Domain\Operations\OperationsModule;
 use Aiya\Core\Domain\Parts\BuiltinParts;
 use Aiya\Core\Domain\Parts\PartModule;
 use Aiya\Core\Domain\Parts\PartRegistry;
-use Aiya\Core\Domain\Sponsorship\EntitlementService;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
-use Aiya\Core\Domain\Sponsorship\OrderService;
-use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
-use Aiya\Core\Domain\Sponsorship\SponsorshipModule;
+use Aiya\Core\Domain\Membership\EntitlementService;
+use Aiya\Core\Domain\Membership\MembershipService;
+use Aiya\Core\Domain\Membership\OrderService;
+use Aiya\Core\Domain\Membership\RedeemCodeService;
+use Aiya\Core\Domain\Membership\MembershipModule;
 use Aiya\Core\Domain\Smilies\SmiliesModule;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
@@ -122,6 +123,7 @@ final class Plugin
         $this->addModule(new DevToolsModule($this->settings));
         $this->addModule(new FrontendModule($this->settings));
         $this->addModule(new ContentManagementModule($this->settings));
+        $this->addModule(new ContentEventsModule());
         $this->addModule(new HeadlessModule($this->settings));
         $this->addModule(new SecurityModule($this->settings));
         $this->addModule(new TrustedProxy());
@@ -164,7 +166,7 @@ final class Plugin
         $this->addModule(new IdentityModule($this->metadata));
         $this->addModule(new NotificationPage());
 
-        $this->addModule(new SponsorshipModule($this->settings));
+        $this->addModule(new MembershipModule($this->settings));
         $this->addModule(new DiscussionModule());
         $this->addModule(new DiscussionModerationPage());
 

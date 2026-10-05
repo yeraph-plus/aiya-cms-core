@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Sponsorship;
+namespace Aiya\Core\Domain\Membership;
 
 use Aiya\Infra\PaymentEpay\Client;
 use Aiya\Infra\PaymentEpay\Gateway;
@@ -29,7 +29,7 @@ final class EpayGateway implements PaymentGateway
     /** Builds the adapter from the domain settings (null when disabled/unconfigured). */
     public static function fromSettings(): ?self
     {
-        $settings = SponsorshipSettings::read();
+        $settings = MembershipSettings::read();
         if (!$settings['epayEnable']) {
             return null;
         }
@@ -45,7 +45,7 @@ final class EpayGateway implements PaymentGateway
                 (string) get_rest_url(null, '/' . self::GATEWAY_NAMESPACE . '/epay/callback'),
                 // Disabled tiers stay in the callback whitelist BY DESIGN
                 // (2026-09-21): enabled gates the storefront buy list only —
-                // SponsorshipController refuses disabled tiers at order
+                // MembershipController refuses disabled tiers at order
                 // time, so a signed push naming one can only be settling a
                 // purchase made while it was on sale. Whitelisting just the
                 // enabled tiers would orphan that money at the one moment

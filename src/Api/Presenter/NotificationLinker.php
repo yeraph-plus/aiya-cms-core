@@ -18,7 +18,7 @@ use WP_Comment;
  * thread id and board, and a follow row anchors the follower's profile
  * (the object is the followed user — the actor is who you go look at).
  *
- * Kinds whose target is the viewer's own surface (credit, sponsorship,
+ * Kinds whose target is the viewer's own surface (credit, membership,
  * account) and broadcast rows stay anchor-free — the front end routes
  * those by the row's type alone. Unresolvable targets (a deleted post or
  * comment) degrade to escaped plain text, never a dead anchor.

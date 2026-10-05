@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Sponsorship\EntitlementService;
-use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
+use Aiya\Core\Domain\Membership\EntitlementService;
+use Aiya\Core\Domain\Membership\RedeemCodeService;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 
-require_once __DIR__ . '/../Fixture/SponsorshipTestWpdb.php';
+require_once __DIR__ . '/../Fixture/MembershipTestWpdb.php';
 
 /**
- * The redemption code lifecycle over the sponsorship wpdb double (the
+ * The redemption code lifecycle over the membership wpdb double (the
  * first direct coverage of this domain): the atomic claim wins once and
  * every later use of the same code answers "used", unknown codes and
  * codes whose tier vanished answer invalid, and a failed activation
@@ -20,17 +20,17 @@ require_once __DIR__ . '/../Fixture/SponsorshipTestWpdb.php';
  */
 final class RedeemCodeServiceTest extends TestCase
 {
-    private SponsorshipTestWpdb $db;
+    private MembershipTestWpdb $db;
 
     protected function setUp(): void
     {
-        $this->db = new SponsorshipTestWpdb();
+        $this->db = new MembershipTestWpdb();
         global $wpdb;
         $wpdb = $this->db;
         $GLOBALS['__aiya_test_users'] = [7 => true];
         $GLOBALS['__aiya_test_current_user_id'] = 0;
         $GLOBALS['__aiya_test_options'] = [
-            'aiya_core_sponsorship' => [
+            'aiya_core_membership' => [
                 'tiers' => [
                     ['key' => 'gold', 'name' => 'Gold', 'cycle_days' => 30, 'credits_per_cycle' => 0],
                     ['key' => 'silver', 'name' => 'Silver', 'cycle_days' => 30],

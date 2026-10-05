@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Sponsorship\AfdianGateway;
+use Aiya\Core\Domain\Membership\AfdianGateway;
 use Aiya\Infra\PaymentAfdian\Client;
 use Aiya\Infra\PaymentAfdian\Gateway;
 use Aiya\Infra\SlugToolkit\IdSlugEncoder;
@@ -26,8 +26,8 @@ final class AfdianGatewayTest extends TestCase
 
     protected function setUp(): void
     {
-        delete_option('aiya_core_sponsorship_payments');
-        delete_option('aiya_core_sponsorship');
+        delete_option('aiya_core_membership_payments');
+        delete_option('aiya_core_membership');
     }
 
     private function gateway(): Gateway
@@ -118,13 +118,13 @@ final class AfdianGatewayTest extends TestCase
      */
     public function testTheAdapterResolvesTheBindingTable(): void
     {
-        update_option('aiya_core_sponsorship', [
+        update_option('aiya_core_membership', [
             'tiers' => [
                 ['key' => 'gold', 'name' => 'Gold', 'price' => 30, 'cycle_days' => 30, 'credits_per_cycle' => 100],
                 ['key' => 'silver', 'name' => 'Silver', 'price' => 10, 'cycle_days' => 30, 'credits_per_cycle' => 20],
             ],
         ]);
-        update_option('aiya_core_sponsorship_payments', [
+        update_option('aiya_core_membership_payments', [
             'afdian_enable' => true,
             'afdian_user_id' => 'user-1',
             'afdian_token' => self::TOKEN,
@@ -169,7 +169,7 @@ final class AfdianGatewayTest extends TestCase
 
     public function testWithoutBindingsTheChannelExistsButNothingIsBound(): void
     {
-        update_option('aiya_core_sponsorship_payments', [
+        update_option('aiya_core_membership_payments', [
             'afdian_enable' => true,
             'afdian_user_id' => 'user-1',
             'afdian_token' => self::TOKEN,
@@ -185,13 +185,13 @@ final class AfdianGatewayTest extends TestCase
 
     public function testTheAdapterStaysOffWithoutCredentialsOrTheSwitch(): void
     {
-        update_option('aiya_core_sponsorship_payments', ['afdian_enable' => true, 'afdian_user_id' => '', 'afdian_token' => self::TOKEN]);
+        update_option('aiya_core_membership_payments', ['afdian_enable' => true, 'afdian_user_id' => '', 'afdian_token' => self::TOKEN]);
         self::assertNull(AfdianGateway::fromSettings(), 'no user id');
 
-        update_option('aiya_core_sponsorship_payments', ['afdian_enable' => true, 'afdian_user_id' => 'user-1', 'afdian_token' => '']);
+        update_option('aiya_core_membership_payments', ['afdian_enable' => true, 'afdian_user_id' => 'user-1', 'afdian_token' => '']);
         self::assertNull(AfdianGateway::fromSettings(), 'no token');
 
-        update_option('aiya_core_sponsorship_payments', ['afdian_enable' => false, 'afdian_user_id' => 'user-1', 'afdian_token' => self::TOKEN]);
+        update_option('aiya_core_membership_payments', ['afdian_enable' => false, 'afdian_user_id' => 'user-1', 'afdian_token' => self::TOKEN]);
         self::assertNull(AfdianGateway::fromSettings(), 'switch off');
     }
 }

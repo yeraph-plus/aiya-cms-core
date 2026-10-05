@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Sponsorship;
+namespace Aiya\Core\Domain\Membership;
 
 /**
- * The sponsorship domain's one random-suffix recipe: an uppercase
+ * The membership domain's one random-suffix recipe: an uppercase
  * alphanumeric token cut from a CSPRNG-seeded digest (wp_rand feeds
  * uniqid's entropy; PHP's uniqid is seeded from the RNG source). The
  * Epay checkout's out_trade_no tail reads this helper so the wire shape

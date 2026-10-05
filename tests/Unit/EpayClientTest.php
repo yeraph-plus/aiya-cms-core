@@ -21,7 +21,7 @@ final class EpayClientTest extends TestCase
             'money' => '10.00',
             'param' => 'AB12CD34|month',
             'type' => 'alipay',
-        ], 'https://wp.example.com/wp-json/aiya/sponsorship/v1/epay/callback', 'https://front.example.com/pay/done');
+        ], 'https://wp.example.com/wp-json/aiya/membership/v1/epay/callback', 'https://front.example.com/pay/done');
 
         parse_str($query, $params);
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Sponsorship;
+namespace Aiya\Core\Domain\Membership;
 
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Credit\LedgerService;
@@ -21,12 +21,12 @@ use WP_Error;
  * `aya_sponsor_orders` name in 0.56.0 — the site never launched, so the
  * rename is a fresh-install DDL name change, not a data migration).
  */
-final class SponsorshipModule implements Module
+final class MembershipModule implements Module
 {
     public const PAGE_SLUG = 'membership';
-    public const OPTION_NAME = 'aiya_core_sponsorship';
-    public const PAYMENTS_PAGE_SLUG = 'sponsorship-payments';
-    public const PAYMENTS_OPTION_NAME = 'aiya_core_sponsorship_payments';
+    public const OPTION_NAME = 'aiya_core_membership';
+    public const PAYMENTS_PAGE_SLUG = 'membership-payments';
+    public const PAYMENTS_OPTION_NAME = 'aiya_core_membership_payments';
     public const CRON_HOOK = 'aiya_core_membership_grants';
     // installTables doubles as the schema reconciler in the flattened 1.0.0
     // chain: dbDelta adds the payment rows' paid_at / cycles columns (and
@@ -72,7 +72,7 @@ final class SponsorshipModule implements Module
                 // money is forever, abandoned checkouts are not.
                 $orders = new OrderService();
                 $orders->expirePending();
-                $orders->pruneUnpaid(SponsorshipSettings::read()['unpaidRetentionDays']);
+                $orders->pruneUnpaid(MembershipSettings::read()['unpaidRetentionDays']);
             }
         });
 
@@ -308,7 +308,7 @@ final class SponsorshipModule implements Module
                     'type' => 'note',
                     'variant' => 'info',
                     'label' => __('Afdian webhook address', 'aiya-core'),
-                    'description' => __('Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only.', 'aiya-core'),
+                    'description' => __('Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/membership/v1/afdian/callback — POST only.', 'aiya-core'),
                     'default' => null,
                 ],
                 [
@@ -332,7 +332,7 @@ final class SponsorshipModule implements Module
     }
 
     /**
-     * Creates the three sponsorship tables in their final shape (the
+     * Creates the three membership tables in their final shape (the
      * payment log, the entitlement queue and the redeem codes); the
      * clean-release migration callback. dbDelta fails silently on
      * transient DB hiccups, so every table is verified afterwards and

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Sponsorship;
+namespace Aiya\Core\Domain\Membership;
 
 use Aiya\Core\Domain\Credit\LedgerService;
 use WP_Error;
@@ -408,6 +408,75 @@ final class EntitlementService
         global $wpdb;
         /** @var \wpdb $wpdb */
         return $wpdb->prefix . 'aiya_memberships';
+    }
+
+    /**
+     * The stored row of one order — tier snapshot and the window this
+     * purchase contributed. The receipt mail's data source; null when
+     * the order id is unknown.
+     *
+     * @return array{user_id:int, tier_name:string, starts_at:string, ends_at:string}|null
+     */
+    public function orderBy(string $orderId): ?array
+    {
+        $orderId = substr(trim($orderId), 0, 64);
+        if ($orderId === '') {
+            return null;
+        }
+
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $row = $wpdb->get_row($wpdb->prepare(
+            'SELECT user_id, tier_name, starts_at, ends_at FROM %i WHERE order_id = %s',
+            $this->table(),
+            $orderId
+        ));
+        if ($row === null) {
+            return null;
+        }
+
+        return [
+            'user_id' => (int) $row->user_id,
+            'tier_name' => (string) $row->tier_name,
+            'starts_at' => (string) $row->starts_at,
+            'ends_at' => (string) $row->ends_at,
+        ];
+    }
+
+    /**
+     * Holders whose active-queue tail (the MAX ends_at of their rows)
+     * falls inside [from, to] unix seconds — the expiry heads-up scan's
+     * cohort; only the tail matters, mid-queue ends never surface.
+     *
+     * @return list<object{user_id:int, queue_end:int}>
+     */
+    public function queueEndsBetween(int $from, int $to): array
+    {
+        $windowStart = gmdate('Y-m-d H:i:s', max(0, $from));
+        $windowEnd = gmdate('Y-m-d H:i:s', max(0, $to));
+
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $rows = $wpdb->get_results($wpdb->prepare(
+            'SELECT user_id, MAX(ends_at) AS queue_end FROM %i
+             WHERE status = %s
+             GROUP BY user_id
+             HAVING queue_end BETWEEN %s AND %s',
+            $this->table(),
+            self::STATUS_ACTIVE,
+            $windowStart,
+            $windowEnd
+        ));
+
+        $out = [];
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $out[] = (object) [
+                'user_id' => (int) $row->user_id,
+                'queue_end' => (int) get_date_from_gmt((string) $row->queue_end, 'U'),
+            ];
+        }
+
+        return $out;
     }
 
     /**

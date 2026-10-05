@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Sponsorship\AfdianActivator;
-use Aiya\Core\Domain\Sponsorship\AfdianGateway;
-use Aiya\Core\Domain\Sponsorship\EntitlementService;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
-use Aiya\Core\Domain\Sponsorship\OrderService;
-use Aiya\Core\Domain\Sponsorship\SponsorshipModule;
+use Aiya\Core\Domain\Membership\AfdianActivator;
+use Aiya\Core\Domain\Membership\AfdianGateway;
+use Aiya\Core\Domain\Membership\EntitlementService;
+use Aiya\Core\Domain\Membership\MembershipService;
+use Aiya\Core\Domain\Membership\OrderService;
+use Aiya\Core\Domain\Membership\MembershipModule;
 use Aiya\Core\Settings\Registry;
 use Aiya\Infra\PaymentAfdian\Client;
 use Aiya\Infra\PaymentAfdian\Gateway;
@@ -17,7 +17,7 @@ use Aiya\Infra\SlugToolkit\IdSlugEncoder;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 
-require_once __DIR__ . '/../Fixture/SponsorshipTestWpdb.php';
+require_once __DIR__ . '/../Fixture/MembershipTestWpdb.php';
 
 /**
  * The Afdian activation chain, webhook side first (2026-09-21 rewrite;
@@ -36,7 +36,7 @@ final class AfdianActivatorTest extends TestCase
     private const GOLD = ['key' => 'gold', 'name' => 'Gold', 'price' => 30.0, 'cycleDays' => 30, 'creditsPerCycle' => 100];
     private const SILVER = ['key' => 'silver', 'name' => 'Silver', 'price' => 10.0, 'cycleDays' => 30, 'creditsPerCycle' => 20];
 
-    private SponsorshipTestWpdb $db;
+    private MembershipTestWpdb $db;
 
     /** The platform's answer to query-order, keyed by trade number. @var array<string, array<string, mixed>> */
     private array $orders = [];
@@ -47,13 +47,13 @@ final class AfdianActivatorTest extends TestCase
     protected function setUp(): void
     {
         global $wpdb;
-        $this->db = new SponsorshipTestWpdb();
+        $this->db = new MembershipTestWpdb();
         $wpdb = $this->db;
         $this->orders = [];
         $this->pingEc = 200;
         $GLOBALS['__aiya_test_users'] = [42 => true, 7 => true];
-        delete_option('aiya_core_sponsorship_payments');
-        delete_option('aiya_core_sponsorship');
+        delete_option('aiya_core_membership_payments');
+        delete_option('aiya_core_membership');
         $GLOBALS['__aiya_test_transients'] = [];
     }
 
@@ -321,7 +321,7 @@ final class AfdianActivatorTest extends TestCase
     public function testCurrentTiersForFoldsOneQueryPerPage(): void
     {
         global $wpdb;
-        /** @var SponsorshipTestWpdb $wpdb */
+        /** @var MembershipTestWpdb $wpdb */
         $this->db->seedQueueRow(42, 'gold', 'Gold', '-10 days', '+20 days');
         $this->db->seedQueueRow(42, 'silver', 'Silver', '-1 day', '+360 days'); // the covering row
         $this->db->seedQueueRow(7, 'gold', 'Gold', '+2 days', '+32 days'); // queued future: not yet current
@@ -355,7 +355,7 @@ final class AfdianActivatorTest extends TestCase
      */
     public function testDeletingATierWithALiveCheckoutIsRefused(): void
     {
-        $module = new SponsorshipModule(new Registry());
+        $module = new MembershipModule(new Registry());
         $values = ['tiers' => [['key' => 'gold', 'name' => 'Gold']]];
         $old = ['tiers' => [['key' => 'gold'], ['key' => 'silver']]];
 
@@ -382,7 +382,7 @@ final class AfdianActivatorTest extends TestCase
      */
     public function testDeletingATierWithCoveringMembersIsRefused(): void
     {
-        $module = new SponsorshipModule(new Registry());
+        $module = new MembershipModule(new Registry());
         $values = ['tiers' => [['key' => 'gold', 'name' => 'Gold']]];
         $old = ['tiers' => [['key' => 'gold'], ['key' => 'silver']]];
 

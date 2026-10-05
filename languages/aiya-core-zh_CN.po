@@ -2125,8 +2125,8 @@ msgstr "发布公告"
 msgid "Minimum visible role"
 msgstr "最低可见角色"
 
-msgid "Viewers below this role will not see the announcement. Sponsor also requires a valid sponsorship."
-msgstr "低于该角色的访客看不到此公告。「赞助者」级别还要求有效的赞助身份。"
+msgid "Viewers below this role will not see the announcement. Sponsor also requires a valid membership."
+msgstr "低于该角色的访客看不到此公告。「赞助者」级别还要求有效的会员身份。"
 
 msgid "Publish"
 msgstr "发布"
@@ -2710,8 +2710,8 @@ msgstr "爱发电 API Token"
 msgid "Afdian webhook address"
 msgstr "爱发电 Webhook 地址"
 
-msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
-msgstr "在爱发电创作者后台（开发工具 > WebHook）登记该地址：{site url}/wp-json/aiya/sponsorship/v1/afdian/callback，仅接受 POST。"
+msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/membership/v1/afdian/callback — POST only."
+msgstr "在爱发电创作者后台（开发工具 > WebHook）登记该地址：{site url}/wp-json/aiya/membership/v1/afdian/callback，仅接受 POST。"
 
 msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
 msgstr "以下档位仍有生效成员或进行中的订单，无法删除：%s。"
@@ -3706,3 +3706,16 @@ msgstr "同一零件的两种外壳：可折叠的 details 卡片（默认展开
 #: src/Admin/FieldRenderer.php:315
 msgid "Confirm delete?"
 msgstr "确认删除？"
+
+#: src/Admin/NotificationPage.php:93
+#, php-format
+msgid "Deleted %d notifications."
+msgstr "已删除 %d 条通知"
+
+#: src/Admin/NotificationPage.php:153
+msgid "Delete the selected notifications?"
+msgstr "删除选中的通知？"
+
+#: src/Admin/SendMailPage.php:114
+msgid "Compose"
+msgstr "撰写"

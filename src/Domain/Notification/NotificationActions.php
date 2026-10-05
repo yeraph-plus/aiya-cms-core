@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Notification;
 
 use Aiya\Core\Contracts\Module;
-use Aiya\Core\Domain\Mail\MailShell;
-use Aiya\Core\Domain\Mail\MailTemplate;
 use Aiya\Core\Domain\Content\Mentions;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
 use Aiya\Core\Domain\Shared\DateLabels;
-use Aiya\Core\Domain\Shared\FrontendDomain;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
+use Aiya\Core\Domain\Membership\EntitlementService;
+use Aiya\Core\Domain\Membership\MembershipService;
 use WP_Comment;
 use WP_Post;
 use WP_User;
@@ -29,13 +27,15 @@ use WP_User;
  * single write path of NotificationService::create().
  *
  * Hook sources:
- *  - WP core: wp_insert_comment (comment on my post / reply to my
- *    comment), transition_post_status (followed-author publications and
- *    favorite-update scans), password_reset;
- *  - this plugin's own do_action points: aiya_core_thread_replied and
- *    aiya_core_thread_published (DiscussionService), aiya_core_user_followed
- *    (FollowService), aiya_core_membership_activated (EntitlementService
- *    fires it once per genuinely new queue insert, so no dedupe needed);
+ *  - this plugin's own do_action points: aiya_core_comment_posted and
+ *    aiya_core_post_approved/published/updated (the Content domain's
+ *    delegation of the comment/publish workflow), aiya_core_thread_replied
+ *    and aiya_core_thread_published (DiscussionService),
+ *    aiya_core_user_followed (FollowService), aiya_core_membership_activated
+ *    (EntitlementService fires it once per genuinely new queue insert, so
+ *    no dedupe needed), aiya_core_credit_granted (LedgerService);
+ *  - WP core: password_reset (account semantics, no content domain in
+ *    between);
  *  - a dedicated daily cron scans members whose queue ends within one
  *    day (user-meta dedup marker, reset by renewals).
  *
@@ -57,7 +57,7 @@ final class NotificationActions implements Module
     private SmiliesRenderer $smilies;
 
     private Mentions $mentions;
-    private ?MailTemplate $mailTemplate;
+    private EntitlementService $entitlements;
 
     public function __construct(
         ?NotificationService $notifications = null,
@@ -66,7 +66,7 @@ final class NotificationActions implements Module
         ?DiscussionService $threads = null,
         ?SmiliesRenderer $smilies = null,
         ?Mentions $mentions = null,
-        ?MailTemplate $mailTemplate = null
+        ?EntitlementService $entitlements = null
     ) {
         $this->notifications = $notifications ?? new NotificationService();
         $this->follows = $follows ?? new FollowService();
@@ -74,13 +74,15 @@ final class NotificationActions implements Module
         $this->threads = $threads ?? new DiscussionService();
         $this->smilies = $smilies ?? new SmiliesRenderer(SmiliesRegistry::shared());
         $this->mentions = $mentions ?? new Mentions();
-        $this->mailTemplate = $mailTemplate;
+        $this->entitlements = $entitlements ?? new EntitlementService();
     }
 
     public function register(): void
     {
-        add_action('wp_insert_comment', [$this, 'onCommentInserted'], 10, 2);
-        add_action('transition_post_status', [$this, 'onPostTransition'], 10, 3);
+        add_action('aiya_core_comment_posted', [$this, 'onCommentPosted'], 10, 2);
+        add_action('aiya_core_post_approved', [$this, 'onPostApproved'], 10, 1);
+        add_action('aiya_core_post_published', [$this, 'onPostPublished'], 10, 1);
+        add_action('aiya_core_post_updated', [$this, 'onPostUpdated'], 10, 1);
         add_action('password_reset', [$this, 'onPasswordReset'], 10, 2);
         add_action('aiya_core_thread_replied', [$this, 'onThreadReplied'], 10, 3);
         add_action('aiya_core_thread_published', [$this, 'onThreadPublished'], 10, 3);
@@ -102,10 +104,8 @@ final class NotificationActions implements Module
     }
 
     /**
-     * A comment landed on a post or as a reply. Held comments stay
-     * silent until approved (they re-fire wp_insert_comment on approval
-     * through wp_transition_comment_status → wp_insert_comment is NOT
-     * re-fired; approved-only keeps this simple and honest).
+     * A visible comment landed on a post or as a reply — the Content
+     * domain delegates only approved comments, held ones never fire.
      *
      * Guest comments (comment user_id 0) never notify, in BOTH directions
      * (0.96.0 audit): a guest comment on a post stays silent toward the
@@ -115,12 +115,8 @@ final class NotificationActions implements Module
      * materializing that recipient would have broadcast the reply to
      * every visitor. Notifications only flow between signed-in accounts.
      */
-    public function onCommentInserted(int $commentId, WP_Comment $comment): void
+    public function onCommentPosted(int $commentId, WP_Comment $comment): void
     {
-        if ((string) $comment->comment_approved !== '1') {
-            return;
-        }
-
         $actorId = (int) $comment->user_id;
         if ($actorId <= 0) {
             return;
@@ -227,85 +223,90 @@ final class NotificationActions implements Module
     }
 
     /**
-     * Publication transition fans out to the author's followers; an
-     * update on an already-published post triggers the favorite scan.
+     * A pending submission got greenlit: its author learns the piece went
+     * live (the Content domain rules what counts as approval — pending to
+     * publish on the article type — and delegates only that). A direct
+     * draft publish is the author's own doing and never fires this event.
      */
-    public function onPostTransition(string $newStatus, string $oldStatus, WP_Post $post): void
+    public function onPostApproved(WP_Post $post): void
     {
-        if ($newStatus !== 'publish' || $post->post_author <= 0) {
+        $this->notify(
+            (int) $post->post_author,
+            NotificationService::TYPE_POST_APPROVED,
+            0,
+            'post',
+            (int) $post->ID,
+            sprintf(
+                /* translators: %s: post title. */
+                __('Your submission "%1$s" was approved and published.', 'aiya-core'),
+                (string) $post->post_title
+            ),
+            ''
+        );
+    }
+
+    /**
+     * First publication of a piece (any type, approval included): body
+     * mentions fan out directed rows, then the author's followers sweep
+     * (articles only — the fanOutToFollowers gate).
+     */
+    public function onPostPublished(WP_Post $post): void
+    {
+        if ((int) $post->post_author <= 0) {
             return;
         }
 
-        if ($oldStatus !== 'publish') {
-            // Approval: an editor greenlit a pending submission, so its
-            // author learns the piece went live. A direct draft publish is
-            // the author's own doing and stays silent.
-            if ($post->post_type === 'post' && $oldStatus === 'pending') {
-                $this->notify(
-                    (int) $post->post_author,
-                    NotificationService::TYPE_POST_APPROVED,
-                    0,
-                    'post',
-                    (int) $post->ID,
-                    sprintf(
-                        /* translators: %s: post title. */
-                        __('Your submission "%1$s" was approved and published.', 'aiya-core'),
-                        (string) $post->post_title
-                    ),
-                    ''
-                );
-            }
-
-            // Body mentions on first publication: a directed row beats the
-            // broad one — a mentioned follower takes the mention row and is
-            // dropped from the sweep below (the community-thread shape).
-            // The author can never mention themselves.
-            $mentioned = $this->mentions->resolve((string) $post->post_content, [(int) $post->post_author]);
-            foreach ($mentioned as $recipientId) {
-                $this->notify(
-                    $recipientId,
-                    NotificationService::TYPE_POST_MENTIONED,
-                    (int) $post->post_author,
-                    'post',
-                    (int) $post->ID,
-                    sprintf(
-                        /* translators: 1: author name, 2: post title. */
-                        __('%1$s mentioned you in the article "%2$s".', 'aiya-core'),
-                        $this->displayName((int) $post->post_author),
-                        (string) $post->post_title
-                    ),
-                    wp_trim_words(wp_strip_all_tags($this->smilies->strip((string) $post->post_content)), 16)
-                );
-            }
-
-            if ($post->post_type === 'post') {
-                // Followers follow writing: only article publications fan out.
-                // A page or a resource going live is not news to them, and the
-                // object type below is 'post' — broadcasting other types would
-                // stamp rows whose object can never resolve.
-                $this->fanOutToFollowers(
-                    (int) $post->post_author,
-                    'post',
-                    (int) $post->ID,
-                    sprintf(
-                        /* translators: 1: author name, 2: post title. */
-                        __('%1$s published a new article "%2$s".', 'aiya-core'),
-                        $this->displayName((int) $post->post_author),
-                        (string) $post->post_title
-                    ),
-                    '',
-                    $mentioned
-                );
-            }
-
-            return;
+        // A directed row beats the broad one — a mentioned follower takes
+        // the mention row and is dropped from the sweep below (the
+        // community-thread shape). The author can never mention themselves.
+        $mentioned = $this->mentions->resolve((string) $post->post_content, [(int) $post->post_author]);
+        foreach ($mentioned as $recipientId) {
+            $this->notify(
+                $recipientId,
+                NotificationService::TYPE_POST_MENTIONED,
+                (int) $post->post_author,
+                'post',
+                (int) $post->ID,
+                sprintf(
+                    /* translators: 1: author name, 2: post title. */
+                    __('%1$s mentioned you in the article "%2$s".', 'aiya-core'),
+                    $this->displayName((int) $post->post_author),
+                    (string) $post->post_title
+                ),
+                wp_trim_words(wp_strip_all_tags($this->smilies->strip((string) $post->post_content)), 16)
+            );
         }
 
-        // Update of a published post: notify everyone who favorited it —
-        // at most one round per post per window, so a run of small edits
-        // (typo fixes) never spam-fans the whole favorite list. The
-        // watermark is a GMT epoch on a plugin-prefixed meta key, so the
-        // uninstall sweep takes it with the rest.
+        if ($post->post_type === 'post') {
+            // Followers follow writing: only article publications fan out.
+            // A page or a resource going live is not news to them, and the
+            // object type below is 'post' — broadcasting other types would
+            // stamp rows whose object can never resolve.
+            $this->fanOutToFollowers(
+                (int) $post->post_author,
+                'post',
+                (int) $post->ID,
+                sprintf(
+                    /* translators: 1: author name, 2: post title. */
+                    __('%1$s published a new article "%2$s".', 'aiya-core'),
+                    $this->displayName((int) $post->post_author),
+                    (string) $post->post_title
+                ),
+                '',
+                $mentioned
+            );
+        }
+    }
+
+    /**
+     * Update of a published post: notify everyone who favorited it —
+     * at most one round per post per window, so a run of small edits
+     * (typo fixes) never spam-fans the whole favorite list. The
+     * watermark is a GMT epoch on a plugin-prefixed meta key, so the
+     * uninstall sweep takes it with the rest.
+     */
+    public function onPostUpdated(WP_Post $post): void
+    {
         $watermark = 'aiya_core_fav_notified_at';
         $lastNotified = (int) get_post_meta((int) $post->ID, $watermark, true);
         if ($lastNotified > 0 && (time() - $lastNotified) < DAY_IN_SECONDS) {
@@ -446,62 +447,6 @@ final class NotificationActions implements Module
             );
     }
 
-    /**
-     * The activation receipt (2026-10-03): a branded bill for the new
-     * entitlement — tier, order id and the coverage window this purchase
-     * contributed, with the CTA on the front end's membership page. Best
-     * effort: the in-site row above is the authoritative notice, the mail
-     * never blocks or fails the activation.
-     */
-    private function membershipReceipt(int $userId, string $orderId): void
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $holder = get_userdata($userId);
-        if ($holder === false || $holder->user_email === '') {
-            return;
-        }
-
-        $row = $wpdb->get_row($wpdb->prepare(
-            'SELECT tier_name, starts_at, ends_at FROM %i WHERE order_id = %s',
-            $wpdb->prefix . 'aiya_memberships',
-            $orderId
-        ));
-        if ($row === null) {
-            return;
-        }
-
-        $template = $this->mailTemplate ?? MailShell::fromSite()->template();
-        $content = $this->receiptParagraph(sprintf(
-            /* translators: %s: site name. */
-            __('Thank you for supporting %1$s — this email is your receipt.', 'aiya-core'),
-            esc_html(wp_specialchars_decode((string) get_option('blogname'), ENT_QUOTES))
-        ))
-            . $template->rows([
-                // Context-disambiguated: the generic "Tier"/"Order" strings
-                // already exist for the admin tables; the receipt translates
-                // them differently and gettext forbids duplicate msgids.
-                _x('Tier', 'membership receipt', 'aiya-core') => (string) $row->tier_name,
-                _x('Order', 'membership receipt', 'aiya-core') => $orderId,
-                __('Active from', 'aiya-core') => DateLabels::fromGmt((string) $row->starts_at, false),
-                __('Active until', 'aiya-core') => DateLabels::fromGmt((string) $row->ends_at, false),
-            ])
-            . $this->receiptParagraph(__('If your purchase covers multiple cycles, the next one starts automatically when the current subscription period ends.', 'aiya-core'))
-            . $template->button(__('View membership', 'aiya-core'), FrontendDomain::originOrHome() . '/profile/me/');
-
-        $subject = sprintf(
-            /* translators: %s: site name. */
-            __('[%1$s] Thank you — your membership is now active.', 'aiya-core'),
-            wp_specialchars_decode((string) get_option('blogname'), ENT_QUOTES)
-        );
-        wp_mail((string) $holder->user_email, $subject, $template->render($content, __('Membership activated', 'aiya-core'), $holder->user_email));
-    }
-
-    private function receiptParagraph(string $html): string
-    {
-        return '<p style="margin: 0 0 16px;">' . $html . '</p>';
-    }
-
     /** A followed user published a community thread. */
     public function onThreadPublished(int $threadId, int $authorId, int $boardId): void
     {
@@ -573,7 +518,9 @@ final class NotificationActions implements Module
      * A purchase joined the holder's queue (fires once per genuinely new
      * insert — activation is idempotent on the order id, no marker). The
      * message carries the queue end, not the just-bought row's end: what
-     * the holder cares about is when their coverage now runs to.
+     * the holder cares about is when their coverage now runs to. The
+     * branded receipt mail is the Mail domain's listener on the same
+     * event; this row is the in-site notice.
      */
     public function onMembershipActivated(int $userId, string $orderId): void
     {
@@ -586,7 +533,7 @@ final class NotificationActions implements Module
             $userId,
             NotificationService::TYPE_SPONSOR_ACTIVATED,
             0,
-            'sponsorship',
+            'membership',
             $userId,
                 sprintf(
                     /* translators: %s: membership expiration date. */
@@ -595,60 +542,39 @@ final class NotificationActions implements Module
                 ),
             ''
         );
-
-        // The receipt copy (2026-10-03 ruling): the activation mail doubles
-        // as the holder's bill — tier, order id and the coverage window.
-        $this->membershipReceipt($userId, $orderId);
     }
 
     /**
      * Daily scan: members whose queue ends within a day get one heads-up
      * per end timestamp (the same user-meta marker as before; a renewal
-     * resets it naturally).
+     * resets it naturally). The cohort read goes through the Membership
+     * service — the queue table stays inside its domain.
      */
     public function onExpiryScan(): void
     {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
         $now = time();
-        $horizonEnd = gmdate('Y-m-d H:i:s', $now + self::EXPIRY_HORIZON_SECONDS);
-        $horizonStart = gmdate('Y-m-d H:i:s', $now);
-        // The queue tail is the coverage end: only the MAX(ends_at) row
-        // of each holder matters for the heads-up.
-        $rows = $wpdb->get_results($wpdb->prepare(
-            "SELECT user_id, MAX(ends_at) AS queue_end FROM %i
-             WHERE status = 'active'
-             GROUP BY user_id
-             HAVING queue_end BETWEEN %s AND %s",
-            $wpdb->prefix . 'aiya_memberships',
-            $horizonStart,
-            $horizonEnd
-        ));
-
-        foreach (is_array($rows) ? $rows : [] as $row) {
-            $userId = (int) $row->user_id;
-            $endsAt = (int) get_date_from_gmt((string) $row->queue_end, 'U');
-            if ($endsAt <= $now) {
+        foreach ($this->entitlements->queueEndsBetween($now, $now + self::EXPIRY_HORIZON_SECONDS) as $row) {
+            if ($row->queue_end <= $now) {
                 continue;
             }
-            if ((int) get_user_meta($userId, self::MARKER_META, true) === $endsAt) {
+            if ((int) get_user_meta($row->user_id, self::MARKER_META, true) === $row->queue_end) {
                 continue;
             }
 
             $this->notify(
-                $userId,
+                $row->user_id,
                 NotificationService::TYPE_SPONSOR_EXPIRING,
                 0,
-                'sponsorship',
-                $userId,
+                'membership',
+                $row->user_id,
                 sprintf(
                     /* translators: %s: membership expiration date. */
                     __('Your membership expires on %s. Renew to keep the perks.', 'aiya-core'),
-                    DateLabels::fromTimestamp($endsAt, false)
+                    DateLabels::fromTimestamp($row->queue_end, false)
                 ),
                 ''
             );
-            update_user_meta($userId, self::MARKER_META, $endsAt);
+            update_user_meta($row->user_id, self::MARKER_META, $row->queue_end);
         }
     }
 

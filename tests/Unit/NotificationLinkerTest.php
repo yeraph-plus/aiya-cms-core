@@ -116,7 +116,7 @@ final class NotificationLinkerTest extends TestCase
     {
         $plain = '你的账户入账 +88 积分。';
 
-        foreach (['credit', 'sponsorship', 'account', ''] as $objectType) {
+        foreach (['credit', 'membership', 'account', ''] as $objectType) {
             self::assertSame(
                 $plain,
                 $this->linker->wrap($this->row($objectType, 5), $plain),

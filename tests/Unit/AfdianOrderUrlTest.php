@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit {
 
-use Aiya\Core\Api\Presenter\SponsorshipPresenter;
+use Aiya\Core\Api\Presenter\MembershipPresenter;
 use Aiya\Core\Api\Rest\RateLimiter;
-use Aiya\Core\Api\Rest\SponsorshipController;
+use Aiya\Core\Api\Rest\MembershipController;
 use Aiya\Core\Domain\Credit\LedgerService;
-use Aiya\Core\Domain\Sponsorship\EntitlementService;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
-use Aiya\Core\Domain\Sponsorship\OrderService;
+use Aiya\Core\Domain\Membership\EntitlementService;
+use Aiya\Core\Domain\Membership\MembershipService;
+use Aiya\Core\Domain\Membership\OrderService;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 
-require_once __DIR__ . '/../Fixture/SponsorshipTestWpdb.php';
+require_once __DIR__ . '/../Fixture/MembershipTestWpdb.php';
 
 if (!class_exists('WP_REST_Request')) {
     // The REST stack is not shimmed in bootstrap; the rate-limit test only
@@ -60,18 +60,18 @@ if (!class_exists('WP_REST_Response')) {
  */
 final class AfdianOrderUrlTest extends TestCase
 {
-    private SponsorshipTestWpdb $db;
+    private MembershipTestWpdb $db;
 
     protected function setUp(): void
     {
         global $wpdb;
-        $this->db = new SponsorshipTestWpdb();
+        $this->db = new MembershipTestWpdb();
         $wpdb = $this->db;
         $GLOBALS['__aiya_test_users'] = [1 => true];
         $GLOBALS['__aiya_test_current_user_id'] = 0; // the route gate owns auth; the limiter is hit first regardless
         $GLOBALS['__aiya_test_transients'] = [];
-        delete_option('aiya_core_sponsorship_payments');
-        delete_option('aiya_core_sponsorship');
+        delete_option('aiya_core_membership_payments');
+        delete_option('aiya_core_membership');
     }
 
     protected function tearDown(): void
@@ -81,15 +81,15 @@ final class AfdianOrderUrlTest extends TestCase
     }
 
     /** The controller with its production collaborators over the shared wpdb double. */
-    private function controller(): SponsorshipController
+    private function controller(): MembershipController
     {
-        return new SponsorshipController(
+        return new MembershipController(
             new MembershipService(),
             new EntitlementService(),
             new LedgerService(),
             new OrderService(),
             new RateLimiter(),
-            new SponsorshipPresenter()
+            new MembershipPresenter()
         );
     }
 
@@ -99,12 +99,12 @@ final class AfdianOrderUrlTest extends TestCase
         // in-budget hit is allowed to fail downstream on the missing deep
         // link (aiya_plan_unbound) — which proves the limiter was not what
         // stopped them.
-        update_option('aiya_core_sponsorship_payments', [
+        update_option('aiya_core_membership_payments', [
             'afdian_enable' => true,
             'afdian_user_id' => 'user-1',
             'afdian_token' => 't',
         ]);
-        update_option('aiya_core_sponsorship', [
+        update_option('aiya_core_membership', [
             'tiers' => [['key' => 'gold', 'name' => 'Gold', 'price' => 30, 'cycle_days' => 30, 'credits_per_cycle' => 100]],
         ]);
 
@@ -131,13 +131,13 @@ final class AfdianOrderUrlTest extends TestCase
      */
     public function testOrderUrlRefusesADisabledTierServerSide(): void
     {
-        update_option('aiya_core_sponsorship_payments', [
+        update_option('aiya_core_membership_payments', [
             'afdian_enable' => true,
             'afdian_user_id' => 'user-1',
             'afdian_token' => 't',
             'afdian_bindings' => [['plan_id' => 'plan-gold', 'tier_key' => 'gold']],
         ]);
-        update_option('aiya_core_sponsorship', [
+        update_option('aiya_core_membership', [
             'tiers' => [['key' => 'gold', 'name' => 'Gold', 'price' => 30, 'cycle_days' => 30, 'credits_per_cycle' => 100, 'enabled' => false]],
         ]);
 
@@ -156,13 +156,13 @@ final class AfdianOrderUrlTest extends TestCase
      */
     public function testOrderUrlReturnsTheLinkWithoutBookingAnything(): void
     {
-        update_option('aiya_core_sponsorship_payments', [
+        update_option('aiya_core_membership_payments', [
             'afdian_enable' => true,
             'afdian_user_id' => 'user-1',
             'afdian_token' => 't',
             'afdian_bindings' => [['plan_id' => 'plan-gold', 'tier_key' => 'gold']],
         ]);
-        update_option('aiya_core_sponsorship', [
+        update_option('aiya_core_membership', [
             'tiers' => [['key' => 'gold', 'name' => 'Gold', 'price' => 30, 'cycle_days' => 30, 'credits_per_cycle' => 100]],
         ]);
         $GLOBALS['__aiya_test_current_user_id'] = 1;

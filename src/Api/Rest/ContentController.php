@@ -18,7 +18,7 @@ use Aiya\Core\Domain\Shared\PublicType;
 use Aiya\Core\Domain\Shared\PublicTypes;
 use Aiya\Core\Domain\Content\HotPostsQuery;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
+use Aiya\Core\Domain\Membership\MembershipService;
 use WP_Error;
 use WP_Post;
 use WP_REST_Request;

@@ -87,5 +87,9 @@ final class MailModule implements Module
         $shell = MailShell::fromSite();
         add_filter('wp_mail', [$shell, 'apply'], 999);
         (new CoreMailRewrites($shell->template()))->register();
+        // The domain's one hook into core business flow (the receipt bill
+        // for a fresh entitlement); everything above rides WP's own mail
+        // behaviour.
+        (new MembershipReceipt($shell->template()))->register();
     }
 }

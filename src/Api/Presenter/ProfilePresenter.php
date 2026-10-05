@@ -11,7 +11,7 @@ use Aiya\Core\Api\Contract\ProfileStats;
 use Aiya\Core\Domain\Identity\FollowService;
 use Aiya\Core\Api\Contract\PostSummary;
 use Aiya\Core\Domain\Identity\FavoriteService;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
+use Aiya\Core\Domain\Membership\MembershipService;
 use WP_User;
 
 /**

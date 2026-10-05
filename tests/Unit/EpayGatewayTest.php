@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Sponsorship\EpayGateway;
+use Aiya\Core\Domain\Membership\EpayGateway;
 use Aiya\Infra\PaymentEpay\Client;
 use Aiya\Infra\PaymentEpay\Gateway;
 use Aiya\Infra\SlugToolkit\IdSlugEncoder;
@@ -29,8 +29,8 @@ final class EpayGatewayTest extends TestCase
     protected function setUp(): void
     {
         $GLOBALS['__aiya_test_post_meta'] = [];
-        delete_option('aiya_core_sponsorship_payments');
-        delete_option('aiya_core_sponsorship');
+        delete_option('aiya_core_membership_payments');
+        delete_option('aiya_core_membership');
     }
 
     /** @param array<string, mixed> $overrides */
@@ -59,7 +59,7 @@ final class EpayGatewayTest extends TestCase
     {
         return new Gateway(
             new Client(self::PID, self::KEY, self::BASE),
-            'https://aiya.test/wp-json/aiya/sponsorship/v1/epay/callback',
+            'https://aiya.test/wp-json/aiya/membership/v1/epay/callback',
             $tierKeys
         );
     }
@@ -126,7 +126,7 @@ final class EpayGatewayTest extends TestCase
         self::assertSame('alipay', $query['type']);
         self::assertSame('MD5', $query['sign_type']);
         self::assertSame(
-            'https://aiya.test/wp-json/aiya/sponsorship/v1/epay/callback',
+            'https://aiya.test/wp-json/aiya/membership/v1/epay/callback',
             $query['notify_url'],
             'the adapter hands the package the route the platform must push to'
         );
@@ -137,7 +137,7 @@ final class EpayGatewayTest extends TestCase
 
     public function testTheAdapterMapsConfigurationIntoThePackageGateway(): void
     {
-        update_option('aiya_core_sponsorship_payments', [
+        update_option('aiya_core_membership_payments', [
             'epay_enable' => true,
             'epay_pid' => self::PID,
             'epay_key' => self::KEY,
@@ -190,10 +190,10 @@ final class EpayGatewayTest extends TestCase
      */
     public function testTheCheckoutIdMatchesTheIdItsCallbackResolves(): void
     {
-        update_option('aiya_core_sponsorship', [
+        update_option('aiya_core_membership', [
             'tiers' => [['key' => 'gold', 'name' => 'Gold', 'price' => 30, 'cycle_days' => 30, 'credits_per_cycle' => 100]],
         ]);
-        update_option('aiya_core_sponsorship_payments', [
+        update_option('aiya_core_membership_payments', [
             'epay_enable' => true,
             'epay_pid' => self::PID,
             'epay_key' => self::KEY,
@@ -212,7 +212,7 @@ final class EpayGatewayTest extends TestCase
 
     public function testTheAdapterRefusesDisabledChannelsAndUnknownOnes(): void
     {
-        update_option('aiya_core_sponsorship_payments', [
+        update_option('aiya_core_membership_payments', [
             'epay_enable' => true,
             'epay_pid' => self::PID,
             'epay_key' => self::KEY,
@@ -239,7 +239,7 @@ final class EpayGatewayTest extends TestCase
     {
         self::assertNull(EpayGateway::fromSettings(), 'disabled by default');
 
-        update_option('aiya_core_sponsorship_payments', ['epay_enable' => true, 'epay_pid' => self::PID]);
+        update_option('aiya_core_membership_payments', ['epay_enable' => true, 'epay_pid' => self::PID]);
         self::assertNull(EpayGateway::fromSettings(), 'enabled but unconfigured');
     }
 }

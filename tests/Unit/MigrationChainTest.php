@@ -12,7 +12,7 @@ use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Domain\Identity\IdentityModule;
 use Aiya\Core\Domain\Notification\NotificationModule;
 use Aiya\Core\Domain\Operations\OperationsModule;
-use Aiya\Core\Domain\Sponsorship\SponsorshipModule;
+use Aiya\Core\Domain\Membership\MembershipModule;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
 use Aiya\Core\Settings\Registry;
 use PHPUnit\Framework\TestCase;
@@ -43,7 +43,7 @@ final class MigrationChainTest extends TestCase
             new IdentityModule(new MetadataRegistry()),
             new NotificationModule(),
             new CreditModule($settings),
-            new SponsorshipModule($settings),
+            new MembershipModule($settings),
             new OperationsModule(),
             new ContentManagementModule($settings),
             new FrontendModule($settings),

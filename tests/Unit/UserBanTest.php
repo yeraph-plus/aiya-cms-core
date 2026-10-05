@@ -8,7 +8,7 @@ use Aiya\Core\Admin\MetaboxAdmin;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Identity\UserBan;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
+use Aiya\Core\Domain\Membership\MembershipService;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
 use PHPUnit\Framework\TestCase;
 use WP_Error;

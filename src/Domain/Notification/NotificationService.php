@@ -243,41 +243,25 @@ final class NotificationService
     }
 
     /**
-     * Paged listing for the admin screen, newest first, no visibility
-     * filtering.
+     * Full listing for the admin screen, newest first, no visibility
+     * filtering. The screen's bulk table pages in PHP; the retention
+     * prune keeps this table small, so no SQL paging on top.
      *
-     * @return array{items: list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>, total: int, pages: int}
+     * @return list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>
      */
-    public function adminPage(int $paged, int $perPage): array
+    public function adminRows(): array
     {
-        $paged = max(1, $paged);
-        $perPage = max(1, min(100, $perPage));
-
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $table = $this->table();
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed table property interpolation
-        $total = (int) $wpdb->get_var("SELECT COUNT(id) FROM $table");
+        /** @var list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>|null $rows */
+        $rows = $wpdb->get_results($wpdb->prepare(
+            'SELECT id, type, user_id, min_role, title, body, created_at
+             FROM %i
+             ORDER BY created_at DESC, id DESC',
+            $this->table()
+        ));
 
-        $rows = [];
-        if ($total > 0) {
-            /** @var list<object{id:int,type:string,user_id:int,min_role:string,title:string,body:string,created_at:string}>|null $rows */
-            $rows = $wpdb->get_results($wpdb->prepare(
-                'SELECT id, type, user_id, min_role, title, body, created_at
-                 FROM %i
-                 ORDER BY created_at DESC, id DESC
-                 LIMIT %d OFFSET %d',
-                $table,
-                $perPage,
-                ($paged - 1) * $perPage
-            ));
-        }
-
-        return [
-            'items' => is_array($rows) ? $rows : [],
-            'total' => $total,
-            'pages' => (int) ceil($total / $perPage),
-        ];
+        return is_array($rows) ? $rows : [];
     }
 
     public function delete(int $id): bool
@@ -289,6 +273,34 @@ final class NotificationService
         global $wpdb;
         /** @var \wpdb $wpdb */
         return $wpdb->delete($this->table(), ['id' => $id], ['%d']) !== false;
+    }
+
+    /**
+     * Bulk delete for the admin screen's bulk action; returns rows gone.
+     *
+     * @param array<int|string, mixed> $ids raw request values; every element is absint'ed and non-positives dropped
+     */
+    public function deleteByIds(array $ids): int
+    {
+        $ids = array_values(array_filter(array_map('absint', $ids), static fn (int $id): bool => $id > 0));
+        if ($ids === []) {
+            return 0;
+        }
+
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+        $sql = $wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is a generated placeholder list, not data
+            "DELETE FROM %i WHERE id IN ($placeholders)",
+            array_merge([$this->table()], $ids)
+        );
+        if (!is_string($sql)) {
+            return 0;
+        }
+        $deleted = $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+
+        return is_int($deleted) ? $deleted : 0;
     }
 
     /**

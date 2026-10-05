@@ -20,7 +20,7 @@ use Aiya\Core\Settings\Registry;
  * membership grants add buckets through grant(); downstream features
  * (paid downloads from the next resource batch on) spend through spend()
  * passing their own price. It runs unconditionally — unlike the parked
- * sponsorship domain it has no legacy coupling.
+ * membership domain it has no legacy coupling.
  */
 final class CreditModule implements Module
 {
@@ -35,7 +35,7 @@ final class CreditModule implements Module
     {
         // The check-in settings ride the membership settings page: the
         // credit domain contributes its three fields via addFields after
-        // the sponsorship module registers the page (priority ordering).
+        // the membership module registers the page (priority ordering).
         add_action('aiya_core_register', [$this, 'settings'], 11, 0);
 
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {

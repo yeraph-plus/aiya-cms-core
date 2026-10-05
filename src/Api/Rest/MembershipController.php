@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
-use Aiya\Core\Api\Presenter\SponsorshipPresenter;
+use Aiya\Core\Api\Presenter\MembershipPresenter;
 use Aiya\Core\Domain\Credit\CreditSettings;
 use Aiya\Core\Domain\Credit\LedgerService;
-use Aiya\Core\Domain\Sponsorship\AfdianGateway;
-use Aiya\Core\Domain\Sponsorship\EpayGateway;
-use Aiya\Core\Domain\Sponsorship\EntitlementService;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
-use Aiya\Core\Domain\Sponsorship\OrderService;
-use Aiya\Core\Domain\Sponsorship\PaymentGateway;
-use Aiya\Core\Domain\Sponsorship\RandomToken;
-use Aiya\Core\Domain\Sponsorship\SponsorshipSettings;
+use Aiya\Core\Domain\Membership\AfdianGateway;
+use Aiya\Core\Domain\Membership\EpayGateway;
+use Aiya\Core\Domain\Membership\EntitlementService;
+use Aiya\Core\Domain\Membership\MembershipService;
+use Aiya\Core\Domain\Membership\OrderService;
+use Aiya\Core\Domain\Membership\PaymentGateway;
+use Aiya\Core\Domain\Membership\RandomToken;
+use Aiya\Core\Domain\Membership\MembershipSettings;
 use Aiya\Infra\SlugToolkit\IdSlugEncoder;
 use WP_Error;
 use WP_REST_Request;
@@ -31,7 +31,7 @@ use WP_REST_Server;
  * order deep link carrying the user binding for webhook self-attribution.
  * Code redemption lives in CreditController.
  */
-final class SponsorshipController
+final class MembershipController
 {
     public function __construct(
         private MembershipService $membership,
@@ -39,25 +39,25 @@ final class SponsorshipController
         private LedgerService $ledger,
         private OrderService $orders,
         private RateLimiter $limiter,
-        private SponsorshipPresenter $presenter,
+        private MembershipPresenter $presenter,
     ) {
     }
 
     public function registerRoutes(): void
     {
-        register_rest_route(Contract::API_NAMESPACE, '/sponsorship/plans', [
+        register_rest_route(Contract::API_NAMESPACE, '/membership/plans', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (): WP_REST_Response => $this->plans(),
             'permission_callback' => '__return_true',
         ]);
 
-        register_rest_route(Contract::API_NAMESPACE, '/sponsorship/membership', [
+        register_rest_route(Contract::API_NAMESPACE, '/membership/mine', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (): WP_REST_Response => $this->membershipState(),
             'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
         ]);
 
-        register_rest_route(Contract::API_NAMESPACE, '/sponsorship/afdian/order-url', [
+        register_rest_route(Contract::API_NAMESPACE, '/membership/afdian/order-url', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->afdianOrderUrl($request),
             'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
@@ -68,7 +68,7 @@ final class SponsorshipController
             ],
         ]);
 
-        register_rest_route(Contract::API_NAMESPACE, '/sponsorship/orders', [
+        register_rest_route(Contract::API_NAMESPACE, '/membership/orders', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->createOrder($request),
             'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
@@ -93,7 +93,7 @@ final class SponsorshipController
             $gateway !== null && $gateway->enabled(),
             $afdian !== null && $afdian->enabled() && $afdian->hasBindings(),
             $gateway?->channels() ?? [],
-            SponsorshipSettings::read()['tiers']
+            MembershipSettings::read()['tiers']
         ));
     }
 
@@ -124,8 +124,8 @@ final class SponsorshipController
         // The tier decides the cycle count (there is no front-end picker):
         // the deep link only pre-selects it on the platform page — the
         // webhook's queried order settles the reality (id, cycles, plan).
-        $tier = SponsorshipSettings::tierByKey(
-            SponsorshipSettings::read()['tiers'],
+        $tier = MembershipSettings::tierByKey(
+            MembershipSettings::read()['tiers'],
             sanitize_key((string) $request->get_param('tierKey'))
         );
         if ($tier === null) {
@@ -172,7 +172,7 @@ final class SponsorshipController
     private function createOrder(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         $userId = (int) get_current_user_id();
-        if (!$this->limiter->hit('sponsorship_order', 10, 600)) {
+        if (!$this->limiter->hit('membership_order', 10, 600)) {
             return RestGuard::rateLimited();
         }
 
@@ -185,9 +185,9 @@ final class SponsorshipController
             return new WP_Error('aiya_channel_unavailable', __('The requested payment channel is not available.', 'aiya-core'), ['status' => 502]);
         }
 
-        $settings = SponsorshipSettings::read();
+        $settings = MembershipSettings::read();
         $tierKey = sanitize_key((string) $request->get_param('tierKey'));
-        $tier = SponsorshipSettings::tierByKey($settings['tiers'], $tierKey);
+        $tier = MembershipSettings::tierByKey($settings['tiers'], $tierKey);
         if ($tier === null) {
             return new WP_Error('aiya_not_found', __('Unknown membership tier.', 'aiya-core'), ['status' => 404]);
         }

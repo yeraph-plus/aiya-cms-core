@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Aiya\Core\Tests\Unit;
 
 /**
- * A wpdb double scoped to the sponsorship tables: the payment log's and
+ * A wpdb double scoped to the membership tables: the payment log's and
  * the entitlement queue's order_id unique keys, the per-holder advisory
  * lock, and exactly the statement shapes OrderService and
  * EntitlementService issue. Anything else is a counted no-op.
  */
-final class SponsorshipTestWpdb
+final class MembershipTestWpdb
 {
     public string $prefix = 'wp_';
 

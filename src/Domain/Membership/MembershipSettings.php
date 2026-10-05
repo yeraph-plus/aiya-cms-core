@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Sponsorship;
+namespace Aiya\Core\Domain\Membership;
 
 /**
  * Normalized reader for the membership domain's two settings options: the
@@ -12,7 +12,7 @@ namespace Aiya\Core\Domain\Sponsorship;
  * gateway; Afdian (0.61.0) is the platform-push gateway — its orders
  * arrive by webhook or self-service order number, never the cashier.
  */
-final class SponsorshipSettings
+final class MembershipSettings
 {
     /** Default days the payment log keeps an unsettled order. */
     public const DEFAULT_UNPAID_RETENTION = 30;
@@ -27,8 +27,8 @@ final class SponsorshipSettings
      */
     public static function read(): array
     {
-        $tiers = (array) get_option(SponsorshipModule::OPTION_NAME, []);
-        $payments = (array) get_option(SponsorshipModule::PAYMENTS_OPTION_NAME, []);
+        $tiers = (array) get_option(MembershipModule::OPTION_NAME, []);
+        $payments = (array) get_option(MembershipModule::PAYMENTS_OPTION_NAME, []);
 
         return [
             'epayEnable' => (bool) ($payments['epay_enable'] ?? false),

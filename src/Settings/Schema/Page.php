@@ -23,7 +23,7 @@ final class Page
         private string $capability,
         private string $parentSlug,
         private string $icon,
-        private int $position,
+        private float $position,
         private ?int $menuPosition,
         private string $optionName,
         private bool $network,
@@ -79,7 +79,11 @@ final class Page
             (string) ($definition['capability'] ?? 'manage_options'),
             (string) ($definition['parent'] ?? ''),
             (string) ($definition['icon'] ?? 'dashicons-admin-generic'),
-            (int) ($definition['position'] ?? 81),
+            // Fractional positions slot a page between two integer rail
+            // entries (WP core owns 25 for Comments); PHP array keys
+            // normalize integral floats back to int, so existing
+            // registrations keep their exact keys.
+            (float) ($definition['position'] ?? 81),
             $menuPosition,
             sanitize_key((string) ($definition['option_name'] ?? 'aiya_core_' . $slug)),
             (bool) ($definition['network'] ?? false),
@@ -104,7 +108,7 @@ final class Page
     public function capability(): string { return $this->capability; }
     public function parent(): string { return $this->parentSlug; }
     public function icon(): string { return $this->icon; }
-    public function position(): int { return $this->position; }
+    public function position(): float { return $this->position; }
 
     /**
      * Fixed slot inside the parent's submenu group; null appends the page

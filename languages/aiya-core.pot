@@ -3,29 +3,29 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: AIYA CMS - Headless Core 0.107.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core-pot-src\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core-i18n\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-04T23:23:19+00:00\n"
+"POT-Creation-Date: 2026-10-05T02:59:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
 
 #. Plugin Name of the plugin
-#: aiya-core.php:3
+#: aiya-core.php
 msgid "AIYA CMS - Headless Core"
 msgstr ""
 
 #. Description of the plugin
-#: aiya-core.php:4
+#: aiya-core.php
 msgid "Headless-first administration and content framework for AIYA CMS."
 msgstr ""
 
 #. Author of the plugin
-#: aiya-core.php:8
+#: aiya-core.php
 msgid "Yeraph"
 msgstr ""
 
@@ -149,7 +149,7 @@ msgid "Redeemed at"
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:133
-#: src/Admin/NotificationPage.php:115
+#: src/Admin/NotificationPage.php:111
 #: src/Admin/UiSamplePage.php:117
 #: src/Admin/UiSamplePage.php:162
 msgid "Created"
@@ -176,7 +176,7 @@ msgid "All codes deleted."
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:226
-#: src/Admin/NotificationPage.php:221
+#: src/Admin/NotificationPage.php:98
 msgid "The operation failed — check the values and try again."
 msgstr ""
 
@@ -203,8 +203,8 @@ msgstr ""
 #: src/Admin/CoverMetabox.php:72
 #: src/Admin/DiscussionModerationPage.php:137
 #: src/Admin/DiscussionModerationPage.php:199
-#: src/Admin/NotificationPage.php:83
-#: src/Admin/NotificationPage.php:111
+#: src/Admin/NotificationPage.php:108
+#: src/Admin/NotificationPage.php:175
 #: src/Admin/UiSamplePage.php:115
 #: src/Admin/UiSamplePage.php:160
 #: src/Admin/UiSamplePage.php:285
@@ -237,7 +237,7 @@ msgstr ""
 
 #: src/Admin/CoverMetabox.php:112
 #: src/Admin/FileServeMetabox.php:294
-#: src/Admin/SendMailPage.php:201
+#: src/Admin/SendMailPage.php:185
 #: src/Domain/Identity/AvatarModule.php:323
 msgid "Request failed."
 msgstr ""
@@ -402,7 +402,7 @@ msgstr ""
 #: src/Admin/OperationsPage.php:389
 #: src/Admin/PaymentsAuditPage.php:237
 #: src/Admin/UiSamplePage.php:261
-#: src/Domain/Sponsorship/SponsorshipModule.php:95
+#: src/Domain/Membership/MembershipModule.php:95
 msgid "Membership"
 msgstr ""
 
@@ -533,7 +533,7 @@ msgstr ""
 #: src/Admin/CronsPage.php:182
 #: src/Admin/DiscussionModerationPage.php:142
 #: src/Admin/DiscussionModerationPage.php:426
-#: src/Admin/NotificationPage.php:116
+#: src/Admin/NotificationPage.php:112
 #: src/Admin/PicBedPage.php:264
 #: src/Admin/UiSamplePage.php:285
 msgid "Actions"
@@ -600,7 +600,7 @@ msgid "Excerpt"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:139
-#: src/Admin/NotificationPage.php:247
+#: src/Admin/NotificationPage.php:259
 #: src/Domain/Content/ContentTypeModule.php:60
 msgid "Author"
 msgstr ""
@@ -632,8 +632,8 @@ msgid "Board"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:223
-#: src/Admin/NotificationPage.php:98
-#: src/Admin/NotificationPage.php:112
+#: src/Admin/NotificationPage.php:109
+#: src/Admin/NotificationPage.php:188
 msgid "Body"
 msgstr ""
 
@@ -686,13 +686,13 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:398
 #: src/Admin/DiscussionModerationPage.php:421
 #: src/Admin/FileServeMetabox.php:288
-#: src/Domain/Sponsorship/SponsorshipModule.php:133
+#: src/Domain/Membership/MembershipModule.php:133
 msgid "Name"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:402
 #: src/Admin/DiscussionModerationPage.php:423
-#: src/Domain/Sponsorship/SponsorshipModule.php:139
+#: src/Domain/Membership/MembershipModule.php:139
 msgid "Description"
 msgstr ""
 
@@ -756,7 +756,7 @@ msgid "Select media"
 msgstr ""
 
 #: src/Admin/FieldRenderer.php:112
-#: src/Admin/FieldRenderer.php:220
+#: src/Admin/FieldRenderer.php:222
 msgid "Remove"
 msgstr ""
 
@@ -784,7 +784,7 @@ msgstr ""
 msgid "(no title)"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:223
+#: src/Admin/FieldRenderer.php:224
 msgid "Confirm delete?"
 msgstr ""
 
@@ -912,90 +912,97 @@ msgstr ""
 msgid "Some metadata fields were not saved:"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:53
-#: src/Admin/NotificationPage.php:54
-#: src/Admin/NotificationPage.php:72
+#: src/Admin/NotificationPage.php:56
+#: src/Admin/NotificationPage.php:57
+#: src/Admin/NotificationPage.php:82
 msgid "Notifications"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:64
-#: src/Admin/NotificationPage.php:177
+#: src/Admin/NotificationPage.php:68
 #: src/Admin/NotificationPage.php:201
+#: src/Admin/NotificationPage.php:225
+#: src/Admin/NotificationPage.php:236
 msgid "You are not allowed to manage notifications."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:73
+#: src/Admin/NotificationPage.php:83
 msgid "Site-wide announcements for the headless front end. Rows expire automatically after the retention period; the front end tracks read state itself."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:77
-msgid "Publish announcement"
+#: src/Admin/NotificationPage.php:88
+msgid "Notification published."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:87
-msgid "Minimum visible role"
+#: src/Admin/NotificationPage.php:89
+msgid "Notification deleted."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:94
-msgid "Viewers below this role will not see the announcement. Sponsor also requires a valid sponsorship."
+#. translators: %d: number of deleted notifications
+#: src/Admin/NotificationPage.php:93
+#, php-format
+msgid "Deleted %d notifications."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:102
-msgid "Publish"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:106
+#: src/Admin/NotificationPage.php:103
 msgid "Stored notifications"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:113
-msgid "Minimum role"
+#: src/Admin/NotificationPage.php:106
+#: src/Admin/UiSamplePage.php:158
+msgid "Delete selected"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:114
+#: src/Admin/NotificationPage.php:110
 msgid "Scope"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:121
-msgid "No notifications stored."
-msgstr ""
-
 #. translators: %d: user ID.
-#: src/Admin/NotificationPage.php:132
+#: src/Admin/NotificationPage.php:130
 #, php-format
 msgid "User #%d"
 msgstr ""
 
-#. translators: %d: user ID.
-#: src/Admin/NotificationPage.php:132
-msgid "Broadcast"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:144
+#: src/Admin/NotificationPage.php:145
 msgid "Delete this notification?"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:219
-msgid "Notification published."
+#: src/Admin/NotificationPage.php:152
+msgid "No notifications stored."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:220
-msgid "Notification deleted."
+#: src/Admin/NotificationPage.php:153
+msgid "Delete the selected notifications?"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:245
+#: src/Admin/NotificationPage.php:168
+msgid "Publish announcement"
+msgstr ""
+
+#: src/Admin/NotificationPage.php:179
+msgid "Minimum visible role"
+msgstr ""
+
+#: src/Admin/NotificationPage.php:184
+msgid "Viewers below this role will not see the announcement. Sponsor also requires a valid membership."
+msgstr ""
+
+#: src/Admin/NotificationPage.php:192
+msgid "Publish"
+msgstr ""
+
+#: src/Admin/NotificationPage.php:257
 msgid "Subscriber"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:246
+#: src/Admin/NotificationPage.php:258
 msgid "Sponsor"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:248
+#: src/Admin/NotificationPage.php:260
 msgid "Administrator"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:249
+#: src/Admin/NotificationPage.php:261
 msgid "Guest"
 msgstr ""
 
@@ -1689,7 +1696,7 @@ msgid "Priority"
 msgstr ""
 
 #: src/Admin/SamplePage.php:257
-#: src/Domain/Sponsorship/SponsorshipModule.php:120
+#: src/Domain/Membership/MembershipModule.php:120
 msgid "Enabled"
 msgstr ""
 
@@ -1807,70 +1814,74 @@ msgstr ""
 msgid "Execute replace"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:55
 #: src/Admin/SendMailPage.php:56
-#: src/Admin/SendMailPage.php:92
-#: src/Admin/SendMailPage.php:110
+#: src/Admin/SendMailPage.php:57
+#: src/Admin/SendMailPage.php:94
+#: src/Admin/SendMailPage.php:111
 msgid "Send Mail"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:100
+#: src/Admin/SendMailPage.php:102
 msgid "You are not allowed to send mail."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:111
+#: src/Admin/SendMailPage.php:112
 msgid "Compose an HTML email and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:115
-msgid "Recipient"
+#: src/Admin/SendMailPage.php:114
+msgid "Compose"
 msgstr ""
 
 #: src/Admin/SendMailPage.php:118
+msgid "Recipient"
+msgstr ""
+
+#: src/Admin/SendMailPage.php:134
 msgid "Any email address works, registered or not. Typing a username or name suggests site users."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:123
+#: src/Admin/SendMailPage.php:138
 msgid "Subject"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:127
+#: src/Admin/SendMailPage.php:142
 msgid "Message"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:133
-#: src/Admin/SendMailPage.php:203
+#: src/Admin/SendMailPage.php:148
+#: src/Admin/SendMailPage.php:187
 msgid "Send email"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:180
+#: src/Admin/SendMailPage.php:164
 msgid "Sending…"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:189
-#: src/Admin/SendMailPage.php:322
+#: src/Admin/SendMailPage.php:173
+#: src/Admin/SendMailPage.php:307
 msgid "The email could not be sent."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:219
-#: src/Admin/SendMailPage.php:270
+#: src/Admin/SendMailPage.php:204
+#: src/Admin/SendMailPage.php:255
 msgid "You are not allowed to send mail to users."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:235
+#: src/Admin/SendMailPage.php:220
 msgid "Too many emails sent in a short time — wait a few minutes."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:240
+#: src/Admin/SendMailPage.php:225
 msgid "Enter a valid recipient email address."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:246
+#: src/Admin/SendMailPage.php:231
 msgid "A subject and a message body are required."
 msgstr ""
 
 #. translators: %s: recipient email address.
-#: src/Admin/SendMailPage.php:262
+#: src/Admin/SendMailPage.php:247
 #, php-format
 msgid "Email sent to %s."
 msgstr ""
@@ -2326,10 +2337,6 @@ msgstr ""
 msgid "listTable with a checkbox column and a bulk bar: select-all with indeterminate state, a live count, one admin_post round trip posting ids[]. Destructive actions declare their confirm text per action value."
 msgstr ""
 
-#: src/Admin/UiSamplePage.php:158
-msgid "Delete selected"
-msgstr ""
-
 #: src/Admin/UiSamplePage.php:181
 msgid "Delete the selected rows?"
 msgstr ""
@@ -2574,20 +2581,23 @@ msgid "Profile not found."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:101
+#: src/Domain/Credit/CheckinService.php:34
 #: src/Domain/Credit/LedgerService.php:175
 msgid "This account is disabled."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:109
+#: src/Domain/Credit/CheckinService.php:39
 msgid "Check-in is not available."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:119
+#: src/Domain/Credit/CheckinService.php:49
 msgid "Already checked in today."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:152
-#: src/Api/Rest/SponsorshipController.php:121
+#: src/Api/Rest/MembershipController.php:121
 msgid "The Afdian channel is not available."
 msgstr ""
 
@@ -2615,6 +2625,33 @@ msgstr ""
 msgid "Thread not found."
 msgstr ""
 
+#: src/Api/Rest/MembershipController.php:132
+#: src/Api/Rest/MembershipController.php:192
+msgid "Unknown membership tier."
+msgstr ""
+
+#: src/Api/Rest/MembershipController.php:138
+#: src/Api/Rest/MembershipController.php:200
+msgid "This membership tier is not available."
+msgstr ""
+
+#: src/Api/Rest/MembershipController.php:145
+msgid "This tier is not bound to an Afdian plan."
+msgstr ""
+
+#: src/Api/Rest/MembershipController.php:182
+msgid "No payment gateway is available."
+msgstr ""
+
+#: src/Api/Rest/MembershipController.php:185
+#: src/Domain/Membership/EpayGateway.php:86
+msgid "The requested payment channel is not available."
+msgstr ""
+
+#: src/Api/Rest/MembershipController.php:221
+msgid "The return URL is not a valid absolute http(s) address."
+msgstr ""
+
 #: src/Api/Rest/RestGuard.php:38
 #: src/Api/Rest/UploadsController.php:58
 #: src/Domain/Discussion/DiscussionLikeService.php:144
@@ -2624,33 +2661,6 @@ msgstr ""
 
 #: src/Api/Rest/RestGuard.php:44
 msgid "Too many requests, try again later."
-msgstr ""
-
-#: src/Api/Rest/SponsorshipController.php:132
-#: src/Api/Rest/SponsorshipController.php:192
-msgid "Unknown membership tier."
-msgstr ""
-
-#: src/Api/Rest/SponsorshipController.php:138
-#: src/Api/Rest/SponsorshipController.php:200
-msgid "This membership tier is not available."
-msgstr ""
-
-#: src/Api/Rest/SponsorshipController.php:145
-msgid "This tier is not bound to an Afdian plan."
-msgstr ""
-
-#: src/Api/Rest/SponsorshipController.php:182
-msgid "No payment gateway is available."
-msgstr ""
-
-#: src/Api/Rest/SponsorshipController.php:185
-#: src/Domain/Sponsorship/EpayGateway.php:86
-msgid "The requested payment channel is not available."
-msgstr ""
-
-#: src/Api/Rest/SponsorshipController.php:221
-msgid "The return URL is not a valid absolute http(s) address."
 msgstr ""
 
 #: src/Api/Rest/UserController.php:200
@@ -3894,6 +3904,48 @@ msgstr ""
 msgid "If the button does not work, copy this link into your browser:"
 msgstr ""
 
+#. translators: %s: site name.
+#: src/Domain/Mail/MembershipReceipt.php:52
+#, php-format
+msgid "Thank you for supporting %1$s — this email is your receipt."
+msgstr ""
+
+#: src/Domain/Mail/MembershipReceipt.php:59
+msgctxt "membership receipt"
+msgid "Tier"
+msgstr ""
+
+#: src/Domain/Mail/MembershipReceipt.php:60
+msgctxt "membership receipt"
+msgid "Order"
+msgstr ""
+
+#: src/Domain/Mail/MembershipReceipt.php:61
+msgid "Active from"
+msgstr ""
+
+#: src/Domain/Mail/MembershipReceipt.php:62
+msgid "Active until"
+msgstr ""
+
+#: src/Domain/Mail/MembershipReceipt.php:64
+msgid "If your purchase covers multiple cycles, the next one starts automatically when the current subscription period ends."
+msgstr ""
+
+#: src/Domain/Mail/MembershipReceipt.php:65
+msgid "View membership"
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Domain/Mail/MembershipReceipt.php:69
+#, php-format
+msgid "[%1$s] Thank you — your membership is now active."
+msgstr ""
+
+#: src/Domain/Mail/MembershipReceipt.php:72
+msgid "Membership activated"
+msgstr ""
+
 #: src/Domain/Media/CoverService.php:62
 msgid "The post does not exist."
 msgstr ""
@@ -3926,150 +3978,397 @@ msgstr ""
 msgid "The image URL could not be resolved."
 msgstr ""
 
+#: src/Domain/Membership/AfdianActivator.php:86
+msgid "This order has already been activated."
+msgstr ""
+
+#: src/Domain/Membership/AfdianActivator.php:87
+#: src/Domain/Membership/AfdianActivator.php:230
+msgid "The membership activation failed — try again."
+msgstr ""
+
+#: src/Domain/Membership/AfdianActivator.php:150
+#: src/Domain/Membership/AfdianActivator.php:169
+msgid "The Afdian API is unreachable — try again later."
+msgstr ""
+
+#: src/Domain/Membership/AfdianActivator.php:154
+msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
+msgstr ""
+
+#: src/Domain/Membership/AfdianActivator.php:155
+msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
+msgstr ""
+
+#: src/Domain/Membership/AfdianActivator.php:172
+msgid "No matching Afdian order — check the order number."
+msgstr ""
+
+#: src/Domain/Membership/AfdianActivator.php:178
+msgid "This order is not a paid trade."
+msgstr ""
+
+#: src/Domain/Membership/AfdianActivator.php:187
+msgid "This order's Afdian plan is not bound to a membership tier."
+msgstr ""
+
+#: src/Domain/Membership/AfdianActivator.php:195
+msgid "This order is bound to another account."
+msgstr ""
+
+#: src/Domain/Membership/AfdianActivator.php:200
+msgid "The order carries no account binding — activate it from the account page with the order number."
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Domain/Membership/AfdianGateway.php:92
+#, php-format
+msgid "A membership order from %s"
+msgstr ""
+
+#: src/Domain/Membership/EntitlementService.php:74
+msgid "The membership holder does not exist."
+msgstr ""
+
+#: src/Domain/Membership/EntitlementService.php:77
+#: src/Domain/Membership/OrderService.php:55
+#: src/Domain/Membership/OrderService.php:107
+msgid "The order id is required."
+msgstr ""
+
+#: src/Domain/Membership/EntitlementService.php:85
+msgid "The membership is being updated — try again."
+msgstr ""
+
+#: src/Domain/Membership/EntitlementService.php:122
+msgid "This order was already activated."
+msgstr ""
+
+#: src/Domain/Membership/EntitlementService.php:125
+msgid "The membership could not be stored."
+msgstr ""
+
+#: src/Domain/Membership/EpayGateway.php:83
+#: src/Domain/Membership/EpayGateway.php:91
+msgid "The Epay channel is not available."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:94
+#: src/Domain/Membership/MembershipModule.php:99
+msgid "Membership settings"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:107
+msgid "Tiers"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:113
+msgid "Tier list"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:114
+msgid "Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:121
+msgid "Disabled tiers stay out of the purchase list; existing holders keep their membership."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:127
+msgid "Key"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:140
+msgid "One-liner shown on the plan card (what the tier includes)."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:146
+msgid "Price (per cycle)"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:147
+msgid "Up to 500, two decimals."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:156
+msgid "Cycle length (days)"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:157
+msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:166
+msgid "Credits per cycle"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:167
+msgid "Credit bucket granted at each cycle start."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:175
+msgid "Cycles per purchase"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:176
+msgid "One purchase of this tier always queues this many cycles; the front end shows the total, there is no cycle picker."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:191
+#: src/Domain/Membership/MembershipModule.php:192
+msgid "Payments"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:199
+msgid "Epay gateway (cashier integration)"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:205
+msgid "Epay integration"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:211
+msgid "Merchant id (pid)"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:217
+msgid "Merchant key"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:223
+msgid "Gateway submit URL"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:229
+msgid "Payment channels"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:230
+msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:233
+msgid "Alipay"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:234
+msgid "WeChat Pay"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:235
+msgid "USDT (TRC20)"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:241
+msgid "Afdian (platform push)"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:247
+msgid "Afdian integration"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:248
+msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:254
+msgid "Afdian plan bindings"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:255
+msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:261
+msgid "Afdian plan ID"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:267
+msgid "Membership tier"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:268
+msgid "The tier (from the membership settings page) that this plan activates."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:283
+msgid "Fallback tier"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:284
+msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:297
+msgid "Afdian user id"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:303
+msgid "Afdian API token"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:310
+msgid "Afdian webhook address"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:311
+msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/membership/v1/afdian/callback — POST only."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:317
+msgid "Order log"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:323
+msgid "Unpaid order retention (days)"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:324
+msgid "Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep)."
+msgstr ""
+
+#. translators: %s: tier keys that still have live checkouts or covering members.
+#: src/Domain/Membership/MembershipModule.php:447
+#, php-format
+msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
+msgstr ""
+
+#: src/Domain/Membership/OrderService.php:52
+#: src/Domain/Membership/OrderService.php:104
+msgid "The order user does not exist."
+msgstr ""
+
+#: src/Domain/Membership/OrderService.php:83
+#: src/Domain/Membership/OrderService.php:131
+msgid "This order was already recorded."
+msgstr ""
+
+#: src/Domain/Membership/OrderService.php:86
+#: src/Domain/Membership/OrderService.php:134
+msgid "The order could not be stored."
+msgstr ""
+
+#: src/Domain/Membership/RedeemCodeService.php:38
+#: src/Domain/Membership/RedeemCodeService.php:55
+#: src/Domain/Membership/RedeemCodeService.php:67
+msgid "Invalid redemption code."
+msgstr ""
+
+#: src/Domain/Membership/RedeemCodeService.php:41
+msgid "The redeeming user does not exist."
+msgstr ""
+
+#: src/Domain/Membership/RedeemCodeService.php:58
+#: src/Domain/Membership/RedeemCodeService.php:84
+msgid "This code has already been redeemed."
+msgstr ""
+
+#: src/Domain/Membership/RedeemCodeService.php:99
+msgid "The membership activation failed — the code was not consumed, try again."
+msgstr ""
+
 #. translators: %1$s: commenter name.
-#: src/Domain/Notification/NotificationActions.php:162
+#: src/Domain/Notification/NotificationActions.php:158
 #, php-format
 msgid "%1$s replied to your comment."
 msgstr ""
 
 #. translators: 1: commenter name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:180
+#: src/Domain/Notification/NotificationActions.php:176
 #, php-format
 msgid "%1$s commented on your article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: commenter name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:199
+#: src/Domain/Notification/NotificationActions.php:195
 #, php-format
 msgid "%1$s mentioned you in a comment on \"%2$s\"."
 msgstr ""
 
 #. translators: %s: post title.
-#: src/Domain/Notification/NotificationActions.php:252
+#: src/Domain/Notification/NotificationActions.php:241
 #, php-format
 msgid "Your submission \"%1$s\" was approved and published."
 msgstr ""
 
 #. translators: 1: author name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:273
+#: src/Domain/Notification/NotificationActions.php:272
 #, php-format
 msgid "%1$s mentioned you in the article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: author name, 2: post title.
-#: src/Domain/Notification/NotificationActions.php:292
+#: src/Domain/Notification/NotificationActions.php:291
 #, php-format
 msgid "%1$s published a new article \"%2$s\"."
 msgstr ""
 
 #. translators: 1: post title.
-#: src/Domain/Notification/NotificationActions.php:328
+#: src/Domain/Notification/NotificationActions.php:329
 #, php-format
 msgid "A post you favorited was updated: \"%1$s\"."
 msgstr ""
 
-#: src/Domain/Notification/NotificationActions.php:344
+#: src/Domain/Notification/NotificationActions.php:345
 msgid "Your account password was reset. If this was not you, please contact the administrator."
 msgstr ""
 
 #. translators: %d: credit amount.
-#: src/Domain/Notification/NotificationActions.php:369
+#: src/Domain/Notification/NotificationActions.php:370
 #, php-format
 msgid "Your account was granted +%1$d credits."
 msgstr ""
 
 #. translators: %s: replier name.
-#: src/Domain/Notification/NotificationActions.php:393
+#: src/Domain/Notification/NotificationActions.php:394
 #, php-format
 msgid "%s replied to your thread."
 msgstr ""
 
 #. translators: 1: replier name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:398
+#: src/Domain/Notification/NotificationActions.php:399
 #, php-format
 msgid "%1$s replied to your thread \"%2$s\"."
 msgstr ""
 
 #. translators: %s: actor name.
-#: src/Domain/Notification/NotificationActions.php:438
+#: src/Domain/Notification/NotificationActions.php:439
 #, php-format
 msgid "%s mentioned you in a community thread."
 msgstr ""
 
 #. translators: 1: actor name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:443
+#: src/Domain/Notification/NotificationActions.php:444
 #, php-format
 msgid "%1$s mentioned you in the thread \"%2$s\"."
 msgstr ""
 
-#. translators: %s: site name.
-#: src/Domain/Notification/NotificationActions.php:477
-#, php-format
-msgid "Thank you for supporting %1$s — this email is your receipt."
-msgstr ""
-
-#: src/Domain/Notification/NotificationActions.php:484
-msgctxt "membership receipt"
-msgid "Tier"
-msgstr ""
-
-#: src/Domain/Notification/NotificationActions.php:485
-msgctxt "membership receipt"
-msgid "Order"
-msgstr ""
-
-#: src/Domain/Notification/NotificationActions.php:486
-msgid "Active from"
-msgstr ""
-
-#: src/Domain/Notification/NotificationActions.php:487
-msgid "Active until"
-msgstr ""
-
-#: src/Domain/Notification/NotificationActions.php:489
-msgid "If your purchase covers multiple cycles, the next one starts automatically when the current subscription period ends."
-msgstr ""
-
-#: src/Domain/Notification/NotificationActions.php:490
-msgid "View membership"
-msgstr ""
-
-#. translators: %s: site name.
-#: src/Domain/Notification/NotificationActions.php:494
-#, php-format
-msgid "[%1$s] Thank you — your membership is now active."
-msgstr ""
-
-#: src/Domain/Notification/NotificationActions.php:497
-msgid "Membership activated"
-msgstr ""
-
 #. translators: %s: author name.
-#: src/Domain/Notification/NotificationActions.php:517
+#: src/Domain/Notification/NotificationActions.php:462
 #, php-format
 msgid "%s published a new thread."
 msgstr ""
 
 #. translators: 1: author name, 2: thread title.
-#: src/Domain/Notification/NotificationActions.php:522
+#: src/Domain/Notification/NotificationActions.php:467
 #, php-format
 msgid "%1$s published a new thread \"%2$s\"."
 msgstr ""
 
 #. translators: %1$s: follower name.
-#: src/Domain/Notification/NotificationActions.php:565
+#: src/Domain/Notification/NotificationActions.php:510
 #, php-format
 msgid "%1$s followed you."
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:593
+#: src/Domain/Notification/NotificationActions.php:540
 #, php-format
 msgid "Your membership is active until %s. Thank you for the support!"
 msgstr ""
 
 #. translators: %s: membership expiration date.
-#: src/Domain/Notification/NotificationActions.php:646
+#: src/Domain/Notification/NotificationActions.php:572
 #, php-format
 msgid "Your membership expires on %s. Renew to keep the perks."
 msgstr ""
@@ -4262,295 +4561,6 @@ msgstr ""
 
 #: src/Domain/Parts/PartModule.php:140
 msgid "No template parts are registered yet."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:86
-msgid "This order has already been activated."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:87
-#: src/Domain/Sponsorship/AfdianActivator.php:230
-msgid "The membership activation failed — try again."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:150
-#: src/Domain/Sponsorship/AfdianActivator.php:169
-msgid "The Afdian API is unreachable — try again later."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:154
-msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:155
-msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:172
-msgid "No matching Afdian order — check the order number."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:178
-msgid "This order is not a paid trade."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:187
-msgid "This order's Afdian plan is not bound to a membership tier."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:195
-msgid "This order is bound to another account."
-msgstr ""
-
-#: src/Domain/Sponsorship/AfdianActivator.php:200
-msgid "The order carries no account binding — activate it from the account page with the order number."
-msgstr ""
-
-#. translators: %s: site name.
-#: src/Domain/Sponsorship/AfdianGateway.php:92
-#, php-format
-msgid "A membership order from %s"
-msgstr ""
-
-#: src/Domain/Sponsorship/EntitlementService.php:74
-msgid "The membership holder does not exist."
-msgstr ""
-
-#: src/Domain/Sponsorship/EntitlementService.php:77
-#: src/Domain/Sponsorship/OrderService.php:55
-#: src/Domain/Sponsorship/OrderService.php:107
-msgid "The order id is required."
-msgstr ""
-
-#: src/Domain/Sponsorship/EntitlementService.php:85
-msgid "The membership is being updated — try again."
-msgstr ""
-
-#: src/Domain/Sponsorship/EntitlementService.php:122
-msgid "This order was already activated."
-msgstr ""
-
-#: src/Domain/Sponsorship/EntitlementService.php:125
-msgid "The membership could not be stored."
-msgstr ""
-
-#: src/Domain/Sponsorship/EpayGateway.php:83
-#: src/Domain/Sponsorship/EpayGateway.php:91
-msgid "The Epay channel is not available."
-msgstr ""
-
-#: src/Domain/Sponsorship/OrderService.php:52
-#: src/Domain/Sponsorship/OrderService.php:104
-msgid "The order user does not exist."
-msgstr ""
-
-#: src/Domain/Sponsorship/OrderService.php:83
-#: src/Domain/Sponsorship/OrderService.php:131
-msgid "This order was already recorded."
-msgstr ""
-
-#: src/Domain/Sponsorship/OrderService.php:86
-#: src/Domain/Sponsorship/OrderService.php:134
-msgid "The order could not be stored."
-msgstr ""
-
-#: src/Domain/Sponsorship/RedeemCodeService.php:38
-#: src/Domain/Sponsorship/RedeemCodeService.php:55
-#: src/Domain/Sponsorship/RedeemCodeService.php:67
-msgid "Invalid redemption code."
-msgstr ""
-
-#: src/Domain/Sponsorship/RedeemCodeService.php:41
-msgid "The redeeming user does not exist."
-msgstr ""
-
-#: src/Domain/Sponsorship/RedeemCodeService.php:58
-#: src/Domain/Sponsorship/RedeemCodeService.php:84
-msgid "This code has already been redeemed."
-msgstr ""
-
-#: src/Domain/Sponsorship/RedeemCodeService.php:99
-msgid "The membership activation failed — the code was not consumed, try again."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:94
-#: src/Domain/Sponsorship/SponsorshipModule.php:99
-msgid "Membership settings"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:107
-msgid "Tiers"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:113
-msgid "Tier list"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:114
-msgid "Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:121
-msgid "Disabled tiers stay out of the purchase list; existing holders keep their membership."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:127
-msgid "Key"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:140
-msgid "One-liner shown on the plan card (what the tier includes)."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:146
-msgid "Price (per cycle)"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:147
-msgid "Up to 500, two decimals."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:156
-msgid "Cycle length (days)"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:157
-msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:166
-msgid "Credits per cycle"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:167
-msgid "Credit bucket granted at each cycle start."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:175
-msgid "Cycles per purchase"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:176
-msgid "One purchase of this tier always queues this many cycles; the front end shows the total, there is no cycle picker."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:191
-#: src/Domain/Sponsorship/SponsorshipModule.php:192
-msgid "Payments"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:199
-msgid "Epay gateway (cashier integration)"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:205
-msgid "Epay integration"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:211
-msgid "Merchant id (pid)"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:217
-msgid "Merchant key"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:223
-msgid "Gateway submit URL"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:229
-msgid "Payment channels"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:230
-msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:233
-msgid "Alipay"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:234
-msgid "WeChat Pay"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:235
-msgid "USDT (TRC20)"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:241
-msgid "Afdian (platform push)"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:247
-msgid "Afdian integration"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:248
-msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:254
-msgid "Afdian plan bindings"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:255
-msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:261
-msgid "Afdian plan ID"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:267
-msgid "Membership tier"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:268
-msgid "The tier (from the membership settings page) that this plan activates."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:283
-msgid "Fallback tier"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:284
-msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:297
-msgid "Afdian user id"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:303
-msgid "Afdian API token"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:310
-msgid "Afdian webhook address"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:311
-msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/sponsorship/v1/afdian/callback — POST only."
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:317
-msgid "Order log"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:323
-msgid "Unpaid order retention (days)"
-msgstr ""
-
-#: src/Domain/Sponsorship/SponsorshipModule.php:324
-msgid "Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep)."
-msgstr ""
-
-#. translators: %s: tier keys that still have live checkouts or covering members.
-#: src/Domain/Sponsorship/SponsorshipModule.php:447
-#, php-format
-msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
 msgstr ""
 
 #: src/Infrastructure/Headless/HeadlessModule.php:72

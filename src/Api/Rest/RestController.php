@@ -12,7 +12,7 @@ use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\ProfilePresenter;
 use Aiya\Core\Api\Presenter\SitePresenter;
 use Aiya\Core\Api\Presenter\SmiliesPresenter;
-use Aiya\Core\Api\Presenter\SponsorshipPresenter;
+use Aiya\Core\Api\Presenter\MembershipPresenter;
 use Aiya\Core\Api\Presenter\UploadPresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Api\Presenter\DiscussionPresenter;
@@ -41,10 +41,10 @@ use Aiya\Core\Domain\Integrations\TicketService;
 use Aiya\Core\Domain\Notification\NotificationService;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
-use Aiya\Core\Domain\Sponsorship\EntitlementService;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
-use Aiya\Core\Domain\Sponsorship\OrderService;
-use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
+use Aiya\Core\Domain\Membership\EntitlementService;
+use Aiya\Core\Domain\Membership\MembershipService;
+use Aiya\Core\Domain\Membership\OrderService;
+use Aiya\Core\Domain\Membership\RedeemCodeService;
 use Aiya\Infra\OpenCc\Converter;
 use Closure;
 
@@ -132,7 +132,7 @@ final class RestController implements Module
             // rewrite; Admin surfaces live under the membership menu.
             $membership = new MembershipService();
             $entitlements = new EntitlementService($ledger);
-            (new SponsorshipController($membership, $entitlements, $ledger, new OrderService(), new RateLimiter(), new SponsorshipPresenter()))->registerRoutes();
+            (new MembershipController($membership, $entitlements, $ledger, new OrderService(), new RateLimiter(), new MembershipPresenter()))->registerRoutes();
 
             (new GatewayController(new OrderService(), $entitlements))->registerRoutes();
 

@@ -226,9 +226,9 @@ repeater 折叠样式原样保留）。
   UserPickerView 消费、`aiya-credit-user-*` → `aiya-user-*` 更名）+ ConvertCodes
   （copyText 落 code 格；批量删除为可选延伸，需先补 `deleteByIds()`）+
   Operations（ops-cost 并入静态卡 + 两图接 Chart.js，表格保留）；
-- **批 3（前台域，菜单=前台设置）**：Notifications（批量删除 bulkTable）+
-  SendMail（typeahead 段换 userPicker、裸 form-table→静态卡）+ PicBed
-  （copyText 落 URL/路径框 + alert() 内联化）。**PicBed 已完成（2026-10-05
+- **批 3（前台域，菜单=AIYA CMS Core）——✅ 已完成**：Notifications（批量删除
+  bulkTable）+ SendMail（typeahead 段换 userPicker、裸 form-table→静态卡）+
+  PicBed（copyText 落 URL/路径框 + alert() 内联化）。**PicBed 已完成（2026-10-05
   站长点名提前）**：页面壳迁 Ui::pageHead/heading/foot，上传按钮走 Ui::button
   （kit 首个带 id 的提交按钮），上传失败 alert() 改页域内联 notice（消息随
   上传往返到达，壳由内联脚本填充——同 Discussion 错误位模式），上传结果块的
@@ -255,6 +255,48 @@ repeater 折叠样式原样保留）。
   u/ 路径）、pic_user=43 视图（15 行全 /u/43/）、卡片壳、复制列与标题间距。
   用户筛选补提示行：填 ID 显示「正在列出 {用户}（#id）上传的文件；打开用户页」
   （链接 user-edit），ID 不存在时明确提示列表为空（+3 串）。
+  **收尾轮（2026-10-05）**：Notifications 迁 `Ui::pageHead/flash/staticCard`——
+  发布表单入静态卡（Ui::button 首个 primary 提交钮），存量列表整迁
+  `Ui::bulkTable`（全选/实时计数/空动作拦截/确认门，批量删除一轮 admin_post
+  往返）；批量删除补 `NotificationService::deleteByIds()`（生成 IN 占位 +
+  prepare），`adminPage()` 换 `adminRows()` 全量列表（bulkTable 自切片，
+  保留期 30 天兜底规模）；per_page 查询参数化随批量条生效（白名单
+  10/20/50/100，paged 越界钳回末页）；逐行删除保留（confirm 改
+  wp_json_encode 注入，批 1 同款）。SendMail 迁 `Ui::pageHead` + 裸
+  form-table 入静态卡，收件人换 `Ui::input` typeahead 开关（fill=email
+  保留任意地址自由输入语义），页内联想脚本段退役，搜索端点
+  （aiya_core_mail_search）原样 serving UserPickerView；发送流内联脚本不动。
+  i18n 净 +3 串（已删除 %d 条通知/删除选中的通知？/撰写，POT 原生盘重扫
+  1164→1167）；四门禁 683/2053；浏览器过通知页（发布往返、全选联动、确认门、
+  批量删除往返与「已删除 N 条通知」回执、per_page=10 切页）与 SendMail
+  （静态卡、联想出建议、点选回填邮箱）。
+  **顶级化拍板（2026-10-05 站长）**：通知与发送邮件脱离 AIYA CMS Core 组升
+  顶级菜单（bell/email 图标，注册键去 parent）——通知落菜单栏评论下方
+  （position 25.5），Settings Schema 的 position 随之放宽 float（整数位在
+  PHP 数组键透明归一，既有注册零漂移），发送邮件居图床之后（84）。
+  **列收敛（2026-10-05 站长）**：存量列表「最低角色/范围」两列合一为「范围」
+  ——定向行显用户 #N、广播行显角色名（判定按 user_id 切分，定向行存储的
+  min_role 本就是读取面不消费的惰性值）；ID 列取消（通知是最终产物，无下
+  游消费者）；i18n 净 -2 串（Minimum role/Broadcast 退役，POT 原生盘重扫
+  1167→1165 差集精确核对）。
+  **通知域越界修复批（2026-10-05 站长拍板 P1–P4）**：P1——Sponsorship 补
+  `EntitlementService::orderBy()/queueEndsBetween()` 两个读取面，
+  NotificationActions 的到期扫描改走服务，通知域对 `aiya_memberships` 的
+  表级直读清零；P2——激活回执账单整体搬 `Domain/Mail/MembershipReceipt`
+  （挂同一 `aiya_core_membership_activated`，读单走 orderBy），通知域的
+  Mail 出边清零，回执单测随之迁 `MailReceiptTest`；P3——Content 域新增
+  `ContentEventsModule` 事件委托（`aiya_core_comment_posted` +
+  `aiya_core_post_approved/published/updated`，审批门与可见性门归
+  Content），NotificationActions 退役对 `wp_insert_comment`/
+  `transition_post_status` 的直挂改挂委托事件（held-comment 守卫用例随门
+  迁移退役，评论守卫其余用例全保留）；P4——ARCHITECTURE 依赖节记
+  Notification=聚合消费方（事件面设计为膨胀）与 Mail=单业务钩子身份，
+  AGENTS 关键缝事件表补全（含此前漏记的 user_followed）、Mail 域行注单钩
+  子、持久数据协议表登记 `aiya_core_fav_notified_at`/
+  `aiya_core_sponsor_state_noticed` 两枚水位键（`aiya_core_` 前缀随卸载
+  清扫面系有意为之）。邮件域审查结论：交互面=wp_mail 接管 + 四类原生重写
+  + 静音门（皆 WP 原行为）+ 回执唯一业务钩子，零越界；域外无任何 Mail 类
+  消费方。四门禁 684/2054（+1：回执单测独立）。
 - **批 4（社区域）**：DiscussionModeration 批量 handler ×2（关闭/重开、删除）+
   线程编辑弹窗迁移 `Ui::modal` + confirm GET 链接改 POST；批量条四串 + 模态框
   壳零新串已随样例页入池；
@@ -683,7 +725,19 @@ Registry +~15 行；各迁移页 −10~15 行（menu/assets 样板删除）；�
   `text-decoration: underline` 即 trash 图标下横线的来源，主题色 hover 同
   出此门）——两者改纯 kit 类并自带基线样式（无边框无底色、悬停仅图标加深
   `#1d2327`），条目自带 `1px #dcdcde` 圆角白底。浏览器实测：无下划线、无
-  hover 染色、无分隔线。确认文本改注入按钮内部（trash 右侧同按钮），删除
+  hover 染色、无分隔线。
+- **kit 健壮性专审（同日，视觉外全量核对）**：PHP 侧逐组件核对转义面
+  （notice/heading/card/flash/listNav/listTable/button/input/select/
+  filterBar/userPicker/tabs/chart/copyText/bulkTable/modal——esc_html/
+  esc_attr/wp_kses_post/白名单全数在位，UiTest 18 条契约覆盖）；JS 侧
+  HTML 汇点穷举仅四处（media 预览为 jQuery 元素构造、repeater 模板为服务端
+  转义克隆、建议项走 `.text()`、无其他 innerHTML），typeahead 回填走
+  `.val()/.text()`，jump/per_page 导航走 `URLSearchParams` 自动编码且
+  parseInt 守门，tabs hash 仅匹配已存在 panel id。本轮新面另核：搜索替换
+  引擎（列/类型/状态三层白名单 + prepare 占位 + escLike 通配转义，原始
+  针体只在 esc_html/esc_attr 后现身）、cron 事件 id（解析后强制对活数组
+  三元组核验）、图床复制负载（整包 esc_attr 进 data 属性）。**无 XSS/
+  注入发现。**确认文本改注入按钮内部（trash 右侧同按钮），删除
   红色（#d63638，hover 加深）归还删除图标——原灰色系是去 WP 化时的过度收敛。
 
 ## 十八、卡片零件迭代（2026-10-05 站长拍板：静态变体 + 卡体内边距）

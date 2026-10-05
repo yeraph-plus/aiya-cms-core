@@ -74,13 +74,13 @@ final class SecurityModuleTest extends TestCase
             'param' => 'lzyxiXWj|gold|2',
             'type' => 'alipay',
             'pid' => '2967',
-            'notify_url' => 'https://aiya.test/wp-json/aiya/sponsorship/v1/epay/callback',
+            'notify_url' => 'https://aiya.test/wp-json/aiya/membership/v1/epay/callback',
             'trade_no' => '4200002000202609201234567890',
             'trade_status' => 'TRADE_SUCCESS',
             'sign' => str_repeat('a', 32),
             'sign_type' => 'MD5',
         ]);
-        $uri = '/wp-json/aiya/sponsorship/v1/epay/callback?' . $query;
+        $uri = '/wp-json/aiya/membership/v1/epay/callback?' . $query;
 
         self::assertGreaterThan(255, strlen($uri), 'the regression: a real push is over the ceiling');
         self::assertFalse(SecurityModule::isBlockedUri($uri));

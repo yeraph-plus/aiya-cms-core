@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Sponsorship\SponsorshipSettings;
+use Aiya\Core\Domain\Membership\MembershipSettings;
 use PHPUnit\Framework\TestCase;
 
-final class SponsorshipSettingsTest extends TestCase
+final class MembershipSettingsTest extends TestCase
 {
     /** @var list<array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}> */
     private array $tiers = [
@@ -17,16 +17,16 @@ final class SponsorshipSettingsTest extends TestCase
 
     public function testTierByKeyResolvesExactMatchOnly(): void
     {
-        $tier = SponsorshipSettings::tierByKey($this->tiers, 'season');
+        $tier = MembershipSettings::tierByKey($this->tiers, 'season');
         self::assertNotNull($tier);
         self::assertSame('season', $tier['key']);
-        self::assertNull(SponsorshipSettings::tierByKey($this->tiers, ''));
-        self::assertNull(SponsorshipSettings::tierByKey($this->tiers, 'nope'));
+        self::assertNull(MembershipSettings::tierByKey($this->tiers, ''));
+        self::assertNull(MembershipSettings::tierByKey($this->tiers, 'nope'));
     }
 
     public function testBindingRowsNormalizePlanAndTierKeys(): void
     {
-        $bindings = SponsorshipSettings::bindings([
+        $bindings = MembershipSettings::bindings([
             'afdian_bindings' => [
                 ['plan_id' => ' plan-month ', 'tier_key' => 'Month'],
                 'garbage',
@@ -39,12 +39,12 @@ final class SponsorshipSettingsTest extends TestCase
             ['planId' => 'plan-only', 'tierKey' => ''],
         ], $bindings);
 
-        self::assertSame([], SponsorshipSettings::bindings([]));
+        self::assertSame([], MembershipSettings::bindings([]));
     }
 
     public function testTierRowsNormalizeAndDropKeylessRows(): void
     {
-        $normalized = SponsorshipSettings::tiers([
+        $normalized = MembershipSettings::tiers([
             'tiers' => [
                 ['key' => 'Gold', 'name' => 'Gold', 'description' => '  Entry plan  ', 'price' => '15.5', 'cycle_days' => '45', 'credits_per_cycle' => '200', 'cycles' => '12'],
                 ['key' => '', 'name' => 'Keyless'],
@@ -59,7 +59,7 @@ final class SponsorshipSettingsTest extends TestCase
 
     public function testTierDefaultsApplyWhenFieldsMissing(): void
     {
-        $normalized = SponsorshipSettings::tiers([
+        $normalized = MembershipSettings::tiers([
             'tiers' => [['key' => 'basic', 'name' => 'Basic']],
         ]);
 
@@ -71,7 +71,7 @@ final class SponsorshipSettingsTest extends TestCase
 
     public function testTierPriceClampsToTwoDecimalsAndCap(): void
     {
-        $normalized = SponsorshipSettings::tiers([
+        $normalized = MembershipSettings::tiers([
             'tiers' => [
                 ['key' => 'precise', 'name' => 'Precise', 'price' => '12.3456'],
                 ['key' => 'greedy', 'name' => 'Greedy', 'price' => '999'],
@@ -90,11 +90,11 @@ final class SponsorshipSettingsTest extends TestCase
      */
     public function testUnpaidRetentionClampsBothEnds(): void
     {
-        self::assertSame(30, SponsorshipSettings::unpaidRetention([]), 'unconfigured takes the default');
-        self::assertSame(30, SponsorshipSettings::unpaidRetention(['unpaid_order_retention' => '0']));
-        self::assertSame(30, SponsorshipSettings::unpaidRetention(['unpaid_order_retention' => '']));
-        self::assertSame(7, SponsorshipSettings::unpaidRetention(['unpaid_order_retention' => '3']), 'never under the labelling sweep');
-        self::assertSame(365, SponsorshipSettings::unpaidRetention(['unpaid_order_retention' => '4000']));
-        self::assertSame(45, SponsorshipSettings::unpaidRetention(['unpaid_order_retention' => '45']));
+        self::assertSame(30, MembershipSettings::unpaidRetention([]), 'unconfigured takes the default');
+        self::assertSame(30, MembershipSettings::unpaidRetention(['unpaid_order_retention' => '0']));
+        self::assertSame(30, MembershipSettings::unpaidRetention(['unpaid_order_retention' => '']));
+        self::assertSame(7, MembershipSettings::unpaidRetention(['unpaid_order_retention' => '3']), 'never under the labelling sweep');
+        self::assertSame(365, MembershipSettings::unpaidRetention(['unpaid_order_retention' => '4000']));
+        self::assertSame(45, MembershipSettings::unpaidRetention(['unpaid_order_retention' => '45']));
     }
 }

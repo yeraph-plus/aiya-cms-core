@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Sponsorship\MembershipScheduler;
+use Aiya\Core\Domain\Membership\MembershipScheduler;
 use PHPUnit\Framework\TestCase;
 
 final class MembershipSchedulerTest extends TestCase

@@ -35,7 +35,7 @@ aiya-core/
 │  │  ├─ Operations/
 │  │  ├─ Parts/
 │  │  ├─ Smilies/
-│  │  ├─ Sponsorship/
+│  │  ├─ Membership/
 │  │  └─ ThemeSupport/
 │  ├─ Api/
 │  │  ├─ Contract/

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Sponsorship;
+namespace Aiya\Core\Domain\Membership;
 
 use WP_Error;
 
@@ -10,7 +10,7 @@ use WP_Error;
  * The thin payment-gateway seam of the membership domain: the domain
  * (orders, entitlement queue, controllers) depends on this interface
  * only — adding a gateway means adding one adapter class plus its
- * settings, never touching SponsorshipController/GatewayController flow.
+ * settings, never touching MembershipController/GatewayController flow.
  *
  * A payment is a value description; gateways never resolve amounts into
  * rights. How a push proves itself is each adapter's own business: the
@@ -30,7 +30,7 @@ interface PaymentGateway
      * themselves through the `aiya_core_firstparty_rest_namespaces`
      * filter for the headless REST gate.
      */
-    public const GATEWAY_NAMESPACE = 'aiya/sponsorship/v1';
+    public const GATEWAY_NAMESPACE = 'aiya/membership/v1';
 
     /** Stable identifier used in settings, order sources and routes. */
     public function id(): string;

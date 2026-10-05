@@ -7,8 +7,8 @@ namespace Aiya\Core\Admin;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Schema\Page;
 use Aiya\Core\Settings\Registry;
-use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
-use Aiya\Core\Domain\Sponsorship\SponsorshipSettings;
+use Aiya\Core\Domain\Membership\RedeemCodeService;
+use Aiya\Core\Domain\Membership\MembershipSettings;
 
 /**
  * Redemption-code manager (submenu of the membership menu): batch-generate
@@ -79,7 +79,7 @@ final class ConvertCodesPage implements Module
                             <th scope="row"><label for="aiya-codes-tier"><?php esc_html_e('Tier', 'aiya-core'); ?></label></th>
                             <td>
                                 <select id="aiya-codes-tier" name="tier_key">
-                                    <?php $tiers = SponsorshipSettings::read()['tiers']; ?>
+                                    <?php $tiers = MembershipSettings::read()['tiers']; ?>
                                     <?php if ($tiers === []) : ?>
                                         <option value=""><?php esc_html_e('— define tiers first —', 'aiya-core'); ?></option>
                                     <?php else : ?>
@@ -196,7 +196,7 @@ final class ConvertCodesPage implements Module
         // stale or disabled tier key would otherwise mint codes the
         // purchase list refuses to honor. read() normalizes every tier
         // with a boolean `enabled`, so the pluck value is the guard.
-        $configured = wp_list_pluck(SponsorshipSettings::read()['tiers'] ?? [], 'enabled', 'key');
+        $configured = wp_list_pluck(MembershipSettings::read()['tiers'] ?? [], 'enabled', 'key');
         if (!($configured[$tierKey] ?? false)) {
             $this->redirectBack(['aiya_note' => 'failed']);
         }

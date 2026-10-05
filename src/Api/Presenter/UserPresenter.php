@@ -12,7 +12,7 @@ use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
 use Aiya\Core\Domain\Identity\ShowNsfw;
 use Aiya\Core\Domain\Identity\UserBan;
-use Aiya\Core\Domain\Sponsorship\MembershipService;
+use Aiya\Core\Domain\Membership\MembershipService;
 use WP_User;
 
 /**

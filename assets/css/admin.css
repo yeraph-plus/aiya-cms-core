@@ -49,8 +49,10 @@
     padding: 0;
 }
 
-/* Radio and multicheck options run inline with a fixed gap between them. */
+/* Radio and multicheck options run inline with a fixed gap between them
+   (settings rows and kit-card forms share the shape). */
 .aiya-core-settings .aiya-core-radio,
+.aiya-core-card__body .aiya-core-radio,
 .aiya-core-settings .aiya-core-multicheck-item {
     align-items: center;
     display: inline-flex;
@@ -58,6 +60,7 @@
 }
 
 .aiya-core-settings .aiya-core-radio input[type="radio"],
+.aiya-core-card__body .aiya-core-radio input[type="radio"],
 .aiya-core-settings .aiya-core-multicheck-item input[type="checkbox"] {
     margin-top: 0;
 }
@@ -508,6 +511,19 @@ details.aiya-core-card > .aiya-core-card__summary::marker {
     line-height: 1;
     margin: 0;
     width: 16px;
+}
+
+/* The destructive text action: delete red on a plain link (row actions
+   like the notifications list's per-row delete wear it instead of
+   core's submitdelete; no button shell by ruling). */
+.aiya-core-button-danger {
+    color: #d63638;
+    text-decoration: none;
+}
+
+.aiya-core-button-danger:hover,
+.aiya-core-button-danger:focus {
+    color: #b32d2e;
 }
 
 /*

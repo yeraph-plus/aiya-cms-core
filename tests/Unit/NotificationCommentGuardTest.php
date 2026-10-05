@@ -22,7 +22,9 @@ use wpdb;
  * post author nor a logged-in parent commenter), and a logged-in reply to
  * a GUEST comment stays silent too — user_id 0 is the broadcast shape, so
  * materializing that recipient would have broadcast the reply to every
- * visitor. Self-actions and held comments stay silent as before.
+ * visitor. Self-actions stay silent as before. The approved-only gate
+ * lives upstream in the Content domain's delegation (held comments never
+ * fire aiya_core_comment_posted), so it is not a leg here any more.
  *
  * The real NotificationService writes through the wpdb stand-in, so the
  * assertions read the actual inserted rows (a create() that no-ops or
@@ -97,7 +99,7 @@ final class NotificationCommentGuardTest extends TestCase
     {
         $this->post(5, 7);
 
-        $this->actions()->onCommentInserted(11, $this->comment(11, 0, 5));
+        $this->actions()->onCommentPosted(11, $this->comment(11, 0, 5));
 
         self::assertSame([], $this->rows());
     }
@@ -107,7 +109,7 @@ final class NotificationCommentGuardTest extends TestCase
         $this->post(5, 7);
         $this->comment(20, 7, 5); // logged-in parent
 
-        $this->actions()->onCommentInserted(21, $this->comment(21, 0, 5, 20));
+        $this->actions()->onCommentPosted(21, $this->comment(21, 0, 5, 20));
 
         self::assertSame([], $this->rows());
     }
@@ -117,7 +119,7 @@ final class NotificationCommentGuardTest extends TestCase
         $this->post(5, 7);
         $this->comment(30, 0, 5); // GUEST parent — the explicit audit example
 
-        $this->actions()->onCommentInserted(31, $this->comment(31, 7, 5, 30));
+        $this->actions()->onCommentPosted(31, $this->comment(31, 7, 5, 30));
 
         self::assertSame([], $this->rows());
     }
@@ -126,7 +128,7 @@ final class NotificationCommentGuardTest extends TestCase
     {
         $this->post(5, 7);
 
-        $this->actions()->onCommentInserted(12, $this->comment(12, 9, 5));
+        $this->actions()->onCommentPosted(12, $this->comment(12, 9, 5));
 
         $rows = $this->rows();
         self::assertCount(1, $rows);
@@ -140,7 +142,7 @@ final class NotificationCommentGuardTest extends TestCase
         $this->post(5, 7);
         $this->comment(40, 9, 5);
 
-        $this->actions()->onCommentInserted(41, $this->comment(41, 8, 5, 40));
+        $this->actions()->onCommentPosted(41, $this->comment(41, 8, 5, 40));
 
         $rows = $this->rows();
         self::assertCount(1, $rows);
@@ -155,17 +157,8 @@ final class NotificationCommentGuardTest extends TestCase
         $this->comment(50, 7, 5);
         $actions = $this->actions();
 
-        $actions->onCommentInserted(51, $this->comment(51, 7, 5)); // own post
-        $actions->onCommentInserted(52, $this->comment(52, 7, 5, 50)); // own comment
-
-        self::assertSame([], $this->rows());
-    }
-
-    public function testHeldCommentsStaySilent(): void
-    {
-        $this->post(5, 7);
-
-        $this->actions()->onCommentInserted(13, $this->comment(13, 9, 5, 0, '0'));
+        $actions->onCommentPosted(51, $this->comment(51, 7, 5)); // own post
+        $actions->onCommentPosted(52, $this->comment(52, 7, 5, 50)); // own comment
 
         self::assertSame([], $this->rows());
     }

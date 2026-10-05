@@ -7,7 +7,7 @@ namespace Aiya\Core\Domain\Credit;
 /**
  * Normalized reader for the credit policy. The check-in settings live on
  * the membership settings page — page slug `membership`, option name
- * `aiya_core_sponsorship` (deliberately different; aiya_core_opt() keys on
+ * `aiya_core_membership` (deliberately different; aiya_core_opt() keys on
  * the SLUG, so passing the option's own suffix here reads nothing and
  * every value silently falls back to its default). The ledger retention
  * lives on the content-management page next to the notification retention. The

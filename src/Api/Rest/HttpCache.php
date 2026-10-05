@@ -62,7 +62,7 @@ final class HttpCache
         // Bearer-scoped reads are per-viewer by definition (balances,
         // ledgers, the membership queue) — never a shared-cache candidate.
         if (preg_match('#^(users|notifications|credits)(/|$)#', $route) === 1
-            || $route === 'sponsorship/membership') {
+            || $route === 'membership/mine') {
             $server->send_header('Cache-Control', 'private, no-store');
 
             return $served;

@@ -6,7 +6,7 @@ namespace Aiya\Core\Domain\FileServe;
 
 /**
  * Debug log for external file sources (OpenList and friends), on the
- * Sponsorship\WebhookLogger pattern: when enabled it appends source failures
+ * Membership\WebhookLogger pattern: when enabled it appends source failures
  * under wp-content/aiya_logs/ as dated files. Logging is OFF unless WP_DEBUG
  * is defined truthy — the entries carry upstream URLs and error text an
  * operator is diagnosing, not anything a settings switch should leave on.

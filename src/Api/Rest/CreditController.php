@@ -9,11 +9,11 @@ use Aiya\Core\Api\Contract\CreditGrant;
 use Aiya\Core\Api\Contract\MembershipCodeGrant;
 use Aiya\Core\Api\Contract\Pagination;
 use Aiya\Core\Api\Presenter\CreditPresenter;
-use Aiya\Core\Domain\Credit\CreditSettings;
+use Aiya\Core\Domain\Credit\CheckinService;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Identity\UserBan;
-use Aiya\Core\Domain\Sponsorship\AfdianActivator;
-use Aiya\Core\Domain\Sponsorship\RedeemCodeService;
+use Aiya\Core\Domain\Membership\AfdianActivator;
+use Aiya\Core\Domain\Membership\RedeemCodeService;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -34,6 +34,7 @@ final class CreditController
         private RedeemCodeService $codes,
         private RateLimiter $limiter,
         private CreditPresenter $presenter = new CreditPresenter(),
+        private CheckinService $checkins = new CheckinService(),
     ) {
     }
 
@@ -94,9 +95,10 @@ final class CreditController
     private function checkin(): WP_Error|WP_REST_Response
     {
         $userId = (int) get_current_user_id();
-        // Disabled accounts do not earn (UserBan). Checked before the rate
-        // limiter so a hammering disabled session cannot burn a household's
-        // shared attempt budget.
+        // Transport shield: a disabled session is turned away before the
+        // rate limiter, so hammering cannot burn the shared attempt budget.
+        // The earning rule itself lives in CheckinService — any future
+        // caller inherits it.
         if (UserBan::isBanned($userId)) {
             return new WP_Error('aiya_account_disabled', __('This account is disabled.', 'aiya-core'), ['status' => 403]);
         }
@@ -104,28 +106,15 @@ final class CreditController
             return RestGuard::rateLimited();
         }
 
-        $settings = CreditSettings::read();
-        if (!$settings['checkinEnabled'] || $settings['checkinCredits'] <= 0) {
-            return new WP_Error('aiya_credit_checkin_disabled', __('Check-in is not available.', 'aiya-core'), ['status' => 403]);
-        }
-
-        // Local calendar day: the holder's "today" is the site's day.
-        $ref = current_time('Y-m-d');
-        $expiresAt = time() + $settings['validityDays'] * DAY_IN_SECONDS;
-
-        $granted = $this->ledger->grant($userId, $settings['checkinCredits'], LedgerService::SOURCE_CHECKIN, $ref, $expiresAt);
-        if (is_wp_error($granted)) {
-            if ($granted->get_error_code() === 'aiya_credit_duplicate') {
-                return new WP_Error('aiya_credit_checkin_done', __('Already checked in today.', 'aiya-core'), ['status' => 409]);
-            }
-
-            return $granted;
+        $result = $this->checkins->checkin($userId);
+        if (is_wp_error($result)) {
+            return $result;
         }
 
         return new WP_REST_Response((new CreditGrant(
-            $settings['checkinCredits'],
-            $this->ledger->balance($userId),
-            (string) wp_date('c', $expiresAt)
+            $result['granted'],
+            $result['balance'],
+            (string) wp_date('c', $result['expiresAt'])
         ))->toArray());
     }
 

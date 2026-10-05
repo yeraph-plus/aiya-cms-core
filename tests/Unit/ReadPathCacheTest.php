@@ -17,7 +17,7 @@ use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Media\MediaPaths;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
-use Aiya\Core\Domain\Sponsorship\EntitlementService;
+use Aiya\Core\Domain\Membership\EntitlementService;
 use PHPUnit\Framework\TestCase;
 use WP_Post;
 use WP_Term;

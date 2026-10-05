@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Sponsorship;
+namespace Aiya\Core\Domain\Membership;
 
 use WP_Error;
 
@@ -60,7 +60,7 @@ final class RedeemCodeService
 
         $tierKey = (string) $row->tier_key;
         $cycles = (int) $row->cycles;
-        $tier = SponsorshipSettings::tierByKey(SponsorshipSettings::read()['tiers'], $tierKey);
+        $tier = MembershipSettings::tierByKey(MembershipSettings::read()['tiers'], $tierKey);
         if ($tierKey === '' || $cycles < 1 || $tier === null) {
             // A code whose tier was deleted after printing cannot resolve
             // its product any more.

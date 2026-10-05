@@ -10,7 +10,7 @@ namespace Aiya\Core\Domain\Notification;
  * with the guest level for logged-out visitors. A row's role level is the
  * minimum rank a viewer needs: a broadcast row marked `subscriber` is
  * visible to every signed-in user, `sponsor` additionally requires a
- * valid sponsorship (the presenter resolves that from the protocol meta),
+ * valid membership (the presenter resolves that from the protocol meta),
  * and so on. `guest`-level rows are the public site notices.
  */
 final class RoleLevel

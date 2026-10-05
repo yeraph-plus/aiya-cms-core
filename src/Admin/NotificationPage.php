@@ -12,11 +12,12 @@ use Aiya\Core\Domain\Notification\NotificationService;
 use Aiya\Core\Domain\Shared\DateLabels;
 
 /**
- * Notifications screen (submenu of the AIYA CMS Core menu): publish an
- * announcement and browse/delete stored rows. The retention setting lives
- * on the content-management page; this screen only describes the daily cleanup.
- * Deliberately plain — the legacy site-notice settings list it replaces was
- * itself nothing more than a hidden-input repeater.
+ * Notifications screen (own top-level menu): publish an announcement and
+ * browse/delete stored rows through the shared Ui kit — the publish form
+ * rides a static card, the stored list is a bulk table (select rows, one
+ * delete round trip) with the shared list navigation. The retention
+ * setting lives on the content-management page; this screen only describes
+ * the daily cleanup.
  *
  * Write flows go through admin_post with per-action nonces and the
  * manage_options capability; the notification service is the single write
@@ -24,12 +25,13 @@ use Aiya\Core\Domain\Shared\DateLabels;
  */
 final class NotificationPage implements Module
 {
-    private const PARENT_SLUG = 'aiya-core-frontend';
     private const MENU_SLUG = 'aiya-core-notifications';
-    private const PER_PAGE = 20;
+    private const DEFAULT_PER_PAGE = 20;
+    private const PER_PAGE_CHOICES = [20, 50, 100];
 
     private const ACTION_CREATE = 'aiya_core_notification_create';
     private const ACTION_DELETE = 'aiya_core_notification_delete';
+    private const ACTION_BULK_DELETE = 'aiya_core_notification_bulk_delete';
 
     private NotificationService $notifications;
 
@@ -43,6 +45,7 @@ final class NotificationPage implements Module
         add_action('aiya_core_register', [$this, 'registerPage']);
         add_action('admin_post_' . self::ACTION_CREATE, [$this, 'handleCreate']);
         add_action('admin_post_' . self::ACTION_DELETE, [$this, 'handleDelete']);
+        add_action('admin_post_' . self::ACTION_BULK_DELETE, [$this, 'handleBulkDelete']);
     }
 
     /** Registers through the shared settings pipeline as a callback page. */
@@ -52,7 +55,8 @@ final class NotificationPage implements Module
             'slug' => 'notifications',
             'title' => __('Notifications', 'aiya-core'),
             'menu_title' => __('Notifications', 'aiya-core'),
-            'parent' => self::PARENT_SLUG,
+            'icon' => 'dashicons-bell',
+            'position' => 25.5,
             'kind' => Page::KIND_CALLBACK,
             'render' => [$this, 'render'],
         ]);
@@ -66,109 +70,129 @@ final class NotificationPage implements Module
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination; writes go through nonced admin_post handlers
         $paged = max(1, absint((string) ($_GET['paged'] ?? '1')));
-        $result = $this->notifications->adminPage($paged, self::PER_PAGE);
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Notifications', 'aiya-core'); ?></h1>
-            <p class="description"><?php esc_html_e('Site-wide announcements for the headless front end. Rows expire automatically after the retention period; the front end tracks read state itself.', 'aiya-core'); ?></p>
-            <?php $this->notice(); ?>
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page size
+        $requested = (int) ($_GET['per_page'] ?? (string) self::DEFAULT_PER_PAGE);
+        $perPage = in_array($requested, self::PER_PAGE_CHOICES, true) ? $requested : self::DEFAULT_PER_PAGE;
 
-            <div class="card" style="max-width:100%; margin-top:16px;">
-                <h2 class="title"><?php esc_html_e('Publish announcement', 'aiya-core'); ?></h2>
-                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-                    <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_CREATE); ?>">
-                    <?php wp_nonce_field(self::ACTION_CREATE); ?>
-                    <table class="form-table" role="presentation"><tbody>
-                        <tr>
-                            <th scope="row"><label for="aiya-notify-title"><?php esc_html_e('Title', 'aiya-core'); ?></label></th>
-                            <td><input type="text" class="regular-text" id="aiya-notify-title" name="title" maxlength="191" required></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="aiya-notify-level"><?php esc_html_e('Minimum visible role', 'aiya-core'); ?></label></th>
-                            <td>
-                                <select id="aiya-notify-level" name="min_role">
-                                    <?php foreach (RoleLevel::all() as $level) : ?>
-                                        <option value="<?php echo esc_attr($level); ?>"><?php echo esc_html($this->levelLabel($level)); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <p class="description"><?php esc_html_e('Viewers below this role will not see the announcement. Sponsor also requires a valid sponsorship.', 'aiya-core'); ?></p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="aiya-notify-body"><?php esc_html_e('Body', 'aiya-core'); ?></label></th>
-                            <td><textarea class="large-text" rows="5" id="aiya-notify-body" name="body"></textarea></td>
-                        </tr>
-                    </tbody></table>
-                    <?php submit_button(__('Publish', 'aiya-core'), 'primary', 'submit', false); ?>
-                </form>
-            </div>
+        $rows = $this->notifications->adminRows();
+        $totalPages = max(1, (int) ceil(count($rows) / $perPage));
+        $paged = min($paged, $totalPages);
 
-            <h2 class="title" style="margin-top:24px;"><?php esc_html_e('Stored notifications', 'aiya-core'); ?></h2>
-            <table class="wp-list-table widefat fixed striped table-view-list">
-                <thead>
-                    <tr>
-                        <th style="width:56px;">ID</th>
-                        <th><?php esc_html_e('Title', 'aiya-core'); ?></th>
-                        <th><?php esc_html_e('Body', 'aiya-core'); ?></th>
-                        <th style="width:140px;"><?php esc_html_e('Minimum role', 'aiya-core'); ?></th>
-                        <th style="width:140px;"><?php esc_html_e('Scope', 'aiya-core'); ?></th>
-                        <th style="width:160px;"><?php esc_html_e('Created', 'aiya-core'); ?></th>
-                        <th style="width:80px;"><?php esc_html_e('Actions', 'aiya-core'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($result['items'] === []) : ?>
-                        <tr><td colspan="7"><?php esc_html_e('No notifications stored.', 'aiya-core'); ?></td></tr>
-                    <?php else : ?>
-                        <?php foreach ($result['items'] as $row) : ?>
-                            <tr>
-                                <td><?php echo esc_html((string) $row->id); ?></td>
-                                <td><strong><?php echo esc_html((string) $row->title); ?></strong></td>
-                                <td><?php echo esc_html(wp_trim_words(wp_strip_all_tags((string) $row->body), 24)); ?></td>
-                                <td><?php echo esc_html($this->levelLabel((string) $row->min_role)); ?></td>
-                                <td>
-                                    <?php
-                                    /* translators: %d: user ID. */
-                                    echo esc_html((int) $row->user_id > 0 ? sprintf(__('User #%d', 'aiya-core'), (int) $row->user_id) : __('Broadcast', 'aiya-core'));
-                                    ?>
-                                </td>
-                                <td><?php echo esc_html(DateLabels::fromGmt((string) $row->created_at)); ?></td>
-                                <td>
-                                    <?php
-                                    $deleteUrl = wp_nonce_url(
-                                        admin_url('admin-post.php?action=' . self::ACTION_DELETE . '&id=' . (int) $row->id),
-                                        self::ACTION_DELETE . '_' . (int) $row->id
-                                    );
-                                    ?>
-                                    <a class="submitdelete" href="<?php echo esc_url($deleteUrl); ?>"
-                                        onclick="return confirm('<?php esc_attr_e('Delete this notification?', 'aiya-core'); ?>');">
-                                        <?php esc_html_e('Delete', 'aiya-core'); ?>
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+        Ui::pageHead(
+            __('Notifications', 'aiya-core'),
+            __('Site-wide announcements for the headless front end. Rows expire automatically after the retention period; the front end tracks read state itself.', 'aiya-core')
+        );
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect counter
+        $count = absint((string) ($_GET['aiya_notify_count'] ?? '0'));
+        Ui::flash('aiya_note', [
+            'created' => [__('Notification published.', 'aiya-core'), 'success'],
+            'deleted' => [__('Notification deleted.', 'aiya-core'), 'success'],
+            'bulk_deleted' => [
+                sprintf(
+                    /* translators: %d: number of deleted notifications */
+                    __('Deleted %d notifications.', 'aiya-core'),
+                    $count
+                ),
+                'success',
+            ],
+            'failed' => [__('The operation failed — check the values and try again.', 'aiya-core'), 'error'],
+        ]);
 
-            <?php
-            if ($result['pages'] > 1) {
-                echo '<div class="tablenav bottom"><div class="tablenav-pages">';
-                echo wp_kses_post(
-                    (string) paginate_links([
-                        'base' => add_query_arg('paged', '%#%'),
-                        'format' => '',
-                        'current' => $paged,
-                        'total' => $result['pages'],
-                        'prev_text' => '&laquo;',
-                        'next_text' => '&raquo;',
-                    ])
-                );
-                echo '</div></div>';
-            }
+        $this->publishCard();
+
+        Ui::heading(__('Stored notifications', 'aiya-core'));
+        Ui::bulkTable(
+            self::ACTION_BULK_DELETE,
+            ['delete' => __('Delete selected', 'aiya-core')],
+            [
+                'title' => ['label' => __('Title', 'aiya-core')],
+                'body' => ['label' => __('Body', 'aiya-core')],
+                'audience' => ['label' => __('Scope', 'aiya-core'), 'width' => '140px'],
+                'created' => ['label' => __('Created', 'aiya-core'), 'width' => '160px'],
+                'actions' => ['label' => __('Actions', 'aiya-core'), 'width' => '80px'],
+            ],
+            $rows,
+            static function (object $row, string $column): void {
+                switch ($column) {
+                    case 'title':
+                        echo '<strong>' . esc_html((string) $row->title) . '</strong>';
+                        break;
+                    case 'body':
+                        echo esc_html(wp_trim_words(wp_strip_all_tags((string) $row->body), 24));
+                        break;
+                    case 'audience':
+                        // One column, two shapes: targeted rows name their
+                        // holder, broadcast rows name the role floor (the
+                        // stored min_role on targeted rows is inert — the
+                        // read path matches them by user_id alone).
+                        if ((int) $row->user_id > 0) {
+                            /* translators: %d: user ID. */
+                            echo esc_html(sprintf(__('User #%d', 'aiya-core'), (int) $row->user_id));
+                        } else {
+                            echo esc_html(self::levelLabel((string) $row->min_role));
+                        }
+                        break;
+                    case 'created':
+                        echo esc_html(DateLabels::fromGmt((string) $row->created_at));
+                        break;
+                    case 'actions':
+                        $deleteUrl = wp_nonce_url(
+                            admin_url('admin-post.php?action=' . self::ACTION_DELETE . '&id=' . (int) $row->id),
+                            self::ACTION_DELETE . '_' . (int) $row->id
+                        );
+                        ?>
+                        <a class="aiya-core-button-danger" href="<?php echo esc_url($deleteUrl); ?>"
+                            onclick="return window.confirm(<?php echo esc_attr((string) wp_json_encode(__('Delete this notification?', 'aiya-core'))); ?>);"><?php esc_html_e('Delete', 'aiya-core'); ?></a>
+                        <?php
+                        break;
+                }
+            },
+            static fn (object $row): int => (int) $row->id,
+            [
+                'empty' => __('No notifications stored.', 'aiya-core'),
+                'confirm' => ['delete' => __('Delete the selected notifications?', 'aiya-core')],
+                'nav' => true,
+                'paged' => $paged,
+                'per_page' => $perPage,
+                'per_page_choices' => self::PER_PAGE_CHOICES,
+                'jump_nav' => true,
+                'per_page_nav' => true,
+            ]
+        );
+        Ui::pageFoot();
+    }
+
+    /** The publish form as a collapsible card, seeded collapsed. */
+    private function publishCard(): void
+    {
+        Ui::card(__('Publish announcement', 'aiya-core'), static function (): void {
             ?>
-        </div>
-        <?php
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <input type="hidden" name="action" value="<?php echo esc_attr(NotificationPage::ACTION_CREATE); ?>">
+                <?php wp_nonce_field(NotificationPage::ACTION_CREATE); ?>
+                <table class="form-table" role="presentation"><tbody>
+                    <tr>
+                        <th scope="row"><label for="aiya-notify-title"><?php esc_html_e('Title', 'aiya-core'); ?></label></th>
+                        <td><input type="text" class="regular-text" id="aiya-notify-title" name="title" maxlength="191" required></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e('Minimum visible role', 'aiya-core'); ?></th>
+                        <td>
+                            <?php foreach (RoleLevel::all() as $level) : ?>
+                                <label class="aiya-core-radio"><input type="radio" name="min_role" value="<?php echo esc_attr($level); ?>" <?php checked($level, RoleLevel::GUEST); ?>> <?php echo esc_html(self::levelLabel($level)); ?></label>
+                            <?php endforeach; ?>
+                            <p class="description"><?php esc_html_e('Viewers below this role will not see the announcement. Sponsor also requires a valid membership.', 'aiya-core'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aiya-notify-body"><?php esc_html_e('Body', 'aiya-core'); ?></label></th>
+                        <td><textarea class="large-text" rows="5" id="aiya-notify-body" name="body"></textarea></td>
+                    </tr>
+                </tbody></table>
+                <p><?php Ui::button(__('Publish', 'aiya-core'), ['type' => 'submit', 'variant' => 'button-primary']); ?></p>
+            </form>
+            <?php
+        }, false);
     }
 
     public function handleCreate(): void
@@ -191,7 +215,7 @@ final class NotificationPage implements Module
             }
         }
 
-        $this->redirectBack(['aiya_note' => $note]);
+        Ui::redirect(self::pageUrl(), ['aiya_note' => $note]);
     }
 
     public function handleDelete(): void
@@ -203,43 +227,31 @@ final class NotificationPage implements Module
         check_admin_referer(self::ACTION_DELETE . '_' . $id);
 
         $deleted = $this->notifications->delete($id);
-        $this->redirectBack(['aiya_note' => $deleted ? 'deleted' : 'failed']);
+        Ui::redirect(self::pageUrl(), ['aiya_note' => $deleted ? 'deleted' : 'failed']);
     }
 
-    /** Flashes the outcome of an admin_post round trip. */
-    private function notice(): void
+    public function handleBulkDelete(): void
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
-        $note = sanitize_key((string) ($_GET['aiya_note'] ?? ''));
-        if ($note === '') {
-            return;
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You are not allowed to manage notifications.', 'aiya-core'));
         }
+        check_admin_referer(self::ACTION_BULK_DELETE);
 
-        $messages = [
-            'created' => __('Notification published.', 'aiya-core'),
-            'deleted' => __('Notification deleted.', 'aiya-core'),
-            'failed' => __('The operation failed — check the values and try again.', 'aiya-core'),
-        ];
-
-        if (!isset($messages[$note])) {
-            return;
-        }
-
-        printf(
-            '<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
-            $note === 'failed' ? 'error' : 'success',
-            esc_html($messages[$note])
-        );
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- absint casts every element below
+        $raw = isset($_POST['ids']) && is_array($_POST['ids']) ? $_POST['ids'] : [];
+        $deleted = $this->notifications->deleteByIds(array_map('absint', $raw));
+        Ui::redirect(self::pageUrl(), $deleted > 0
+            ? ['aiya_note' => 'bulk_deleted', 'aiya_notify_count' => (string) $deleted]
+            : ['aiya_note' => 'failed']);
     }
 
-    /** @param array<string, string> $args */
-    private function redirectBack(array $args): never
+    /** The page's own admin URL, the Ui::redirect base for every round trip. */
+    private static function pageUrl(): string
     {
-        wp_safe_redirect(add_query_arg($args, admin_url('admin.php?page=' . self::MENU_SLUG)));
-        exit;
+        return admin_url('admin.php?page=' . self::MENU_SLUG);
     }
 
-    private function levelLabel(string $level): string
+    private static function levelLabel(string $level): string
     {
         return match ($level) {
             RoleLevel::SUBSCRIBER => __('Subscriber', 'aiya-core'),

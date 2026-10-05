@@ -17,7 +17,7 @@ use Aiya\Core\Api\Contract\TiersPayload;
  * queue, the derived credit balance and the check-in policy), including
  * the GMT → site-offset date conversions the wire shape wants.
  */
-final class SponsorshipPresenter
+final class MembershipPresenter
 {
     /**
      * @param list<array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,enabled:bool,cycles:int}> $tierRows

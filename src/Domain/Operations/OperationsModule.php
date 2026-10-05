@@ -90,9 +90,9 @@ final class OperationsModule implements Module
 
     /**
      * The report's rate moved off the membership settings page (the
-     * sponsorship option) onto the report's own page (the operations
+     * membership option) onto the report's own page (the operations
      * option). A numeric source value moves across unless the target
      * already holds one; anything else drops and the operator re-enters
-     * it in place. An emptied sponsorship option is deleted.
+     * it in place. An emptied membership option is deleted.
      */
 }

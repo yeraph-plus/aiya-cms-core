@@ -12,19 +12,20 @@ use WP_User;
 use WP_User_Query;
 
 /**
- * Send Mail screen (submenu of the AIYA CMS Core menu): compose an HTML
- * email with the classic editor and send it immediately over AJAX.
+ * Send Mail screen (own top-level menu): compose an HTML email with the
+ * classic editor and send it immediately over AJAX. The compose surface
+ * rides the shared Ui kit — page shell and static card.
  *
  * The recipient is a free-text email field — any valid address works,
- * registered or not — with optional typeahead suggestions searching site
- * users by username, email and display name. Delivery goes through
- * wp_mail() only, the pluggable mail entry every SMTP plugin (SMTP2GO and
- * friends) hooks into; the composed HTML from the trusted editor behind
- * the edit_users capability is passed as-is, marked text/html.
+ * registered or not — wearing the shared kit typeahead that suggests site
+ * users by username, email and display name and fills the address on
+ * pick. Delivery goes through wp_mail() only, the pluggable mail entry
+ * every SMTP plugin (SMTP2GO and friends) hooks into; the composed HTML
+ * from the trusted editor behind the edit_users capability is passed
+ * as-is, marked text/html.
  */
 final class SendMailPage implements Module
 {
-    private const PARENT_SLUG = 'aiya-core-frontend';
     private const MENU_SLUG = 'aiya-core-send-mail';
     private const AJAX_ACTION = 'aiya_core_send_mail';
     private const AJAX_SEARCH = 'aiya_core_mail_search';
@@ -55,7 +56,8 @@ final class SendMailPage implements Module
             'title' => __('Send Mail', 'aiya-core'),
             'menu_title' => __('Send Mail', 'aiya-core'),
             'capability' => 'edit_users',
-            'parent' => self::PARENT_SLUG,
+            'icon' => 'dashicons-email',
+            'position' => 84,
             'kind' => Page::KIND_CALLBACK,
             'render' => [$this, 'render'],
         ]);
@@ -105,27 +107,40 @@ final class SendMailPage implements Module
         if (!is_email($prefill)) {
             $prefill = '';
         }
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Send Mail', 'aiya-core'); ?></h1>
-            <p class="description"><?php esc_html_e('Compose an HTML email and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport.', 'aiya-core'); ?></p>
-
+        Ui::pageHead(
+            __('Send Mail', 'aiya-core'),
+            __('Compose an HTML email and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport.', 'aiya-core')
+        );
+        Ui::staticCard(__('Compose', 'aiya-core'), static function () use ($nonce, $prefill): void {
+            ?>
             <table class="form-table" role="presentation"><tbody>
                 <tr>
                     <th scope="row"><label for="aiya-core-mail-recipient"><?php esc_html_e('Recipient', 'aiya-core'); ?></label></th>
                     <td>
-                        <input type="text" class="regular-text" id="aiya-core-mail-recipient" value="<?php echo esc_attr($prefill); ?>" placeholder="user@example.com" autocomplete="off" spellcheck="false">
+                        <?php
+                        Ui::input('aiya_core_mail_recipient', 'text', $prefill, [
+                            'id' => 'aiya-core-mail-recipient',
+                            'class' => 'regular-text',
+                            'placeholder' => 'user@example.com',
+                            'autocomplete' => 'off',
+                            'typeahead' => [
+                                'action' => SendMailPage::AJAX_SEARCH,
+                                'nonce' => $nonce,
+                                'fill' => 'email',
+                                'min_chars' => SendMailPage::MIN_SEARCH_LENGTH,
+                            ],
+                        ]);
+                        ?>
                         <p class="description"><?php esc_html_e('Any email address works, registered or not. Typing a username or name suggests site users.', 'aiya-core'); ?></p>
-                        <div id="aiya-core-mail-suggestions"></div>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="aiya-core-mail-subject"><?php esc_html_e('Subject', 'aiya-core'); ?></label></th>
-                    <td><input type="text" class="regular-text" id="aiya-core-mail-subject"></td>
+                    <td><?php Ui::input('aiya_core_mail_subject', 'text', '', ['id' => 'aiya-core-mail-subject', 'class' => 'regular-text']); ?></td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="<?php echo esc_attr(self::EDITOR_ID); ?>"><?php esc_html_e('Message', 'aiya-core'); ?></label></th>
-                    <td><?php wp_editor('', self::EDITOR_ID, ['textarea_name' => 'aiya_core_mail_body', 'textarea_rows' => 10, 'media_buttons' => false, 'editor_height' => 280]); ?></td>
+                    <th scope="row"><label for="<?php echo esc_attr(SendMailPage::EDITOR_ID); ?>"><?php esc_html_e('Message', 'aiya-core'); ?></label></th>
+                    <td><?php wp_editor('', SendMailPage::EDITOR_ID, ['textarea_name' => 'aiya_core_mail_body', 'textarea_rows' => 10, 'media_buttons' => false, 'editor_height' => 280]); ?></td>
                 </tr>
             </tbody></table>
 
@@ -133,47 +148,16 @@ final class SendMailPage implements Module
                 <button type="button" class="button button-primary" id="aiya-core-mail-send" data-nonce="<?php echo esc_attr($nonce); ?>"><?php esc_html_e('Send email', 'aiya-core'); ?></button>
             </p>
             <div id="aiya-core-mail-status" class="description"></div>
-        </div>
-
+            <?php
+        });
+        ?>
         <script>
             jQuery(function ($) {
-                var $suggestions = $('#aiya-core-mail-suggestions');
-                var nonce = $('#aiya-core-mail-send').data('nonce');
-                var searchTimer = null;
-
-                $('#aiya-core-mail-recipient').on('input', function () {
-                    var term = $(this).val();
-                    window.clearTimeout(searchTimer);
-                    if (term.length < <?php echo (int) self::MIN_SEARCH_LENGTH; ?>) {
-                        $suggestions.empty();
-                        return;
-                    }
-                    searchTimer = window.setTimeout(function () {
-                        $.post(ajaxurl, {
-                            action: <?php echo wp_json_encode(self::AJAX_SEARCH); ?>,
-                            nonce: nonce,
-                            term: term
-                        }, null, 'json').done(function (res) {
-                            $suggestions.empty();
-                            if (!res || !res.success) {
-                                return;
-                            }
-                            $.each(res.data.results, function (i, item) {
-                                var $item = $('<button type="button" class="button-link">').css({display: 'block', padding: '2px 0'}).text(item.name + ' — ' + item.email);
-                                $item.on('click', function () {
-                                    $('#aiya-core-mail-recipient').val(item.email);
-                                    $suggestions.empty();
-                                });
-                                $suggestions.append($item);
-                            });
-                        });
-                    }, 250);
-                });
-
                 $('#aiya-core-mail-send').on('click', function (e) {
                     e.preventDefault();
                     var $button = $(this);
                     var $status = $('#aiya-core-mail-status');
+                    var nonce = $button.data('nonce');
                     var editor = tinymce.get(<?php echo wp_json_encode(self::EDITOR_ID); ?>);
                     var body = editor && !editor.isHidden() ? editor.getContent() : $('#' + <?php echo wp_json_encode(self::EDITOR_ID); ?>).val();
 
@@ -206,6 +190,7 @@ final class SendMailPage implements Module
             });
         </script>
         <?php
+        Ui::pageFoot();
     }
 
     /**

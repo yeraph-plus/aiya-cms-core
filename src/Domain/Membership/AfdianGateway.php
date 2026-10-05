@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Sponsorship;
+namespace Aiya\Core\Domain\Membership;
 
 use Aiya\Infra\PaymentAfdian\Client;
 use Aiya\Infra\PaymentAfdian\Gateway;
@@ -40,7 +40,7 @@ final class AfdianGateway implements PaymentGateway
     /** Builds the adapter from the domain settings (null when disabled/unconfigured). */
     public static function fromSettings(): ?self
     {
-        $settings = SponsorshipSettings::read();
+        $settings = MembershipSettings::read();
         if (!$settings['afdianEnable'] || $settings['afdianUserId'] === '' || $settings['afdianToken'] === '') {
             return null;
         }
@@ -72,7 +72,7 @@ final class AfdianGateway implements PaymentGateway
         // plans: ignored, never a purchase.
         $planTiers = [];
         foreach ($settings['afdianBindings'] as $binding) {
-            $tier = SponsorshipSettings::tierByKey($settings['tiers'], $binding['tierKey']);
+            $tier = MembershipSettings::tierByKey($settings['tiers'], $binding['tierKey']);
             if ($binding['planId'] !== '' && $tier !== null && !array_key_exists($binding['planId'], $planTiers)) {
                 $planTiers[$binding['planId']] = $tier;
             }
@@ -93,7 +93,7 @@ final class AfdianGateway implements PaymentGateway
             ),
             true,
             $planTiers,
-            SponsorshipSettings::tierByKey($settings['tiers'], $settings['afdianFallbackTier'])
+            MembershipSettings::tierByKey($settings['tiers'], $settings['afdianFallbackTier'])
         );
     }
 

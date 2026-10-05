@@ -21,7 +21,7 @@ use WP_Post;
  *
  * The member qualification is injected as a closure over
  * MembershipService::isSponsor (editor bypass included) so the gate
- * carries no hard dependency on the sponsorship domain.
+ * carries no hard dependency on the membership domain.
  */
 final class PostVisibility
 {

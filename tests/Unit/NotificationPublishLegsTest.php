@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Core\Domain\Content\Mentions;
-use Aiya\Core\Domain\Mail\MailTemplate;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
@@ -130,21 +129,27 @@ final class NotificationPublishLegsTest extends TestCase
 
     public function testApprovalTellsTheAuthorPendingOnly(): void
     {
-        $this->actions()->onPostTransition('publish', 'pending', $this->post(31, 'publish', '<p>正文。</p>'));
+        $actions = $this->actions();
+        // The Content delegation double-fires a pending approval:
+        // post_approved (the notice) + post_published (mentions and the
+        // follower sweep ride it too).
+        $post = $this->post(31, 'publish', '<p>正文。</p>');
+        $actions->onPostApproved($post);
+        $actions->onPostPublished($post);
 
         self::assertSame(['post_approved'], $this->typesFor($this->author), 'the pending author learns of the approval');
     }
 
     public function testADirectDraftPublishStaysSilentTowardItsAuthor(): void
     {
-        $this->actions()->onPostTransition('publish', 'draft', $this->post(32, 'publish', '<p>正文。</p>'));
+        $this->actions()->onPostPublished($this->post(32, 'publish', '<p>正文。</p>'));
 
         self::assertSame([], $this->typesFor($this->author), 'publishing one’s own draft is one’s own doing');
     }
 
     public function testBodyMentionsFanOutAndDedupAgainstTheFollowerSweep(): void
     {
-        $this->actions()->onPostTransition('publish', 'draft', $this->post(33, 'publish', '<p>叫 @被提及十二 和 @粉丝十三 来看。</p>'));
+        $this->actions()->onPostPublished($this->post(33, 'publish', '<p>叫 @被提及十二 和 @粉丝十三 来看。</p>'));
 
         self::assertSame(['post_mentioned'], $this->typesFor($this->mentioned));
         self::assertSame(['post_mentioned'], $this->typesFor($this->followerMentioned), 'the mention row replaces the sweep row, never both');
@@ -157,7 +162,7 @@ final class NotificationPublishLegsTest extends TestCase
         $post = $this->post(34, 'publish', '<p>@被提及十二 看这个资源。</p>');
         $post->post_type = 'resource';
 
-        $this->actions()->onPostTransition('publish', 'draft', $post);
+        $this->actions()->onPostPublished($post);
 
         self::assertSame(['post_mentioned'], $this->typesFor($this->mentioned), 'a directed mention is type-agnostic');
         self::assertSame([], $this->typesFor($this->followerPlain), 'the follower sweep stays article-only');
@@ -176,13 +181,11 @@ final class NotificationPublishLegsTest extends TestCase
         self::assertSame(['credit_granted'], $this->typesFor($this->mentioned), 'routine bookkeeping never pages the holder');
     }
 
-    /** The activation receipt (2026-10-03): the activation mail doubles as
-        the holder's bill — tier, order id and the coverage window, with
-        the CTA on the front end's membership page. */
-    public function testMembershipActivationSendsTheReceiptMail(): void
+    /** The activation keeps flowing the in-site row; the receipt mail is
+        the Mail domain's listener and lives in MailReceiptTest. */
+    public function testMembershipActivationNotifiesTheHolder(): void
     {
         global $wpdb;
-        $GLOBALS['__aiya_test_options']['blogname'] = 'AIYA 测试站';
         $GLOBALS['__aiya_test_users'][21] = ['user_email' => 'member@example.test'];
         $wpdb->aiya_test_rows['wp_aiya_memberships'] = [
             [
@@ -210,19 +213,7 @@ final class NotificationPublishLegsTest extends TestCase
             new Mentions()
         ))->onMembershipActivated(21, 'probe-order-21');
 
-        // the in-site row keeps flowing
         self::assertSame(['sponsor_activated'], $this->typesFor(21));
-
-        // the receipt: one branded mail to the holder
-        $mails = $GLOBALS['__aiya_test_mails'];
-        self::assertCount(1, $mails);
-        self::assertSame('member@example.test', $mails[0]['to']);
-        self::assertSame('[AIYA 测试站] Thank you — your membership is now active.', $mails[0]['subject']);
-        $message = (string) $mails[0]['message'];
-        self::assertStringContainsString(MailTemplate::SHELL_MARKER, $message);
-        self::assertStringContainsString('季档', $message);
-        self::assertStringContainsString('probe-order-21', $message);
-        self::assertStringContainsString('multiple cycles', $message, 'the multi-cycle stacking copy rides the receipt (unit tests see the source locale)');
-        self::assertStringContainsString('href="https://aiya.test/profile/me/"', $message);
+        self::assertSame([], $GLOBALS['__aiya_test_mails'], 'the receipt mail is no longer this domain leg');
     }
 }
