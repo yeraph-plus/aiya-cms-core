@@ -24,6 +24,7 @@ final class IntegrationsTest extends TestCase
         $GLOBALS['__aiya_test_transients'] = [];
         $GLOBALS['__aiya_test_users'] = [];
         $GLOBALS['__aiya_test_user_meta'] = [];
+        $GLOBALS['__aiya_test_caps'] = false; // the holder holds no staff capability: every spend here charges
         $this->tickets = new TicketService();
 
         global $wpdb;
@@ -32,6 +33,7 @@ final class IntegrationsTest extends TestCase
 
     protected function tearDown(): void
     {
+        $GLOBALS['__aiya_test_caps'] = true;
         unset($GLOBALS['wpdb']);
     }
 

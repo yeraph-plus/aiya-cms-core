@@ -22,7 +22,10 @@ use WP_REST_Server;
  *
  * Billing stays the caller's job: a service prices its own actions and
  * calls spend() with its own source/ref (the ledger only bookkeeps, the
- * 0.48.0 rule). The optional `meter` flag lets a delivery-shaped spend
+ * 0.48.0 rule). Waiving is the ledger's own call, not the caller's: a
+ * holder at the credit settings' waived level has any amount zeroed
+ * inside spend() and the response just reports the unchanged balance.
+ * The optional `meter` flag lets a delivery-shaped spend
  * also hit the download meter so the operations report sees companion
  * deliveries like native ones — once per answered claim, duplicates
  * included, exactly like FileServe's metering point.

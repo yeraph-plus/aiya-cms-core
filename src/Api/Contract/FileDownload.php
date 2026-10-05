@@ -9,8 +9,9 @@ namespace Aiya\Core\Api\Contract;
  * extraction code when the list has one (useless without the link, so it
  * travels with it), what was charged, and the balance the charge left behind.
  *
- * `balance` is null when nothing was charged — a free list, or an editor
- * taking their own file — since there is no new balance to report.
+ * `balance` is null when nothing was charged — a free list — since there is
+ * no new balance to report. A waived staff delivery (CreditSettings' waiver
+ * level) still reports the holder's unchanged balance, like any paid claim.
  */
 final class FileDownload
 {

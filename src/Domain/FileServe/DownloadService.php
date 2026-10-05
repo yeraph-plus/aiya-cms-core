@@ -15,7 +15,10 @@ use WP_Error;
  * The ledger only bookkeeps (it knows amounts, never prices); this domain owns
  * the price, which is the group's own "credits per file". A free list comes
  * through here too, so one path serves every delivery and the download meter
- * sees all of them alike.
+ * sees all of them alike. Whether a staff holder's spend is waived to zero is
+ * the ledger's own call (CreditSettings' waiver level) — this service neither
+ * exempts nor meters conditionally: every answered claim charges through
+ * spend() and counts exactly once.
  *
  * A repeat claim for the same row inside a fixed 30-second window is read as
  * one purchase: the spend carries a key derived from the row and the time
@@ -64,11 +67,8 @@ final class DownloadService
 
         $price = $group['price'];
         $balance = null;
-        // An editor taking their own file is not a delivery: no charge, and
-        // nothing for the download meter to count either.
-        $editor = current_user_can('edit_post', $postId);
 
-        if ($price > 0 && !$editor) {
+        if ($price > 0) {
             $spend = $this->ledger->spend(
                 $viewerId,
                 $price,
@@ -88,11 +88,9 @@ final class DownloadService
             }
         }
 
-        // One metering point per delivery, charged or free: the statistics
-        // domain listens here, and nothing else counts a download.
-        if (!$editor) {
-            do_action('aiya_core_download_served', $viewerId, $postId, $ref);
-        }
+        // One metering point per delivery, charged, waived or free: the
+        // statistics domain listens here, and nothing else counts a download.
+        do_action('aiya_core_download_served', $viewerId, $postId, $ref);
 
         return [
             'url' => $entry->url,

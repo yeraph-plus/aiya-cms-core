@@ -13,11 +13,31 @@ namespace Aiya\Core\Domain\Credit;
  * lives on the content-management page next to the notification retention. The
  * credit domain is bookkeeping only — it never prices a downstream
  * action; the caller passes the amount into LedgerService::spend().
+ *
+ * The spend waiver is the one piece of policy the ledger itself holds:
+ * holders at or above the configured role level spend at zero across
+ * every consumer (FileServe delivery, companion-service spending), with
+ * the waived spend still booked and announced. The level maps to a
+ * WordPress capability so the check stays role-hierarchy-native —
+ * `user_can()` on the holder, not the session, because machine callers
+ * (the integration service key) spend on behalf of a user without ever
+ * being that user.
  */
 final class CreditSettings
 {
     public const DEFAULT_RETENTION_DAYS = 30;
     private const MAX_RETENTION_DAYS = 3650;
+
+    /** Role levels the waiver radio offers, lowest first. */
+    public const EXEMPT_LEVELS = ['author', 'editor', 'administrator'];
+    public const DEFAULT_EXEMPT_LEVEL = 'administrator';
+
+    /** The capability each level stands for; higher levels hold it too. */
+    private const LEVEL_CAPABILITIES = [
+        'author' => 'publish_posts',
+        'editor' => 'edit_others_posts',
+        'administrator' => 'manage_options',
+    ];
 
     /**
      * @return array{checkinEnabled:bool, checkinCredits:int, validityDays:int}
@@ -37,5 +57,28 @@ final class CreditSettings
         $days = absint((string) aiya_core_opt('content', 'credit_retention', self::DEFAULT_RETENTION_DAYS));
 
         return $days > 0 ? min($days, self::MAX_RETENTION_DAYS) : self::DEFAULT_RETENTION_DAYS;
+    }
+
+    /** The configured waiver level, falling back to the default on any unknown stored value. */
+    public static function spendExemptLevel(): string
+    {
+        $level = (string) aiya_core_opt('membership', 'spend_exempt_level', self::DEFAULT_EXEMPT_LEVEL);
+
+        return in_array($level, self::EXEMPT_LEVELS, true) ? $level : self::DEFAULT_EXEMPT_LEVEL;
+    }
+
+    /** The capability the configured level stands for — the waiver's gate. */
+    public static function exemptCapability(): string
+    {
+        return self::LEVEL_CAPABILITIES[self::spendExemptLevel()];
+    }
+
+    /**
+     * Whether this holder spends at zero: their role holds the capability
+     * of the configured level. Unknown or anonymous holders never waive.
+     */
+    public static function spendWaived(int $userId): bool
+    {
+        return $userId > 0 && user_can($userId, self::exemptCapability());
     }
 }

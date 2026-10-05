@@ -9,23 +9,23 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-05T02:59:12+00:00\n"
+"POT-Creation-Date: 2026-10-05T07:21:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
 
 #. Plugin Name of the plugin
-#: aiya-core.php
+#: aiya-core.php:3
 msgid "AIYA CMS - Headless Core"
 msgstr ""
 
 #. Description of the plugin
-#: aiya-core.php
+#: aiya-core.php:4
 msgid "Headless-first administration and content framework for AIYA CMS."
 msgstr ""
 
 #. Author of the plugin
-#: aiya-core.php
+#: aiya-core.php:8
 msgid "Yeraph"
 msgstr ""
 
@@ -68,8 +68,8 @@ msgid "Redemption codes"
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:56
-#: src/Admin/ConvertCodesPage.php:184
-#: src/Admin/ConvertCodesPage.php:211
+#: src/Admin/ConvertCodesPage.php:186
+#: src/Admin/ConvertCodesPage.php:213
 msgid "You are not allowed to manage redemption codes."
 msgstr ""
 
@@ -77,107 +77,107 @@ msgstr ""
 msgid "Membership gift codes users redeem themselves on the front end. Codes are single-use; redeeming queues the tier entitlement like a paid order and credits arrive per cycle."
 msgstr ""
 
+#: src/Admin/ConvertCodesPage.php:68
+msgid "Codes generated."
+msgstr ""
+
 #: src/Admin/ConvertCodesPage.php:69
-msgid "Generate codes"
+msgid "All codes deleted."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:75
-msgid "Quantity"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:79
-#: src/Admin/ConvertCodesPage.php:128
-#: src/Admin/PaymentsAuditPage.php:146
-msgid "Tier"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:84
-msgid "— define tiers first —"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:93
-msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:97
-#: src/Admin/ConvertCodesPage.php:129
-#: src/Admin/PaymentsAuditPage.php:148
-msgid "Cycles"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:100
-msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:104
-msgid "Generate"
+#: src/Admin/ConvertCodesPage.php:70
+#: src/Admin/NotificationPage.php:98
+msgid "The operation failed — check the values and try again."
 msgstr ""
 
 #. translators: %s: number of stored codes.
-#: src/Admin/ConvertCodesPage.php:112
+#: src/Admin/ConvertCodesPage.php:77
 #, php-format
 msgid "Stored codes (%s)"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:117
+#: src/Admin/ConvertCodesPage.php:82
 msgid "Delete ALL codes? This cannot be undone."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:120
+#: src/Admin/ConvertCodesPage.php:85
 #: src/Admin/UiSamplePage.php:66
 msgid "Delete all"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:127
+#: src/Admin/ConvertCodesPage.php:93
 msgid "Code"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:130
+#: src/Admin/ConvertCodesPage.php:94
+#: src/Admin/ConvertCodesPage.php:152
+#: src/Admin/PaymentsAuditPage.php:135
+msgid "Tier"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:95
+#: src/Admin/ConvertCodesPage.php:170
+#: src/Admin/PaymentsAuditPage.php:137
+msgid "Cycles"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:96
 #: src/Admin/DiscussionModerationPage.php:213
-#: src/Admin/PaymentsAuditPage.php:149
+#: src/Admin/PaymentsAuditPage.php:138
 #: src/Admin/UiSamplePage.php:116
 #: src/Admin/UiSamplePage.php:161
 msgid "Status"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:131
+#: src/Admin/ConvertCodesPage.php:97
 msgid "Redeemed by"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:132
+#: src/Admin/ConvertCodesPage.php:98
 msgid "Redeemed at"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:133
+#: src/Admin/ConvertCodesPage.php:99
 #: src/Admin/NotificationPage.php:111
 #: src/Admin/UiSamplePage.php:117
 #: src/Admin/UiSamplePage.php:162
 msgid "Created"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:138
-msgid "No codes stored."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:146
+#: src/Admin/ConvertCodesPage.php:118
 msgid "Redeemed"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:146
+#: src/Admin/ConvertCodesPage.php:118
 msgid "Unused"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:224
-msgid "Codes generated."
+#: src/Admin/ConvertCodesPage.php:132
+msgid "No codes stored."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:225
-msgid "All codes deleted."
+#: src/Admin/ConvertCodesPage.php:141
+msgid "Generate codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:226
-#: src/Admin/NotificationPage.php:98
-msgid "The operation failed — check the values and try again."
+#: src/Admin/ConvertCodesPage.php:148
+msgid "Quantity"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:157
+msgid "— define tiers first —"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:166
+msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:173
+msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:177
+msgid "Generate"
 msgstr ""
 
 #: src/Admin/CoverMetabox.php:41
@@ -251,69 +251,80 @@ msgstr ""
 msgid "Cover generated."
 msgstr ""
 
+#: src/Admin/CreditsPage.php:106
+#: src/Admin/CreditsPage.php:107
 #: src/Admin/CreditsPage.php:129
-#: src/Admin/CreditsPage.php:130
-#: src/Admin/CreditsPage.php:151
-#: src/Admin/CreditsPage.php:265
+#: src/Admin/CreditsPage.php:212
 msgid "Credit ledger"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:141
-#: src/Admin/CreditsPage.php:344
-#: src/Admin/CreditsPage.php:385
+#: src/Admin/CreditsPage.php:118
+#: src/Admin/CreditsPage.php:302
+#: src/Admin/CreditsPage.php:343
 msgid "You are not allowed to manage credits."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:152
+#: src/Admin/CreditsPage.php:130
 msgid "Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:212
+#: src/Admin/CreditsPage.php:135
+msgid "Credits granted."
+msgstr ""
+
+#: src/Admin/CreditsPage.php:136
+#: src/Admin/DiscussionModerationPage.php:312
+#: src/Admin/DiscussionModerationPage.php:349
+#: src/Admin/DiscussionModerationPage.php:527
+msgid "The operation failed."
+msgstr ""
+
+#: src/Admin/CreditsPage.php:154
 msgid "Manual grant"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:219
-#: src/Admin/CreditsPage.php:282
-#: src/Admin/PaymentsAuditPage.php:144
+#: src/Admin/CreditsPage.php:161
+#: src/Admin/CreditsPage.php:233
+#: src/Admin/PaymentsAuditPage.php:133
 msgid "User"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:222
-#: src/Admin/CreditsPage.php:271
-#: src/Admin/PaymentsAuditPage.php:127
+#: src/Admin/CreditsPage.php:170
+#: src/Admin/CreditsPage.php:224
+#: src/Admin/PaymentsAuditPage.php:124
 msgid "Type a username or name…"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:228
-#: src/Admin/CreditsPage.php:286
-#: src/Admin/PaymentsAuditPage.php:147
+#: src/Admin/CreditsPage.php:177
+#: src/Admin/CreditsPage.php:236
+#: src/Admin/PaymentsAuditPage.php:136
 msgid "Amount"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:234
+#: src/Admin/CreditsPage.php:183
 msgid "Validity (days)"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:237
+#: src/Admin/CreditsPage.php:186
 msgid "The bucket dies when this expires."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:241
+#: src/Admin/CreditsPage.php:190
 msgid "Note"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:244
+#: src/Admin/CreditsPage.php:193
 msgid "Optional; recorded in the ledger reference."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:248
+#: src/Admin/CreditsPage.php:197
 msgid "Grant credits"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:275
+#: src/Admin/CreditsPage.php:216
 #: src/Admin/CronsPage.php:172
 #: src/Admin/DiscussionModerationPage.php:130
-#: src/Admin/PaymentsAuditPage.php:137
+#: src/Admin/PaymentsAuditPage.php:116
 #: src/Admin/PicBedPage.php:227
 #: src/Admin/RewritesPage.php:86
 #: src/Admin/ShortcodesPage.php:67
@@ -322,95 +333,89 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:281
-#: src/Admin/PaymentsAuditPage.php:143
+#: src/Admin/CreditsPage.php:232
+#: src/Admin/PaymentsAuditPage.php:132
 msgid "Time"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:283
+#: src/Admin/CreditsPage.php:234
 msgid "Direction"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:284
-#: src/Admin/PaymentsAuditPage.php:150
+#: src/Admin/CreditsPage.php:235
+#: src/Admin/PaymentsAuditPage.php:126
+#: src/Admin/PaymentsAuditPage.php:139
 msgid "Source"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:285
-#: src/Domain/Parts/BuiltinParts.php:190
-msgid "Reference"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:287
+#: src/Admin/CreditsPage.php:237
 msgid "Bucket left"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:288
+#: src/Admin/CreditsPage.php:238
 msgid "Expires"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:293
+#: src/Admin/CreditsPage.php:279
+#: src/Admin/OperationsPage.php:314
+#: src/Admin/OperationsPage.php:324
+#: src/Admin/UiSamplePage.php:246
+msgid "Expired"
+msgstr ""
+
+#: src/Admin/CreditsPage.php:285
 msgid "No ledger entries for this user yet."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:293
+#: src/Admin/CreditsPage.php:286
 msgid "No ledger entries yet."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:350
-#: src/Api/Rest/IntegrationsController.php:148
+#: src/Admin/CreditsPage.php:308
+#: src/Api/Rest/IntegrationsController.php:151
 #: src/Domain/Credit/LedgerService.php:105
-#: src/Domain/Credit/LedgerService.php:178
+#: src/Domain/Credit/LedgerService.php:186
 msgid "The credit holder does not exist."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:359
+#: src/Admin/CreditsPage.php:317
 msgid "Amount and validity are required."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:373
+#: src/Admin/CreditsPage.php:331
 msgid "An admin grant with this exact note already exists for this user."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:431
+#: src/Admin/CreditsPage.php:389
 msgid "Credits"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:472
-msgid "Credits granted."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:473
-#: src/Admin/DiscussionModerationPage.php:312
-#: src/Admin/DiscussionModerationPage.php:349
-#: src/Admin/DiscussionModerationPage.php:527
-msgid "The operation failed."
-msgstr ""
-
-#: src/Admin/CreditsPage.php:498
-#: src/Admin/OperationsPage.php:388
+#: src/Admin/CreditsPage.php:435
+#: src/Admin/OperationsPage.php:383
+#: src/Admin/OperationsPage.php:403
 #: src/Admin/UiSamplePage.php:260
-#: src/Domain/Credit/CreditModule.php:80
+#: src/Domain/Credit/CreditModule.php:81
 msgid "Check-in"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:499
+#: src/Admin/CreditsPage.php:436
 msgid "Redeem code"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:500
-#: src/Admin/OperationsPage.php:389
-#: src/Admin/PaymentsAuditPage.php:237
+#: src/Admin/CreditsPage.php:437
+#: src/Admin/OperationsPage.php:384
+#: src/Admin/OperationsPage.php:404
+#: src/Admin/PaymentsAuditPage.php:183
 #: src/Admin/UiSamplePage.php:261
 #: src/Domain/Membership/MembershipModule.php:95
 msgid "Membership"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:501
+#: src/Admin/CreditsPage.php:438
 msgid "Admin grant"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:502
+#: src/Admin/CreditsPage.php:439
 msgid "Download"
 msgstr ""
 
@@ -642,7 +647,7 @@ msgid "HTML allowed; at most nine images per body."
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:231
-#: src/Admin/OperationsPage.php:127
+#: src/Admin/OperationsPage.php:107
 msgid "Save"
 msgstr ""
 
@@ -1006,247 +1011,249 @@ msgstr ""
 msgid "Guest"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:69
-#: src/Admin/OperationsPage.php:70
-#: src/Admin/OperationsPage.php:93
+#: src/Admin/OperationsPage.php:52
+#: src/Admin/OperationsPage.php:53
+#: src/Admin/OperationsPage.php:76
 msgid "Operations report"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:81
+#: src/Admin/OperationsPage.php:64
 msgid "You are not allowed to view the operations report."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:95
+#: src/Admin/OperationsPage.php:77
 msgid "Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger's spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:116
+#: src/Admin/OperationsPage.php:80
 msgid "Cost per download saved."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:118
+#: src/Admin/OperationsPage.php:81
 #: src/Settings/ValueNormalizer.php:150
 msgid "Enter a valid number."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:124
+#: src/Admin/OperationsPage.php:99
+#: src/Admin/OperationsPage.php:106
 msgid "Upstream cost per download"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:128
+#: src/Admin/OperationsPage.php:108
 msgid "In the payment currency; the month's cost derives as downloads × this rate and freezes when the month closes."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:137
+#: src/Admin/OperationsPage.php:118
 msgid "You are not allowed to configure the operations report."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:177
-#: src/Admin/OperationsPage.php:325
-#: src/Admin/OperationsPage.php:387
+#: src/Admin/OperationsPage.php:157
+#: src/Admin/OperationsPage.php:321
+#: src/Admin/OperationsPage.php:402
 msgid "Month"
 msgstr ""
 
 #. translators: %s: month key, e.g. 2026-09
-#: src/Admin/OperationsPage.php:196
+#: src/Admin/OperationsPage.php:176
 #, php-format
 msgid "Indicators — %s"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:200
+#: src/Admin/OperationsPage.php:180
 msgid "Credits granted"
 msgstr ""
 
 #. translators: 1: check-in credits, 2: membership credits, 3: code credits, 4: manual credits
-#: src/Admin/OperationsPage.php:207
+#: src/Admin/OperationsPage.php:187
 #, php-format
 msgid "Check-in %1$s · Membership %2$s · Codes %3$s · Manual %4$s"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:218
+#: src/Admin/OperationsPage.php:198
 msgid "Credits consumed"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:222
+#: src/Admin/OperationsPage.php:202
 msgid "Credits expired"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:226
-#: src/Admin/OperationsPage.php:329
+#: src/Admin/OperationsPage.php:206
+#: src/Admin/OperationsPage.php:325
 msgid "Downloads"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:230
-#: src/Admin/OperationsPage.php:330
+#: src/Admin/OperationsPage.php:210
+#: src/Admin/OperationsPage.php:326
 msgid "Active users"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:234
-#: src/Admin/OperationsPage.php:331
+#: src/Admin/OperationsPage.php:214
+#: src/Admin/OperationsPage.php:327
 msgid "Members"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:237
+#: src/Admin/OperationsPage.php:217
 msgid "Holders whose membership covers this month, codes included."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:241
-#: src/Admin/OperationsPage.php:332
+#: src/Admin/OperationsPage.php:221
+#: src/Admin/OperationsPage.php:328
 msgid "Paying users"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:244
+#: src/Admin/OperationsPage.php:224
 msgid "Covered holders whose order was actually paid."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:248
+#: src/Admin/OperationsPage.php:228
 msgid "Cash collected"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:252
+#: src/Admin/OperationsPage.php:232
 msgid "Recognized revenue"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:255
+#: src/Admin/OperationsPage.php:235
 msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once and its months sum back to the order total. Booked revenue for the month — not a forward-looking MRR run rate."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:259
-#: src/Admin/OperationsPage.php:335
+#: src/Admin/OperationsPage.php:239
+#: src/Admin/OperationsPage.php:331
 msgid "Cost"
 msgstr ""
 
 #. translators: 1: rate per download, 2: state of the rate
-#: src/Admin/OperationsPage.php:266
+#: src/Admin/OperationsPage.php:246
 #, php-format
 msgid "Downloads × %1$s per download, %2$s"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:269
+#: src/Admin/OperationsPage.php:249
 msgid "rate frozen when the month closed"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:270
+#: src/Admin/OperationsPage.php:250
 msgid "at the current rate; frozen when the month closes"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:277
+#: src/Admin/OperationsPage.php:257
 msgid "Outstanding credits"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:280
+#: src/Admin/OperationsPage.php:260
 msgid "What every holder could still spend right now — the report's liability figure."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:284
-#: src/Admin/OperationsPage.php:336
+#: src/Admin/OperationsPage.php:264
+#: src/Admin/OperationsPage.php:332
 msgid "Consumption rate"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:288
+#: src/Admin/OperationsPage.php:268
 msgid "Expiry rate"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:292
+#: src/Admin/OperationsPage.php:272
 msgid "Downloads per active user"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:296
+#: src/Admin/OperationsPage.php:276
 msgid "Downloads per paying user"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:300
+#: src/Admin/OperationsPage.php:280
 msgid "Revenue per paying user"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:304
+#: src/Admin/OperationsPage.php:284
 msgid "Cost per paying user"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:321
+#: src/Admin/OperationsPage.php:301
+#: src/Admin/OperationsPage.php:318
 msgid "Trailing 12 months"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:326
+#: src/Admin/OperationsPage.php:312
+#: src/Admin/OperationsPage.php:322
 #: src/Admin/UiSamplePage.php:244
 msgid "Granted"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:327
+#: src/Admin/OperationsPage.php:313
+#: src/Admin/OperationsPage.php:323
 #: src/Admin/UiSamplePage.php:245
 msgid "Consumed"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:328
-#: src/Admin/UiSamplePage.php:246
-msgid "Expired"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:333
+#: src/Admin/OperationsPage.php:329
 msgid "Cash"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:334
+#: src/Admin/OperationsPage.php:330
 msgid "Recognized"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:383
+#: src/Admin/OperationsPage.php:378
+#: src/Admin/OperationsPage.php:399
 msgid "Grants by source"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:390
+#: src/Admin/OperationsPage.php:385
+#: src/Admin/OperationsPage.php:405
 #: src/Admin/UiSamplePage.php:262
 msgid "Codes"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:391
+#: src/Admin/OperationsPage.php:386
+#: src/Admin/OperationsPage.php:406
 #: src/Admin/UiSamplePage.php:263
 msgid "Manual"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:392
+#: src/Admin/OperationsPage.php:407
 msgid "Total"
 msgstr ""
 
 #: src/Admin/PaymentsAuditPage.php:64
 #: src/Admin/PaymentsAuditPage.php:65
-#: src/Admin/PaymentsAuditPage.php:119
+#: src/Admin/PaymentsAuditPage.php:110
 msgid "Order records"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:105
+#: src/Admin/PaymentsAuditPage.php:90
 msgid "You are not allowed to view payments."
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:120
-msgid "Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue."
-msgstr ""
-
-#: src/Admin/PaymentsAuditPage.php:132
+#: src/Admin/PaymentsAuditPage.php:103
 msgid "All sources"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:145
+#: src/Admin/PaymentsAuditPage.php:111
+msgid "Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue."
+msgstr ""
+
+#: src/Admin/PaymentsAuditPage.php:134
 msgid "Order"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:155
+#: src/Admin/PaymentsAuditPage.php:170
 msgid "No payments recorded yet."
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:296
+#: src/Admin/PaymentsAuditPage.php:242
 msgid "Epay"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:297
+#: src/Admin/PaymentsAuditPage.php:243
 msgid "Afdian"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:337
+#: src/Admin/PaymentsAuditPage.php:283
 msgid "Paid"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:338
+#: src/Admin/PaymentsAuditPage.php:284
 msgid "Awaiting payment"
 msgstr ""
 
@@ -2567,7 +2574,7 @@ msgstr ""
 #: src/Api/Rest/ContentController.php:400
 #: src/Api/Rest/ContentController.php:439
 #: src/Api/Rest/ContentController.php:475
-#: src/Domain/FileServe/DownloadService.php:108
+#: src/Domain/FileServe/DownloadService.php:106
 #: src/Domain/FileServe/FileService.php:51
 msgid "Content not found."
 msgstr ""
@@ -2580,23 +2587,13 @@ msgstr ""
 msgid "Profile not found."
 msgstr ""
 
-#: src/Api/Rest/CreditController.php:101
+#: src/Api/Rest/CreditController.php:103
 #: src/Domain/Credit/CheckinService.php:34
-#: src/Domain/Credit/LedgerService.php:175
+#: src/Domain/Credit/LedgerService.php:183
 msgid "This account is disabled."
 msgstr ""
 
-#: src/Api/Rest/CreditController.php:109
-#: src/Domain/Credit/CheckinService.php:39
-msgid "Check-in is not available."
-msgstr ""
-
-#: src/Api/Rest/CreditController.php:119
-#: src/Domain/Credit/CheckinService.php:49
-msgid "Already checked in today."
-msgstr ""
-
-#: src/Api/Rest/CreditController.php:152
+#: src/Api/Rest/CreditController.php:141
 #: src/Api/Rest/MembershipController.php:121
 msgid "The Afdian channel is not available."
 msgstr ""
@@ -3221,32 +3218,67 @@ msgstr ""
 msgid "Remove paragraph indentation"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:74
+#: src/Domain/Credit/CheckinService.php:39
+msgid "Check-in is not available."
+msgstr ""
+
+#: src/Domain/Credit/CheckinService.php:49
+msgid "Already checked in today."
+msgstr ""
+
+#: src/Domain/Credit/CreditModule.php:75
 msgid "Daily check-in"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:81
+#: src/Domain/Credit/CreditModule.php:82
 msgid "Signed-in users claim a small daily credit grant from the front end."
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:87
+#: src/Domain/Credit/CreditModule.php:88
 msgid "Check-in grant"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:88
+#: src/Domain/Credit/CreditModule.php:89
 msgid "Credits added per check-in; 0 disables granting."
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:97
+#: src/Domain/Credit/CreditModule.php:98
 msgid "Credit validity (days)"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:98
+#: src/Domain/Credit/CreditModule.php:99
 msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
 msgstr ""
 
+#: src/Domain/Credit/CreditModule.php:108
+msgid "Spend waiver"
+msgstr ""
+
+#: src/Domain/Credit/CreditModule.php:114
+msgid "Waived holder level"
+msgstr ""
+
+#: src/Domain/Credit/CreditModule.php:115
+msgid "Holders at this role level or above spend at zero on every consumer — downloads included — while the ledger still records the entry and the download meter still counts the delivery. The ledger books the waived spend as a zero-credit entry, so the giveaway stays visible. Staff roles only: subscribers and contributors always pay."
+msgstr ""
+
+#: src/Domain/Credit/CreditModule.php:118
+#: src/Infrastructure/Security/SecurityModule.php:129
+msgid "Author and above"
+msgstr ""
+
+#: src/Domain/Credit/CreditModule.php:119
+#: src/Infrastructure/Security/SecurityModule.php:130
+msgid "Editor and above"
+msgstr ""
+
+#: src/Domain/Credit/CreditModule.php:120
+#: src/Infrastructure/Security/SecurityModule.php:131
+msgid "Administrator only"
+msgstr ""
+
 #: src/Domain/Credit/LedgerService.php:108
-#: src/Domain/Credit/LedgerService.php:181
+#: src/Domain/Credit/LedgerService.php:189
 msgid "The credit amount must be positive."
 msgstr ""
 
@@ -3262,17 +3294,17 @@ msgstr ""
 msgid "The credit grant could not be stored."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:210
+#: src/Domain/Credit/LedgerService.php:222
 msgid "Not enough credits."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:226
-#: src/Domain/Credit/LedgerService.php:233
-#: src/Domain/Credit/LedgerService.php:270
+#: src/Domain/Credit/LedgerService.php:238
+#: src/Domain/Credit/LedgerService.php:245
+#: src/Domain/Credit/LedgerService.php:287
 msgid "The spend could not be recorded."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:267
+#: src/Domain/Credit/LedgerService.php:284
 msgid "This spend was already recorded."
 msgstr ""
 
@@ -4521,6 +4553,10 @@ msgstr ""
 msgid "A text snippet the reader copies with one click."
 msgstr ""
 
+#: src/Domain/Parts/BuiltinParts.php:190
+msgid "Reference"
+msgstr ""
+
 #: src/Domain/Parts/BuiltinParts.php:191
 msgid "Emits one semantic reference marker for the front end to resolve into a link. Fill exactly one of the fields below; when several are filled the first (post, user, term, search, comment, thread) wins."
 msgstr ""
@@ -4763,18 +4799,6 @@ msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:128
 msgid "Contributor and above"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:129
-msgid "Author and above"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:130
-msgid "Editor and above"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:131
-msgid "Administrator only"
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:137

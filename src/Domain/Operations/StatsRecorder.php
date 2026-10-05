@@ -192,8 +192,8 @@ final class StatsRecorder
     }
 
     /**
-     * One download was delivered, charged or free (an editor taking their
-     * own file is not a delivery and fires nothing). Fired by
+     * One download was delivered — charged, waived (the ledger's zero-credit
+     * staff spends) or free: every answered delivery counts. Fired by
      * `aiya_core_download_served`, which FileServe's DownloadService
      * emits exactly once per delivery as
      * `do_action($hook, $viewerId, $postId, $ref)` — the report counts

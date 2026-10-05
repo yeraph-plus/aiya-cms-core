@@ -166,6 +166,14 @@ final class LedgerService
      * download claim endpoint included — inherits the rule without knowing
      * about it. The balance itself is left alone and keeps expiring.
      *
+     * The same centrality holds the spend waiver: a holder whose role meets
+     * CreditSettings' waived level pays nothing — no buckets are touched —
+     * but the `out` row is still written (amount 0, same source/ref/dedupe)
+     * and the event still announces it, so a waived delivery stays on the
+     * books instead of vanishing. The waiver judges the holder
+     * (`user_can($userId, …)`), not the session: machine callers spend on
+     * behalf of a user without being that user.
+     *
      * @param string|null $dedupe Optional per-holder one-shot key; null = unconstrained repeatable spend
      * @return array{balance: int}|WP_Error aiya_credit_insufficient (409, data carries the balance) when short
      */
@@ -181,56 +189,61 @@ final class LedgerService
             return new WP_Error('aiya_invalid_amount', __('The credit amount must be positive.', 'aiya-core'), ['status' => 400]);
         }
 
+        $charge = CreditSettings::spendWaived($userId) ? 0 : $amount;
+
         global $wpdb;
         /** @var \wpdb $wpdb */
         $table = $this->table();
-        $wpdb->query('START TRANSACTION');
 
-        $rows = $wpdb->get_results($wpdb->prepare(
-            'SELECT id, remaining FROM %i
-             WHERE user_id = %d AND direction = \'in\' AND remaining > 0
-               AND (expires_at IS NULL OR expires_at > %s)
-             ORDER BY expires_at IS NULL ASC, expires_at ASC, id ASC
-             FOR UPDATE',
-            $table,
-            $userId,
-            $this->now()
-        ), ARRAY_A);
+        if ($charge > 0) {
+            $wpdb->query('START TRANSACTION');
 
-        $buckets = array_map(
-            static fn (array $row): array => ['id' => (int) $row['id'], 'remaining' => (int) $row['remaining']],
-            is_array($rows) ? $rows : []
-        );
-        $plan = CreditAllocator::plan($buckets, $amount);
-        if ($plan === null) {
-            $wpdb->query('ROLLBACK');
-
-            return new WP_Error(
-                'aiya_credit_insufficient',
-                __('Not enough credits.', 'aiya-core'),
-                ['status' => 409, 'balance' => $this->balance($userId)]
-            );
-        }
-
-        foreach ($plan as $step) {
-            $sql = $wpdb->prepare(
-                'UPDATE %i SET remaining = remaining - %d WHERE id = %d AND remaining >= %d',
+            $rows = $wpdb->get_results($wpdb->prepare(
+                'SELECT id, remaining FROM %i
+                 WHERE user_id = %d AND direction = \'in\' AND remaining > 0
+                   AND (expires_at IS NULL OR expires_at > %s)
+                 ORDER BY expires_at IS NULL ASC, expires_at ASC, id ASC
+                 FOR UPDATE',
                 $table,
-                $step['take'],
-                $step['id'],
-                $step['take']
+                $userId,
+                $this->now()
+            ), ARRAY_A);
+
+            $buckets = array_map(
+                static fn (array $row): array => ['id' => (int) $row['id'], 'remaining' => (int) $row['remaining']],
+                is_array($rows) ? $rows : []
             );
-            if (!is_string($sql)) {
+            $plan = CreditAllocator::plan($buckets, $charge);
+            if ($plan === null) {
                 $wpdb->query('ROLLBACK');
 
-                return new WP_Error('aiya_db_error', __('The spend could not be recorded.', 'aiya-core'));
+                return new WP_Error(
+                    'aiya_credit_insufficient',
+                    __('Not enough credits.', 'aiya-core'),
+                    ['status' => 409, 'balance' => $this->balance($userId)]
+                );
             }
 
-            $updated = $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
-            if ($updated !== 1) {
-                $wpdb->query('ROLLBACK');
+            foreach ($plan as $step) {
+                $sql = $wpdb->prepare(
+                    'UPDATE %i SET remaining = remaining - %d WHERE id = %d AND remaining >= %d',
+                    $table,
+                    $step['take'],
+                    $step['id'],
+                    $step['take']
+                );
+                if (!is_string($sql)) {
+                    $wpdb->query('ROLLBACK');
 
-                return new WP_Error('aiya_db_error', __('The spend could not be recorded.', 'aiya-core'));
+                    return new WP_Error('aiya_db_error', __('The spend could not be recorded.', 'aiya-core'));
+                }
+
+                $updated = $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+                if ($updated !== 1) {
+                    $wpdb->query('ROLLBACK');
+
+                    return new WP_Error('aiya_db_error', __('The spend could not be recorded.', 'aiya-core'));
+                }
             }
         }
 
@@ -238,13 +251,15 @@ final class LedgerService
         // token makes a duplicate INSERT an expected signal, and wpdb's
         // debug HTML must not print in front of the JSON envelope under
         // WP_DEBUG. last_error survives suppression; only printing stops.
+        // A waived spend inserts with amount 0 and keeps its dedupe key,
+        // so the caller's repeat semantics are identical either way.
         $suppress = $wpdb->suppress_errors(true);
         $inserted = $wpdb->insert(
             $table,
             [
                 'user_id' => $userId,
                 'direction' => 'out',
-                'amount' => $amount,
+                'amount' => $charge,
                 'remaining' => 0,
                 'source' => $source,
                 // Truncation note: callers deriving per-cycle refs from a
@@ -262,7 +277,9 @@ final class LedgerService
             // Capture before the ROLLBACK: a successful query() flushes
             // wpdb's last_error, which would erase the duplicate signal.
             $duplicate = str_contains((string) $wpdb->last_error, 'Duplicate');
-            $wpdb->query('ROLLBACK');
+            if ($charge > 0) {
+                $wpdb->query('ROLLBACK');
+            }
             if ($duplicate) {
                 return new WP_Error('aiya_credit_duplicate', __('This spend was already recorded.', 'aiya-core'), ['status' => 409]);
             }
@@ -270,9 +287,11 @@ final class LedgerService
             return new WP_Error('aiya_db_error', __('The spend could not be recorded.', 'aiya-core'));
         }
 
-        $wpdb->query('COMMIT');
+        if ($charge > 0) {
+            $wpdb->query('COMMIT');
+        }
 
-        do_action('aiya_core_credit_spent', $userId, $amount, $source, $ref);
+        do_action('aiya_core_credit_spent', $userId, $charge, $source, $ref);
 
         return ['balance' => $this->balance($userId)];
     }

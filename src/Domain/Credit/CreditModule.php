@@ -62,8 +62,9 @@ final class CreditModule implements Module
     }
 
     /**
-     * The daily check-in fields, appended to the membership settings
-     * page (its heading groups them under「每日签到」semantics).
+     * The daily check-in fields plus the spend-waiver policy, appended to
+     * the membership settings page (headings group them under「每日签到」
+     * and「消费免扣」semantics).
      */
     public function settings(): void
     {
@@ -100,6 +101,24 @@ final class CreditModule implements Module
                 'min' => 1,
                 'max' => 3650,
                 'step' => 1,
+            ],
+            [
+                'id' => 'heading_spend_waiver',
+                'type' => 'heading',
+                'label' => __('Spend waiver', 'aiya-core'),
+                'level' => '2',
+            ],
+            [
+                'id' => 'spend_exempt_level',
+                'type' => 'radio',
+                'label' => __('Waived holder level', 'aiya-core'),
+                'description' => __('Holders at this role level or above spend at zero on every consumer — downloads included — while the ledger still records the entry and the download meter still counts the delivery. The ledger books the waived spend as a zero-credit entry, so the giveaway stays visible. Staff roles only: subscribers and contributors always pay.', 'aiya-core'),
+                'default' => CreditSettings::DEFAULT_EXEMPT_LEVEL,
+                'options' => [
+                    'author' => __('Author and above', 'aiya-core'),
+                    'editor' => __('Editor and above', 'aiya-core'),
+                    'administrator' => __('Administrator only', 'aiya-core'),
+                ],
             ],
         ]);
     }

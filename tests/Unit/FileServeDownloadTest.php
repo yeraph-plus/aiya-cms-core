@@ -21,8 +21,9 @@ use WP_Post;
  * Handing a file over, against the real ledger: the price comes from the list,
  * the charge goes through LedgerService (so the rows it writes are the
  * assertion), a second click in the same window is not a second purchase, and
- * every delivery — paid or free — fires the one metering action the statistics
- * domain listens to.
+ * every delivery — paid, waived or free — fires the one metering action the
+ * statistics domain listens to. The staff waiver itself lives in the ledger
+ * (CreditSettings' level, judged on the holder); this service only rides it.
  */
 final class FileServeDownloadTest extends TestCase
 {
@@ -251,8 +252,10 @@ final class FileServeDownloadTest extends TestCase
         self::assertSame([], $this->metered);
     }
 
-    public function testAnEditorTakesTheirOwnFileWithoutPaying(): void
+    public function testAWaivedHolderIsServedAtZeroCostButStillBookedAndMetered(): void
     {
+        // The holder passes the configured waiver level's capability gate
+        // (the caps shim answers user_can()): the ledger zeroes the charge.
         $GLOBALS['__aiya_test_caps'] = true;
         $this->grant(7, 20);
 
@@ -261,9 +264,54 @@ final class FileServeDownloadTest extends TestCase
 
         self::assertIsArray($result);
         self::assertSame('https://files.test/d/report.pdf', $result['url']);
-        self::assertNull($result['balance']);
-        self::assertSame([LedgerService::SOURCE_ADMIN], $this->ledgerSources(), 'an editor is not a customer');
-        self::assertSame([], $this->metered, 'and their fetch is not traffic');
+        self::assertSame(20, $result['balance'], 'the waiver leaves the balance untouched');
+        self::assertSame(
+            [LedgerService::SOURCE_ADMIN, LedgerService::SOURCE_SPEND_DOWNLOAD],
+            $this->ledgerSources(),
+            'the waived spend is still booked'
+        );
+        $out = $this->db->aiya_test_rows[self::LEDGER][1];
+        self::assertSame(0, (int) $out['amount'], 'the out row records what was actually charged: nothing');
+        self::assertSame('1:1:' . FileService::ref($this->paidRow()), (string) $out['ref']);
+        self::assertSame(20, (new LedgerService())->balance(7), 'no bucket was touched');
+        self::assertCount(1, $this->metered, 'a waived delivery is still traffic');
+    }
+
+    public function testAWaivedHolderWithAnEmptyBalanceIsStillServed(): void
+    {
+        $GLOBALS['__aiya_test_caps'] = true;
+
+        $downloads = $this->world(5, [$this->paidRow()]);
+        $result = $downloads->claim(1, '1', FileService::ref($this->paidRow()), 7);
+
+        self::assertIsArray($result);
+        self::assertSame('https://files.test/d/report.pdf', $result['url']);
+        self::assertSame(0, $result['balance']);
+        self::assertSame([LedgerService::SOURCE_SPEND_DOWNLOAD], $this->ledgerSources(), 'only the waived out row');
+        self::assertSame(0, (int) $this->db->aiya_test_rows[self::LEDGER][0]['amount']);
+        self::assertCount(1, $this->metered);
+    }
+
+    public function testAWaivedRepeatInTheSameWindowStillAnswersDuplicateSemantics(): void
+    {
+        $GLOBALS['__aiya_test_caps'] = true;
+        $this->grant(7, 20);
+        $ref = FileService::ref($this->paidRow());
+
+        $downloads = $this->world(5, [$this->paidRow()]);
+        $first = $downloads->claim(1, '1', $ref, 7);
+        $second = $downloads->claim(1, '1', $ref, 7);
+
+        self::assertIsArray($first);
+        self::assertIsArray($second);
+        self::assertSame('https://files.test/d/report.pdf', $second['url'], 'the repeat still gets its link');
+        self::assertSame(20, $second['balance'], 'the repeat answers the balance the ledger actually holds');
+        self::assertSame(
+            [LedgerService::SOURCE_ADMIN, LedgerService::SOURCE_SPEND_DOWNLOAD],
+            $this->ledgerSources(),
+            'the waived spend keeps its one-shot window: one out row'
+        );
+        self::assertCount(2, $this->metered, 'both deliveries were served, so both are counted');
     }
 
     public function testAForbiddenOrUnknownRefNeverResolves(): void

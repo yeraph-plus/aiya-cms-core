@@ -32,15 +32,88 @@ msgid "Refresh thumbnails"
 msgstr "刷新缩略图"
 
 msgid "%d item queued for a thumbnail refresh."
-msgid_plural "%d items queued for a thumbnail refresh."
-msgstr[0] "%d 项已加入缩略图刷新队列。"
+msgstr "%d 项已加入缩略图刷新队列。"
 
 msgid "%d item skipped (nothing to refresh or not permitted)."
-msgid_plural "%d items skipped (nothing to refresh or not permitted)."
-msgstr[0] "已跳过 %d 项（无可刷新或不具备权限）。"
+msgstr "已跳过 %d 项（无可刷新或不具备权限）。"
 
 msgid "No thumbnails were refreshed."
 msgstr "没有刷新任何缩略图。"
+
+msgid "Redemption codes"
+msgstr "兑换码"
+
+msgid "You are not allowed to manage redemption codes."
+msgstr "您无权管理兑换码。"
+
+msgid "Membership gift codes users redeem themselves on the front end. Codes are single-use; redeeming queues the tier entitlement like a paid order and credits arrive per cycle."
+msgstr "用户在前台自行兑换的会员礼码。每码单次有效；兑换即像正常订单一样把档位排入会员队列，积分随后按周期发放。"
+
+msgid "Codes generated."
+msgstr "兑换码已生成。"
+
+msgid "All codes deleted."
+msgstr "兑换码已全部删除。"
+
+msgid "The operation failed — check the values and try again."
+msgstr "操作失败——请检查输入后重试。"
+
+msgid "Stored codes (%s)"
+msgstr "已存兑换码（%s）"
+
+msgid "Delete ALL codes? This cannot be undone."
+msgstr "确定删除全部兑换码？此操作不可撤销。"
+
+msgid "Delete all"
+msgstr "全部删除"
+
+msgid "Code"
+msgstr "兑换码"
+
+msgid "Tier"
+msgstr "档位"
+
+msgid "Cycles"
+msgstr "周期数"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Redeemed by"
+msgstr "兑换者"
+
+msgid "Redeemed at"
+msgstr "兑换时间"
+
+msgid "Created"
+msgstr "创建时间"
+
+msgid "Redeemed"
+msgstr "已兑换"
+
+msgid "Unused"
+msgstr "未使用"
+
+msgid "No codes stored."
+msgstr "尚无兑换码。"
+
+msgid "Generate codes"
+msgstr "生成兑换码"
+
+msgid "Quantity"
+msgstr "数量"
+
+msgid "— define tiers first —"
+msgstr "—— 请先定义档位 ——"
+
+msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
+msgstr "此码发放的会员商品；档位配置在兑换时快照。"
+
+msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
+msgstr "此码发放该档位的周期数（积分随后按周期发放）。"
+
+msgid "Generate"
+msgstr "生成"
 
 msgid "Post cover"
 msgstr "文章封面"
@@ -84,6 +157,195 @@ msgstr "您无权编辑这篇文章。"
 msgid "Cover generated."
 msgstr "封面已生成。"
 
+msgid "Credit ledger"
+msgstr "积分账本"
+
+msgid "You are not allowed to manage credits."
+msgstr "您无权管理积分。"
+
+msgid "Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice."
+msgstr "成本计量账本：发放生成会过期的桶，消费按最早过期先扣。余额由账本推导，不做二次存储。"
+
+msgid "Credits granted."
+msgstr "积分已发放。"
+
+msgid "The operation failed."
+msgstr "操作失败。"
+
+msgid "Manual grant"
+msgstr "手动发放"
+
+msgid "User"
+msgstr "用户"
+
+msgid "Type a username or name…"
+msgstr "输入用户名或昵称…"
+
+msgid "Amount"
+msgstr "数额"
+
+msgid "Validity (days)"
+msgstr "有效期（天）"
+
+msgid "The bucket dies when this expires."
+msgstr "到期后该桶作废。"
+
+msgid "Note"
+msgstr "备注"
+
+msgid "Optional; recorded in the ledger reference."
+msgstr "可选；会记入账本关联号。"
+
+msgid "Grant credits"
+msgstr "发放积分"
+
+msgid "Filter"
+msgstr "筛选"
+
+msgid "Time"
+msgstr "时间"
+
+msgid "Direction"
+msgstr "方向"
+
+msgid "Source"
+msgstr "来源"
+
+msgid "Bucket left"
+msgstr "桶剩余"
+
+msgid "Expires"
+msgstr "过期"
+
+msgid "Expired"
+msgstr "过期"
+
+msgid "No ledger entries for this user yet."
+msgstr "该用户暂无账本记录。"
+
+msgid "No ledger entries yet."
+msgstr "暂无流水记录。"
+
+msgid "The credit holder does not exist."
+msgstr "积分账户用户不存在。"
+
+msgid "Amount and validity are required."
+msgstr "金额与有效期必填。"
+
+msgid "An admin grant with this exact note already exists for this user."
+msgstr "该用户已存在一条完全相同备注的手动发放。"
+
+msgid "Credits"
+msgstr "积分"
+
+msgid "Check-in"
+msgstr "签到"
+
+msgid "Redeem code"
+msgstr "兑换码"
+
+msgid "Membership"
+msgstr "会员"
+
+msgid "Admin grant"
+msgstr "手动发放"
+
+msgid "Download"
+msgstr "下载"
+
+msgid "You are not allowed to manage scheduled events."
+msgstr "您无权管理定时作业。"
+
+msgid "Crons"
+msgstr "定时作业"
+
+msgid "Scheduled events of this site: run one now, remove a stray entry, or schedule a hook that has a live listener."
+msgstr "本站的定时作业：立即执行、清理残留条目，或为仍有监听器的 hook 排程。"
+
+msgid "Event scheduled."
+msgstr "定时作业已排程。"
+
+msgid "Hook executed."
+msgstr "Hook 已执行。"
+
+msgid "Scheduled event deleted."
+msgstr "定时作业已删除。"
+
+msgid "The event could not be scheduled."
+msgstr "作业排程失败。"
+
+msgid "The hook name is empty or malformed."
+msgstr "hook 名称为空或格式不合法。"
+
+msgid "That hook has no listener right now — schedule it from code first."
+msgstr "该 hook 目前没有监听器——请先在代码中注册监听。"
+
+msgid "That scheduled event no longer exists."
+msgstr "该定时作业已不存在。"
+
+msgid "Removed %d orphaned events."
+msgstr "已清理 %d 条孤儿作业。"
+
+msgid "%d scheduled events point at hooks without any listener anymore."
+msgstr "有 %d 条定时作业指向的 hook 已无任何监听器。"
+
+msgid "Unschedule every orphaned event now?"
+msgstr "现在取消全部孤儿作业的调度？"
+
+msgid "Clean up orphans"
+msgstr "清理孤儿作业"
+
+msgid "Schedule an event"
+msgstr "新建定时作业"
+
+msgid "Hook"
+msgstr "Hook"
+
+msgid "aiya_core_example_hook"
+msgstr "aiya_core_example_hook"
+
+msgid "Only hooks that currently have a listener can be scheduled."
+msgstr "只能调度当前存在监听器的 hook。"
+
+msgid "Recurrence"
+msgstr "频率"
+
+msgid "One-off"
+msgstr "只执行一次"
+
+msgid "Next run"
+msgstr "下次运行"
+
+msgid "Local site time; defaults to one minute from now."
+msgstr "按站点本地时间；默认一分钟后。"
+
+msgid "Schedule event"
+msgstr "排程"
+
+msgid "Scheduled events (%d)"
+msgstr "定时作业（%d）"
+
+msgid "Filter by hook name…"
+msgstr "按 hook 名称筛选…"
+
+msgid "Actions"
+msgstr "操作"
+
+msgid "Run this hook now?"
+msgstr "立即执行这个 hook？"
+
+msgid "Run now"
+msgstr "立即执行"
+
+msgid "Delete this scheduled event?"
+msgstr "删除这条定时作业？"
+
+msgid "Delete"
+msgstr "删除"
+
+msgid "No scheduled events match."
+msgstr "没有匹配的定时作业。"
+
 msgid "Light Community"
 msgstr "轻社区"
 
@@ -102,9 +364,6 @@ msgstr "全部板块"
 msgid "All statuses"
 msgstr "全部状态"
 
-msgid "Filter"
-msgstr "筛选"
-
 msgid "New thread"
 msgstr "新建帖子"
 
@@ -120,9 +379,6 @@ msgstr "回复"
 msgid "Last activity"
 msgstr "操作时间"
 
-msgid "Actions"
-msgstr "操作"
-
 msgid "No threads found."
 msgstr "未找到讨论线程。"
 
@@ -132,14 +388,8 @@ msgstr "编辑"
 msgid "Delete this thread and all its replies?"
 msgstr "删除该线程及其全部回复？"
 
-msgid "Delete"
-msgstr "删除"
-
 msgid "Board"
 msgstr "板块"
-
-msgid "Status"
-msgstr "状态"
 
 msgid "Body"
 msgstr "正文"
@@ -155,9 +405,6 @@ msgstr "取消"
 
 msgid "Edit thread"
 msgstr "编辑帖子"
-
-msgid "The operation failed."
-msgstr "操作失败。"
 
 msgid "Status updated."
 msgstr "状态已更新。"
@@ -243,6 +490,12 @@ msgstr "清除已存值"
 msgid "Add item"
 msgstr "添加条目"
 
+msgid "(no title)"
+msgstr "（无标题）"
+
+msgid "Confirm delete?"
+msgstr "确认删除？"
+
 msgid "File downloads"
 msgstr "文件下载"
 
@@ -306,11 +559,317 @@ msgstr "保存中…"
 msgid "Reading the sources…"
 msgstr "正在读取来源…"
 
+msgid "You are not allowed to view the icon list."
+msgstr "您无权查看图标列表。"
+
+msgid "Icons"
+msgstr "图标库"
+
+msgid "Every glyph in the core dashicons font, parsed from %s."
+msgstr "核心 dashicons 字体的全部图标，解析自 %s。"
+
+msgid "The dashicons stylesheet was not found at %s."
+msgstr "未在 %s 找到 dashicons 样式表。"
+
+msgid "No dashicons were found in the stylesheet."
+msgstr "样式表中没有找到任何 dashicons 图标。"
+
 msgid "Additional fields"
 msgstr "附加字段"
 
 msgid "Some metadata fields were not saved:"
 msgstr "部分元数据字段未保存："
+
+msgid "Notifications"
+msgstr "通知"
+
+msgid "You are not allowed to manage notifications."
+msgstr "您无权管理通知。"
+
+msgid "Site-wide announcements for the headless front end. Rows expire automatically after the retention period; the front end tracks read state itself."
+msgstr "面向无头前端的整站公告。过期通知按保留期自动清理；已读状态由前端自行记录。"
+
+msgid "Notification published."
+msgstr "通知已发布。"
+
+msgid "Notification deleted."
+msgstr "通知已删除。"
+
+msgid "Deleted %d notifications."
+msgstr "已删除 %d 条通知"
+
+msgid "Stored notifications"
+msgstr "已存通知"
+
+msgid "Delete selected"
+msgstr "删除选中"
+
+msgid "Scope"
+msgstr "范围"
+
+msgid "User #%d"
+msgstr "用户 #%d"
+
+msgid "Delete this notification?"
+msgstr "删除这条通知？"
+
+msgid "No notifications stored."
+msgstr "尚无通知。"
+
+msgid "Delete the selected notifications?"
+msgstr "删除选中的通知？"
+
+msgid "Publish announcement"
+msgstr "发布公告"
+
+msgid "Minimum visible role"
+msgstr "最低可见角色"
+
+msgid "Viewers below this role will not see the announcement. Sponsor also requires a valid membership."
+msgstr "低于该角色的访客看不到此公告。「赞助者」级别还要求有效的会员身份。"
+
+msgid "Publish"
+msgstr "发布"
+
+msgid "Subscriber"
+msgstr "订阅者"
+
+msgid "Sponsor"
+msgstr "赞助者"
+
+msgid "Administrator"
+msgstr "管理员"
+
+msgid "Guest"
+msgstr "访客"
+
+msgid "Operations report"
+msgstr "运营统计"
+
+msgid "You are not allowed to view the operations report."
+msgstr "您无权查看运营统计。"
+
+msgid "Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger's spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
+msgstr "积分流水、会员与流量的月度报表。消耗直接取自账本的 spend 事件，下载由文件下载域计量——每次交付计一次，扣费与免费均算。数据自安装起累计，更早的月份无法从账本重建。"
+
+msgid "Cost per download saved."
+msgstr "单次下载成本已保存。"
+
+msgid "Enter a valid number."
+msgstr "请输入有效数字。"
+
+msgid "Upstream cost per download"
+msgstr "单次下载成本"
+
+msgid "In the payment currency; the month's cost derives as downloads × this rate and freezes when the month closes."
+msgstr "以支付货币计；当月成本 = 下载次数 × 此单价，月份关闭时冻结。"
+
+msgid "You are not allowed to configure the operations report."
+msgstr "您无权配置运营统计。"
+
+msgid "Month"
+msgstr "月份"
+
+msgid "Indicators — %s"
+msgstr "指标 — %s"
+
+msgid "Credits granted"
+msgstr "发放积分"
+
+msgid "Check-in %1$s · Membership %2$s · Codes %3$s · Manual %4$s"
+msgstr "签到 %1$s · 会员 %2$s · 兑换码 %3$s · 手动 %4$s"
+
+msgid "Credits consumed"
+msgstr "消耗积分"
+
+msgid "Credits expired"
+msgstr "过期积分"
+
+msgid "Downloads"
+msgstr "下载次数"
+
+msgid "Active users"
+msgstr "活跃用户"
+
+msgid "Members"
+msgstr "会员"
+
+msgid "Holders whose membership covers this month, codes included."
+msgstr "该月处于会员有效期内的用户，含兑换码持有者。"
+
+msgid "Paying users"
+msgstr "付费用户"
+
+msgid "Covered holders whose order was actually paid."
+msgstr "有效期内且订单已实付的用户。"
+
+msgid "Cash collected"
+msgstr "实收"
+
+msgid "Recognized revenue"
+msgstr "确认收入"
+
+msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once and its months sum back to the order total. Booked revenue for the month — not a forward-looking MRR run rate."
+msgstr "订单金额按服务周期摊分，多周期购买不会一次性入账，各月之和回到订单总额。这是当月确认收入，而非前瞻性的 MRR 运行率。"
+
+msgid "Cost"
+msgstr "成本"
+
+msgid "Downloads × %1$s per download, %2$s"
+msgstr "下载次数 × 单次 %1$s，%2$s"
+
+msgid "rate frozen when the month closed"
+msgstr "单价已于月末冻结"
+
+msgid "at the current rate; frozen when the month closes"
+msgstr "按当前单价计算，月末冻结"
+
+msgid "Outstanding credits"
+msgstr "未消耗积分"
+
+msgid "What every holder could still spend right now — the report's liability figure."
+msgstr "当前所有用户仍可消费的积分总额，即报告的积分负债。"
+
+msgid "Consumption rate"
+msgstr "积分消耗率"
+
+msgid "Expiry rate"
+msgstr "过期率"
+
+msgid "Downloads per active user"
+msgstr "用户平均下载量"
+
+msgid "Downloads per paying user"
+msgstr "付费用户平均下载量"
+
+msgid "Revenue per paying user"
+msgstr "每个付费用户带来的收入"
+
+msgid "Cost per paying user"
+msgstr "每个付费用户的实际成本"
+
+msgid "Trailing 12 months"
+msgstr "近 12 个月趋势"
+
+msgid "Granted"
+msgstr "发放"
+
+msgid "Consumed"
+msgstr "消耗"
+
+msgid "Cash"
+msgstr "实收"
+
+msgid "Recognized"
+msgstr "确认收入"
+
+msgid "Grants by source"
+msgstr "发放来源"
+
+msgid "Codes"
+msgstr "兑换码"
+
+msgid "Manual"
+msgstr "手动"
+
+msgid "Total"
+msgstr "合计"
+
+msgid "Order records"
+msgstr "订单记录"
+
+msgid "You are not allowed to view payments."
+msgstr "您无权查看支付记录。"
+
+msgid "All sources"
+msgstr "全部来源"
+
+msgid "Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue."
+msgstr "记录中的全部网关入账——仅记资金事实；所购权益见会员队列。"
+
+msgid "Order"
+msgstr "订单"
+
+msgid "No payments recorded yet."
+msgstr "暂无支付记录。"
+
+msgid "Epay"
+msgstr "易支付"
+
+msgid "Afdian"
+msgstr "爱发电"
+
+msgid "Paid"
+msgstr "已支付"
+
+msgid "Awaiting payment"
+msgstr "待支付"
+
+msgid "Pic bed"
+msgstr "图床"
+
+msgid "You are not allowed to manage the pic bed."
+msgstr "您无权管理图床。"
+
+msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk. Admin uploads land under the dated root; the headless route files them under u/{user id}."
+msgstr "将图片上传到 wp-content/aiya_upload_pics，不经媒体库与 uploads 目录：无附件 ID、不生成 WP 缩略图。每张图只经图像处理器处理一次，落盘即处理后的文件。管理端上传落在按日期的根池；无头端路由按 u/{用户 ID} 归档"
+
+msgid "Upload"
+msgstr "上传"
+
+msgid "Upload image"
+msgstr "上传图片"
+
+msgid "JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB."
+msgstr "支持 JPEG、PNG、BMP、GIF、WebP 与 AVIF，最大 %d MB。"
+
+msgid "Dimensions"
+msgstr "尺寸"
+
+msgid "Relative path"
+msgstr "相对路径"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "Copy"
+msgstr "复制"
+
+msgid "Uploaded images"
+msgstr "已上传图片"
+
+msgid "Uploading…"
+msgstr "正在上传…"
+
+msgid "Upload failed."
+msgstr "上传失败。"
+
+msgid "Insufficient permissions."
+msgstr "权限不足。"
+
+msgid "No file was uploaded."
+msgstr "未接收到文件。"
+
+msgid "User ID"
+msgstr "用户 ID"
+
+msgid "empty lists the root pool"
+msgstr "留空列出根池文件"
+
+msgid "Listing files uploaded by %1$s (#%2$d); %3$s."
+msgstr "正在列出 %1$s（#%2$d）上传的文件；%3$s"
+
+msgid "open the user page"
+msgstr "打开用户页"
+
+msgid "That user id does not exist; the list stays empty."
+msgstr "该用户 ID 不存在，列表为空"
+
+msgid "Copy img tag"
+msgstr "复制 img 标签"
+
+msgid "No uploads yet."
+msgstr "还没有上传记录。"
 
 msgid "Switch post type…"
 msgstr "切换文章类型…"
@@ -334,15 +893,454 @@ msgid "Move %d selected item to:"
 msgstr "将选中的 %d 项移动到："
 
 msgid "%d item switched to the new post type."
-msgid_plural "%d items switched to the new post type."
-msgstr[0] "已切换 %d 项到新文章类型。"
+msgstr "已切换 %d 项到新文章类型。"
 
 msgid "%d item skipped (unchanged or not permitted)."
-msgid_plural "%d items skipped (unchanged or not permitted)."
-msgstr[0] "跳过 %d 项（类型未变或无权限）。"
+msgstr "跳过 %d 项（类型未变或无权限）。"
 
 msgid "Nothing was switched."
 msgstr "没有切换任何内容。"
+
+msgid "You are not allowed to view the rewrite rules."
+msgstr "您无权查看 Rewrite 规则。"
+
+msgid "Permalinks"
+msgstr "固定链接"
+
+msgid "The cached rewrite rules of this site — what a request path is matched against before any rule regeneration."
+msgstr "本站缓存的 Rewrite 规则——规则重新生成前，请求路径按此匹配。"
+
+msgid "Rewrite rules regenerated."
+msgstr "Rewrite 规则已重新生成。"
+
+msgid "Regenerate all rewrite rules from the current settings?"
+msgstr "按当前设置重新生成全部 Rewrite 规则？"
+
+msgid "Flush rules"
+msgstr "刷新规则"
+
+msgid "Rebuilds the cached rule set from the registered permalinks, post types and taxonomies."
+msgstr "依据已注册的固定链接、内容类型与分类法重建缓存规则集。"
+
+msgid "Rewrite rules (%d)"
+msgstr "Rewrite 规则（%d）"
+
+msgid "Filter by regex or query…"
+msgstr "按正则或查询串筛选…"
+
+msgid "Match regex"
+msgstr "匹配正则"
+
+msgid "Rewrites to query"
+msgstr "重写为目标查询"
+
+msgid "No rewrite rules match."
+msgstr "没有匹配的 Rewrite 规则。"
+
+msgid "You are not allowed to flush the rewrite rules."
+msgstr "您无权刷新 Rewrite 规则。"
+
+msgid "Settings Kit"
+msgstr "Settings Kit"
+
+msgid "Declarative field form parts: a field definition array renders as form-table rows through the settings pipeline, with one save and reset endpoint for the whole page. Every persisted field type of the framework is exercised below."
+msgstr "field 声明式表单零件：字段定义数组经设置管线渲染为 form-table 行，整页共用一个保存与重置端点。框架的全部持久化字段类型在下方逐一演练"
+
+msgid "Text inputs"
+msgstr "文本输入"
+
+msgid "Site title"
+msgstr "站点标题"
+
+msgid "Required text field."
+msgstr "必填文本字段"
+
+msgid "Site description"
+msgstr "站点描述"
+
+msgid "Multiline text stored through sanitize_textarea_field."
+msgstr "多行文本，经 sanitize_textarea_field 清洗入库"
+
+msgid "Cache lifetime"
+msgstr "缓存时长"
+
+msgid "Numeric field with min, max and step constraints."
+msgstr "带最小值、最大值与步进约束的数字字段"
+
+msgid "Contact email"
+msgstr "联系邮箱"
+
+msgid "Public URL"
+msgstr "公开 URL"
+
+msgid "URL field, validated on save."
+msgstr "URL 字段，保存时校验"
+
+msgid "Sample API key"
+msgstr "示例 API 密钥"
+
+msgid "Write-only password field, the stored value is never echoed back."
+msgstr "只写密码字段，存储值不回显"
+
+msgid "Choices"
+msgstr "选项"
+
+msgid "Feature flag"
+msgstr "功能开关"
+
+msgid "Enable the sample feature"
+msgstr "启用示例功能"
+
+msgid "The plain checkbox: a hidden value=0 input carries an unticked state through the submission."
+msgstr "素复选框：隐藏的 value=0 输入框把未勾选状态带进提交"
+
+msgid "Debug mode"
+msgstr "调试模式"
+
+msgid "Enable debug mode"
+msgstr "启用调试模式"
+
+msgid "The boolean switch: native checkbox semantics under a styled track, the stored value stays 0 or 1."
+msgstr "布尔开关：样式轨道之下是原生 checkbox 语义，存储值仍为 0 或 1"
+
+msgid "Content mode"
+msgstr "内容模式"
+
+msgid "Classic"
+msgstr "经典"
+
+msgid "Hybrid"
+msgstr "混合"
+
+msgid "Headless"
+msgstr "无头"
+
+msgid "Default locale"
+msgstr "默认语言"
+
+msgid "Radio options render inline with even spacing."
+msgstr "单选选项以均匀间距内联排布"
+
+msgid "Simplified Chinese"
+msgstr "简体中文"
+
+msgid "Traditional Chinese"
+msgstr "繁体中文"
+
+msgid "English"
+msgstr "英语"
+
+msgid "Enabled modules"
+msgstr "启用模块"
+
+msgid "Checkbox options render inline with even spacing."
+msgstr "复选选项以均匀间距内联排布"
+
+msgid "SEO"
+msgstr "SEO"
+
+msgid "Cache"
+msgstr "缓存"
+
+msgid "Translation"
+msgstr "翻译"
+
+msgid "CDN"
+msgstr "CDN"
+
+msgid "Media and value lists"
+msgstr "媒体与值列表"
+
+msgid "Media fields store the attachment ID."
+msgstr "媒体字段存储附件 ID"
+
+msgid "Accent color"
+msgstr "强调色"
+
+msgid "Logo"
+msgstr "Logo"
+
+msgid "The field stores a WordPress attachment ID rather than a URL."
+msgstr "该字段保存的是 WordPress 附件 ID 而非 URL。"
+
+msgid "Allowed hosts"
+msgstr "允许的主机"
+
+msgid "Enter comma-separated values."
+msgstr "输入以逗号分隔的值"
+
+msgid "Custom headers"
+msgstr "自定义请求头"
+
+msgid "One \"key: value\" pair per line; keys are normalized through sanitize_key()."
+msgstr "每行一对「key: value」；键名会经 sanitize_key() 归一化"
+
+msgid "Editor content"
+msgstr "编辑器内容"
+
+msgid "JSON configuration"
+msgstr "JSON 配置"
+
+msgid "Uses the WP code editor (wp.codeEditor)."
+msgstr "调用 WP 代码编辑器组件（wp.codeEditor）"
+
+msgid "Classic editor content"
+msgstr "经典编辑器内容"
+
+msgid "Uses the classic editor through wp_editor with TinyMCE."
+msgstr "经 wp_editor 与 TinyMCE 调用经典编辑器"
+
+msgid "Dynamic rows"
+msgstr "动态行"
+
+msgid "Navigation links"
+msgstr "导航链接"
+
+msgid "Backbone manages item creation; jQuery UI provides drag sorting."
+msgstr "条目创建由 Backbone 管理；拖拽排序由 jQuery UI 提供"
+
+msgid "Label"
+msgstr "标签"
+
+msgid "Priority"
+msgstr "优先级"
+
+msgid "Enabled"
+msgstr "启用"
+
+msgid "You are not allowed to run search and replace."
+msgstr "您无权执行搜索替换。"
+
+msgid "Search & Replace"
+msgstr "搜索替换"
+
+msgid "Direct wp_posts search and replace: query first, then execute. Raw SQL — no hooks fire, no revisions, no modified-date bump, meta and options untouched. Back up the database before executing; the match is case-sensitive and cannot be undone."
+msgstr "直接对 wp_posts 做搜索替换：先仅查询预览，再执行。原生 SQL——不触发钩子、不产生修订、不更新修改时间，不碰 meta 与选项。匹配区分大小写且不可撤销，执行前请备份数据库。"
+
+msgid "Updated %d rows in the posts table."
+msgstr "已更新 posts 表 %d 行。"
+
+msgid "Nothing matched — nothing was updated."
+msgstr "没有匹配项——未做任何更新。"
+
+msgid "The search string is empty."
+msgstr "搜索串为空。"
+
+msgid "Search & replace"
+msgstr "搜索替换"
+
+msgid "Search"
+msgstr "搜索"
+
+msgid "Case-sensitive, matched byte-exactly."
+msgstr "区分大小写，按字节精确匹配。"
+
+msgid "Replace with"
+msgstr "替换为"
+
+msgid "Leave empty to remove every occurrence of the search string."
+msgstr "留空则删除搜索串的所有出现。"
+
+msgid "Columns"
+msgstr "目标列"
+
+msgid "At least one; defaults to post_content."
+msgstr "至少选一列；默认 post_content。"
+
+msgid "Post types"
+msgstr "文章类型"
+
+msgid "Empty selection means every public type."
+msgstr "留空表示全部公开类型。"
+
+msgid "Statuses"
+msgstr "状态范围"
+
+msgid "Published only"
+msgstr "仅已发布"
+
+msgid "All real statuses (no trash, no auto-draft)"
+msgstr "全部真实状态（不含回收站与自动草稿）"
+
+msgid "Query only"
+msgstr "仅查询"
+
+msgid "Preview for \"%s\""
+msgstr "“%s” 的预览"
+
+msgid "No matches in the selected columns, types and statuses."
+msgstr "所选列、类型与状态下没有匹配。"
+
+msgid "Sample matches (newest first)"
+msgstr "匹配示例（新到旧）"
+
+msgid "Statement"
+msgstr "执行语句"
+
+msgid "Execution runs this replace in batches of %d posts until no match remains; the ids above are a sample window."
+msgstr "执行时按每批 %d 篇文章分批替换，直到不再有匹配；上方的 id 仅为样本窗口。"
+
+msgid "Run the replace on the posts table now? This cannot be undone."
+msgstr "现在就对 posts 表执行替换？此操作不可撤销。"
+
+msgid "Execute replace"
+msgstr "执行替换"
+
+msgid "Send Mail"
+msgstr "发送邮件"
+
+msgid "You are not allowed to send mail."
+msgstr "您无权发送邮件。"
+
+msgid "Compose an HTML email and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport."
+msgstr "撰写 HTML 邮件并即时发送。投递经由 wp_mail，由站点所用的 SMTP 插件负责传输。"
+
+msgid "Compose"
+msgstr "撰写"
+
+msgid "Recipient"
+msgstr "收件人"
+
+msgid "Any email address works, registered or not. Typing a username or name suggests site users."
+msgstr "支持任意邮箱（无论是否注册）。输入用户名或昵称可联想站点用户。"
+
+msgid "Subject"
+msgstr "主题"
+
+msgid "Message"
+msgstr "正文"
+
+msgid "Send email"
+msgstr "发送邮件"
+
+msgid "Sending…"
+msgstr "正在发送…"
+
+msgid "The email could not be sent."
+msgstr "邮件发送失败。"
+
+msgid "You are not allowed to send mail to users."
+msgstr "您无权向用户发送邮件。"
+
+msgid "Too many emails sent in a short time — wait a few minutes."
+msgstr "短时间内发送的邮件过多——请稍等几分钟再试。"
+
+msgid "Enter a valid recipient email address."
+msgstr "请输入有效的收件人邮箱地址。"
+
+msgid "A subject and a message body are required."
+msgstr "主题与正文不能为空。"
+
+msgid "Email sent to %s."
+msgstr "邮件已发送至 %s。"
+
+msgid "You are not allowed to view the server status."
+msgstr "您无权查看系统信息。"
+
+msgid "Server Status"
+msgstr "系统信息"
+
+msgid "Live read-only diagnostics of the host, the runtime and the opcode cache."
+msgstr "主机、运行时与 opcode 缓存的实时只读诊断。"
+
+msgid "Opcode cache reset."
+msgstr "Opcode 缓存已重置。"
+
+msgid "Host"
+msgstr "主机"
+
+msgid "Internal IP"
+msgstr "内网 IP"
+
+msgid "Operating system"
+msgstr "操作系统"
+
+msgid "Document root"
+msgstr "文档根目录"
+
+msgid "CPU cores"
+msgstr "CPU 核数"
+
+msgid "Memory"
+msgstr "内存"
+
+msgid "Uptime"
+msgstr "运行时间"
+
+msgid "Idle rate"
+msgstr "空闲率"
+
+msgid "Load average"
+msgstr "系统负载"
+
+msgid "Server"
+msgstr "服务器"
+
+msgid "Web server"
+msgstr "Web 服务器"
+
+msgid "MySQL"
+msgstr "MySQL"
+
+msgid "minimum"
+msgstr "最低要求"
+
+msgid "PHP"
+msgstr "PHP"
+
+msgid "Zend"
+msgstr "Zend"
+
+msgid "WordPress"
+msgstr "WordPress"
+
+msgid "TinyMCE"
+msgstr "TinyMCE"
+
+msgid "Versions"
+msgstr "版本"
+
+msgid "Loaded extensions"
+msgstr "已加载扩展"
+
+msgid "Apache modules"
+msgstr "Apache 模块"
+
+msgid "Opcache"
+msgstr "Opcache"
+
+msgid "Reset the opcode cache now?"
+msgstr "现在重置 opcode 缓存？"
+
+msgid "Reset cache"
+msgstr "重置缓存"
+
+msgid "Memory usage"
+msgstr "内存使用"
+
+msgid "Used %1$s · free %2$s · wasted %3$s"
+msgstr "已用 %1$s · 剩余 %2$s · 浪费 %3$s"
+
+msgid "Hit rate"
+msgstr "命中率"
+
+msgid "%1$s hits · %2$s misses"
+msgstr "命中 %1$s · 未命中 %2$s"
+
+msgid "Cached keys"
+msgstr "缓存 Keys"
+
+msgid "%1$s of %2$s key slots"
+msgstr "已用 %1$s / 共 %2$s 个键位"
+
+msgid "Opcache version"
+msgstr "Opcache 版本"
+
+msgid "Key directives"
+msgstr "关键配置项"
+
+msgid "You are not allowed to reset the opcode cache."
+msgstr "您无权重置 opcode 缓存。"
 
 msgid "Unknown settings page."
 msgstr "未知设置页。"
@@ -370,6 +1368,30 @@ msgstr "重置本页所有设置？"
 
 msgid "Reset"
 msgstr "重置"
+
+msgid "You are not allowed to view the shortcode registry."
+msgstr "您无权查看短代码注册表。"
+
+msgid "Shortcodes"
+msgstr "短代码"
+
+msgid "Every shortcode registered in this request, with its callback. Content bodies may reference these; rendering stays a front-end concern."
+msgstr "本次请求注册的全部短代码及其回调。正文可以引用它们；渲染归前端。"
+
+msgid "Registered shortcodes (%d)"
+msgstr "已注册短代码（%d）"
+
+msgid "Filter by tag or callback…"
+msgstr "按标签或回调筛选…"
+
+msgid "Tag"
+msgstr "标签"
+
+msgid "Callback"
+msgstr "回调函数"
+
+msgid "No shortcodes match."
+msgstr "没有匹配的短代码。"
 
 msgid "Smilies"
 msgstr "表情包"
@@ -411,15 +1433,185 @@ msgid "Resource tags — other"
 msgstr "资源标签（其他）"
 
 msgid "%d term moved to the new taxonomy."
-msgid_plural "%d terms moved to the new taxonomy."
-msgstr[0] "已移动 %d 个术语到新分类法。"
+msgstr "已移动 %d 个术语到新分类法。"
 
 msgid "%d term skipped (unchanged or not permitted)."
-msgid_plural "%d terms skipped (unchanged or not permitted)."
-msgstr[0] "跳过 %d 个术语（未变化或无权限）。"
+msgstr "跳过 %d 个术语（未变化或无权限）。"
 
 msgid "Nothing was moved."
 msgstr "没有移动任何内容。"
+
+msgid "%s item"
+msgstr "%s 项"
+
+msgid "First page"
+msgstr "第一页"
+
+msgid "Previous page"
+msgstr "上一页"
+
+msgid "Current Page"
+msgstr "当前页"
+
+msgctxt "paging"
+msgid "%1$s of %2$s"
+msgstr "第 %1$s / 共 %2$s 页"
+
+msgid "Next page"
+msgstr "下一页"
+
+msgid "Last page"
+msgstr "尾页"
+
+msgid "%d / page"
+msgstr "%d / 页"
+
+msgid "Items per page"
+msgstr "每页行数"
+
+msgid "Copied."
+msgstr "已复制。"
+
+msgid "Selected: %s"
+msgstr "已选：%s"
+
+msgid "Bulk actions"
+msgstr "批量操作"
+
+msgid "Apply"
+msgstr "应用"
+
+msgid "Select all"
+msgstr "全选"
+
+msgid "You are not allowed to view Dev Tools."
+msgstr "您无权查看 Dev Tools。"
+
+msgid "UI Kit"
+msgstr "UI Kit"
+
+msgid "Declarative render components: stateless PHP parts that echo markup carrying data-* contracts, which assets/js/admin.js binds its behaviors to. Input is each part's arguments array, output is the markup; every component appears once below."
+msgstr "声明式渲染组件：无状态 PHP 零件，输出携带 data-* 契约的标记，行为层按属性挂接。入参为各零件的参数数组，出参为标记，每个组件仅演示一次"
+
+msgid "Small parts"
+msgstr "小件"
+
+msgid "Stateless controls for operation bars: button with variant and dashicon mount, input in five whitelisted types, select with a selected value. Values travel by name, persistence stays with the surrounding form."
+msgstr "操作栏的无状态控件：button 支持变体与 dashicon 挂载，input 支持五种白名单类型，select 携带选中值。值经 name 传输，持久化归外层表单"
+
+msgid "Search users…"
+msgstr "搜索用户…"
+
+msgid "Notice banners"
+msgstr "通知横幅"
+
+msgid "notice clamps the variant to the four core notice states and renders one banner through wp_kses_post, with optional is-dismissible and the inline form for table rows. flash rides it for the round trip: the note key this page's own redirect set picks the message and adds is-dismissible, unknown notes render nothing."
+msgstr "notice 把变体夹逼到 WP 核心的四种通知状态，经 wp_kses_post 渲染一条横幅，可选 is-dismissible 与表格行用的 inline 形态；flash 在其上承接往返回执：本页跳转写入的 note 键选出消息并追加 is-dismissible，未知 note 不渲染"
+
+msgid "A plain informational banner."
+msgstr "普通信息横幅"
+
+msgid "A dismissible warning banner."
+msgstr "可关闭的警告横幅"
+
+msgid "Section heading"
+msgstr "分区标题"
+
+msgid "heading echoes h1, h2 or h3 with the class aiya-core-heading; the level clamps to 1-3 and the spacing lives in the kit stylesheet. Every section title on this page renders through it."
+msgstr "heading 输出携带 aiya-core-heading 类的 h1、h2 或 h3，级别夹逼在 1 到 3，间距由 kit 样式表承载；本页每个章节标题都经它渲染"
+
+msgid "List table & pagination"
+msgstr "列表件与分页"
+
+msgid "listTable takes a columns spec, a rows iterable and a cell callable, and renders the shared table baseline with a uniform empty state. listNav is a kit-owned one-line bar whose parts are the plain kit controls: arrow links with the shared button classes, a jump input on the top bar, a static readout on the bottom bar, opt-in jump and per-page switches. filterBar is the GET form shell composed into the top bar."
+msgstr "listTable 接收列定义、行迭代器与单元格回调，渲染统一基线的表格与空态。listNav 是 kit 自有的一段式导航条，零件即裸 kit 控件：携带共享按钮类的箭头链接、顶栏跳页输入框、底栏静态读数，可选的跳页与每页行数开关。filterBar 是合成进顶栏的 GET 表单壳"
+
+msgid "No rows."
+msgstr "暂无数据"
+
+msgid "Bulk selection"
+msgstr "批量选择"
+
+msgid "listTable with a checkbox column and a bulk bar: select-all with indeterminate state, a live count, one admin_post round trip posting ids[]. Destructive actions declare their confirm text per action value."
+msgstr "带复选列与批量条的列表：全选含半选态、实时计数、一次 admin_post 往返提交 ids[]。危险动作按动作值声明确认文案"
+
+msgid "Delete the selected rows?"
+msgstr "删除选中的行？"
+
+msgid "Cards"
+msgstr "卡片"
+
+msgid "Two shells from one part: the collapsible details card (open by default, the open flag seeds it collapsed) and the static card without toggle semantics; the body is a callable so it cannot be left unclosed."
+msgstr "同一零件的两种外壳：可折叠的 details 卡片（默认展开，open 标志决定初始折叠态）与不带切换语义的静态卡片；卡体是回调，不会漏闭合"
+
+msgid "Collapsible card"
+msgstr "折叠卡片"
+
+msgid "Card body content."
+msgstr "卡片内容"
+
+msgid "Static card"
+msgstr "静态卡片"
+
+msgid "User typeahead"
+msgstr "用户搜索"
+
+msgid "The typeahead switch on input rides the shared UserPickerView: config rides data attributes, queries run through wp_ajax and return id, name and email. fill id keeps the pick in a hidden input, fill email writes the address back."
+msgstr "input 的 typeahead 开关挂接共享 UserPickerView：配置走 data 属性，查询经 wp_ajax 返回 id、name 与 email。fill 为 id 时选中值存入隐藏域，为 email 时回填邮箱"
+
+msgid "Tabs"
+msgstr "页内标签"
+
+msgid "Native nav-tab look with client-side panels; every panel stays in the DOM so a surrounding form submits all fields. The hash remembers the open tab and submit reveals the panel of the first invalid field."
+msgstr "原生导航标签外观的客户端面板：面板全部留在 DOM，外层表单照常提交全部字段。hash 记忆当前页，提交时自动切到首个失效字段所在面板"
+
+msgid "Overview"
+msgstr "概览"
+
+msgid "Panel body content."
+msgstr "面板内容"
+
+msgid "Form panel"
+msgstr "表单面板"
+
+msgid "Required field"
+msgstr "必填字段"
+
+msgid "Notes"
+msgstr "说明"
+
+msgid "Charts"
+msgstr "图表"
+
+msgid "Each canvas carries its Chart.js config as JSON beside it, instantiated by the behavior layer against the vendored build enqueued through chartAssets. Input is a type, data and options array in Chart.js shape."
+msgstr "每个 canvas 旁内联 Chart.js 的 JSON 配置，行为层以 vendored 构建实例化（经 chartAssets 入队）。入参为 Chart.js 形状的 type、data 与 options 数组"
+
+msgid "Credits granted, consumed and expired over the trailing 12 months (demo data)"
+msgstr "近 12 个月的积分发放、消耗与过期（演示数据）"
+
+msgid "Credits granted by source over the trailing 12 months (demo data)"
+msgstr "近 12 个月按来源的积分发放（演示数据）"
+
+msgid "One-click copy"
+msgstr "一键复制"
+
+msgid "A button that writes its data attribute to the clipboard through navigator.clipboard, with a hidden textarea execCommand fallback, then flashes the done text."
+msgstr "按钮把 data 属性写入剪贴板：走 navigator.clipboard，非安全上下文回退隐藏 textarea 的 execCommand，成功后短暂显示完成文案"
+
+msgid "Copy code"
+msgstr "复制兑换码"
+
+msgid "Modal"
+msgstr "模态框"
+
+msgid "A jquery-ui-dialog shell on the core wp-jquery-ui-dialog styling, opened by data-aiya-modal-open and closed by data-aiya-modal-close. Fill and submit stay with the page, as the row-edit example shows."
+msgstr "jquery-ui-dialog 壳搭配核心 wp-jquery-ui-dialog 样式：data-aiya-modal-open 声明式打开，data-aiya-modal-close 关闭。填充与提交归页面侧，如行编辑示例"
+
+msgid "Open modal"
+msgstr "打开模态框"
+
+msgid "Demo modal"
+msgstr "演示模态框"
 
 msgid "Visibility gate"
 msgstr "可见性门禁"
@@ -454,14 +1646,8 @@ msgstr "昵称长度需为 1-50 个字符。"
 msgid "The email address is not valid."
 msgstr "邮箱地址无效。"
 
-msgid "This email address is already registered."
-msgstr "该邮箱地址已被注册。"
-
-msgid "The account could not be created, please retry."
-msgstr "账户创建失败，请重试。"
-
-msgid "The account was created, but the profile could not be saved."
-msgstr "账号已创建，但资料保存失败。"
+msgid "The locale is not supported."
+msgstr "不支持该语言。"
 
 msgid "Please provide the email address and the password."
 msgstr "请填写邮箱地址与密码。"
@@ -475,9 +1661,6 @@ msgstr "未能使现有会话失效；密码未做修改。"
 msgid "The reset link is missing required parameters."
 msgstr "重置链接缺少必要参数。"
 
-msgid "Too many requests, try again later."
-msgstr "请求过于频繁，请稍后再试。"
-
 msgid "This password reset link is invalid or has expired."
 msgstr "此密码重置链接无效或已过期。"
 
@@ -486,9 +1669,6 @@ msgstr "无法加载该账户。"
 
 msgid "The session could not be started."
 msgstr "无法建立会话。"
-
-msgid "Authentication required."
-msgstr "需要登录。"
 
 msgid "Comments are closed for this content."
 msgstr "该内容的评论已关闭。"
@@ -526,12 +1706,6 @@ msgstr "未找到该用户主页。"
 msgid "This account is disabled."
 msgstr "该账号已被禁用。"
 
-msgid "Check-in is not available."
-msgstr "签到功能未开放。"
-
-msgid "Already checked in today."
-msgstr "今天已签到。"
-
 msgid "The Afdian channel is not available."
 msgstr "爱发电渠道当前不可用。"
 
@@ -546,9 +1720,6 @@ msgstr "板块不存在。"
 
 msgid "Thread not found."
 msgstr "线程不存在。"
-
-msgid "The credit holder does not exist."
-msgstr "积分账户用户不存在。"
 
 msgid "Unknown membership tier."
 msgstr "会员档位不存在。"
@@ -568,26 +1739,11 @@ msgstr "所请求的支付渠道不可用。"
 msgid "The return URL is not a valid absolute http(s) address."
 msgstr "回跳地址不是有效的绝对 http(s) 地址。"
 
-msgid "No file was uploaded."
-msgstr "未接收到文件。"
+msgid "Authentication required."
+msgstr "需要登录。"
 
-msgid "The upload failed with a file error."
-msgstr "上传因文件错误失败。"
-
-msgid "The file is too large."
-msgstr "文件过大。"
-
-msgid "This file type is not supported."
-msgstr "不支持此文件类型。"
-
-msgid "The file could not be written."
-msgstr "文件无法写入。"
-
-msgid "Image processing failed."
-msgstr "图像处理失败。"
-
-msgid "The image URL could not be resolved."
-msgstr "无法解析图片 URL。"
+msgid "Too many requests, try again later."
+msgstr "请求过于频繁，请稍后再试。"
 
 msgid "The favorite could not be removed."
 msgstr "取消收藏失败。"
@@ -595,20 +1751,11 @@ msgstr "取消收藏失败。"
 msgid "The follow could not be removed."
 msgstr "取消关注失败。"
 
-msgid "The locale is not supported."
-msgstr "不支持该语言。"
-
-msgid "Changing the email address requires the current password."
-msgstr "修改邮箱地址需要输入当前密码。"
-
-msgid "The profile could not be saved."
-msgstr "资料保存失败。"
+msgid "This email address is already registered."
+msgstr "该邮箱地址已被注册。"
 
 msgid "No avatar image was uploaded."
 msgstr "未上传头像图片。"
-
-msgid "The current password is incorrect."
-msgstr "当前密码不正确。"
 
 msgid "Blocks"
 msgstr "页面区块"
@@ -645,12 +1792,6 @@ msgstr "页面底部广告"
 
 msgid "Ad slots rendered at the bottom of front-end pages, in listed order."
 msgstr "在前台页面底部按列表顺序渲染的广告位。"
-
-msgid "Label"
-msgstr "标签"
-
-msgid "URL"
-msgstr "URL"
 
 msgid "Front-end path (/posts/) or external URL; empty falls back to the home path."
 msgstr "前台路径（/posts/）或外部 URL；留空回退到首页路径。"
@@ -799,6 +1940,15 @@ msgstr "前台域名"
 msgid "The canonical front-end origin including the scheme, for example https://www.example.com. When set, password-reset links always point here; more front-end-facing features will reuse this value. Leave empty to keep reset links on this site address."
 msgstr "前台站点的完整来源地址（含协议，例如 https://www.example.com）。设置后密码重置链接一律指向此处，后续前台相关功能也会复用该值；留空则重置链接回退到本站点地址。"
 
+msgid "Front-end language"
+msgstr "前台语言"
+
+msgid "The interface language signed-out visitors start with; signed-in members override it from their account settings. Auto follows the WordPress site language."
+msgstr "未登录访客的默认界面语言；已登录成员可在账户设置中另行选择。Auto 跟随 WordPress 站点语言。"
+
+msgid "Auto (site language)"
+msgstr "自动（跟随站点语言）"
+
 msgid "Presentation defaults"
 msgstr "外观默认值"
 
@@ -825,6 +1975,15 @@ msgstr "浅色"
 
 msgid "Site fallback cover"
 msgstr "站级兜底封面"
+
+msgid "Used wherever a card cover is missing: list card thumbnails and category cards — each surface derives its own crop from this one image. The article hero has its own default below."
+msgstr "卡片封面缺失时使用：列表卡片缩略图与分类卡片——各表面从这一张图派生自己的裁剪。文章头图在下方有独立默认值。"
+
+msgid "Default article hero"
+msgstr "文章头图默认图"
+
+msgid "The banner crop served as the article hero for posts whose author did not set a featured image. Leave unset to let those heroes fall back to the card cover chain instead."
+msgstr "作者未设置特色图片的文章，其头图使用本图的横幅裁剪。留空则这些文章的头图回落到卡片封面链。"
 
 msgid "Empty state image"
 msgstr "空状态图片"
@@ -991,11 +2150,14 @@ msgstr "移除所有空标签"
 msgid "Remove paragraph indentation"
 msgstr "移除段首缩进"
 
+msgid "Check-in is not available."
+msgstr "签到功能未开放。"
+
+msgid "Already checked in today."
+msgstr "今天已签到。"
+
 msgid "Daily check-in"
 msgstr "每日签到"
-
-msgid "Check-in"
-msgstr "签到"
 
 msgid "Signed-in users claim a small daily credit grant from the front end."
 msgstr "登录用户可在前台每日领取一小笔积分。"
@@ -1012,86 +2174,23 @@ msgstr "积分有效期（天）"
 msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
 msgstr "签到发放的积分可使用的时长。积分是成本计量，不是存款——每笔发放都会过期。"
 
-msgid "Credit ledger"
-msgstr "积分账本"
+msgid "Spend waiver"
+msgstr "消费免扣"
 
-msgid "You are not allowed to manage credits."
-msgstr "您无权管理积分。"
+msgid "Waived holder level"
+msgstr "免扣用户级别"
 
-msgid "Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice."
-msgstr "成本计量账本：发放生成会过期的桶，消费按最早过期先扣。余额由账本推导，不做二次存储。"
+msgid "Holders at this role level or above spend at zero on every consumer — downloads included — while the ledger still records the entry and the download meter still counts the delivery. The ledger books the waived spend as a zero-credit entry, so the giveaway stays visible. Staff roles only: subscribers and contributors always pay."
+msgstr "此级别及以上的用户在所有消费场景按 0 分入账（含下载交付）：账本照常记录条目，下载计量照常计数，赠送去向保持可见。仅覆盖管理侧角色，订阅者与投稿者始终正常扣费"
 
-msgid "Manual grant"
-msgstr "手动发放"
+msgid "Author and above"
+msgstr "作者及以上"
 
-msgid "User"
-msgstr "用户"
+msgid "Editor and above"
+msgstr "编辑及以上"
 
-msgid "Type a username or name…"
-msgstr "输入用户名或昵称…"
-
-msgid "Amount"
-msgstr "数额"
-
-msgid "Validity (days)"
-msgstr "有效期（天）"
-
-msgid "The bucket dies when this expires."
-msgstr "到期后该桶作废。"
-
-msgid "Note"
-msgstr "备注"
-
-msgid "Optional; recorded in the ledger reference."
-msgstr "可选；会记入账本关联号。"
-
-msgid "Grant credits"
-msgstr "发放积分"
-
-msgid "Time"
-msgstr "时间"
-
-msgid "Direction"
-msgstr "方向"
-
-msgid "Source"
-msgstr "来源"
-
-msgid "Reference"
-msgstr "关联号"
-
-msgid "Bucket left"
-msgstr "桶剩余"
-
-msgid "Expires"
-msgstr "过期"
-
-msgid "No ledger entries for this user yet."
-msgstr "该用户暂无账本记录。"
-
-msgid "Amount and validity are required."
-msgstr "金额与有效期必填。"
-
-msgid "An admin grant with this exact note already exists for this user."
-msgstr "该用户已存在一条完全相同备注的手动发放。"
-
-msgid "Credits"
-msgstr "积分"
-
-msgid "Credits granted."
-msgstr "积分已发放。"
-
-msgid "Redeem code"
-msgstr "兑换码"
-
-msgid "Membership"
-msgstr "会员"
-
-msgid "Admin grant"
-msgstr "手动发放"
-
-msgid "Download"
-msgstr "下载"
+msgid "Administrator only"
+msgstr "仅管理员"
 
 msgid "The credit amount must be positive."
 msgstr "积分数额必须为正。"
@@ -1114,515 +2213,17 @@ msgstr "积分消费未能写入。"
 msgid "This spend was already recorded."
 msgstr "该笔消费已记录过。"
 
-msgid "You are not allowed to manage scheduled events."
-msgstr "您无权管理定时作业。"
-
-msgid "Crons"
-msgstr "定时作业"
-
-msgid "Scheduled events of this site: run one now, remove a stray entry, or schedule a hook that has a live listener."
-msgstr "本站的定时作业：立即执行、清理残留条目，或为仍有监听器的 hook 排程。"
-
-msgid "%d scheduled events point at hooks without any listener anymore."
-msgstr "有 %d 条定时作业指向的 hook 已无任何监听器。"
-
-msgid "Unschedule every orphaned event now?"
-msgstr "现在取消全部孤儿作业的调度？"
-
-msgid "Clean up orphans"
-msgstr "清理孤儿作业"
-
-msgid "Schedule an event"
-msgstr "新建定时作业"
-
-msgid "Hook"
-msgstr "Hook"
-
-msgid "aiya_core_example_hook"
-msgstr "aiya_core_example_hook"
-
-msgid "Only hooks that currently have a listener can be scheduled."
-msgstr "只能调度当前存在监听器的 hook。"
-
-msgid "Recurrence"
-msgstr "频率"
-
-msgid "One-off"
-msgstr "只执行一次"
-
-msgid "Next run"
-msgstr "下次运行"
-
-msgid "Local site time; defaults to one minute from now."
-msgstr "按站点本地时间；默认一分钟后。"
-
-msgid "Schedule event"
-msgstr "排程"
-
-msgid "Scheduled events (%d)"
-msgstr "定时作业（%d）"
-
-msgid "Filter by hook name…"
-msgstr "按 hook 名称筛选…"
-
-msgid "No scheduled events match."
-msgstr "没有匹配的定时作业。"
-
-msgid "Run this hook now?"
-msgstr "立即执行这个 hook？"
-
-msgid "Run now"
-msgstr "立即执行"
-
-msgid "Delete this scheduled event?"
-msgstr "删除这条定时作业？"
-
-msgid "Event scheduled."
-msgstr "定时作业已排程。"
-
-msgid "Hook executed."
-msgstr "Hook 已执行。"
-
-msgid "Scheduled event deleted."
-msgstr "定时作业已删除。"
-
-msgid "The event could not be scheduled."
-msgstr "作业排程失败。"
-
-msgid "The hook name is empty or malformed."
-msgstr "hook 名称为空或格式不合法。"
-
-msgid "That hook has no listener right now — schedule it from code first."
-msgstr "该 hook 目前没有监听器——请先在代码中注册监听。"
-
-msgid "That scheduled event no longer exists."
-msgstr "该定时作业已不存在。"
-
-msgid "Removed %d orphaned events."
-msgstr "已清理 %d 条孤儿作业。"
-
 msgid "Dev Tools"
 msgstr "开发工具"
 
-msgid "Server Status"
-msgstr "系统信息"
+msgid "This thread is closed; likes are no longer accepted."
+msgstr "该帖已关闭，不再接受点赞。"
 
-#~ msgid "Rewrites"
-#~ msgstr "Rewrites"
+msgid "The like could not be stored."
+msgstr "点赞失败。"
 
-msgid "Shortcodes"
-msgstr "短代码"
-
-msgid "Icons"
-msgstr "图标库"
-
-msgid "Search & Replace"
-msgstr "搜索替换"
-
-msgid "You are not allowed to view the icon list."
-msgstr "您无权查看图标列表。"
-
-msgid "The dashicons stylesheet was not found at %s."
-msgstr "未在 %s 找到 dashicons 样式表。"
-
-msgid "No dashicons were found in the stylesheet."
-msgstr "样式表中没有找到任何 dashicons 图标。"
-
-msgid "Every glyph in the core dashicons font, parsed from %s."
-msgstr "核心 dashicons 字体的全部图标，解析自 %s。"
-
-msgid "You are not allowed to view the rewrite rules."
-msgstr "您无权查看 Rewrite 规则。"
-
-msgid "The cached rewrite rules of this site — what a request path is matched against before any rule regeneration."
-msgstr "本站缓存的 Rewrite 规则——规则重新生成前，请求路径按此匹配。"
-
-msgid "Regenerate all rewrite rules from the current settings?"
-msgstr "按当前设置重新生成全部 Rewrite 规则？"
-
-msgid "Flush rules"
-msgstr "刷新规则"
-
-msgid "Rebuilds the cached rule set from the registered permalinks, post types and taxonomies."
-msgstr "依据已注册的固定链接、内容类型与分类法重建缓存规则集。"
-
-msgid "Rewrite rules (%d)"
-msgstr "Rewrite 规则（%d）"
-
-msgid "Filter by regex or query…"
-msgstr "按正则或查询串筛选…"
-
-msgid "Match regex"
-msgstr "匹配正则"
-
-msgid "Rewrites to query"
-msgstr "重写为目标查询"
-
-msgid "No rewrite rules match."
-msgstr "没有匹配的 Rewrite 规则。"
-
-msgid "Rewrite rules regenerated."
-msgstr "Rewrite 规则已重新生成。"
-
-msgid "You are not allowed to flush the rewrite rules."
-msgstr "您无权刷新 Rewrite 规则。"
-
-#~ msgid "Sample"
-#~ msgstr "Sample"
-
-#~ msgid "Developer sandbox: every persisted field type of the settings framework appears on this page."
-#~ msgstr "开发者沙盒：设置框架的所有持久化字段类型都在本页展示。"
-
-msgid "Text inputs"
-msgstr "文本输入"
-
-msgid "Site title"
-msgstr "站点标题"
-
-#~ msgid "A required text field."
-#~ msgstr "必填的文本字段。"
-
-msgid "Site description"
-msgstr "站点描述"
-
-#~ msgid "Plain multiline text is sanitized before storage."
-#~ msgstr "多行纯文本，存储前会做净化处理。"
-
-msgid "Cache lifetime"
-msgstr "缓存时长"
-
-#~ msgid "Optional numeric field with minimum, maximum and step constraints."
-#~ msgstr "可选数字字段，支持最小值、最大值与步长约束。"
-
-msgid "Contact email"
-msgstr "联系邮箱"
-
-msgid "Public URL"
-msgstr "公开 URL"
-
-#~ msgid "Useful for testing URL validation."
-#~ msgstr "用于测试 URL 校验。"
-
-msgid "Sample API key"
-msgstr "示例 API 密钥"
-
-#~ msgid "Write-only field: a saved value is never rendered back into the page."
-#~ msgstr "只写字段：保存后的值不会回显到页面。"
-
-msgid "Choices"
-msgstr "选项"
-
-msgid "Feature flag"
-msgstr "功能开关"
-
-msgid "Enable the sample feature"
-msgstr "启用示例功能"
-
-msgid "Debug mode"
-msgstr "调试模式"
-
-msgid "Enable debug mode"
-msgstr "启用调试模式"
-
-msgid "Content mode"
-msgstr "内容模式"
-
-msgid "Classic"
-msgstr "经典"
-
-msgid "Hybrid"
-msgstr "混合"
-
-msgid "Headless"
-msgstr "无头"
-
-msgid "Default locale"
-msgstr "默认语言"
-
-#~ msgid "Radio controls render inline with spacing between options."
-#~ msgstr "单选框横向排列，选项之间保留间距。"
-
-msgid "Simplified Chinese"
-msgstr "简体中文"
-
-msgid "Traditional Chinese"
-msgstr "繁体中文"
-
-msgid "English"
-msgstr "英语"
-
-msgid "Enabled modules"
-msgstr "启用模块"
-
-#~ msgid "Multiple checkboxes render inline with spacing between options."
-#~ msgstr "复选框横向排列，选项之间保留间距。"
-
-msgid "SEO"
-msgstr "SEO"
-
-msgid "Cache"
-msgstr "缓存"
-
-msgid "Translation"
-msgstr "翻译"
-
-msgid "CDN"
-msgstr "CDN"
-
-msgid "Media and value lists"
-msgstr "媒体与值列表"
-
-#~ msgid "Stored values only: the password field never echoes back and media fields keep attachment IDs."
-#~ msgstr "仅存储值：密码字段不回显，媒体字段保存附件 ID。"
-
-msgid "Accent color"
-msgstr "强调色"
-
-msgid "Logo"
-msgstr "Logo"
-
-msgid "The field stores a WordPress attachment ID rather than a URL."
-msgstr "该字段保存的是 WordPress 附件 ID 而非 URL。"
-
-msgid "Allowed hosts"
-msgstr "允许的主机"
-
-msgid "Enter comma-separated values."
-msgstr "输入以逗号分隔的值"
-
-msgid "Custom headers"
-msgstr "自定义请求头"
-
-msgid "One \"key: value\" pair per line; keys are normalized through sanitize_key()."
-msgstr "每行一对「key: value」；键名会经 sanitize_key() 归一化"
-
-msgid "Editor content"
-msgstr "编辑器内容"
-
-msgid "JSON configuration"
-msgstr "JSON 配置"
-
-#~ msgid "Uses the Code Editor bundled with WordPress."
-#~ msgstr "使用 WordPress 内置的代码编辑器。"
-
-msgid "Classic editor content"
-msgstr "经典编辑器内容"
-
-#~ msgid "Uses wp_editor and TinyMCE; Gutenberg and React are not required."
-#~ msgstr "使用 wp_editor 与 TinyMCE；无需 Gutenberg 与 React。"
-
-msgid "Dynamic rows"
-msgstr "动态行"
-
-msgid "Navigation links"
-msgstr "导航链接"
-
-msgid "Backbone manages item creation; jQuery UI provides drag sorting."
-msgstr "条目创建由 Backbone 管理；拖拽排序由 jQuery UI 提供"
-
-msgid "Priority"
-msgstr "优先级"
-
-msgid "Enabled"
-msgstr "启用"
-
-msgid "You are not allowed to run search and replace."
-msgstr "您无权执行搜索替换。"
-
-msgid "Direct wp_posts search and replace: query first, then execute. Raw SQL — no hooks fire, no revisions, no modified-date bump, meta and options untouched. Back up the database before executing; the match is case-sensitive and cannot be undone."
-msgstr "直接对 wp_posts 做搜索替换：先仅查询预览，再执行。原生 SQL——不触发钩子、不产生修订、不更新修改时间，不碰 meta 与选项。匹配区分大小写且不可撤销，执行前请备份数据库。"
-
-msgid "Search & replace"
-msgstr "搜索替换"
-
-msgid "Search"
-msgstr "搜索"
-
-msgid "Case-sensitive, matched byte-exactly."
-msgstr "区分大小写，按字节精确匹配。"
-
-msgid "Replace with"
-msgstr "替换为"
-
-msgid "Leave empty to remove every occurrence of the search string."
-msgstr "留空则删除搜索串的所有出现。"
-
-msgid "Columns"
-msgstr "目标列"
-
-msgid "At least one; defaults to post_content."
-msgstr "至少选一列；默认 post_content。"
-
-msgid "Post types"
-msgstr "文章类型"
-
-msgid "Empty selection means every public type."
-msgstr "留空表示全部公开类型。"
-
-msgid "Statuses"
-msgstr "状态范围"
-
-msgid "Published only"
-msgstr "仅已发布"
-
-msgid "All real statuses (no trash, no auto-draft)"
-msgstr "全部真实状态（不含回收站与自动草稿）"
-
-msgid "Query only"
-msgstr "仅查询"
-
-msgid "Preview for \"%s\""
-msgstr "“%s” 的预览"
-
-msgid "No matches in the selected columns, types and statuses."
-msgstr "所选列、类型与状态下没有匹配。"
-
-msgid "Sample matches (newest first)"
-msgstr "匹配示例（新到旧）"
-
-msgid "Statement"
-msgstr "执行语句"
-
-msgid "Run the replace on the posts table now? This cannot be undone."
-msgstr "现在就对 posts 表执行替换？此操作不可撤销。"
-
-msgid "Execute replace"
-msgstr "执行替换"
-
-msgid "Updated %d rows in the posts table."
-msgstr "已更新 posts 表 %d 行。"
-
-msgid "Nothing matched — nothing was updated."
-msgstr "没有匹配项——未做任何更新。"
-
-msgid "The search string is empty."
-msgstr "搜索串为空。"
-
-msgid "You are not allowed to view the server status."
-msgstr "您无权查看系统信息。"
-
-msgid "Live read-only diagnostics of the host, the runtime and the opcode cache."
-msgstr "主机、运行时与 opcode 缓存的实时只读诊断。"
-
-msgid "Host"
-msgstr "主机"
-
-msgid "Internal IP"
-msgstr "内网 IP"
-
-msgid "Operating system"
-msgstr "操作系统"
-
-msgid "Document root"
-msgstr "文档根目录"
-
-msgid "CPU cores"
-msgstr "CPU 核数"
-
-msgid "Memory"
-msgstr "内存"
-
-msgid "Uptime"
-msgstr "运行时间"
-
-msgid "Idle rate"
-msgstr "空闲率"
-
-msgid "Load average"
-msgstr "系统负载"
-
-msgid "Server"
-msgstr "服务器"
-
-msgid "Web server"
-msgstr "Web 服务器"
-
-msgid "MySQL"
-msgstr "MySQL"
-
-msgid "minimum"
-msgstr "最低要求"
-
-msgid "PHP"
-msgstr "PHP"
-
-msgid "Zend"
-msgstr "Zend"
-
-msgid "WordPress"
-msgstr "WordPress"
-
-msgid "TinyMCE"
-msgstr "TinyMCE"
-
-msgid "Versions"
-msgstr "版本"
-
-msgid "Loaded extensions"
-msgstr "已加载扩展"
-
-msgid "Apache modules"
-msgstr "Apache 模块"
-
-msgid "Opcache"
-msgstr "Opcache"
-
-msgid "Reset the opcode cache now?"
-msgstr "现在重置 opcode 缓存？"
-
-msgid "Reset cache"
-msgstr "重置缓存"
-
-msgid "Memory usage"
-msgstr "内存使用"
-
-msgid "Used %1$s · free %2$s · wasted %3$s"
-msgstr "已用 %1$s · 剩余 %2$s · 浪费 %3$s"
-
-msgid "Hit rate"
-msgstr "命中率"
-
-msgid "%1$s hits · %2$s misses"
-msgstr "命中 %1$s · 未命中 %2$s"
-
-msgid "Cached keys"
-msgstr "缓存 Keys"
-
-msgid "%1$s of %2$s key slots"
-msgstr "已用 %1$s / 共 %2$s 个键位"
-
-msgid "Opcache version"
-msgstr "Opcache 版本"
-
-msgid "Key directives"
-msgstr "关键配置项"
-
-msgid "Opcode cache reset."
-msgstr "Opcode 缓存已重置。"
-
-msgid "You are not allowed to reset the opcode cache."
-msgstr "您无权重置 opcode 缓存。"
-
-msgid "You are not allowed to view the shortcode registry."
-msgstr "您无权查看短代码注册表。"
-
-msgid "Every shortcode registered in this request, with its callback. Content bodies may reference these; rendering stays a front-end concern."
-msgstr "本次请求注册的全部短代码及其回调。正文可以引用它们；渲染归前端。"
-
-msgid "Registered shortcodes (%d)"
-msgstr "已注册短代码（%d）"
-
-msgid "Filter by tag or callback…"
-msgstr "按标签或回调筛选…"
-
-msgid "Tag"
-msgstr "标签"
-
-msgid "Callback"
-msgstr "回调函数"
-
-msgid "No shortcodes match."
-msgstr "没有匹配的短代码。"
+msgid "The like could not be removed."
+msgstr "取消点赞失败。"
 
 msgid "The thread author does not exist."
 msgstr "线程作者不存在。"
@@ -1825,6 +2426,21 @@ msgstr "文件类型图标"
 msgid "Classify each row by extension so the front end can pick an icon."
 msgstr "按扩展名给每一行归类，供前端选择图标。"
 
+msgid "Changing the email address requires the current password."
+msgstr "修改邮箱地址需要输入当前密码。"
+
+msgid "The profile could not be saved."
+msgstr "资料保存失败。"
+
+msgid "The current password is incorrect."
+msgstr "当前密码不正确。"
+
+msgid "The account could not be created, please retry."
+msgstr "账户创建失败，请重试。"
+
+msgid "The account was created, but the profile could not be saved."
+msgstr "账号已创建，但资料保存失败。"
+
 msgid "Avatar settings"
 msgstr "头像设置"
 
@@ -1873,9 +2489,6 @@ msgstr "头像已更新。"
 msgid "Remove the local avatar?"
 msgstr "移除本地头像？"
 
-msgid "You are not allowed to edit this user."
-msgstr "您无权编辑该用户。"
-
 msgid "No avatar image was provided."
 msgstr "未提供头像图片。"
 
@@ -1884,6 +2497,9 @@ msgstr "头像处理失败。"
 
 msgid "Invalid avatar upload."
 msgstr "无效的头像上传。"
+
+msgid "The upload failed with a file error."
+msgstr "上传因文件错误失败。"
 
 msgid "The avatar image is too large (4 MB maximum)."
 msgstr "头像图片过大（最大 4 MB）。"
@@ -1972,50 +2588,91 @@ msgstr "服务密钥验证失败。"
 msgid "This sign-in ticket is not valid."
 msgstr "该登录票据无效。"
 
-msgid "Send Mail"
-msgstr "发送邮件"
+msgid "Reset password"
+msgstr "重设密码"
 
-msgid "You are not allowed to send mail."
-msgstr "您无权发送邮件。"
+msgid "Password reset"
+msgstr "密码重置"
 
-msgid "Compose an HTML email and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport."
-msgstr "撰写 HTML 邮件并即时发送。投递经由 wp_mail，由站点所用的 SMTP 插件负责传输。"
+msgid "Your account on %1$s has been created."
+msgstr "你在 %1$s 的账户已创建。"
 
-msgid "Recipient"
-msgstr "收件人"
+msgid "Open the link below within %d hours to set your password:"
+msgstr "请在 %d 小时内打开以下链接设置你的密码："
 
-msgid "Any email address works, registered or not. Typing a username or name suggests site users."
-msgstr "支持任意邮箱（无论是否注册）。输入用户名或昵称可联想站点用户。"
+msgid "Set password"
+msgstr "设置密码"
 
-msgid "Subject"
-msgstr "主题"
+msgid "Your account is ready"
+msgstr "你的账户已就绪"
 
-msgid "Message"
-msgstr "正文"
+msgid "[%s] Your account is ready."
+msgstr "【%s】你的账户已就绪。"
 
-msgid "Send email"
-msgstr "发送邮件"
+msgid "Your password was just changed."
+msgstr "你的密码刚刚被更改。"
 
-msgid "Sending…"
-msgstr "正在发送…"
+msgid "If this was not you, someone else may have access — reset your password now:"
+msgstr "如果这不是你的操作，账户可能已被他人访问——请立即重设密码："
 
-msgid "The email could not be sent."
-msgstr "邮件发送失败。"
+msgid "Password changed"
+msgstr "密码已更改"
 
-msgid "You are not allowed to send mail to users."
-msgstr "您无权向用户发送邮件。"
+msgid "[%s] Password changed"
+msgstr "【%s】密码已更改"
 
-msgid "Too many emails sent in a short time — wait a few minutes."
-msgstr "短时间内发送的邮件过多——请稍等几分钟再试。"
+msgid "Old email"
+msgstr "旧邮箱"
 
-msgid "Enter a valid recipient email address."
-msgstr "请输入有效的收件人邮箱地址。"
+msgid "New email"
+msgstr "新邮箱"
 
-msgid "A subject and a message body are required."
-msgstr "主题与正文不能为空。"
+msgid "Your account email address was just changed."
+msgstr "你账户的邮箱地址刚刚被更改。"
 
-msgid "Email sent to %s."
-msgstr "邮件已发送至 %s。"
+msgid "Email address changed"
+msgstr "邮箱地址已更改"
+
+msgid "[%s] Your email address was changed"
+msgstr "【%s】你的邮箱地址已更改"
+
+msgid "Sent to %1$s — you are receiving this message because of activity on your account."
+msgstr "发送至 %1$s —— 你收到这封邮件是因为账户内触发了对应事件。"
+
+msgid "This message was sent automatically by %1$s — do not reply."
+msgstr "此邮件由 %1$s 系统自动发送，请勿直接回复。"
+
+msgid "If the button does not work, copy this link into your browser:"
+msgstr "按钮不可用时，复制以下链接到浏览器打开："
+
+msgid "Thank you for supporting %1$s — this email is your receipt."
+msgstr "感谢你对 %1$s 的支持——本邮件即你的订单回执。"
+
+msgctxt "membership receipt"
+msgid "Tier"
+msgstr "会员档位"
+
+msgctxt "membership receipt"
+msgid "Order"
+msgstr "订单号"
+
+msgid "Active from"
+msgstr "生效日期"
+
+msgid "Active until"
+msgstr "有效期至"
+
+msgid "If your purchase covers multiple cycles, the next one starts automatically when the current subscription period ends."
+msgstr "如果您购买了多个周期计划，当前订阅周期结束后，下一次订阅将自动递补生效。"
+
+msgid "View membership"
+msgstr "查看会员"
+
+msgid "[%1$s] Thank you — your membership is now active."
+msgstr "【%1$s】感谢支持，你的会员已生效。"
+
+msgid "Membership activated"
+msgstr "会员已生效"
 
 msgid "The post does not exist."
 msgstr "文章不存在。"
@@ -2026,410 +2683,20 @@ msgstr "封面生成失败。"
 msgid "The cover URL could not be resolved."
 msgstr "无法解析封面 URL。"
 
-msgid "Pic bed"
-msgstr "图床"
+msgid "The file is too large."
+msgstr "文件过大。"
 
-msgid "You are not allowed to manage the pic bed."
-msgstr "您无权管理图床。"
+msgid "This file type is not supported."
+msgstr "不支持此文件类型。"
 
-#~ msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk."
-#~ msgstr "将图片上传到 wp-content/aiya_upload_pics，不占用媒体库与 uploads 目录：无附件 ID、不生成 WP 缩略图。每张图都会经过图像处理器处理一次，落盘的即是处理后的文件。"
+msgid "The file could not be written."
+msgstr "文件无法写入。"
 
-msgid "Upload"
-msgstr "上传"
+msgid "Image processing failed."
+msgstr "图像处理失败。"
 
-msgid "Upload image"
-msgstr "上传图片"
-
-msgid "JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB."
-msgstr "支持 JPEG、PNG、BMP、GIF、WebP 与 AVIF，最大 %d MB。"
-
-msgid "Dimensions"
-msgstr "尺寸"
-
-msgid "Relative path"
-msgstr "相对路径"
-
-msgid "Uploaded images"
-msgstr "已上传图片"
-
-msgid "Uploading…"
-msgstr "正在上传…"
-
-msgid "Upload failed."
-msgstr "上传失败。"
-
-msgid "Insufficient permissions."
-msgstr "权限不足。"
-
-msgid "No uploads yet."
-msgstr "还没有上传记录。"
-
-#~ msgid "The %d oldest file is not listed."
-#~ msgstr "最早的 %d 个文件未列出。"
-
-#~ msgid "User %1$s (#%2$d)"
-#~ msgstr "用户 %1$s（#%2$d）"
-
-msgid "User #%d"
-msgstr "用户 #%d"
-
-msgid "%1$s replied to your comment."
-msgstr "%1$s 回复了你的评论。"
-
-msgid "%1$s commented on your article \"%2$s\"."
-msgstr "%1$s 评论了你的文章「%2$s」。"
-
-msgid "%1$s published a new article \"%2$s\"."
-msgstr "%1$s 发布了新文章「%2$s」。"
-
-msgid "A post you favorited was updated: \"%1$s\"."
-msgstr "你收藏的文章有更新：「%1$s」。"
-
-msgid "Your account password was reset. If this was not you, please contact the administrator."
-msgstr "你的账号密码已被重置。如果不是本人操作，请联系管理员。"
-
-msgid "%s replied to your thread."
-msgstr "%s 回复了你的帖子。"
-
-msgid "%1$s replied to your thread \"%2$s\"."
-msgstr "%1$s 回复了你的帖子「%2$s」。"
-
-msgid "%s published a new thread."
-msgstr "%s 发布了新帖子。"
-
-msgid "%1$s published a new thread \"%2$s\"."
-msgstr "%1$s 发布了新帖子「%2$s」。"
-
-msgid "%1$s followed you."
-msgstr "%1$s 关注了你。"
-
-msgid "Your membership is active until %s. Thank you for the support!"
-msgstr "你的会员有效期至 %s。感谢支持！"
-
-msgid "Your membership expires on %s. Renew to keep the perks."
-msgstr "你的会员将于 %s 到期。续期以保留权益。"
-
-msgid "Notifications"
-msgstr "通知"
-
-msgid "You are not allowed to manage notifications."
-msgstr "您无权管理通知。"
-
-msgid "Site-wide announcements for the headless front end. Rows expire automatically after the retention period; the front end tracks read state itself."
-msgstr "面向无头前端的整站公告。过期通知按保留期自动清理；已读状态由前端自行记录。"
-
-msgid "Publish announcement"
-msgstr "发布公告"
-
-msgid "Minimum visible role"
-msgstr "最低可见角色"
-
-msgid "Viewers below this role will not see the announcement. Sponsor also requires a valid membership."
-msgstr "低于该角色的访客看不到此公告。「赞助者」级别还要求有效的会员身份。"
-
-msgid "Publish"
-msgstr "发布"
-
-msgid "Stored notifications"
-msgstr "已存通知"
-
-msgid "Minimum role"
-msgstr "最低角色"
-
-msgid "Scope"
-msgstr "范围"
-
-msgid "Created"
-msgstr "创建时间"
-
-msgid "No notifications stored."
-msgstr "尚无通知。"
-
-msgid "Broadcast"
-msgstr "广播"
-
-msgid "Delete this notification?"
-msgstr "删除这条通知？"
-
-msgid "Notification published."
-msgstr "通知已发布。"
-
-msgid "Notification deleted."
-msgstr "通知已删除。"
-
-msgid "The operation failed — check the values and try again."
-msgstr "操作失败——请检查输入后重试。"
-
-msgid "Subscriber"
-msgstr "订阅者"
-
-msgid "Sponsor"
-msgstr "赞助者"
-
-msgid "Administrator"
-msgstr "管理员"
-
-msgid "Guest"
-msgstr "访客"
-
-msgid "Notification title is required."
-msgstr "通知标题不能为空。"
-
-msgid "Unknown notification role level."
-msgstr "未知的通知角色级别。"
-
-msgid "Unknown notification type."
-msgstr "未知的通知类型。"
-
-msgid "Invalid notification recipient."
-msgstr "无效的通知接收者。"
-
-msgid "The notification could not be stored."
-msgstr "通知保存失败。"
-
-msgid "Operations report"
-msgstr "运营统计"
-
-msgid "You are not allowed to view the operations report."
-msgstr "您无权查看运营统计。"
-
-msgid "Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger's spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
-msgstr "积分流水、会员与流量的月度报表。消耗直接取自账本的 spend 事件，下载由文件下载域计量——每次交付计一次，扣费与免费均算。数据自安装起累计，更早的月份无法从账本重建。"
-
-msgid "Cost per download saved."
-msgstr "单次下载成本已保存。"
-
-msgid "Enter a valid number."
-msgstr "请输入有效数字。"
-
-msgid "Upstream cost per download"
-msgstr "单次下载成本"
-
-msgid "In the payment currency; the month's cost derives as downloads × this rate and freezes when the month closes."
-msgstr "以支付货币计；当月成本 = 下载次数 × 此单价，月份关闭时冻结。"
-
-msgid "You are not allowed to configure the operations report."
-msgstr "您无权配置运营统计。"
-
-msgid "Month"
-msgstr "月份"
-
-msgid "Indicators — %s"
-msgstr "指标 — %s"
-
-msgid "Credits granted"
-msgstr "发放积分"
-
-msgid "Check-in %1$s · Membership %2$s · Codes %3$s · Manual %4$s"
-msgstr "签到 %1$s · 会员 %2$s · 兑换码 %3$s · 手动 %4$s"
-
-msgid "Credits consumed"
-msgstr "消耗积分"
-
-msgid "Credits expired"
-msgstr "过期积分"
-
-msgid "Downloads"
-msgstr "下载次数"
-
-msgid "Active users"
-msgstr "活跃用户"
-
-msgid "Members"
-msgstr "会员"
-
-msgid "Holders whose membership covers this month, codes included."
-msgstr "该月处于会员有效期内的用户，含兑换码持有者。"
-
-msgid "Paying users"
-msgstr "付费用户"
-
-msgid "Covered holders whose order was actually paid."
-msgstr "有效期内且订单已实付的用户。"
-
-msgid "Cash collected"
-msgstr "实收"
-
-msgid "Recognized revenue"
-msgstr "确认收入"
-
-msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once and its months sum back to the order total. Booked revenue for the month — not a forward-looking MRR run rate."
-msgstr "订单金额按服务周期摊分，多周期购买不会一次性入账，各月之和回到订单总额。这是当月确认收入，而非前瞻性的 MRR 运行率。"
-
-msgid "Cost"
-msgstr "成本"
-
-msgid "Downloads × %1$s per download, %2$s"
-msgstr "下载次数 × 单次 %1$s，%2$s"
-
-msgid "rate frozen when the month closed"
-msgstr "单价已于月末冻结"
-
-msgid "at the current rate; frozen when the month closes"
-msgstr "按当前单价计算，月末冻结"
-
-msgid "Outstanding credits"
-msgstr "未消耗积分"
-
-msgid "What every holder could still spend right now — the report's liability figure."
-msgstr "当前所有用户仍可消费的积分总额，即报告的积分负债。"
-
-msgid "Consumption rate"
-msgstr "积分消耗率"
-
-msgid "Expiry rate"
-msgstr "过期率"
-
-msgid "Downloads per active user"
-msgstr "用户平均下载量"
-
-msgid "Downloads per paying user"
-msgstr "付费用户平均下载量"
-
-msgid "Revenue per paying user"
-msgstr "每个付费用户带来的收入"
-
-msgid "Cost per paying user"
-msgstr "每个付费用户的实际成本"
-
-msgid "Trailing 12 months"
-msgstr "近 12 个月趋势"
-
-msgid "Granted"
-msgstr "发放"
-
-msgid "Consumed"
-msgstr "消耗"
-
-msgid "Expired"
-msgstr "过期"
-
-msgid "Cash"
-msgstr "实收"
-
-msgid "Recognized"
-msgstr "确认收入"
-
-msgid "Grants by source"
-msgstr "发放来源"
-
-msgid "Codes"
-msgstr "兑换码"
-
-msgid "Manual"
-msgstr "手动"
-
-msgid "Total"
-msgstr "合计"
-
-msgid "Quick list"
-msgstr "快捷列表"
-
-msgid "Turns lines of text into a list, one item per line."
-msgstr "将文本按行转换为列表，每行一项。"
-
-msgid "Content"
-msgstr "内容"
-
-msgid "Ordered list"
-msgstr "编号列表"
-
-msgid "Quick list (columns)"
-msgstr "快捷列表（分栏）"
-
-msgid "Alternates lines into a description list: first line the term, second the description, and so on."
-msgstr "将文本按行交替转换为描述列表：奇数行为词条，偶数行为描述。"
-
-msgid "Term width"
-msgstr "词条宽度"
-
-msgid "1/4 width terms"
-msgstr "词条占 1/4 宽"
-
-msgid "1/2 width terms"
-msgstr "词条占 1/2 宽"
-
-msgid "3/4 width terms"
-msgstr "词条占 3/4 宽"
-
-msgid "Collapse panel"
-msgstr "折叠面板"
-
-msgid "A panel readers can expand or collapse."
-msgstr "创建一个可展开或收起的内容面板。"
-
-msgid "Notice card"
-msgstr "提示卡片"
-
-msgid "A highlighted notice with a level and a title."
-msgstr "创建一条带级别与标题的醒目提示。"
-
-msgid "Level"
-msgstr "级别"
-
-msgid "Default"
-msgstr "默认"
-
-msgid "Warning"
-msgstr "警告"
-
-msgid "Info"
-msgstr "信息"
-
-msgid "Success"
-msgstr "成功"
-
-msgid "Error"
-msgstr "错误"
-
-msgid "Button link"
-msgstr "按钮链接"
-
-msgid "A styled link button."
-msgstr "创建一个带样式的链接按钮。"
-
-msgid "Opens"
-msgstr "打开方式"
-
-msgid "Same tab"
-msgstr "当前标签页"
-
-msgid "New tab"
-msgstr "新标签页"
-
-msgid "Style"
-msgstr "样式"
-
-msgid "Primary"
-msgstr "主要"
-
-msgid "Outline"
-msgstr "描边"
-
-msgid "Button label"
-msgstr "按钮文字"
-
-msgid "Quick copy"
-msgstr "一键复制"
-
-msgid "A text snippet the reader copies with one click."
-msgstr "供读者一键复制的文本片段。"
-
-msgid "Post ID"
-msgstr "文章 ID"
-
-msgid "Template parts"
-msgstr "模板零件"
-
-msgid "Markup preview"
-msgstr "标记预览"
-
-msgid "Insert"
-msgstr "插入"
-
-msgid "No template parts are registered yet."
-msgstr "尚未注册任何模板零件。"
+msgid "The image URL could not be resolved."
+msgstr "无法解析图片 URL。"
 
 msgid "This order has already been activated."
 msgstr "该订单已经激活过。"
@@ -2461,71 +2728,8 @@ msgstr "该订单已绑定其他账号。"
 msgid "The order carries no account binding — activate it from the account page with the order number."
 msgstr "该订单未携带账号绑定——请在账户页用订单号激活。"
 
-msgid "Redemption codes"
-msgstr "兑换码"
-
-msgid "You are not allowed to manage redemption codes."
-msgstr "您无权管理兑换码。"
-
-msgid "Membership gift codes users redeem themselves on the front end. Codes are single-use; redeeming queues the tier entitlement like a paid order and credits arrive per cycle."
-msgstr "用户在前台自行兑换的会员礼码。每码单次有效；兑换即像正常订单一样把档位排入会员队列，积分随后按周期发放。"
-
-msgid "Generate codes"
-msgstr "生成兑换码"
-
-msgid "Quantity"
-msgstr "数量"
-
-msgid "Tier"
-msgstr "档位"
-
-msgid "— define tiers first —"
-msgstr "—— 请先定义档位 ——"
-
-msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
-msgstr "此码发放的会员商品；档位配置在兑换时快照。"
-
-msgid "Cycles"
-msgstr "周期数"
-
-msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
-msgstr "此码发放该档位的周期数（积分随后按周期发放）。"
-
-msgid "Generate"
-msgstr "生成"
-
-msgid "Stored codes (%s)"
-msgstr "已存兑换码（%s）"
-
-msgid "Delete ALL codes? This cannot be undone."
-msgstr "确定删除全部兑换码？此操作不可撤销。"
-
-msgid "Delete all"
-msgstr "全部删除"
-
-msgid "Code"
-msgstr "兑换码"
-
-msgid "Redeemed by"
-msgstr "兑换者"
-
-msgid "Redeemed at"
-msgstr "兑换时间"
-
-msgid "No codes stored."
-msgstr "尚无兑换码。"
-
-msgid "Redeemed"
-msgstr "已兑换"
-
-msgid "Unused"
-msgstr "未使用"
-
-msgid "Codes generated."
-msgstr "兑换码已生成。"
-
-msgid "All codes deleted."
-msgstr "兑换码已全部删除。"
+msgid "A membership order from %s"
+msgstr "来自%s的会员订单"
 
 msgid "The membership holder does not exist."
 msgstr "会员归属用户不存在。"
@@ -2544,54 +2748,6 @@ msgstr "会员记录未能写入。"
 
 msgid "The Epay channel is not available."
 msgstr "易支付渠道不可用。"
-
-msgid "The order user does not exist."
-msgstr "订单用户不存在。"
-
-msgid "This order was already recorded."
-msgstr "该订单已被记录。"
-
-msgid "The order could not be stored."
-msgstr "订单保存失败。"
-
-msgid "You are not allowed to view payments."
-msgstr "您无权查看支付记录。"
-
-msgid "Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue."
-msgstr "记录中的全部网关入账——仅记资金事实；所购权益见会员队列。"
-
-msgid "All sources"
-msgstr "全部来源"
-
-msgid "Order"
-msgstr "订单"
-
-msgid "No payments recorded yet."
-msgstr "暂无支付记录。"
-
-msgid "Epay"
-msgstr "易支付"
-
-msgid "Afdian"
-msgstr "爱发电"
-
-msgid "Paid"
-msgstr "已支付"
-
-msgid "Awaiting payment"
-msgstr "待支付"
-
-msgid "Invalid redemption code."
-msgstr "无效的兑换码。"
-
-msgid "The redeeming user does not exist."
-msgstr "兑换用户不存在。"
-
-msgid "This code has already been redeemed."
-msgstr "该兑换码已被使用。"
-
-msgid "The membership activation failed — the code was not consumed, try again."
-msgstr "会员激活失败——兑换码未被消耗，请重试。"
 
 msgid "Membership settings"
 msgstr "会员设置"
@@ -2713,8 +2869,233 @@ msgstr "爱发电 Webhook 地址"
 msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/membership/v1/afdian/callback — POST only."
 msgstr "在爱发电创作者后台（开发工具 > WebHook）登记该地址：{site url}/wp-json/aiya/membership/v1/afdian/callback，仅接受 POST。"
 
+msgid "Order log"
+msgstr "订单日志"
+
+msgid "Unpaid order retention (days)"
+msgstr "未支付订单保留期（天）"
+
+msgid "Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep)."
+msgstr "未支付订单（放弃的结算单）将在这么多天后从支付日志中删除；已支付记录永久保留。最小 7 天（越过待支付标记清扫期）。"
+
 msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
 msgstr "以下档位仍有生效成员或进行中的订单，无法删除：%s。"
+
+msgid "The order user does not exist."
+msgstr "订单用户不存在。"
+
+msgid "This order was already recorded."
+msgstr "该订单已被记录。"
+
+msgid "The order could not be stored."
+msgstr "订单保存失败。"
+
+msgid "Invalid redemption code."
+msgstr "无效的兑换码。"
+
+msgid "The redeeming user does not exist."
+msgstr "兑换用户不存在。"
+
+msgid "This code has already been redeemed."
+msgstr "该兑换码已被使用。"
+
+msgid "The membership activation failed — the code was not consumed, try again."
+msgstr "会员激活失败——兑换码未被消耗，请重试。"
+
+msgid "%1$s replied to your comment."
+msgstr "%1$s 回复了你的评论。"
+
+msgid "%1$s commented on your article \"%2$s\"."
+msgstr "%1$s 评论了你的文章「%2$s」。"
+
+msgid "%1$s mentioned you in a comment on \"%2$s\"."
+msgstr "%1$s 在评论「%2$s」中提到了你。"
+
+msgid "Your submission \"%1$s\" was approved and published."
+msgstr "你的投稿「%1$s」已通过审核并发布。"
+
+msgid "%1$s mentioned you in the article \"%2$s\"."
+msgstr "%1$s 在文章「%2$s」中提到了你。"
+
+msgid "%1$s published a new article \"%2$s\"."
+msgstr "%1$s 发布了新文章「%2$s」。"
+
+msgid "A post you favorited was updated: \"%1$s\"."
+msgstr "你收藏的文章有更新：「%1$s」。"
+
+msgid "Your account password was reset. If this was not you, please contact the administrator."
+msgstr "你的账号密码已被重置。如果不是本人操作，请联系管理员。"
+
+msgid "Your account was granted +%1$d credits."
+msgstr "你的账户入账 +%1$d 积分。"
+
+msgid "%s replied to your thread."
+msgstr "%s 回复了你的帖子。"
+
+msgid "%1$s replied to your thread \"%2$s\"."
+msgstr "%1$s 回复了你的帖子「%2$s」。"
+
+msgid "%s mentioned you in a community thread."
+msgstr "%s 在社区帖子中提到了你。"
+
+msgid "%1$s mentioned you in the thread \"%2$s\"."
+msgstr "%1$s 在帖子「%2$s」中提到了你。"
+
+msgid "%s published a new thread."
+msgstr "%s 发布了新帖子。"
+
+msgid "%1$s published a new thread \"%2$s\"."
+msgstr "%1$s 发布了新帖子「%2$s」。"
+
+msgid "%1$s followed you."
+msgstr "%1$s 关注了你。"
+
+msgid "Your membership is active until %s. Thank you for the support!"
+msgstr "你的会员有效期至 %s。感谢支持！"
+
+msgid "Your membership expires on %s. Renew to keep the perks."
+msgstr "你的会员将于 %s 到期。续期以保留权益。"
+
+msgid "Notification title is required."
+msgstr "通知标题不能为空。"
+
+msgid "Unknown notification role level."
+msgstr "未知的通知角色级别。"
+
+msgid "Unknown notification type."
+msgstr "未知的通知类型。"
+
+msgid "Invalid notification recipient."
+msgstr "无效的通知接收者。"
+
+msgid "The notification could not be stored."
+msgstr "通知保存失败。"
+
+msgid "Quick list"
+msgstr "快捷列表"
+
+msgid "Turns lines of text into a list, one item per line."
+msgstr "将文本按行转换为列表，每行一项。"
+
+msgid "Content"
+msgstr "内容"
+
+msgid "Ordered list"
+msgstr "编号列表"
+
+msgid "Quick list (columns)"
+msgstr "快捷列表（分栏）"
+
+msgid "Alternates lines into a description list: first line the term, second the description, and so on."
+msgstr "将文本按行交替转换为描述列表：奇数行为词条，偶数行为描述。"
+
+msgid "Term width"
+msgstr "词条宽度"
+
+msgid "1/4 width terms"
+msgstr "词条占 1/4 宽"
+
+msgid "1/2 width terms"
+msgstr "词条占 1/2 宽"
+
+msgid "3/4 width terms"
+msgstr "词条占 3/4 宽"
+
+msgid "Collapse panel"
+msgstr "折叠面板"
+
+msgid "A panel readers can expand or collapse."
+msgstr "创建一个可展开或收起的内容面板。"
+
+msgid "Notice card"
+msgstr "提示卡片"
+
+msgid "A highlighted notice with a level and a title."
+msgstr "创建一条带级别与标题的醒目提示。"
+
+msgid "Level"
+msgstr "级别"
+
+msgid "Default"
+msgstr "默认"
+
+msgid "Warning"
+msgstr "警告"
+
+msgid "Info"
+msgstr "信息"
+
+msgid "Success"
+msgstr "成功"
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Button link"
+msgstr "按钮链接"
+
+msgid "A styled link button."
+msgstr "创建一个带样式的链接按钮。"
+
+msgid "Opens"
+msgstr "打开方式"
+
+msgid "Same tab"
+msgstr "当前标签页"
+
+msgid "New tab"
+msgstr "新标签页"
+
+msgid "Style"
+msgstr "样式"
+
+msgid "Primary"
+msgstr "主要"
+
+msgid "Outline"
+msgstr "描边"
+
+msgid "Button label"
+msgstr "按钮文字"
+
+msgid "Quick copy"
+msgstr "一键复制"
+
+msgid "A text snippet the reader copies with one click."
+msgstr "供读者一键复制的文本片段。"
+
+msgid "Reference"
+msgstr "关联号"
+
+msgid "Emits one semantic reference marker for the front end to resolve into a link. Fill exactly one of the fields below; when several are filled the first (post, user, term, search, comment, thread) wins."
+msgstr "输出一个语义引用标记，由前台解析为链接。以下字段只填一个；若填写多个，按（文章、用户、分类法、搜索、评论、社区帖）顺序取第一个生效。"
+
+msgid "Post ID"
+msgstr "文章 ID"
+
+msgid "Term ID"
+msgstr "分类法术语 ID"
+
+msgid "Search keywords"
+msgstr "搜索关键词"
+
+msgid "Comment ID"
+msgstr "评论 ID"
+
+msgid "Thread ID"
+msgstr "社区帖 ID"
+
+msgid "Template parts"
+msgstr "模板零件"
+
+msgid "Markup preview"
+msgstr "标记预览"
+
+msgid "Insert"
+msgstr "插入"
+
+msgid "No template parts are registered yet."
+msgstr "尚未注册任何模板零件。"
 
 msgid "Optimization"
 msgstr "优化"
@@ -2803,6 +3184,9 @@ msgstr "WP 原生 REST API（/wp/v2）"
 msgid "Answer 404 for the whole /wp/v2 API — only the aiya contract routes stay public"
 msgstr "整个 /wp/v2 API 对无后台会话的访客返回 404——仅保留 aiya 契约路由公开"
 
+msgid "The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Sessions meeting the Security page's back-end minimum role keep the full /wp/v2 for admin screens such as the media picker — author level and above while that gate is off; signed-in sessions below the level are redirected to the front-end site."
+msgstr "前端只消费 aiya/core/v1，原生 API 已无公开消费方，用户枚举也随之消失。达到「安全加固」页后台最低角色的会话保留完整 /wp/v2，供媒体选择器等管理界面使用——该门禁关闭时为作者及以上；登录态会话低于该级别时将被重定向到前台站点。"
+
 msgid "XML sitemaps"
 msgstr "XML 站点地图"
 
@@ -2854,20 +3238,14 @@ msgstr "后台防护"
 msgid "Admin back end minimum role"
 msgstr "后台最低角色"
 
+msgid "Users below the selected role are redirected to the front-end site. The same level unlocks the native /wp/v2 API for their sessions (see Optimization). Off by default."
+msgstr "低于所选角色的用户将被重定向到前台站点。同一级别也会为其会话解锁原生 /wp/v2 API（见「优化」）。默认关闭。"
+
 msgid "Subscriber and above"
 msgstr "订阅者及以上"
 
 msgid "Contributor and above"
 msgstr "投稿者及以上"
-
-msgid "Author and above"
-msgstr "作者及以上"
-
-msgid "Editor and above"
-msgstr "编辑及以上"
-
-msgid "Administrator only"
-msgstr "仅管理员"
 
 msgid "Request URI guard"
 msgstr "请求 URI 守卫"
@@ -2904,6 +3282,9 @@ msgstr "请稍候——登录表单会自行载入。"
 
 msgid "Continue to the sign-in form"
 msgstr "继续前往登录表单"
+
+msgid "You are not allowed to edit this user."
+msgstr "您无权编辑该用户。"
 
 msgid "GoFile"
 msgstr "GoFile"
@@ -3136,586 +3517,3 @@ msgstr "vendor/ 等大型依赖目录会被瞬时移出、避免删除过程长�
 msgid "Cancel, back to the plugin list"
 msgstr "取消，返回插件列表"
 
-
-msgid "Users below the selected role are redirected to the front-end site. The same level unlocks the native /wp/v2 API for their sessions (see Optimization). Off by default."
-msgstr "低于所选角色的用户将被重定向到前台站点。同一级别也会为其会话解锁原生 /wp/v2 API（见「优化」）。默认关闭。"
-
-msgid "The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Sessions meeting the Security page's back-end minimum role keep the full /wp/v2 for admin screens such as the media picker — author level and above while that gate is off; signed-in sessions below the level are redirected to the front-end site."
-msgstr "前端只消费 aiya/core/v1，原生 API 已无公开消费方，用户枚举也随之消失。达到「安全加固」页后台最低角色的会话保留完整 /wp/v2，供媒体选择器等管理界面使用——该门禁关闭时为作者及以上；登录态会话低于该级别时将被重定向到前台站点。"
-
-msgid "Front-end language"
-msgstr "前台语言"
-
-msgid "The interface language signed-out visitors start with; signed-in members override it from their account settings. Auto follows the WordPress site language."
-msgstr "未登录访客的默认界面语言；已登录成员可在账户设置中另行选择。Auto 跟随 WordPress 站点语言。"
-
-msgid "Auto (site language)"
-msgstr "自动（跟随站点语言）"
-
-msgid "Default article hero"
-msgstr "文章头图默认图"
-
-msgid "The banner crop served as the article hero for posts whose author did not set a featured image. Leave unset to let those heroes fall back to the card cover chain instead."
-msgstr "作者未设置特色图片的文章，其头图使用本图的横幅裁剪。留空则这些文章的头图回落到卡片封面链。"
-
-msgid "Used wherever a card cover is missing: list card thumbnails and category cards — each surface derives its own crop from this one image. The article hero has its own default below."
-msgstr "卡片封面缺失时使用：列表卡片缩略图与分类卡片——各表面从这一张图派生自己的裁剪。文章头图在下方有独立默认值。"
-
-msgid "Emits one semantic reference marker for the front end to resolve into a link. Fill exactly one of the fields below; when several are filled the first (post, user, term, search, comment, thread) wins."
-msgstr "输出一个语义引用标记，由前台解析为链接。以下字段只填一个；若填写多个，按（文章、用户、分类法、搜索、评论、社区帖）顺序取第一个生效。"
-
-msgid "User ID"
-msgstr "用户 ID"
-
-msgid "Term ID"
-msgstr "分类法术语 ID"
-
-msgid "Search keywords"
-msgstr "搜索关键词"
-
-msgid "Comment ID"
-msgstr "评论 ID"
-
-msgid "Thread ID"
-msgstr "社区帖 ID"
-
-msgid "%1$s mentioned you in a comment on \"%2$s\"."
-msgstr "%1$s 在评论「%2$s」中提到了你。"
-
-msgid "%1$s mentioned you in the thread \"%2$s\"."
-msgstr "%1$s 在帖子「%2$s」中提到了你。"
-
-msgid "%s mentioned you in a community thread."
-msgstr "%s 在社区帖子中提到了你。"
-
-msgid "%1$s mentioned you in the article \"%2$s\"."
-msgstr "%1$s 在文章「%2$s」中提到了你。"
-
-msgid "Your account was granted +%1$d credits."
-msgstr "你的账户入账 +%1$d 积分。"
-
-msgid "Your submission \"%1$s\" was approved and published."
-msgstr "你的投稿「%1$s」已通过审核并发布。"
-
-msgid "This message was sent automatically by %1$s — do not reply."
-msgstr "此邮件由 %1$s 系统自动发送，请勿直接回复。"
-
-msgid "Sent to %1$s — you are receiving this message because of activity on your account."
-msgstr "发送至 %1$s —— 你收到这封邮件是因为账户内触发了对应事件。"
-
-msgid "If the button does not work, copy this link into your browser:"
-msgstr "按钮不可用时，复制以下链接到浏览器打开："
-
-msgid "Reset password"
-msgstr "重设密码"
-
-msgid "Set password"
-msgstr "设置密码"
-
-msgid "[%s] Your account is ready."
-msgstr "【%s】你的账户已就绪。"
-
-msgid "Your account on %1$s has been created."
-msgstr "你在 %1$s 的账户已创建。"
-
-msgid "Open the link below within %d hours to set your password:"
-msgstr "请在 %d 小时内打开以下链接设置你的密码："
-
-msgid "[%s] Password changed"
-msgstr "【%s】密码已更改"
-
-msgid "Your password was just changed."
-msgstr "你的密码刚刚被更改。"
-
-msgid "If this was not you, someone else may have access — reset your password now:"
-msgstr "如果这不是你的操作，账户可能已被他人访问——请立即重设密码："
-
-msgid "[%s] Your email address was changed"
-msgstr "【%s】你的邮箱地址已更改"
-
-msgid "Your account email address was just changed."
-msgstr "你账户的邮箱地址刚刚被更改。"
-
-msgid "Old email"
-msgstr "旧邮箱"
-
-msgid "New email"
-msgstr "新邮箱"
-
-msgid "Password reset"
-msgstr "密码重置"
-
-msgid "Your account is ready"
-msgstr "你的账户已就绪"
-
-msgid "Password changed"
-msgstr "密码已更改"
-
-msgid "Email address changed"
-msgstr "邮箱地址已更改"
-
-msgid "[%1$s] Thank you — your membership is now active."
-msgstr "【%1$s】感谢支持，你的会员已生效。"
-
-msgid "Thank you for supporting %1$s — this email is your receipt."
-msgstr "感谢你对 %1$s 的支持——本邮件即你的订单回执。"
-
-msgctxt "membership receipt"
-msgid "Tier"
-msgstr "会员档位"
-
-msgctxt "membership receipt"
-msgid "Order"
-msgstr "订单号"
-
-msgid "Active from"
-msgstr "生效日期"
-
-msgid "Active until"
-msgstr "有效期至"
-
-msgid "If your purchase covers multiple cycles, the next one starts automatically when the current subscription period ends."
-msgstr "如果您购买了多个周期计划，当前订阅周期结束后，下一次订阅将自动递补生效。"
-
-msgid "View membership"
-msgstr "查看会员"
-
-msgid "Membership activated"
-msgstr "会员已生效"
-
-msgid "The like could not be removed."
-msgstr "取消点赞失败。"
-
-msgid "The like could not be stored."
-msgstr "点赞失败。"
-
-msgid "This thread is closed; likes are no longer accepted."
-msgstr "该帖已关闭，不再接受点赞。"
-
-msgid "A membership order from %s"
-msgstr "来自%s的会员订单"
-
-msgid "Execution runs this replace in batches of %d posts until no match remains; the ids above are a sample window."
-msgstr "执行时按每批 %d 篇文章分批替换，直到不再有匹配；上方的 id 仅为样本窗口。"
-
-msgid "Order log"
-msgstr "订单日志"
-
-msgid "Unpaid order retention (days)"
-msgstr "未支付订单保留期（天）"
-
-msgid "Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep)."
-msgstr "未支付订单（放弃的结算单）将在这么多天后从支付日志中删除；已支付记录永久保留。最小 7 天（越过待支付标记清扫期）。"
-
-msgid "Order records"
-msgstr "订单记录"
-
-msgid "No ledger entries yet."
-msgstr "暂无流水记录。"
-
-msgid "(no title)"
-msgstr "（无标题）"
-
-msgid "You are not allowed to view Dev Tools."
-msgstr "您无权查看 Dev Tools。"
-
-#~ msgid "Ui components"
-#~ msgstr "Ui 组件"
-
-#~ msgid "Living preview of the shared admin render pieces — every section below is the real component with real behavior, not a mockup. The page owns no data and writes nothing."
-#~ msgstr "共享后台渲染件的实弹预览——下面每一段都是真实组件、真实行为，不是效果图。本页不持有数据、不做任何写入。"
-
-#~ msgid "Flash notice variants — click a link to come back with the matching note:"
-#~ msgstr "回执通知变体——点击链接带着对应回执键跳回本页："
-
-#~ msgid "The success flash note."
-#~ msgstr "这是 success 变体的回执。"
-
-#~ msgid "The warning flash note."
-#~ msgstr "这是 warning 变体的回执。"
-
-#~ msgid "The error flash note."
-#~ msgstr "这是 error 变体的回执。"
-
-#~ msgid "Collapsible card — collapsed by default"
-#~ msgstr "折叠卡片——默认折叠"
-
-#~ msgid "Click the summary bar to expand."
-#~ msgstr "点击标题栏展开。"
-
-msgid "List table & pagination"
-msgstr "列表件与分页"
-
-#~ msgid "Fake rows, real pagination on top and bottom bars with a per-page switch — any ?paged beyond the row count renders the empty state."
-#~ msgstr "假数据、真分页，上下双栏操作条带每页行数切换——任何超出行数的 ?paged 都会渲染出空态行。"
-
-#~ msgid "Nothing here — you found the empty state."
-#~ msgstr "这里什么都没有——你找到了空态。"
-
-#~ msgid "Filter bar"
-#~ msgstr "筛选条"
-
-#~ msgid "Filter received: %s"
-#~ msgstr "收到筛选值：%s"
-
-msgid "User typeahead"
-msgstr "用户搜索"
-
-#~ msgid "Live search over real users — picking fills the hidden id, retyping clears it."
-#~ msgstr "对真实用户做实时搜索——选中回填隐藏 id，重新输入即清除。"
-
-msgid "Search users…"
-msgstr "搜索用户…"
-
-#~ msgid "Button parts accept a dashicon mount:"
-#~ msgstr "按钮零件可挂载 dashicon 图标："
-
-msgid "Copied."
-msgstr "已复制。"
-
-msgid "Copy"
-msgstr "复制"
-
-msgid "Selected: %s"
-msgstr "已选：%s"
-
-msgid "Bulk actions"
-msgstr "批量操作"
-
-msgid "Apply"
-msgstr "应用"
-
-msgid "Select all"
-msgstr "全选"
-
-#~ msgid "Bulk demo received %1$d ids (%2$s)."
-#~ msgstr "批量演示收到 %1$d 个 id（%2$s）。"
-
-msgid "Tabs"
-msgstr "页内标签"
-
-#~ msgid "Client-side panels on the native nav-tab look — every panel stays in the page, the hash remembers the open tab."
-#~ msgstr "原生导航标签样式的客户端面板——每个面板都留在页面里，打开的标签由 hash 记住。"
-
-msgid "Overview"
-msgstr "概览"
-
-#~ msgid "First panel body — switching only toggles visibility, so a surrounding form submits every panel."
-#~ msgstr "第一面板正文——切换只改可见性，外层表单仍会提交所有面板。"
-
-msgid "Form panel"
-msgstr "表单面板"
-
-msgid "Required field"
-msgstr "必填字段"
-
-msgid "Notes"
-msgstr "说明"
-
-#~ msgid "Submitting while a panel is hidden jumps back to the panel holding the invalid field."
-#~ msgstr "在面板收起时提交，会自动跳回持有未通过字段的面板。"
-
-msgid "Charts"
-msgstr "图表"
-
-#~ msgid "The operations-report shape: a monthly trend and the grants-by-source stack. The tables remain the source of truth."
-#~ msgstr "运营月报的形态：月度趋势线与发放来源堆叠柱。表格仍是数据的权威来源。"
-
-msgid "Credits granted, consumed and expired over the trailing 12 months (demo data)"
-msgstr "近 12 个月的积分发放、消耗与过期（演示数据）"
-
-msgid "Credits granted by source over the trailing 12 months (demo data)"
-msgstr "近 12 个月按来源的积分发放（演示数据）"
-
-msgid "One-click copy"
-msgstr "一键复制"
-
-#~ msgid "Clipboard write with a textarea fallback; the button flashes the confirmation and restores itself."
-#~ msgstr "写剪贴板，带 textarea 兜底；按钮短暂显示确认文案后自动还原。"
-
-msgid "Copy code"
-msgstr "复制兑换码"
-
-msgid "Bulk selection"
-msgstr "批量选择"
-
-#~ msgid "Echo selection (demo)"
-#~ msgstr "回显所选（演示）"
-
-#~ msgid "Echo with confirm"
-#~ msgstr "带确认回显"
-
-#~ msgid "Demo confirm: proceed with the selected rows?"
-#~ msgstr "演示确认：继续处理所选行？"
-
-msgid "Modal"
-msgstr "模态框"
-
-#~ msgid "Declarative triggers open the shell; row-edit style filling stays page-side — the Edit buttons prefill from data attributes."
-#~ msgstr "声明式触发负责开壳；行编辑式的填充留在页侧——Edit 按钮从 data 属性预填。"
-
-msgid "Open modal"
-msgstr "打开模态框"
-
-msgid "Demo modal"
-msgstr "演示模态框"
-
-msgid "%s item"
-msgid_plural "%s items"
-msgstr[0] "%s 项"
-
-msgid "First page"
-msgstr "第一页"
-
-msgid "Previous page"
-msgstr "上一页"
-
-msgid "Current Page"
-msgstr "当前页"
-
-msgctxt "paging"
-msgid "%1$s of %2$s"
-msgstr "第 %1$s / 共 %2$s 页"
-
-msgid "Next page"
-msgstr "下一页"
-
-msgid "Last page"
-msgstr "尾页"
-
-msgid "%d / page"
-msgstr "%d / 页"
-
-msgid "Items per page"
-msgstr "每页行数"
-
-#~ msgid "Collapsible card — default (open)"
-#~ msgstr "折叠卡片——默认展开"
-
-#~ msgid "Cards are collapsible details by default; pass the open flag to seed them collapsed."
-#~ msgstr "卡片默认就是可折叠的 details；传入 open 参数可改为收起态。"
-
-#~ msgid "Same shell as the plain list table — bulk bar, select parts and the shared pagination, all posting ids[] through one admin_post round trip; the demo handler echoes the selection back and writes nothing."
-#~ msgstr "与普通列表同构外壳——批量条、select 零件与共享分页器，全部经一次 admin_post 往返提交 ids[]；演示 handler 仅回显所选，不写任何数据。"
-
-msgid "Permalinks"
-msgstr "固定链接"
-
-
-msgid "Small parts"
-msgstr "小件"
-
-
-msgid "Settings Kit"
-msgstr "Settings Kit"
-
-
-msgid "UI Kit"
-msgstr "UI Kit"
-
-msgid "Declarative render components: stateless PHP parts that echo markup carrying data-* contracts, which assets/js/admin.js binds its behaviors to. Input is each part's arguments array, output is the markup; every component appears once below."
-msgstr "声明式渲染组件：无状态 PHP 零件，输出携带 data-* 契约的标记，行为层按属性挂接。入参为各零件的参数数组，出参为标记，每个组件仅演示一次"
-
-
-msgid "Stateless controls for operation bars: button with variant and dashicon mount, input in five whitelisted types, select with a selected value. Values travel by name, persistence stays with the surrounding form."
-msgstr "操作栏的无状态控件：button 支持变体与 dashicon 挂载，input 支持五种白名单类型，select 携带选中值。值经 name 传输，持久化归外层表单"
-
-
-#~ msgid "Round-trip notice"
-#~ msgstr "往返回执"
-
-
-#~ msgid "The round-trip notice: flash reads the note key this page's own redirect just set and renders the matching dismissible core notice. Input is a query key plus a map of note to text and variant; unknown notes render nothing. Production pages wire it through Ui::redirect."
-#~ msgstr "往返回执：flash 读取本页重定向刚设置的 note 键，渲染对应的核心可消除通知。入参为查询键与 note 到文案、变体的映射，未知 note 不渲染。生产页经 Ui::redirect 接线"
-
-
-#~ msgid "listTable takes a columns spec, a rows iterable and a cell callable, and renders the shared table baseline with a uniform empty state. listNav replicates the core list-table anatomy: a jump input on the top bar, a static readout on the bottom bar, opt-in jump and per-page switches. filterBar is the GET form shell composed into the top bar."
-#~ msgstr "listTable 接收列定义、行迭代器与单元格回调，渲染统一基线的表格与空态。listNav 复刻核心列表屏解剖：顶栏跳页输入、底栏静态读数、可选的跳页与每页行数开关。filterBar 是合成进顶栏的 GET 表单壳"
-
-
-msgid "listTable with a checkbox column and a bulk bar: select-all with indeterminate state, a live count, one admin_post round trip posting ids[]. Destructive actions declare their confirm text per action value."
-msgstr "带复选列与批量条的列表：全选含半选态、实时计数、一次 admin_post 往返提交 ids[]。危险动作按动作值声明确认文案"
-
-
-msgid "Cards"
-msgstr "卡片"
-
-
-#~ msgid "A collapsible details shell; the body is a callable so it cannot be left unclosed. Open by default, the open flag seeds it collapsed."
-#~ msgstr "可折叠 details 壳：内容为回调，不会漏闭环。默认展开，open 标志设定初始折叠"
-
-
-msgid "Collapsible card"
-msgstr "折叠卡片"
-
-
-msgid "Card body content."
-msgstr "卡片内容"
-
-
-msgid "Panel body content."
-msgstr "面板内容"
-
-
-msgid "The typeahead switch on input rides the shared UserPickerView: config rides data attributes, queries run through wp_ajax and return id, name and email. fill id keeps the pick in a hidden input, fill email writes the address back."
-msgstr "input 的 typeahead 开关挂接共享 UserPickerView：配置走 data 属性，查询经 wp_ajax 返回 id、name 与 email。fill 为 id 时选中值存入隐藏域，为 email 时回填邮箱"
-
-
-msgid "Native nav-tab look with client-side panels; every panel stays in the DOM so a surrounding form submits all fields. The hash remembers the open tab and submit reveals the panel of the first invalid field."
-msgstr "原生导航标签外观的客户端面板：面板全部留在 DOM，外层表单照常提交全部字段。hash 记忆当前页，提交时自动切到首个失效字段所在面板"
-
-
-msgid "Each canvas carries its Chart.js config as JSON beside it, instantiated by the behavior layer against the vendored build enqueued through chartAssets. Input is a type, data and options array in Chart.js shape."
-msgstr "每个 canvas 旁内联 Chart.js 的 JSON 配置，行为层以 vendored 构建实例化（经 chartAssets 入队）。入参为 Chart.js 形状的 type、data 与 options 数组"
-
-
-msgid "A button that writes its data attribute to the clipboard through navigator.clipboard, with a hidden textarea execCommand fallback, then flashes the done text."
-msgstr "按钮把 data 属性写入剪贴板：走 navigator.clipboard，非安全上下文回退隐藏 textarea 的 execCommand，成功后短暂显示完成文案"
-
-
-msgid "A jquery-ui-dialog shell on the core wp-jquery-ui-dialog styling, opened by data-aiya-modal-open and closed by data-aiya-modal-close. Fill and submit stay with the page, as the row-edit example shows."
-msgstr "jquery-ui-dialog 壳搭配核心 wp-jquery-ui-dialog 样式：data-aiya-modal-open 声明式打开，data-aiya-modal-close 关闭。填充与提交归页面侧，如行编辑示例"
-
-
-msgid "No rows."
-msgstr "暂无数据"
-
-
-msgid "Delete selected"
-msgstr "删除选中"
-
-
-msgid "Delete the selected rows?"
-msgstr "删除选中的行？"
-
-
-msgid "Declarative field form parts: a field definition array renders as form-table rows through the settings pipeline, with one save and reset endpoint for the whole page. Every persisted field type of the framework is exercised below."
-msgstr "field 声明式表单零件：字段定义数组经设置管线渲染为 form-table 行，整页共用一个保存与重置端点。框架的全部持久化字段类型在下方逐一演练"
-
-
-msgid "Required text field."
-msgstr "必填文本字段"
-
-
-msgid "Multiline text stored through sanitize_textarea_field."
-msgstr "多行文本，经 sanitize_textarea_field 清洗入库"
-
-
-msgid "Numeric field with min, max and step constraints."
-msgstr "带最小值、最大值与步进约束的数字字段"
-
-
-msgid "URL field, validated on save."
-msgstr "URL 字段，保存时校验"
-
-
-msgid "Write-only password field, the stored value is never echoed back."
-msgstr "只写密码字段，存储值不回显"
-
-
-msgid "Radio options render inline with even spacing."
-msgstr "单选选项以均匀间距内联排布"
-
-
-msgid "Checkbox options render inline with even spacing."
-msgstr "复选选项以均匀间距内联排布"
-
-
-msgid "Media fields store the attachment ID."
-msgstr "媒体字段存储附件 ID"
-
-
-msgid "Uses the WP code editor (wp.codeEditor)."
-msgstr "调用 WP 代码编辑器组件（wp.codeEditor）"
-
-
-msgid "Uses the classic editor through wp_editor with TinyMCE."
-msgstr "经 wp_editor 与 TinyMCE 调用经典编辑器"
-
-#: src/Admin/UiSamplePage.php:79
-msgid "Notice banners"
-msgstr "通知横幅"
-
-#: src/Admin/UiSamplePage.php:80
-msgid "notice clamps the variant to the four core notice states and renders one banner through wp_kses_post, with optional is-dismissible and the inline form for table rows. flash rides it for the round trip: the note key this page\'s own redirect set picks the message and adds is-dismissible, unknown notes render nothing."
-msgstr "notice 把变体夹逼到 WP 核心的四种通知状态，经 wp_kses_post 渲染一条横幅，可选 is-dismissible 与表格行用的 inline 形态；flash 在其上承接往返回执：本页跳转写入的 note 键选出消息并追加 is-dismissible，未知 note 不渲染"
-
-#: src/Admin/UiSamplePage.php:81
-msgid "A plain informational banner."
-msgstr "普通信息横幅"
-
-#: src/Admin/UiSamplePage.php:82
-msgid "A dismissible warning banner."
-msgstr "可关闭的警告横幅"
-
-#: src/Admin/UiSamplePage.php:84
-msgid "Section heading"
-msgstr "分区标题"
-
-#: src/Admin/UiSamplePage.php:85
-msgid "heading echoes h1, h2 or h3 with the class aiya-core-heading; the level clamps to 1-3 and the spacing lives in the kit stylesheet. Every section title on this page renders through it."
-msgstr "heading 输出携带 aiya-core-heading 类的 h1、h2 或 h3，级别夹逼在 1 到 3，间距由 kit 样式表承载；本页每个章节标题都经它渲染"
-
-#: src/Admin/UiSamplePage.php:88
-msgid "listTable takes a columns spec, a rows iterable and a cell callable, and renders the shared table baseline with a uniform empty state. listNav is a kit-owned one-line bar whose parts are the plain kit controls: arrow links with the shared button classes, a jump input on the top bar, a static readout on the bottom bar, opt-in jump and per-page switches. filterBar is the GET form shell composed into the top bar."
-msgstr "listTable 接收列定义、行迭代器与单元格回调，渲染统一基线的表格与空态。listNav 是 kit 自有的一段式导航条，零件即裸 kit 控件：携带共享按钮类的箭头链接、顶栏跳页输入框、底栏静态读数，可选的跳页与每页行数开关。filterBar 是合成进顶栏的 GET 表单壳"
-
-
-#: src/Admin/SamplePage.php:118
-msgid "The plain checkbox: a hidden value=0 input carries an unticked state through the submission."
-msgstr "素复选框：隐藏的 value=0 输入框把未勾选状态带进提交"
-
-#: src/Admin/SamplePage.php:125
-msgid "The boolean switch: native checkbox semantics under a styled track, the stored value stays 0 or 1."
-msgstr "布尔开关：样式轨道之下是原生 checkbox 语义，存储值仍为 0 或 1"
-
-#: src/Admin/PicBedPage.php:29
-msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk. Admin uploads land under the dated root; the headless route files them under u/{user id}."
-msgstr "将图片上传到 wp-content/aiya_upload_pics，不经媒体库与 uploads 目录：无附件 ID、不生成 WP 缩略图。每张图只经图像处理器处理一次，落盘即处理后的文件。管理端上传落在按日期的根池；无头端路由按 u/{用户 ID} 归档"
-
-#: src/Admin/PicBedPage.php:232
-msgid "empty lists the root pool"
-msgstr "留空列出根池文件"
-
-#: src/Admin/PicBedPage.php:255
-msgid "Copy img tag"
-msgstr "复制 img 标签"
-
-
-#: src/Admin/PicBedPage.php:245
-msgid "Listing files uploaded by %1$s (#%2$d); %3$s."
-msgstr "正在列出 %1$s（#%2$d）上传的文件；%3$s"
-
-#: src/Admin/PicBedPage.php:247
-msgid "open the user page"
-msgstr "打开用户页"
-
-#: src/Admin/PicBedPage.php:251
-msgid "That user id does not exist; the list stays empty."
-msgstr "该用户 ID 不存在，列表为空"
-
-#: src/Admin/UiSamplePage.php:196
-msgid "Static card"
-msgstr "静态卡片"
-
-#: src/Admin/UiSamplePage.php:192
-msgid "Two shells from one part: the collapsible details card (open by default, the open flag seeds it collapsed) and the static card without toggle semantics; the body is a callable so it cannot be left unclosed."
-msgstr "同一零件的两种外壳：可折叠的 details 卡片（默认展开，open 标志决定初始折叠态）与不带切换语义的静态卡片；卡体是回调，不会漏闭合"
-
-
-#: src/Admin/FieldRenderer.php:315
-msgid "Confirm delete?"
-msgstr "确认删除？"
-
-#: src/Admin/NotificationPage.php:93
-#, php-format
-msgid "Deleted %d notifications."
-msgstr "已删除 %d 条通知"
-
-#: src/Admin/NotificationPage.php:153
-msgid "Delete the selected notifications?"
-msgstr "删除选中的通知？"
-
-#: src/Admin/SendMailPage.php:114
-msgid "Compose"
-msgstr "撰写"

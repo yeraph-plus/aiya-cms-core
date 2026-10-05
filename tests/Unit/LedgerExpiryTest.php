@@ -20,6 +20,7 @@ final class LedgerExpiryTest extends TestCase
 {
     protected function setUp(): void
     {
+        $GLOBALS['__aiya_test_caps'] = false; // the holder holds no staff capability: every spend here charges
         global $wpdb;
         $wpdb = new \wpdb();
         $wpdb->aiya_test_rows['wp_aiya_credit_entries'] = [];
@@ -28,6 +29,7 @@ final class LedgerExpiryTest extends TestCase
 
     protected function tearDown(): void
     {
+        $GLOBALS['__aiya_test_caps'] = true;
         unset($GLOBALS['wpdb']);
     }
 
