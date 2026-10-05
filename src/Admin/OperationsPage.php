@@ -17,12 +17,12 @@ use Aiya\Core\Domain\Operations\StatsQuery;
  * behind them.
  *
  * The report owns exactly one input — the upstream cost per download —
- * rendered as a one-row form above the tables and stored in the
+ * rendered as a one-row static card above the tables and stored in the
  * `aiya_core_operations` option (StatsSettings reads it). Everything
  * else on the page is read-only.
  *
- * Charts are the house kind: native tables and CSS meter bars for the
- * ratios (the ServerStatusPage policy — no external charting library).
+ * The two credit-flow charts ride the vendored Chart.js build (Ui::chart);
+ * the tables stay native — figures first, charts alongside.
  */
 final class OperationsPage implements Module
 {
@@ -42,23 +42,6 @@ final class OperationsPage implements Module
     {
         add_action('aiya_core_register', [$this, 'registerPage']);
         add_action('admin_post_' . self::ACTION_COST, [$this, 'handleCost']);
-    }
-
-    /** The shared admin stylesheet carries the card, filter and meter styles. */
-    public function assets(string $hook): void
-    {
-        // The parent hook prefix is the localized menu title (percent-encoded
-        // for the Chinese title), so match on the slug suffix only.
-        if (!str_ends_with($hook, '_page_' . self::MENU_SLUG)) {
-            return;
-        }
-
-        $version = AIYA_CORE_VERSION;
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            $mtime = (int) filemtime(AIYA_CORE_PATH . 'assets/css/admin.css');
-            $version .= $mtime > 0 ? '.' . $mtime : '';
-        }
-        wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], $version);
     }
 
     /** Registers through the shared settings pipeline as a callback page. */
@@ -88,46 +71,44 @@ final class OperationsPage implements Module
         // The trend already carries the month the operator picked (unless
         // it is older than the window), so the two tables share one read.
         $row = $this->rowOf($trend, $month) ?? $this->query->month($month);
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Operations report', 'aiya-core'); ?></h1>
-            <p class="description">
-                <?php esc_html_e('Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger\'s spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger.', 'aiya-core'); ?>
-            </p>
-            <?php $this->costForm(); ?>
-            <?php $this->monthFilter($month, $trend); ?>
-            <?php $this->summary($row, $this->query->outstandingCredits()); ?>
-            <?php $this->trend($trend, $month); ?>
-            <?php $this->sources($trend); ?>
-        </div>
-        <?php
+
+        Ui::pageHead(
+            __('Operations report', 'aiya-core'),
+            __('Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger\'s spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger.', 'aiya-core')
+        );
+        Ui::flash('cost', [
+            'saved' => [__('Cost per download saved.', 'aiya-core'), 'success'],
+            'invalid' => [__('Enter a valid number.', 'aiya-core'), 'error'],
+        ]);
+        $this->costForm();
+        $this->monthFilter($month, $trend);
+        $this->summary($row, $this->query->outstandingCredits());
+        $this->trend($trend, $month);
+        $this->sources($trend, $row);
+        Ui::chartAssets();
+        Ui::pageFoot();
     }
 
     /**
-     * The report's one input as a one-row form above the tables: what one
-     * metered download costs upstream. Closed months keep the rate they
-     * were frozen with, so edits only price the open month.
+     * The report's one input as a one-row static card: what one metered
+     * download costs upstream. Closed months keep the rate they were
+     * frozen with, so edits only price the open month.
      */
     private function costForm(): void
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only status flag
-        $status = sanitize_key((string) ($_GET['cost'] ?? ''));
-        if ($status === 'saved') {
-            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Cost per download saved.', 'aiya-core') . '</p></div>';
-        } elseif ($status === 'invalid') {
-            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Enter a valid number.', 'aiya-core') . '</p></div>';
-        }
-        ?>
-        <form class="aiya-core-ops-cost" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-            <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_COST); ?>">
-            <?php wp_nonce_field(self::ACTION_COST); ?>
-            <label for="aiya-core-ops-unit-cost"><strong><?php esc_html_e('Upstream cost per download', 'aiya-core'); ?></strong></label>
-            <input type="number" id="aiya-core-ops-unit-cost" name="unit_cost" min="0" max="999999.9999" step="0.0001"
-                value="<?php echo esc_attr((string) StatsSettings::unitCost()); ?>" class="small-text">
-            <?php submit_button(__('Save', 'aiya-core'), 'secondary', 'submit', false); ?>
-            <span class="description"><?php esc_html_e('In the payment currency; the month\'s cost derives as downloads × this rate and freezes when the month closes.', 'aiya-core'); ?></span>
-        </form>
-        <?php
+        Ui::staticCard(__('Upstream cost per download', 'aiya-core'), static function (): void {
+            ?>
+            <form class="aiya-core-ops-cost" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <input type="hidden" name="action" value="<?php echo esc_attr(OperationsPage::ACTION_COST); ?>">
+                <?php wp_nonce_field(OperationsPage::ACTION_COST); ?>
+                <input type="number" id="aiya-core-ops-unit-cost" name="unit_cost" min="0" max="999999.9999" step="0.0001"
+                    value="<?php echo esc_attr((string) StatsSettings::unitCost()); ?>" class="small-text"
+                    aria-label="<?php esc_attr_e('Upstream cost per download', 'aiya-core'); ?>">
+                <?php Ui::button(__('Save', 'aiya-core'), ['type' => 'submit']); ?>
+                <span class="description"><?php esc_html_e('In the payment currency; the month\'s cost derives as downloads × this rate and freezes when the month closes.', 'aiya-core'); ?></span>
+            </form>
+            <?php
+        });
     }
 
     /** Stores the cost form: manage_options, nonce, clamped to the DECIMAL(10,4) window the month freeze writes into. */
@@ -150,8 +131,7 @@ final class OperationsPage implements Module
             $redirect['cost'] = 'invalid';
         }
 
-        wp_safe_redirect(add_query_arg($redirect, admin_url('admin.php')));
-        exit;
+        Ui::redirect(admin_url('admin.php'), $redirect);
     }
 
     /**
@@ -311,101 +291,129 @@ final class OperationsPage implements Module
 
     /**
      * The trailing year, newest last — one row per month with the raw
-     * counters and the consumption rate as a bar.
+     * counters and the consumption rate as a bar, with the credit-flow
+     * line chart riding above the table.
      *
      * @param list<array<string, mixed>> $trend
      */
     private function trend(array $trend, string $month): void
     {
-        ?>
-        <h2 class="title" style="margin-top:24px;"><?php esc_html_e('Trailing 12 months', 'aiya-core'); ?></h2>
-        <table class="wp-list-table widefat striped">
-            <thead>
-                <tr>
-                    <th scope="col"><?php esc_html_e('Month', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Granted', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Consumed', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Expired', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Downloads', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Active users', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Members', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Paying users', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Cash', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Recognized', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Cost', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Consumption rate', 'aiya-core'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($trend as $row) : ?>
-                    <?php $selected = (string) $row['month'] === $month; ?>
-                    <tr>
-                        <td>
-                            <?php if ($selected) : ?>
-                                <strong><?php echo esc_html((string) $row['month']); ?></strong>
-                            <?php else : ?>
-                                <?php echo esc_html((string) $row['month']); ?>
-                            <?php endif; ?>
-                        </td>
-                        <td><?php echo esc_html($this->count((int) $row['granted'])); ?></td>
-                        <td><?php echo esc_html($this->count((int) $row['consumed'])); ?></td>
-                        <td><?php echo esc_html($this->count((int) $row['expired'])); ?></td>
-                        <td><?php echo esc_html($this->count((int) $row['downloads'])); ?></td>
-                        <td><?php echo esc_html($this->count((int) $row['activeUsers'])); ?></td>
-                        <td><?php echo esc_html($this->count((int) $row['members'])); ?></td>
-                        <td><?php echo esc_html($this->count((int) $row['payingUsers'])); ?></td>
-                        <td><?php echo esc_html($this->amount((float) $row['cash'])); ?></td>
-                        <td><?php echo esc_html($this->amount((float) $row['mrr'])); ?></td>
-                        <td><?php echo esc_html($this->amount((float) $row['cost'])); ?></td>
-                        <td>
-                            <?php
-                            $ratios = is_array($row['ratios'] ?? null) ? $row['ratios'] : [];
-                            $this->meter($this->ratio($ratios, 'consumptionRate'));
-                            ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        <?php
+        Ui::heading(__('Trailing 12 months', 'aiya-core'));
+        $labels = array_map(static fn (array $row): string => (string) $row['month'], $trend);
+        $series = static fn (array $rows, string $key): array => array_map(
+            static fn (array $row): int => (int) $row[$key],
+            $rows
+        );
+        Ui::chart('aiya-ops-credits-trend', [
+            'type' => 'line',
+            'data' => [
+                'labels' => $labels,
+                'datasets' => [
+                    ['label' => __('Granted', 'aiya-core'), 'data' => $series($trend, 'granted')],
+                    ['label' => __('Consumed', 'aiya-core'), 'data' => $series($trend, 'consumed')],
+                    ['label' => __('Expired', 'aiya-core'), 'data' => $series($trend, 'expired')],
+                ],
+            ],
+            'options' => ['scales' => ['y' => ['beginAtZero' => true]]],
+        ], __('Trailing 12 months', 'aiya-core'));
+        Ui::listTable(
+            [
+                'month' => ['label' => __('Month', 'aiya-core'), 'width' => '100px'],
+                'granted' => ['label' => __('Granted', 'aiya-core'), 'width' => '90px'],
+                'consumed' => ['label' => __('Consumed', 'aiya-core'), 'width' => '90px'],
+                'expired' => ['label' => __('Expired', 'aiya-core'), 'width' => '90px'],
+                'downloads' => ['label' => __('Downloads', 'aiya-core'), 'width' => '90px'],
+                'activeUsers' => ['label' => __('Active users', 'aiya-core'), 'width' => '100px'],
+                'members' => ['label' => __('Members', 'aiya-core'), 'width' => '90px'],
+                'payingUsers' => ['label' => __('Paying users', 'aiya-core'), 'width' => '110px'],
+                'cash' => ['label' => __('Cash', 'aiya-core'), 'width' => '110px'],
+                'mrr' => ['label' => __('Recognized', 'aiya-core'), 'width' => '110px'],
+                'cost' => ['label' => __('Cost', 'aiya-core'), 'width' => '110px'],
+                'rate' => ['label' => __('Consumption rate', 'aiya-core')],
+            ],
+            $trend,
+            function (array $row, string $column) use ($month): void {
+                switch ($column) {
+                    case 'month':
+                        $selected = (string) $row['month'] === $month;
+                        echo $selected
+                            ? '<strong>' . esc_html((string) $row['month']) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static tag, value escaped
+                            : esc_html((string) $row['month']);
+                        break;
+                    case 'granted':
+                    case 'consumed':
+                    case 'expired':
+                    case 'downloads':
+                    case 'activeUsers':
+                    case 'members':
+                    case 'payingUsers':
+                        echo esc_html($this->count((int) $row[$column]));
+                        break;
+                    case 'cash':
+                    case 'mrr':
+                    case 'cost':
+                        echo esc_html($this->amount((float) $row[$column]));
+                        break;
+                    case 'rate':
+                        $ratios = is_array($row['ratios'] ?? null) ? $row['ratios'] : [];
+                        $this->meter($this->ratio($ratios, 'consumptionRate'));
+                        break;
+                }
+            },
+            ''
+        );
     }
 
     /**
      * Where the issued credits came from — free (check-in) versus paid
      * (membership) is the split that says whether the freemium balance
-     * still holds.
+     * still holds. The selected month's split rides above the table as a
+     * doughnut.
      *
      * @param list<array<string, mixed>> $trend
+     * @param array<string, mixed> $row
      */
-    private function sources(array $trend): void
+    private function sources(array $trend, array $row): void
     {
-        ?>
-        <h2 class="title" style="margin-top:24px;"><?php esc_html_e('Grants by source', 'aiya-core'); ?></h2>
-        <table class="wp-list-table widefat striped">
-            <thead>
-                <tr>
-                    <th scope="col"><?php esc_html_e('Month', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Check-in', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Membership', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Codes', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Manual', 'aiya-core'); ?></th>
-                    <th scope="col"><?php esc_html_e('Total', 'aiya-core'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($trend as $row) : ?>
-                    <tr>
-                        <td><?php echo esc_html((string) $row['month']); ?></td>
-                        <td><?php echo esc_html($this->count((int) $row['grantedCheckin'])); ?></td>
-                        <td><?php echo esc_html($this->count((int) $row['grantedMembership'])); ?></td>
-                        <td><?php echo esc_html($this->count((int) $row['grantedCode'])); ?></td>
-                        <td><?php echo esc_html($this->count((int) $row['grantedAdmin'])); ?></td>
-                        <td><?php echo esc_html($this->count((int) $row['granted'])); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        <?php
+        Ui::heading(__('Grants by source', 'aiya-core'));
+        Ui::chart('aiya-ops-grant-sources', [
+            'type' => 'doughnut',
+            'data' => [
+                'labels' => [
+                    __('Check-in', 'aiya-core'),
+                    __('Membership', 'aiya-core'),
+                    __('Codes', 'aiya-core'),
+                    __('Manual', 'aiya-core'),
+                ],
+                'datasets' => [
+                    [
+                        'data' => [
+                            (int) $row['grantedCheckin'],
+                            (int) $row['grantedMembership'],
+                            (int) $row['grantedCode'],
+                            (int) $row['grantedAdmin'],
+                        ],
+                    ],
+                ],
+            ],
+        ], __('Grants by source', 'aiya-core'));
+        Ui::listTable(
+            [
+                'month' => ['label' => __('Month', 'aiya-core'), 'width' => '100px'],
+                'grantedCheckin' => ['label' => __('Check-in', 'aiya-core'), 'width' => '110px'],
+                'grantedMembership' => ['label' => __('Membership', 'aiya-core'), 'width' => '110px'],
+                'grantedCode' => ['label' => __('Codes', 'aiya-core'), 'width' => '110px'],
+                'grantedAdmin' => ['label' => __('Manual', 'aiya-core'), 'width' => '110px'],
+                'granted' => ['label' => __('Total', 'aiya-core')],
+            ],
+            $trend,
+            static function (array $row, string $column): void {
+                echo esc_html($column === 'month'
+                    ? (string) $row['month']
+                    : number_format_i18n((int) $row[$column]));
+            },
+            ''
+        );
     }
 
     /**

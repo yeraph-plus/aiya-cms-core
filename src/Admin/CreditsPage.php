@@ -12,12 +12,11 @@ use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Shared\DateLabels;
 
 /**
- * The credit ledger screen (submenu of the membership menu): collapsible
- * cards in the Light Community style — manual grants with user typeahead,
- * above the ledger itself, which lists the whole log by default and
- * narrows to one holder once the filter names them (the order-records
- * screen's pattern). The users list gains a derived-balance column
- * linking into the filtered view.
+ * The credit ledger screen (submenu of the membership menu): the manual
+ * grant card with the shared user picker, above the ledger itself, which
+ * lists the whole log by default and narrows to one holder once the
+ * filter names them (the order-records screen's pattern). The users list
+ * gains a derived-balance column linking into the filtered view.
  *
  * The credit domain only books; pricing stays with the caller, so the
  * page never offers more than "grant" — spending is a downstream concern.
@@ -49,7 +48,6 @@ final class CreditsPage implements Module
     public function register(): void
     {
         add_action('aiya_core_register', [$this, 'registerPage']);
-        add_action('admin_enqueue_scripts', [$this, 'assets']);
         add_action('admin_post_' . self::ACTION_GRANT, [$this, 'handleGrant']);
         add_action('wp_ajax_' . self::AJAX_SEARCH, [$this, 'handleSearch']);
         add_filter('manage_users_columns', [$this, 'usersColumn']);
@@ -100,27 +98,6 @@ final class CreditsPage implements Module
         return $this->balanceCache;
     }
 
-    /** The shared admin stylesheet carries the card and badge styles. */
-    public function assets(string $hook): void
-    {
-        // The parent hook prefix is the localized menu title (percent-encoded
-        // for the Chinese title), so match on the slug suffix only.
-        if (!str_ends_with($hook, '_page_' . self::MENU_SLUG)) {
-            return;
-        }
-
-        $version = AIYA_CORE_VERSION;
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            $mtime = (int) filemtime(AIYA_CORE_PATH . 'assets/css/admin.css');
-            $version .= $mtime > 0 ? '.' . $mtime : '';
-        }
-        wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], $version);
-    }
-
-    /**
-     * Priority 35: the membership top-level menu is registered by
-     * SettingsAdmin at 30 — see register() for the hookname timing.
-     */
     /** Registers through the shared settings pipeline as a callback page. */
     public function registerPage(Registry $registry): void
     {
@@ -146,192 +123,173 @@ final class CreditsPage implements Module
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination
         $paged = max(1, absint((string) ($_GET['paged'] ?? '1')));
         $settings = CreditSettings::read();
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Credit ledger', 'aiya-core'); ?></h1>
-            <p class="description"><?php esc_html_e('Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice.', 'aiya-core'); ?></p>
-            <?php $this->grantNotice(); ?>
-            <?php $this->grantCard($settings); ?>
-            <?php $this->ledgerSection($userId, $paged); ?>
-        </div>
+        $searchNonce = wp_create_nonce(self::NONCE_SEARCH);
 
-        <script>
-            jQuery(function ($) {
-                var nonce = <?php echo wp_json_encode(wp_create_nonce(self::NONCE_SEARCH)); ?>;
-                var action = <?php echo wp_json_encode(self::AJAX_SEARCH); ?>;
-                var searchTimer = null;
-
-                $('.aiya-credit-user-search').on('input', function () {
-                    var $input = $(this);
-                    var $wrap = $input.closest('.aiya-credit-user-picker');
-                    var term = $input.val();
-                    window.clearTimeout(searchTimer);
-                    $wrap.find('.aiya-credit-user-suggestions').empty();
-                    // Retyping drops the previous pick — the hidden id must
-                    // never outlive the visible selection.
-                    $wrap.find('.aiya-credit-user-id').val('');
-                    if (term.length < <?php echo (int) self::MIN_SEARCH_LENGTH; ?>) {
-                        return;
-                    }
-                    searchTimer = window.setTimeout(function () {
-                        $.post(ajaxurl, { action: action, nonce: nonce, term: term }, null, 'json').done(function (res) {
-                            var $list = $wrap.find('.aiya-credit-user-suggestions').empty();
-                            if (!res || !res.success) {
-                                return;
-                            }
-                            $.each(res.data.results, function (i, item) {
-                                var $item = $('<button type="button" class="button-link">').css({display: 'block', padding: '2px 0'}).text(item.name + ' — ' + item.email);
-                                $item.on('click', function () {
-                                    $wrap.find('.aiya-credit-user-id').val(item.id);
-                                    $wrap.find('.aiya-credit-user-search').val(item.name + ' — ' + item.email);
-                                    // The grant card echoes the pick in a label
-                                    // beside the input; the filter picker has none.
-                                    $wrap.find('.aiya-credit-user-label').text(item.name + ' — ' + item.email);
-                                    $list.empty();
-                                });
-                                $list.append($item);
-                            });
-                        });
-                    }, 250);
-                });
-            });
-        </script>
-        <?php
-    }
-
-    /** Manual grant: pick a user, set amount and validity, optionally note the reason.
-     *
-     * @param array{checkinEnabled:bool, checkinCredits:int, validityDays:int} $settings
-     */
-    private function grantCard(array $settings): void
-    {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
-        $open = sanitize_key((string) ($_GET['aiya_credit_note'] ?? '')) !== '';
-        ?>
-        <details class="aiya-core-card" <?php echo $open ? 'open' : ''; ?>>
-            <summary><?php esc_html_e('Manual grant', 'aiya-core'); ?></summary>
-            <div class="aiya-core-card__body">
-                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-                    <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_GRANT); ?>">
-                    <?php wp_nonce_field(self::ACTION_GRANT); ?>
-                    <table class="form-table" role="presentation"><tbody>
-                        <tr>
-                            <th scope="row"><label for="aiya-credit-grant-user"><?php esc_html_e('User', 'aiya-core'); ?></label></th>
-                            <td class="aiya-credit-user-picker">
-                                <input type="hidden" name="user_id" class="aiya-credit-user-id" value="">
-                                <input type="text" id="aiya-credit-grant-user" class="aiya-credit-user-search regular-text" autocomplete="off" spellcheck="false" placeholder="<?php esc_attr_e('Type a username or name…', 'aiya-core'); ?>">
-                                <strong class="aiya-credit-user-label" style="margin-left:8px;"></strong>
-                                <div class="aiya-credit-user-suggestions"></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="aiya-credit-grant-amount"><?php esc_html_e('Amount', 'aiya-core'); ?></label></th>
-                            <td>
-                                <input type="number" id="aiya-credit-grant-amount" name="amount" value="1" class="small-text" min="1" max="100000" step="1" required>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="aiya-credit-grant-days"><?php esc_html_e('Validity (days)', 'aiya-core'); ?></label></th>
-                            <td>
-                                <input type="number" id="aiya-credit-grant-days" name="days" value="<?php echo esc_attr((string) $settings['validityDays']); ?>" class="small-text" min="1" max="3650" step="1">
-                                <span class="description"><?php esc_html_e('The bucket dies when this expires.', 'aiya-core'); ?></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="aiya-credit-grant-note"><?php esc_html_e('Note', 'aiya-core'); ?></label></th>
-                            <td>
-                                <input type="text" id="aiya-credit-grant-note" name="note" class="regular-text" maxlength="32">
-                                <span class="description"><?php esc_html_e('Optional; recorded in the ledger reference.', 'aiya-core'); ?></span>
-                            </td>
-                        </tr>
-                    </tbody></table>
-                    <p><button type="submit" class="button button-primary"><?php esc_html_e('Grant credits', 'aiya-core'); ?></button></p>
-                </form>
-            </div>
-        </details>
-        <?php
+        Ui::pageHead(
+            __('Credit ledger', 'aiya-core'),
+            __('Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice.', 'aiya-core')
+        );
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect message
+        $message = sanitize_text_field(wp_unslash((string) ($_GET['aiya_credit_message'] ?? '')));
+        Ui::flash('aiya_credit_note', [
+            'granted' => [__('Credits granted.', 'aiya-core'), 'success'],
+            'failed' => [$message !== '' ? $message : __('The operation failed.', 'aiya-core'), 'error'],
+        ]);
+        $this->grantCard($settings, $searchNonce);
+        $this->ledgerSection($userId, $paged, $searchNonce);
+        Ui::pageFoot();
     }
 
     /**
-     * The ledger, newest first — rendered directly on the page (not a
-     * collapsible card): it is the page's primary browse surface. Same
-     * pattern as the order-records screen: the whole log by default,
-     * one holder's ledger once the filter names them.
+     * Manual grant: pick a user, set amount and validity, optionally note
+     * the reason. Seeded open when a failed round trip comes back, so the
+     * operator sees the refusal next to the form.
+     *
+     * @param array{checkinEnabled:bool, checkinCredits:int, validityDays:int} $settings
      */
-    private function ledgerSection(int $userId, int $paged): void
+    private function grantCard(array $settings, string $searchNonce): void
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
+        $open = sanitize_key((string) ($_GET['aiya_credit_note'] ?? '')) !== '';
+        Ui::card(__('Manual grant', 'aiya-core'), static function () use ($settings, $searchNonce): void {
+            ?>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <input type="hidden" name="action" value="<?php echo esc_attr(CreditsPage::ACTION_GRANT); ?>">
+                <?php wp_nonce_field(CreditsPage::ACTION_GRANT); ?>
+                <table class="form-table" role="presentation"><tbody>
+                    <tr>
+                        <th scope="row"><?php esc_html_e('User', 'aiya-core'); ?></th>
+                        <td>
+                            <?php
+                            Ui::userPicker([
+                                'action' => CreditsPage::AJAX_SEARCH,
+                                'nonce' => $searchNonce,
+                                'fill' => 'id',
+                                'hidden' => 'user_id',
+                                'label' => true,
+                                'placeholder' => __('Type a username or name…', 'aiya-core'),
+                                'min_chars' => CreditsPage::MIN_SEARCH_LENGTH,
+                            ]);
+                            ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aiya-credit-grant-amount"><?php esc_html_e('Amount', 'aiya-core'); ?></label></th>
+                        <td>
+                            <input type="number" id="aiya-credit-grant-amount" name="amount" value="1" class="small-text" min="1" max="100000" step="1" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aiya-credit-grant-days"><?php esc_html_e('Validity (days)', 'aiya-core'); ?></label></th>
+                        <td>
+                            <input type="number" id="aiya-credit-grant-days" name="days" value="<?php echo esc_attr((string) $settings['validityDays']); ?>" class="small-text" min="1" max="3650" step="1">
+                            <span class="description"><?php esc_html_e('The bucket dies when this expires.', 'aiya-core'); ?></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aiya-credit-grant-note"><?php esc_html_e('Note', 'aiya-core'); ?></label></th>
+                        <td>
+                            <input type="text" id="aiya-credit-grant-note" name="note" class="regular-text" maxlength="32">
+                            <span class="description"><?php esc_html_e('Optional; recorded in the ledger reference.', 'aiya-core'); ?></span>
+                        </td>
+                    </tr>
+                </tbody></table>
+                <p><?php Ui::button(__('Grant credits', 'aiya-core'), ['type' => 'submit', 'variant' => 'button-primary']); ?></p>
+            </form>
+            <?php
+        }, $open);
+    }
+
+    /**
+     * The ledger, newest first — the page's primary browse surface, not a
+     * collapsible card. Same pattern as the order-records screen: the
+     * whole log by default, one holder's ledger once the filter names
+     * them.
+     */
+    private function ledgerSection(int $userId, int $paged, string $searchNonce): void
     {
         $result = $this->ledger->entries($userId > 0 ? $userId : null, $paged, self::PER_PAGE);
-        ?>
-        <h2 class="title" style="margin-top:24px;"><?php esc_html_e('Credit ledger', 'aiya-core'); ?></h2>
-        <form method="get" class="aiya-core-filters" style="margin-bottom:12px;">
-            <input type="hidden" name="page" value="<?php echo esc_attr(self::MENU_SLUG); ?>">
-            <span class="aiya-credit-user-picker">
-                <input type="hidden" name="user" class="aiya-credit-user-id" value="<?php echo esc_attr((string) $userId); ?>">
-                <input type="text" class="aiya-credit-user-search regular-text" autocomplete="off" spellcheck="false"
-                    placeholder="<?php esc_attr_e('Type a username or name…', 'aiya-core'); ?>"
-                    value="<?php echo esc_attr($userId > 0 ? $this->userLabel($userId) : ''); ?>">
-                <div class="aiya-credit-user-suggestions"></div>
-            </span>
-            <button type="submit" class="button"><?php esc_html_e('Filter', 'aiya-core'); ?></button>
-        </form>
-
-        <table class="wp-list-table widefat fixed striped">
-            <thead>
-                <tr>
-                    <th style="width:170px;"><?php esc_html_e('Time', 'aiya-core'); ?></th>
-                    <th style="width:160px;"><?php esc_html_e('User', 'aiya-core'); ?></th>
-                    <th style="width:110px;"><?php esc_html_e('Direction', 'aiya-core'); ?></th>
-                    <th style="width:130px;"><?php esc_html_e('Source', 'aiya-core'); ?></th>
-                    <th><?php esc_html_e('Reference', 'aiya-core'); ?></th>
-                    <th style="width:90px;"><?php esc_html_e('Amount', 'aiya-core'); ?></th>
-                    <th style="width:110px;"><?php esc_html_e('Bucket left', 'aiya-core'); ?></th>
-                    <th style="width:170px;"><?php esc_html_e('Expires', 'aiya-core'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if ($result['items'] === []) : ?>
-                    <tr><td colspan="8"><?php echo esc_html($userId > 0 ? __('No ledger entries for this user yet.', 'aiya-core') : __('No ledger entries yet.', 'aiya-core')); ?></td></tr>
-                <?php else : ?>
-                    <?php foreach ($result['items'] as $row) : ?>
-                        <tr>
-                            <td><?php echo esc_html(DateLabels::fromGmt($row['createdAt'])); ?></td>
-                            <td><?php echo esc_html($this->holderLabel((int) $row['user_id'])); ?></td>
-                            <td>
-                                <?php
-                                echo $row['direction'] === 'in'
-                                    ? '<span class="aiya-core-credit-in">+' . esc_html((string) $row['amount']) . '</span>'
-                                    : '<span class="aiya-core-credit-out">-' . esc_html((string) $row['amount']) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static tags, numbers escaped
-                                ?>
-                            </td>
-                            <td><?php echo esc_html($this->sourceLabel($row['source'])); ?></td>
-                            <td><?php echo $row['ref'] !== '' ? '<code>' . esc_html($row['ref']) . '</code>' : '—'; ?></td>
-                            <td><?php echo esc_html((string) $row['amount']); ?></td>
-                            <td><?php echo esc_html((string) $row['remaining']); ?></td>
-                            <td><?php echo $row['expiresAt'] !== null ? esc_html(DateLabels::fromGmt($row['expiresAt'])) : '—'; ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-        <?php
-        if ($result['pages'] > 1) {
-            echo '<div class="tablenav bottom"><div class="tablenav-pages">';
-            echo wp_kses_post(
-                (string) paginate_links([
-                    'base' => add_query_arg('paged', '%#%'),
-                    'format' => '',
-                    'current' => $paged,
-                    'total' => $result['pages'],
-                    'prev_text' => '&laquo;',
-                    'next_text' => '&raquo;',
-                ])
-            );
-            echo '</div></div>';
-        }
+        Ui::heading(__('Credit ledger', 'aiya-core'));
+        $navArgs = ['jump_nav' => true];
+        Ui::listNav($result['total'], $paged, self::PER_PAGE, 'top', $navArgs + [
+            'actions' => static function () use ($userId, $searchNonce): void {
+                Ui::filterBar(__('Filter', 'aiya-core'), static function () use ($userId, $searchNonce): void {
+                    Ui::userPicker([
+                        'action' => CreditsPage::AJAX_SEARCH,
+                        'nonce' => $searchNonce,
+                        'fill' => 'id',
+                        'hidden' => 'user',
+                        'hidden_value' => (string) $userId,
+                        'search_value' => $userId > 0 ? CreditsPage::userLabel($userId) : '',
+                        'placeholder' => __('Type a username or name…', 'aiya-core'),
+                        'min_chars' => CreditsPage::MIN_SEARCH_LENGTH,
+                    ]);
+                }, ['page' => CreditsPage::MENU_SLUG]);
+            },
+        ]);
+        Ui::listTable(
+            [
+                'time' => ['label' => __('Time', 'aiya-core'), 'width' => '170px'],
+                'user' => ['label' => __('User', 'aiya-core'), 'width' => '160px'],
+                'direction' => ['label' => __('Direction', 'aiya-core'), 'width' => '110px'],
+                'source' => ['label' => __('Source', 'aiya-core'), 'width' => '260px'],
+                'amount' => ['label' => __('Amount', 'aiya-core'), 'width' => '90px'],
+                'remaining' => ['label' => __('Bucket left', 'aiya-core'), 'width' => '110px'],
+                'expires' => ['label' => __('Expires', 'aiya-core'), 'width' => '110px'],
+            ],
+            $result['items'],
+            static function (array $row, string $column): void {
+                switch ($column) {
+                    case 'time':
+                        echo esc_html(DateLabels::fromGmt($row['createdAt']));
+                        break;
+                    case 'user':
+                        echo esc_html(CreditsPage::holderLabel((int) $row['user_id']));
+                        break;
+                    case 'direction':
+                        echo $row['direction'] === 'in'
+                            ? '<span class="aiya-core-credit-in">+' . esc_html((string) $row['amount']) . '</span>'
+                            : '<span class="aiya-core-credit-out">-' . esc_html((string) $row['amount']) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static tags, numbers escaped
+                        break;
+                    case 'source':
+                        // One line: the source label carries the reference
+                        // — long order refs squeezed the wider columns out.
+                        echo esc_html(CreditsPage::sourceLabel($row['source']));
+                        if ($row['ref'] !== '') {
+                            echo ' <code>' . esc_html($row['ref']) . '</code>';
+                        }
+                        break;
+                    case 'amount':
+                        echo esc_html((string) $row['amount']);
+                        break;
+                    case 'remaining':
+                        echo esc_html((string) $row['remaining']);
+                        break;
+                    case 'expires':
+                        // The remaining validity, not the raw datetime —
+                        // what the operator wants to know is how long the
+                        // bucket still lives. Past-dated buckets (visible
+                        // until the retention prune) read as expired.
+                        if ($row['expiresAt'] === null) {
+                            echo '—';
+                            break;
+                        }
+                        $expires = (int) get_date_from_gmt((string) $row['expiresAt'], 'U');
+                        echo esc_html($expires <= time()
+                            ? __('Expired', 'aiya-core')
+                            : human_time_diff(time(), $expires));
+                        break;
+                }
+            },
+            $userId > 0
+                ? __('No ledger entries for this user yet.', 'aiya-core')
+                : __('No ledger entries yet.', 'aiya-core')
+        );
+        Ui::listNav($result['total'], $paged, self::PER_PAGE, 'bottom', $navArgs);
     }
 
     /** Holder display label for a ledger row (same shape as the order-records table). */
-    private function holderLabel(int $userId): string
+    private static function holderLabel(int $userId): string
     {
         $user = get_userdata($userId);
 
@@ -347,7 +305,7 @@ final class CreditsPage implements Module
 
         $userId = absint((string) ($_POST['user_id'] ?? '0'));
         if ($userId <= 0 || get_userdata($userId) === false) {
-            $this->redirectBack(['aiya_credit_note' => 'failed', 'aiya_credit_message' => rawurlencode((string) __('The credit holder does not exist.', 'aiya-core'))]);
+            Ui::redirect(self::pageUrl(), ['aiya_credit_note' => 'failed', 'aiya_credit_message' => rawurlencode((string) __('The credit holder does not exist.', 'aiya-core'))]);
         }
 
         // An emptied field is an operator mistake, not "the minimum": a
@@ -356,7 +314,7 @@ final class CreditsPage implements Module
         $amountRaw = (string) ($_POST['amount'] ?? '');
         $daysRaw = (string) ($_POST['days'] ?? '');
         if ($amountRaw === '' || $daysRaw === '') {
-            $this->redirectBack(['aiya_credit_note' => 'failed', 'aiya_credit_message' => rawurlencode((string) __('Amount and validity are required.', 'aiya-core'))]);
+            Ui::redirect(self::pageUrl(), ['aiya_credit_note' => 'failed', 'aiya_credit_message' => rawurlencode((string) __('Amount and validity are required.', 'aiya-core'))]);
         }
 
         $amount = min(100000, max(1, absint($amountRaw)));
@@ -372,10 +330,10 @@ final class CreditsPage implements Module
             $message = $granted->get_error_code() === 'aiya_credit_duplicate'
                 ? (string) __('An admin grant with this exact note already exists for this user.', 'aiya-core')
                 : $granted->get_error_message();
-            $this->redirectBack(['aiya_credit_note' => 'failed', 'aiya_credit_message' => rawurlencode($message)]);
+            Ui::redirect(self::pageUrl(), ['aiya_credit_note' => 'failed', 'aiya_credit_message' => rawurlencode($message)]);
         }
 
-        $this->redirectBack(['aiya_credit_note' => 'granted']);
+        Ui::redirect(self::pageUrl(), ['aiya_credit_note' => 'granted']);
     }
 
     /** Typeahead for the user pickers; shape mirrors the send-mail search. */
@@ -462,29 +420,8 @@ final class CreditsPage implements Module
         );
     }
 
-    private function grantNotice(): void
-    {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
-        $note = sanitize_key((string) ($_GET['aiya_credit_note'] ?? ''));
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- our own redirect message, escaped on output
-        $message = sanitize_text_field(wp_unslash((string) ($_GET['aiya_credit_message'] ?? '')));
-        $messages = [
-            'granted' => __('Credits granted.', 'aiya-core'),
-            'failed' => $message !== '' ? $message : __('The operation failed.', 'aiya-core'),
-        ];
-
-        if (!isset($messages[$note])) {
-            return;
-        }
-
-        printf(
-            '<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
-            $note === 'failed' ? 'error' : 'success',
-            esc_html($messages[$note])
-        );
-    }
-
-    private function userLabel(int $userId): string
+    /** Picker echo label: display name and email, or the bare id. */
+    private static function userLabel(int $userId): string
     {
         $user = get_userdata($userId);
 
@@ -492,7 +429,7 @@ final class CreditsPage implements Module
     }
 
     /** Check-in/code/membership/admin/spend sources get labels; unknowns pass through. */
-    private function sourceLabel(string $source): string
+    private static function sourceLabel(string $source): string
     {
         $labels = [
             LedgerService::SOURCE_CHECKIN => __('Check-in', 'aiya-core'),
@@ -505,10 +442,9 @@ final class CreditsPage implements Module
         return $labels[$source] ?? $source;
     }
 
-    /** @param array<string, string> $args */
-    private function redirectBack(array $args): never
+    /** The page's own admin URL, the Ui::redirect base for every round trip. */
+    private static function pageUrl(): string
     {
-        wp_safe_redirect(add_query_arg($args, admin_url('admin.php?page=' . self::MENU_SLUG)));
-        exit;
+        return admin_url('admin.php?page=' . self::MENU_SLUG);
     }
 }

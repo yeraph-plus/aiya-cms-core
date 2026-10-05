@@ -16,7 +16,7 @@ use Aiya\Core\Domain\Shared\DateLabels;
 /**
  * The order-records screen (submenu of the membership menu): every
  * gateway payment the site has recorded, newest first, filterable to one
- * holder through the shared user typeahead and to one source. The source
+ * holder through the shared user picker and to one source. The source
  * vocabulary is derived from the gateways themselves — the adapters own
  * their ids, this page only labels them. The users list gains a
  * membership-status column linking into this view — the money-fact
@@ -70,21 +70,6 @@ final class PaymentsAuditPage implements Module
         ]);
     }
 
-    /** The shared admin stylesheet carries the picker/filter styles. */
-    public function assets(string $hook): void
-    {
-        if (!str_ends_with($hook, '_page_' . self::MENU_SLUG)) {
-            return;
-        }
-
-        $version = AIYA_CORE_VERSION;
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            $mtime = @filemtime(AIYA_CORE_PATH . 'assets/css/admin.css'); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-            $version .= $mtime > 0 ? '.' . $mtime : '';
-        }
-        wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], $version);
-    }
-
     /**
      * Captures the users-list query on users.php (fired once per request
      * while the table prepares) so the membership column can read the
@@ -114,117 +99,78 @@ final class PaymentsAuditPage implements Module
 
         $sources = $this->sources();
         $result = $this->orders->list($paged, self::PER_PAGE, $userId > 0 ? $userId : null, $source !== '' ? $source : null, $sources);
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Order records', 'aiya-core'); ?></h1>
-            <p class="description"><?php esc_html_e('Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue.', 'aiya-core'); ?></p>
 
-            <form method="get" class="aiya-core-filters" style="margin:12px 0;">
-                <input type="hidden" name="page" value="<?php echo esc_attr(self::MENU_SLUG); ?>">
-                <span class="aiya-credit-user-picker">
-                    <input type="hidden" name="user" class="aiya-credit-user-id" value="<?php echo esc_attr((string) $userId); ?>">
-                    <input type="text" class="aiya-credit-user-search regular-text" autocomplete="off" spellcheck="false"
-                        placeholder="<?php esc_attr_e('Type a username or name…', 'aiya-core'); ?>"
-                        value="<?php echo esc_attr($userId > 0 ? $this->userLabel($userId) : ''); ?>">
-                    <div class="aiya-credit-user-suggestions"></div>
-                </span>
-                <select name="source">
-                    <option value=""><?php esc_html_e('All sources', 'aiya-core'); ?></option>
-                    <?php foreach ($sources as $sourceId) : ?>
-                        <option value="<?php echo esc_attr($sourceId); ?>" <?php selected($source, $sourceId); ?>><?php echo esc_html(self::sourceLabel($sourceId)); ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <button type="submit" class="button"><?php esc_html_e('Filter', 'aiya-core'); ?></button>
-            </form>
+        $sourceOptions = ['' => __('All sources', 'aiya-core')];
+        foreach ($sources as $sourceId) {
+            $sourceOptions[$sourceId] = self::sourceLabel($sourceId);
+        }
+        $searchNonce = wp_create_nonce(self::AJAX_SEARCH);
 
-            <table class="widefat striped">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e('Time', 'aiya-core'); ?></th>
-                        <th><?php esc_html_e('User', 'aiya-core'); ?></th>
-                        <th><?php esc_html_e('Order', 'aiya-core'); ?></th>
-                        <th><?php esc_html_e('Tier', 'aiya-core'); ?></th>
-                        <th><?php esc_html_e('Amount', 'aiya-core'); ?></th>
-                        <th><?php esc_html_e('Cycles', 'aiya-core'); ?></th>
-                        <th><?php esc_html_e('Status', 'aiya-core'); ?></th>
-                        <th><?php esc_html_e('Source', 'aiya-core'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php if ($result['items'] === []) : ?>
-                    <tr><td colspan="8"><?php esc_html_e('No payments recorded yet.', 'aiya-core'); ?></td></tr>
-                <?php else : ?>
-                    <?php foreach ($result['items'] as $row) : ?>
-                        <?php $holder = get_userdata((int) $row['user_id']); ?>
-                        <tr>
-                            <td><?php echo esc_html(DateLabels::fromGmt((string) $row['created_at'])); ?></td>
-                            <td><?php echo esc_html($holder !== false ? $holder->display_name . ' (#' . (int) $row['user_id'] . ')' : '#' . (int) $row['user_id']); ?></td>
-                            <td><code><?php echo esc_html((string) $row['order_id']); ?></code></td>
-                            <td><?php echo esc_html((string) $row['tier_key']); ?></td>
-                            <td><?php echo esc_html((string) $row['amount']); ?></td>
-                            <td><?php echo esc_html((string) (int) ($row['cycles'] ?? 0)); ?></td>
-                            <td><?php echo esc_html($this->statusLabel((string) ($row['status'] ?? ''))); ?></td>
-                            <td><?php echo esc_html((string) $row['source']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-                </tbody>
-            </table>
-
-            <?php
-            if ($result['pages'] > 1) {
-                echo '<div class="tablenav bottom"><div class="tablenav-pages">';
-                echo wp_kses_post(
-                    (string) paginate_links([
-                        'base' => add_query_arg('paged', '%#%'),
-                        'format' => '',
-                        'current' => $paged,
-                        'total' => $result['pages'],
-                        'prev_text' => '&laquo;',
-                        'next_text' => '&raquo;',
-                    ])
-                );
-                echo '</div></div>';
-            }
-            ?>
-        </div>
-
-        <script>
-        jQuery(function ($) {
-            // Same user typeahead as the credit ledger — one search AJAX,
-            // one nonce action, identical suggestion UX.
-            var searchAction = <?php echo wp_json_encode(self::AJAX_SEARCH); ?>;
-            var searchNonce = <?php echo wp_json_encode(wp_create_nonce(self::AJAX_SEARCH)); ?>;
-            var $picker = $('.aiya-credit-user-search');
-            var $suggestions = $('.aiya-credit-user-suggestions');
-            var $hidden = $('.aiya-credit-user-id');
-            var timer = null;
-
-            $picker.on('input', function () {
-                var term = $(this).val();
-                $suggestions.empty();
-                $hidden.val('');
-                window.clearTimeout(timer);
-                if (term.length < 2) { return; }
-                timer = window.setTimeout(function () {
-                    $.post(ajaxurl, { action: searchAction, nonce: searchNonce, term: term }, null, 'json').done(function (res) {
-                        $suggestions.empty();
-                        if (!res || !res.success) { return; }
-                        $.each(res.data.results, function (i, item) {
-                            var $opt = $('<button type="button" class="button-link">').css({ display: 'block', padding: '2px 0' }).text(item.name + ' — ' + item.email);
-                            $opt.on('click', function () {
-                                $hidden.val(item.id);
-                                $picker.val(item.name + ' — ' + item.email);
-                                $suggestions.empty();
-                            });
-                            $suggestions.append($opt);
-                        });
-                    });
-                }, 250);
-            });
-        });
-        </script>
-        <?php
+        Ui::pageHead(
+            __('Order records', 'aiya-core'),
+            __('Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue.', 'aiya-core')
+        );
+        $navArgs = ['jump_nav' => true];
+        Ui::listNav($result['total'], $paged, self::PER_PAGE, 'top', $navArgs + [
+            'actions' => static function () use ($userId, $source, $sourceOptions, $searchNonce): void {
+                Ui::filterBar(__('Filter', 'aiya-core'), static function () use ($userId, $source, $sourceOptions, $searchNonce): void {
+                    Ui::userPicker([
+                        'action' => PaymentsAuditPage::AJAX_SEARCH,
+                        'nonce' => $searchNonce,
+                        'fill' => 'id',
+                        'hidden' => 'user',
+                        'hidden_value' => (string) $userId,
+                        'search_value' => $userId > 0 ? PaymentsAuditPage::userLabel($userId) : '',
+                        'placeholder' => __('Type a username or name…', 'aiya-core'),
+                    ]);
+                    Ui::select('source', $sourceOptions, $source, ['label' => __('Source', 'aiya-core')]);
+                }, ['page' => PaymentsAuditPage::MENU_SLUG]);
+            },
+        ]);
+        Ui::listTable(
+            [
+                'time' => ['label' => __('Time', 'aiya-core'), 'width' => '170px'],
+                'user' => ['label' => __('User', 'aiya-core'), 'width' => '160px'],
+                'order' => ['label' => __('Order', 'aiya-core'), 'width' => '180px'],
+                'tier' => ['label' => __('Tier', 'aiya-core'), 'width' => '110px'],
+                'amount' => ['label' => __('Amount', 'aiya-core'), 'width' => '110px'],
+                'cycles' => ['label' => __('Cycles', 'aiya-core'), 'width' => '90px'],
+                'status' => ['label' => __('Status', 'aiya-core'), 'width' => '140px'],
+                'source' => ['label' => __('Source', 'aiya-core'), 'width' => '110px'],
+            ],
+            $result['items'],
+            static function (array $row, string $column): void {
+                switch ($column) {
+                    case 'time':
+                        echo esc_html(DateLabels::fromGmt((string) $row['created_at']));
+                        break;
+                    case 'user':
+                        echo esc_html(PaymentsAuditPage::holderLabel((int) $row['user_id']));
+                        break;
+                    case 'order':
+                        echo '<code>' . esc_html((string) $row['order_id']) . '</code>';
+                        break;
+                    case 'tier':
+                        echo esc_html((string) $row['tier_key']);
+                        break;
+                    case 'amount':
+                        echo esc_html((string) $row['amount']);
+                        break;
+                    case 'cycles':
+                        echo esc_html((string) (int) ($row['cycles'] ?? 0));
+                        break;
+                    case 'status':
+                        echo esc_html(PaymentsAuditPage::statusLabel((string) ($row['status'] ?? '')));
+                        break;
+                    case 'source':
+                        echo esc_html((string) $row['source']);
+                        break;
+                }
+            },
+            __('No payments recorded yet.', 'aiya-core')
+        );
+        Ui::listNav($result['total'], $paged, self::PER_PAGE, 'bottom', $navArgs);
+        Ui::pageFoot();
     }
 
     /** The users-list membership column label.
@@ -331,7 +277,7 @@ final class PaymentsAuditPage implements Module
      * not for the human reading the log). Money is forever; the carts
      * leave with the retention purge.
      */
-    private function statusLabel(string $status): string
+    private static function statusLabel(string $status): string
     {
         return match ($status) {
             OrderService::STATUS_PAID => __('Paid', 'aiya-core'),
@@ -340,8 +286,16 @@ final class PaymentsAuditPage implements Module
         };
     }
 
-    /** Holder display label for the picker (same shape as the credits page). */
-    private function userLabel(int $userId): string
+    /** Holder display label (same shape as the credits page). */
+    private static function holderLabel(int $userId): string
+    {
+        $user = get_userdata($userId);
+
+        return $user !== false ? ($user->display_name . ' (#' . (int) $userId . ')') : ('#' . $userId);
+    }
+
+    /** Picker echo label: display name and email, or the bare id. */
+    private static function userLabel(int $userId): string
     {
         $user = get_userdata($userId);
 
