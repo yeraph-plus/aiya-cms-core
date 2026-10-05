@@ -37,6 +37,8 @@ namespace {
             public const EDITABLE = 'POST, PUT, PATCH';
 
             public const DELETABLE = 'DELETE';
+
+            public const ALLMETHODS = 'GET, POST, PUT, PATCH, DELETE';
         }
     }
 

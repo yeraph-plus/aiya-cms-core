@@ -32,8 +32,10 @@ namespace Aiya\Core\Tests\Unit {
      * The aliases are claimed once here, guarded, so whichever test file
      * requires this fixture first registers them for every later file:
      * requiring it is the only thing a test file needs to do. The API is
-     * the union every current consumer touches; extend it in place when a
-     * new consumer needs more, never with a competing local double.
+     * the base every consumer shares; when a consumer needs more, extend
+     * the class here in place, or subclass it per test file (the
+     * GatewayCallbackRequest precedent) — never with a competing local
+     * double claiming the same global names.
      */
 
     /** An inert request object satisfying controller and pipeline hints. */

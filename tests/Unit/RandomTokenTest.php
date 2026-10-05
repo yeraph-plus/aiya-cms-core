@@ -10,11 +10,7 @@ use PHPUnit\Framework\TestCase;
 final class RandomTokenTest extends TestCase
 {
     protected function setUp(): void
-    {
-        if (!function_exists('wp_rand')) {
-            $this->markTestSkipped('tests/bootstrap.php has no wp_rand() shim; the CSPRNG seed of RandomToken::suffix() needs it');
-        }
-    }
+    {    }
 
     public function testSuffixIsUppercaseAlphanumericAtTheRequestedLength(): void
     {

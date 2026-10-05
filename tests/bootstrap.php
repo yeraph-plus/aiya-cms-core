@@ -842,17 +842,22 @@ $GLOBALS['__aiya_test_users'] = [];
 $GLOBALS['__aiya_test_user_meta'] = [];
 
 if (!function_exists('get_userdata')) {
-    function get_userdata(int $userId): object|false
+    function get_userdata(int $userId): WP_User|false
     {
         if (!isset($GLOBALS['__aiya_test_users'][$userId])) {
             return false;
         }
         // Fixtures may store field overrides (e.g. display_name) as an
-        // array; anything else is just an existence marker.
+        // array; anything else is just an existence marker. Core answers a
+        // WP_User and consumers (AuthController's session gate) read it as
+        // one — a bare stdClass here would flip them onto failure paths.
         $stored = $GLOBALS['__aiya_test_users'][$userId];
         $fields = is_array($stored) ? $stored : [];
+        if (!isset($fields['ID'])) {
+            $fields = ['ID' => $userId] + $fields;
+        }
 
-        return (object) array_merge(['ID' => $userId], $fields);
+        return new WP_User((object) $fields);
     }
 }
 
@@ -864,9 +869,18 @@ if (!function_exists('wp_generate_password')) {
 }
 
 if (!function_exists('current_time')) {
-    function current_time(string $type, bool $gmt = false): string
+    function current_time(string $type, bool $gmt = false): string|int
     {
-        return $gmt ? gmdate('Y-m-d H:i:s') : date('Y-m-d H:i:s');
+        if ('timestamp' === $type || 'U' === $type) {
+            return $gmt ? time() : time() + (int) ((float) get_option('gmt_offset') * HOUR_IN_SECONDS);
+        }
+        if ('mysql' === $type) {
+            $type = 'Y-m-d H:i:s';
+        }
+        $timezone = $gmt ? new DateTimeZone('UTC') : wp_timezone();
+        $datetime = new DateTime('now', $timezone);
+
+        return $datetime->format($type);
     }
 }
 
@@ -1965,19 +1979,16 @@ if (!function_exists('is_sticky')) {
 }
 
 if (!function_exists('unstick_post')) {
-    /** Mirrors core's sticky-options removal against the sticky fixture list. */
-    function unstick_post(int $postId): bool
+    /** Mirrors core's sticky-options removal against the sticky fixture
+        list; core answers void, so no return value exists to lean on. */
+    function unstick_post(int $postId): void
     {
-        $removed = false;
         foreach ($GLOBALS['__aiya_test_sticky'] ?? [] as $index => $stickyId) {
             if ((int) $stickyId === $postId) {
                 unset($GLOBALS['__aiya_test_sticky'][$index]);
-                $removed = true;
             }
         }
         $GLOBALS['__aiya_test_sticky'] = array_values($GLOBALS['__aiya_test_sticky'] ?? []);
-
-        return $removed;
     }
 }
 
@@ -2004,7 +2015,7 @@ if (!function_exists('wp_update_post')) {
     /** Applies post_type-class field writes onto the posts fixture and
         records the payload; an unknown ID fails the way core does
         (0, or WP_Error when asked). */
-    function wp_update_post(array|object $postarr = [], bool $wp_error = false): int|WP_Error
+    function wp_update_post(array|object $postarr = [], bool $wp_error = false, bool $fireAfterHooks = true): int|WP_Error
     {
         $postarr = (array) $postarr;
         $id = (int) ($postarr['ID'] ?? 0);
@@ -2015,10 +2026,12 @@ if (!function_exists('wp_update_post')) {
         $GLOBALS['__aiya_test_post_updates'] ??= [];
         $GLOBALS['__aiya_test_post_updates'][] = $postarr;
 
+        // Core merges the payload over the stored row (slug unification and
+        // hooks aside) — every provided field lands, none is dropped.
         $post = $GLOBALS['__aiya_test_posts'][$id];
-        foreach (['post_type', 'post_status', 'post_title', 'post_content'] as $field) {
-            if (array_key_exists($field, $postarr)) {
-                $post->{$field} = $postarr[$field];
+        foreach ($postarr as $field => $value) {
+            if ($field !== 'ID') {
+                $post->{$field} = $value;
             }
         }
 
@@ -2171,8 +2184,9 @@ $GLOBALS['__aiya_test_mails'] = [];
 
 if (!function_exists('wp_rand')) {
     /** Mirrors pluggable wp_rand(): null defaults, int cast, either argument
-        order, then the CSPRNG. The $rnd_value reuse cache is a legacy
-        performance detail no test pins. */
+        order, then the CSPRNG with the final absint (core never draws
+        negatives). The $rnd_value reuse cache is a legacy performance
+        detail no test pins. */
     function wp_rand($min = null, $max = null)
     {
         if ($min === null) {
@@ -2187,7 +2201,7 @@ if (!function_exists('wp_rand')) {
             [$max, $min] = [$min, $max];
         }
 
-        return random_int($min, $max);
+        return absint(random_int($min, $max));
     }
 }
 

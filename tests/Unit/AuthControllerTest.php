@@ -37,6 +37,8 @@ namespace {
             public const EDITABLE = 'POST, PUT, PATCH';
 
             public const DELETABLE = 'DELETE';
+
+            public const ALLMETHODS = 'GET, POST, PUT, PATCH, DELETE';
         }
     }
 
@@ -329,9 +331,6 @@ namespace Aiya\Core\Tests\Unit {
 
         public function testRoutesRegisterSixAuthFacesUnderTheContractNamespace(): void
         {
-            if (!defined('WP_REST_Server::CREATABLE')) {
-                self::markTestSkipped('the shared RestDoubles alias owns WP_REST_Server without method constants; route shape needs this file to load first');
-            }
             $this->controller()->registerRoutes();
 
             $routes = $this->routes();
@@ -356,9 +355,6 @@ namespace Aiya\Core\Tests\Unit {
 
         public function testPublicFacesAnswerThroughReturnTrue(): void
         {
-            if (!defined('WP_REST_Server::CREATABLE')) {
-                self::markTestSkipped('the shared RestDoubles alias owns WP_REST_Server without method constants; route shape needs this file to load first');
-            }
             $this->controller()->registerRoutes();
 
             $routes = $this->routes();
@@ -373,9 +369,6 @@ namespace Aiya\Core\Tests\Unit {
 
         public function testRegisterGateRefusesLoggedInSessions(): void
         {
-            if (!defined('WP_REST_Server::CREATABLE')) {
-                self::markTestSkipped('the shared RestDoubles alias owns WP_REST_Server without method constants; route shape needs this file to load first');
-            }
             $this->controller()->registerRoutes();
             $gate = $this->routes()[0]['args']['permission_callback'];
 
@@ -390,9 +383,6 @@ namespace Aiya\Core\Tests\Unit {
 
         public function testLogoutGateRequiresASession(): void
         {
-            if (!defined('WP_REST_Server::CREATABLE')) {
-                self::markTestSkipped('the shared RestDoubles alias owns WP_REST_Server without method constants; route shape needs this file to load first');
-            }
             $this->controller()->registerRoutes();
             $gate = $this->routes()[2]['args']['permission_callback'];
 

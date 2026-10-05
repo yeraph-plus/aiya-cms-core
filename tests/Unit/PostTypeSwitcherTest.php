@@ -55,10 +55,6 @@ final class PostTypeSwitcherTest extends TestCase
 
     public function testBulkSwitchMovesEveryEligibleRowAndCountsTheRest(): void
     {
-        if (!function_exists('wp_update_post') || !function_exists('get_post_type_object')) {
-            $this->markTestSkipped('tests/bootstrap.php has no wp_update_post()/get_post_type_object() shims; the switch leg needs them');
-        }
-
         $GLOBALS['__aiya_test_posts'] = [
             4 => $this->post(4, 'post'),
             9 => $this->post(9, 'post'),
@@ -69,10 +65,6 @@ final class PostTypeSwitcherTest extends TestCase
 
     public function testBulkSwitchDeniesTheWholeBatchWithoutTypeCapability(): void
     {
-        if (!function_exists('get_post_type_object')) {
-            $this->markTestSkipped('tests/bootstrap.php has no get_post_type_object() shim; the type-capability gate needs it');
-        }
-
         $GLOBALS['__aiya_test_caps'] = false;
 
         self::assertSame(['switched' => 0, 'skipped' => 1], (new PostTypeSwitcher())->switchPosts([4], 'post'));
@@ -80,10 +72,6 @@ final class PostTypeSwitcherTest extends TestCase
 
     public function testStickyRowLeavingPostGetsUnstuck(): void
     {
-        if (!function_exists('unstick_post') || !function_exists('wp_update_post')) {
-            $this->markTestSkipped('tests/bootstrap.php has no unstick_post()/wp_update_post() shims; the sticky release leg needs them');
-        }
-
         $GLOBALS['__aiya_test_posts'] = [4 => $this->post(4, 'post')];
         $GLOBALS['__aiya_test_sticky'] = [4];
 
