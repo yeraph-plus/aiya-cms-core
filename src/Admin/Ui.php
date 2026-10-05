@@ -571,7 +571,12 @@ final class Ui
      * $postAction. By default $rows is the full row set and the nav bars
      * slice it; SQL-paginated callers instead pass the current page slice
      * in $rows and the matched total in `total` — the bars then read the
-     * real size and slicing stays the caller's job.
+     * real size and slicing stays the caller's job. With `filters`, the
+     * callable's fields compose into the top operation bar left of the
+     * bulk controls (they live inside the POST form), and a Filter button
+     * submits them via a native GET flip (`formmethod`) to `filters_url`
+     * — the behavior layer turns that click into a clean URL built from
+     * the names in `filters_fields`.
      *
      * @template TRow
      *
@@ -580,7 +585,7 @@ final class Ui
      * @param iterable<TRow> $rows
      * @param callable(TRow, string): void $cell
      * @param callable(TRow): (string|int) $rowId
-     * @param array{empty?: string, name?: string, confirm?: array<string, string>, nav?: bool, paged?: int, per_page?: int, per_page_choices?: list<int>, total?: int} $args
+     * @param array{empty?: string, name?: string, confirm?: array<string, string>, nav?: bool, paged?: int, per_page?: int, per_page_choices?: list<int>, total?: int, filters?: callable, filters_url?: string, filters_fields?: list<string>, filters_label?: string} $args
      */
     public static function bulkTable(
         string $postAction,
@@ -593,6 +598,7 @@ final class Ui
     ): void {
         $name = (string) ($args['name'] ?? 'ids');
         $nav = !empty($args['nav']);
+        $filters = isset($args['filters']) && is_callable($args['filters']) ? $args['filters'] : null;
         $navTotal = 0;
         if ($nav) {
             $rows = is_array($rows) ? $rows : iterator_to_array($rows, false);
@@ -618,11 +624,29 @@ final class Ui
             self::button(__('Apply', 'aiya-core'), ['type' => 'submit', 'variant' => 'action', 'disabled' => true]);
             echo '<span class="aiya-core-bulk-count description" aria-live="polite" hidden></span>';
         };
+        // The filter fields ride the POST form; the Filter button flips
+        // just its own submission to GET against the page URL (native, so
+        // it works without the behavior layer), and data-aiya-filter lets
+        // BulkView replace that with a clean-URL navigation.
+        $opControls = $bulkControls;
+        if ($filters !== null) {
+            $opControls = static function () use ($filters, $bulkControls, $args): void {
+                $filters();
+                printf(
+                    '<button type="submit" formmethod="get" formaction="%1$s" class="button aiya-core-button"'
+                    . ' data-aiya-filter data-aiya-filter-fields="%2$s">%3$s</button>',
+                    esc_url((string) ($args['filters_url'] ?? '')),
+                    esc_attr(implode(',', (array) ($args['filters_fields'] ?? []))),
+                    esc_html((string) ($args['filters_label'] ?? __('Filter', 'aiya-core')))
+                );
+                $bulkControls();
+            };
+        }
         if ($nav) {
-            self::listNav($navTotal, (int) ($args['paged'] ?? 1), (int) ($args['per_page'] ?? 20), 'top', ['actions' => $bulkControls] + $args);
+            self::listNav($navTotal, (int) ($args['paged'] ?? 1), (int) ($args['per_page'] ?? 20), 'top', ['actions' => $opControls] + $args);
         } else {
             echo '<div class="aiya-core-listnav top aiya-core-listnav--actions"><div class="aiya-core-listnav-actions">';
-            $bulkControls();
+            $opControls();
             echo '</div></div>';
         }
         echo '<table class="wp-list-table widefat fixed striped table-view-list"><thead><tr>';

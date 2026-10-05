@@ -350,6 +350,36 @@ final class UiTest extends TestCase
         self::assertStringNotContainsString('name="ids[]" value="3"', $out);
     }
 
+    public function testBulkTableComposesFilterFieldsIntoTheOperationBar(): void
+    {
+        $out = $this->captureOut(fn () => Ui::bulkTable(
+            'demo_action',
+            ['del' => 'Delete'],
+            ['t' => ['label' => 'T']],
+            [['id' => 1]],
+            static function ($row, string $column): void {
+                echo (string) $row['id'];
+            },
+            static fn ($row) => $row['id'],
+            [
+                'filters' => static function (): void {
+                    Ui::input('s', 'search', 'x', []);
+                },
+                'filters_url' => 'http://example.test/admin.php?page=demo',
+                'filters_fields' => ['s', 'board'],
+            ]
+        ));
+        self::assertStringContainsString('name="s"', $out, 'the filter fields ride the operation bar');
+        self::assertStringContainsString('formmethod="get"', $out, 'the filter button flips its own submission to GET');
+        self::assertStringContainsString('formaction="http://example.test/admin.php?page=demo"', $out);
+        self::assertStringContainsString('data-aiya-filter-fields="s,board"', $out);
+        self::assertLessThan(
+            (int) strpos($out, 'name="bulk_action"'),
+            (int) strpos($out, 'name="s"'),
+            'filters render left of the bulk controls'
+        );
+    }
+
     public function testListNavIsPassiveWithoutSwitches(): void
     {
         $_SERVER['REQUEST_URI'] = '/wp-admin/admin.php?page=demo';

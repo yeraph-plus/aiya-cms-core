@@ -16,7 +16,8 @@ use RuntimeException;
  * Community moderation screen (top-level menu, just below the posts
  * group): threads have no native edit screens — their tables live
  * outside the WP post model — so this page is the admin surface for the
- * headless community. Browse with filters and keyword search, close or
+ * headless community, open to editors and above (edit_others_posts).
+ * Browse with filters and keyword search, close or
  * reopen and delete through the shared bulk table (the row delete rides
  * the same round trip), edit threads in a shared modal that fills from
  * the page's own raw rows and saves through the REST controller; the
@@ -26,6 +27,8 @@ use RuntimeException;
 final class DiscussionModerationPage implements Module
 {
     private const MENU_SLUG = 'aiya-core-discussions';
+    /** Editor floor: the moderation surface is for the editorial staff, not site owners alone. */
+    private const CAPABILITY = 'edit_others_posts';
     private const ACTION_BULK = 'aiya_core_discussion_bulk';
     private const BOARD_ACTION_SAVE = 'aiya_core_board_save';
     private const BOARD_ACTION_DELETE = 'aiya_core_board_delete';
@@ -54,6 +57,7 @@ final class DiscussionModerationPage implements Module
             'slug' => 'discussions',
             'title' => __('Light Community', 'aiya-core'),
             'menu_title' => __('Light Community', 'aiya-core'),
+            'capability' => self::CAPABILITY,
             'icon' => 'dashicons-format-chat',
             'position' => 26,
             'kind' => Page::KIND_CALLBACK,
@@ -72,7 +76,7 @@ final class DiscussionModerationPage implements Module
 
     public function render(): void
     {
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can(self::CAPABILITY)) {
             wp_die(esc_html__('You are not allowed to moderate the community.', 'aiya-core'));
         }
 
@@ -135,24 +139,23 @@ final class DiscussionModerationPage implements Module
         $this->boardCard();
 
         $boards = $this->threads->boards();
-        Ui::filterBar(
-            __('Filter', 'aiya-core'),
-            static function () use ($search, $boardSlug, $status, $boards): void {
-                Ui::input('s', 'search', $search, ['placeholder' => __('Search title or body…', 'aiya-core'), 'size' => 24]);
-                $boardOptions = ['' => __('All boards', 'aiya-core')];
-                foreach ($boards as $boardRow) {
-                    $boardOptions[(string) $boardRow->slug] = (string) $boardRow->name;
-                }
-                Ui::select('board', $boardOptions, $boardSlug, ['label' => __('All boards', 'aiya-core')]);
-                $statusOptions = ['' => __('All statuses', 'aiya-core')];
-                foreach (ThreadStatus::ALL as $state) {
-                    $statusOptions[$state] = self::statusLabel($state);
-                }
-                Ui::select('status', $statusOptions, $status, ['label' => __('All statuses', 'aiya-core')]);
-                echo '<button type="button" class="button button-primary" id="aiya-thread-new">' . esc_html__('New thread', 'aiya-core') . '</button>';
-            },
-            ['page' => self::MENU_SLUG]
-        );
+        // The filter fields compose into the list's top operation bar
+        // (bulkTable's filters contract); the New thread button keeps its
+        // slot beside them.
+        $filters = static function () use ($search, $boardSlug, $status, $boards): void {
+            Ui::input('s', 'search', $search, ['placeholder' => __('Search title or body…', 'aiya-core'), 'size' => 24]);
+            $boardOptions = ['' => __('All boards', 'aiya-core')];
+            foreach ($boards as $boardRow) {
+                $boardOptions[(string) $boardRow->slug] = (string) $boardRow->name;
+            }
+            Ui::select('board', $boardOptions, $boardSlug, ['label' => __('All boards', 'aiya-core')]);
+            $statusOptions = ['' => __('All statuses', 'aiya-core')];
+            foreach (ThreadStatus::ALL as $state) {
+                $statusOptions[$state] = self::statusLabel($state);
+            }
+            Ui::select('status', $statusOptions, $status, ['label' => __('All statuses', 'aiya-core')]);
+            echo '<button type="button" class="button button-primary" id="aiya-thread-new">' . esc_html__('New thread', 'aiya-core') . '</button>';
+        };
 
         Ui::bulkTable(
             self::ACTION_BULK,
@@ -210,6 +213,9 @@ final class DiscussionModerationPage implements Module
                 'jump_nav' => true,
                 'per_page_nav' => true,
                 'total' => (int) $result['total'],
+                'filters' => $filters,
+                'filters_url' => self::pageUrl(),
+                'filters_fields' => ['s', 'board', 'status'],
             ]
         );
 
@@ -380,7 +386,7 @@ final class DiscussionModerationPage implements Module
      */
     public function handleBulk(): void
     {
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can(self::CAPABILITY)) {
             wp_die(esc_html__('You are not allowed to moderate the community.', 'aiya-core'));
         }
         check_admin_referer(self::ACTION_BULK);
@@ -547,7 +553,7 @@ final class DiscussionModerationPage implements Module
 
     public function handleBoardSave(): void
     {
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can(self::CAPABILITY)) {
             wp_die(esc_html__('You are not allowed to manage the community.', 'aiya-core'));
         }
         check_admin_referer(self::BOARD_ACTION_SAVE);
@@ -579,7 +585,7 @@ final class DiscussionModerationPage implements Module
 
     public function handleBoardDelete(): void
     {
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can(self::CAPABILITY)) {
             wp_die(esc_html__('You are not allowed to manage the community.', 'aiya-core'));
         }
         check_admin_referer(self::BOARD_ACTION_DELETE);

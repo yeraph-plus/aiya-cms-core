@@ -232,6 +232,27 @@
                 this.sync();
                 this.$el.trigger('submit');
             });
+            // Filter button (data-aiya-filter): rebuild the URL from the
+            // named filter fields only, paged reset — a clean GET instead
+            // of the native formmethod=get flip that would drag the bulk
+            // POST fields along.
+            this.$el.on('click', '[data-aiya-filter]', (event) => {
+                event.preventDefault();
+                const button = event.currentTarget;
+                const form = button.closest('form');
+                const names = String($(button).attr('data-aiya-filter-fields') || '')
+                    .split(',')
+                    .map((piece) => piece.trim())
+                    .filter(Boolean);
+                const params = { paged: 1 };
+                names.forEach((name) => {
+                    const field = form ? form.querySelector('[name="' + name + '"]') : null;
+                    if (field) {
+                        params[name] = $(field).val() || '';
+                    }
+                });
+                navigateWith(params);
+            });
             this.$el.on('submit', (event) => {
                 const action = this.$('select[name=bulk_action]').val();
                 if (!action) {
@@ -256,7 +277,7 @@
                 checked: checked > 0 && checked === $rows.length,
                 indeterminate: checked > 0 && checked < $rows.length
             });
-            this.$('button[type=submit]').not('[data-aiya-single-delete]').prop('disabled', checked === 0);
+            this.$('button[type=submit]').not('[data-aiya-single-delete], [data-aiya-filter]').prop('disabled', checked === 0);
             this.$('.aiya-core-bulk-count').prop('hidden', checked === 0).text(this.selectedText.replace('%s', String(checked)));
         }
     });
