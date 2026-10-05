@@ -611,10 +611,16 @@ final class Ui
         }
         // translators: %s: number of rows currently checked.
         $selectedText = __('Selected: %s', 'aiya-core');
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="aiya-core-bulk" data-aiya-bulk'
+        $formId = 'aiya-bulk-' . sanitize_html_class($postAction);
+        $confirms = ($args['confirm'] ?? []) !== [] ? $args['confirm'] : null;
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" id="' . esc_attr($formId) . '" class="aiya-core-bulk" data-aiya-bulk'
             . ' data-selected-text="' . esc_attr($selectedText) . '"';
-        if (($args['confirm'] ?? []) !== []) {
-            echo ' data-confirms="' . esc_attr((string) wp_json_encode($args['confirm'])) . '"';
+        if ($confirms !== null) {
+            echo ' data-confirms="' . esc_attr((string) wp_json_encode($confirms)) . '"';
+            // Destructive round trips confirm through the shared danger
+            // modal (rendered right after the form) instead of a browser
+            // confirm().
+            echo ' data-aiya-confirm="' . esc_attr($formId . '-confirm') . '"';
         }
         echo '>';
         echo '<input type="hidden" name="action" value="' . esc_attr($postAction) . '">';
@@ -680,6 +686,9 @@ final class Ui
             self::listNav($navTotal, (int) ($args['paged'] ?? 1), (int) ($args['per_page'] ?? 20), 'bottom', $args);
         }
         echo '</form>';
+        if ($confirms !== null) {
+            self::confirmModal($formId . '-confirm', '');
+        }
     }
 
     /**
@@ -703,6 +712,36 @@ final class Ui
         );
         $body();
         echo '</div>';
+    }
+
+    /**
+     * The danger-confirmation modal — the modal part's destructive
+     * variant: a confirm-text slot, a solid-red confirm button and a
+     * cancel. $text renders statically; pass '' for a slot the behavior
+     * layer fills per action (bulk tables pick the text by the chosen
+     * action). Wiring: the destructive form carries
+     * `data-aiya-confirm="<this id>"` (plus `data-aiya-confirm-text` for
+     * the static case), the shared confirm behavior intercepts its
+     * submit, opens this shell and re-submits through the red button.
+     *
+     * @param array{title?: string, confirm?: string, width?: int} $args
+     */
+    public static function confirmModal(string $id, string $text, array $args = []): void
+    {
+        printf(
+            '<div class="aiya-core-modal aiya-core-modal--danger" id="%1$s" data-aiya-modal data-width="%2$d" title="%3$s" style="display:none;">'
+            . '<p class="aiya-core-confirm-text">%4$s</p><p>',
+            esc_attr(sanitize_html_class($id)),
+            (int) ($args['width'] ?? 440),
+            esc_attr((string) ($args['title'] ?? __('Confirm', 'aiya-core'))),
+            esc_html($text)
+        );
+        printf(
+            '<button type="button" class="button button-primary aiya-core-button--danger" data-aiya-modal-confirm>%1$s</button> ',
+            esc_html((string) ($args['confirm'] ?? __('Delete', 'aiya-core')))
+        );
+        echo '<button type="button" class="button" data-aiya-modal-close>' . esc_html__('Cancel', 'aiya-core') . '</button>';
+        echo '</p></div>';
     }
 
     /** Enqueues the dialog script and its WP styling; once per modal-bearing page. */

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-05T22:13:28+00:00\n"
+"POT-Creation-Date: 2026-10-05T23:37:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -122,7 +122,7 @@ msgid "Cycles"
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:96
-#: src/Admin/DiscussionModerationPage.php:262
+#: src/Admin/DiscussionModerationPage.php:268
 #: src/Admin/PaymentsAuditPage.php:138
 #: src/Admin/UiSamplePage.php:116
 #: src/Admin/UiSamplePage.php:161
@@ -201,8 +201,8 @@ msgid "Pattern"
 msgstr ""
 
 #: src/Admin/CoverMetabox.php:72
-#: src/Admin/DiscussionModerationPage.php:165
-#: src/Admin/DiscussionModerationPage.php:248
+#: src/Admin/DiscussionModerationPage.php:168
+#: src/Admin/DiscussionModerationPage.php:254
 #: src/Admin/NotificationPage.php:108
 #: src/Admin/NotificationPage.php:175
 #: src/Admin/UiSamplePage.php:115
@@ -273,9 +273,9 @@ msgid "Credits granted."
 msgstr ""
 
 #: src/Admin/CreditsPage.php:136
-#: src/Admin/DiscussionModerationPage.php:131
-#: src/Admin/DiscussionModerationPage.php:362
-#: src/Admin/DiscussionModerationPage.php:437
+#: src/Admin/DiscussionModerationPage.php:135
+#: src/Admin/DiscussionModerationPage.php:368
+#: src/Admin/DiscussionModerationPage.php:443
 msgid "The operation failed."
 msgstr ""
 
@@ -323,11 +323,11 @@ msgstr ""
 
 #: src/Admin/CreditsPage.php:216
 #: src/Admin/CronsPage.php:172
-#: src/Admin/DiscussionModerationPage.php:139
 #: src/Admin/PaymentsAuditPage.php:116
 #: src/Admin/PicBedPage.php:227
 #: src/Admin/RewritesPage.php:86
 #: src/Admin/ShortcodesPage.php:67
+#: src/Admin/Ui.php:646
 #: src/Admin/UiSamplePage.php:58
 #: src/Admin/UiSamplePage.php:107
 msgid "Filter"
@@ -536,8 +536,8 @@ msgid "Filter by hook name…"
 msgstr ""
 
 #: src/Admin/CronsPage.php:182
-#: src/Admin/DiscussionModerationPage.php:170
-#: src/Admin/DiscussionModerationPage.php:501
+#: src/Admin/DiscussionModerationPage.php:173
+#: src/Admin/DiscussionModerationPage.php:507
 #: src/Admin/NotificationPage.php:112
 #: src/Admin/PicBedPage.php:264
 #: src/Admin/UiSamplePage.php:285
@@ -558,9 +558,10 @@ msgid "Delete this scheduled event?"
 msgstr ""
 
 #: src/Admin/CronsPage.php:200
-#: src/Admin/DiscussionModerationPage.php:197
-#: src/Admin/DiscussionModerationPage.php:537
+#: src/Admin/DiscussionModerationPage.php:200
+#: src/Admin/DiscussionModerationPage.php:544
 #: src/Admin/NotificationPage.php:145
+#: src/Admin/Ui.php:741
 msgid "Delete"
 msgstr ""
 
@@ -568,23 +569,23 @@ msgstr ""
 msgid "No scheduled events match."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:55
-#: src/Admin/DiscussionModerationPage.php:56
-#: src/Admin/DiscussionModerationPage.php:100
+#: src/Admin/DiscussionModerationPage.php:58
+#: src/Admin/DiscussionModerationPage.php:59
+#: src/Admin/DiscussionModerationPage.php:104
 msgid "Light Community"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:76
-#: src/Admin/DiscussionModerationPage.php:384
+#: src/Admin/DiscussionModerationPage.php:80
+#: src/Admin/DiscussionModerationPage.php:390
 msgid "You are not allowed to moderate the community."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:101
+#: src/Admin/DiscussionModerationPage.php:105
 msgid "Discussion threads live outside the post model; this screen is the admin surface for the headless community."
 msgstr ""
 
 #. translators: %d: number of closed threads.
-#: src/Admin/DiscussionModerationPage.php:110
+#: src/Admin/DiscussionModerationPage.php:114
 #, php-format
 msgid "%d thread closed."
 msgid_plural "%d threads closed."
@@ -592,7 +593,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of reopened threads.
-#: src/Admin/DiscussionModerationPage.php:118
+#: src/Admin/DiscussionModerationPage.php:122
 #, php-format
 msgid "%d thread reopened."
 msgid_plural "%d threads reopened."
@@ -600,191 +601,192 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of deleted threads.
-#: src/Admin/DiscussionModerationPage.php:126
+#: src/Admin/DiscussionModerationPage.php:130
 #, php-format
 msgid "%d thread deleted."
 msgid_plural "%d threads deleted."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/DiscussionModerationPage.php:141
-msgid "Search title or body…"
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:142
 #: src/Admin/DiscussionModerationPage.php:146
-msgid "All boards"
+msgid "Search title or body…"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:147
 #: src/Admin/DiscussionModerationPage.php:151
-msgid "All statuses"
+msgid "All boards"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:152
-#: src/Admin/DiscussionModerationPage.php:244
-#: src/Admin/DiscussionModerationPage.php:300
+#: src/Admin/DiscussionModerationPage.php:156
+msgid "All statuses"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:157
+#: src/Admin/DiscussionModerationPage.php:250
+#: src/Admin/DiscussionModerationPage.php:306
 msgid "New thread"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:160
+#: src/Admin/DiscussionModerationPage.php:163
 msgid "Close selected"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:161
+#: src/Admin/DiscussionModerationPage.php:164
 msgid "Reopen selected"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:162
+#: src/Admin/DiscussionModerationPage.php:165
 #: src/Admin/NotificationPage.php:106
 #: src/Admin/UiSamplePage.php:158
 msgid "Delete selected"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:166
+#: src/Admin/DiscussionModerationPage.php:169
 msgid "Excerpt"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:167
+#: src/Admin/DiscussionModerationPage.php:170
 #: src/Admin/NotificationPage.php:259
 #: src/Domain/Content/ContentTypeModule.php:60
 msgid "Author"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:168
+#: src/Admin/DiscussionModerationPage.php:171
 msgid "Replies"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:169
+#: src/Admin/DiscussionModerationPage.php:172
 msgid "Last activity"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:196
-#: src/Admin/DiscussionModerationPage.php:526
+#: src/Admin/DiscussionModerationPage.php:199
+#: src/Admin/DiscussionModerationPage.php:532
 #: src/Admin/UiSamplePage.php:290
 msgid "Edit"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:204
+#: src/Admin/DiscussionModerationPage.php:207
 msgid "No threads found."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:205
+#: src/Admin/DiscussionModerationPage.php:208
 msgid "Delete the selected threads and all their replies?"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:252
+#: src/Admin/DiscussionModerationPage.php:258
 msgid "Board"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:272
+#: src/Admin/DiscussionModerationPage.php:278
 #: src/Admin/NotificationPage.php:109
 #: src/Admin/NotificationPage.php:188
 msgid "Body"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:275
+#: src/Admin/DiscussionModerationPage.php:281
 msgid "HTML allowed; at most nine images per body."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:280
+#: src/Admin/DiscussionModerationPage.php:286
 #: src/Admin/OperationsPage.php:107
 msgid "Save"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:281
+#: src/Admin/DiscussionModerationPage.php:287
 #: src/Admin/PartsDialog.php:91
 #: src/Admin/PostTypeSwitchBulkAction.php:83
 #: src/Admin/TermMoveBulkAction.php:77
+#: src/Admin/Ui.php:743
 #: src/Admin/UiSamplePage.php:303
 msgid "Cancel"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:301
+#: src/Admin/DiscussionModerationPage.php:307
 msgid "Edit thread"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:434
+#: src/Admin/DiscussionModerationPage.php:440
 msgid "Board created."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:435
+#: src/Admin/DiscussionModerationPage.php:441
 msgid "Board saved."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:436
+#: src/Admin/DiscussionModerationPage.php:442
 msgid "Board deleted."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:453
+#: src/Admin/DiscussionModerationPage.php:459
 msgid "Boards"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:461
-#: src/Admin/DiscussionModerationPage.php:497
+#: src/Admin/DiscussionModerationPage.php:467
+#: src/Admin/DiscussionModerationPage.php:503
 msgid "Slug"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:465
+#: src/Admin/DiscussionModerationPage.php:471
 msgid "The slug is fixed once threads reference it."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:468
+#: src/Admin/DiscussionModerationPage.php:474
 msgid "Lowercase letters, digits, dashes or underscores."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:473
-#: src/Admin/DiscussionModerationPage.php:496
+#: src/Admin/DiscussionModerationPage.php:479
+#: src/Admin/DiscussionModerationPage.php:502
 #: src/Admin/FileServeMetabox.php:288
 #: src/Domain/Membership/MembershipModule.php:118
 msgid "Name"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:477
-#: src/Admin/DiscussionModerationPage.php:498
+#: src/Admin/DiscussionModerationPage.php:483
+#: src/Admin/DiscussionModerationPage.php:504
 #: src/Domain/Membership/MembershipModule.php:124
 msgid "Description"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:481
-#: src/Admin/DiscussionModerationPage.php:499
+#: src/Admin/DiscussionModerationPage.php:487
+#: src/Admin/DiscussionModerationPage.php:505
 msgid "Sort order"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:486
+#: src/Admin/DiscussionModerationPage.php:492
 msgid "Save board"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:486
+#: src/Admin/DiscussionModerationPage.php:492
 msgid "Add board"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:488
+#: src/Admin/DiscussionModerationPage.php:494
 msgid "Cancel editing"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:500
+#: src/Admin/DiscussionModerationPage.php:506
 msgid "Threads"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:533
+#: src/Admin/DiscussionModerationPage.php:540
 msgid "Delete this board? Its threads move to the first remaining board."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:543
+#: src/Admin/DiscussionModerationPage.php:550
 msgid "No boards yet."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:551
-#: src/Admin/DiscussionModerationPage.php:583
+#: src/Admin/DiscussionModerationPage.php:560
+#: src/Admin/DiscussionModerationPage.php:592
 msgid "You are not allowed to manage the community."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:616
+#: src/Admin/DiscussionModerationPage.php:625
 msgid "Normal"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:617
+#: src/Admin/DiscussionModerationPage.php:626
 msgid "Closed"
 msgstr ""
 
@@ -792,41 +794,41 @@ msgstr ""
 msgid "General"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:175
+#: src/Admin/FieldRenderer.php:198
 #: src/Admin/SettingsAdmin.php:84
 msgid "Select media"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:176
-#: src/Admin/FieldRenderer.php:286
+#: src/Admin/FieldRenderer.php:199
+#: src/Admin/FieldRenderer.php:309
 msgid "Remove"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:199
+#: src/Admin/FieldRenderer.php:222
 msgid "cache_ttl: 3600"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:209
+#: src/Admin/FieldRenderer.php:232
 msgid "A value is stored; leave blank to keep it"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:214
+#: src/Admin/FieldRenderer.php:237
 msgid "Generate a random key"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:217
+#: src/Admin/FieldRenderer.php:240
 msgid "Clear the stored value"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:241
+#: src/Admin/FieldRenderer.php:264
 msgid "Add item"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:263
+#: src/Admin/FieldRenderer.php:286
 msgid "(no title)"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:288
+#: src/Admin/FieldRenderer.php:311
 msgid "Confirm delete?"
 msgstr ""
 
@@ -2302,22 +2304,26 @@ msgid "Copied."
 msgstr ""
 
 #. translators: %s: number of rows currently checked.
-#: src/Admin/Ui.php:607
+#: src/Admin/Ui.php:613
 #, php-format
 msgid "Selected: %s"
 msgstr ""
 
-#: src/Admin/Ui.php:617
+#: src/Admin/Ui.php:629
 msgid "Bulk actions"
 msgstr ""
 
-#: src/Admin/Ui.php:618
+#: src/Admin/Ui.php:630
 #: src/Admin/UiSamplePage.php:60
 msgid "Apply"
 msgstr ""
 
-#: src/Admin/Ui.php:629
+#: src/Admin/Ui.php:659
 msgid "Select all"
+msgstr ""
+
+#: src/Admin/Ui.php:736
+msgid "Confirm"
 msgstr ""
 
 #: src/Admin/UiSamplePage.php:42

@@ -532,11 +532,12 @@ final class DiscussionModerationPage implements Module
                                 esc_html__('Edit', 'aiya-core')
                             );
                             // Destructive board deletion rides its own POST
-                            // form — the confirm text injects through
-                            // wp_json_encode so no quote can break out.
+                            // form; the shared danger modal confirms it
+                            // (data-aiya-confirm + static text attr).
                             ?>
                             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
-                                onsubmit="return window.confirm(<?php echo esc_attr((string) wp_json_encode(__('Delete this board? Its threads move to the first remaining board.', 'aiya-core'))); ?>);">
+                                data-aiya-confirm="aiya-board-delete-confirm"
+                                data-aiya-confirm-text="<?php esc_attr_e('Delete this board? Its threads move to the first remaining board.', 'aiya-core'); ?>">
                                 <input type="hidden" name="action" value="<?php echo esc_attr(self::BOARD_ACTION_DELETE); ?>">
                                 <input type="hidden" name="board_id" value="<?php echo esc_attr((string) $row->id); ?>">
                                 <?php wp_nonce_field(self::BOARD_ACTION_DELETE); ?>
@@ -548,6 +549,8 @@ final class DiscussionModerationPage implements Module
                 },
                 __('No boards yet.', 'aiya-core')
             );
+            // One shared danger shell serves every board row's delete form.
+            Ui::confirmModal('aiya-board-delete-confirm', '');
         }, $editing !== null || $boardNote !== '');
     }
 

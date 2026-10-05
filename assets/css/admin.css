@@ -526,6 +526,22 @@ details.aiya-core-card > .aiya-core-card__summary::marker {
     color: #b32d2e;
 }
 
+/* The destructive action button: solid delete red on the primary shell —
+   the danger variant the confirm modals wear (row/link deletes keep the
+   red text style above). */
+.button.aiya-core-button--danger {
+    background: #d63638;
+    border-color: #d63638;
+    color: #fff;
+}
+
+.button.aiya-core-button--danger:hover,
+.button.aiya-core-button--danger:focus {
+    background: #b32d2e;
+    border-color: #b32d2e;
+    color: #fff;
+}
+
 /*
  * Page-specific residue — styles owned by one screen. Rules here are
  * candidates to retire with the owning page's Ui migration.

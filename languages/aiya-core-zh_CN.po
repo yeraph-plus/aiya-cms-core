@@ -1520,6 +1520,9 @@ msgstr "应用"
 msgid "Select all"
 msgstr "全选"
 
+msgid "Confirm"
+msgstr "确认"
+
 msgid "You are not allowed to view Dev Tools."
 msgstr "您无权查看 Dev Tools。"
 

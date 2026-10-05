@@ -380,6 +380,47 @@ final class UiTest extends TestCase
         );
     }
 
+    public function testBulkTableWithConfirmsWiresTheDangerModal(): void
+    {
+        $out = $this->captureOut(fn () => Ui::bulkTable(
+            'demo_action',
+            ['del' => 'Delete'],
+            ['t' => ['label' => 'T']],
+            [['id' => 7]],
+            static function ($row, string $column): void {
+                echo (string) $row['id'];
+            },
+            static fn ($row) => $row['id'],
+            ['confirm' => ['del' => 'Sure?']]
+        ));
+        self::assertStringContainsString('id="aiya-bulk-demo_action"', $out, 'the POST form carries a stable id');
+        self::assertStringContainsString('data-aiya-confirm="aiya-bulk-demo_action-confirm"', $out);
+        self::assertStringContainsString('id="aiya-bulk-demo_action-confirm"', $out, 'the danger shell renders after the form');
+        self::assertStringContainsString('aiya-core-modal--danger', $out);
+        self::assertStringContainsString('<p class="aiya-core-confirm-text"></p>', $out, 'the text slot stays empty for the per-action fill');
+        self::assertStringContainsString('data-aiya-modal-confirm', $out);
+        self::assertStringContainsString('aiya-core-button--danger', $out, 'the confirm button wears the solid delete red');
+        self::assertStringContainsString('data-aiya-modal-close', $out);
+        self::assertGreaterThan(
+            (int) strpos($out, '</form>'),
+            (int) strpos($out, 'id="aiya-bulk-demo_action-confirm"'),
+            'the modal renders outside the POST form'
+        );
+    }
+
+    public function testConfirmModalEscapesTextAndSanitizesId(): void
+    {
+        $out = $this->captureOut(fn () => Ui::confirmModal('x" onmouseover="y', 'Delete <b>all</b> "codes"?', ['title' => 'T"tle']));
+        self::assertStringContainsString('id="xonmouseovery"', $out);
+        self::assertStringNotContainsString('onmouseover=', $out);
+        self::assertStringContainsString('title="T&quot;tle"', $out);
+        self::assertStringContainsString('Delete &lt;b&gt;all&lt;/b&gt; &quot;codes&quot;?', $out, 'the confirm text is escaped');
+        self::assertStringContainsString('aiya-core-modal--danger', $out);
+        self::assertStringContainsString('data-aiya-modal-confirm', $out);
+        self::assertStringContainsString('data-aiya-modal-close', $out);
+        self::assertStringContainsString('style="display:none;"', $out);
+    }
+
     public function testListNavIsPassiveWithoutSwitches(): void
     {
         $_SERVER['REQUEST_URI'] = '/wp-admin/admin.php?page=demo';

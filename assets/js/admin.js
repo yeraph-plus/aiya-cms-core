@@ -261,9 +261,14 @@
                     return;
                 }
                 const text = this.confirms[action];
-                if (text && !window.confirm(text)) {
+                if (text && this.el.dataset.aiyaConfirmed !== '1') {
+                    // Destructive actions confirm through the shared danger
+                    // modal before the round trip goes out.
                     event.preventDefault();
+                    openConfirm(this.el, text);
+                    return;
                 }
+                delete this.el.dataset.aiyaConfirmed;
             });
             this.sync();
         },
@@ -460,6 +465,51 @@
             }
         }
     }, true);
+
+    // Danger confirmation (Ui::confirmModal): destructive forms carry
+    // data-aiya-confirm pointing at their modal shell. The submit is held,
+    // the shell opens — BulkView picks per-action texts, plain forms carry
+    // a static data-aiya-confirm-text — and the red confirm button
+    // releases the held form for resubmission.
+    let pendingConfirmForm = null;
+    function openConfirm(form, text) {
+        const id = form.getAttribute('data-aiya-confirm');
+        const modal = id ? document.getElementById(id) : null;
+        const $modal = modal ? $(modal) : null;
+        if (!$modal || !$modal.data('uiDialog')) {
+            // No initialized shell on the page: fall back to the browser
+            // confirm rather than swallowing the destructive action.
+            if (window.confirm(text || '')) {
+                form.dataset.aiyaConfirmed = '1';
+                $(form).trigger('submit');
+            }
+            return;
+        }
+        pendingConfirmForm = form;
+        const slot = modal.querySelector('.aiya-core-confirm-text');
+        if (slot && text) {
+            $modal.find('.aiya-core-confirm-text').text(text);
+        }
+        $modal.dialog('open');
+    }
+    $(document).on('click', '[data-aiya-modal-confirm]', () => {
+        if (!pendingConfirmForm) {
+            return;
+        }
+        const form = pendingConfirmForm;
+        pendingConfirmForm = null;
+        form.dataset.aiyaConfirmed = '1';
+        $(form).trigger('submit');
+    });
+    $(document).on('submit', 'form[data-aiya-confirm]:not([data-aiya-bulk])', function (event) {
+        const form = this;
+        if (form.dataset.aiyaConfirmed === '1') {
+            delete form.dataset.aiyaConfirmed;
+            return;
+        }
+        event.preventDefault();
+        openConfirm(form, String(form.getAttribute('data-aiya-confirm-text') || ''));
+    });
 
     // List navigation (Ui::listNav): opt-in via the caller — the jump
     // input navigates on Enter (jump_nav switch), the per-page select
