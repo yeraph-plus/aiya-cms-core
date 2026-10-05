@@ -91,6 +91,13 @@ if (!class_exists('WP_Post')) {
         {
             return isset($this->aiya_test_props[$name]);
         }
+
+        /** Core's WP_User answers this on every instance; NotificationController
+            reads it on whatever wp_get_current_user hands over. */
+        public function exists(): bool
+        {
+            return (int) ($this->aiya_test_props['ID'] ?? 0) > 0;
+        }
     }
 }
 

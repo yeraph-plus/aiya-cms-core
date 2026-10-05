@@ -39,10 +39,11 @@ namespace Aiya\Core\Tests\Unit {
      */
 
     /** An inert request object satisfying controller and pipeline hints. */
-    class FakeRestRequest
+    class FakeRestRequest implements \ArrayAccess
     {
-        /** @param array<string, mixed> $params @param array<string, string> $headers */
-        public function __construct(private string $route = '/', private string $method = 'GET', private array $params = [], private array $headers = [])
+        /** @param array<string, mixed> $params @param array<string, string> $headers
+            @param array<string, mixed> $query @param array<string, mixed> $files */
+        public function __construct(private string $route = '/', private string $method = 'GET', private array $params = [], private array $headers = [], private array $query = [], private string $body = '', private array $files = [])
         {
         }
 
@@ -76,6 +77,43 @@ namespace Aiya\Core\Tests\Unit {
         public function get_headers(): array
         {
             return $this->headers;
+        }
+
+        /** @return array<string, mixed> */
+        public function get_query_params(): array
+        {
+            return $this->query;
+        }
+
+        public function get_body(): string
+        {
+            return $this->body;
+        }
+
+        /** @return array<string, mixed> */
+        public function get_file_params(): array
+        {
+            return $this->files;
+        }
+
+        public function offsetExists(mixed $offset): bool
+        {
+            return isset($this->params[(string) $offset]);
+        }
+
+        public function offsetGet(mixed $offset): mixed
+        {
+            return $this->params[(string) $offset] ?? null;
+        }
+
+        public function offsetSet(mixed $offset, mixed $value): void
+        {
+            $this->params[(string) $offset] = $value;
+        }
+
+        public function offsetUnset(mixed $offset): void
+        {
+            unset($this->params[(string) $offset]);
         }
     }
 
