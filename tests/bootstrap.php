@@ -1964,6 +1964,68 @@ if (!function_exists('is_sticky')) {
     }
 }
 
+if (!function_exists('unstick_post')) {
+    /** Mirrors core's sticky-options removal against the sticky fixture list. */
+    function unstick_post(int $postId): bool
+    {
+        $removed = false;
+        foreach ($GLOBALS['__aiya_test_sticky'] ?? [] as $index => $stickyId) {
+            if ((int) $stickyId === $postId) {
+                unset($GLOBALS['__aiya_test_sticky'][$index]);
+                $removed = true;
+            }
+        }
+        $GLOBALS['__aiya_test_sticky'] = array_values($GLOBALS['__aiya_test_sticky'] ?? []);
+
+        return $removed;
+    }
+}
+
+if (!function_exists('get_post_type_object')) {
+    /** The suite has no post-type registry: any name answers an object
+        carrying the edit_posts capability the gates read. Unknown names
+        are excluded upstream by the PublicTypes gate. */
+    function get_post_type_object(string $name): ?object
+    {
+        if ($name === '') {
+            return null;
+        }
+
+        $object = new stdClass();
+        $object->name = $name;
+        $object->cap = new stdClass();
+        $object->cap->edit_posts = 'edit_posts';
+
+        return $object;
+    }
+}
+
+if (!function_exists('wp_update_post')) {
+    /** Applies post_type-class field writes onto the posts fixture and
+        records the payload; an unknown ID fails the way core does
+        (0, or WP_Error when asked). */
+    function wp_update_post(array|object $postarr = [], bool $wp_error = false): int|WP_Error
+    {
+        $postarr = (array) $postarr;
+        $id = (int) ($postarr['ID'] ?? 0);
+        if ($id === 0 || !isset($GLOBALS['__aiya_test_posts'][$id])) {
+            return $wp_error ? new WP_Error('invalid_post', 'Invalid post ID.') : 0;
+        }
+
+        $GLOBALS['__aiya_test_post_updates'] ??= [];
+        $GLOBALS['__aiya_test_post_updates'][] = $postarr;
+
+        $post = $GLOBALS['__aiya_test_posts'][$id];
+        foreach (['post_type', 'post_status', 'post_title', 'post_content'] as $field) {
+            if (array_key_exists($field, $postarr)) {
+                $post->{$field} = $postarr[$field];
+            }
+        }
+
+        return $id;
+    }
+}
+
 if (!function_exists('comments_open')) {
     function comments_open(mixed $post = null): bool
     {
@@ -2106,6 +2168,28 @@ if (!function_exists('wp_mail')) {
 }
 
 $GLOBALS['__aiya_test_mails'] = [];
+
+if (!function_exists('wp_rand')) {
+    /** Mirrors pluggable wp_rand(): null defaults, int cast, either argument
+        order, then the CSPRNG. The $rnd_value reuse cache is a legacy
+        performance detail no test pins. */
+    function wp_rand($min = null, $max = null)
+    {
+        if ($min === null) {
+            $min = 0;
+        }
+        if ($max === null) {
+            $max = 4294967295;
+        }
+        $min = (int) $min;
+        $max = (int) $max;
+        if ($min > $max) {
+            [$max, $min] = [$min, $max];
+        }
+
+        return random_int($min, $max);
+    }
+}
 
 if (!function_exists('get_date_from_gmt')) {
     function get_date_from_gmt(string $date, string $format = 'Y-m-d H:i:s'): string

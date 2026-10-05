@@ -14,6 +14,7 @@ use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use PHPUnit\Framework\TestCase;
 use WP_Term;
+use Aiya\Core\Domain\Content\TermTaxonomyMover;
 
 /**
  * The /terms list filtering (0.96.0): terms with a 0 native count drop out
@@ -128,5 +129,24 @@ final class TermListFilterTest extends TestCase
         self::assertSame(['used', 'nsfw'], array_column($published, 'slug'));
         self::assertSame(['used', 'nsfw', 'ghost'], array_column($full, 'slug'));
         self::assertSame(['nsfw'], array_column($nsfw, 'slug'));
+    }
+
+    public function testCollectsEveryContractTaxonomyOnce(): void
+    {
+        $taxonomies = TermTaxonomyMover::taxonomies();
+
+        self::assertSame($taxonomies, array_values(array_unique($taxonomies)));
+        foreach (['category', 'post_tag', 'page_category', 'resource_category', 'resource_other'] as $expected) {
+            self::assertContains($expected, $taxonomies);
+        }
+    }
+
+    public function testTargetOptionsExcludeTheSource(): void
+    {
+        $targets = TermTaxonomyMover::targetOptions('category');
+
+        self::assertNotContains('category', $targets);
+        self::assertContains('post_tag', $targets);
+        self::assertContains('resource_original', $targets);
     }
 }

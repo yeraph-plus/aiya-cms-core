@@ -15,41 +15,7 @@ use PHPUnit\Framework\TestCase;
 use WP_Error;
 
 require_once __DIR__ . '/../Fixture/MembershipTestWpdb.php';
-
-if (!class_exists('WP_REST_Request')) {
-    // The REST stack is not shimmed in bootstrap; the rate-limit test only
-    // needs an inert request object that satisfies the controller's hint.
-    final class FakeRestRequest
-    {
-        /** @param array<string, mixed> $params */
-        public function __construct(private array $params = [])
-        {
-        }
-
-        public function get_param(string $key): mixed
-        {
-            return $this->params[$key] ?? null;
-        }
-    }
-    class_alias(FakeRestRequest::class, 'WP_REST_Request');
-}
-
-if (!class_exists('WP_REST_Response')) {
-    // Same for the deep link's success face: the controller wraps the URL
-    // in a response object the suite only needs to carry the payload.
-    final class FakeRestResponse
-    {
-        public function __construct(private mixed $data = null)
-        {
-        }
-
-        public function get_data(): mixed
-        {
-            return $this->data;
-        }
-    }
-    class_alias(FakeRestResponse::class, 'WP_REST_Response');
-}
+require_once __DIR__ . '/../Fixture/RestDoubles.php';
 
 /**
  * The personalized Afdian deep link rides the same fixed-window limiter
@@ -109,7 +75,7 @@ final class AfdianOrderUrlTest extends TestCase
         ]);
 
         $method = new \ReflectionMethod($this->controller(), 'afdianOrderUrl');
-        $request = new FakeRestRequest(['tierKey' => 'gold']);
+        $request = new FakeRestRequest(params: ['tierKey' => 'gold']);
 
         // Hits 1–10 pass the gate and fail on the unbound plan; hit 11
         // answers the limiter.
@@ -142,7 +108,7 @@ final class AfdianOrderUrlTest extends TestCase
         ]);
 
         $method = new \ReflectionMethod($this->controller(), 'afdianOrderUrl');
-        $result = $method->invoke($this->controller(), new FakeRestRequest(['tierKey' => 'gold']));
+        $result = $method->invoke($this->controller(), new FakeRestRequest(params: ['tierKey' => 'gold']));
 
         self::assertInstanceOf(WP_Error::class, $result);
         self::assertSame('aiya_tier_disabled', $result->get_error_code());
@@ -168,7 +134,7 @@ final class AfdianOrderUrlTest extends TestCase
         $GLOBALS['__aiya_test_current_user_id'] = 1;
 
         $method = new \ReflectionMethod($this->controller(), 'afdianOrderUrl');
-        $result = $method->invoke($this->controller(), new FakeRestRequest(['tierKey' => 'gold']));
+        $result = $method->invoke($this->controller(), new FakeRestRequest(params: ['tierKey' => 'gold']));
 
         self::assertNotInstanceOf(WP_Error::class, $result);
         $data = $result->get_data();

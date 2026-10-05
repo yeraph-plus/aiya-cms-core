@@ -216,4 +216,43 @@ final class NotificationPublishLegsTest extends TestCase
         self::assertSame(['sponsor_activated'], $this->typesFor(21));
         self::assertSame([], $GLOBALS['__aiya_test_mails'], 'the receipt mail is no longer this domain leg');
     }
+    /**
+     * Social-style threads may carry no title at all (content-only cards are
+     * a designed shape), so the reply message falls back to the title-less
+     * copy and the thread excerpt rides in the body — never the empty 「」.
+     */
+    public function testAReplyToATitlelessThreadUsesTheTitlelessCopy(): void
+    {
+        $GLOBALS['__aiya_test_user_meta'][9]['display_name'] = 'hua8536067';
+        $GLOBALS['wpdb']->aiya_test_rows['wp_aiya_discussions'] = [[
+            'id' => 5, 'user_id' => 7, 'board_id' => 1, 'status' => 'open',
+            'title' => '', 'content' => '<p>A titleless thread body about cameras.</p>',
+            'post_id' => 0, 'reply_count' => 0, 'created_at' => '2026-10-02 00:00:00',
+        ]];
+
+        $this->actions()->onThreadReplied(5, 6, 9);
+
+        $rows = $this->rows();
+        self::assertCount(1, $rows);
+        self::assertStringNotContainsString('「', (string) $rows[0]['title'], 'no empty title quotes');
+        self::assertStringContainsString('hua8536067 replied to your thread.', (string) $rows[0]['title']);
+        self::assertStringContainsString('A titleless thread body', (string) $rows[0]['body'], 'the thread excerpt rides in the body');
+    }
+
+    public function testAReplyToATitledThreadKeepsTheQuotedCopy(): void
+    {
+        $GLOBALS['__aiya_test_user_meta'][9]['display_name'] = 'hua8536067';
+        $GLOBALS['wpdb']->aiya_test_rows['wp_aiya_discussions'] = [[
+            'id' => 5, 'user_id' => 7, 'board_id' => 1, 'status' => 'open',
+            'title' => 'My thread', 'content' => '<p>Body.</p>',
+            'post_id' => 0, 'reply_count' => 0, 'created_at' => '2026-10-02 00:00:00',
+        ]];
+
+        $this->actions()->onThreadReplied(5, 6, 9);
+
+        $rows = $this->rows();
+        self::assertCount(1, $rows);
+        self::assertStringContainsString('hua8536067 replied to your thread "My thread".', (string) $rows[0]['title']);
+        self::assertStringContainsString('Body.', (string) $rows[0]['body']);
+    }
 }

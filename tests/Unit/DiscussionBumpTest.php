@@ -6,6 +6,7 @@ namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use PHPUnit\Framework\TestCase;
+use Aiya\Core\Domain\Discussion\ThreadStatus;
 
 /**
  * The materialized activity stamp (`bumped_at`, 0.100.0): creation bumps,
@@ -136,5 +137,19 @@ final class DiscussionBumpTest extends TestCase
         self::assertSame($threadId, $seen['threadId'], 'the publish action still carries the real thread id');
         self::assertSame($replyId, $seen['replyId'], 'the replied action still carries the real reply id');
         self::assertSame(2, $seen['writes'], 'both listeners actually wrote — the regression needs the contention');
+    }
+
+    public function testStatusVocabularyIsTheTwoValueContract(): void
+    {
+        self::assertSame(['open', 'closed'], ThreadStatus::ALL);
+        self::assertFalse(ThreadStatus::isValid('answered'), 'issue-style values were retired with the boards rework');
+        self::assertFalse(ThreadStatus::isValid('resolved'));
+        self::assertFalse(ThreadStatus::isValid('pending'));
+    }
+
+    public function testOnlyClosedLocksReplies(): void
+    {
+        self::assertFalse(ThreadStatus::locksReplies(ThreadStatus::OPEN));
+        self::assertTrue(ThreadStatus::locksReplies(ThreadStatus::CLOSED));
     }
 }

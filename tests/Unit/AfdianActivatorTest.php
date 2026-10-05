@@ -7,10 +7,7 @@ namespace Aiya\Core\Tests\Unit;
 use Aiya\Core\Domain\Membership\AfdianActivator;
 use Aiya\Core\Domain\Membership\AfdianGateway;
 use Aiya\Core\Domain\Membership\EntitlementService;
-use Aiya\Core\Domain\Membership\MembershipService;
 use Aiya\Core\Domain\Membership\OrderService;
-use Aiya\Core\Domain\Membership\MembershipModule;
-use Aiya\Core\Settings\Registry;
 use Aiya\Infra\PaymentAfdian\Client;
 use Aiya\Infra\PaymentAfdian\Gateway;
 use Aiya\Infra\SlugToolkit\IdSlugEncoder;
@@ -26,8 +23,9 @@ require_once __DIR__ . '/../Fixture/MembershipTestWpdb.php';
  * query vouches for books straight into the paid log under the
  * platform's own order id — no local checkout row exists to settle.
  * Replays stay idempotent, and unusable pushes log an "ignored" outcome
- * without touching the books. The confirm() settle guard and the
- * users-list batch read share the same wpdb double.
+ * without touching the books. The confirm() settle guard, the users-list
+ * batch read and the tier deletion guard live in their own class files
+ * since 2026-10-05 and share this file's wpdb double.
  */
 final class AfdianActivatorTest extends TestCase
 {
@@ -249,153 +247,5 @@ final class AfdianActivatorTest extends TestCase
             ['tierKey' => 'gold', 'tierName' => 'Gold', 'cycles' => 60],
             $this->activator()->activate(42, 'T600')
         );
-    }
-
-    // --------------------------------------------- the confirm() settle guard
-
-    public function testConfirmFlipsOnlyAPendingRow(): void
-    {
-        $orders = new OrderService();
-        $orders->createPending(42, 'epc_T600', 'gold', 1, 30.0, 'epay');
-        $rowId = (int) $this->db->rows[$this->db->paymentTable][0]['id'];
-
-        self::assertTrue($orders->confirm($rowId, 28.0), 'pending → paid answers true: this call settled it');
-        self::assertFalse($orders->confirm($rowId, 28.0), 'a second push lost the race: the row is not pending any more');
-        self::assertFalse($orders->confirm(99999, 1.0), 'no such row');
-
-        $row = $orders->orderRow('epc_T600');
-        self::assertSame('paid', $row['status']);
-        self::assertSame(28.0, $row['amount']);
-        self::assertNotSame('', (string) ($this->db->rows[$this->db->paymentTable][0]['paid_at'] ?? ''), 'the settle stamps when the money actually landed');
-    }
-
-    /**
-     * The aged-out checkout must not dead-end a verified payment: a buyer
-     * who sat on the cashier page past the pending TTL still pays, the
-     * push still arrives, and the row — `unpaid` by then — still settles.
-     */
-    public function testConfirmSettlesARowTheSweepAlreadyAgedOut(): void
-    {
-        $orders = new OrderService();
-        $orders->createPending(42, 'epc_T700', 'gold', 1, 30.0, 'epay');
-        $rowId = (int) $this->db->rows[$this->db->paymentTable][0]['id'];
-        $this->db->rows[$this->db->paymentTable][0]['status'] = 'unpaid';
-
-        self::assertTrue($orders->confirm($rowId, 28.0), 'an aged `unpaid` row settles like a waiting one');
-
-        $row = $orders->orderRow('epc_T700');
-        self::assertSame('paid', $row['status']);
-        self::assertSame(28.0, $row['amount']);
-    }
-
-    /**
-     * The retention purge's one rule: money is forever, carts are not.
-     * A paid row survives whatever its age, an unsettled row inside the
-     * window stays, and only the unsettled row past the window leaves —
-     * the log's only deletion path.
-     */
-    public function testPruneUnpaidKeepsPaidForeverAndAgesCartsOut(): void
-    {
-        $orders = new OrderService();
-        $orders->addPayment(42, 'epc_PAID', 'gold', 30.0, 'epay');
-        $orders->createPending(42, 'epc_OLD', 'gold', 1, 30.0, 'epay');
-        $orders->createPending(42, 'epc_NEW', 'gold', 1, 30.0, 'epay');
-        $rows = $this->db->rows[$this->db->paymentTable];
-        $rows[0]['created_at'] = gmdate('Y-m-d H:i:s', time() - 400 * DAY_IN_SECONDS);
-        $rows[1]['status'] = 'unpaid';
-        $rows[1]['created_at'] = gmdate('Y-m-d H:i:s', time() - 40 * DAY_IN_SECONDS);
-        $rows[2]['created_at'] = gmdate('Y-m-d H:i:s', time() - 1 * DAY_IN_SECONDS);
-        $this->db->rows[$this->db->paymentTable] = $rows;
-
-        $deleted = $orders->pruneUnpaid(30);
-
-        self::assertSame(1, $deleted, 'only the aged unpaid cart leaves');
-        $orderIds = array_column($this->db->rows[$this->db->paymentTable], 'order_id');
-        self::assertContains('epc_PAID', $orderIds, 'paid money is the archive — forever, whatever its age');
-        self::assertContains('epc_NEW', $orderIds, 'a cart inside the retention window is still a maybe');
-        self::assertNotContains('epc_OLD', $orderIds);
-    }
-
-    // ------------------------------------------ the users-list batched tier read
-
-    public function testCurrentTiersForFoldsOneQueryPerPage(): void
-    {
-        global $wpdb;
-        /** @var MembershipTestWpdb $wpdb */
-        $this->db->seedQueueRow(42, 'gold', 'Gold', '-10 days', '+20 days');
-        $this->db->seedQueueRow(42, 'silver', 'Silver', '-1 day', '+360 days'); // the covering row
-        $this->db->seedQueueRow(7, 'gold', 'Gold', '+2 days', '+32 days'); // queued future: not yet current
-
-        $service = new MembershipService();
-        $tiers = $service->currentTiersFor([42, 7, 99]);
-
-        self::assertSame('silver', $tiers[42]['tierKey'] ?? null, 'the row whose window ends last wins');
-        self::assertSame('Silver', $tiers[42]['tierName'] ?? null, 'queued-future rows never shadow the covering one');
-        self::assertArrayNotHasKey(7, $tiers, 'a future window is not a membership yet');
-        self::assertArrayNotHasKey(99, $tiers);
-
-        // One read for the whole page — the N+1 the users list used to pay.
-        $reads = $wpdb->aiya_test_reads;
-        $service->currentTiersFor([42, 7, 99]);
-        self::assertSame($reads + 1, $wpdb->aiya_test_reads);
-
-        // The per-user twin shares the fold's answer.
-        $single = $service->currentTier(42);
-        self::assertSame('silver', $single['tierKey'] ?? null);
-        self::assertNull($service->currentTier(7));
-    }
-
-    // ------------------------------------------------- the tier deletion guard
-
-    /**
-     * A live checkout pins its tier: deleting the tier under a buyer who
-     * is mid-payment drops the key from the gateway's callback whitelist,
-     * so their verified money later dies before settlement. An aged
-     * `unpaid` row is an abandoned cart, not money — it never blocks.
-     */
-    public function testDeletingATierWithALiveCheckoutIsRefused(): void
-    {
-        $module = new MembershipModule(new Registry());
-        $values = ['tiers' => [['key' => 'gold', 'name' => 'Gold']]];
-        $old = ['tiers' => [['key' => 'gold'], ['key' => 'silver']]];
-
-        // The live checkout pins the tier it was written against — here the
-        // one being deleted, not the one being kept.
-        (new OrderService())->createPending(42, 'epc_LIVE', 'silver', 1, 10.0, 'epay');
-
-        $refused = $module->guardTierDeletion($values, 'membership', $old);
-        self::assertInstanceOf(WP_Error::class, $refused);
-        self::assertSame('aiya_tier_in_use', $refused->get_error_code());
-        self::assertStringContainsString('silver', $refused->get_error_message());
-
-        $this->db->rows[$this->db->paymentTable][0]['status'] = 'unpaid';
-        self::assertSame($values, $module->guardTierDeletion($values, 'membership', $old), 'an abandoned cart does not pin the tier');
-    }
-
-    /**
-     * Both vetoes are current-state only. A member whose window covers
-     * now pins the tier: their entitlement would keep self-rotating from
-     * its frozen snapshot, but the product must not vanish from under
-     * them. An expired window is history and never pins — the pre-0.104.0
-     * count read the never-flipping `status` column instead, so "ever
-     * purchased" pinned forever.
-     */
-    public function testDeletingATierWithCoveringMembersIsRefused(): void
-    {
-        $module = new MembershipModule(new Registry());
-        $values = ['tiers' => [['key' => 'gold', 'name' => 'Gold']]];
-        $old = ['tiers' => [['key' => 'gold'], ['key' => 'silver']]];
-
-        // A currently-covering membership on the tier being deleted…
-        $this->db->seedQueueRow(42, 'silver', 'Silver', '-10 days', '+20 days');
-        $refused = $module->guardTierDeletion($values, 'membership', $old);
-        self::assertInstanceOf(WP_Error::class, $refused);
-        self::assertSame('aiya_tier_in_use', $refused->get_error_code());
-        self::assertStringContainsString('silver', $refused->get_error_message());
-
-        // …but an expired window on that tier is history, not usage.
-        $this->db->rows[$this->db->queueTable][0]['starts_at'] = gmdate('Y-m-d H:i:s', strtotime('-40 days'));
-        $this->db->rows[$this->db->queueTable][0]['ends_at'] = gmdate('Y-m-d H:i:s', strtotime('-10 days'));
-        self::assertSame($values, $module->guardTierDeletion($values, 'membership', $old), 'expired history does not pin the tier');
     }
 }

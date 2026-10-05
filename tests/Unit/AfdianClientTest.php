@@ -36,36 +36,33 @@ final class AfdianClientTest extends TestCase
         self::assertSame(0, $dead->ping());
     }
 
-    public function testQueryOrdersParsesThePagedEnvelopeAndClampsPerPage(): void
-    {
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- ditto
-        $client = new Client('user-1', 't', fn (): string => (string) json_encode([
-            'ec' => 200,
-            'data' => ['list' => [['out_trade_no' => 'a'], ['out_trade_no' => 'b'], 'garbage'], 'total_count' => 167, 'total_page' => 11],
-        ]));
-
-        $page = $client->queryOrders(2, 500, '222225555,2222222666');
-
-        self::assertNotNull($page);
-        self::assertSame(['a', 'b'], array_column($page['list'], 'out_trade_no'));
-        self::assertSame(167, $page['total_count']);
-        self::assertSame(11, $page['total_page']);
-    }
-
-    public function testQueryOrdersClampsPerPageAndPassesTradeNumbers(): void
+    public function testQueryOrdersClampsPerPagePassesTradeNumbersAndParsesTheEnvelope(): void
     {
         $params = null;
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- ditto
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- WP-free client test transport, matching the client's raw-JSON bytes
         $client = new Client('user-1', 't', function (string $url, string $payload) use (&$params): string {
             $params = (array) json_decode((string) json_decode($payload, true)['params'], true);
 
             // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- ditto
-            return (string) json_encode(['ec' => 200, 'data' => ['list' => [], 'total_count' => 0, 'total_page' => 0]]);
+            return (string) json_encode([
+                'ec' => 200,
+                'data' => ['list' => [['out_trade_no' => 'a'], ['out_trade_no' => 'b'], 'garbage'], 'total_count' => 167, 'total_page' => 11],
+            ]);
         });
 
-        $client->queryOrders(2, 500, '222225555,2222222666');
+        $page = $client->queryOrders(2, 500, '222225555,2222222666');
+
+        // The request: per-page clamps to the ceiling, the trade-number
+        // filter rides through.
+        self::assertNotNull($page);
         self::assertSame(['page' => 2, 'per_page' => 100, 'out_trade_no' => '222225555,2222222666'], $params);
 
+        // The response: rows parse, the garbage entry drops, the counters ride.
+        self::assertSame(['a', 'b'], array_column($page['list'], 'out_trade_no'));
+        self::assertSame(167, $page['total_count']);
+        self::assertSame(11, $page['total_page']);
+
+        // The floor: per-page 0 means the platform minimum, no filter.
         $client->queryOrders(1, 0, '');
         self::assertSame(['page' => 1, 'per_page' => 50], $params);
     }

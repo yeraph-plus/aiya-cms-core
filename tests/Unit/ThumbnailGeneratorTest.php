@@ -8,6 +8,8 @@ use Aiya\Infra\ImageProcessor\SaveOptions;
 use Aiya\Infra\ImageProcessor\ThumbnailGenerator;
 use Imagine\Gd\Imagine;
 use PHPUnit\Framework\TestCase;
+use Aiya\Infra\ImageProcessor\ImagineAware;
+use Imagine\Image\ImagineInterface;
 
 /**
  * The generators run inside cron/admin requests with a hard execution
@@ -101,5 +103,39 @@ final class ThumbnailGeneratorTest extends TestCase
         $size = $this->imagine->open($path)->getSize();
 
         return [$size->getWidth(), $size->getHeight()];
+    }
+
+    public function testInstanceIsPassedThroughWithoutResolving(): void
+    {
+        $imagine = $this->createMock(ImagineInterface::class);
+        $subject = new class ($imagine) extends ImagineAware {
+            public function expose(): ImagineInterface
+            {
+                return $this->imagine();
+            }
+        };
+
+        self::assertSame($imagine, $subject->expose());
+    }
+
+    public function testClosureIsResolvedLazilyAndOnlyOnce(): void
+    {
+        $imagine = $this->createMock(ImagineInterface::class);
+        $calls = 0;
+        $subject = new class (static function () use (&$calls, $imagine): ImagineInterface {
+            $calls++;
+
+            return $imagine;
+        }) extends ImagineAware {
+            public function expose(): ImagineInterface
+            {
+                return $this->imagine();
+            }
+        };
+
+        self::assertSame(0, $calls, 'Constructing must not resolve the driver.');
+        self::assertSame($imagine, $subject->expose());
+        self::assertSame($imagine, $subject->expose());
+        self::assertSame(1, $calls, 'The resolver closure must run exactly once.');
     }
 }

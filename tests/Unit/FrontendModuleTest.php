@@ -10,13 +10,11 @@ use Aiya\Core\Settings\Registry;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The front-end default-language setting: it registers on the Frontend
- * page (auto default — the WP site language keeps ruling until the owner
- * picks), and the resolver answers only the front end's supported set,
- * so a stale or bogus stored value degrades to the site language instead
- * of leaking into get_locale's place.
+ * The FrontendModule settings surface: the default-language setting and
+ * the two distinct image-default sources (2026-10-05 consolidation of
+ * FrontendLanguageTest + FrontendImageDefaultsTest).
  */
-final class FrontendLanguageTest extends TestCase
+final class FrontendModuleTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -58,5 +56,29 @@ final class FrontendLanguageTest extends TestCase
     public function testTheLocaleWhitelistIsTheSharedFrontEndSet(): void
     {
         self::assertSame(['zh_CN', 'zh_TW', 'zh_HK', 'en_US'], FrontendLocales::ALL);
+    }
+
+    /**
+     * The image default settings stay two distinct sources: the card
+     * covers' fallback attachment (default_thumb) and the article hero's
+     * own (default_hero) — the banner deliberately stopped reusing the
+     * card source, and both fields must exist for the split to hold.
+     */
+    public function testCardAndHeroDefaultsRegisterAsSeparateMediaFields(): void
+    {
+        $registry = new Registry();
+        (new FrontendModule($registry))->settings();
+
+        $fields = [];
+        foreach ($registry->page('frontend')?->fields() ?? [] as $field) {
+            $fields[$field->id()] = $field;
+        }
+
+        self::assertArrayHasKey('default_thumb', $fields);
+        self::assertArrayHasKey('default_hero', $fields);
+        self::assertNotSame($fields['default_thumb'], $fields['default_hero']);
+        self::assertSame('media', $fields['default_thumb']->type());
+        self::assertSame('media', $fields['default_hero']->type());
+        self::assertSame(0, $fields['default_hero']->defaultValue());
     }
 }
