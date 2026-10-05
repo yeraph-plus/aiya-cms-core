@@ -185,6 +185,14 @@
                     $(panel).attr('hidden', '');
                 }
             });
+            // Carry the open tab through a form round trip: a hosting form
+            // posts it back so a save/reset redirect can land on the same
+            // tab (SettingsAdmin re-attaches it as the URL fragment).
+            const host = this.el.closest('form');
+            const input = host ? host.querySelector('input[name="aiya_core_tab"]') : null;
+            if (input) {
+                input.value = panelId;
+            }
             if (window.history && window.history.replaceState) {
                 window.history.replaceState(null, '', '#' + panelId);
             }

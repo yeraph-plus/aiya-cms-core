@@ -486,6 +486,9 @@ msgstr "正常"
 msgid "Closed"
 msgstr "已关闭"
 
+msgid "General"
+msgstr "通用"
+
 msgid "Select media"
 msgstr "选择媒体"
 

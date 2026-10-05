@@ -11,20 +11,107 @@ final class FieldRenderer
 {
     /** @param list<Field> $fields
      *  @param array<string, mixed> $values */
-    public function table(array $fields, array $values): void
+    public function table(array $fields, array $values, string $tabKey = 'settings'): void
+    {
+        $groups = $this->panelGroups($fields);
+        if ($groups === null) {
+            $this->flatTable($fields, $values);
+            return;
+        }
+        // Section headings become nav tabs; the fields before the first
+        // heading form the General panel. Every panel keeps its own
+        // form-table inside one form, so save/reset semantics are
+        // unchanged and each panel's columns align on the same 200px th.
+        $panels = [];
+        foreach ($groups as $group) {
+            $label = $group['label'] !== '' ? $group['label'] : __('General', 'aiya-core');
+            $panels[$label] = function () use ($group, $values): void {
+                echo '<table class="form-table" role="presentation"><tbody>';
+                foreach ($group['fields'] as $field) {
+                    $this->fieldRow($field, $values);
+                }
+                echo '</tbody></table>';
+            };
+        }
+        Ui::tabs('aiya-settings-' . $tabKey, $panels);
+    }
+
+    /** The un-tabbed rendering, byte-identical to the pre-tab markup.
+     *
+     * @param list<Field> $fields
+     * @param array<string, mixed> $values */
+    private function flatTable(array $fields, array $values): void
     {
         echo '<table class="form-table" role="presentation"><tbody>';
         foreach ($fields as $field) {
-            if (!$field->isPersistable()) {
-                $rowClass = $field->type() === 'heading' ? 'aiya-core-row--heading' : 'aiya-core-row--note';
-                echo '<tr class="aiya-core-nondata ' . esc_attr($rowClass) . '"><td colspan="2">';
-                $this->renderPresentation($field);
-                echo '</td></tr>';
-                continue;
-            }
-            $this->row($field, $values[$field->id()] ?? $field->defaultValue());
+            $this->fieldRow($field, $values);
         }
         echo '</tbody></table>';
+    }
+
+    /** One row of either kind: presentation-only fields keep their
+     * nondata shell, persistable ones render through row().
+     *
+     * @param array<string, mixed> $values */
+    private function fieldRow(Field $field, array $values): void
+    {
+        if (!$field->isPersistable()) {
+            $rowClass = $field->type() === 'heading' ? 'aiya-core-row--heading' : 'aiya-core-row--note';
+            echo '<tr class="aiya-core-nondata ' . esc_attr($rowClass) . '"><td colspan="2">';
+            $this->renderPresentation($field);
+            echo '</td></tr>';
+            return;
+        }
+        $this->row($field, $values[$field->id()] ?? $field->defaultValue());
+    }
+
+    /**
+     * Splits the field stream at section headings (heading fields at
+     * level 2 and up; deeper levels stay inline rows). Leading fields
+     * collect under the empty-string label — the caller renders that
+     * group as the General panel. Returns null while fewer than two
+     * sections exist — such pages stay flat with zero behavior change.
+     *
+     * @param list<Field> $fields
+     * @return list<array{label: string, fields: list<Field>}>|null
+     */
+    private function panelGroups(array $fields): ?array
+    {
+        $sections = 0;
+        foreach ($fields as $field) {
+            if ($this->isSectionHeading($field)) {
+                ++$sections;
+            }
+        }
+        if ($sections < 2) {
+            return null;
+        }
+
+        $groups = [];
+        $current = ['label' => '', 'fields' => []];
+        foreach ($fields as $field) {
+            if ($this->isSectionHeading($field)) {
+                if ($current['label'] !== '' || $current['fields'] !== []) {
+                    $groups[] = $current;
+                }
+                $current = ['label' => $field->label(), 'fields' => []];
+                continue;
+            }
+            $current['fields'][] = $field;
+        }
+        if ($current['label'] !== '' || $current['fields'] !== []) {
+            $groups[] = $current;
+        }
+
+        return $groups;
+    }
+
+    /** Section headings split panels; deeper heading levels stay inline rows. */
+    private function isSectionHeading(Field $field): bool
+    {
+        return !$field->isPersistable()
+            && $field->type() === 'heading'
+            && in_array((int) $field->setting('level', '2'), [1, 2], true);
     }
 
     private function row(Field $field, mixed $value): void

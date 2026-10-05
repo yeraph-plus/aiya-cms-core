@@ -103,18 +103,21 @@ final class SettingsAdmin implements Module
 
         check_admin_referer('aiya_core_save_' . $page->slug());
         $command = sanitize_key((string) ($_POST['command'] ?? 'save'));
+        // Panel id written by the behavior layer; class-safe charset, and
+        // a bogus value simply fails the tab hash check client-side.
+        $tab = sanitize_html_class((string) ($_POST['aiya_core_tab'] ?? ''));
         $store = new OptionStore($page->optionName(), $page->network());
 
         if ($command === 'reset') {
             $store->delete();
-            $this->redirect($page, 'reset');
+            $this->redirect($page, 'reset', '', $tab);
         }
 
         $raw = isset($_POST['values']) && is_array($_POST['values']) ? wp_unslash($_POST['values']) : [];
         $clearSecrets = isset($_POST['clear_secrets']) && is_array($_POST['clear_secrets']) ? wp_unslash($_POST['clear_secrets']) : [];
         $values = (new ValueNormalizer())->normalize($page->fields(), $raw, $store->all(), $clearSecrets);
         if (is_wp_error($values)) {
-            $this->redirect($page, 'error', $values->get_error_message());
+            $this->redirect($page, 'error', $values->get_error_message(), $tab);
         }
 
         // Domain guards may veto a save (e.g. refusing to delete a
@@ -122,11 +125,11 @@ final class SettingsAdmin implements Module
         // aborts the save with the message surfaced on the settings page.
         $values = apply_filters('aiya_core_settings_validate', $values, $page->slug(), $store->all());
         if (is_wp_error($values)) {
-            $this->redirect($page, 'error', $values->get_error_message());
+            $this->redirect($page, 'error', $values->get_error_message(), $tab);
         }
 
         $store->replace($values);
-        $this->redirect($page, 'saved');
+        $this->redirect($page, 'saved', '', $tab);
     }
 
     private function registerMenus(bool $network): void
@@ -299,8 +302,12 @@ final class SettingsAdmin implements Module
         }
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         echo '<input type="hidden" name="action" value="aiya_core_save_settings"><input type="hidden" name="page_slug" value="' . esc_attr($page->slug()) . '">';
+        // The behavior layer keeps the open tab in here, so a save/reset
+        // redirect can land back on it (redirect() appends it as the URL
+        // fragment); empty on flat pages.
+        echo '<input type="hidden" name="aiya_core_tab" value="">';
         wp_nonce_field('aiya_core_save_' . $page->slug());
-        (new FieldRenderer())->table($page->fields(), $values);
+        (new FieldRenderer())->table($page->fields(), $values, $page->slug());
         echo '<p class="submit"><button class="button button-primary" name="command" value="save">' . esc_html__('Save changes', 'aiya-core') . '</button> ';
         echo '<button class="button" name="command" value="reset" onclick="return window.confirm(' . esc_attr((string) wp_json_encode(__('Reset all settings on this page?', 'aiya-core'))) . ')">' . esc_html__('Reset', 'aiya-core') . '</button></p></form></div>';
         return null;
@@ -317,14 +324,20 @@ final class SettingsAdmin implements Module
         return AIYA_CORE_VERSION . ($mtime ? '.' . $mtime : '');
     }
 
-    private function redirect(Page $page, string $status, string $message = ''): never
+    private function redirect(Page $page, string $status, string $message = '', string $tab = ''): never
     {
         $base = $page->network() ? network_admin_url('admin.php') : admin_url('admin.php');
         $args = ['page' => 'aiya-core-' . $page->slug(), 'aiya_status' => $status];
         if ($message !== '') {
             $args['message'] = $message;
         }
-        wp_safe_redirect(add_query_arg($args, $base));
+        $url = add_query_arg($args, $base);
+        if ($tab !== '') {
+            // The panel id is class-safe (sanitize_html_class at the read
+            // side); wp_safe_redirect passes fragments through.
+            $url .= '#' . $tab;
+        }
+        wp_safe_redirect($url);
         exit;
     }
 }
