@@ -10,23 +10,22 @@ use Aiya\Core\Settings\Registry;
 use WP_Error;
 
 /**
- * Wires the membership domain into the runtime (0.50.0 tier rewrite):
- * the entitlement queue table plus the payment-log columns through the
- * schema migration runner, the legacy protocol-meta retirement, the
- * daily cycle-grant cron, and the domain's settings page under the
- * membership menu (Epay credentials + the tier repeater; the Afdian
- * integration is wired through its own gateway adapter and webhook
- * route since 0.61.0). The payment log
- * lives on `wp_aiya_payment_orders` (renamed from the legacy
- * `aya_sponsor_orders` name in 0.56.0 — the site never launched, so the
- * rename is a fresh-install DDL name change, not a data migration).
+ * Wires the membership domain into the runtime (0.50.0 tier rewrite): the
+ * entitlement queue table through the schema migration runner, the daily
+ * cycle-grant cron, and the domain's settings page under the membership
+ * menu (the tier repeater; the credit domain's check-in fields ride here
+ * via Registry::addFields from CreditModule). The gateway credentials
+ * page, the payment log, the checkout sweep and the Epay save-time guards
+ * belong to the payment domain since the 0.111.0 split; the codes table
+ * moved to the redeem domain the same batch. The save-time veto that
+ * remains here is the membership-side half of the tier-deletion gate: a
+ * tier with covering members cannot be deleted (the live-checkout half
+ * is PaymentModule::guardTierCheckouts on the same filter).
  */
 final class MembershipModule implements Module
 {
     public const PAGE_SLUG = 'membership';
     public const OPTION_NAME = 'aiya_core_membership';
-    public const PAYMENTS_PAGE_SLUG = 'membership-payments';
-    public const PAYMENTS_OPTION_NAME = 'aiya_core_membership_payments';
     public const CRON_HOOK = 'aiya_core_membership_grants';
     // installTables doubles as the schema reconciler in the flattened 1.0.0
     // chain: dbDelta adds the payment rows' paid_at / cycles columns (and
@@ -42,12 +41,9 @@ final class MembershipModule implements Module
     {
         add_action('aiya_core_register', [$this, 'settings'], 10, 0);
         // Runs after the framework's normalization, before the save lands:
-        // a tier with live checkouts or covering members cannot be deleted.
+        // a tier with covering members cannot be deleted. The live-checkout
+        // half of the same gate is the payment module's own filter.
         add_filter('aiya_core_settings_validate', [$this, 'guardTierDeletion'], 10, 3);
-
-        // Same gate, different concern: the tier name must survive the
-        // Epay signature round-trip (see the method for the byte-level why).
-        add_filter('aiya_core_settings_validate', [$this, 'sanitizeTierNames'], 10, 2);
 
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
             $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'installTables']];
@@ -62,18 +58,7 @@ final class MembershipModule implements Module
         }, 5);
 
         add_action(self::CRON_HOOK, static function (): void {
-            try {
-                (new EntitlementService(new LedgerService()))->advance();
-            } finally {
-                // The sweep must not lose its day to an aborted grant pass:
-                // untouched checkouts age out of `pending` so the payment
-                // log tells "never paid" apart from "waiting", and carts
-                // past the retention window then leave the log entirely —
-                // money is forever, abandoned checkouts are not.
-                $orders = new OrderService();
-                $orders->expirePending();
-                $orders->pruneUnpaid(MembershipSettings::read()['unpaidRetentionDays']);
-            }
+            (new EntitlementService(new LedgerService()))->advance();
         });
 
         add_filter('aiya_core_scheduled_events', function (array $hooks): array {
@@ -183,227 +168,41 @@ final class MembershipModule implements Module
                 ],
             ],
         ]);
-
-        // The cashier owns its own page so future gateways and channel
-        // settings extend here without crowding the tier screen.
-        $this->settings->addPage([
-            'slug' => self::PAYMENTS_PAGE_SLUG,
-            'title' => __('Payments', 'aiya-core'),
-            'menu_title' => __('Payments', 'aiya-core'),
-            'parent' => 'aiya-core-membership',
-            'option_name' => self::PAYMENTS_OPTION_NAME,
-            'fields' => [
-                [
-                    'id' => 'heading_epay',
-                    'type' => 'heading',
-                    'label' => __('Epay gateway (cashier integration)', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'epay_enable',
-                    'type' => 'switch',
-                    'label' => __('Epay integration', 'aiya-core'),
-                    'default' => false,
-                ],
-                [
-                    'id' => 'epay_pid',
-                    'type' => 'text',
-                    'label' => __('Merchant id (pid)', 'aiya-core'),
-                    'default' => '',
-                ],
-                [
-                    'id' => 'epay_key',
-                    'type' => 'password',
-                    'label' => __('Merchant key', 'aiya-core'),
-                    'default' => '',
-                ],
-                [
-                    'id' => 'epay_gateway',
-                    'type' => 'url',
-                    'label' => __('Gateway submit URL', 'aiya-core'),
-                    'default' => '',
-                ],
-                [
-                    'id' => 'epay_methods',
-                    'type' => 'multicheck',
-                    'label' => __('Payment channels', 'aiya-core'),
-                    'description' => __('Channels offered on the cashier; unchecked ones are refused at order creation.', 'aiya-core'),
-                    'default' => [],
-                    'options' => [
-                        'alipay' => __('Alipay', 'aiya-core'),
-                        'wxpay' => __('WeChat Pay', 'aiya-core'),
-                        'usdt' => __('USDT (TRC20)', 'aiya-core'),
-                    ],
-                ],
-                [
-                    'id' => 'heading_afdian',
-                    'type' => 'heading',
-                    'label' => __('Afdian (platform push)', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'afdian_enable',
-                    'type' => 'switch',
-                    'label' => __('Afdian integration', 'aiya-core'),
-                    'description' => __('Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body.', 'aiya-core'),
-                    'default' => false,
-                ],
-                [
-                    'id' => 'afdian_bindings',
-                    'type' => 'repeater',
-                    'label' => __('Afdian plan bindings', 'aiya-core'),
-                    'description' => __('Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored.', 'aiya-core'),
-                    'default' => [],
-                    'children' => [
-                        [
-                            'id' => 'plan_id',
-                            'type' => 'text',
-                            'label' => __('Afdian plan ID', 'aiya-core'),
-                            'required' => true,
-                        ],
-                        [
-                            'id' => 'tier_key',
-                            'type' => 'select',
-                            'label' => __('Membership tier', 'aiya-core'),
-                            'description' => __('The tier (from the membership settings page) that this plan activates.', 'aiya-core'),
-                            'default' => '',
-                            'options_source' => [
-                                'source' => 'option_list',
-                                'option' => self::OPTION_NAME,
-                                'list' => 'tiers',
-                                'value_field' => 'key',
-                                'label_field' => 'name',
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'id' => 'afdian_fallback_tier',
-                    'type' => 'select',
-                    'label' => __('Fallback tier', 'aiya-core'),
-                    'description' => __('Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them.', 'aiya-core'),
-                    'default' => '',
-                    'options_source' => [
-                        'source' => 'option_list',
-                        'option' => self::OPTION_NAME,
-                        'list' => 'tiers',
-                        'value_field' => 'key',
-                        'label_field' => 'name',
-                    ],
-                ],
-                [
-                    'id' => 'afdian_user_id',
-                    'type' => 'text',
-                    'label' => __('Afdian user id', 'aiya-core'),
-                    'default' => '',
-                ],
-                [
-                    'id' => 'afdian_token',
-                    'type' => 'password',
-                    'label' => __('Afdian API token', 'aiya-core'),
-                    'default' => '',
-                ],
-                [
-                    'id' => 'afdian_webhook_note',
-                    'type' => 'note',
-                    'variant' => 'info',
-                    'label' => __('Afdian webhook address', 'aiya-core'),
-                    'description' => __('Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/membership/v1/afdian/callback — POST only.', 'aiya-core'),
-                    'default' => null,
-                ],
-                [
-                    'id' => 'heading_order_log',
-                    'type' => 'heading',
-                    'label' => __('Order log', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'unpaid_order_retention',
-                    'type' => 'number',
-                    'label' => __('Unpaid order retention (days)', 'aiya-core'),
-                    'description' => __('Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep).', 'aiya-core'),
-                    'default' => 30,
-                    'min' => 7,
-                    'max' => 365,
-                    'step' => 1,
-                ],
-            ],
-        ]);
     }
 
     /**
-     * Creates the three membership tables in their final shape (the
-     * payment log, the entitlement queue and the redeem codes); the
+     * Creates the entitlement queue table in its final shape; the
      * clean-release migration callback. dbDelta fails silently on
-     * transient DB hiccups, so every table is verified afterwards and
-     * the runner holds the version back on failure. The payment log's
-     * created_at rides the site-wide GMT DATETIME convention — every
-     * writer passes current_time('mysql', true), so the column needs no
-     * default and never depends on the DB session time zone (the earlier
-     * TIMESTAMP DEFAULT CURRENT_TIMESTAMP was the one column that did,
-     * with a 2038 ceiling on top).
+     * transient DB hiccups, so the table is verified afterwards and
+     * the runner holds the version back on failure. The payment-log
+     * and redeem-code tables carry their own installers in the payment
+     * and redeem domains.
      */
     public static function installTables(): void
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $charset = $wpdb->get_charset_collate();
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
-        $orders = $wpdb->prefix . 'aiya_payment_orders';
-        dbDelta(
-            "CREATE TABLE $orders (
-                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-                user_id BIGINT UNSIGNED NOT NULL,
-                order_id VARCHAR(64) NOT NULL,
-                amount DECIMAL(10,2) NOT NULL DEFAULT 0,
-                tier_key VARCHAR(32) NOT NULL DEFAULT '',
-                cycles INT UNSIGNED NOT NULL DEFAULT 1,
-                source VARCHAR(32) NOT NULL DEFAULT '',
-                status VARCHAR(16) NOT NULL DEFAULT 'paid',
-                created_at DATETIME NOT NULL,
-                paid_at DATETIME DEFAULT NULL,
-                PRIMARY KEY  (id),
-                UNIQUE KEY order_id (order_id),
-                KEY user_id (user_id)
-            ) $charset;"
-        );
-
         EntitlementService::installTable();
-        RedeemCodeService::installTable();
 
-        foreach ([
-            $orders,
-            $wpdb->prefix . 'aiya_memberships',
-            $wpdb->prefix . 'aiya_redeem_codes',
-        ] as $table) {
-            if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) !== $table) {
-                throw new \RuntimeException(sprintf('Table %s was not created.', $table));
-            }
+        $table = $wpdb->prefix . 'aiya_memberships';
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) !== $table) {
+            throw new \RuntimeException(sprintf('Table %s was not created.', $table));
         }
     }
 
     /**
-     * Save-time guard: a tier with a live checkout — or with members
-     * currently riding it — cannot be deleted. Both vetoes, different
-     * concerns:
-     *
-     * - A live checkout is a buyer mid-payment: deleting the tier drops
-     *   its key from the gateway's callback whitelist, so their verified
-     *   push later dies before settlement — money collected on the
-     *   platform, nothing booked, nothing granted.
-     * - A covering member rides the tier right now. Their entitlement
-     *   keeps self-rotating either way (the queue runs from its own
-     *   frozen tier copy), but the product itself must not vanish from
-     *   under them — its price, renewal and configuration context go
-     *   with the row.
-     *
-     * Both measures are current-state only: aged `unpaid` checkouts are
-     * abandoned carts, expired windows are history — neither pins. (The
-     * pre-0.104.0 holder count read the never-flipping `status` column
-     * instead and so pinned "ever purchased" forever.) The offending
-     * keys are listed on the settings page.
+     * Save-time guard: a tier with members currently riding it cannot be
+     * deleted. Their entitlement keeps self-rotating either way (the
+     * queue runs from its own frozen tier copy), but the product itself
+     * must not vanish from under them — its price, renewal and
+     * configuration context go with the row. The measure is
+     * current-state only: expired windows are history and never pin.
+     * (The pre-0.104.0 holder count read the never-flipping `status`
+     * column instead and so pinned "ever purchased" forever.) The
+     * live-checkout veto is the payment module's twin filter on the
+     * same gate; both reuse the combined wording so the operator-facing
+     * message never depended on which veto fired. The offending keys
+     * are listed on the settings page.
      *
      * @param mixed $values normalized settings payload for the page
      * @param mixed $slug   settings page slug being saved
@@ -433,9 +232,7 @@ final class MembershipModule implements Module
             return $values;
         }
 
-        $counts = (new EntitlementService())->coveringCountByTier($removed);
-        $counts += (new OrderService())->countPendingByTier($removed);
-        $blocked = array_keys($counts);
+        $blocked = array_keys((new EntitlementService())->coveringCountByTier($removed));
         if ($blocked === []) {
             return $values;
         }
@@ -449,29 +246,5 @@ final class MembershipModule implements Module
             ),
             ['status' => 409]
         );
-    }
-
-    /**
-     * Save-time normalization: the tier name rides the Epay cashier as the
-     * `name` order parameter and comes back inside the signed callback
-     * query — which the REST layer hands over wp_unslash()d. A backslash
-     * in the name would therefore verify against different bytes than the
-     * push carries and fail every signature, so names are stripped of
-     * backslashes before they ever land. (The binding param is unaffected:
-     * the XDE alphabet is alphanumeric.)
-     */
-    public function sanitizeTierNames(mixed $values, mixed $slug): mixed
-    {
-        if ($slug !== 'membership' || !is_array($values)) {
-            return $values;
-        }
-
-        foreach (($values['tiers'] ?? []) as $index => $row) {
-            if (is_array($row) && isset($row['name'])) {
-                $values['tiers'][$index]['name'] = str_replace('\\', '', (string) $row['name']);
-            }
-        }
-
-        return $values;
     }
 }

@@ -46,7 +46,7 @@ namespace Aiya\Core\Tests\Unit {
     use Aiya\Core\Domain\Credit\LedgerService;
     use Aiya\Core\Domain\Identity\UserBan;
     use Aiya\Core\Domain\Membership\EntitlementService;
-    use Aiya\Core\Domain\Membership\RedeemCodeService;
+    use Aiya\Core\Domain\Redeem\RedeemCodeService;
     use PHPUnit\Framework\TestCase;
     use WP_Error;
     use WP_REST_Response;

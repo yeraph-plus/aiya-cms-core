@@ -66,10 +66,12 @@ use Aiya\Core\Domain\Shortcodes\BuiltinShortcodes;
 use Aiya\Core\Domain\Shortcodes\ShortcodesModule;
 use Aiya\Core\Domain\Shortcodes\ShortcodeRegistry;
 use Aiya\Core\Domain\Membership\EntitlementService;
-use Aiya\Core\Domain\Membership\MembershipService;
-use Aiya\Core\Domain\Membership\OrderService;
-use Aiya\Core\Domain\Membership\RedeemCodeService;
 use Aiya\Core\Domain\Membership\MembershipModule;
+use Aiya\Core\Domain\Membership\MembershipService;
+use Aiya\Core\Domain\Payment\OrderService;
+use Aiya\Core\Domain\Payment\PaymentModule;
+use Aiya\Core\Domain\Redeem\RedeemCodeService;
+use Aiya\Core\Domain\Redeem\RedeemModule;
 use Aiya\Core\Domain\Smilies\SmiliesModule;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
@@ -170,6 +172,12 @@ final class Plugin
         $this->addModule(new NotificationPage());
 
         $this->addModule(new MembershipModule($this->settings));
+        // The payment and redeem domains register directly after the
+        // membership module: their pages ride the same aiya_core_register
+        // priority, so the submenu rail's registered order (and with it the
+        // rendered order) stays exactly as before the 0.111.0 split.
+        $this->addModule(new PaymentModule($this->settings));
+        $this->addModule(new RedeemModule());
         $this->addModule(new DiscussionModule());
         $this->addModule(new DiscussionModerationPage());
 
@@ -184,9 +192,10 @@ final class Plugin
         // The card part reads a post through the Api-layer projection, so
         // the composition root injects that renderer; it needs the media
         // stack above, hence the late registration.
+        $contentQuery = new ContentQuery($visibility);
         $postCards = new PostCardPresenter(
-            new ContentQuery($visibility),
-            new PostPresenter($media->cards(), new SmiliesRenderer(SmiliesRegistry::shared()), $visibility, new FavoriteService(), new CounterService(), new Mentions())
+            $contentQuery,
+            new PostPresenter($media->cards(), new SmiliesRenderer(SmiliesRegistry::shared()), $visibility, new FavoriteService(), new CounterService(), $contentQuery, new Mentions())
         );
         $refPresenter = new RefPresenter(
             static fn (int $postId): string => $postCards->render($postId),

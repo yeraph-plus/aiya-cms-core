@@ -10,7 +10,7 @@ use Aiya\Core\Api\Rest\MembershipController;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Membership\EntitlementService;
 use Aiya\Core\Domain\Membership\MembershipService;
-use Aiya\Core\Domain\Membership\OrderService;
+use Aiya\Core\Domain\Payment\OrderService;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 

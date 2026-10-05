@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Membership\EpayGateway;
+use Aiya\Core\Domain\Payment\EpayGateway;
 use Aiya\Infra\PaymentEpay\Client;
 use Aiya\Infra\PaymentEpay\Gateway;
 use Aiya\Infra\SlugToolkit\IdSlugEncoder;

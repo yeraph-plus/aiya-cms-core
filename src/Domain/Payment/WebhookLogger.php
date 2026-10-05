@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Membership;
+namespace Aiya\Core\Domain\Payment;
 
 /**
  * Raw webhook payload logger, preserving the legacy debugging behavior:

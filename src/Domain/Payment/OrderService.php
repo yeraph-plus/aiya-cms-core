@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Membership;
+namespace Aiya\Core\Domain\Payment;
 
+use Aiya\Infra\SlugToolkit\IdSlugEncoder;
 use WP_Error;
 
 /**
@@ -37,6 +38,27 @@ final class OrderService
 
     /** Days an untouched checkout keeps its `pending` state. */
     public const PENDING_TTL_DAYS = 7;
+
+    /**
+     * The checkout identity pair for one epay checkout: the platform
+     * order number (date + padded user + second entropy + random suffix
+     * — two orders in the same second must never collide on
+     * out_trade_no) and the binding payload the cashier carries back for
+     * verification (XDE-encoded user id + tier + cycles). Composition is
+     * order-domain semantics; the controller only hands the pair over.
+     *
+     * @return array{orderId: string, binding: string}
+     */
+    public function checkoutIdentity(int $userId, string $tierKey, int $cycles): array
+    {
+        $orderId = gmdate('Ymd') . str_pad((string) $userId, 5, '0', STR_PAD_LEFT) . time()
+            . RandomToken::suffix(6);
+
+        return [
+            'orderId' => $orderId,
+            'binding' => (new IdSlugEncoder(8))->encodeId($userId) . '|' . $tierKey . '|' . $cycles,
+        ];
+    }
 
     /**
      * Records one payment (unique order id, deduplicated). The cycle

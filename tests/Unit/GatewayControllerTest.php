@@ -26,8 +26,8 @@ namespace Aiya\Core\Tests\Unit {
 
     use Aiya\Core\Api\Rest\GatewayController;
     use Aiya\Core\Domain\Membership\EntitlementService;
-    use Aiya\Core\Domain\Membership\OrderService;
-    use Aiya\Core\Domain\Membership\PaymentGateway;
+    use Aiya\Core\Domain\Payment\OrderService;
+    use Aiya\Core\Domain\Payment\PaymentGateway;
     use Aiya\Infra\PaymentEpay\Client;
     use Aiya\Infra\SlugToolkit\IdSlugEncoder;
     use PHPUnit\Framework\TestCase;

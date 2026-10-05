@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Membership\RandomToken;
+use Aiya\Core\Domain\Payment\RandomToken;
 use PHPUnit\Framework\TestCase;
 
 final class RandomTokenTest extends TestCase

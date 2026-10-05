@@ -6,7 +6,7 @@ namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Domain\Identity\TokenStore;
-use Aiya\Core\Domain\Membership\PaymentGateway;
+use Aiya\Core\Domain\Payment\PaymentGateway;
 
 /**
  * Bearer-token authentication for the headless API: resolves

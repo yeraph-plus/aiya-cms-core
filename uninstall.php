@@ -372,6 +372,7 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
     wp_clear_scheduled_hook('aiya_core_notifications_cleanup');
     wp_clear_scheduled_hook('aiya_core_credits_cleanup');
     wp_clear_scheduled_hook('aiya_core_membership_grants');
+    wp_clear_scheduled_hook('aiya_core_payment_sweep');
     wp_clear_scheduled_hook('aiya_core_auth_tokens_cleanup');
     wp_clear_scheduled_hook('aiya_core_thumbnails_generate');
     // The deferred single-post card events carry [postId, force] args and a

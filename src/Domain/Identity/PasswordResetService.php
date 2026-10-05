@@ -21,8 +21,6 @@ use WP_User;
  */
 final class PasswordResetService
 {
-    private const RESET_PATH = '/reset-password';
-
     /**
      * Generates the key and mails the front-end reset link. Errors are
      * returned as WP_Error; `true` means the mail was handed to wp_mail().
@@ -75,12 +73,7 @@ final class PasswordResetService
      */
     public function buildResetUrl(string $frontendOrigin, string $login, string $key): string
     {
-        $origin = $this->resolveOrigin($frontendOrigin);
-
-        return add_query_arg(
-            ['login' => $login, 'key' => $key],
-            $origin . self::RESET_PATH
-        );
+        return FrontendDomain::resetUrlOnOrigin($this->resolveOrigin($frontendOrigin), $login, $key);
     }
 
     /**

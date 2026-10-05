@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Membership\AfdianGateway;
+use Aiya\Core\Domain\Payment\AfdianGateway;
 use Aiya\Infra\PaymentAfdian\Client;
 use Aiya\Infra\PaymentAfdian\Gateway;
 use Aiya\Infra\SlugToolkit\IdSlugEncoder;

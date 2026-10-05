@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Membership;
+namespace Aiya\Core\Domain\Payment;
 
+use Aiya\Core\Domain\Membership\MembershipSettings;
 use Aiya\Infra\PaymentAfdian\Client;
 use Aiya\Infra\PaymentAfdian\Gateway;
 
@@ -40,10 +41,11 @@ final class AfdianGateway implements PaymentGateway
     /** Builds the adapter from the domain settings (null when disabled/unconfigured). */
     public static function fromSettings(): ?self
     {
-        $settings = MembershipSettings::read();
+        $settings = PaymentSettings::read();
         if (!$settings['afdianEnable'] || $settings['afdianUserId'] === '' || $settings['afdianToken'] === '') {
             return null;
         }
+        $tiers = MembershipSettings::read()['tiers'];
 
         // The real HTTP transport for the open API: raw JSON in, response
         // body out (API-level errors ride HTTP 200 with their own ec).
@@ -72,7 +74,7 @@ final class AfdianGateway implements PaymentGateway
         // plans: ignored, never a purchase.
         $planTiers = [];
         foreach ($settings['afdianBindings'] as $binding) {
-            $tier = MembershipSettings::tierByKey($settings['tiers'], $binding['tierKey']);
+            $tier = MembershipSettings::tierByKey($tiers, $binding['tierKey']);
             if ($binding['planId'] !== '' && $tier !== null && !array_key_exists($binding['planId'], $planTiers)) {
                 $planTiers[$binding['planId']] = $tier;
             }
@@ -93,7 +95,7 @@ final class AfdianGateway implements PaymentGateway
             ),
             true,
             $planTiers,
-            MembershipSettings::tierByKey($settings['tiers'], $settings['afdianFallbackTier'])
+            MembershipSettings::tierByKey($tiers, $settings['afdianFallbackTier'])
         );
     }
 

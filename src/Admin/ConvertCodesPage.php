@@ -7,7 +7,7 @@ namespace Aiya\Core\Admin;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Schema\Page;
 use Aiya\Core\Settings\Registry;
-use Aiya\Core\Domain\Membership\RedeemCodeService;
+use Aiya\Core\Domain\Redeem\RedeemCodeService;
 use Aiya\Core\Domain\Membership\MembershipSettings;
 
 /**

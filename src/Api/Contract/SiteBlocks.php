@@ -47,20 +47,4 @@ final class SiteBlocks
             'sections' => array_map(static fn (HomeSection $section): array => $section->toArray(), $this->sections),
         ];
     }
-
-    /**
-     * The wire shape with both ad lists emptied — the sponsor view of
-     * the same blocks. A value-object method (not a caller-side literal
-     * dig), so a key rename here and the stripping move together.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArrayWithoutAds(): array
-    {
-        $out = $this->toArray();
-        $out[self::KEY_AD_TOP] = [];
-        $out[self::KEY_AD_BOTTOM] = [];
-
-        return $out;
-    }
 }

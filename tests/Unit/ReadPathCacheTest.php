@@ -91,7 +91,7 @@ final class ReadPathCacheTest extends TestCase
             static fn (): array => ['format' => 'webp', 'quality' => 82]
         );
 
-        return new PostPresenter($cards, new SmiliesRenderer(new SmiliesRegistry('/none', '/none')), $visibility, new FavoriteService(), new CounterService());
+        return new PostPresenter($cards, new SmiliesRenderer(new SmiliesRegistry('/none', '/none')), $visibility, new FavoriteService(), new CounterService(), new ContentQuery($visibility));
     }
 
     // ------------------------------------------------------- entitlement memo

@@ -43,8 +43,8 @@ use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use Aiya\Core\Domain\Membership\EntitlementService;
 use Aiya\Core\Domain\Membership\MembershipService;
-use Aiya\Core\Domain\Membership\OrderService;
-use Aiya\Core\Domain\Membership\RedeemCodeService;
+use Aiya\Core\Domain\Payment\OrderService;
+use Aiya\Core\Domain\Redeem\RedeemCodeService;
 use Aiya\Infra\OpenCc\Converter;
 use Closure;
 
@@ -86,7 +86,8 @@ final class RestController implements Module
             $policy = new PasswordPolicy();
             $favorites = new FavoriteService();
             $mentions = new Mentions();
-            $postPresenter = new PostPresenter($this->cards, $smiliesRenderer, $this->visibility, $favorites, new CounterService(), $mentions);
+            $contentQuery = new ContentQuery($this->visibility);
+            $postPresenter = new PostPresenter($this->cards, $smiliesRenderer, $this->visibility, $favorites, new CounterService(), $contentQuery, $mentions);
 
             (new AuthController(
                 $tokens,

@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Membership;
+namespace Aiya\Core\Domain\Payment;
 
+use Aiya\Core\Domain\Membership\EntitlementService;
 use Aiya\Infra\PaymentAfdian\Client;
 use Aiya\Infra\PaymentAfdian\Gateway;
 

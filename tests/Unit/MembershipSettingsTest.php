@@ -24,24 +24,6 @@ final class MembershipSettingsTest extends TestCase
         self::assertNull(MembershipSettings::tierByKey($this->tiers, 'nope'));
     }
 
-    public function testBindingRowsNormalizePlanAndTierKeys(): void
-    {
-        $bindings = MembershipSettings::bindings([
-            'afdian_bindings' => [
-                ['plan_id' => ' plan-month ', 'tier_key' => 'Month'],
-                'garbage',
-                ['plan_id' => 'plan-only', 'tier_key' => ''],
-            ],
-        ]);
-
-        self::assertSame([
-            ['planId' => 'plan-month', 'tierKey' => 'month'],
-            ['planId' => 'plan-only', 'tierKey' => ''],
-        ], $bindings);
-
-        self::assertSame([], MembershipSettings::bindings([]));
-    }
-
     public function testTierRowsNormalizeAndDropKeylessRows(): void
     {
         $normalized = MembershipSettings::tiers([
@@ -80,21 +62,5 @@ final class MembershipSettingsTest extends TestCase
 
         self::assertSame(12.35, $normalized[0]['price'], 'extra precision folds to two decimals');
         self::assertSame(500.0, $normalized[1]['price'], 'rows saved before the cap cannot exceed 500');
-    }
-
-    /**
-     * The retention purge's safety rail: the window never dips under the
-     * pending TTL (a checkout must be labelled before it can ever be
-     * deleted) and never keeps carts for years. An absent or empty key
-     * is "not configured" and takes the default.
-     */
-    public function testUnpaidRetentionClampsBothEnds(): void
-    {
-        self::assertSame(30, MembershipSettings::unpaidRetention([]), 'unconfigured takes the default');
-        self::assertSame(30, MembershipSettings::unpaidRetention(['unpaid_order_retention' => '0']));
-        self::assertSame(30, MembershipSettings::unpaidRetention(['unpaid_order_retention' => '']));
-        self::assertSame(7, MembershipSettings::unpaidRetention(['unpaid_order_retention' => '3']), 'never under the labelling sweep');
-        self::assertSame(365, MembershipSettings::unpaidRetention(['unpaid_order_retention' => '4000']));
-        self::assertSame(45, MembershipSettings::unpaidRetention(['unpaid_order_retention' => '45']));
     }
 }

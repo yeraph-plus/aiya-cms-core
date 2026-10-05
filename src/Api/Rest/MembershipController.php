@@ -8,15 +8,13 @@ use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Presenter\MembershipPresenter;
 use Aiya\Core\Domain\Credit\CreditSettings;
 use Aiya\Core\Domain\Credit\LedgerService;
-use Aiya\Core\Domain\Membership\AfdianGateway;
-use Aiya\Core\Domain\Membership\EpayGateway;
+use Aiya\Core\Domain\Payment\AfdianGateway;
+use Aiya\Core\Domain\Payment\EpayGateway;
 use Aiya\Core\Domain\Membership\EntitlementService;
 use Aiya\Core\Domain\Membership\MembershipService;
-use Aiya\Core\Domain\Membership\OrderService;
-use Aiya\Core\Domain\Membership\PaymentGateway;
-use Aiya\Core\Domain\Membership\RandomToken;
+use Aiya\Core\Domain\Payment\OrderService;
+use Aiya\Core\Domain\Payment\PaymentGateway;
 use Aiya\Core\Domain\Membership\MembershipSettings;
-use Aiya\Infra\SlugToolkit\IdSlugEncoder;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -222,11 +220,12 @@ final class MembershipController
             }
         }
 
-        // Entropy beyond the second: two orders in the same second must
-        // never collide on the platform's out_trade_no.
-        $orderId = gmdate('Ymd') . str_pad((string) $userId, 5, '0', STR_PAD_LEFT) . time()
-            . RandomToken::suffix(6);
-        $binding = (new IdSlugEncoder(8))->encodeId($userId) . '|' . $tier['key'] . '|' . $cycles;
+        // The checkout identity pair (platform order number + binding
+        // payload) is the order domain's composition — see
+        // OrderService::checkoutIdentity.
+        $identity = $this->orders->checkoutIdentity($userId, (string) $tier['key'], $cycles);
+        $orderId = $identity['orderId'];
+        $binding = $identity['binding'];
 
         // The checkout's own record of what is about to be paid for: the
         // push later settles against this row instead of against values

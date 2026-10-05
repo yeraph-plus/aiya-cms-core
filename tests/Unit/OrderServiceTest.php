@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Membership\OrderService;
+use Aiya\Core\Domain\Payment\OrderService;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/../Fixture/MembershipTestWpdb.php';

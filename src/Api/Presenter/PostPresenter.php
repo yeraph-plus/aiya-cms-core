@@ -12,6 +12,7 @@ use Aiya\Core\Api\Contract\PostMetrics;
 use Aiya\Core\Api\Contract\PostSummary;
 use Aiya\Core\Api\Contract\Seo;
 use Aiya\Core\Api\Contract\Term;
+use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Mention\Mentions;
 use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Shared\ReadingTime;
@@ -56,6 +57,7 @@ final class PostPresenter
         private readonly PostVisibility $visibility,
         private readonly FavoriteService $favorites,
         private readonly CounterService $counters,
+        private readonly ContentQuery $contentQuery,
         private readonly ?Mentions $mentions = null,
     ) {
     }
@@ -188,39 +190,16 @@ final class PostPresenter
     /**
      * Summaries for explicit ids, preserving the given order — the
      * favorites paths read relation-table ids (favorite recency) and must
-     * not re-sort. One WP_Query instead of a per-id get_post loop: the
-     * mass-fill primes the post, meta, term and author caches for the
-     * whole page up front instead of ten-plus cold queries per row.
+     * not re-sort. The row fetch and its visibility policy live on
+     * ContentQuery::byIds (public rows, never a locked one, cache
+     * mass-fill); this method is projection only.
      *
      * @param list<int> $ids
      * @return list<PostSummary>
      */
     public function summariesByIds(array $ids): array
     {
-        $ids = array_values(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0));
-        if ($ids === []) {
-            return [];
-        }
-
-        $query = new WP_Query([
-            'post__in' => $ids,
-            'post_type' => PublicTypes::wpPostTypes(),
-            'post_status' => 'publish',
-            // Defense in depth: today's callers come from FavoriteService,
-            // whose SQL already excludes password posts — but this is a
-            // public projection API; never let a locked summary leak.
-            'has_password' => false,
-            'orderby' => 'post__in',
-            'posts_per_page' => count($ids),
-            'no_found_rows' => true,
-            // A raw WP_Query would prepend sticky posts beyond the ids and
-            // reorder the page; the favorites order is the relation table's.
-            'ignore_sticky_posts' => true,
-            'suppress_filters' => true,
-        ]);
-        /** @var list<WP_Post> $posts */
-        $posts = array_values(array_filter(is_array($query->posts) ? $query->posts : [], static fn ($post): bool => $post instanceof WP_Post));
-        cache_users(wp_list_pluck($posts, 'post_author'));
+        $posts = $this->contentQuery->byIds($ids);
 
         $out = [];
         foreach ($posts as $post) {

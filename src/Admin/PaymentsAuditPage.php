@@ -7,10 +7,10 @@ namespace Aiya\Core\Admin;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Schema\Page;
 use Aiya\Core\Settings\Registry;
-use Aiya\Core\Domain\Membership\AfdianGateway;
-use Aiya\Core\Domain\Membership\EpayGateway;
+use Aiya\Core\Domain\Payment\AfdianGateway;
+use Aiya\Core\Domain\Payment\EpayGateway;
 use Aiya\Core\Domain\Membership\MembershipService;
-use Aiya\Core\Domain\Membership\OrderService;
+use Aiya\Core\Domain\Payment\OrderService;
 use Aiya\Core\Domain\Shared\DateLabels;
 
 /**

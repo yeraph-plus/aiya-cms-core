@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Membership;
+namespace Aiya\Core\Domain\Payment;
 
+use Aiya\Core\Domain\Membership\MembershipSettings;
 use Aiya\Infra\PaymentEpay\Client;
 use Aiya\Infra\PaymentEpay\Gateway;
 use WP_Error;
@@ -29,7 +30,7 @@ final class EpayGateway implements PaymentGateway
     /** Builds the adapter from the domain settings (null when disabled/unconfigured). */
     public static function fromSettings(): ?self
     {
-        $settings = MembershipSettings::read();
+        $settings = PaymentSettings::read();
         if (!$settings['epayEnable']) {
             return null;
         }
@@ -50,7 +51,7 @@ final class EpayGateway implements PaymentGateway
                 // purchase made while it was on sale. Whitelisting just the
                 // enabled tiers would orphan that money at the one moment
                 // it is verified.
-                array_map(static fn (array $tier): string => (string) $tier['key'], $settings['tiers'])
+                array_map(static fn (array $tier): string => (string) $tier['key'], MembershipSettings::read()['tiers'])
             ),
             true,
             $settings['epayMethods']

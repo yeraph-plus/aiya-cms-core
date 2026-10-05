@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Membership\WebhookLogger;
+use Aiya\Core\Domain\Payment\WebhookLogger;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;

@@ -46,9 +46,20 @@ final class FrontendDomain
      */
     public static function resetUrl(string $login, string $key): string
     {
+        return self::resetUrlOnOrigin(self::originOrHome(), $login, $key);
+    }
+
+    /**
+     * The reset deep link on an explicit origin — the composition
+     * primitive behind resetUrl(); callers with their own origin policy
+     * (the reset flow honors a guarded client-reported origin) compose
+     * through this so the path/query contract is written once.
+     */
+    public static function resetUrlOnOrigin(string $origin, string $login, string $key): string
+    {
         return add_query_arg(
             ['login' => $login, 'key' => $key],
-            self::originOrHome() . self::RESET_PATH
+            $origin . self::RESET_PATH
         );
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
+use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Engagement\CounterService;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Api\Presenter\PostPresenter;
@@ -63,7 +64,7 @@ final class TermListFilterTest extends TestCase
             static fn (): array => ['format' => 'webp', 'quality' => 82]
         );
 
-        return new PostPresenter($cards, new SmiliesRenderer(new SmiliesRegistry('/none', '/none')), $visibility, new FavoriteService(), new CounterService());
+        return new PostPresenter($cards, new SmiliesRenderer(new SmiliesRegistry('/none', '/none')), $visibility, new FavoriteService(), new CounterService(), new ContentQuery($visibility));
     }
 
     public function testEmptyTermsDropFromThePublishedList(): void

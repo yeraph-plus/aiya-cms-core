@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Mail;
 
-use Aiya\Core\Domain\Identity\PasswordResetService;
 use Aiya\Core\Domain\Shared\FrontendDomain;
 use WP_User;
 
@@ -17,9 +16,9 @@ use WP_User;
  * Content-Type where the hook's shape allows it.
  *
  * Links always resolve through FrontendDomain — the configured front-end
- * origin wins, home_url() is the last resort — exactly the construction
- * PasswordResetService has always used for reset links; the native
- * retrieve_password flow now lands on the same front-end page.
+ * origin wins, home_url() is the last resort — the same resetUrl()
+ * composition the reset flow itself speaks; the native retrieve_password
+ * flow lands on the same front-end page.
  *
  * Landing outside these four (update reports, recovery mode, privacy,
  * wp-admin invites) stays on the generic takeover: original copy, brand
@@ -30,7 +29,7 @@ final class CoreMailRewrites
     /** WP's reset keys expire after a day (password_reset_expiration). */
     private const KEY_VALIDITY_FILTER = 'password_reset_expiration';
 
-    public function __construct(private readonly MailTemplate $template, private readonly PasswordResetService $resets = new PasswordResetService())
+    public function __construct(private readonly MailTemplate $template)
     {
     }
 
@@ -70,7 +69,7 @@ final class CoreMailRewrites
         }
 
         $site = wp_specialchars_decode((string) get_option('blogname'), ENT_QUOTES);
-        $url = $this->resets->buildResetUrl('', $login, $key);
+        $url = FrontendDomain::resetUrl($login, $key);
         $content = $this->paragraph(sprintf(
             /* translators: %s: site name. */
             __('Someone requested a password reset for your account at %s.', 'aiya-core'),
@@ -104,7 +103,7 @@ final class CoreMailRewrites
             return $email;
         }
 
-        $url = $this->resets->buildResetUrl('', (string) $user->user_login, $key);
+        $url = FrontendDomain::resetUrl((string) $user->user_login, $key);
         $content = $this->paragraph(sprintf(
             /* translators: %s: site name. */
             __('Your account on %1$s has been created.', 'aiya-core'),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
+use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Identity\FavoriteService;
@@ -76,7 +77,7 @@ final class PostDetailViewerStateTest extends TestCase
         );
         $smilies = new SmiliesRenderer(new SmiliesRegistry('/nonexistent-smilies', '/nonexistent-smilies'));
 
-        return new PostPresenter($cards, $smilies, new PostVisibility(static fn (int $userId): bool => false), new FavoriteService(), new CounterService());
+        return new PostPresenter($cards, $smilies, new PostVisibility(static fn (int $userId): bool => false), new FavoriteService(), new CounterService(), new ContentQuery(new PostVisibility(static fn (int $userId): bool => false)));
     }
 
     private function type(): PublicType

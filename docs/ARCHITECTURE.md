@@ -76,8 +76,10 @@ The Astro front end consumes a versioned HTTP API and never sees WordPress inter
 
 ```text
 Api/Rest/       controllers for the aiya/core/v1 namespace;
-                validate parameters, call read services and presenters,
-                never query WordPress directly
+                validate parameters, call read services and presenters;
+                never issue content/data queries themselves (identity
+                lookups, write readbacks and viewer-preference reads
+                excepted)
 Api/Presenter/  the ONLY layer allowed to touch WP_Post / WP_Term /
                 WP_Query results; maps them to DTOs; runs the_content
                 filters here (content HTML is contract data)
@@ -110,12 +112,15 @@ assemble DTOs inline:
   uploads). If a projection is reused or converts dates, that is its home.
 - A Domain service may construct Contract value objects when the DTO is the
   service's own natural product and no WP-object mapping is involved:
-  `Domain/Blocks/ContentBlocks` emits `MenuItem` and
-  `Domain/Media/CardThumbnailService` emits `Image` (the file-generation
-  metadata — alt/width/height — belongs with the generator that owns the
-  derived file). `Api/Contract` is a zero-dependency leaf vocabulary, so
-  this edge is not a layer crossing; the forbidden directions stay
-  Domain → HTTP and Domain → Admin.
+  `Domain/Blocks/ContentBlocks` emits the whole `/site` blocks group
+  (`MenuItem`/`AdSlot`/`HomeSection`/`SiteBlocks`) — that payload is the
+  service's product, not a mapping. Every other Contract construction is
+  presenter work: `Domain/Media/CardThumbnailService` answers derivative
+  facts as plain arrays and `PostPresenter` builds the `Image` from them
+  (the file-generation metadata — alt/width/height — stays with the
+  generator that owns the derived file, as plain data). `Api/Contract` is a
+  zero-dependency leaf vocabulary, so this edge is not a layer crossing; the
+  forbidden directions stay Domain → HTTP and Domain → Admin.
 
 ## Infrastructure packages (`packages/`)
 
@@ -179,8 +184,9 @@ Three layering rulings settled with the 1.0.0 review batches:
 - **HTTP transport knowledge stops at the infrastructure edge** — the
   visitor fingerprint (`Infrastructure/Http/VisitorFingerprint`) is
   resolved from the superglobals at the REST boundary and passed into
-  the engagement domain as a plain string; domain services never read
-  `$_SERVER` nor depend on the HTTP layer.
+  the engagement domain as a plain string; the presenter layer may also
+  resolve it (per-viewer cache keys on the projection path); domain
+  services never read `$_SERVER` nor depend on the HTTP layer.
 - **Account writes route through the domain** —
   `Domain/Identity/AccountService` owns the email-change re-auth gate,
   the revoke-sessions-before-the-password-moves ordering, and
@@ -268,9 +274,11 @@ required nor expected across generators.
 - `contentHtml` is a **public, shared-cacheable payload**, so only viewer-independent markup may ride inside it (bodies, rendered parts, the related-post card). Anything that would differ per viewer — a gated body, a per-user permission flag — belongs in a per-viewer field served `no-store`, or nowhere (the legacy `sponsor_ship` part was dropped for exactly this reason). Newly registered shortcodes enter the community-thread body's execution surface automatically (`do_shortcode` semantics), so every new expandable shortcode must be designed to this public-cached-HTML standard from day one: viewer-independent output, every attribute escaped.
 - `Domain/Shared` is the plugin's zero-dependency vocabulary layer: `PublicType`/`PublicTypes` (the public-type registry every reader resolves types through), `FrontendDomain` (the front-end origin normalizer), `FrontendLocales` (the front-end locale whitelist) and `ReadingTime` (the pure reading-time estimate). Several domains need exactly these, so they live nowhere else; the layer depends on nothing and must never grow a dependency.
 - `Domain/Identity` is the account layer and may be consulted by other domains for account-level facts: the credit ledger, the membership gates and the integrations ticket flow all ask `UserBan` before acting (the account disable switch), and the NSFW filter asks `ShowNsfw`. It is a leaf — its only outbound edge is `Domain/Shared` — so this edge never runs backwards.
-- `Domain/Operations` is a **read-only reporting consumer**: it reads the credit, membership and payment fact tables and writes nothing but its own two counter tables. Monthly reporting needs figures the ledger has already pruned, so the durable copy is the point; the alternative — hosting revenue and membership aggregation inside the domains that own those tables — would put reporting queries into domains nothing else asks them of. The write direction stays one-way: the ledger publishes `aiya_core_credit_granted` / `aiya_core_credit_spent`, and no accounting path depends on who listens.
+- `Domain/Operations` is a **read-only reporting consumer**: it reads the credit, membership and payment fact tables and writes nothing but its own two counter tables plus one internal bookkeeping option (the daily expiry scan's dedupe watermark, `aiya_core_stats_expiry_watermark` — operational state, not a settings value). Monthly reporting needs figures the ledger has already pruned, so the durable copy is the point; the alternative — hosting revenue and membership aggregation inside the domains that own those tables — would put reporting queries into domains nothing else asks them of. The write direction stays one-way: the ledger publishes `aiya_core_credit_granted` / `aiya_core_credit_spent`, and no accounting path depends on who listens.
 - Cross-domain fact consumption is one-way and reader-shaped: FileServe applies Content's visibility gate to its downloads and spends through the credit ledger (the ledger only bookkeeps); Membership mints its cycle grants through the ledger. No accounting or content path depends on any of these consumers.
-- `Domain/Notification` is the plugin's **aggregation consumer** (the event surface is designed to grow with it): Content delegates the comment/publish workflow through `aiya_core_comment_posted` / `aiya_core_post_approved|published|updated`, Discussion / Follow / Credit / Entitlement fire their own `aiya_core_*` points, and the notification listener reads sibling services (threads, mentions, followers, favorites, the entitlement queue window, smilies) to phrase its rows. The reads stay reader-shaped — service methods only (`EntitlementService::queueEndsBetween` for the queue tail, never raw sibling tables) — and rows go out through `NotificationService::create()` as the single write path. No content or accounting path depends on the notification domain.
+- `Domain/Payment` owns the gateway seam, the money log (`aiya_payment_orders`), the callback routes' transport and the checkout sweep; its settle chains call Membership's `EntitlementService::activateFromPayment()` and read the membership tier list for the callback whitelists — a one-way Payment → Membership edge, because settlement must complete synchronously inside the gateway callback (the fail/retry answer depends on the activation outcome, so an event hop would strand the platform's retry semantics). The tier-deletion gate is split the same way: the membership module vetoes on covering members, the payment module on live checkouts — same filter tag, same message, each domain reading only its own table.
+- `Domain/Redeem` owns the codes table and the redemption flow; redeeming consults Membership (tier resolution, entitlement queueing) and nothing else. Its route (`POST /credits/redeem`) is contract placement, not domain placement — the path is frozen, the controller is the domain's.
+- `Domain/Notification` is the plugin's **aggregation consumer** (the event surface is designed to grow with it): Content delegates the comment/publish workflow through `aiya_core_comment_posted` / `aiya_core_post_approved|published|updated`, Discussion / Follow / Credit / Entitlement fire their own `aiya_core_*` points, and the notification listener reads sibling services (threads, mentions, followers, favorites, the entitlement queue window, smilies) to phrase its rows. The reads stay reader-shaped — service methods only (`EntitlementService::queueEndsBetween` for the queue tail, never raw sibling tables) — and rows go out through `NotificationService::create()` as the single write path. One constant-level read rides the event contract: the listener filters `aiya_core_credit_granted` on the grant's `source` and asks `LedgerService::SOURCE_ADMIN` for that vocabulary — part of the event's public shape, not a sibling-table read. No content or accounting path depends on the notification domain.
 - `Domain/Mail` hooks exactly one core business flow — the membership-activation receipt (`aiya_core_membership_activated`, reading the order row through the Membership service). Everything else it does rides WordPress's own mail behaviour: the `wp_mail` brand takeover, the native-mail rewrites and the silenced admin notices.
 - `packages/` packages never depend back on core; integration is adapter-only.
 - Astro and other front ends consume the versioned API contract; they never load this framework directly.

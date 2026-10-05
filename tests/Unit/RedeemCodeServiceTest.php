@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Core\Domain\Membership\EntitlementService;
-use Aiya\Core\Domain\Membership\RedeemCodeService;
+use Aiya\Core\Domain\Redeem\RedeemCodeService;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Membership;
+namespace Aiya\Core\Domain\Payment;
 
 /**
  * The membership domain's one random-suffix recipe: an uppercase

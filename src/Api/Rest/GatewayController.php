@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
-use Aiya\Core\Domain\Membership\AfdianActivator;
-use Aiya\Core\Domain\Membership\EpayGateway;
+use Aiya\Core\Domain\Payment\AfdianActivator;
+use Aiya\Core\Domain\Payment\EpayGateway;
 use Aiya\Core\Domain\Membership\EntitlementService;
-use Aiya\Core\Domain\Membership\OrderService;
-use Aiya\Core\Domain\Membership\PaymentGateway;
+use Aiya\Core\Domain\Payment\OrderService;
+use Aiya\Core\Domain\Payment\PaymentGateway;
 use Aiya\Core\Domain\Membership\MembershipSettings;
-use Aiya\Core\Domain\Membership\WebhookLogger;
+use Aiya\Core\Domain\Payment\WebhookLogger;
 use WP_REST_Request;
 use WP_REST_Response;
 

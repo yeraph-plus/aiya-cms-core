@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Content;
 
 use Aiya\Core\Domain\Shared\PublicType;
+use Aiya\Core\Domain\Shared\PublicTypes;
 use WP_Post;
 use WP_Query;
 
@@ -423,6 +424,48 @@ final class ContentQuery
      * permalinks do (sanitize_title_for_query), so percent-encoded
      * non-ASCII slugs match the stored post_name.
      */
+    /**
+     * Rows for explicit ids, preserving the given order — the favorites
+     * and profile paths read relation-table ids (favorite recency) and
+     * must not re-sort. One query instead of a per-id loop: the mass-fill
+     * primes the post, meta, term and author caches for the whole page
+     * up front instead of ten-plus cold queries per row.
+     *
+     * The visibility policy mirrors the lists: publish rows only, never a
+     * password-locked one, and never outside the public types — a public
+     * projection API must not leak a locked summary even when a caller's
+     * own SQL already excluded it. Stickies are not prepended and the raw
+     * row set passes through unfiltered: the id order is the contract,
+     * not query heuristics.
+     *
+     * @param list<int> $ids
+     * @return list<WP_Post>
+     */
+    public function byIds(array $ids): array
+    {
+        $ids = array_values(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0));
+        if ($ids === []) {
+            return [];
+        }
+
+        $query = new WP_Query([
+            'post__in' => $ids,
+            'post_type' => PublicTypes::wpPostTypes(),
+            'post_status' => 'publish',
+            'has_password' => false,
+            'orderby' => 'post__in',
+            'posts_per_page' => count($ids),
+            'no_found_rows' => true,
+            'ignore_sticky_posts' => true,
+            'suppress_filters' => true,
+        ]);
+        /** @var list<WP_Post> $posts */
+        $posts = array_values(array_filter(is_array($query->posts) ? $query->posts : [], static fn ($post): bool => $post instanceof WP_Post));
+        cache_users(wp_list_pluck($posts, 'post_author'));
+
+        return $posts;
+    }
+
     public function bySlug(string $slug, PublicType $type): ?WP_Post
     {
         $found = get_posts([
