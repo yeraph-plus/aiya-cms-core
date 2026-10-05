@@ -422,7 +422,18 @@ final class PostPresenter
      */
     private function thumbnail(WP_Post $post): ?Image
     {
-        return $this->cards->resolveFor($post);
+        return $this->imageView($this->cards->resolveFor($post));
+    }
+
+    /** The domain's plain url/alt/size shape assembled into the contract DTO.
+     *
+     * @param array{url: string, alt: string, width: int|null, height: int|null}|null $shape
+     */
+    private function imageView(?array $shape): ?Image
+    {
+        return $shape === null
+            ? null
+            : new Image($shape['url'], $shape['alt'], $shape['width'], $shape['height']);
     }
 
     /**
@@ -441,11 +452,13 @@ final class PostPresenter
     {
         $own = $this->cards->featuredFor($post);
         if ($own !== null || $type->name !== 'post') {
-            return $own;
+            return $this->imageView($own);
         }
 
-        return $this->cards->featuredForAttachment((int) aiya_core_opt('frontend', 'default_hero', 0))
-            ?? $this->cards->resolveFor($post);
+        return $this->imageView(
+            $this->cards->featuredForAttachment((int) aiya_core_opt('frontend', 'default_hero', 0))
+                ?? $this->cards->resolveFor($post)
+        );
     }
 
     /** Author projection by user id; unknown users degrade to an empty author. */

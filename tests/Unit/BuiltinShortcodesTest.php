@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Parts\BuiltinParts;
-use Aiya\Core\Domain\Parts\PartType;
+use Aiya\Core\Domain\Shortcodes\BuiltinShortcodes;
+use Aiya\Core\Domain\Shortcodes\ShortcodeType;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,14 +13,14 @@ use PHPUnit\Framework\TestCase;
  * and render-side markup (plain native HTML for the format parts,
  * purpose-named marker tags for alert).
  */
-final class BuiltinPartsTest extends TestCase
+final class BuiltinShortcodesTest extends TestCase
 {
-    /** @var array<string, PartType> */
+    /** @var array<string, ShortcodeType> */
     private array $parts;
 
     protected function setUp(): void
     {
-        $this->parts = (new BuiltinParts())->registerParts([]);
+        $this->parts = (new BuiltinShortcodes())->registerParts([]);
     }
 
     public function testRegistersTheCoreVocabulary(): void
@@ -29,7 +29,7 @@ final class BuiltinPartsTest extends TestCase
             ['list', 'col_list', 'collapse', 'alert', 'button', 'clip_board', 'ref'],
             array_keys($this->parts)
         );
-        self::assertTrue((new BuiltinParts())->registerParts(['x' => 'keep-me'])['x'] === 'keep-me', 'foreign entries pass through untouched');
+        self::assertTrue((new BuiltinShortcodes())->registerParts(['x' => 'keep-me'])['x'] === 'keep-me', 'foreign entries pass through untouched');
     }
 
     /**
@@ -40,10 +40,10 @@ final class BuiltinPartsTest extends TestCase
      */
     public function testTheRefIsDeclarationOnlyWithoutAnInjectedRenderer(): void
     {
-        self::assertNull($this->parts[BuiltinParts::REF_TAG]->render);
+        self::assertNull($this->parts[BuiltinShortcodes::REF_TAG]->render);
 
-        $injected = (new BuiltinParts(static fn (array $attrs): string => 'REF' . ($attrs['post'] ?? '')))->registerParts([]);
-        $render = $injected[BuiltinParts::REF_TAG]->render;
+        $injected = (new BuiltinShortcodes(static fn (array $attrs): string => 'REF' . ($attrs['post'] ?? '')))->registerParts([]);
+        $render = $injected[BuiltinShortcodes::REF_TAG]->render;
         self::assertNotNull($render);
         self::assertSame('REF7', $render(['post' => '7'], ''));
     }

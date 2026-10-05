@@ -15,7 +15,7 @@ use Aiya\Core\Domain\Discussion\DiscussionLikeService;
 use Aiya\Core\Domain\Content\Mentions;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Discussion\ThreadStatus;
-use Aiya\Core\Domain\Parts\BuiltinParts;
+use Aiya\Core\Domain\Shortcodes\BuiltinShortcodes;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 
 /**
@@ -231,7 +231,7 @@ final class DiscussionPresenter
         $html = $this->bodyHtml($raw);
         if ($postId > 0) {
             $card = do_shortcode(
-                '[' . BuiltinParts::REF_TAG . ' post="' . $postId . '"]'
+                '[' . BuiltinShortcodes::REF_TAG . ' post="' . $postId . '"]'
             );
             if ($card !== '') {
                 $html .= "\n" . $card;

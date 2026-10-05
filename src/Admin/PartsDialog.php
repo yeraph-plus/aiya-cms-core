@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Parts;
+namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Shortcodes\ShortcodeRegistry;
 
 /**
  * The editor-side inserter UI for template parts, replacing the legacy
@@ -13,12 +14,13 @@ use Aiya\Core\Contracts\Module;
  * dialog markup, and `wpdialogs` — the same jQuery UI Dialog wrapper the
  * core link dialog uses — opens it. Insertion goes through
  * window.send_to_editor so both the classic TinyMCE editor and the
- * QuickTags fallback receive the markup. Parts live in
- * Domain/Parts; this module only wires the editor surface.
+ * QuickTags fallback receive the markup. Read-only over the shortcode
+ * registry (the Admin→Domain direction); rendering itself is the
+ * Shortcodes domain's module.
  */
-final class PartModule implements Module
+final class PartsDialog implements Module
 {
-    public function __construct(private PartRegistry $registry)
+    public function __construct(private ShortcodeRegistry $registry)
     {
     }
 
@@ -27,50 +29,6 @@ final class PartModule implements Module
         add_action('media_buttons', [$this, 'toolbarButton'], 20);
         add_action('admin_footer', [$this, 'dialogMarkup']);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
-        add_action('init', [$this, 'registerRenderers'], 11);
-    }
-
-    /**
-     * Parts that declare a renderer become real shortcodes: the stored
-     * `[tag]` markup renders into the part's custom HTML tag during
-     * `the_content`, and the front end parses those tags into islands.
-     * Runs at init 11, after the settings registry (init 0) has populated
-     * the catalog with filter registrations.
-     *
-     * The parts domain also owns the shortcode namespace's retirement of
-     * core defaults: the caption/gallery/media shortcodes have no headless
-     * consumer (legacy content carries none after the migration audit),
-     * and `[embed]` cannot be removed with remove_shortcode() —
-     * WP_Embed re-registers it on every the_content pass — so BOTH of its
-     * content channels are unhooked instead: run_shortcode (explicit
-     * `[embed]` markup) and autoembed (bare URL lines, which would fire
-     * server-side oEmbed requests during API rendering).
-     */
-    public function registerRenderers(): void
-    {
-        foreach (['wp_caption', 'caption', 'gallery', 'playlist', 'audio', 'video'] as $retired) {
-            remove_shortcode($retired);
-        }
-        if (isset($GLOBALS['wp_embed']) && $GLOBALS['wp_embed'] instanceof \WP_Embed) {
-            $wp_embed = $GLOBALS['wp_embed'];
-            foreach (['run_shortcode', 'autoembed'] as $method) {
-                remove_filter('the_content', [$wp_embed, $method], 8);
-                remove_filter('widget_text_content', [$wp_embed, $method], 8);
-                remove_filter('widget_block_content', [$wp_embed, $method], 8);
-            }
-        }
-
-        foreach ($this->registry->all() as $part) {
-            if ($part->render === null || $part->tag === '' || shortcode_exists($part->tag)) {
-                continue;
-            }
-
-            add_shortcode($part->tag, static function (array $atts, string|null $content, string $tag) use ($part): string {
-                $attrs = \shortcode_atts($part->attributeDefaults(), $atts, $tag);
-
-                return ($part->render)($attrs, $content ?? '');
-            });
-        }
     }
 
     /** The classic "Add media" toolbar position, as the legacy inserter kept. */
@@ -140,7 +98,7 @@ final class PartModule implements Module
                 'emptyText' => __('No template parts are registered yet.', 'aiya-core'),
                 'parts' => $parts,
             ]);
-		?>
+        ?>
         </script>
         <?php
     }

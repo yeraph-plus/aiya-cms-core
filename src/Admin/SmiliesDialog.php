@@ -8,7 +8,7 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 
 /**
- * Editor-side smilies picker: a toolbar button next to the template-parts
+ * Editor-side smilies dialog: a toolbar button next to the template-parts
  * inserter opening a wpdialogs grid of every registered pack, one cell per
  * `::code::` token with its image preview. Insertion stores the TOKEN
  * text (never the image) at the cursor — the backend renderer turns tokens
@@ -18,7 +18,7 @@ use Aiya\Core\Domain\Smilies\SmiliesRegistry;
  * The scan leans on SmiliesRegistry's per-request memo; dialog data is
  * embedded as JSON on post screens only.
  */
-final class SmiliesPicker implements Module
+final class SmiliesDialog implements Module
 {
     public function __construct(private SmiliesRegistry $registry)
     {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Parts;
+namespace Aiya\Core\Domain\Shortcodes;
 
 use Aiya\Core\Contracts\Module;
 use Closure;
@@ -36,7 +36,7 @@ use Closure;
  * constraint carries no value on its own (2026-09-15 decision). A viewer-
  * gated equivalent returns with the gated-content API batch or not at all.
  */
-final class BuiltinParts implements Module
+final class BuiltinShortcodes implements Module
 {
     private const ALERT_LEVELS = ['default', 'warning', 'info', 'success', 'error'];
     private const RATIOS = ['1', '2', '3'];
@@ -55,12 +55,12 @@ final class BuiltinParts implements Module
 
     public function register(): void
     {
-        add_filter('aiya_core_register_parts', [$this, 'registerParts']);
+        add_filter('aiya_core_register_shortcodes', [$this, 'registerParts']);
     }
 
     /**
-     * @param array<string, PartType> $parts
-     * @return array<string, PartType>
+     * @param array<string, ShortcodeType> $parts
+     * @return array<string, ShortcodeType>
      */
     public function registerParts(array $parts): array
     {
@@ -73,11 +73,11 @@ final class BuiltinParts implements Module
         return $parts;
     }
 
-    /** @return list<PartType> */
+    /** @return list<ShortcodeType> */
     private function catalog(): array
     {
         return [
-            new PartType(
+            new ShortcodeType(
                 'list',
                 __('Quick list', 'aiya-core'),
                 __('Turns lines of text into a list, one item per line.', 'aiya-core'),
@@ -88,7 +88,7 @@ final class BuiltinParts implements Module
                 ],
                 fn (array $attrs, string $content): string => $this->renderList($attrs, $content),
             ),
-            new PartType(
+            new ShortcodeType(
                 'col_list',
                 __('Quick list (columns)', 'aiya-core'),
                 __('Alternates lines into a description list: first line the term, second the description, and so on.', 'aiya-core'),
@@ -109,7 +109,7 @@ final class BuiltinParts implements Module
                 ],
                 fn (array $attrs, string $content): string => $this->renderColList($attrs, $content),
             ),
-            new PartType(
+            new ShortcodeType(
                 'collapse',
                 __('Collapse panel', 'aiya-core'),
                 __('A panel readers can expand or collapse.', 'aiya-core'),
@@ -120,7 +120,7 @@ final class BuiltinParts implements Module
                 ],
                 fn (array $attrs, string $content): string => $this->renderCollapse($attrs, $content),
             ),
-            new PartType(
+            new ShortcodeType(
                 'alert',
                 __('Notice card', 'aiya-core'),
                 __('A highlighted notice with a level and a title.', 'aiya-core'),
@@ -144,7 +144,7 @@ final class BuiltinParts implements Module
                 ],
                 fn (array $attrs, string $content): string => $this->renderAlert($attrs, $content),
             ),
-            new PartType(
+            new ShortcodeType(
                 'button',
                 __('Button link', 'aiya-core'),
                 __('A styled link button.', 'aiya-core'),
@@ -175,7 +175,7 @@ final class BuiltinParts implements Module
                 ],
                 fn (array $attrs, string $content): string => $this->renderButton($attrs, $content),
             ),
-            new PartType(
+            new ShortcodeType(
                 'clip_board',
                 __('Quick copy', 'aiya-core'),
                 __('A text snippet the reader copies with one click.', 'aiya-core'),
@@ -185,7 +185,7 @@ final class BuiltinParts implements Module
                 ],
                 fn (array $attrs, string $content): string => $this->renderClipBoard($attrs, $content),
             ),
-            new PartType(
+            new ShortcodeType(
                 self::REF_TAG,
                 __('Reference', 'aiya-core'),
                 __('Emits one semantic reference marker for the front end to resolve into a link. Fill exactly one of the fields below; when several are filled the first (post, user, term, search, comment, thread) wins.', 'aiya-core'),

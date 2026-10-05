@@ -7,8 +7,8 @@ namespace Aiya\Core\Tests\Unit;
 use Aiya\Core\Api\Presenter\DiscussionPresenter;
 use Aiya\Core\Domain\Discussion\DiscussionLikeService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
-use Aiya\Core\Domain\Parts\BuiltinParts;
-use Aiya\Core\Domain\Parts\PartRegistry;
+use Aiya\Core\Domain\Shortcodes\BuiltinShortcodes;
+use Aiya\Core\Domain\Shortcodes\ShortcodeRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use PHPUnit\Framework\TestCase;
@@ -100,15 +100,15 @@ final class PostCardTest extends TestCase
 
     private function card(): \Aiya\Core\Api\Presenter\PostCardPresenter
     {
-        $presenter = $this->presenter(new BuiltinParts(static fn (array $attrs): string => ''));
+        $presenter = $this->presenter(new BuiltinShortcodes(static fn (array $attrs): string => ''));
 
         return $presenter['card'];
     }
 
     /**
-     * @return array{card: \Aiya\Core\Api\Presenter\PostCardPresenter, parts: BuiltinParts, posts: \Aiya\Core\Api\Presenter\PostPresenter}
+     * @return array{card: \Aiya\Core\Api\Presenter\PostCardPresenter, parts: BuiltinShortcodes, posts: \Aiya\Core\Api\Presenter\PostPresenter}
      */
-    private function presenter(BuiltinParts $parts): array
+    private function presenter(BuiltinShortcodes $parts): array
     {
         $visibility = new \Aiya\Core\Domain\Content\PostVisibility(static fn (int $userId): bool => false);
         $cards = new \Aiya\Core\Domain\Media\CardThumbnailService(
@@ -134,11 +134,11 @@ final class PostCardTest extends TestCase
     public function testTheRefForwardsItsAttributesToTheInjectedRenderer(): void
     {
         $seen = [];
-        $render = (new BuiltinParts(function (array $attrs) use (&$seen): string {
+        $render = (new BuiltinShortcodes(function (array $attrs) use (&$seen): string {
             $seen[] = $attrs;
 
             return 'REF';
-        }))->registerParts([])[BuiltinParts::REF_TAG]->render;
+        }))->registerParts([])[BuiltinShortcodes::REF_TAG]->render;
 
         self::assertNotNull($render);
         self::assertSame('REF', $render(['post' => '7'], ''));
@@ -261,18 +261,18 @@ final class PostCardTest extends TestCase
     public function testPartDeclaresTheShortcodeAndForwardsTheAttributes(): void
     {
         $seen = null;
-        $parts = new BuiltinParts(static function (array $attrs) use (&$seen): string {
+        $parts = new BuiltinShortcodes(static function (array $attrs) use (&$seen): string {
             $seen = $attrs;
 
             return 'REF';
         });
         $parts->register();
 
-        $registered = (new PartRegistry())->all();
-        self::assertArrayHasKey(BuiltinParts::REF_TAG, $registered);
-        self::assertSame('[ref{{attributes}}]', $registered[BuiltinParts::REF_TAG]->template);
+        $registered = (new ShortcodeRegistry())->all();
+        self::assertArrayHasKey(BuiltinShortcodes::REF_TAG, $registered);
+        self::assertSame('[ref{{attributes}}]', $registered[BuiltinShortcodes::REF_TAG]->template);
 
-        $render = $registered[BuiltinParts::REF_TAG]->render;
+        $render = $registered[BuiltinShortcodes::REF_TAG]->render;
         self::assertNotNull($render);
         self::assertSame('REF', $render(['post' => '42'], ''));
         self::assertSame(['post' => '42'], $seen, 'the closure receives the attribute form');
@@ -281,9 +281,9 @@ final class PostCardTest extends TestCase
     public function testTheShortcodeExpandsInPostContent(): void
     {
         $this->post(36);
-        $parts = new BuiltinParts(fn (array $attrs): string => $this->card()->render((int) $attrs['post']));
+        $parts = new BuiltinShortcodes(fn (array $attrs): string => $this->card()->render((int) $attrs['post']));
         $parts->register();
-        foreach ((new PartRegistry())->all() as $type) {
+        foreach ((new ShortcodeRegistry())->all() as $type) {
             if ($type->render !== null) {
                 add_shortcode($type->tag, static fn (array $atts, ?string $content, string $tag): string
                     => ($type->render)($atts, (string) $content));
@@ -341,9 +341,9 @@ final class PostCardTest extends TestCase
      */
     private function thread(array $extraContent, int $boundPostId): array
     {
-        $parts = new BuiltinParts(fn (array $attrs): string => $this->card()->render((int) $attrs['post']));
+        $parts = new BuiltinShortcodes(fn (array $attrs): string => $this->card()->render((int) $attrs['post']));
         $parts->register();
-        $registered = (new PartRegistry())->all();
+        $registered = (new ShortcodeRegistry())->all();
         foreach ($registered as $type) {
             if ($type->render !== null && !shortcode_exists($type->tag)) {
                 add_shortcode($type->tag, static fn (array $atts, ?string $content, string $tag): string

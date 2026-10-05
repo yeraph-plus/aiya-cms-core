@@ -7,7 +7,6 @@ namespace Aiya\Core\Domain\Media;
 use Aiya\Infra\ImageProcessor\FirstImageMatcher;
 use Aiya\Infra\ImageProcessor\SaveOptions;
 use Aiya\Infra\ImageProcessor\ThumbnailGenerator;
-use Aiya\Core\Api\Contract\Image;
 use Closure;
 use Imagine\Image\ImagineInterface;
 
@@ -25,6 +24,10 @@ use Imagine\Image\ImagineInterface;
  * recipe: plain cover-crop for near-ratio sources, and for far-ratio ones
  * a blurred cover-crop background with a white wash plus the contain-fit
  * foreground centered on top.
+ *
+ * Reads return plain url/alt/size shapes — the API layer's presenters
+ * assemble contract DTOs from them; this domain never touches the
+ * contract namespace.
  */
 final class CardThumbnailService
 {
@@ -70,14 +73,16 @@ final class CardThumbnailService
      * Presenter-facing resolution — never generates: a persisted composite,
      * else the live source URL (the cron worker will replace it), else the
      * site fallback cover from the Frontend settings.
+     *
+     * @return array{url: string, alt: string, width: int|null, height: int|null}|null
      */
-    public function resolveFor(\WP_Post $post): ?Image
+    public function resolveFor(\WP_Post $post): ?array
     {
         $thumb = get_post_meta((int) $post->ID, self::THUMB_KEY, true);
         if (is_string($thumb) && $thumb !== '') {
             $url = $this->persistedUrl($thumb);
             if ($url !== null) {
-                return new Image($url, (string) get_the_title($post), null, null);
+                return ['url' => $url, 'alt' => (string) get_the_title($post), 'width' => null, 'height' => null];
             }
         }
 
@@ -87,11 +92,11 @@ final class CardThumbnailService
             // on first miss, then a cheap is_file recheck on every read.
             $derived = $this->ensureDerived($thumbId, self::WIDTH, self::HEIGHT);
             if ($derived !== null) {
-                return new Image($derived, (string) get_the_title($post), self::WIDTH, self::HEIGHT);
+                return ['url' => $derived, 'alt' => (string) get_the_title($post), 'width' => self::WIDTH, 'height' => self::HEIGHT];
             }
             $live = wp_get_attachment_url($thumbId);
             if (is_string($live) && $live !== '' && $this->paths->urlToLocal($live) !== null) {
-                return new Image($live, (string) get_the_title($post), null, null);
+                return ['url' => $live, 'alt' => (string) get_the_title($post), 'width' => null, 'height' => null];
             }
         }
 
@@ -104,8 +109,10 @@ final class CardThumbnailService
      * for posts without one, so every article hero shares one geometry.
      * The card pipeline derives its own 640x360 crop from the same
      * attachment (see defaultDerivative()).
+     *
+     * @return array{url: string, alt: string, width: int|null, height: int|null}|null
      */
-    public function featuredForAttachment(int $attachmentId): ?Image
+    public function featuredForAttachment(int $attachmentId): ?array
     {
         if ($attachmentId <= 0) {
             return null;
@@ -115,12 +122,12 @@ final class CardThumbnailService
         if ($derived !== null) {
             $alt = (string) get_the_title($attachmentId);
 
-            return new Image(
-                $derived,
-                $alt !== '' ? $alt : (string) get_bloginfo('name'),
-                self::FEATURED_WIDTH,
-                self::FEATURED_HEIGHT
-            );
+            return [
+                'url' => $derived,
+                'alt' => $alt !== '' ? $alt : (string) get_bloginfo('name'),
+                'width' => self::FEATURED_WIDTH,
+                'height' => self::FEATURED_HEIGHT,
+            ];
         }
 
         return null;
@@ -130,8 +137,10 @@ final class CardThumbnailService
      * The detail-page background render: the featured image composited
      * at the featured hero size (same three-layer recipe), falling back to the
      * attachment's full-size URL when the driver fails.
+     *
+     * @return array{url: string, alt: string, width: int|null, height: int|null}|null
      */
-    public function featuredFor(\WP_Post $post): ?Image
+    public function featuredFor(\WP_Post $post): ?array
     {
         $thumbId = (int) get_post_thumbnail_id($post);
         if ($thumbId <= 0) {
@@ -140,7 +149,7 @@ final class CardThumbnailService
 
         $derived = $this->ensureDerived($thumbId, self::FEATURED_WIDTH, self::FEATURED_HEIGHT);
         if ($derived !== null) {
-            return new Image($derived, (string) get_the_title($post), self::FEATURED_WIDTH, self::FEATURED_HEIGHT);
+            return ['url' => $derived, 'alt' => (string) get_the_title($post), 'width' => self::FEATURED_WIDTH, 'height' => self::FEATURED_HEIGHT];
         }
 
         $src = wp_get_attachment_image_src($thumbId, 'full');
@@ -148,7 +157,7 @@ final class CardThumbnailService
             return null;
         }
 
-        return new Image($src[0], (string) get_the_title($post), null, null);
+        return ['url' => $src[0], 'alt' => (string) get_the_title($post), 'width' => null, 'height' => null];
     }
 
     /**
@@ -185,7 +194,7 @@ final class CardThumbnailService
      * Never touches `_thumb`; the featured attachment stays the source
      * of record for these files.
      *
-     * @return list<Image> 640x360 card first, 1000x240 banner render second.
+     * @return list<array{url: string, alt: string, width: int|null, height: int|null}> 640x360 card first, 1000x240 banner render second.
      */
     public function featuredDerivatives(\WP_Post $post): array
     {
@@ -199,17 +208,20 @@ final class CardThumbnailService
 
         $out = [];
         if ($card !== null) {
-            $out[] = new Image($card, (string) get_the_title($post), self::WIDTH, self::HEIGHT);
+            $out[] = ['url' => $card, 'alt' => (string) get_the_title($post), 'width' => self::WIDTH, 'height' => self::HEIGHT];
         }
         if ($render !== null) {
-            $out[] = new Image($render, (string) get_the_title($post), self::FEATURED_WIDTH, self::FEATURED_HEIGHT);
+            $out[] = ['url' => $render, 'alt' => (string) get_the_title($post), 'width' => self::FEATURED_WIDTH, 'height' => self::FEATURED_HEIGHT];
         }
 
         return $out;
     }
 
-    /** The 640x360 card derivative of the site fallback cover, if configured. */
-    public function defaultDerivative(): ?Image
+    /** The 640x360 card derivative of the site fallback cover, if configured.
+     *
+     * @return array{url: string, alt: string, width: int|null, height: int|null}|null
+     */
+    public function defaultDerivative(): ?array
     {
         $attachmentId = (int) aiya_core_opt('frontend', 'default_thumb', 0);
         if ($attachmentId <= 0) {
@@ -219,7 +231,7 @@ final class CardThumbnailService
         $url = $this->ensureDerived($attachmentId, self::WIDTH, self::HEIGHT);
 
         return $url !== null
-            ? new Image($url, (string) get_the_title($attachmentId), self::WIDTH, self::HEIGHT)
+            ? ['url' => $url, 'alt' => (string) get_the_title($attachmentId), 'width' => self::WIDTH, 'height' => self::HEIGHT]
             : null;
     }
 
@@ -468,8 +480,11 @@ final class CardThumbnailService
         return $local !== null ? $this->paths->localToUrl($local) : null;
     }
 
-    /** The Frontend settings' site fallback cover, or null. */
-    private function defaultImage(): ?Image
+    /** The Frontend settings' site fallback cover, or null.
+     *
+     * @return array{url: string, alt: string, width: int|null, height: int|null}|null
+     */
+    private function defaultImage(): ?array
     {
         $attachmentId = (int) aiya_core_opt('frontend', 'default_thumb', 0);
         if ($attachmentId <= 0) {
@@ -483,6 +498,6 @@ final class CardThumbnailService
 
         $alt = (string) get_the_title($attachmentId);
 
-        return new Image($src[0], $alt !== '' ? $alt : (string) get_bloginfo('name'), null, null);
+        return ['url' => $src[0], 'alt' => $alt !== '' ? $alt : (string) get_bloginfo('name'), 'width' => null, 'height' => null];
     }
 }

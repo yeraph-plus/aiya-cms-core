@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Parts\PartType;
+use Aiya\Core\Domain\Shortcodes\ShortcodeType;
 use PHPUnit\Framework\TestCase;
 
-final class PartTypeTest extends TestCase
+final class ShortcodeTypeTest extends TestCase
 {
-    private function part(string $template, array $fields = []): PartType
+    private function part(string $template, array $fields = []): ShortcodeType
     {
-        return new PartType('probe', 'Probe', '', $template, $fields);
+        return new ShortcodeType('probe', 'Probe', '', $template, $fields);
     }
 
     public function testBuildsAttributesAndContentFromTheTemplate(): void

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Parts;
+namespace Aiya\Core\Domain\Shortcodes;
 
 use Closure;
 
@@ -18,7 +18,7 @@ use Closure;
  * editor declarations only: their markup is stored in content and
  * nothing is registered for rendering.
  */
-final class PartType
+final class ShortcodeType
 {
     /**
      * @param list<array<string, mixed>> $fields Settings Field schemas

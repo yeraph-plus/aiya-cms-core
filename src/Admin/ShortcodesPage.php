@@ -10,7 +10,7 @@ use Closure;
  * Registered shortcodes screen (the inspection half of the WPJAM Basic
  * 常用简码 page): every shortcode in the global registry with a readable
  * callback label. Purely diagnostic — this site renders shortcodes
- * through the Parts framework, so unlike WPJAM this page registers no
+ * through the Shortcodes framework, so unlike WPJAM this page registers no
  * shortcodes of its own.
  */
 final class ShortcodesPage

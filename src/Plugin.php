@@ -17,10 +17,11 @@ use Aiya\Core\Admin\NotificationPage;
 use Aiya\Core\Admin\OperationsPage;
 use Aiya\Core\Admin\PaymentsAuditPage;
 use Aiya\Core\Admin\PicBedPage;
+use Aiya\Core\Admin\PartsDialog;
 use Aiya\Core\Admin\PostTypeSwitchBulkAction;
 use Aiya\Core\Admin\SendMailPage;
 use Aiya\Core\Admin\SettingsAdmin;
-use Aiya\Core\Admin\SmiliesPicker;
+use Aiya\Core\Admin\SmiliesDialog;
 use Aiya\Core\Admin\TermMoveBulkAction;
 use Aiya\Core\Admin\VisibilityMetabox;
 use Aiya\Core\Api\Presenter\FilePresenter;
@@ -61,9 +62,9 @@ use Aiya\Core\Domain\Mail\MailModule;
 use Aiya\Core\Domain\Notification\NotificationActions;
 use Aiya\Core\Domain\Notification\NotificationModule;
 use Aiya\Core\Domain\Operations\OperationsModule;
-use Aiya\Core\Domain\Parts\BuiltinParts;
-use Aiya\Core\Domain\Parts\PartModule;
-use Aiya\Core\Domain\Parts\PartRegistry;
+use Aiya\Core\Domain\Shortcodes\BuiltinShortcodes;
+use Aiya\Core\Domain\Shortcodes\ShortcodesModule;
+use Aiya\Core\Domain\Shortcodes\ShortcodeRegistry;
 use Aiya\Core\Domain\Membership\EntitlementService;
 use Aiya\Core\Domain\Membership\MembershipService;
 use Aiya\Core\Domain\Membership\OrderService;
@@ -145,8 +146,10 @@ final class Plugin
         $this->addModule(new PostTypeSwitchBulkAction(new PostTypeSwitcher()));
         $this->addModule(new TermMoveBulkAction(new TermTaxonomyMover()));
         $this->addModule(new BlocksModule($this->settings));
-        $this->addModule(new PartModule(new PartRegistry()));
-        $this->addModule(new SmiliesPicker(SmiliesRegistry::shared()));
+        $shortcodes = new ShortcodeRegistry();
+        $this->addModule(new ShortcodesModule($shortcodes));
+        $this->addModule(new PartsDialog($shortcodes));
+        $this->addModule(new SmiliesDialog(SmiliesRegistry::shared()));
         $this->addModule(new EditorPlugins());
         $this->addModule(new MetaboxAdmin($this->metadata));
         $this->addModule(new TypographyModule($this->settings, $this->metadata));
@@ -189,7 +192,7 @@ final class Plugin
             static fn (int $postId): string => $postCards->render($postId),
             new DiscussionService()
         );
-        $this->addModule(new BuiltinParts(static fn (array $attrs): string => $refPresenter->render($attrs)));
+        $this->addModule(new BuiltinShortcodes(static fn (array $attrs): string => $refPresenter->render($attrs)));
 
         // File downloads: the domain registers the adapters it ships and the
         // settings page they hang off, the OpenList module adds its own
