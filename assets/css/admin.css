@@ -513,17 +513,28 @@ details.aiya-core-card > .aiya-core-card__summary::marker {
     width: 16px;
 }
 
-/* The destructive text action: delete red on a plain link (row actions
-   like the notifications list's per-row delete wear it instead of
-   core's submitdelete; no button shell by ruling). */
-.aiya-core-button-danger {
+/* The destructive action: delete red as text on a link or on the small
+   button shell (the row actions pair it with the edit button), hover
+   deepens. The compound selector keeps core's button hover from
+   repainting the text. */
+.aiya-core-button-danger,
+.button.aiya-core-button-danger {
     color: #d63638;
     text-decoration: none;
 }
 
 .aiya-core-button-danger:hover,
-.aiya-core-button-danger:focus {
+.aiya-core-button-danger:focus,
+.button.aiya-core-button-danger:hover,
+.button.aiya-core-button-danger:focus {
     color: #b32d2e;
+}
+
+/* Row actions: the edit/delete pair shares one line inside a cell. */
+.aiya-core-row-actions {
+    align-items: center;
+    display: inline-flex;
+    gap: 6px;
 }
 
 /* The destructive action button: solid delete red on the primary shell —

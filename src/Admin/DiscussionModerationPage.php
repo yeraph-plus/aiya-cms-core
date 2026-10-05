@@ -140,8 +140,8 @@ final class DiscussionModerationPage implements Module
 
         $boards = $this->threads->boards();
         // The filter fields compose into the list's top operation bar
-        // (bulkTable's filters contract); the New thread button keeps its
-        // slot beside them.
+        // (bulkTable's filters contract); the New thread action sits on
+        // its own line above the list.
         $filters = static function () use ($search, $boardSlug, $status, $boards): void {
             Ui::input('s', 'search', $search, ['placeholder' => __('Search title or body…', 'aiya-core'), 'size' => 24]);
             $boardOptions = ['' => __('All boards', 'aiya-core')];
@@ -154,8 +154,11 @@ final class DiscussionModerationPage implements Module
                 $statusOptions[$state] = self::statusLabel($state);
             }
             Ui::select('status', $statusOptions, $status, ['label' => __('All statuses', 'aiya-core')]);
-            echo '<button type="button" class="button button-primary" id="aiya-thread-new">' . esc_html__('New thread', 'aiya-core') . '</button>';
         };
+
+        echo '<p>';
+        Ui::button(__('New thread', 'aiya-core'), ['type' => 'button', 'variant' => 'button-primary', 'id' => 'aiya-thread-new']);
+        echo '</p>';
 
         Ui::bulkTable(
             self::ACTION_BULK,
@@ -194,7 +197,7 @@ final class DiscussionModerationPage implements Module
                     case 'actions':
                         printf(
                             '<button type="button" class="button button-small aiya-thread-edit" data-id="%1$s">%2$s</button> '
-                            . '<button type="submit" class="button-link aiya-core-button-danger" data-aiya-single-delete="delete">%3$s</button>',
+                            . '<button type="submit" class="button button-small aiya-core-button-danger" data-aiya-single-delete="delete">%3$s</button>',
                             esc_attr((string) $row->id),
                             esc_html__('Edit', 'aiya-core'),
                             esc_html__('Delete', 'aiya-core')
@@ -526,23 +529,21 @@ final class DiscussionModerationPage implements Module
                             echo esc_html((string) $row->threads);
                             break;
                         case 'actions':
-                            printf(
-                                '<a href="%1$s">%2$s</a> ',
-                                esc_url(add_query_arg('board_edit', (int) $row->id, admin_url('admin.php?page=' . self::MENU_SLUG))),
-                                esc_html__('Edit', 'aiya-core')
-                            );
-                            // Destructive board deletion rides its own POST
-                            // form; the shared danger modal confirms it
-                            // (data-aiya-confirm + static text attr).
+                            // The pair shares one line: the edit link wears
+                            // the small button shell, the delete rides its
+                            // own POST form inside the actions row.
                             ?>
-                            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
-                                data-aiya-confirm="aiya-board-delete-confirm"
-                                data-aiya-confirm-text="<?php esc_attr_e('Delete this board? Its threads move to the first remaining board.', 'aiya-core'); ?>">
-                                <input type="hidden" name="action" value="<?php echo esc_attr(self::BOARD_ACTION_DELETE); ?>">
-                                <input type="hidden" name="board_id" value="<?php echo esc_attr((string) $row->id); ?>">
-                                <?php wp_nonce_field(self::BOARD_ACTION_DELETE); ?>
-                                <button type="submit" class="button-link submitdelete"><?php esc_html_e('Delete', 'aiya-core'); ?></button>
-                            </form>
+                            <span class="aiya-core-row-actions">
+                                <a class="button button-small" href="<?php echo esc_url(add_query_arg('board_edit', (int) $row->id, admin_url('admin.php?page=' . self::MENU_SLUG))); ?>"><?php esc_html_e('Edit', 'aiya-core'); ?></a>
+                                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
+                                    data-aiya-confirm="aiya-board-delete-confirm"
+                                    data-aiya-confirm-text="<?php esc_attr_e('Delete this board? Its threads move to the first remaining board.', 'aiya-core'); ?>">
+                                    <input type="hidden" name="action" value="<?php echo esc_attr(self::BOARD_ACTION_DELETE); ?>">
+                                    <input type="hidden" name="board_id" value="<?php echo esc_attr((string) $row->id); ?>">
+                                    <?php wp_nonce_field(self::BOARD_ACTION_DELETE); ?>
+                                    <button type="submit" class="button button-small aiya-core-button-danger"><?php esc_html_e('Delete', 'aiya-core'); ?></button>
+                                </form>
+                            </span>
                             <?php
                             break;
                     }
