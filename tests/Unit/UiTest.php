@@ -326,6 +326,30 @@ final class UiTest extends TestCase
         self::assertStringContainsString('data-fill="email"', $out);
     }
 
+    public function testBulkTableTotalOverrideReadsRealSizeForSqlPaginatedCallers(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/wp-admin/admin.php?page=demo';
+        // The caller already sliced in SQL: two rows on page 2 of a
+        // 23-row match at 2 per page.
+        $slice = [['id' => 1], ['id' => 2]];
+        $out = $this->captureOut(fn () => Ui::bulkTable(
+            'demo_action',
+            ['del' => 'Delete'],
+            ['t' => ['label' => 'T']],
+            $slice,
+            static function ($row, string $column): void {
+                echo (string) $row['id'];
+            },
+            static fn ($row) => $row['id'],
+            ['nav' => true, 'paged' => 2, 'per_page' => 2, 'total' => 23]
+        ));
+        self::assertStringContainsString('23 items', $out, 'the nav count reads the matched total, not the slice length');
+        self::assertStringContainsString('2 of 12', $out);
+        self::assertStringContainsString('name="ids[]" value="1"', $out);
+        self::assertStringContainsString('name="ids[]" value="2"', $out, 'the slice renders as-is, no re-slicing');
+        self::assertStringNotContainsString('name="ids[]" value="3"', $out);
+    }
+
     public function testListNavIsPassiveWithoutSwitches(): void
     {
         $_SERVER['REQUEST_URI'] = '/wp-admin/admin.php?page=demo';

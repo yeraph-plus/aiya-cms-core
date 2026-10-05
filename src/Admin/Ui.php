@@ -568,7 +568,10 @@ final class Ui
      * or, without nav, in a bare operation bar of the same classes.
      * Destructive actions may carry a confirm text (value => text); the
      * behavior layer enforces it on submit. Nonce is derived from
-     * $postAction.
+     * $postAction. By default $rows is the full row set and the nav bars
+     * slice it; SQL-paginated callers instead pass the current page slice
+     * in $rows and the matched total in `total` — the bars then read the
+     * real size and slicing stays the caller's job.
      *
      * @template TRow
      *
@@ -577,7 +580,7 @@ final class Ui
      * @param iterable<TRow> $rows
      * @param callable(TRow, string): void $cell
      * @param callable(TRow): (string|int) $rowId
-     * @param array{empty?: string, name?: string, confirm?: array<string, string>, nav?: bool, paged?: int, per_page?: int, per_page_choices?: list<int>} $args
+     * @param array{empty?: string, name?: string, confirm?: array<string, string>, nav?: bool, paged?: int, per_page?: int, per_page_choices?: list<int>, total?: int} $args
      */
     public static function bulkTable(
         string $postAction,
@@ -590,11 +593,13 @@ final class Ui
     ): void {
         $name = (string) ($args['name'] ?? 'ids');
         $nav = !empty($args['nav']);
+        $navTotal = 0;
         if ($nav) {
             $rows = is_array($rows) ? $rows : iterator_to_array($rows, false);
             $paged = (int) ($args['paged'] ?? 1);
             $perPage = (int) ($args['per_page'] ?? 20);
-            $pageRows = array_slice($rows, ($paged - 1) * $perPage, $perPage);
+            $navTotal = isset($args['total']) ? max(0, (int) $args['total']) : count($rows);
+            $pageRows = isset($args['total']) ? $rows : array_slice($rows, ($paged - 1) * $perPage, $perPage);
         } else {
             $pageRows = $rows;
         }
@@ -614,7 +619,7 @@ final class Ui
             echo '<span class="aiya-core-bulk-count description" aria-live="polite" hidden></span>';
         };
         if ($nav) {
-            self::listNav(count($rows), (int) ($args['paged'] ?? 1), (int) ($args['per_page'] ?? 20), 'top', ['actions' => $bulkControls] + $args);
+            self::listNav($navTotal, (int) ($args['paged'] ?? 1), (int) ($args['per_page'] ?? 20), 'top', ['actions' => $bulkControls] + $args);
         } else {
             echo '<div class="aiya-core-listnav top aiya-core-listnav--actions"><div class="aiya-core-listnav-actions">';
             $bulkControls();
@@ -648,7 +653,7 @@ final class Ui
         }
         echo '</tbody></table>';
         if ($nav) {
-            self::listNav(count($rows), (int) ($args['paged'] ?? 1), (int) ($args['per_page'] ?? 20), 'bottom', $args);
+            self::listNav($navTotal, (int) ($args['paged'] ?? 1), (int) ($args['per_page'] ?? 20), 'bottom', $args);
         }
         echo '</form>';
     }

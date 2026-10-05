@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.107.0\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.111.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core-i18n\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-05T07:21:30+00:00\n"
+"POT-Creation-Date: 2026-10-05T21:46:42+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -122,7 +122,7 @@ msgid "Cycles"
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:96
-#: src/Admin/DiscussionModerationPage.php:213
+#: src/Admin/DiscussionModerationPage.php:248
 #: src/Admin/PaymentsAuditPage.php:138
 #: src/Admin/UiSamplePage.php:116
 #: src/Admin/UiSamplePage.php:161
@@ -201,17 +201,17 @@ msgid "Pattern"
 msgstr ""
 
 #: src/Admin/CoverMetabox.php:72
-#: src/Admin/DiscussionModerationPage.php:137
-#: src/Admin/DiscussionModerationPage.php:199
+#: src/Admin/DiscussionModerationPage.php:164
+#: src/Admin/DiscussionModerationPage.php:234
 #: src/Admin/NotificationPage.php:108
 #: src/Admin/NotificationPage.php:175
 #: src/Admin/UiSamplePage.php:115
 #: src/Admin/UiSamplePage.php:160
 #: src/Admin/UiSamplePage.php:285
 #: src/Admin/UiSamplePage.php:297
-#: src/Domain/Content/BlocksModule.php:197
-#: src/Domain/Parts/BuiltinParts.php:118
-#: src/Domain/Parts/BuiltinParts.php:129
+#: src/Domain/Blocks/BlocksModule.php:197
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:118
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:129
 msgid "Title"
 msgstr ""
 
@@ -273,9 +273,9 @@ msgid "Credits granted."
 msgstr ""
 
 #: src/Admin/CreditsPage.php:136
-#: src/Admin/DiscussionModerationPage.php:312
-#: src/Admin/DiscussionModerationPage.php:349
-#: src/Admin/DiscussionModerationPage.php:527
+#: src/Admin/DiscussionModerationPage.php:130
+#: src/Admin/DiscussionModerationPage.php:341
+#: src/Admin/DiscussionModerationPage.php:416
 msgid "The operation failed."
 msgstr ""
 
@@ -323,7 +323,7 @@ msgstr ""
 
 #: src/Admin/CreditsPage.php:216
 #: src/Admin/CronsPage.php:172
-#: src/Admin/DiscussionModerationPage.php:130
+#: src/Admin/DiscussionModerationPage.php:138
 #: src/Admin/PaymentsAuditPage.php:116
 #: src/Admin/PicBedPage.php:227
 #: src/Admin/RewritesPage.php:86
@@ -407,7 +407,7 @@ msgstr ""
 #: src/Admin/OperationsPage.php:404
 #: src/Admin/PaymentsAuditPage.php:183
 #: src/Admin/UiSamplePage.php:261
-#: src/Domain/Membership/MembershipModule.php:95
+#: src/Domain/Membership/MembershipModule.php:80
 msgid "Membership"
 msgstr ""
 
@@ -536,8 +536,8 @@ msgid "Filter by hook name…"
 msgstr ""
 
 #: src/Admin/CronsPage.php:182
-#: src/Admin/DiscussionModerationPage.php:142
-#: src/Admin/DiscussionModerationPage.php:426
+#: src/Admin/DiscussionModerationPage.php:169
+#: src/Admin/DiscussionModerationPage.php:480
 #: src/Admin/NotificationPage.php:112
 #: src/Admin/PicBedPage.php:264
 #: src/Admin/UiSamplePage.php:285
@@ -558,8 +558,8 @@ msgid "Delete this scheduled event?"
 msgstr ""
 
 #: src/Admin/CronsPage.php:200
-#: src/Admin/DiscussionModerationPage.php:167
-#: src/Admin/DiscussionModerationPage.php:451
+#: src/Admin/DiscussionModerationPage.php:196
+#: src/Admin/DiscussionModerationPage.php:516
 #: src/Admin/NotificationPage.php:145
 msgid "Delete"
 msgstr ""
@@ -568,190 +568,223 @@ msgstr ""
 msgid "No scheduled events match."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:67
-#: src/Admin/DiscussionModerationPage.php:68
-#: src/Admin/DiscussionModerationPage.php:109
+#: src/Admin/DiscussionModerationPage.php:54
+#: src/Admin/DiscussionModerationPage.php:55
+#: src/Admin/DiscussionModerationPage.php:99
 msgid "Light Community"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:89
-#: src/Admin/DiscussionModerationPage.php:328
+#: src/Admin/DiscussionModerationPage.php:75
+#: src/Admin/DiscussionModerationPage.php:363
 msgid "You are not allowed to moderate the community."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:110
+#: src/Admin/DiscussionModerationPage.php:100
 msgid "Discussion threads live outside the post model; this screen is the admin surface for the headless community."
 msgstr ""
 
+#. translators: %d: number of closed threads.
+#: src/Admin/DiscussionModerationPage.php:109
+#, php-format
+msgid "%d thread closed."
+msgid_plural "%d threads closed."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of reopened threads.
 #: src/Admin/DiscussionModerationPage.php:117
+#, php-format
+msgid "%d thread reopened."
+msgid_plural "%d threads reopened."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of deleted threads.
+#: src/Admin/DiscussionModerationPage.php:125
+#, php-format
+msgid "%d thread deleted."
+msgid_plural "%d threads deleted."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/DiscussionModerationPage.php:140
 msgid "Search title or body…"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:119
+#: src/Admin/DiscussionModerationPage.php:141
+#: src/Admin/DiscussionModerationPage.php:145
 msgid "All boards"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:125
+#: src/Admin/DiscussionModerationPage.php:146
+#: src/Admin/DiscussionModerationPage.php:150
 msgid "All statuses"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:131
-#: src/Admin/DiscussionModerationPage.php:245
+#: src/Admin/DiscussionModerationPage.php:151
+#: src/Admin/DiscussionModerationPage.php:230
+#: src/Admin/DiscussionModerationPage.php:281
 msgid "New thread"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:138
+#: src/Admin/DiscussionModerationPage.php:159
+msgid "Close selected"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:160
+msgid "Reopen selected"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:161
+#: src/Admin/NotificationPage.php:106
+#: src/Admin/UiSamplePage.php:158
+msgid "Delete selected"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:165
 msgid "Excerpt"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:139
+#: src/Admin/DiscussionModerationPage.php:166
 #: src/Admin/NotificationPage.php:259
 #: src/Domain/Content/ContentTypeModule.php:60
 msgid "Author"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:140
+#: src/Admin/DiscussionModerationPage.php:167
 msgid "Replies"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:141
+#: src/Admin/DiscussionModerationPage.php:168
 msgid "Last activity"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:147
-msgid "No threads found."
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:164
-#: src/Admin/DiscussionModerationPage.php:442
+#: src/Admin/DiscussionModerationPage.php:195
+#: src/Admin/DiscussionModerationPage.php:505
 #: src/Admin/UiSamplePage.php:290
 msgid "Edit"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:166
-msgid "Delete this thread and all its replies?"
+#: src/Admin/DiscussionModerationPage.php:203
+msgid "No threads found."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:203
+#: src/Admin/DiscussionModerationPage.php:204
+msgid "Delete the selected threads and all their replies?"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:238
 msgid "Board"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:223
+#: src/Admin/DiscussionModerationPage.php:258
 #: src/Admin/NotificationPage.php:109
 #: src/Admin/NotificationPage.php:188
 msgid "Body"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:226
+#: src/Admin/DiscussionModerationPage.php:261
 msgid "HTML allowed; at most nine images per body."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:231
+#: src/Admin/DiscussionModerationPage.php:266
 #: src/Admin/OperationsPage.php:107
 msgid "Save"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:232
+#: src/Admin/DiscussionModerationPage.php:267
+#: src/Admin/PartsDialog.php:91
 #: src/Admin/PostTypeSwitchBulkAction.php:83
 #: src/Admin/TermMoveBulkAction.php:77
 #: src/Admin/UiSamplePage.php:303
-#: src/Domain/Parts/PartModule.php:133
 msgid "Cancel"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:246
+#: src/Admin/DiscussionModerationPage.php:282
 msgid "Edit thread"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:347
-msgid "Status updated."
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:348
-msgid "Thread deleted."
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:378
-msgid "Boards"
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:386
-#: src/Admin/DiscussionModerationPage.php:422
-msgid "Slug"
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:390
-msgid "The slug is fixed once threads reference it."
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:393
-msgid "Lowercase letters, digits, dashes or underscores."
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:398
-#: src/Admin/DiscussionModerationPage.php:421
-#: src/Admin/FileServeMetabox.php:288
-#: src/Domain/Membership/MembershipModule.php:133
-msgid "Name"
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:402
-#: src/Admin/DiscussionModerationPage.php:423
-#: src/Domain/Membership/MembershipModule.php:139
-msgid "Description"
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:406
-#: src/Admin/DiscussionModerationPage.php:424
-msgid "Sort order"
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:411
-msgid "Save board"
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:411
-msgid "Add board"
-msgstr ""
-
 #: src/Admin/DiscussionModerationPage.php:413
-msgid "Cancel editing"
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:425
-msgid "Threads"
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:432
-msgid "No boards yet."
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:450
-msgid "Delete this board? Its threads move to the first remaining board."
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:467
-#: src/Admin/DiscussionModerationPage.php:500
-msgid "You are not allowed to manage the community."
-msgstr ""
-
-#: src/Admin/DiscussionModerationPage.php:524
 msgid "Board created."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:525
+#: src/Admin/DiscussionModerationPage.php:414
 msgid "Board saved."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:526
+#: src/Admin/DiscussionModerationPage.php:415
 msgid "Board deleted."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:552
+#: src/Admin/DiscussionModerationPage.php:432
+msgid "Boards"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:440
+#: src/Admin/DiscussionModerationPage.php:476
+msgid "Slug"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:444
+msgid "The slug is fixed once threads reference it."
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:447
+msgid "Lowercase letters, digits, dashes or underscores."
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:452
+#: src/Admin/DiscussionModerationPage.php:475
+#: src/Admin/FileServeMetabox.php:288
+#: src/Domain/Membership/MembershipModule.php:118
+msgid "Name"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:456
+#: src/Admin/DiscussionModerationPage.php:477
+#: src/Domain/Membership/MembershipModule.php:124
+msgid "Description"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:460
+#: src/Admin/DiscussionModerationPage.php:478
+msgid "Sort order"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:465
+msgid "Save board"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:465
+msgid "Add board"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:467
+msgid "Cancel editing"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:479
+msgid "Threads"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:512
+msgid "Delete this board? Its threads move to the first remaining board."
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:522
+msgid "No boards yet."
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:530
+#: src/Admin/DiscussionModerationPage.php:562
+msgid "You are not allowed to manage the community."
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:595
 msgid "Normal"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:553
+#: src/Admin/DiscussionModerationPage.php:596
 msgid "Closed"
 msgstr ""
 
@@ -950,11 +983,6 @@ msgstr ""
 
 #: src/Admin/NotificationPage.php:103
 msgid "Stored notifications"
-msgstr ""
-
-#: src/Admin/NotificationPage.php:106
-#: src/Admin/UiSamplePage.php:158
-msgid "Delete selected"
 msgstr ""
 
 #: src/Admin/NotificationPage.php:110
@@ -1215,6 +1243,24 @@ msgstr ""
 msgid "Total"
 msgstr ""
 
+#: src/Admin/PartsDialog.php:48
+#: src/Admin/PartsDialog.php:77
+#: src/Admin/PartsDialog.php:97
+msgid "Template parts"
+msgstr ""
+
+#: src/Admin/PartsDialog.php:84
+msgid "Markup preview"
+msgstr ""
+
+#: src/Admin/PartsDialog.php:90
+msgid "Insert"
+msgstr ""
+
+#: src/Admin/PartsDialog.php:98
+msgid "No template parts are registered yet."
+msgstr ""
+
 #: src/Admin/PaymentsAuditPage.php:64
 #: src/Admin/PaymentsAuditPage.php:65
 #: src/Admin/PaymentsAuditPage.php:110
@@ -1298,8 +1344,8 @@ msgstr ""
 #: src/Admin/PicBedPage.php:111
 #: src/Admin/PicBedPage.php:263
 #: src/Admin/SamplePage.php:243
-#: src/Domain/Content/BlocksModule.php:124
-#: src/Domain/Parts/BuiltinParts.php:153
+#: src/Domain/Blocks/BlocksModule.php:124
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:153
 msgid "URL"
 msgstr ""
 
@@ -1332,7 +1378,7 @@ msgid "No file was uploaded."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:229
-#: src/Domain/Parts/BuiltinParts.php:195
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:195
 msgid "User ID"
 msgstr ""
 
@@ -1368,7 +1414,7 @@ msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:70
 #: src/Admin/PostTypeSwitchBulkAction.php:109
-#: src/Domain/Content/BlocksModule.php:212
+#: src/Domain/Blocks/BlocksModule.php:212
 #: src/Domain/Content/ContentManagementModule.php:136
 msgid "Posts"
 msgstr ""
@@ -1381,7 +1427,7 @@ msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:72
 #: src/Admin/PostTypeSwitchBulkAction.php:111
-#: src/Domain/Content/BlocksModule.php:213
+#: src/Domain/Blocks/BlocksModule.php:213
 #: src/Domain/Content/ContentManagementModule.php:138
 msgid "Resources"
 msgstr ""
@@ -1694,7 +1740,7 @@ msgid "Backbone manages item creation; jQuery UI provides drag sorting."
 msgstr ""
 
 #: src/Admin/SamplePage.php:237
-#: src/Domain/Content/BlocksModule.php:117
+#: src/Domain/Blocks/BlocksModule.php:117
 msgid "Label"
 msgstr ""
 
@@ -1703,7 +1749,7 @@ msgid "Priority"
 msgstr ""
 
 #: src/Admin/SamplePage.php:257
-#: src/Domain/Membership/MembershipModule.php:120
+#: src/Domain/Membership/MembershipModule.php:105
 msgid "Enabled"
 msgstr ""
 
@@ -2122,8 +2168,8 @@ msgstr ""
 msgid "No shortcodes match."
 msgstr ""
 
-#: src/Admin/SmiliesPicker.php:45
-#: src/Admin/SmiliesPicker.php:64
+#: src/Admin/SmiliesDialog.php:45
+#: src/Admin/SmiliesDialog.php:64
 msgid "Smilies"
 msgstr ""
 
@@ -2252,21 +2298,21 @@ msgid "Copied."
 msgstr ""
 
 #. translators: %s: number of rows currently checked.
-#: src/Admin/Ui.php:602
+#: src/Admin/Ui.php:607
 #, php-format
 msgid "Selected: %s"
 msgstr ""
 
-#: src/Admin/Ui.php:612
+#: src/Admin/Ui.php:617
 msgid "Bulk actions"
 msgstr ""
 
-#: src/Admin/Ui.php:613
+#: src/Admin/Ui.php:618
 #: src/Admin/UiSamplePage.php:60
 msgid "Apply"
 msgstr ""
 
-#: src/Admin/Ui.php:624
+#: src/Admin/Ui.php:629
 msgid "Select all"
 msgstr ""
 
@@ -2594,7 +2640,7 @@ msgid "This account is disabled."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:141
-#: src/Api/Rest/MembershipController.php:121
+#: src/Api/Rest/MembershipController.php:119
 msgid "The Afdian channel is not available."
 msgstr ""
 
@@ -2622,30 +2668,30 @@ msgstr ""
 msgid "Thread not found."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:132
-#: src/Api/Rest/MembershipController.php:192
+#: src/Api/Rest/MembershipController.php:130
+#: src/Api/Rest/MembershipController.php:190
 msgid "Unknown membership tier."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:138
-#: src/Api/Rest/MembershipController.php:200
+#: src/Api/Rest/MembershipController.php:136
+#: src/Api/Rest/MembershipController.php:198
 msgid "This membership tier is not available."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:145
+#: src/Api/Rest/MembershipController.php:143
 msgid "This tier is not bound to an Afdian plan."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:182
+#: src/Api/Rest/MembershipController.php:180
 msgid "No payment gateway is available."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:185
-#: src/Domain/Membership/EpayGateway.php:86
+#: src/Api/Rest/MembershipController.php:183
+#: src/Domain/Payment/EpayGateway.php:87
 msgid "The requested payment channel is not available."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:221
+#: src/Api/Rest/MembershipController.php:219
 msgid "The return URL is not a valid absolute http(s) address."
 msgstr ""
 
@@ -2677,136 +2723,136 @@ msgstr ""
 msgid "No avatar image was uploaded."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:38
-#: src/Domain/Content/BlocksModule.php:39
+#: src/Domain/Blocks/BlocksModule.php:38
+#: src/Domain/Blocks/BlocksModule.php:39
 msgid "Blocks"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:46
+#: src/Domain/Blocks/BlocksModule.php:46
 msgid "Home sections"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:47
+#: src/Domain/Blocks/BlocksModule.php:47
 msgid "Query templates for the front page, in listed order: a heading row (icon + title, \"more\" link at the right) over a list of posts. The front end resolves each section against its public list reads; rows without a title are skipped."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:55
+#: src/Domain/Blocks/BlocksModule.php:55
 msgid "These lists replace the WordPress menu system and feed the shell's dynamic slots: the front end reads them through the `blocks` group of GET /aiya/core/v1/site, rows in listed order."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:61
+#: src/Domain/Blocks/BlocksModule.php:61
 msgid "Primary menu"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:62
+#: src/Domain/Blocks/BlocksModule.php:62
 msgid "The main navigation of the front-end shell (site header). Internal targets are front-end paths (/posts/), external ones absolute https URLs."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:76
+#: src/Domain/Blocks/BlocksModule.php:76
 msgid "Secondary menu"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:77
+#: src/Domain/Blocks/BlocksModule.php:77
 msgid "The auxiliary navigation of the front-end shell (footer, legal links). Same rules as the primary menu."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:87
+#: src/Domain/Blocks/BlocksModule.php:87
 msgid "Page-top advertisements"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:88
+#: src/Domain/Blocks/BlocksModule.php:88
 msgid "Ad slots rendered at the top of front-end pages, in listed order."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:95
+#: src/Domain/Blocks/BlocksModule.php:95
 msgid "Page-bottom advertisements"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:96
+#: src/Domain/Blocks/BlocksModule.php:96
 msgid "Ad slots rendered at the bottom of front-end pages, in listed order."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:125
+#: src/Domain/Blocks/BlocksModule.php:125
 msgid "Front-end path (/posts/) or external URL; empty falls back to the home path."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:132
-#: src/Domain/Content/BlocksModule.php:203
+#: src/Domain/Blocks/BlocksModule.php:132
+#: src/Domain/Blocks/BlocksModule.php:203
 #: src/Domain/Content/FrontendModule.php:214
 #: src/Domain/Content/TermExtrasModule.php:59
 msgid "Icon"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:133
+#: src/Domain/Blocks/BlocksModule.php:133
 msgid "Optional Lucide icon name for the sidebar (e.g. \"home\", \"image\", \"file-text\")."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:139
+#: src/Domain/Blocks/BlocksModule.php:139
 msgid "Open in"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:142
+#: src/Domain/Blocks/BlocksModule.php:142
 msgid "Same window"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:143
+#: src/Domain/Blocks/BlocksModule.php:143
 msgid "New window"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:164
+#: src/Domain/Blocks/BlocksModule.php:164
 #: src/Domain/Content/FrontendModule.php:208
 msgid "Link"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:165
+#: src/Domain/Blocks/BlocksModule.php:165
 msgid "Front-end path or external URL; empty renders the banner without a link."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:170
+#: src/Domain/Blocks/BlocksModule.php:170
 msgid "Link text"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:171
+#: src/Domain/Blocks/BlocksModule.php:171
 msgid "Also used as the banner image alt text."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:176
+#: src/Domain/Blocks/BlocksModule.php:176
 msgid "Ad image"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:177
+#: src/Domain/Blocks/BlocksModule.php:177
 msgid "The banner artwork from the media library."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:204
+#: src/Domain/Blocks/BlocksModule.php:204
 msgid "Optional Lucide icon name beside the title (e.g. \"newspaper\", \"flame\", \"star\")."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:209
+#: src/Domain/Blocks/BlocksModule.php:209
 msgid "Content type"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:219
+#: src/Domain/Blocks/BlocksModule.php:219
 msgid "Categories"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:220
+#: src/Domain/Blocks/BlocksModule.php:220
 msgid "Nothing checked shows every category of the type; the listed vocabularies cover posts and resources alike."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:231
+#: src/Domain/Blocks/BlocksModule.php:231
 msgid "Post count"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:232
+#: src/Domain/Blocks/BlocksModule.php:232
 msgid "How many posts the section lists (1-100)."
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:241
+#: src/Domain/Blocks/BlocksModule.php:241
 msgid "\"More\" link"
 msgstr ""
 
-#: src/Domain/Content/BlocksModule.php:242
+#: src/Domain/Blocks/BlocksModule.php:242
 msgid "Optional override for the heading row's link; empty derives the type's own archive path (with the chosen categories)."
 msgstr ""
 
@@ -3136,86 +3182,6 @@ msgstr ""
 
 #: src/Domain/Content/TermExtrasModule.php:85
 msgid "Used by the headless front end wherever this term shows up."
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:48
-msgid "Typography tools"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:56
-#: src/Domain/Content/TypographyModule.php:57
-msgid "Refresh the publish date to now"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:63
-#: src/Domain/Content/TypographyModule.php:64
-msgid "Match existing tags against the content"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:70
-#: src/Domain/Content/TypographyModule.php:71
-msgid "Clean up legacy HTML (div/center/span, overlapping tags)"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:77
-#: src/Domain/Content/TypographyModule.php:78
-msgid "Run the Chinese typesetting pass"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:88
-msgid "Chinese typesetting"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:93
-msgid "Enabled typesetting correctors"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:94
-msgid "Applied to the title and the content on the Chinese typesetting pass."
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:97
-msgid "Insert spaces between CJK and Latin/digits"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:98
-msgid "Remove spaces around fullwidth punctuation"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:99
-msgid "Fullwidth letters, digits and symbols to halfwidth"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:100
-msgid "Fix incorrect punctuation"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:101
-msgid "Correct proper-noun casing"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:102
-msgid "Strip class attributes"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:103
-msgid "Strip id attributes"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:104
-msgid "Strip style attributes"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:105
-msgid "Remove empty paragraph tags"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:106
-msgid "Remove all empty tags"
-msgstr ""
-
-#: src/Domain/Content/TypographyModule.php:107
-msgid "Remove paragraph indentation"
 msgstr ""
 
 #: src/Domain/Credit/CheckinService.php:39
@@ -3775,39 +3741,39 @@ msgid "The two passwords do not match."
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Domain/Identity/PasswordResetService.php:44
-#: src/Domain/Mail/CoreMailRewrites.php:51
+#: src/Domain/Identity/PasswordResetService.php:42
+#: src/Domain/Mail/CoreMailRewrites.php:50
 #, php-format
 msgid "[%s] Password reset"
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Domain/Identity/PasswordResetService.php:50
-#: src/Domain/Mail/CoreMailRewrites.php:76
+#: src/Domain/Identity/PasswordResetService.php:48
+#: src/Domain/Mail/CoreMailRewrites.php:75
 #, php-format
 msgid "Someone requested a password reset for your account at %s."
 msgstr ""
 
 #. translators: %s: login email address.
-#: src/Domain/Identity/PasswordResetService.php:55
-#: src/Domain/Mail/CoreMailRewrites.php:81
+#: src/Domain/Identity/PasswordResetService.php:53
+#: src/Domain/Mail/CoreMailRewrites.php:80
 #, php-format
 msgid "Login email: %s"
 msgstr ""
 
-#: src/Domain/Identity/PasswordResetService.php:58
-#: src/Domain/Mail/CoreMailRewrites.php:84
+#: src/Domain/Identity/PasswordResetService.php:56
+#: src/Domain/Mail/CoreMailRewrites.php:83
 msgid "If this was not you, ignore this email and your password will stay unchanged."
 msgstr ""
 
 #. translators: %d: number of hours the reset link stays valid.
-#: src/Domain/Identity/PasswordResetService.php:61
-#: src/Domain/Mail/CoreMailRewrites.php:87
+#: src/Domain/Identity/PasswordResetService.php:59
+#: src/Domain/Mail/CoreMailRewrites.php:86
 #, php-format
 msgid "Open the link below within %d hours to choose a new password:"
 msgstr ""
 
-#: src/Domain/Identity/PasswordResetService.php:67
+#: src/Domain/Identity/PasswordResetService.php:65
 msgid "The password reset email could not be sent."
 msgstr ""
 
@@ -3843,79 +3809,79 @@ msgstr ""
 msgid "This sign-in ticket is not valid."
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:90
-#: src/Domain/Mail/CoreMailRewrites.php:143
-#: src/Domain/Mail/CoreMailRewrites.php:169
+#: src/Domain/Mail/CoreMailRewrites.php:89
+#: src/Domain/Mail/CoreMailRewrites.php:142
+#: src/Domain/Mail/CoreMailRewrites.php:168
 msgid "Reset password"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:92
+#: src/Domain/Mail/CoreMailRewrites.php:91
 msgid "Password reset"
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Domain/Mail/CoreMailRewrites.php:110
+#: src/Domain/Mail/CoreMailRewrites.php:109
 #, php-format
 msgid "Your account on %1$s has been created."
 msgstr ""
 
 #. translators: %d: number of hours the reset link stays valid.
-#: src/Domain/Mail/CoreMailRewrites.php:115
+#: src/Domain/Mail/CoreMailRewrites.php:114
 #, php-format
 msgid "Open the link below within %d hours to set your password:"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:118
+#: src/Domain/Mail/CoreMailRewrites.php:117
 msgid "Set password"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:120
+#: src/Domain/Mail/CoreMailRewrites.php:119
 msgid "Your account is ready"
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Domain/Mail/CoreMailRewrites.php:123
+#: src/Domain/Mail/CoreMailRewrites.php:122
 #, php-format
 msgid "[%s] Your account is ready."
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:141
+#: src/Domain/Mail/CoreMailRewrites.php:140
 msgid "Your password was just changed."
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:142
-#: src/Domain/Mail/CoreMailRewrites.php:168
+#: src/Domain/Mail/CoreMailRewrites.php:141
+#: src/Domain/Mail/CoreMailRewrites.php:167
 msgid "If this was not you, someone else may have access — reset your password now:"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:145
+#: src/Domain/Mail/CoreMailRewrites.php:144
 msgid "Password changed"
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Domain/Mail/CoreMailRewrites.php:147
+#: src/Domain/Mail/CoreMailRewrites.php:146
 #, php-format
 msgid "[%s] Password changed"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:163
+#: src/Domain/Mail/CoreMailRewrites.php:162
 msgid "Old email"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:164
+#: src/Domain/Mail/CoreMailRewrites.php:163
 msgid "New email"
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:166
+#: src/Domain/Mail/CoreMailRewrites.php:165
 msgid "Your account email address was just changed."
 msgstr ""
 
-#: src/Domain/Mail/CoreMailRewrites.php:171
+#: src/Domain/Mail/CoreMailRewrites.php:170
 msgid "Email address changed"
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Domain/Mail/CoreMailRewrites.php:173
+#: src/Domain/Mail/CoreMailRewrites.php:172
 #, php-format
 msgid "[%s] Your email address was changed"
 msgstr ""
@@ -4010,61 +3976,13 @@ msgstr ""
 msgid "The image URL could not be resolved."
 msgstr ""
 
-#: src/Domain/Membership/AfdianActivator.php:86
-msgid "This order has already been activated."
-msgstr ""
-
-#: src/Domain/Membership/AfdianActivator.php:87
-#: src/Domain/Membership/AfdianActivator.php:230
-msgid "The membership activation failed — try again."
-msgstr ""
-
-#: src/Domain/Membership/AfdianActivator.php:150
-#: src/Domain/Membership/AfdianActivator.php:169
-msgid "The Afdian API is unreachable — try again later."
-msgstr ""
-
-#: src/Domain/Membership/AfdianActivator.php:154
-msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
-msgstr ""
-
-#: src/Domain/Membership/AfdianActivator.php:155
-msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
-msgstr ""
-
-#: src/Domain/Membership/AfdianActivator.php:172
-msgid "No matching Afdian order — check the order number."
-msgstr ""
-
-#: src/Domain/Membership/AfdianActivator.php:178
-msgid "This order is not a paid trade."
-msgstr ""
-
-#: src/Domain/Membership/AfdianActivator.php:187
-msgid "This order's Afdian plan is not bound to a membership tier."
-msgstr ""
-
-#: src/Domain/Membership/AfdianActivator.php:195
-msgid "This order is bound to another account."
-msgstr ""
-
-#: src/Domain/Membership/AfdianActivator.php:200
-msgid "The order carries no account binding — activate it from the account page with the order number."
-msgstr ""
-
-#. translators: %s: site name.
-#: src/Domain/Membership/AfdianGateway.php:92
-#, php-format
-msgid "A membership order from %s"
-msgstr ""
-
 #: src/Domain/Membership/EntitlementService.php:74
 msgid "The membership holder does not exist."
 msgstr ""
 
 #: src/Domain/Membership/EntitlementService.php:77
-#: src/Domain/Membership/OrderService.php:55
-#: src/Domain/Membership/OrderService.php:107
+#: src/Domain/Payment/OrderService.php:77
+#: src/Domain/Payment/OrderService.php:129
 msgid "The order id is required."
 msgstr ""
 
@@ -4080,223 +3998,72 @@ msgstr ""
 msgid "The membership could not be stored."
 msgstr ""
 
-#: src/Domain/Membership/EpayGateway.php:83
-#: src/Domain/Membership/EpayGateway.php:91
-msgid "The Epay channel is not available."
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:94
-#: src/Domain/Membership/MembershipModule.php:99
+#: src/Domain/Membership/MembershipModule.php:79
+#: src/Domain/Membership/MembershipModule.php:84
 msgid "Membership settings"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:107
+#: src/Domain/Membership/MembershipModule.php:92
 msgid "Tiers"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:113
+#: src/Domain/Membership/MembershipModule.php:98
 msgid "Tier list"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:114
+#: src/Domain/Membership/MembershipModule.php:99
 msgid "Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:121
+#: src/Domain/Membership/MembershipModule.php:106
 msgid "Disabled tiers stay out of the purchase list; existing holders keep their membership."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:127
+#: src/Domain/Membership/MembershipModule.php:112
 msgid "Key"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:140
+#: src/Domain/Membership/MembershipModule.php:125
 msgid "One-liner shown on the plan card (what the tier includes)."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:146
+#: src/Domain/Membership/MembershipModule.php:131
 msgid "Price (per cycle)"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:147
+#: src/Domain/Membership/MembershipModule.php:132
 msgid "Up to 500, two decimals."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:156
+#: src/Domain/Membership/MembershipModule.php:141
 msgid "Cycle length (days)"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:157
+#: src/Domain/Membership/MembershipModule.php:142
 msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:166
+#: src/Domain/Membership/MembershipModule.php:151
 msgid "Credits per cycle"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:167
+#: src/Domain/Membership/MembershipModule.php:152
 msgid "Credit bucket granted at each cycle start."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:175
+#: src/Domain/Membership/MembershipModule.php:160
 msgid "Cycles per purchase"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:176
+#: src/Domain/Membership/MembershipModule.php:161
 msgid "One purchase of this tier always queues this many cycles; the front end shows the total, there is no cycle picker."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:191
-#: src/Domain/Membership/MembershipModule.php:192
-msgid "Payments"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:199
-msgid "Epay gateway (cashier integration)"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:205
-msgid "Epay integration"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:211
-msgid "Merchant id (pid)"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:217
-msgid "Merchant key"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:223
-msgid "Gateway submit URL"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:229
-msgid "Payment channels"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:230
-msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:233
-msgid "Alipay"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:234
-msgid "WeChat Pay"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:235
-msgid "USDT (TRC20)"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:241
-msgid "Afdian (platform push)"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:247
-msgid "Afdian integration"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:248
-msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:254
-msgid "Afdian plan bindings"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:255
-msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:261
-msgid "Afdian plan ID"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:267
-msgid "Membership tier"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:268
-msgid "The tier (from the membership settings page) that this plan activates."
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:283
-msgid "Fallback tier"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:284
-msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:297
-msgid "Afdian user id"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:303
-msgid "Afdian API token"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:310
-msgid "Afdian webhook address"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:311
-msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/membership/v1/afdian/callback — POST only."
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:317
-msgid "Order log"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:323
-msgid "Unpaid order retention (days)"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:324
-msgid "Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep)."
-msgstr ""
-
 #. translators: %s: tier keys that still have live checkouts or covering members.
-#: src/Domain/Membership/MembershipModule.php:447
+#: src/Domain/Membership/MembershipModule.php:244
+#: src/Domain/Payment/PaymentModule.php:323
 #, php-format
 msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
-msgstr ""
-
-#: src/Domain/Membership/OrderService.php:52
-#: src/Domain/Membership/OrderService.php:104
-msgid "The order user does not exist."
-msgstr ""
-
-#: src/Domain/Membership/OrderService.php:83
-#: src/Domain/Membership/OrderService.php:131
-msgid "This order was already recorded."
-msgstr ""
-
-#: src/Domain/Membership/OrderService.php:86
-#: src/Domain/Membership/OrderService.php:134
-msgid "The order could not be stored."
-msgstr ""
-
-#: src/Domain/Membership/RedeemCodeService.php:38
-#: src/Domain/Membership/RedeemCodeService.php:55
-#: src/Domain/Membership/RedeemCodeService.php:67
-msgid "Invalid redemption code."
-msgstr ""
-
-#: src/Domain/Membership/RedeemCodeService.php:41
-msgid "The redeeming user does not exist."
-msgstr ""
-
-#: src/Domain/Membership/RedeemCodeService.php:58
-#: src/Domain/Membership/RedeemCodeService.php:84
-msgid "This code has already been redeemed."
-msgstr ""
-
-#: src/Domain/Membership/RedeemCodeService.php:99
-msgid "The membership activation failed — the code was not consumed, try again."
 msgstr ""
 
 #. translators: %1$s: commenter name.
@@ -4425,178 +4192,440 @@ msgstr ""
 msgid "The notification could not be stored."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:82
+#: src/Domain/Payment/AfdianActivator.php:87
+msgid "This order has already been activated."
+msgstr ""
+
+#: src/Domain/Payment/AfdianActivator.php:88
+#: src/Domain/Payment/AfdianActivator.php:231
+msgid "The membership activation failed — try again."
+msgstr ""
+
+#: src/Domain/Payment/AfdianActivator.php:151
+#: src/Domain/Payment/AfdianActivator.php:170
+msgid "The Afdian API is unreachable — try again later."
+msgstr ""
+
+#: src/Domain/Payment/AfdianActivator.php:155
+msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
+msgstr ""
+
+#: src/Domain/Payment/AfdianActivator.php:156
+msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
+msgstr ""
+
+#: src/Domain/Payment/AfdianActivator.php:173
+msgid "No matching Afdian order — check the order number."
+msgstr ""
+
+#: src/Domain/Payment/AfdianActivator.php:179
+msgid "This order is not a paid trade."
+msgstr ""
+
+#: src/Domain/Payment/AfdianActivator.php:188
+msgid "This order's Afdian plan is not bound to a membership tier."
+msgstr ""
+
+#: src/Domain/Payment/AfdianActivator.php:196
+msgid "This order is bound to another account."
+msgstr ""
+
+#: src/Domain/Payment/AfdianActivator.php:201
+msgid "The order carries no account binding — activate it from the account page with the order number."
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Domain/Payment/AfdianGateway.php:94
+#, php-format
+msgid "A membership order from %s"
+msgstr ""
+
+#: src/Domain/Payment/EpayGateway.php:84
+#: src/Domain/Payment/EpayGateway.php:92
+msgid "The Epay channel is not available."
+msgstr ""
+
+#: src/Domain/Payment/OrderService.php:74
+#: src/Domain/Payment/OrderService.php:126
+msgid "The order user does not exist."
+msgstr ""
+
+#: src/Domain/Payment/OrderService.php:105
+#: src/Domain/Payment/OrderService.php:153
+msgid "This order was already recorded."
+msgstr ""
+
+#: src/Domain/Payment/OrderService.php:108
+#: src/Domain/Payment/OrderService.php:156
+msgid "The order could not be stored."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:90
+#: src/Domain/Payment/PaymentModule.php:91
+msgid "Payments"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:98
+msgid "Epay gateway (cashier integration)"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:104
+msgid "Epay integration"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:110
+msgid "Merchant id (pid)"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:116
+msgid "Merchant key"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:122
+msgid "Gateway submit URL"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:128
+msgid "Payment channels"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:129
+msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:132
+msgid "Alipay"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:133
+msgid "WeChat Pay"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:134
+msgid "USDT (TRC20)"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:140
+msgid "Afdian (platform push)"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:146
+msgid "Afdian integration"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:147
+msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:153
+msgid "Afdian plan bindings"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:154
+msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:160
+msgid "Afdian plan ID"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:166
+msgid "Membership tier"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:167
+msgid "The tier (from the membership settings page) that this plan activates."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:182
+msgid "Fallback tier"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:183
+msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:196
+msgid "Afdian user id"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:202
+msgid "Afdian API token"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:209
+msgid "Afdian webhook address"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:210
+msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/membership/v1/afdian/callback — POST only."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:216
+msgid "Order log"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:222
+msgid "Unpaid order retention (days)"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:223
+msgid "Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep)."
+msgstr ""
+
+#: src/Domain/Redeem/RedeemCodeService.php:39
+#: src/Domain/Redeem/RedeemCodeService.php:56
+#: src/Domain/Redeem/RedeemCodeService.php:68
+msgid "Invalid redemption code."
+msgstr ""
+
+#: src/Domain/Redeem/RedeemCodeService.php:42
+msgid "The redeeming user does not exist."
+msgstr ""
+
+#: src/Domain/Redeem/RedeemCodeService.php:59
+#: src/Domain/Redeem/RedeemCodeService.php:85
+msgid "This code has already been redeemed."
+msgstr ""
+
+#: src/Domain/Redeem/RedeemCodeService.php:100
+msgid "The membership activation failed — the code was not consumed, try again."
+msgstr ""
+
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:82
 msgid "Quick list"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:83
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:83
 msgid "Turns lines of text into a list, one item per line."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:86
-#: src/Domain/Parts/BuiltinParts.php:97
-#: src/Domain/Parts/BuiltinParts.php:119
-#: src/Domain/Parts/BuiltinParts.php:143
-#: src/Domain/Parts/BuiltinParts.php:184
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:86
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:97
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:119
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:143
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:184
 msgid "Content"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:87
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:87
 msgid "Ordered list"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:93
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:93
 msgid "Quick list (columns)"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:94
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:94
 msgid "Alternates lines into a description list: first line the term, second the description, and so on."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:101
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:101
 msgid "Term width"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:103
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:103
 msgid "1/4 width terms"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:104
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:104
 msgid "1/2 width terms"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:105
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:105
 msgid "3/4 width terms"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:114
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:114
 msgid "Collapse panel"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:115
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:115
 msgid "A panel readers can expand or collapse."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:125
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:125
 msgid "Notice card"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:126
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:126
 msgid "A highlighted notice with a level and a title."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:133
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:133
 msgid "Level"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:135
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:135
 msgid "Default"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:136
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:136
 msgid "Warning"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:137
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:137
 msgid "Info"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:138
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:138
 msgid "Success"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:139
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:139
 msgid "Error"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:149
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:149
 msgid "Button link"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:150
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:150
 msgid "A styled link button."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:157
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:157
 msgid "Opens"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:159
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:159
 msgid "Same tab"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:160
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:160
 msgid "New tab"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:167
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:167
 msgid "Style"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:169
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:169
 msgid "Primary"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:170
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:170
 msgid "Outline"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:174
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:174
 msgid "Button label"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:180
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:180
 msgid "Quick copy"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:181
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:181
 msgid "A text snippet the reader copies with one click."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:190
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:190
 msgid "Reference"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:191
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:191
 msgid "Emits one semantic reference marker for the front end to resolve into a link. Fill exactly one of the fields below; when several are filled the first (post, user, term, search, comment, thread) wins."
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:194
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:194
 msgid "Post ID"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:196
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:196
 msgid "Term ID"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:197
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:197
 msgid "Search keywords"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:198
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:198
 msgid "Comment ID"
 msgstr ""
 
-#: src/Domain/Parts/BuiltinParts.php:199
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:199
 msgid "Thread ID"
 msgstr ""
 
-#: src/Domain/Parts/PartModule.php:90
-#: src/Domain/Parts/PartModule.php:119
-#: src/Domain/Parts/PartModule.php:139
-msgid "Template parts"
+#: src/Domain/Typography/TypographyModule.php:48
+msgid "Typography tools"
 msgstr ""
 
-#: src/Domain/Parts/PartModule.php:126
-msgid "Markup preview"
+#: src/Domain/Typography/TypographyModule.php:56
+#: src/Domain/Typography/TypographyModule.php:57
+msgid "Refresh the publish date to now"
 msgstr ""
 
-#: src/Domain/Parts/PartModule.php:132
-msgid "Insert"
+#: src/Domain/Typography/TypographyModule.php:63
+#: src/Domain/Typography/TypographyModule.php:64
+msgid "Match existing tags against the content"
 msgstr ""
 
-#: src/Domain/Parts/PartModule.php:140
-msgid "No template parts are registered yet."
+#: src/Domain/Typography/TypographyModule.php:70
+#: src/Domain/Typography/TypographyModule.php:71
+msgid "Clean up legacy HTML (div/center/span, overlapping tags)"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:77
+#: src/Domain/Typography/TypographyModule.php:78
+msgid "Run the Chinese typesetting pass"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:88
+msgid "Chinese typesetting"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:93
+msgid "Enabled typesetting correctors"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:94
+msgid "Applied to the title and the content on the Chinese typesetting pass."
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:97
+msgid "Insert spaces between CJK and Latin/digits"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:98
+msgid "Remove spaces around fullwidth punctuation"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:99
+msgid "Fullwidth letters, digits and symbols to halfwidth"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:100
+msgid "Fix incorrect punctuation"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:101
+msgid "Correct proper-noun casing"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:102
+msgid "Strip class attributes"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:103
+msgid "Strip id attributes"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:104
+msgid "Strip style attributes"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:105
+msgid "Remove empty paragraph tags"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:106
+msgid "Remove all empty tags"
+msgstr ""
+
+#: src/Domain/Typography/TypographyModule.php:107
+msgid "Remove paragraph indentation"
 msgstr ""
 
 #: src/Infrastructure/Headless/HeadlessModule.php:72

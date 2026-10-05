@@ -531,8 +531,10 @@ details.aiya-core-card > .aiya-core-card__summary::marker {
  * candidates to retire with the owning page's Ui migration.
  */
 
-/* Light Community moderation list: two-line excerpt, red delete button,
-   dialog form spacing. */
+/* Light Community moderation list: two-line excerpt, status badge and
+   thread-editor modal spacing. The row delete wears the shared
+   .aiya-core-button-danger text style; the orphaned per-row delete
+   button rules retired with the page's Ui migration. */
 .aiya-core-thread-excerpt {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -555,15 +557,6 @@ details.aiya-core-card > .aiya-core-card__summary::marker {
 .aiya-core-badge--closed {
     background: #f0f0f1;
     color: #646970;
-}
-
-.button.aiya-core-thread-delete {
-    color: #d63638;
-}
-
-.button.aiya-core-thread-delete:focus,
-.button.aiya-core-thread-delete:hover {
-    color: #8a2424;
 }
 
 #aiya-thread-dialog .form-table th {

@@ -208,6 +208,22 @@
                 this.sync();
             });
             this.$el.on('change', '.check-column input[type=checkbox]:not([data-aiya-select-all])', () => this.sync());
+            // Row-mounted action (data-aiya-single-delete="<action>"): the
+            // click isolates the row — every other check clears, the row
+            // checks — picks the action and re-enters the normal submit
+            // path, so the confirm texts apply unchanged.
+            this.$el.on('click', '[data-aiya-single-delete]', (event) => {
+                event.preventDefault();
+                const box = $(event.currentTarget).closest('tr').find('.check-column input[type=checkbox]').first();
+                if (!box.length) {
+                    return;
+                }
+                this.rows().prop('checked', false);
+                box.prop('checked', true);
+                this.$('select[name=bulk_action]').val(String($(event.currentTarget).attr('data-aiya-single-delete') || ''));
+                this.sync();
+                this.$el.trigger('submit');
+            });
             this.$el.on('submit', (event) => {
                 const action = this.$('select[name=bulk_action]').val();
                 if (!action) {
@@ -232,7 +248,7 @@
                 checked: checked > 0 && checked === $rows.length,
                 indeterminate: checked > 0 && checked < $rows.length
             });
-            this.$('button[type=submit]').prop('disabled', checked === 0);
+            this.$('button[type=submit]').not('[data-aiya-single-delete]').prop('disabled', checked === 0);
             this.$('.aiya-core-bulk-count').prop('hidden', checked === 0).text(this.selectedText.replace('%s', String(checked)));
         }
     });

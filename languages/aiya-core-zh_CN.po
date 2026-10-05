@@ -32,10 +32,12 @@ msgid "Refresh thumbnails"
 msgstr "刷新缩略图"
 
 msgid "%d item queued for a thumbnail refresh."
-msgstr "%d 项已加入缩略图刷新队列。"
+msgid_plural "%d items queued for a thumbnail refresh."
+msgstr[0] "%d 项已加入缩略图刷新队列。"
 
 msgid "%d item skipped (nothing to refresh or not permitted)."
-msgstr "已跳过 %d 项（无可刷新或不具备权限）。"
+msgid_plural "%d items skipped (nothing to refresh or not permitted)."
+msgstr[0] "已跳过 %d 项（无可刷新或不具备权限）。"
 
 msgid "No thumbnails were refreshed."
 msgstr "没有刷新任何缩略图。"
@@ -355,6 +357,18 @@ msgstr "您无权管理社区。"
 msgid "Discussion threads live outside the post model; this screen is the admin surface for the headless community."
 msgstr "讨论线程独立于文章模型；此页面是无头社区的后台管理入口。"
 
+msgid "%d thread closed."
+msgid_plural "%d threads closed."
+msgstr[0] "已关闭 %d 个线程"
+
+msgid "%d thread reopened."
+msgid_plural "%d threads reopened."
+msgstr[0] "已重开 %d 个线程"
+
+msgid "%d thread deleted."
+msgid_plural "%d threads deleted."
+msgstr[0] "已删除 %d 个线程"
+
 msgid "Search title or body…"
 msgstr "搜索标题或正文…"
 
@@ -366,6 +380,15 @@ msgstr "全部状态"
 
 msgid "New thread"
 msgstr "新建帖子"
+
+msgid "Close selected"
+msgstr "关闭选中"
+
+msgid "Reopen selected"
+msgstr "重开选中"
+
+msgid "Delete selected"
+msgstr "删除选中"
 
 msgid "Excerpt"
 msgstr "正文摘要"
@@ -379,14 +402,14 @@ msgstr "回复"
 msgid "Last activity"
 msgstr "操作时间"
 
-msgid "No threads found."
-msgstr "未找到讨论线程。"
-
 msgid "Edit"
 msgstr "编辑"
 
-msgid "Delete this thread and all its replies?"
-msgstr "删除该线程及其全部回复？"
+msgid "No threads found."
+msgstr "未找到讨论线程。"
+
+msgid "Delete the selected threads and all their replies?"
+msgstr "删除选中的线程及其全部回复？"
 
 msgid "Board"
 msgstr "板块"
@@ -406,11 +429,14 @@ msgstr "取消"
 msgid "Edit thread"
 msgstr "编辑帖子"
 
-msgid "Status updated."
-msgstr "状态已更新。"
+msgid "Board created."
+msgstr "板块已创建。"
 
-msgid "Thread deleted."
-msgstr "线程已删除。"
+msgid "Board saved."
+msgstr "板块已保存。"
+
+msgid "Board deleted."
+msgstr "板块已删除。"
 
 msgid "Boards"
 msgstr "板块管理"
@@ -445,23 +471,14 @@ msgstr "取消编辑"
 msgid "Threads"
 msgstr "帖子数"
 
-msgid "No boards yet."
-msgstr "暂无板块。"
-
 msgid "Delete this board? Its threads move to the first remaining board."
 msgstr "删除该板块？其帖子将移动到剩余的第一个板块。"
 
+msgid "No boards yet."
+msgstr "暂无板块。"
+
 msgid "You are not allowed to manage the community."
 msgstr "您无权管理该社区。"
-
-msgid "Board created."
-msgstr "板块已创建。"
-
-msgid "Board saved."
-msgstr "板块已保存。"
-
-msgid "Board deleted."
-msgstr "板块已删除。"
 
 msgid "Normal"
 msgstr "正常"
@@ -600,9 +617,6 @@ msgstr "已删除 %d 条通知"
 
 msgid "Stored notifications"
 msgstr "已存通知"
-
-msgid "Delete selected"
-msgstr "删除选中"
 
 msgid "Scope"
 msgstr "范围"
@@ -775,6 +789,18 @@ msgstr "手动"
 msgid "Total"
 msgstr "合计"
 
+msgid "Template parts"
+msgstr "模板零件"
+
+msgid "Markup preview"
+msgstr "标记预览"
+
+msgid "Insert"
+msgstr "插入"
+
+msgid "No template parts are registered yet."
+msgstr "尚未注册任何模板零件。"
+
 msgid "Order records"
 msgstr "订单记录"
 
@@ -890,13 +916,16 @@ msgid "Move"
 msgstr "移动"
 
 msgid "Move %d selected item to:"
-msgstr "将选中的 %d 项移动到："
+msgid_plural "Move %d selected items to:"
+msgstr[0] "将选中的 %d 项移动到："
 
 msgid "%d item switched to the new post type."
-msgstr "已切换 %d 项到新文章类型。"
+msgid_plural "%d items switched to the new post type."
+msgstr[0] "已切换 %d 项到新文章类型。"
 
 msgid "%d item skipped (unchanged or not permitted)."
-msgstr "跳过 %d 项（类型未变或无权限）。"
+msgid_plural "%d items skipped (unchanged or not permitted)."
+msgstr[0] "跳过 %d 项（类型未变或无权限）。"
 
 msgid "Nothing was switched."
 msgstr "没有切换任何内容。"
@@ -1403,7 +1432,8 @@ msgid "Move to another taxonomy"
 msgstr "移动到其他分类法"
 
 msgid "Move %d selected term to:"
-msgstr "将选中的 %d 个术语移动到："
+msgid_plural "Move %d selected terms to:"
+msgstr[0] "将选中的 %d 个术语移动到："
 
 msgid "Post categories"
 msgstr "文章分类"
@@ -1433,16 +1463,19 @@ msgid "Resource tags — other"
 msgstr "资源标签（其他）"
 
 msgid "%d term moved to the new taxonomy."
-msgstr "已移动 %d 个术语到新分类法。"
+msgid_plural "%d terms moved to the new taxonomy."
+msgstr[0] "已移动 %d 个术语到新分类法。"
 
 msgid "%d term skipped (unchanged or not permitted)."
-msgstr "跳过 %d 个术语（未变化或无权限）。"
+msgid_plural "%d terms skipped (unchanged or not permitted)."
+msgstr[0] "跳过 %d 个术语（未变化或无权限）。"
 
 msgid "Nothing was moved."
 msgstr "没有移动任何内容。"
 
 msgid "%s item"
-msgstr "%s 项"
+msgid_plural "%s items"
+msgstr[0] "%s 项"
 
 msgid "First page"
 msgstr "第一页"
@@ -2093,63 +2126,6 @@ msgstr "上传或从媒体库选择图片，作为术语归档页的封面。"
 msgid "Used by the headless front end wherever this term shows up."
 msgstr "前台在该术语出现的任何位置使用。"
 
-msgid "Typography tools"
-msgstr "排版工具"
-
-msgid "Refresh the publish date to now"
-msgstr "将发布日期刷新为当前时间"
-
-msgid "Match existing tags against the content"
-msgstr "按正文内容匹配已有标签"
-
-msgid "Clean up legacy HTML (div/center/span, overlapping tags)"
-msgstr "清理旧式 HTML（div/center/span 与重叠标签）"
-
-msgid "Run the Chinese typesetting pass"
-msgstr "执行中文排版纠正"
-
-msgid "Chinese typesetting"
-msgstr "中文排版"
-
-msgid "Enabled typesetting correctors"
-msgstr "启用的排版纠正项"
-
-msgid "Applied to the title and the content on the Chinese typesetting pass."
-msgstr "中文排版纠正时应用于标题与正文。"
-
-msgid "Insert spaces between CJK and Latin/digits"
-msgstr "在中英文与数字之间插入空格"
-
-msgid "Remove spaces around fullwidth punctuation"
-msgstr "去除全角标点周围的空格"
-
-msgid "Fullwidth letters, digits and symbols to halfwidth"
-msgstr "全角字母、数字与符号转半角"
-
-msgid "Fix incorrect punctuation"
-msgstr "修复错误的标点符号"
-
-msgid "Correct proper-noun casing"
-msgstr "修正专有名词大小写"
-
-msgid "Strip class attributes"
-msgstr "去除 class 属性"
-
-msgid "Strip id attributes"
-msgstr "去除 id 属性"
-
-msgid "Strip style attributes"
-msgstr "去除 style 属性"
-
-msgid "Remove empty paragraph tags"
-msgstr "移除空的段落标签"
-
-msgid "Remove all empty tags"
-msgstr "移除所有空标签"
-
-msgid "Remove paragraph indentation"
-msgstr "移除段首缩进"
-
 msgid "Check-in is not available."
 msgstr "签到功能未开放。"
 
@@ -2698,39 +2674,6 @@ msgstr "图像处理失败。"
 msgid "The image URL could not be resolved."
 msgstr "无法解析图片 URL。"
 
-msgid "This order has already been activated."
-msgstr "该订单已经激活过。"
-
-msgid "The membership activation failed — try again."
-msgstr "会员激活失败，请重试。"
-
-msgid "The Afdian API is unreachable — try again later."
-msgstr "爱发电接口暂时无法访问，请稍后再试。"
-
-msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
-msgstr "爱发电拒绝了请求（时间戳过期），请检查本服务器时钟。"
-
-msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
-msgstr "爱发电拒绝了请求，请检查支付设置页中的爱发电用户 ID 与 API Token。"
-
-msgid "No matching Afdian order — check the order number."
-msgstr "没有匹配的爱发电订单，请核对订单号。"
-
-msgid "This order is not a paid trade."
-msgstr "该订单不是已支付的交易。"
-
-msgid "This order's Afdian plan is not bound to a membership tier."
-msgstr "该订单对应的爱发电方案未绑定会员档位。"
-
-msgid "This order is bound to another account."
-msgstr "该订单已绑定其他账号。"
-
-msgid "The order carries no account binding — activate it from the account page with the order number."
-msgstr "该订单未携带账号绑定——请在账户页用订单号激活。"
-
-msgid "A membership order from %s"
-msgstr "来自%s的会员订单"
-
 msgid "The membership holder does not exist."
 msgstr "会员归属用户不存在。"
 
@@ -2745,9 +2688,6 @@ msgstr "该订单已激活过。"
 
 msgid "The membership could not be stored."
 msgstr "会员记录未能写入。"
-
-msgid "The Epay channel is not available."
-msgstr "易支付渠道不可用。"
 
 msgid "Membership settings"
 msgstr "会员设置"
@@ -2793,6 +2733,123 @@ msgstr "每次购买的周期数"
 
 msgid "One purchase of this tier always queues this many cycles; the front end shows the total, there is no cycle picker."
 msgstr "购买该档位一次即入队这么多周期；前台只展示总数，不再提供周期选择。"
+
+msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
+msgstr "以下档位仍有生效成员或进行中的订单，无法删除：%s。"
+
+msgid "%1$s replied to your comment."
+msgstr "%1$s 回复了你的评论。"
+
+msgid "%1$s commented on your article \"%2$s\"."
+msgstr "%1$s 评论了你的文章「%2$s」。"
+
+msgid "%1$s mentioned you in a comment on \"%2$s\"."
+msgstr "%1$s 在评论「%2$s」中提到了你。"
+
+msgid "Your submission \"%1$s\" was approved and published."
+msgstr "你的投稿「%1$s」已通过审核并发布。"
+
+msgid "%1$s mentioned you in the article \"%2$s\"."
+msgstr "%1$s 在文章「%2$s」中提到了你。"
+
+msgid "%1$s published a new article \"%2$s\"."
+msgstr "%1$s 发布了新文章「%2$s」。"
+
+msgid "A post you favorited was updated: \"%1$s\"."
+msgstr "你收藏的文章有更新：「%1$s」。"
+
+msgid "Your account password was reset. If this was not you, please contact the administrator."
+msgstr "你的账号密码已被重置。如果不是本人操作，请联系管理员。"
+
+msgid "Your account was granted +%1$d credits."
+msgstr "你的账户入账 +%1$d 积分。"
+
+msgid "%s replied to your thread."
+msgstr "%s 回复了你的帖子。"
+
+msgid "%1$s replied to your thread \"%2$s\"."
+msgstr "%1$s 回复了你的帖子「%2$s」。"
+
+msgid "%s mentioned you in a community thread."
+msgstr "%s 在社区帖子中提到了你。"
+
+msgid "%1$s mentioned you in the thread \"%2$s\"."
+msgstr "%1$s 在帖子「%2$s」中提到了你。"
+
+msgid "%s published a new thread."
+msgstr "%s 发布了新帖子。"
+
+msgid "%1$s published a new thread \"%2$s\"."
+msgstr "%1$s 发布了新帖子「%2$s」。"
+
+msgid "%1$s followed you."
+msgstr "%1$s 关注了你。"
+
+msgid "Your membership is active until %s. Thank you for the support!"
+msgstr "你的会员有效期至 %s。感谢支持！"
+
+msgid "Your membership expires on %s. Renew to keep the perks."
+msgstr "你的会员将于 %s 到期。续期以保留权益。"
+
+msgid "Notification title is required."
+msgstr "通知标题不能为空。"
+
+msgid "Unknown notification role level."
+msgstr "未知的通知角色级别。"
+
+msgid "Unknown notification type."
+msgstr "未知的通知类型。"
+
+msgid "Invalid notification recipient."
+msgstr "无效的通知接收者。"
+
+msgid "The notification could not be stored."
+msgstr "通知保存失败。"
+
+msgid "This order has already been activated."
+msgstr "该订单已经激活过。"
+
+msgid "The membership activation failed — try again."
+msgstr "会员激活失败，请重试。"
+
+msgid "The Afdian API is unreachable — try again later."
+msgstr "爱发电接口暂时无法访问，请稍后再试。"
+
+msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
+msgstr "爱发电拒绝了请求（时间戳过期），请检查本服务器时钟。"
+
+msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
+msgstr "爱发电拒绝了请求，请检查支付设置页中的爱发电用户 ID 与 API Token。"
+
+msgid "No matching Afdian order — check the order number."
+msgstr "没有匹配的爱发电订单，请核对订单号。"
+
+msgid "This order is not a paid trade."
+msgstr "该订单不是已支付的交易。"
+
+msgid "This order's Afdian plan is not bound to a membership tier."
+msgstr "该订单对应的爱发电方案未绑定会员档位。"
+
+msgid "This order is bound to another account."
+msgstr "该订单已绑定其他账号。"
+
+msgid "The order carries no account binding — activate it from the account page with the order number."
+msgstr "该订单未携带账号绑定——请在账户页用订单号激活。"
+
+msgid "A membership order from %s"
+msgstr "来自%s的会员订单"
+
+msgid "The Epay channel is not available."
+msgstr "易支付渠道不可用。"
+
+msgid "The order user does not exist."
+msgstr "订单用户不存在。"
+
+msgid "This order was already recorded."
+msgstr "该订单已被记录。"
+
+msgid "The order could not be stored."
+msgstr "订单保存失败。"
 
 msgid "Payments"
 msgstr "支付"
@@ -2878,18 +2935,6 @@ msgstr "未支付订单保留期（天）"
 msgid "Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep)."
 msgstr "未支付订单（放弃的结算单）将在这么多天后从支付日志中删除；已支付记录永久保留。最小 7 天（越过待支付标记清扫期）。"
 
-msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
-msgstr "以下档位仍有生效成员或进行中的订单，无法删除：%s。"
-
-msgid "The order user does not exist."
-msgstr "订单用户不存在。"
-
-msgid "This order was already recorded."
-msgstr "该订单已被记录。"
-
-msgid "The order could not be stored."
-msgstr "订单保存失败。"
-
 msgid "Invalid redemption code."
 msgstr "无效的兑换码。"
 
@@ -2901,75 +2946,6 @@ msgstr "该兑换码已被使用。"
 
 msgid "The membership activation failed — the code was not consumed, try again."
 msgstr "会员激活失败——兑换码未被消耗，请重试。"
-
-msgid "%1$s replied to your comment."
-msgstr "%1$s 回复了你的评论。"
-
-msgid "%1$s commented on your article \"%2$s\"."
-msgstr "%1$s 评论了你的文章「%2$s」。"
-
-msgid "%1$s mentioned you in a comment on \"%2$s\"."
-msgstr "%1$s 在评论「%2$s」中提到了你。"
-
-msgid "Your submission \"%1$s\" was approved and published."
-msgstr "你的投稿「%1$s」已通过审核并发布。"
-
-msgid "%1$s mentioned you in the article \"%2$s\"."
-msgstr "%1$s 在文章「%2$s」中提到了你。"
-
-msgid "%1$s published a new article \"%2$s\"."
-msgstr "%1$s 发布了新文章「%2$s」。"
-
-msgid "A post you favorited was updated: \"%1$s\"."
-msgstr "你收藏的文章有更新：「%1$s」。"
-
-msgid "Your account password was reset. If this was not you, please contact the administrator."
-msgstr "你的账号密码已被重置。如果不是本人操作，请联系管理员。"
-
-msgid "Your account was granted +%1$d credits."
-msgstr "你的账户入账 +%1$d 积分。"
-
-msgid "%s replied to your thread."
-msgstr "%s 回复了你的帖子。"
-
-msgid "%1$s replied to your thread \"%2$s\"."
-msgstr "%1$s 回复了你的帖子「%2$s」。"
-
-msgid "%s mentioned you in a community thread."
-msgstr "%s 在社区帖子中提到了你。"
-
-msgid "%1$s mentioned you in the thread \"%2$s\"."
-msgstr "%1$s 在帖子「%2$s」中提到了你。"
-
-msgid "%s published a new thread."
-msgstr "%s 发布了新帖子。"
-
-msgid "%1$s published a new thread \"%2$s\"."
-msgstr "%1$s 发布了新帖子「%2$s」。"
-
-msgid "%1$s followed you."
-msgstr "%1$s 关注了你。"
-
-msgid "Your membership is active until %s. Thank you for the support!"
-msgstr "你的会员有效期至 %s。感谢支持！"
-
-msgid "Your membership expires on %s. Renew to keep the perks."
-msgstr "你的会员将于 %s 到期。续期以保留权益。"
-
-msgid "Notification title is required."
-msgstr "通知标题不能为空。"
-
-msgid "Unknown notification role level."
-msgstr "未知的通知角色级别。"
-
-msgid "Unknown notification type."
-msgstr "未知的通知类型。"
-
-msgid "Invalid notification recipient."
-msgstr "无效的通知接收者。"
-
-msgid "The notification could not be stored."
-msgstr "通知保存失败。"
 
 msgid "Quick list"
 msgstr "快捷列表"
@@ -3085,17 +3061,62 @@ msgstr "评论 ID"
 msgid "Thread ID"
 msgstr "社区帖 ID"
 
-msgid "Template parts"
-msgstr "模板零件"
+msgid "Typography tools"
+msgstr "排版工具"
 
-msgid "Markup preview"
-msgstr "标记预览"
+msgid "Refresh the publish date to now"
+msgstr "将发布日期刷新为当前时间"
 
-msgid "Insert"
-msgstr "插入"
+msgid "Match existing tags against the content"
+msgstr "按正文内容匹配已有标签"
 
-msgid "No template parts are registered yet."
-msgstr "尚未注册任何模板零件。"
+msgid "Clean up legacy HTML (div/center/span, overlapping tags)"
+msgstr "清理旧式 HTML（div/center/span 与重叠标签）"
+
+msgid "Run the Chinese typesetting pass"
+msgstr "执行中文排版纠正"
+
+msgid "Chinese typesetting"
+msgstr "中文排版"
+
+msgid "Enabled typesetting correctors"
+msgstr "启用的排版纠正项"
+
+msgid "Applied to the title and the content on the Chinese typesetting pass."
+msgstr "中文排版纠正时应用于标题与正文。"
+
+msgid "Insert spaces between CJK and Latin/digits"
+msgstr "在中英文与数字之间插入空格"
+
+msgid "Remove spaces around fullwidth punctuation"
+msgstr "去除全角标点周围的空格"
+
+msgid "Fullwidth letters, digits and symbols to halfwidth"
+msgstr "全角字母、数字与符号转半角"
+
+msgid "Fix incorrect punctuation"
+msgstr "修复错误的标点符号"
+
+msgid "Correct proper-noun casing"
+msgstr "修正专有名词大小写"
+
+msgid "Strip class attributes"
+msgstr "去除 class 属性"
+
+msgid "Strip id attributes"
+msgstr "去除 id 属性"
+
+msgid "Strip style attributes"
+msgstr "去除 style 属性"
+
+msgid "Remove empty paragraph tags"
+msgstr "移除空的段落标签"
+
+msgid "Remove all empty tags"
+msgstr "移除所有空标签"
+
+msgid "Remove paragraph indentation"
+msgstr "移除段首缩进"
 
 msgid "Optimization"
 msgstr "优化"

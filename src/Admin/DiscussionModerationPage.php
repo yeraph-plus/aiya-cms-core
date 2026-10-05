@@ -16,17 +16,21 @@ use RuntimeException;
  * Community moderation screen (top-level menu, just below the posts
  * group): threads have no native edit screens — their tables live
  * outside the WP post model — so this page is the admin surface for the
- * headless community. Browse with filters and keyword search, flip
- * statuses, delete threads; the board classification is managed in a
- * collapsible card on the same page.
+ * headless community. Browse with filters and keyword search, close or
+ * reopen and delete through the shared bulk table (the row delete rides
+ * the same round trip), edit threads in a shared modal that fills from
+ * the page's own raw rows and saves through the REST controller; the
+ * board classification is managed in a collapsible card on the same
+ * page.
  */
 final class DiscussionModerationPage implements Module
 {
     private const MENU_SLUG = 'aiya-core-discussions';
-    private const ACTION_DELETE = 'aiya_core_discussion_delete';
+    private const ACTION_BULK = 'aiya_core_discussion_bulk';
     private const BOARD_ACTION_SAVE = 'aiya_core_board_save';
     private const BOARD_ACTION_DELETE = 'aiya_core_board_delete';
-    private const PER_PAGE = 20;
+    private const DEFAULT_PER_PAGE = 20;
+    private const PER_PAGE_CHOICES = [10, 20, 50, 100];
 
     private DiscussionService $threads;
 
@@ -38,25 +42,9 @@ final class DiscussionModerationPage implements Module
     public function register(): void
     {
         add_action('aiya_core_register', [$this, 'registerPage']);
-        add_action('admin_post_' . self::ACTION_DELETE, [$this, 'handleDelete']);
+        add_action('admin_post_' . self::ACTION_BULK, [$this, 'handleBulk']);
         add_action('admin_post_' . self::BOARD_ACTION_SAVE, [$this, 'handleBoardSave']);
         add_action('admin_post_' . self::BOARD_ACTION_DELETE, [$this, 'handleBoardDelete']);
-    }
-
-    /** The shared admin stylesheet carries the card styles; jQuery UI dialog powers the thread editor. */
-    public function assets(string $hook): void
-    {
-        if ($hook !== 'toplevel_page_' . self::MENU_SLUG) {
-            return;
-        }
-
-        $version = AIYA_CORE_VERSION;
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            $mtime = (int) filemtime(AIYA_CORE_PATH . 'assets/css/admin.css');
-            $version .= $mtime > 0 ? '.' . $mtime : '';
-        }
-        wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons', 'wp-jquery-ui-dialog'], $version);
-        wp_enqueue_script('jquery-ui-dialog');
     }
 
     /** Registers through the shared settings pipeline as a callback page. */
@@ -70,17 +58,16 @@ final class DiscussionModerationPage implements Module
             'position' => 26,
             'kind' => Page::KIND_CALLBACK,
             'render' => [$this, 'render'],
-            // The thread dialog needs the dialog stack; the kit styles come
-            // from SettingsAdmin's uniform screen assets.
+            // The thread editor needs the dialog stack; the kit assets
+            // come from SettingsAdmin's uniform screen enqueue.
             'assets' => [$this, 'dialogAssets'],
         ]);
     }
 
-    /** Dialog stack for the thread editor; the kit styles come from SettingsAdmin. */
+    /** Dialog stack for the thread editor; the kit assets come from SettingsAdmin. */
     public function dialogAssets(): void
     {
-        wp_enqueue_style('wp-jquery-ui-dialog');
-        wp_enqueue_script('jquery-ui-dialog');
+        Ui::modalAssets();
     }
 
     public function render(): void
@@ -93,107 +80,169 @@ final class DiscussionModerationPage implements Module
         $search = sanitize_text_field(wp_unslash((string) ($_GET['s'] ?? ''))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only list filter
         $boardSlug = sanitize_key((string) ($_GET['board'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only list filter
         $paged = max(1, absint((string) ($_GET['paged'] ?? '1'))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page size
+        $requested = (int) ($_GET['per_page'] ?? (string) self::DEFAULT_PER_PAGE);
+        $perPage = in_array($requested, self::PER_PAGE_CHOICES, true) ? $requested : self::DEFAULT_PER_PAGE;
+
         $board = $boardSlug !== '' ? $this->threads->boardBySlug($boardSlug) : null;
-        $result = $this->threads->list(
-            $status,
-            0,
-            0,
-            'last_activity',
-            $paged,
-            self::PER_PAGE,
-            $search,
-            $board !== null ? (int) $board->id : ($boardSlug !== '' ? -1 : 0),
+        $boardId = $board !== null ? (int) $board->id : ($boardSlug !== '' ? -1 : 0);
+        $result = $this->threads->list($status, 0, 0, 'last_activity', $paged, $perPage, $search, $boardId);
+        $totalPages = max(1, (int) $result['pages']);
+        if ($paged > $totalPages) {
+            // A stale page number (rows deleted elsewhere, a hand-typed
+            // jump) re-queries against the clamped page instead of
+            // showing an empty final page.
+            $paged = $totalPages;
+            $result = $this->threads->list($status, 0, 0, 'last_activity', $paged, $perPage, $search, $boardId);
+        }
+
+        Ui::pageHead(
+            __('Light Community', 'aiya-core'),
+            __('Discussion threads live outside the post model; this screen is the admin surface for the headless community.', 'aiya-core')
         );
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e('Light Community', 'aiya-core'); ?></h1>
-            <p class="description"><?php esc_html_e('Discussion threads live outside the post model; this screen is the admin surface for the headless community.', 'aiya-core'); ?></p>
-            <?php $this->notice(); ?>
-            <?php $this->boardNotice(); ?>
-            <?php $this->boardCard(); ?>
 
-            <form method="get" class="aiya-core-filters">
-                <input type="hidden" name="page" value="<?php echo esc_attr(self::MENU_SLUG); ?>">
-                <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('Search title or body…', 'aiya-core'); ?>" style="width:220px;">
-                <select name="board">
-                    <option value=""><?php esc_html_e('All boards', 'aiya-core'); ?></option>
-                    <?php foreach ($this->threads->boards() as $boardRow) : ?>
-                        <option value="<?php echo esc_attr((string) $boardRow->slug); ?>" <?php selected($boardSlug, (string) $boardRow->slug); ?>><?php echo esc_html((string) $boardRow->name); ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <select name="status">
-                    <option value=""><?php esc_html_e('All statuses', 'aiya-core'); ?></option>
-                    <?php foreach (ThreadStatus::ALL as $s) : ?>
-                        <option value="<?php echo esc_attr($s); ?>" <?php selected($status, $s); ?>><?php echo esc_html($this->statusLabel($s)); ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <button type="submit" class="button"><?php esc_html_e('Filter', 'aiya-core'); ?></button>
-                <button type="button" class="button button-primary" id="aiya-thread-new"><?php esc_html_e('New thread', 'aiya-core'); ?></button>
-            </form>
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect counter
+        $count = absint((string) ($_GET['aiya_discussion_count'] ?? '0'));
+        Ui::flash('aiya_note', [
+            'bulk_closed' => [
+                sprintf(
+                    /* translators: %d: number of closed threads. */
+                    _n('%d thread closed.', '%d threads closed.', $count, 'aiya-core'),
+                    $count
+                ),
+                'success',
+            ],
+            'bulk_reopened' => [
+                sprintf(
+                    /* translators: %d: number of reopened threads. */
+                    _n('%d thread reopened.', '%d threads reopened.', $count, 'aiya-core'),
+                    $count
+                ),
+                'success',
+            ],
+            'bulk_deleted' => [
+                sprintf(
+                    /* translators: %d: number of deleted threads. */
+                    _n('%d thread deleted.', '%d threads deleted.', $count, 'aiya-core'),
+                    $count
+                ),
+                'success',
+            ],
+            'failed' => [__('The operation failed.', 'aiya-core'), 'error'],
+        ]);
+        $this->boardFlash();
 
-            <table class="wp-list-table widefat fixed striped table-view-list">
-                <thead>
-                    <tr>
-                        <th style="width:20%;"><?php esc_html_e('Title', 'aiya-core'); ?></th>
-                        <th><?php esc_html_e('Excerpt', 'aiya-core'); ?></th>
-                        <th style="width:120px;"><?php esc_html_e('Author', 'aiya-core'); ?></th>
-                        <th style="width:70px;"><?php esc_html_e('Replies', 'aiya-core'); ?></th>
-                        <th style="width:150px;"><?php esc_html_e('Last activity', 'aiya-core'); ?></th>
-                        <th style="width:150px;"><?php esc_html_e('Actions', 'aiya-core'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($result['items'] === []) : ?>
-                        <tr><td colspan="6"><?php esc_html_e('No threads found.', 'aiya-core'); ?></td></tr>
-                    <?php else : ?>
-                        <?php foreach ($result['items'] as $row) : ?>
-                            <?php
-                            $threadId = (int) $row->id;
-                            $deleteUrl = wp_nonce_url(
-                                admin_url('admin-post.php?action=' . self::ACTION_DELETE . '&thread_id=' . $threadId),
-                                self::ACTION_DELETE . '_' . $threadId
-                            );
-                            ?>
-                            <tr>
-                                <td><?php echo $this->statusBadge((string) $row->status); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- badge label and class escaped inside. ?> <strong><?php echo esc_html(wp_trim_words((string) $row->title, 12)); ?></strong></td>
-                                <td><div class="aiya-core-thread-excerpt"><?php echo esc_html(wp_trim_words(wp_strip_all_tags((string) $row->content), 40)); ?></div></td>
-                                <td><?php echo esc_html(get_the_author_meta('display_name', (int) $row->user_id)); ?></td>
-                                <td><?php echo esc_html((string) $row->reply_count); ?></td>
-                                <td><?php echo esc_html(DateLabels::fromGmt((string) ($row->last_reply_at ?? $row->created_at))); ?></td>
-                                <td>
-                                    <button type="button" class="button button-small aiya-thread-edit" data-id="<?php echo esc_attr((string) $threadId); ?>"><?php esc_html_e('Edit', 'aiya-core'); ?></button>
-                                    <a class="button button-small aiya-thread-delete" href="<?php echo esc_url($deleteUrl); ?>"
-                                        onclick="return confirm('<?php esc_attr_e('Delete this thread and all its replies?', 'aiya-core'); ?>');">
-                                        <?php esc_html_e('Delete', 'aiya-core'); ?>
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+        $this->boardCard();
 
-            <?php
-            if ($result['pages'] > 1) {
-                echo '<div class="tablenav bottom"><div class="tablenav-pages">';
-                echo wp_kses_post(
-                    (string) paginate_links([
-                        'base' => add_query_arg('paged', '%#%'),
-                        'format' => '',
-                        'current' => $paged,
-                        'total' => $result['pages'],
-                        'prev_text' => '&laquo;',
-                        'next_text' => '&raquo;',
-                    ])
-                );
-                echo '</div></div>';
-            }
+        $boards = $this->threads->boards();
+        Ui::filterBar(
+            __('Filter', 'aiya-core'),
+            static function () use ($search, $boardSlug, $status, $boards): void {
+                Ui::input('s', 'search', $search, ['placeholder' => __('Search title or body…', 'aiya-core'), 'size' => 24]);
+                $boardOptions = ['' => __('All boards', 'aiya-core')];
+                foreach ($boards as $boardRow) {
+                    $boardOptions[(string) $boardRow->slug] = (string) $boardRow->name;
+                }
+                Ui::select('board', $boardOptions, $boardSlug, ['label' => __('All boards', 'aiya-core')]);
+                $statusOptions = ['' => __('All statuses', 'aiya-core')];
+                foreach (ThreadStatus::ALL as $state) {
+                    $statusOptions[$state] = self::statusLabel($state);
+                }
+                Ui::select('status', $statusOptions, $status, ['label' => __('All statuses', 'aiya-core')]);
+                echo '<button type="button" class="button button-primary" id="aiya-thread-new">' . esc_html__('New thread', 'aiya-core') . '</button>';
+            },
+            ['page' => self::MENU_SLUG]
+        );
+
+        Ui::bulkTable(
+            self::ACTION_BULK,
+            [
+                'close' => __('Close selected', 'aiya-core'),
+                'reopen' => __('Reopen selected', 'aiya-core'),
+                'delete' => __('Delete selected', 'aiya-core'),
+            ],
+            [
+                'title' => ['label' => __('Title', 'aiya-core'), 'width' => '22%'],
+                'excerpt' => ['label' => __('Excerpt', 'aiya-core')],
+                'author' => ['label' => __('Author', 'aiya-core'), 'width' => '120px'],
+                'replies' => ['label' => __('Replies', 'aiya-core'), 'width' => '70px'],
+                'activity' => ['label' => __('Last activity', 'aiya-core'), 'width' => '150px'],
+                'actions' => ['label' => __('Actions', 'aiya-core'), 'width' => '130px'],
+            ],
+            $result['items'],
+            static function (object $row, string $column): void {
+                switch ($column) {
+                    case 'title':
+                        echo self::statusBadge((string) $row->status); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- badge label and class escaped inside
+                        echo '<strong>' . esc_html(wp_trim_words((string) $row->title, 12)) . '</strong>';
+                        break;
+                    case 'excerpt':
+                        echo '<div class="aiya-core-thread-excerpt">' . esc_html(wp_trim_words(wp_strip_all_tags((string) $row->content), 40)) . '</div>';
+                        break;
+                    case 'author':
+                        echo esc_html(get_the_author_meta('display_name', (int) $row->user_id));
+                        break;
+                    case 'replies':
+                        echo esc_html((string) $row->reply_count);
+                        break;
+                    case 'activity':
+                        echo esc_html(DateLabels::fromGmt((string) ($row->last_reply_at ?? $row->created_at)));
+                        break;
+                    case 'actions':
+                        printf(
+                            '<button type="button" class="button button-small aiya-thread-edit" data-id="%1$s">%2$s</button> '
+                            . '<button type="submit" class="button-link aiya-core-button-danger" data-aiya-single-delete="delete">%3$s</button>',
+                            esc_attr((string) $row->id),
+                            esc_html__('Edit', 'aiya-core'),
+                            esc_html__('Delete', 'aiya-core')
+                        );
+                        break;
+                }
+            },
+            static fn (object $row): int => (int) $row->id,
+            [
+                'empty' => __('No threads found.', 'aiya-core'),
+                'confirm' => ['delete' => __('Delete the selected threads and all their replies?', 'aiya-core')],
+                'nav' => true,
+                'paged' => $paged,
+                'per_page' => $perPage,
+                'per_page_choices' => self::PER_PAGE_CHOICES,
+                'jump_nav' => true,
+                'per_page_nav' => true,
+                'total' => (int) $result['total'],
+            ]
+        );
+
+        $this->threadDialog($result['items']);
+
+        Ui::pageFoot();
+    }
+
+    /**
+     * The thread editor as a shared modal shell: ModalView owns the
+     * dialog and its open/close wiring, the page script below owns the
+     * fill and the submit. Editing fills from the page's own JSON island
+     * — the list rows already carry the raw stored body, and refilling
+     * from the REST projection (content.html) would bake rendered
+     * smilies, mention links and shortcodes back into storage on save.
+     * Creates and updates still ride the REST controller.
+     *
+     * @param list<object{id:int,user_id:int,board_id:int,board_slug:string|null,board_name:string|null,status:string,title:string,content:string,post_id:int,reply_count:int,last_reply_user_id:int,last_reply_at:string|null,created_at:string}> $items
+     */
+    private function threadDialog(array $items): void
+    {
+        $boards = $this->threads->boards();
+        $threads = [];
+        foreach ($items as $row) {
+            $threads[(int) $row->id] = [
+                'title' => (string) $row->title,
+                'content' => (string) $row->content,
+                'board' => (string) ($row->board_slug ?? ''),
+                'status' => (string) $row->status,
+            ];
+        }
+        Ui::modal('aiya-thread-dialog', __('New thread', 'aiya-core'), static function () use ($boards): void {
             ?>
-        </div>
-
-        <div id="aiya-thread-dialog" style="display:none;"
-            data-nonce="<?php echo esc_attr(wp_create_nonce('wp_rest')); ?>"
-            data-rest="<?php echo esc_attr(rest_url('aiya/core/v1/discussions')); ?>">
             <table class="form-table" role="presentation"><tbody>
                 <tr>
                     <th scope="row"><label for="aiya-thread-title"><?php esc_html_e('Title', 'aiya-core'); ?></label></th>
@@ -203,7 +252,7 @@ final class DiscussionModerationPage implements Module
                     <th scope="row"><label for="aiya-thread-board"><?php esc_html_e('Board', 'aiya-core'); ?></label></th>
                     <td>
                         <select id="aiya-thread-board">
-                            <?php foreach ($this->threads->boards() as $boardRow) : ?>
+                            <?php foreach ($boards as $boardRow) : ?>
                                 <option value="<?php echo esc_attr((string) $boardRow->slug); ?>"><?php echo esc_html((string) $boardRow->name); ?></option>
                             <?php endforeach; ?>
                         </select>
@@ -213,8 +262,8 @@ final class DiscussionModerationPage implements Module
                     <th scope="row"><label for="aiya-thread-status"><?php esc_html_e('Status', 'aiya-core'); ?></label></th>
                     <td>
                         <select id="aiya-thread-status">
-                            <?php foreach (ThreadStatus::ALL as $s) : ?>
-                                <option value="<?php echo esc_attr($s); ?>"><?php echo esc_html($this->statusLabel($s)); ?></option>
+                            <?php foreach (ThreadStatus::ALL as $state) : ?>
+                                <option value="<?php echo esc_attr($state); ?>"><?php echo esc_html(self::statusLabel($state)); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </td>
@@ -229,16 +278,22 @@ final class DiscussionModerationPage implements Module
             </tbody></table>
             <p>
                 <button type="button" class="button button-primary" id="aiya-thread-save"><?php esc_html_e('Save', 'aiya-core'); ?></button>
-                <button type="button" class="button" id="aiya-thread-cancel"><?php esc_html_e('Cancel', 'aiya-core'); ?></button>
+                <button type="button" class="button" data-aiya-modal-close><?php esc_html_e('Cancel', 'aiya-core'); ?></button>
             </p>
             <div id="aiya-thread-error" class="notice notice-error" style="display:none;"><p></p></div>
-        </div>
-
+            <?php
+        }, ['width' => 680]);
+        printf(
+            '<script type="application/json" class="aiya-threads-bootstrap" data-for="aiya-thread-dialog">%s</script>',
+            wp_json_encode($threads)
+        );
+        ?>
         <script>
             jQuery(function ($) {
                 var dialog = $('#aiya-thread-dialog');
-                var rest = String(dialog.data('rest'));
-                var nonce = String(dialog.data('nonce'));
+                var rest = <?php echo wp_json_encode(rest_url('aiya/core/v1/discussions')); ?>;
+                var nonce = <?php echo wp_json_encode(wp_create_nonce('wp_rest')); ?>;
+                var threads = JSON.parse(document.querySelector('script.aiya-threads-bootstrap').textContent);
                 var mode = 'create';
                 var threadId = 0;
                 var titles = {
@@ -246,13 +301,12 @@ final class DiscussionModerationPage implements Module
                     edit: <?php echo wp_json_encode(__('Edit thread', 'aiya-core')); ?>
                 };
 
-                dialog.dialog({
-                    autoOpen: false,
-                    modal: true,
-                    width: 680,
-                    dialogClass: 'wp-dialog',
-                    closeOnEscape: true
-                });
+                // ModalView (admin.js) owns the dialog widget; this script
+                // only fills it and opens — user clicks land long after
+                // the behavior layer has initialized.
+                function openWith(title) {
+                    dialog.dialog('option', 'title', title).dialog('open');
+                }
 
                 function fill(data) {
                     $('#aiya-thread-title').val(data.title);
@@ -268,24 +322,20 @@ final class DiscussionModerationPage implements Module
                     $('#aiya-thread-board').prop('selectedIndex', 0);
                     $('#aiya-thread-row-status').hide();
                     $('#aiya-thread-error').hide();
-                    dialog.dialog('option', 'title', titles.create);
-                    dialog.dialog('open');
+                    openWith(titles.create);
                 });
 
                 $(document).on('click', '.aiya-thread-edit', function () {
                     mode = 'edit';
                     threadId = String($(this).data('id'));
-                    $.getJSON(rest + '/' + threadId).done(function (result) {
-                        fill(result.data);
-                        $('#aiya-thread-row-status').show();
-                        $('#aiya-thread-error').hide();
-                        dialog.dialog('option', 'title', titles.edit);
-                        dialog.dialog('open');
-                    });
-                });
-
-                $('#aiya-thread-cancel').on('click', function () {
-                    dialog.dialog('close');
+                    var data = threads[threadId];
+                    if (!data) {
+                        return; // stale row behind a newer list render
+                    }
+                    fill({ title: data.title, content: { html: data.content }, board: { slug: data.board }, status: data.status });
+                    $('#aiya-thread-row-status').show();
+                    $('#aiya-thread-error').hide();
+                    openWith(titles.edit);
                 });
 
                 $('#aiya-thread-save').on('click', function () {
@@ -321,43 +371,71 @@ final class DiscussionModerationPage implements Module
         <?php
     }
 
-    public function handleDelete(): void
+    /**
+     * The bulk round trip: one endpoint dispatching on the bulk action —
+     * the kit's bulk table is one form with one post action. Every id
+     * flows through the single-thread service methods, so the delete
+     * cascade and the moderation permission keep their tested semantics;
+     * only the count of successful rows travels back with the redirect.
+     */
+    public function handleBulk(): void
     {
-        $threadId = absint((string) ($_GET['thread_id'] ?? '0'));
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('You are not allowed to moderate the community.', 'aiya-core'));
         }
-        check_admin_referer(self::ACTION_DELETE . '_' . $threadId);
+        check_admin_referer(self::ACTION_BULK);
 
-        $deleted = $this->threads->delete($threadId, (int) get_current_user_id());
-        if (is_wp_error($deleted)) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
-                error_log('[aiya-core] Moderation delete failed: ' . $deleted->get_error_message());
+        $action = sanitize_key((string) ($_POST['bulk_action'] ?? ''));
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- absint casts every element below
+        $raw = isset($_POST['ids']) && is_array($_POST['ids']) ? $_POST['ids'] : [];
+        $ids = array_values(array_unique(array_filter(array_map('absint', $raw))));
+        $actorId = (int) get_current_user_id();
+
+        $affected = 0;
+        $note = 'failed';
+        if ($action === 'close' || $action === 'reopen') {
+            $status = $action === 'close' ? ThreadStatus::CLOSED : ThreadStatus::OPEN;
+            foreach ($ids as $threadId) {
+                $updated = $this->threads->update($threadId, $actorId, ['status' => $status]);
+                if (is_wp_error($updated)) {
+                    $this->logWriteFailure('Moderation status change failed', $updated);
+                    continue;
+                }
+                if ($updated) {
+                    ++$affected;
+                }
             }
+            $note = $action === 'close' ? 'bulk_closed' : 'bulk_reopened';
+        } elseif ($action === 'delete') {
+            foreach ($ids as $threadId) {
+                $deleted = $this->threads->delete($threadId, $actorId);
+                if (is_wp_error($deleted)) {
+                    $this->logWriteFailure('Moderation delete failed', $deleted);
+                    continue;
+                }
+                if ($deleted) {
+                    ++$affected;
+                }
+            }
+            $note = 'bulk_deleted';
         }
-        $this->redirectBack(['aiya_note' => is_wp_error($deleted) ? 'failed' : 'deleted']);
+
+        Ui::redirect(self::pageUrl(), $affected > 0
+            ? ['aiya_note' => $note, 'aiya_discussion_count' => (string) $affected]
+            : ['aiya_note' => 'failed']);
     }
 
-    private function notice(): void
+    /** Thread ops flash their own note key so board messages never collide. */
+    private function boardFlash(): void
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
-        $note = sanitize_key((string) ($_GET['aiya_note'] ?? ''));
-        $messages = [
-            'saved' => __('Status updated.', 'aiya-core'),
-            'deleted' => __('Thread deleted.', 'aiya-core'),
-            'failed' => __('The operation failed.', 'aiya-core'),
-        ];
-
-        if (!isset($messages[$note])) {
-            return;
-        }
-
-        printf(
-            '<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
-            $note === 'failed' ? 'error' : 'success',
-            esc_html($messages[$note])
-        );
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- our own redirect message, escaped on output
+        $message = sanitize_text_field(wp_unslash((string) ($_GET['aiya_board_message'] ?? '')));
+        Ui::flash('aiya_board_note', [
+            'created' => [__('Board created.', 'aiya-core'), 'success'],
+            'saved' => [__('Board saved.', 'aiya-core'), 'success'],
+            'deleted' => [__('Board deleted.', 'aiya-core'), 'success'],
+            'failed' => [$message !== '' ? $message : __('The operation failed.', 'aiya-core'), 'error'],
+        ]);
     }
 
     /**
@@ -370,95 +448,101 @@ final class DiscussionModerationPage implements Module
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only edit target selection
         $editId = absint((string) ($_GET['board_edit'] ?? '0'));
         $editing = $editId > 0 ? $this->threads->boardById($editId) : null;
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash state
         $boardNote = sanitize_key((string) ($_GET['aiya_board_note'] ?? ''));
-        $open = $editing !== null || $boardNote !== '';
-        ?>
-        <details class="aiya-core-card" <?php echo $open ? 'open' : ''; ?>>
-            <summary><?php esc_html_e('Boards', 'aiya-core'); ?></summary>
-            <div class="aiya-core-card__body">
-                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-bottom:16px;">
-                    <input type="hidden" name="action" value="<?php echo esc_attr(self::BOARD_ACTION_SAVE); ?>">
-                    <?php wp_nonce_field(self::BOARD_ACTION_SAVE); ?>
-                    <input type="hidden" name="board_id" value="<?php echo esc_attr($editing !== null ? (string) $editing->id : '0'); ?>">
-                    <table class="form-table" role="presentation"><tbody>
-                        <tr>
-                            <th scope="row"><label for="aiya-board-slug"><?php esc_html_e('Slug', 'aiya-core'); ?></label></th>
-                            <td>
-                                <?php if ($editing !== null) : ?>
-                                    <code><?php echo esc_html((string) $editing->slug); ?></code>
-                                    <p class="description"><?php esc_html_e('The slug is fixed once threads reference it.', 'aiya-core'); ?></p>
-                                <?php else : ?>
-                                    <input type="text" name="slug" id="aiya-board-slug" class="regular-text" required pattern="[a-z0-9_-]{1,50}">
-                                    <p class="description"><?php esc_html_e('Lowercase letters, digits, dashes or underscores.', 'aiya-core'); ?></p>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="aiya-board-name"><?php esc_html_e('Name', 'aiya-core'); ?></label></th>
-                            <td><input type="text" name="name" id="aiya-board-name" class="regular-text" value="<?php echo esc_attr($editing !== null ? (string) $editing->name : ''); ?>" required></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="aiya-board-description"><?php esc_html_e('Description', 'aiya-core'); ?></label></th>
-                            <td><textarea name="description" id="aiya-board-description" rows="2" class="large-text"><?php echo esc_textarea($editing !== null ? (string) $editing->description : ''); ?></textarea></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="aiya-board-sort"><?php esc_html_e('Sort order', 'aiya-core'); ?></label></th>
-                            <td><input type="number" name="sort" id="aiya-board-sort" value="<?php echo esc_attr($editing !== null ? (string) $editing->sort : '0'); ?>" class="small-text"></td>
-                        </tr>
-                    </tbody></table>
-                    <p>
-                        <button type="submit" class="button button-primary"><?php echo $editing !== null ? esc_html__('Save board', 'aiya-core') : esc_html__('Add board', 'aiya-core'); ?></button>
-                        <?php if ($editing !== null) : ?>
-                            <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=' . self::MENU_SLUG)); ?>"><?php esc_html_e('Cancel editing', 'aiya-core'); ?></a>
-                        <?php endif; ?>
-                    </p>
-                </form>
+        Ui::card(__('Boards', 'aiya-core'), function () use ($editing): void {
+            ?>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-bottom:16px;">
+                <input type="hidden" name="action" value="<?php echo esc_attr(self::BOARD_ACTION_SAVE); ?>">
+                <?php wp_nonce_field(self::BOARD_ACTION_SAVE); ?>
+                <input type="hidden" name="board_id" value="<?php echo esc_attr($editing !== null ? (string) $editing->id : '0'); ?>">
+                <table class="form-table" role="presentation"><tbody>
+                    <tr>
+                        <th scope="row"><label for="aiya-board-slug"><?php esc_html_e('Slug', 'aiya-core'); ?></label></th>
+                        <td>
+                            <?php if ($editing !== null) : ?>
+                                <code><?php echo esc_html((string) $editing->slug); ?></code>
+                                <p class="description"><?php esc_html_e('The slug is fixed once threads reference it.', 'aiya-core'); ?></p>
+                            <?php else : ?>
+                                <input type="text" name="slug" id="aiya-board-slug" class="regular-text" required pattern="[a-z0-9_-]{1,50}">
+                                <p class="description"><?php esc_html_e('Lowercase letters, digits, dashes or underscores.', 'aiya-core'); ?></p>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aiya-board-name"><?php esc_html_e('Name', 'aiya-core'); ?></label></th>
+                        <td><input type="text" name="name" id="aiya-board-name" class="regular-text" value="<?php echo esc_attr($editing !== null ? (string) $editing->name : ''); ?>" required></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aiya-board-description"><?php esc_html_e('Description', 'aiya-core'); ?></label></th>
+                        <td><textarea name="description" id="aiya-board-description" rows="2" class="large-text"><?php echo esc_textarea($editing !== null ? (string) $editing->description : ''); ?></textarea></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aiya-board-sort"><?php esc_html_e('Sort order', 'aiya-core'); ?></label></th>
+                        <td><input type="number" name="sort" id="aiya-board-sort" value="<?php echo esc_attr($editing !== null ? (string) $editing->sort : '0'); ?>" class="small-text"></td>
+                    </tr>
+                </tbody></table>
+                <p>
+                    <?php Ui::button($editing !== null ? __('Save board', 'aiya-core') : __('Add board', 'aiya-core'), ['type' => 'submit', 'variant' => 'button-primary']); ?>
+                    <?php if ($editing !== null) : ?>
+                        <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=' . self::MENU_SLUG)); ?>"><?php esc_html_e('Cancel editing', 'aiya-core'); ?></a>
+                    <?php endif; ?>
+                </p>
+            </form>
 
-                <table class="wp-list-table widefat fixed striped">
-                    <thead>
-                        <tr>
-                            <th><?php esc_html_e('Name', 'aiya-core'); ?></th>
-                            <th><?php esc_html_e('Slug', 'aiya-core'); ?></th>
-                            <th><?php esc_html_e('Description', 'aiya-core'); ?></th>
-                            <th style="width:70px;"><?php esc_html_e('Sort order', 'aiya-core'); ?></th>
-                            <th style="width:70px;"><?php esc_html_e('Threads', 'aiya-core'); ?></th>
-                            <th style="width:130px;"><?php esc_html_e('Actions', 'aiya-core'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $boards = $this->threads->boards(); ?>
-                        <?php if ($boards === []) : ?>
-                            <tr><td colspan="6"><?php esc_html_e('No boards yet.', 'aiya-core'); ?></td></tr>
-                        <?php else : ?>
-                            <?php foreach ($boards as $board) : ?>
-                                <tr>
-                                    <td><strong><?php echo esc_html((string) $board->name); ?></strong></td>
-                                    <td><code><?php echo esc_html((string) $board->slug); ?></code></td>
-                                    <td><?php $description = (string) $board->description; ?><?php echo $description !== '' ? esc_html($description) : '—'; ?></td>
-                                    <td><?php echo esc_html((string) $board->sort); ?></td>
-                                    <td><?php echo esc_html((string) $board->threads); ?></td>
-                                    <td>
-                                        <a href="<?php echo esc_url(add_query_arg('board_edit', (int) $board->id, admin_url('admin.php?page=' . self::MENU_SLUG))); ?>"><?php esc_html_e('Edit', 'aiya-core'); ?></a>
-                                        <?php
-                                        $deleteUrl = wp_nonce_url(
-                                            admin_url('admin-post.php?action=' . self::BOARD_ACTION_DELETE . '&board_id=' . (int) $board->id),
-                                            self::BOARD_ACTION_DELETE . '_' . (int) $board->id
-                                        );
-                                        ?>
-                                        <a class="submitdelete" style="margin-left:8px;" href="<?php echo esc_url($deleteUrl); ?>"
-                                            onclick="return confirm('<?php esc_attr_e('Delete this board? Its threads move to the first remaining board.', 'aiya-core'); ?>');">
-                                            <?php esc_html_e('Delete', 'aiya-core'); ?>
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </details>
-        <?php
+            <?php
+            Ui::listTable(
+                [
+                    'name' => ['label' => __('Name', 'aiya-core')],
+                    'slug' => ['label' => __('Slug', 'aiya-core'), 'width' => '110px'],
+                    'description' => ['label' => __('Description', 'aiya-core')],
+                    'sort' => ['label' => __('Sort order', 'aiya-core'), 'width' => '70px'],
+                    'threads' => ['label' => __('Threads', 'aiya-core'), 'width' => '70px'],
+                    'actions' => ['label' => __('Actions', 'aiya-core'), 'width' => '150px'],
+                ],
+                $this->threads->boards(),
+                static function (object $row, string $column): void {
+                    switch ($column) {
+                        case 'name':
+                            echo '<strong>' . esc_html((string) $row->name) . '</strong>';
+                            break;
+                        case 'slug':
+                            echo '<code>' . esc_html((string) $row->slug) . '</code>';
+                            break;
+                        case 'description':
+                            $description = (string) $row->description;
+                            echo $description !== '' ? esc_html($description) : '—';
+                            break;
+                        case 'sort':
+                            echo esc_html((string) $row->sort);
+                            break;
+                        case 'threads':
+                            echo esc_html((string) $row->threads);
+                            break;
+                        case 'actions':
+                            printf(
+                                '<a href="%1$s">%2$s</a> ',
+                                esc_url(add_query_arg('board_edit', (int) $row->id, admin_url('admin.php?page=' . self::MENU_SLUG))),
+                                esc_html__('Edit', 'aiya-core')
+                            );
+                            // Destructive board deletion rides its own POST
+                            // form — the confirm text injects through
+                            // wp_json_encode so no quote can break out.
+                            ?>
+                            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
+                                onsubmit="return window.confirm(<?php echo esc_attr((string) wp_json_encode(__('Delete this board? Its threads move to the first remaining board.', 'aiya-core'))); ?>);">
+                                <input type="hidden" name="action" value="<?php echo esc_attr(self::BOARD_ACTION_DELETE); ?>">
+                                <input type="hidden" name="board_id" value="<?php echo esc_attr((string) $row->id); ?>">
+                                <?php wp_nonce_field(self::BOARD_ACTION_DELETE); ?>
+                                <button type="submit" class="button-link submitdelete"><?php esc_html_e('Delete', 'aiya-core'); ?></button>
+                            </form>
+                            <?php
+                            break;
+                    }
+                },
+                __('No boards yet.', 'aiya-core')
+            );
+        }, $editing !== null || $boardNote !== '');
     }
 
     public function handleBoardSave(): void
@@ -479,7 +563,7 @@ final class DiscussionModerationPage implements Module
                 if (is_wp_error($updated)) {
                     throw new RuntimeException($updated->get_error_message());
                 }
-                $this->redirectBack(['aiya_board_note' => 'saved']);
+                Ui::redirect(self::pageUrl(), ['aiya_board_note' => 'saved']);
             }
 
             $slug = sanitize_key(wp_unslash((string) ($_POST['slug'] ?? '')));
@@ -487,66 +571,46 @@ final class DiscussionModerationPage implements Module
             if (is_wp_error($created)) {
                 throw new RuntimeException($created->get_error_message());
             }
-            $this->redirectBack(['aiya_board_note' => 'created']);
+            Ui::redirect(self::pageUrl(), ['aiya_board_note' => 'created']);
         } catch (RuntimeException $error) {
-            $this->redirectBack(['aiya_board_note' => 'failed', 'aiya_board_message' => rawurlencode($error->getMessage())]);
+            Ui::redirect(self::pageUrl(), ['aiya_board_note' => 'failed', 'aiya_board_message' => rawurlencode($error->getMessage())]);
         }
     }
 
     public function handleBoardDelete(): void
     {
-        $boardId = absint((string) ($_GET['board_id'] ?? '0'));
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('You are not allowed to manage the community.', 'aiya-core'));
         }
-        check_admin_referer(self::BOARD_ACTION_DELETE . '_' . $boardId);
+        check_admin_referer(self::BOARD_ACTION_DELETE);
 
+        $boardId = absint((string) ($_POST['board_id'] ?? '0'));
         $deleted = $this->threads->deleteBoard($boardId);
         if (is_wp_error($deleted)) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
-                error_log('[aiya-core] Board delete failed: ' . $deleted->get_error_message());
-            }
-            $this->redirectBack(['aiya_board_note' => 'failed', 'aiya_board_message' => rawurlencode($deleted->get_error_message())]);
+            $this->logWriteFailure('Board delete failed', $deleted);
+            Ui::redirect(self::pageUrl(), ['aiya_board_note' => 'failed', 'aiya_board_message' => rawurlencode($deleted->get_error_message())]);
         }
 
-        $this->redirectBack(['aiya_board_note' => 'deleted']);
+        Ui::redirect(self::pageUrl(), ['aiya_board_note' => 'deleted']);
     }
 
-    /** Board ops flash their own note key so thread messages never collide. */
-    private function boardNotice(): void
+    /** The page's own admin URL, the Ui::redirect base for every round trip. */
+    private static function pageUrl(): string
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash message from our own redirect
-        $note = sanitize_key((string) ($_GET['aiya_board_note'] ?? ''));
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- our own redirect message, escaped on output
-        $message = sanitize_text_field(wp_unslash((string) ($_GET['aiya_board_message'] ?? '')));
-        $messages = [
-            'created' => __('Board created.', 'aiya-core'),
-            'saved' => __('Board saved.', 'aiya-core'),
-            'deleted' => __('Board deleted.', 'aiya-core'),
-            'failed' => $message !== '' ? $message : __('The operation failed.', 'aiya-core'),
-        ];
+        return admin_url('admin.php?page=' . self::MENU_SLUG);
+    }
 
-        if (!isset($messages[$note])) {
-            return;
+    /** Operator diagnostics for failed moderation writes; silent outside WP_DEBUG. */
+    private function logWriteFailure(string $context, \WP_Error $error): void
+    {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+            error_log('[aiya-core] ' . $context . ': ' . $error->get_error_message());
         }
-
-        printf(
-            '<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
-            $note === 'failed' ? 'error' : 'success',
-            esc_html($messages[$note])
-        );
-    }
-
-    /** @param array<string, string> $args */
-    private function redirectBack(array $args): never
-    {
-        wp_safe_redirect(add_query_arg($args, admin_url('admin.php?page=' . self::MENU_SLUG)));
-        exit;
     }
 
     /** Translated status label for the two-value workflow. */
-    private function statusLabel(string $status): string
+    private static function statusLabel(string $status): string
     {
         $labels = [
             ThreadStatus::OPEN => __('Normal', 'aiya-core'),
@@ -557,14 +621,14 @@ final class DiscussionModerationPage implements Module
     }
 
     /** Closed threads wear a gray badge; the normal state stays unmarked. */
-    private function statusBadge(string $status): string
+    private static function statusBadge(string $status): string
     {
         if (!in_array($status, ThreadStatus::ALL, true)) {
             return esc_html($status);
         }
 
         return $status === ThreadStatus::CLOSED
-            ? '<span class="aiya-core-badge aiya-core-badge--closed">' . esc_html($this->statusLabel($status)) . '</span>'
+            ? '<span class="aiya-core-badge aiya-core-badge--closed">' . esc_html(self::statusLabel($status)) . '</span>'
             : '';
     }
 }
