@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Content\Mentions;
+use Aiya\Core\Domain\Mention\Mentions;
 use PHPUnit\Framework\TestCase;
 use WP_User;
 

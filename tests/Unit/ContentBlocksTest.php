@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Core\Api\Contract\MenuItem;
-use Aiya\Core\Domain\Content\BlocksModule;
-use Aiya\Core\Domain\Content\ContentBlocks;
+use Aiya\Core\Domain\Blocks\BlocksModule;
+use Aiya\Core\Domain\Blocks\ContentBlocks;
 use PHPUnit\Framework\TestCase;
 
 final class ContentBlocksTest extends TestCase

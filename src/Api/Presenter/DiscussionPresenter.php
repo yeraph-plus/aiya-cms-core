@@ -12,7 +12,7 @@ use Aiya\Core\Api\Contract\DiscussionReply;
 use Aiya\Core\Api\Contract\Image;
 use Aiya\Core\Domain\Discussion\DiscussionContent;
 use Aiya\Core\Domain\Discussion\DiscussionLikeService;
-use Aiya\Core\Domain\Content\Mentions;
+use Aiya\Core\Domain\Mention\Mentions;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Discussion\ThreadStatus;
 use Aiya\Core\Domain\Shortcodes\BuiltinShortcodes;

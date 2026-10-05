@@ -6,7 +6,7 @@ namespace Aiya\Core\Api\Presenter;
 
 use Aiya\Core\Api\Contract\Comment;
 use Aiya\Core\Api\Contract\CommentAuthor;
-use Aiya\Core\Domain\Content\Mentions;
+use Aiya\Core\Domain\Mention\Mentions;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use WP_Comment;
 

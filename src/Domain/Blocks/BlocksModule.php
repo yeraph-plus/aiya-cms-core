@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Content;
+namespace Aiya\Core\Domain\Blocks;
 
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Registry;

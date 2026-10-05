@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Content\LightboxModule;
+use Aiya\Core\Domain\Typography\LightboxModule;
 use PHPUnit\Framework\TestCase;
 
 final class LightboxModuleTest extends TestCase

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Notification;
 
 use Aiya\Core\Contracts\Module;
-use Aiya\Core\Domain\Content\Mentions;
+use Aiya\Core\Domain\Mention\Mentions;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Identity\FavoriteService;

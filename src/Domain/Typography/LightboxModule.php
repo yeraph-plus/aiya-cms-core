@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Content;
+namespace Aiya\Core\Domain\Typography;
 
 use Aiya\Core\Contracts\Module;
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Content\ReadingTime;
+use Aiya\Core\Domain\Shared\ReadingTime;
 use PHPUnit\Framework\TestCase;
 
 final class ReadingTimeTest extends TestCase

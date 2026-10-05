@@ -8,7 +8,7 @@ use Aiya\Core\Api\Contract\BeianLink;
 use Aiya\Core\Domain\Content\FrontendModule;
 use Aiya\Core\Api\Contract\Image;
 use Aiya\Core\Api\Contract\Site;
-use Aiya\Core\Domain\Content\ContentBlocks;
+use Aiya\Core\Domain\Blocks\ContentBlocks;
 use Aiya\Core\Api\Contract\SiteDefaults;
 use Aiya\Core\Api\Contract\SiteFooter;
 use Aiya\Core\Api\Contract\SiteComments;

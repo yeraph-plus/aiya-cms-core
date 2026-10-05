@@ -212,7 +212,7 @@ final class PostCardTest extends TestCase
      */
     public function testLightboxRunsAheadOfShortcodesAndSkipsSmilies(): void
     {
-        $lightbox = new \Aiya\Core\Domain\Content\LightboxModule();
+        $lightbox = new \Aiya\Core\Domain\Typography\LightboxModule();
         $lightbox->register();
 
         $priorities = array_keys((array) ($GLOBALS['__aiya_test_filters']['the_content'] ?? []));

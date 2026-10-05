@@ -97,7 +97,7 @@ namespace {
 
 namespace Aiya\Core\Tests\Unit {
 
-    use Aiya\Core\Domain\Content\TypographyModule;
+    use Aiya\Core\Domain\Typography\TypographyModule;
     use Aiya\Core\Metadata\Registry as MetadataRegistry;
     use Aiya\Core\Settings\Registry as SettingsRegistry;
     use Aiya\Infra\Typesetting\ChineseTypesetting;

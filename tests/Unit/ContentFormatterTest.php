@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Infra\Typesetting\ChineseTypesetting;
-use Aiya\Core\Domain\Content\ContentFormatter;
+use Aiya\Core\Domain\Typography\ContentFormatter;
 use PHPUnit\Framework\TestCase;
 
 final class ContentFormatterTest extends TestCase

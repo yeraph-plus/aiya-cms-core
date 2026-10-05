@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Content;
+namespace Aiya\Core\Domain\Blocks;
 
 use Aiya\Core\Api\Contract\AdSlot;
 use Aiya\Core\Api\Contract\Image;

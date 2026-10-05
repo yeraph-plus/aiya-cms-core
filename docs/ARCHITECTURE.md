@@ -87,7 +87,7 @@ Api/Contract/   pure value objects (PostSummary, PostDetail, Term,
                 zero WordPress dependency; TS types for the front end
                 are generated from these shapes
 Domain/Content/ read services (ContentQuery, CommentQuery,
-                ContentBlocks, RelatedPostsQuery, …) wrapping WordPress
+                RelatedPostsQuery, …) wrapping WordPress
                 queries; presenters and controllers call them
 ```
 
@@ -110,7 +110,7 @@ assemble DTOs inline:
   uploads). If a projection is reused or converts dates, that is its home.
 - A Domain service may construct Contract value objects when the DTO is the
   service's own natural product and no WP-object mapping is involved:
-  `Domain/Content/ContentBlocks` emits `MenuItem` and
+  `Domain/Blocks/ContentBlocks` emits `MenuItem` and
   `Domain/Media/CardThumbnailService` emits `Image` (the file-generation
   metadata — alt/width/height — belongs with the generator that owns the
   derived file). `Api/Contract` is a zero-dependency leaf vocabulary, so
@@ -266,7 +266,7 @@ required nor expected across generators.
 - Content domains must not depend on Admin, Api, or HTTP transports.
 - `Api/Contract/` depends on nothing; `Api/Presenter/` is the only WordPress-data touch point; `Api/Rest/` only orchestrates.
 - `contentHtml` is a **public, shared-cacheable payload**, so only viewer-independent markup may ride inside it (bodies, rendered parts, the related-post card). Anything that would differ per viewer — a gated body, a per-user permission flag — belongs in a per-viewer field served `no-store`, or nowhere (the legacy `sponsor_ship` part was dropped for exactly this reason). Newly registered shortcodes enter the community-thread body's execution surface automatically (`do_shortcode` semantics), so every new expandable shortcode must be designed to this public-cached-HTML standard from day one: viewer-independent output, every attribute escaped.
-- `Domain/Shared` is the plugin's zero-dependency vocabulary layer: `PublicType`/`PublicTypes` (the public-type registry every reader resolves types through) and `FrontendDomain` (the front-end origin normalizer). Several domains need exactly these, so they live nowhere else; the layer depends on nothing and must never grow a dependency.
+- `Domain/Shared` is the plugin's zero-dependency vocabulary layer: `PublicType`/`PublicTypes` (the public-type registry every reader resolves types through), `FrontendDomain` (the front-end origin normalizer), `FrontendLocales` (the front-end locale whitelist) and `ReadingTime` (the pure reading-time estimate). Several domains need exactly these, so they live nowhere else; the layer depends on nothing and must never grow a dependency.
 - `Domain/Identity` is the account layer and may be consulted by other domains for account-level facts: the credit ledger, the membership gates and the integrations ticket flow all ask `UserBan` before acting (the account disable switch), and the NSFW filter asks `ShowNsfw`. It is a leaf — its only outbound edge is `Domain/Shared` — so this edge never runs backwards.
 - `Domain/Operations` is a **read-only reporting consumer**: it reads the credit, membership and payment fact tables and writes nothing but its own two counter tables. Monthly reporting needs figures the ledger has already pruned, so the durable copy is the point; the alternative — hosting revenue and membership aggregation inside the domains that own those tables — would put reporting queries into domains nothing else asks them of. The write direction stays one-way: the ledger publishes `aiya_core_credit_granted` / `aiya_core_credit_spent`, and no accounting path depends on who listens.
 - Cross-domain fact consumption is one-way and reader-shaped: FileServe applies Content's visibility gate to its downloads and spends through the credit ledger (the ledger only bookkeeps); Membership mints its cycle grants through the ledger. No accounting or content path depends on any of these consumers.

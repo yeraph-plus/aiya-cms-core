@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Content;
+namespace Aiya\Core\Domain\Shared;
 
 /**
  * Front-end reading-time estimate shared by every content projection:

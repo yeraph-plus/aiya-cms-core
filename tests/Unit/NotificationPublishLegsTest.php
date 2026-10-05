@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Content\Mentions;
+use Aiya\Core\Domain\Mention\Mentions;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;

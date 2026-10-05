@@ -21,7 +21,7 @@ use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\CommentQuery;
 use Aiya\Core\Domain\Content\PostVisibility;
 use Aiya\Core\Domain\Content\HotPostsQuery;
-use Aiya\Core\Domain\Content\Mentions;
+use Aiya\Core\Domain\Mention\Mentions;
 use Aiya\Core\Domain\Content\RelatedPostsQuery;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Discussion\DiscussionLikeService;
