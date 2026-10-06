@@ -151,7 +151,6 @@ final class NotificationPage implements Module
                 'nav' => true,
                 'paged' => $paged,
                 'per_page' => $perPage,
-                'per_page_choices' => Ui::PER_PAGE_CHOICES,
                 'jump_nav' => true,
                 'per_page_nav' => true,
             ]
