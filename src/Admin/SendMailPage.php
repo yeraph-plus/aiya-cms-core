@@ -62,7 +62,7 @@ final class SendMailPage implements Module
             'menu_title' => __('Send Mail', 'aiya-core'),
             'capability' => 'edit_users',
             'parent' => 'aiya-core-devtools',
-            'menu_position' => 9, // after the two sandboxes, the rail's tail
+            'menu_position' => 2, // second in the rail, right after search & replace
             'kind' => Page::KIND_CALLBACK,
             'render' => [$this, 'render'],
         ]);

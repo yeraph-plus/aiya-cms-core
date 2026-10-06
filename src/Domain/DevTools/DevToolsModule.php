@@ -106,7 +106,7 @@ final class DevToolsModule implements Module
                 'mirror_title' => __('Server Status', 'aiya-core'),
                 'icon' => 'dashicons-admin-tools',
                 'position' => self::POSITION,
-                'menu_position' => 6,
+                'menu_position' => 7,
                 'kind' => Page::KIND_CALLBACK,
                 'render' => [$this->serverStatus, 'render'],
             ]);
@@ -115,7 +115,7 @@ final class DevToolsModule implements Module
                 'title' => __('Crons', 'aiya-core'),
                 'menu_title' => __('Crons', 'aiya-core'),
                 'parent' => self::MENU_SLUG,
-                'menu_position' => 2,
+                'menu_position' => 3,
                 'kind' => Page::KIND_CALLBACK,
                 'render' => [$this->crons, 'render'],
             ]);
@@ -124,7 +124,7 @@ final class DevToolsModule implements Module
                 'title' => __('Permalinks', 'aiya-core'),
                 'menu_title' => __('Permalinks', 'aiya-core'),
                 'parent' => self::MENU_SLUG,
-                'menu_position' => 3,
+                'menu_position' => 4,
                 'kind' => Page::KIND_CALLBACK,
                 'render' => [$this->rewrites, 'render'],
             ]);
@@ -133,7 +133,7 @@ final class DevToolsModule implements Module
                 'title' => __('Shortcodes', 'aiya-core'),
                 'menu_title' => __('Shortcodes', 'aiya-core'),
                 'parent' => self::MENU_SLUG,
-                'menu_position' => 4,
+                'menu_position' => 5,
                 'kind' => Page::KIND_CALLBACK,
                 'render' => [$this->shortcodes, 'render'],
             ]);
@@ -142,7 +142,7 @@ final class DevToolsModule implements Module
                 'title' => __('Icons', 'aiya-core'),
                 'menu_title' => __('Icons', 'aiya-core'),
                 'parent' => self::MENU_SLUG,
-                'menu_position' => 5,
+                'menu_position' => 6,
                 'kind' => Page::KIND_CALLBACK,
                 'render' => [$this->icons, 'render'],
             ]);
@@ -160,7 +160,7 @@ final class DevToolsModule implements Module
                 'title' => __('UI Kit', 'aiya-core'),
                 'menu_title' => __('UI Kit', 'aiya-core'),
                 'parent' => self::MENU_SLUG,
-                'menu_position' => 8,
+                'menu_position' => 9,
                 'kind' => Page::KIND_CALLBACK,
                 'render' => [$this->uiSample, 'render'],
                 'assets' => [$this->uiSample, 'pageAssets'],
