@@ -14,7 +14,7 @@ namespace Aiya\Core\Domain\Membership;
 final class MembershipSettings
 {
     /**
-     * @return array{tiers:list<array{key:string,name:string,description:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}>}
+     * @return array{tiers:list<array{key:string,name:string,description:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}>}
      */
     public static function read(): array
     {
@@ -28,7 +28,7 @@ final class MembershipSettings
      * later edits never rewrite existing queues.
      *
      * @param array<string, mixed> $settings
-     * @return list<array{key:string,name:string,description:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}>
+     * @return list<array{key:string,name:string,description:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}>
      */
     public static function tiers(array $settings): array
     {
@@ -52,7 +52,6 @@ final class MembershipSettings
                 'price' => min(500.0, round((float) ($row['price'] ?? 0), 2)),
                 'cycleDays' => max(1, (int) ($row['cycle_days'] ?? 30)),
                 'creditsPerCycle' => max(0, (int) ($row['credits_per_cycle'] ?? 0)),
-                'cycles' => max(1, min(60, (int) ($row['cycles'] ?? 1))),
             ];
         }
 
@@ -60,8 +59,8 @@ final class MembershipSettings
     }
 
     /**
-     * @param list<array{key:string,name:string,description:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}> $tiers
-     * @return array{key:string,name:string,description:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}|null
+     * @param list<array{key:string,name:string,description:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}> $tiers
+     * @return array{key:string,name:string,description:string,enabled:bool,price:float,cycleDays:int,creditsPerCycle:int}|null
      */
     public static function tierByKey(array $tiers, string $key): ?array
     {

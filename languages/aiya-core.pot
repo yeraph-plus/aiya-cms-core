@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T04:27:23+00:00\n"
+"POT-Creation-Date: 2026-10-06T06:01:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -68,9 +68,9 @@ msgid "Redemption codes"
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:66
-#: src/Admin/ConvertCodesPage.php:301
-#: src/Admin/ConvertCodesPage.php:362
-#: src/Admin/ConvertCodesPage.php:373
+#: src/Admin/ConvertCodesPage.php:303
+#: src/Admin/ConvertCodesPage.php:364
+#: src/Admin/ConvertCodesPage.php:375
 msgid "You are not allowed to manage redemption codes."
 msgstr ""
 
@@ -152,24 +152,24 @@ msgid "Actions"
 msgstr ""
 
 #. translators: 1: credit amount, 2: validity in days.
-#: src/Admin/ConvertCodesPage.php:138
+#: src/Admin/ConvertCodesPage.php:137
 #, php-format
 msgid "Credits ×%1$d · %2$d days"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:148
+#: src/Admin/ConvertCodesPage.php:147
 msgid "Redeemed"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:148
+#: src/Admin/ConvertCodesPage.php:147
 msgid "Unused"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:166
+#: src/Admin/ConvertCodesPage.php:168
 msgid "Delete this code?"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:170
+#: src/Admin/ConvertCodesPage.php:172
 #: src/Admin/CronsPage.php:200
 #: src/Admin/DiscussionModerationPage.php:207
 #: src/Admin/DiscussionModerationPage.php:740
@@ -178,81 +178,81 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:176
+#: src/Admin/ConvertCodesPage.php:178
 msgid "No codes stored."
 msgstr ""
 
 #. translators: %s: number of freshly generated codes.
-#: src/Admin/ConvertCodesPage.php:206
+#: src/Admin/ConvertCodesPage.php:208
 #, php-format
 msgid "Fresh codes (%s)"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:211
+#: src/Admin/ConvertCodesPage.php:213
 msgid "Fresh codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:212
+#: src/Admin/ConvertCodesPage.php:214
 msgid "Copy all"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:220
+#: src/Admin/ConvertCodesPage.php:222
 msgid "Generate credit codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:228
+#: src/Admin/ConvertCodesPage.php:230
 #: src/Admin/CreditsPage.php:179
 #: src/Admin/CreditsPage.php:238
 #: src/Admin/PaymentsAuditPage.php:138
 msgid "Amount"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:231
+#: src/Admin/ConvertCodesPage.php:233
 msgid "The balance the holder receives at redemption."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:235
+#: src/Admin/ConvertCodesPage.php:237
 #: src/Admin/CreditsPage.php:185
 msgid "Validity (days)"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:238
+#: src/Admin/ConvertCodesPage.php:240
 msgid "The granted bucket dies when this expires."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:242
-#: src/Admin/ConvertCodesPage.php:288
+#: src/Admin/ConvertCodesPage.php:244
+#: src/Admin/ConvertCodesPage.php:290
 msgid "Quantity"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:246
-#: src/Admin/ConvertCodesPage.php:292
+#: src/Admin/ConvertCodesPage.php:248
+#: src/Admin/ConvertCodesPage.php:294
 msgid "Generate"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:255
+#: src/Admin/ConvertCodesPage.php:257
 msgid "Generate membership codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:263
+#: src/Admin/ConvertCodesPage.php:265
 #: src/Admin/PaymentsAuditPage.php:137
 msgid "Tier"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:268
+#: src/Admin/ConvertCodesPage.php:270
 msgid "— define tiers first —"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:277
+#: src/Admin/ConvertCodesPage.php:279
 msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:281
+#: src/Admin/ConvertCodesPage.php:283
 #: src/Admin/PaymentsAuditPage.php:139
 msgid "Cycles"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:284
+#: src/Admin/ConvertCodesPage.php:286
 msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
 msgstr ""
 
@@ -807,13 +807,13 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:678
 #: src/Admin/DiscussionModerationPage.php:701
 #: src/Admin/FileServeMetabox.php:288
-#: src/Domain/Membership/MembershipModule.php:119
+#: src/Domain/Membership/MembershipModule.php:121
 msgid "Name"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:682
 #: src/Admin/DiscussionModerationPage.php:703
-#: src/Domain/Membership/MembershipModule.php:125
+#: src/Domain/Membership/MembershipModule.php:129
 msgid "Description"
 msgstr ""
 
@@ -2719,7 +2719,7 @@ msgid "This account is disabled."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:141
-#: src/Api/Rest/MembershipController.php:122
+#: src/Api/Rest/MembershipController.php:124
 msgid "The Afdian channel is not available."
 msgstr ""
 
@@ -2747,30 +2747,34 @@ msgstr ""
 msgid "Thread not found."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:135
-#: src/Api/Rest/MembershipController.php:195
+#: src/Api/Rest/MembershipController.php:137
+#: src/Api/Rest/MembershipController.php:196
 msgid "Unknown membership tier."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:141
-#: src/Api/Rest/MembershipController.php:203
+#: src/Api/Rest/MembershipController.php:143
+#: src/Api/Rest/MembershipController.php:210
 msgid "This membership tier is not available."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:148
+#: src/Api/Rest/MembershipController.php:149
 msgid "The Afdian plan/tier pairing is not configured."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:185
+#: src/Api/Rest/MembershipController.php:186
 msgid "No payment gateway is available."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:188
+#: src/Api/Rest/MembershipController.php:189
 #: src/Domain/Payment/EpayGateway.php:87
 msgid "The requested payment channel is not available."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:224
+#: src/Api/Rest/MembershipController.php:205
+msgid "Cycles must be a whole number between 1 and 12."
+msgstr ""
+
+#: src/Api/Rest/MembershipController.php:231
 msgid "The return URL is not a valid absolute http(s) address."
 msgstr ""
 
@@ -3296,28 +3300,24 @@ msgid "How long a check-in grant stays spendable. Credits are cost accounting, n
 msgstr ""
 
 #: src/Domain/Credit/CreditModule.php:108
-msgid "Spend waiver"
-msgstr ""
-
-#: src/Domain/Credit/CreditModule.php:114
 msgid "Waived holder level"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:115
+#: src/Domain/Credit/CreditModule.php:109
 msgid "Holders at this role level or above spend at zero on every consumer — downloads included — while the ledger still records the entry and the download meter still counts the delivery. The ledger books the waived spend as a zero-credit entry, so the giveaway stays visible. Staff roles only: subscribers and contributors always pay."
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:118
+#: src/Domain/Credit/CreditModule.php:112
 #: src/Infrastructure/Security/SecurityModule.php:129
 msgid "Author and above"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:119
+#: src/Domain/Credit/CreditModule.php:113
 #: src/Infrastructure/Security/SecurityModule.php:130
 msgid "Editor and above"
 msgstr ""
 
-#: src/Domain/Credit/CreditModule.php:120
+#: src/Domain/Credit/CreditModule.php:114
 #: src/Infrastructure/Security/SecurityModule.php:131
 msgid "Administrator only"
 msgstr ""
@@ -4102,44 +4102,44 @@ msgstr ""
 msgid "Key"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:126
+#: src/Domain/Membership/MembershipModule.php:114
+msgid "Stable identifier the gateways and codes resolve purchases by — lowercase letters, digits, dashes or underscores, fixed once purchases reference it."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:122
+msgid "The plan-card title buyers see."
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:130
 msgid "One-liner shown on the plan card (what the tier includes)."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:132
+#: src/Domain/Membership/MembershipModule.php:136
 msgid "Price (per cycle)"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:133
+#: src/Domain/Membership/MembershipModule.php:137
 msgid "Up to 500, two decimals."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:142
+#: src/Domain/Membership/MembershipModule.php:146
 msgid "Cycle length (days)"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:143
+#: src/Domain/Membership/MembershipModule.php:147
 msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:152
+#: src/Domain/Membership/MembershipModule.php:156
 msgid "Credits per cycle"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:153
+#: src/Domain/Membership/MembershipModule.php:157
 msgid "Credit bucket granted at each cycle start."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:161
-msgid "Cycles per purchase"
-msgstr ""
-
-#: src/Domain/Membership/MembershipModule.php:162
-msgid "One purchase of this tier always queues this many cycles; the front end shows the total, there is no cycle picker."
-msgstr ""
-
 #. translators: %s: tier keys that still have live checkouts or covering members.
-#: src/Domain/Membership/MembershipModule.php:245
+#: src/Domain/Membership/MembershipModule.php:239
 #: src/Domain/Payment/PaymentModule.php:297
 #, php-format
 msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."

@@ -73,6 +73,8 @@ final class MembershipController
             'args' => [
                 'tierKey' => ['type' => 'string', 'required' => true, 'maxLength' => 32],
                 'channel' => ['type' => 'string', 'required' => true, 'enum' => ['alipay', 'wxpay', 'usdt']],
+                // The buyer's cycle count; validated in the handler (default 1).
+                'cycles' => ['type' => 'integer', 'required' => false, 'minimum' => 1],
                 'returnUrl' => ['type' => 'string', 'maxLength' => 500],
             ],
         ]);
@@ -123,10 +125,10 @@ final class MembershipController
         }
 
         // The single bound tier owns the Afdian channel: the requested
-        // tier must be it. The tier still decides the cycle count (there
-        // is no front-end picker): the deep link only pre-selects it on
-        // the platform page — the webhook's queried order settles the
-        // reality (id, cycles, amount).
+        // tier must be it. The deep link pre-selects one cycle — the
+        // front end carries its own picker and the purchase's real
+        // cycles validate at order time (the webhook's queried order
+        // settles the reality: id, cycles, amount).
         $tier = MembershipSettings::tierByKey(
             MembershipSettings::read()['tiers'],
             sanitize_key((string) $request->get_param('tierKey'))
@@ -140,10 +142,9 @@ final class MembershipController
         if (!(bool) ($tier['enabled'] ?? true)) {
             return new WP_Error('aiya_tier_disabled', __('This membership tier is not available.', 'aiya-core'), ['status' => 410]);
         }
-        $cycles = (int) $tier['cycles'];
 
         $userId = (int) get_current_user_id();
-        $url = $gateway->orderUrl($userId, $cycles);
+        $url = $gateway->orderUrl($userId);
         if ($url === '') {
             return new WP_Error('aiya_plan_unbound', __('The Afdian plan/tier pairing is not configured.', 'aiya-core'), ['status' => 422]);
         }
@@ -194,9 +195,15 @@ final class MembershipController
         if ($tier === null) {
             return new WP_Error('aiya_not_found', __('Unknown membership tier.', 'aiya-core'), ['status' => 404]);
         }
-        // The tier's own configuration decides the cycle count (and with it
-        // the total price); the buyer picks nothing but the payment channel.
-        $cycles = (int) $tier['cycles'];
+        // The cycle count is the buyer's call now: the request carries it
+        // (default 1), and THIS is the final validation — a positive whole
+        // number, clamped to the 12-purchase ceiling. The tier's price and
+        // identity still come from the settings row.
+        $cyclesRaw = $request->get_param('cycles');
+        $cycles = $cyclesRaw === null ? 1 : (int) $cyclesRaw;
+        if ($cycles < 1 || $cycles > 12 || (string) (int) $cyclesRaw !== (string) $cyclesRaw) {
+            return new WP_Error('aiya_invalid_cycles', __('Cycles must be a whole number between 1 and 12.', 'aiya-core'), ['status' => 400]);
+        }
         // The purchase list hides disabled tiers client-side; the gate has
         // to hold server-side too, or a hand-crafted POST buys one anyway.
         if (!(bool) ($tier['enabled'] ?? true)) {

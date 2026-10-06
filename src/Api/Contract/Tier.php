@@ -20,8 +20,6 @@ final class Tier
         public readonly int $cycleDays,
         public readonly int $creditsPerCycle,
         public readonly bool $enabled,
-        /** Fixed cycle count of one purchase of this tier (no front-end picker). */
-        public readonly int $cycles = 1,
         public readonly string $description = '',
     ) {
     }
@@ -36,7 +34,6 @@ final class Tier
             'cycleDays' => $this->cycleDays,
             'creditsPerCycle' => $this->creditsPerCycle,
             'enabled' => $this->enabled,
-            'cycles' => $this->cycles,
             'description' => $this->description,
         ];
     }

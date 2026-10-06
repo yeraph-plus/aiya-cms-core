@@ -1814,6 +1814,9 @@ msgstr "没有可用的支付网关。"
 msgid "The requested payment channel is not available."
 msgstr "所请求的支付渠道不可用。"
 
+msgid "Cycles must be a whole number between 1 and 12."
+msgstr "购买周期必须为 1 到 12 之间的整数"
+
 msgid "The return URL is not a valid absolute http(s) address."
 msgstr "回跳地址不是有效的绝对 http(s) 地址。"
 
@@ -2194,9 +2197,6 @@ msgstr "积分有效期（天）"
 
 msgid "How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires."
 msgstr "签到发放的积分可使用的时长。积分是成本计量，不是存款——每笔发放都会过期。"
-
-msgid "Spend waiver"
-msgstr "消费免扣"
 
 msgid "Waived holder level"
 msgstr "免扣用户级别"
@@ -2752,6 +2752,12 @@ msgstr "停用的档位不出现在购买列表；已有持有者的会员不受
 msgid "Key"
 msgstr "键名"
 
+msgid "Stable identifier the gateways and codes resolve purchases by — lowercase letters, digits, dashes or underscores, fixed once purchases reference it."
+msgstr "网关与兑换码解析购买所用的稳定标识——小写字母、数字、短横线或下划线，一旦有购买引用即不可更改"
+
+msgid "The plan-card title buyers see."
+msgstr "买家在档位卡上看到的标题"
+
 msgid "One-liner shown on the plan card (what the tier includes)."
 msgstr "展示在档位卡片上的一句话说明（包含什么权益）。"
 
@@ -2772,12 +2778,6 @@ msgstr "每周期积分"
 
 msgid "Credit bucket granted at each cycle start."
 msgstr "每个周期开始时发放的积分桶。"
-
-msgid "Cycles per purchase"
-msgstr "每次购买的周期数"
-
-msgid "One purchase of this tier always queues this many cycles; the front end shows the total, there is no cycle picker."
-msgstr "购买该档位一次即入队这么多周期；前台只展示总数，不再提供周期选择。"
 
 msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
 msgstr "以下档位仍有生效成员或进行中的订单，无法删除：%s。"

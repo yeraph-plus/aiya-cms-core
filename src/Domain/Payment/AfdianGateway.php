@@ -21,7 +21,7 @@ use Aiya\Infra\PaymentAfdian\Gateway;
 final class AfdianGateway implements PaymentGateway
 {
     /**
-     * @param array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}|null $boundTier the tier every Afdian order activates; null leaves the channel unoffered
+     * @param array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int}|null $boundTier the tier every Afdian order activates; null leaves the channel unoffered
      */
     public function __construct(
         private Client $client,
@@ -143,7 +143,7 @@ final class AfdianGateway implements PaymentGateway
      * The tier every Afdian order activates; null while the plan/tier
      * pairing is unconfigured (the channel stays unoffered).
      *
-     * @return array{key:string, name:string, description:string, price:float, cycleDays:int, creditsPerCycle:int, cycles:int}|null
+     * @return array{key:string, name:string, description:string, price:float, cycleDays:int, creditsPerCycle:int}|null
      */
     public function boundTier(): ?array
     {

@@ -20,7 +20,7 @@ use Aiya\Core\Api\Contract\TiersPayload;
 final class MembershipPresenter
 {
     /**
-     * @param list<array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,enabled:bool,cycles:int}> $tierRows
+     * @param list<array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,enabled:bool}> $tierRows
      * @param list<string> $methods
      * @return array<string, mixed>
      */
@@ -35,7 +35,6 @@ final class MembershipPresenter
                 (int) $row['cycleDays'],
                 (int) $row['creditsPerCycle'],
                 (bool) ($row['enabled'] ?? true),
-                max(1, (int) ($row['cycles'] ?? 1)),
                 (string) ($row['description'] ?? '')
             );
         }
