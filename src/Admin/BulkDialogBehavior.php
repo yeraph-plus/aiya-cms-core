@@ -7,14 +7,20 @@ namespace Aiya\Core\Admin;
 /**
  * Shared client behavior for the bulk-action dialogs on the list screens
  * (post type switching, term taxonomy moving): intercepting the list
- * form's submit when the configured bulk action is picked, opening a
- * native jQuery UI dialog to collect the target choice, and injecting it
- * as a hidden field before the form travels on. Everything screen
- * -specific — form selector, checkbox name, dialog id, texts — arrives
- * in the JSON config `c`, so one script serves both modules.
+ * form's submit when the configured bulk action is picked, opening the
+ * Ui kit's modal shell (initialized by ModalView — this script never
+ * touches the dialog widget's options) to collect the target choice, and
+ * injecting it as a hidden field before the form travels on. Everything
+ * screen-specific — form selector, checkbox name, dialog id, texts —
+ * arrives in the JSON config `c`, so one script serves both modules;
+ * the shell itself (title, radios, buttons) renders server-side through
+ * Ui::modal, with the cancel riding the kit's data-aiya-modal-close.
  *
  * The binding waits for DOM ready on purpose: the dialog markup prints
- * in admin_footer-{suffix}, which fires AFTER the footer scripts run.
+ * in admin_footer-{suffix} (core's admin-footer.php runs that hook
+ * after the footer scripts print), and DOM ready waits for the full
+ * document — by the time the bindings attach, the shell is in the DOM
+ * and the kit's boot scan has dialog-initialized it.
  */
 final class BulkDialogBehavior
 {
@@ -39,32 +45,16 @@ function actionValue() {
     return (top && top.value === c.action) || (bottom && bottom.value === c.action) ? c.action : '';
 }
 
-var $dialog = $(dialog).dialog({
-    title: c.title,
-    modal: true,
-    autoOpen: false,
-    closeOnEscape: true,
-    width: 380,
-    buttons: {}
-});
-
-function close() { $dialog.dialog('close'); }
-
-function apply() {
+$(dialog).on('click', '[data-aiya-dialog-apply]', function () {
     var target = $(dialog).find('input[type="radio"]:checked').val();
     if (!target) { return; }
     form.append($('<input>', { type: 'hidden', name: c.targetParam, value: target }));
-    close();
+    $(dialog).dialog('close');
     form.get(0).submit();
-}
-
-$dialog.dialog('option', 'buttons', [
-    { text: c.cancel, class: 'button button-secondary', click: close },
-    { text: c.confirm, class: 'button button-primary button-ok', click: apply }
-]);
+});
 
 $(dialog).on('change', 'input[type="radio"]', function () {
-    $(dialog).find('.button-ok').prop('disabled', !this.value);
+    $(dialog).find('[data-aiya-dialog-apply]').prop('disabled', !this.value);
 });
 
 form.on('submit', function (event) {
@@ -74,7 +64,7 @@ form.on('submit', function (event) {
     event.preventDefault();
     $(dialog).find('.count-line').text((count === 1 ? c.countOne : c.countOther).replace('%d', count));
     $(dialog).find('input[type="radio"]').prop('checked', false).trigger('change');
-    $dialog.dialog('open');
+    $(dialog).dialog('open');
 });
 });
 JS;

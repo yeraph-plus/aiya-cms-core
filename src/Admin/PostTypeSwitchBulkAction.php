@@ -63,14 +63,10 @@ final class PostTypeSwitchBulkAction implements Module
             return;
         }
 
-        wp_enqueue_script('jquery-ui-dialog');
-        wp_enqueue_style('wp-jquery-ui-dialog');
-
-        $labels = [
-            'post' => __('Posts', 'aiya-core'),
-            'page' => __('Pages', 'aiya-core'),
-            'resource' => __('Resources', 'aiya-core'),
-        ];
+        // The shell is the kit's modal part: ModalView owns the dialog
+        // widget, this module only rides the submit round trip.
+        Ui::enqueue();
+        Ui::modalAssets();
 
         $config = [
             'form' => 'form#posts-filter',
@@ -78,26 +74,22 @@ final class PostTypeSwitchBulkAction implements Module
             'action' => self::ACTION,
             'targetParam' => self::PARAM_TARGET,
             'dialogId' => self::DIALOG_ID,
-            'title' => __('Switch post type', 'aiya-core'),
-            'confirm' => __('Move', 'aiya-core'),
-            'cancel' => __('Cancel', 'aiya-core'),
             // The count line the dialog opens with; %d is filled client-side.
             // _n() renders each half of the singular/plural pair for JS.
             // translators: %d: number of selected items
             'countOne' => _n('Move %d selected item to:', 'Move %d selected items to:', 1, 'aiya-core'),
             // translators: %d: number of selected items
             'countOther' => _n('Move %d selected item to:', 'Move %d selected items to:', 2, 'aiya-core'),
-            'labels' => $labels,
         ];
 
         wp_add_inline_script(
-            'jquery-ui-dialog',
+            'aiya-core-admin',
             '(function(c){' . BulkDialogBehavior::script() . '})(' . wp_json_encode($config) . ');',
             'after'
         );
     }
 
-    /** The hidden dialog markup, printed in the edit.php footer. */
+    /** The hidden dialog shell, printed in the edit.php footer. */
     public function renderDialog(): void
     {
         $screen = function_exists('get_current_screen') ? get_current_screen() : null;
@@ -111,11 +103,10 @@ final class PostTypeSwitchBulkAction implements Module
             'resource' => __('Resources', 'aiya-core'),
         ];
         $current = (string) $screen->post_type;
-        ?>
-        <div id="<?php echo esc_attr(self::DIALOG_ID); ?>" style="display:none;">
-            <p class="count-line" style="margin:0 0 14px;font-size:14px;"></p>
-            <?php foreach ($labels as $name => $label) : ?>
-                <?php
+
+        Ui::modal(self::DIALOG_ID, __('Switch post type', 'aiya-core'), function () use ($labels, $current): void {
+            echo '<p class="count-line" style="margin:0 0 14px;font-size:14px;"></p>';
+            foreach ($labels as $name => $label) {
                 if ($name === $current) {
                     continue;
                 }
@@ -126,9 +117,13 @@ final class PostTypeSwitchBulkAction implements Module
                         <?php echo esc_html($label); ?>
                     </label>
                 </p>
-            <?php endforeach; ?>
-        </div>
-        <?php
+                <?php
+            }
+            echo '<p style="margin:16px 0 0;">';
+            echo '<button type="button" class="button" data-aiya-modal-close>' . esc_html__('Cancel', 'aiya-core') . '</button> ';
+            echo '<button type="button" class="button button-primary" data-aiya-dialog-apply disabled>' . esc_html__('Move', 'aiya-core') . '</button>';
+            echo '</p>';
+        }, ['width' => 380]);
     }
 
     /**

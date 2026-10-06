@@ -63,8 +63,10 @@ final class TermMoveBulkAction implements Module
             return;
         }
 
-        wp_enqueue_script('jquery-ui-dialog');
-        wp_enqueue_style('wp-jquery-ui-dialog');
+        // The shell is the kit's modal part: ModalView owns the dialog
+        // widget, this module only rides the submit round trip.
+        Ui::enqueue();
+        Ui::modalAssets();
 
         $config = [
             'form' => 'form#posts-filter',
@@ -72,18 +74,14 @@ final class TermMoveBulkAction implements Module
             'action' => self::ACTION,
             'targetParam' => self::PARAM_TARGET,
             'dialogId' => self::DIALOG_ID,
-            'title' => __('Move to another taxonomy', 'aiya-core'),
-            'confirm' => __('Move', 'aiya-core'),
-            'cancel' => __('Cancel', 'aiya-core'),
             // translators: %d: number of selected terms
             'countOne' => _n('Move %d selected term to:', 'Move %d selected terms to:', 1, 'aiya-core'),
             // translators: %d: number of selected terms
             'countOther' => _n('Move %d selected term to:', 'Move %d selected terms to:', 2, 'aiya-core'),
-            'labels' => self::labels(),
         ];
 
         wp_add_inline_script(
-            'jquery-ui-dialog',
+            'aiya-core-admin',
             '(function(c){' . BulkDialogBehavior::script() . '})(' . wp_json_encode($config) . ');',
             'after'
         );
@@ -118,19 +116,24 @@ final class TermMoveBulkAction implements Module
 
         $labels = self::labels();
         $current = (string) $screen->taxonomy;
-        ?>
-        <div id="<?php echo esc_attr(self::DIALOG_ID); ?>" style="display:none;">
-            <p class="count-line" style="margin:0 0 14px;font-size:14px;"></p>
-            <?php foreach (TermTaxonomyMover::targetOptions($current) as $taxonomy) : ?>
+
+        Ui::modal(self::DIALOG_ID, __('Move to another taxonomy', 'aiya-core'), function () use ($labels, $current): void {
+            echo '<p class="count-line" style="margin:0 0 14px;font-size:14px;"></p>';
+            foreach (TermTaxonomyMover::targetOptions($current) as $taxonomy) {
+                ?>
                 <p style="margin:10px 0;font-size:14px;">
                     <label>
                         <input type="radio" name="<?php echo esc_attr(self::PARAM_TARGET); ?>" value="<?php echo esc_attr($taxonomy); ?>">
                         <?php echo esc_html($labels[$taxonomy] ?? $taxonomy); ?>
                     </label>
                 </p>
-            <?php endforeach; ?>
-        </div>
-        <?php
+                <?php
+            }
+            echo '<p style="margin:16px 0 0;">';
+            echo '<button type="button" class="button" data-aiya-modal-close>' . esc_html__('Cancel', 'aiya-core') . '</button> ';
+            echo '<button type="button" class="button button-primary" data-aiya-dialog-apply disabled>' . esc_html__('Move', 'aiya-core') . '</button>';
+            echo '</p>';
+        }, ['width' => 380]);
     }
 
     /**

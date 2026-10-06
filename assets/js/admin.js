@@ -543,5 +543,12 @@
         $('.aiya-core-settings, #your-profile, .aiya-core-fieldgroup, [data-aiya-ui]').each(function () {
             new SettingsView({ el: this });
         });
+        // Modals can live outside any root too — the list-screen bulk
+        // dialogs print in admin_footer, where no Ui root exists. The
+        // ready-guard keeps this pass idempotent with the root scans.
+        $('[data-aiya-modal]').not('[data-aiya-ready]').each(function () {
+            $(this).attr('data-aiya-ready', '1');
+            new ModalView({ el: this });
+        });
     });
 })(jQuery, _, Backbone, wp);
