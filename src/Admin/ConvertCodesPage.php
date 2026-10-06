@@ -80,6 +80,7 @@ final class ConvertCodesPage implements Module
             'deleted' => [__('Code deleted.', 'aiya-core'), 'success'],
             'failed' => [__('The operation failed — check the values and try again.', 'aiya-core'), 'error'],
         ]);
+        $this->freshBatchCard();
 
         $open = sanitize_key((string) ($_GET['aiya_note'] ?? '')) === 'failed'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash state
         $this->creditCard($open);
@@ -178,6 +179,39 @@ final class ConvertCodesPage implements Module
         // One danger shell serves the delete-all and the per-row forms.
         Ui::confirmModal('aiya-code-delete-confirm', '');
         Ui::pageFoot();
+    }
+
+    /**
+     * The one-shot echo of the batch this operator just generated: a
+     * readonly textarea (one code per line) plus a copy-everything button
+     * for handing the batch out. The stash is burned on read — a refresh
+     * shows the plain list, the codes live on in the stored list.
+     */
+    private function freshBatchCard(): void
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash state
+        if (sanitize_key((string) ($_GET['aiya_note'] ?? '')) !== 'generated') {
+            return;
+        }
+        $userId = (int) get_current_user_id();
+        $codes = get_transient('aiya_codes_batch_' . $userId);
+        if (!is_array($codes) || $codes === []) {
+            return;
+        }
+        delete_transient('aiya_codes_batch_' . $userId);
+
+        $joined = implode("\n", array_map('strval', $codes));
+        Ui::staticCard(sprintf(
+            /* translators: %s: number of freshly generated codes. */
+            __('Fresh codes (%s)', 'aiya-core'),
+            number_format_i18n(count($codes))
+        ), static function () use ($joined, $codes): void {
+            ?>
+            <textarea readonly class="large-text code" rows="<?php echo esc_attr((string) max(3, min(count($codes), 12))); ?>"
+                aria-label="<?php esc_attr_e('Fresh codes', 'aiya-core'); ?>"><?php echo esc_textarea($joined); ?></textarea>
+            <p><?php Ui::copyText($joined, __('Copy all', 'aiya-core')); ?></p>
+            <?php
+        });
     }
 
     /** The single-shot credit variant: amount and bucket validity. */
@@ -282,9 +316,10 @@ final class ConvertCodesPage implements Module
             if ($quantity < 1 || $quantity > 200 || $amountRaw === '' || $daysRaw === '' || $amount < 1 || $amount > 100000 || $days < 1 || $days > 3650) {
                 Ui::redirect(self::pageUrl(), ['aiya_note' => 'failed']);
             }
-            $stored = $this->codes->generateCredits($quantity, $amount, $days);
+            $codes = $this->codes->generateCredits($quantity, $amount, $days);
 
-            Ui::redirect(self::pageUrl(), ['aiya_note' => $stored > 0 ? 'generated' : 'failed']);
+            $this->stashBatch($codes);
+            Ui::redirect(self::pageUrl(), ['aiya_note' => $codes !== [] ? 'generated' : 'failed']);
         }
 
         $tierKey = sanitize_key((string) ($_POST['tier_key'] ?? ''));
@@ -302,8 +337,23 @@ final class ConvertCodesPage implements Module
             Ui::redirect(self::pageUrl(), ['aiya_note' => 'failed']);
         }
 
-        $stored = $this->codes->generate($quantity, $tierKey, $cycles);
-        Ui::redirect(self::pageUrl(), ['aiya_note' => $stored > 0 ? 'generated' : 'failed']);
+        $codes = $this->codes->generate($quantity, $tierKey, $cycles);
+        $this->stashBatch($codes);
+        Ui::redirect(self::pageUrl(), ['aiya_note' => $codes !== [] ? 'generated' : 'failed']);
+    }
+
+    /**
+     * The fresh batch rides a per-user transient to the redirect target —
+     * the rendered page picks it up once and burns it, so a later refresh
+     * shows the plain list instead of a stale batch.
+     *
+     * @param list<string> $codes
+     */
+    private function stashBatch(array $codes): void
+    {
+        if ($codes !== []) {
+            set_transient('aiya_codes_batch_' . get_current_user_id(), $codes, 10 * MINUTE_IN_SECONDS);
+        }
     }
 
     public function handleDeleteAll(): void

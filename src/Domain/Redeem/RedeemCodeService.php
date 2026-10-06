@@ -161,16 +161,17 @@ final class RedeemCodeService
     }
 
     /**
-     * Batch-generates membership codes and returns the count actually
-     * stored.
+     * Batch-generates membership codes.
+     *
+     * @return list<string> the stored codes, in generation order
      */
-    public function generate(int $quantity, string $tierKey, int $cycles): int
+    public function generate(int $quantity, string $tierKey, int $cycles): array
     {
         $quantity = max(1, min(self::MAX_GENERATE, $quantity));
         $tierKey = sanitize_key($tierKey);
         $cycles = max(1, $cycles);
         if ($tierKey === '') {
-            return 0;
+            return [];
         }
 
         return $this->store($quantity, [
@@ -184,9 +185,9 @@ final class RedeemCodeService
      * Batch-generates single-shot credit codes: redeeming grants the
      * amount straight to the holder's balance inside the validity window.
      *
-     * @return int the count actually stored
+     * @return list<string> the stored codes, in generation order
      */
-    public function generateCredits(int $quantity, int $amount, int $days): int
+    public function generateCredits(int $quantity, int $amount, int $days): array
     {
         $quantity = max(1, min(self::MAX_GENERATE, $quantity));
         $amount = max(1, min(100000, $amount));
@@ -203,14 +204,15 @@ final class RedeemCodeService
      * Inserts one code per iteration with the kind's payload fields.
      *
      * @param array<string, string|int> $payload
-     * @param list<string> $formats
+     * @param list<string>               $formats
+     * @return list<string> the codes that actually stored
      */
-    private function store(int $quantity, array $payload, array $formats): int
+    private function store(int $quantity, array $payload, array $formats): array
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
         $table = $this->table();
-        $stored = 0;
+        $stored = [];
 
         for ($i = 0; $i < $quantity; $i++) {
             $code = strtoupper(wp_generate_password(self::CODE_LENGTH, false, false));
@@ -221,7 +223,7 @@ final class RedeemCodeService
             );
 
             if ($inserted !== false) {
-                ++$stored;
+                $stored[] = $code;
             }
         }
 

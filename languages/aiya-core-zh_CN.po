@@ -111,6 +111,15 @@ msgstr "删除"
 msgid "No codes stored."
 msgstr "尚无兑换码。"
 
+msgid "Fresh codes (%s)"
+msgstr "新生成的兑换码（%s）"
+
+msgid "Fresh codes"
+msgstr "新生成的兑换码"
+
+msgid "Copy all"
+msgstr "全部复制"
+
 msgid "Generate credit codes"
 msgstr "生成积分码"
 

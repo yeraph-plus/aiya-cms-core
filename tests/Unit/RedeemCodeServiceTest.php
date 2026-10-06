@@ -159,9 +159,12 @@ final class RedeemCodeServiceTest extends TestCase
     public function testGenerateStoresTheClampedQuantity(): void
     {
         $stored = $this->service()->generate(150, 'gold', 3);
-        self::assertSame(100, $stored, 'the batch cap holds');
+        self::assertCount(100, $stored, 'the batch cap holds');
         self::assertCount(102, $this->db->rows['wp_aiya_redeem_codes'], 'two seeded codes plus one hundred fresh ones');
+        foreach ($stored as $code) {
+            self::assertSame(16, strlen($code), 'each stored code rides back in the return list');
+        }
 
-        self::assertSame(0, $this->service()->generate(5, '', 1), 'a blank tier stores nothing');
+        self::assertSame([], $this->service()->generate(5, '', 1), 'a blank tier stores nothing');
     }
 }
