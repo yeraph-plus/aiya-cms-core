@@ -40,8 +40,8 @@ final class RedeemCodeServiceTest extends TestCase
         // One printed code for the gold tier; the tier-less one loses its
         // product when the setting drops the tier.
         $this->db->rows['wp_aiya_redeem_codes'] = [
-            ['id' => 1, 'code' => 'GOLDCODE12345678', 'tier_key' => 'gold', 'cycles' => 2, 'status' => 0, 'user_id' => null, 'used_to' => null, 'created_at' => '2026-10-01 00:00:00'],
-            ['id' => 2, 'code' => 'GHOSTCODE1234567', 'tier_key' => 'vanished', 'cycles' => 1, 'status' => 0, 'user_id' => null, 'used_to' => null, 'created_at' => '2026-10-01 00:00:00'],
+            ['id' => 1, 'code' => 'GOLDCODE12345678', 'kind' => 'tier', 'tier_key' => 'gold', 'cycles' => 2, 'credit_amount' => 0, 'credit_days' => 0, 'status' => 0, 'user_id' => null, 'used_to' => null, 'created_at' => '2026-10-01 00:00:00'],
+            ['id' => 2, 'code' => 'GHOSTCODE1234567', 'kind' => 'tier', 'tier_key' => 'vanished', 'cycles' => 1, 'credit_amount' => 0, 'credit_days' => 0, 'status' => 0, 'user_id' => null, 'used_to' => null, 'created_at' => '2026-10-01 00:00:00'],
         ];
     }
 
@@ -54,6 +54,43 @@ final class RedeemCodeServiceTest extends TestCase
     private function service(): RedeemCodeService
     {
         return new RedeemCodeService(new EntitlementService());
+    }
+
+    /** A printed credit code: the redemption grants the balance directly. */
+    public function testCreditCodeRedeemsIntoTheHolderBalance(): void
+    {
+        $this->db->rows['wp_aiya_redeem_codes'][2] = [
+            'id' => 3, 'code' => 'CREDITCODE123456', 'kind' => 'credit', 'tier_key' => '', 'cycles' => 0,
+            'credit_amount' => 100, 'credit_days' => 90, 'status' => 0, 'user_id' => null, 'used_to' => null,
+            'created_at' => '2026-10-01 00:00:00',
+        ];
+
+        $result = $this->service()->redeem('CREDITCODE123456', 7);
+
+        self::assertNotInstanceOf(WP_Error::class, $result);
+        self::assertSame('credit', $result['kind']);
+        self::assertSame(100, $result['granted']);
+        self::assertSame(90 * DAY_IN_SECONDS, $result['expiresAt'] - time(), 'the bucket lives the coded validity');
+
+        $row = $this->db->rows['wp_aiya_redeem_codes'][2];
+        self::assertSame(1, (int) $row['status']);
+        self::assertSame(7, (int) $row['user_id']);
+    }
+
+    /** A credit code whose payload mangled answers invalid, unconsumed. */
+    public function testCreditCodeWithMangledPayloadAnswersInvalid(): void
+    {
+        $this->db->rows['wp_aiya_redeem_codes'][2] = [
+            'id' => 3, 'code' => 'BROKENCODE1234567', 'kind' => 'credit', 'tier_key' => '', 'cycles' => 0,
+            'credit_amount' => 0, 'credit_days' => 0, 'status' => 0, 'user_id' => null, 'used_to' => null,
+            'created_at' => '2026-10-01 00:00:00',
+        ];
+
+        $result = $this->service()->redeem('BROKENCODE1234567', 7);
+
+        self::assertInstanceOf(WP_Error::class, $result);
+        self::assertSame('aiya_code_invalid', $result->get_error_code());
+        self::assertSame(0, (int) $this->db->rows['wp_aiya_redeem_codes'][2]['status'], 'nothing was consumed');
     }
 
     public function testRedeemClaimsActivatesAndAnswersTheTier(): void

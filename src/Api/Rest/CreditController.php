@@ -150,9 +150,20 @@ final class CreditController
             return $result;
         }
 
+        if (($result['kind'] ?? '') === 'credit') {
+            // Single-shot credit codes: the redemption IS the grant — the
+            // check-in answer shape (amount, balance after, bucket expiry).
+            return new WP_REST_Response((new CreditGrant(
+                $result['granted'],
+                $result['balance'],
+                (string) wp_date('c', $result['expiresAt'])
+            ))->toArray());
+        }
+
         // Membership codes queue the tier entitlement — credits follow
         // the regular cycle grants, so the response names the purchase,
         // not a balance.
+        /** @var array{kind:'tier', tierKey:string, tierName:string, cycles:int} $result */
         return new WP_REST_Response((new MembershipCodeGrant(
             $result['tierKey'],
             $result['tierName'],

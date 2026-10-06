@@ -75,11 +75,8 @@ msgstr "全部删除"
 msgid "Code"
 msgstr "兑换码"
 
-msgid "Tier"
-msgstr "档位"
-
-msgid "Cycles"
-msgstr "周期数"
+msgid "Contents"
+msgstr "内容"
 
 msgid "Status"
 msgstr "状态"
@@ -95,6 +92,9 @@ msgstr "创建时间"
 
 msgid "Actions"
 msgstr "操作"
+
+msgid "Credits ×%1$d · %2$d days"
+msgstr "积分 ×%1$d · %2$d 天"
 
 msgid "Redeemed"
 msgstr "已兑换"
@@ -114,8 +114,20 @@ msgstr "尚无兑换码。"
 msgid "Generate codes"
 msgstr "生成兑换码"
 
-msgid "Quantity"
-msgstr "数量"
+msgid "Kind"
+msgstr "种类"
+
+msgid "Membership code"
+msgstr "会员码"
+
+msgid "Credit code"
+msgstr "积分码"
+
+msgid "Membership codes queue the tier like a paid order; credit codes grant the balance straight away."
+msgstr "会员码按支付订单入队档位；积分码直接发放余额"
+
+msgid "Tier"
+msgstr "档位"
 
 msgid "— define tiers first —"
 msgstr "—— 请先定义档位 ——"
@@ -123,8 +135,26 @@ msgstr "—— 请先定义档位 ——"
 msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
 msgstr "此码发放的会员商品；档位配置在兑换时快照。"
 
+msgid "Cycles"
+msgstr "周期数"
+
 msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
 msgstr "此码发放该档位的周期数（积分随后按周期发放）。"
+
+msgid "Amount"
+msgstr "数额"
+
+msgid "The balance the holder receives at redemption."
+msgstr "兑换时持有人收到的余额"
+
+msgid "Validity (days)"
+msgstr "有效期（天）"
+
+msgid "The granted bucket dies when this expires."
+msgstr "过期时该积分桶失效"
+
+msgid "Quantity"
+msgstr "数量"
 
 msgid "Generate"
 msgstr "生成"
@@ -194,12 +224,6 @@ msgstr "用户"
 
 msgid "Type a username or name…"
 msgstr "输入用户名或昵称…"
-
-msgid "Amount"
-msgstr "数额"
-
-msgid "Validity (days)"
-msgstr "有效期（天）"
 
 msgid "The bucket dies when this expires."
 msgstr "到期后该桶作废。"

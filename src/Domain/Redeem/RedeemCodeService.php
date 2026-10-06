@@ -6,6 +6,7 @@ namespace Aiya\Core\Domain\Redeem;
 
 use Aiya\Core\Domain\Membership\EntitlementService;
 use Aiya\Core\Domain\Membership\MembershipSettings;
+use Aiya\Core\Domain\Credit\LedgerService;
 use WP_Error;
 
 /**
@@ -22,15 +23,18 @@ final class RedeemCodeService
     private const MAX_GENERATE = 100;
     private const CODE_LENGTH = 16;
 
-    public function __construct(private EntitlementService $entitlements)
-    {
+    public function __construct(
+        private EntitlementService $entitlements,
+        private LedgerService $ledger = new LedgerService(),
+    ) {
     }
 
     /**
-     * Redeems a code for the user: atomic claim, membership activation,
-     * rollback when activation rejects the order id.
+     * Redeems a code for the user: atomic claim, then the kind's product
+     * — a membership activation for tier codes (rollback when it rejects
+     * the order id), a straight balance grant for credit codes.
      *
-     * @return array{tierKey:string, tierName:string, cycles:int}|WP_Error
+     * @return array{kind:'tier', tierKey:string, tierName:string, cycles:int}|array{kind:'credit', granted:int, balance:int, expiresAt:int}|WP_Error
      */
     public function redeem(string $code, int $userId): array|WP_Error
     {
@@ -47,7 +51,7 @@ final class RedeemCodeService
         $table = $this->table();
 
         $row = $wpdb->get_row($wpdb->prepare(
-            'SELECT code, tier_key, cycles, status, user_id FROM %i WHERE code = %s',
+            'SELECT code, kind, tier_key, cycles, credit_amount, credit_days, status, user_id FROM %i WHERE code = %s',
             $table,
             $code
         ));
@@ -61,11 +65,22 @@ final class RedeemCodeService
 
         $tierKey = (string) $row->tier_key;
         $cycles = (int) $row->cycles;
-        $tier = MembershipSettings::tierByKey(MembershipSettings::read()['tiers'], $tierKey);
-        if ($tierKey === '' || $cycles < 1 || $tier === null) {
-            // A code whose tier was deleted after printing cannot resolve
-            // its product any more.
-            return new WP_Error('aiya_code_invalid', __('Invalid redemption code.', 'aiya-core'), ['status' => 400]);
+        $isCredit = (string) $row->kind === 'credit';
+        $amount = (int) $row->credit_amount;
+        $days = (int) $row->credit_days;
+        if ($isCredit) {
+            if ($amount < 1 || $days < 1) {
+                // A mangled payload redeems nothing — refuse before the
+                // claim, the row stays unconsumed.
+                return new WP_Error('aiya_code_invalid', __('Invalid redemption code.', 'aiya-core'), ['status' => 400]);
+            }
+        } else {
+            $tier = MembershipSettings::tierByKey(MembershipSettings::read()['tiers'], $tierKey);
+            if ($tierKey === '' || $cycles < 1 || $tier === null) {
+                // A code whose tier was deleted after printing cannot
+                // resolve its product any more.
+                return new WP_Error('aiya_code_invalid', __('Invalid redemption code.', 'aiya-core'), ['status' => 400]);
+            }
         }
 
         $claimed = 0;
@@ -85,6 +100,43 @@ final class RedeemCodeService
             return new WP_Error('aiya_code_used', __('This code has already been redeemed.', 'aiya-core'), ['status' => 409]);
         }
 
+        if ($isCredit) {
+            // The single-shot credit variant: the grant IS the product.
+            // A failed grant gives the code back — nothing was consumed.
+            $expiresAt = time() + $days * DAY_IN_SECONDS;
+            $granted = $this->ledger->grant($userId, $amount, LedgerService::SOURCE_CODE, $code, $expiresAt);
+            if (is_wp_error($granted)) {
+                if ($granted->get_error_code() === 'aiya_credit_duplicate') {
+                    // The grant dedupe fired but the claim already went
+                    // through — treat the code as consumed and answer the
+                    // holder's numbers from the row itself.
+                    return [
+                        'kind' => 'credit',
+                        'granted' => $amount,
+                        'balance' => $this->ledger->balance($userId),
+                        'expiresAt' => $expiresAt,
+                    ];
+                }
+
+                $restored = $wpdb->update($table, ['status' => 0, 'user_id' => null, 'used_to' => null], ['code' => $code], ['%d', '%s', '%s'], ['%s']);
+                if ($restored === false) {
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+                        error_log('[aiya-core] Redeem rollback failed for code ' . $code . ' — the code is now unusable without manual repair.');
+                    }
+                }
+
+                return new WP_Error('aiya_code_activation_failed', __('The membership activation failed — the code was not consumed, try again.', 'aiya-core'), ['status' => 500]);
+            }
+
+            return [
+                'kind' => 'credit',
+                'granted' => $amount,
+                'balance' => $this->ledger->balance($userId),
+                'expiresAt' => $expiresAt,
+            ];
+        }
+
         $activated = $this->entitlements->activateFromPayment($userId, $code, $tier, $cycles);
         if (is_wp_error($activated)) {
             // Give the code back — nothing was consumed. A failed rollback
@@ -101,6 +153,7 @@ final class RedeemCodeService
         }
 
         return [
+            'kind' => 'tier',
             'tierKey' => $tier['key'],
             'tierName' => $tier['name'],
             'cycles' => $cycles,
@@ -108,7 +161,8 @@ final class RedeemCodeService
     }
 
     /**
-     * Batch-generates codes and returns the count actually stored.
+     * Batch-generates membership codes and returns the count actually
+     * stored.
      */
     public function generate(int $quantity, string $tierKey, int $cycles): int
     {
@@ -119,6 +173,40 @@ final class RedeemCodeService
             return 0;
         }
 
+        return $this->store($quantity, [
+            'kind' => 'tier',
+            'tier_key' => $tierKey,
+            'cycles' => $cycles,
+        ], ['%s', '%s', '%d']);
+    }
+
+    /**
+     * Batch-generates single-shot credit codes: redeeming grants the
+     * amount straight to the holder's balance inside the validity window.
+     *
+     * @return int the count actually stored
+     */
+    public function generateCredits(int $quantity, int $amount, int $days): int
+    {
+        $quantity = max(1, min(self::MAX_GENERATE, $quantity));
+        $amount = max(1, min(100000, $amount));
+        $days = max(1, min(3650, $days));
+
+        return $this->store($quantity, [
+            'kind' => 'credit',
+            'credit_amount' => $amount,
+            'credit_days' => $days,
+        ], ['%s', '%d', '%d']);
+    }
+
+    /**
+     * Inserts one code per iteration with the kind's payload fields.
+     *
+     * @param array<string, string|int> $payload
+     * @param list<string> $formats
+     */
+    private function store(int $quantity, array $payload, array $formats): int
+    {
         global $wpdb;
         /** @var \wpdb $wpdb */
         $table = $this->table();
@@ -128,14 +216,8 @@ final class RedeemCodeService
             $code = strtoupper(wp_generate_password(self::CODE_LENGTH, false, false));
             $inserted = $wpdb->insert(
                 $table,
-                [
-                    'code' => $code,
-                    'tier_key' => $tierKey,
-                    'cycles' => $cycles,
-                    'created_at' => current_time('mysql', true),
-                    'status' => 0,
-                ],
-                ['%s', '%s', '%d', '%s', '%d']
+                ['code' => $code, 'created_at' => current_time('mysql', true), 'status' => 0] + $payload,
+                ['%s', '%s', '%d'] + $formats
             );
 
             if ($inserted !== false) {
@@ -149,7 +231,7 @@ final class RedeemCodeService
     /**
      * Paged listing for the admin screen, newest first.
      *
-     * @return array{items: list<object{id:string|int,code:string,tier_key:string,cycles:string|int,status:string|int,user_id:string|int|null,used_to:string|null,created_at:string}>, total:int, pages:int}
+     * @return array{items: list<object{id:string|int,code:string,kind:string,tier_key:string,cycles:string|int,credit_amount:string|int,credit_days:string|int,status:string|int,user_id:string|int|null,used_to:string|null,created_at:string}>, total:int, pages:int}
      */
     public function page(int $paged, int $perPage = 20): array
     {
@@ -164,9 +246,9 @@ final class RedeemCodeService
 
         $items = [];
         if ($total > 0) {
-            /** @var list<object{id:string|int,code:string,tier_key:string,cycles:string|int,status:string|int,user_id:string|int|null,used_to:string|null,created_at:string}>|null $items */
+            /** @var list<object{id:string|int,code:string,kind:string,tier_key:string,cycles:string|int,credit_amount:string|int,credit_days:string|int,status:string|int,user_id:string|int|null,used_to:string|null,created_at:string}>|null $items */
             $items = $wpdb->get_results($wpdb->prepare(
-                'SELECT id, code, tier_key, cycles, status, user_id, used_to, created_at
+                'SELECT id, code, kind, tier_key, cycles, credit_amount, credit_days, status, user_id, used_to, created_at
                  FROM %i ORDER BY created_at DESC LIMIT %d OFFSET %d',
                 $table,
                 $perPage,
@@ -213,11 +295,14 @@ final class RedeemCodeService
             "CREATE TABLE $table (
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 code VARCHAR(64) NOT NULL,
+                kind VARCHAR(16) NOT NULL DEFAULT 'tier',
                 used_to DATETIME DEFAULT NULL,
                 created_at DATETIME NOT NULL,
                 user_id BIGINT UNSIGNED DEFAULT NULL,
                 tier_key VARCHAR(32) NOT NULL DEFAULT '',
                 cycles INT UNSIGNED NOT NULL DEFAULT 1,
+                credit_amount INT UNSIGNED NOT NULL DEFAULT 0,
+                credit_days INT UNSIGNED NOT NULL DEFAULT 0,
                 status TINYINT NOT NULL DEFAULT 0,
                 PRIMARY KEY  (id),
                 UNIQUE KEY code (code),

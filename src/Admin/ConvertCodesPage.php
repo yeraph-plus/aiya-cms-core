@@ -12,11 +12,12 @@ use Aiya\Core\Domain\Membership\MembershipSettings;
 
 /**
  * Redemption-code manager (submenu of the membership menu): batch-generate
- * membership codes (one tier × cycles each), browse and delete them.
- * Redeeming on the front end queues the purchase like any paid order —
- * the credits arrive through the per-cycle grant cron, never up front
- * (0.54.0 rewrite; the 0.49.0 credit-amount codes and their legacy prefix
- * field are retired).
+ * codes of two kinds — membership codes (one tier × cycles each, the
+ * redemption queues the purchase like any paid order) and single-shot
+ * credit codes (the redemption grants the balance straight away). Browse
+ * and delete them; the credits of membership codes arrive through the
+ * per-cycle grant cron, never up front (0.54.0 rewrite; the credit
+ * variant returned by the 2026-10-06 ruling).
  */
 final class ConvertCodesPage implements Module
 {
@@ -102,8 +103,7 @@ final class ConvertCodesPage implements Module
             [
                 'id' => ['label' => 'ID', 'width' => '56px'],
                 'code' => ['label' => __('Code', 'aiya-core'), 'width' => '260px'],
-                'tier' => ['label' => __('Tier', 'aiya-core'), 'width' => '130px'],
-                'cycles' => ['label' => __('Cycles', 'aiya-core'), 'width' => '90px'],
+                'contents' => ['label' => __('Contents', 'aiya-core'), 'width' => '190px'],
                 'status' => ['label' => __('Status', 'aiya-core'), 'width' => '110px'],
                 'holder' => ['label' => __('Redeemed by', 'aiya-core'), 'width' => '110px'],
                 'usedAt' => ['label' => __('Redeemed at', 'aiya-core'), 'width' => '150px'],
@@ -120,11 +120,20 @@ final class ConvertCodesPage implements Module
                         echo '<code>' . esc_html((string) $row->code) . '</code>';
                         Ui::copyText((string) $row->code);
                         break;
-                    case 'tier':
-                        echo esc_html((string) $row->tier_key);
-                        break;
-                    case 'cycles':
-                        echo esc_html((string) $row->cycles);
+                    case 'contents':
+                        if ((string) $row->kind === 'credit') {
+                            printf(
+                                '<strong>%s</strong>',
+                                esc_html(sprintf(
+                                    /* translators: 1: credit amount, 2: validity in days. */
+                                    __('Credits ×%1$d · %2$d days', 'aiya-core'),
+                                    (int) $row->credit_amount,
+                                    (int) $row->credit_days
+                                ))
+                            );
+                        } else {
+                            echo esc_html((string) $row->tier_key . ' × ' . (string) $row->cycles);
+                        }
                         break;
                     case 'status':
                         echo esc_html(((int) $row->status) === 1 ? __('Redeemed', 'aiya-core') : __('Unused', 'aiya-core'));
@@ -180,10 +189,16 @@ final class ConvertCodesPage implements Module
                 <?php wp_nonce_field(ConvertCodesPage::ACTION_GENERATE); ?>
                 <table class="form-table" role="presentation"><tbody>
                     <tr>
-                        <th scope="row"><label for="aiya-codes-quantity"><?php esc_html_e('Quantity', 'aiya-core'); ?></label></th>
-                        <td><input type="number" class="small-text" id="aiya-codes-quantity" name="quantity" min="1" max="100" value="1"></td>
+                        <th scope="row"><label for="aiya-codes-kind"><?php esc_html_e('Kind', 'aiya-core'); ?></label></th>
+                        <td>
+                            <select id="aiya-codes-kind" name="kind" data-aiya-codes-kind>
+                                <option value="tier"><?php esc_html_e('Membership code', 'aiya-core'); ?></option>
+                                <option value="credit"><?php esc_html_e('Credit code', 'aiya-core'); ?></option>
+                            </select>
+                            <p class="description"><?php esc_html_e('Membership codes queue the tier like a paid order; credit codes grant the balance straight away.', 'aiya-core'); ?></p>
+                        </td>
                     </tr>
-                    <tr>
+                    <tr data-aiya-codes-group="tier">
                         <th scope="row"><label for="aiya-codes-tier"><?php esc_html_e('Tier', 'aiya-core'); ?></label></th>
                         <td>
                             <select id="aiya-codes-tier" name="tier_key">
@@ -201,16 +216,45 @@ final class ConvertCodesPage implements Module
                             <p class="description"><?php esc_html_e('The membership product this code grants; the tier snapshot is taken at redemption time.', 'aiya-core'); ?></p>
                         </td>
                     </tr>
-                    <tr>
+                    <tr data-aiya-codes-group="tier">
                         <th scope="row"><label for="aiya-codes-cycles"><?php esc_html_e('Cycles', 'aiya-core'); ?></label></th>
                         <td>
                             <input type="number" class="small-text" id="aiya-codes-cycles" name="cycles" min="1" max="60" value="1">
                             <p class="description"><?php esc_html_e('How many cycles of the tier the code grants (credits follow the regular cycle grants).', 'aiya-core'); ?></p>
                         </td>
                     </tr>
+                    <tr data-aiya-codes-group="credit" hidden>
+                        <th scope="row"><label for="aiya-codes-amount"><?php esc_html_e('Amount', 'aiya-core'); ?></label></th>
+                        <td>
+                            <input type="number" class="small-text" id="aiya-codes-amount" name="credit_amount" min="1" max="100000" value="100">
+                            <p class="description"><?php esc_html_e('The balance the holder receives at redemption.', 'aiya-core'); ?></p>
+                        </td>
+                    </tr>
+                    <tr data-aiya-codes-group="credit" hidden>
+                        <th scope="row"><label for="aiya-codes-days"><?php esc_html_e('Validity (days)', 'aiya-core'); ?></label></th>
+                        <td>
+                            <input type="number" class="small-text" id="aiya-codes-days" name="credit_days" min="1" max="3650" value="365">
+                            <p class="description"><?php esc_html_e('The granted bucket dies when this expires.', 'aiya-core'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aiya-codes-quantity"><?php esc_html_e('Quantity', 'aiya-core'); ?></label></th>
+                        <td><input type="number" class="small-text" id="aiya-codes-quantity" name="quantity" min="1" max="100" value="1"></td>
+                    </tr>
                 </tbody></table>
                 <p><?php Ui::button(__('Generate', 'aiya-core'), ['type' => 'submit', 'variant' => 'button-primary']); ?></p>
             </form>
+            <script>
+                // Kind switch: the two payload groups trade visibility; the
+                // form posts both groups and the server validates per kind.
+                jQuery(function ($) {
+                    $('[data-aiya-codes-kind]').on('change', function () {
+                        $('[data-aiya-codes-group]').each(function () {
+                            this.hidden = $(this).attr('data-aiya-codes-group') !== this.form.elements.kind.value;
+                        });
+                    });
+                });
+            </script>
             <?php
         }, $open);
     }
@@ -223,6 +267,24 @@ final class ConvertCodesPage implements Module
         check_admin_referer(self::ACTION_GENERATE);
 
         $quantity = absint((string) ($_POST['quantity'] ?? '0'));
+        $kind = sanitize_key((string) ($_POST['kind'] ?? 'tier'));
+        $amountRaw = (string) ($_POST['credit_amount'] ?? '');
+        $daysRaw = (string) ($_POST['credit_days'] ?? '');
+
+        if ($kind === 'credit') {
+            // The single-shot credit variant: no tier coupling, the
+            // payload is the amount and the bucket's validity. An emptied
+            // field is an operator mistake, not a minimum.
+            $amount = absint($amountRaw);
+            $days = absint($daysRaw);
+            if ($quantity < 1 || $quantity > 200 || $amountRaw === '' || $daysRaw === '' || $amount < 1 || $amount > 100000 || $days < 1 || $days > 3650) {
+                Ui::redirect(self::pageUrl(), ['aiya_note' => 'failed']);
+            }
+            $stored = $this->codes->generateCredits($quantity, $amount, $days);
+
+            Ui::redirect(self::pageUrl(), ['aiya_note' => $stored > 0 ? 'generated' : 'failed']);
+        }
+
         $tierKey = sanitize_key((string) ($_POST['tier_key'] ?? ''));
         $cycles = absint((string) ($_POST['cycles'] ?? '0'));
 

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T01:21:57+00:00\n"
+"POT-Creation-Date: 2026-10-06T02:29:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -61,69 +61,61 @@ msgstr[1] ""
 msgid "No thumbnails were refreshed."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:47
 #: src/Admin/ConvertCodesPage.php:48
-#: src/Admin/ConvertCodesPage.php:73
+#: src/Admin/ConvertCodesPage.php:49
+#: src/Admin/ConvertCodesPage.php:74
 msgid "Redemption codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:65
-#: src/Admin/ConvertCodesPage.php:221
-#: src/Admin/ConvertCodesPage.php:248
-#: src/Admin/ConvertCodesPage.php:259
+#: src/Admin/ConvertCodesPage.php:66
+#: src/Admin/ConvertCodesPage.php:265
+#: src/Admin/ConvertCodesPage.php:310
+#: src/Admin/ConvertCodesPage.php:321
 msgid "You are not allowed to manage redemption codes."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:74
+#: src/Admin/ConvertCodesPage.php:75
 msgid "Membership gift codes users redeem themselves on the front end. Codes are single-use; redeeming queues the tier entitlement like a paid order and credits arrive per cycle."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:77
+#: src/Admin/ConvertCodesPage.php:78
 msgid "Codes generated."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:78
+#: src/Admin/ConvertCodesPage.php:79
 msgid "All codes deleted."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:79
+#: src/Admin/ConvertCodesPage.php:80
 msgid "Code deleted."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:80
+#: src/Admin/ConvertCodesPage.php:81
 #: src/Admin/NotificationPage.php:95
 msgid "The operation failed — check the values and try again."
 msgstr ""
 
 #. translators: %s: number of stored codes.
-#: src/Admin/ConvertCodesPage.php:87
+#: src/Admin/ConvertCodesPage.php:88
 #, php-format
 msgid "Stored codes (%s)"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:93
+#: src/Admin/ConvertCodesPage.php:94
 msgid "Delete ALL codes? This cannot be undone."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:96
+#: src/Admin/ConvertCodesPage.php:97
 #: src/Admin/UiSamplePage.php:66
 msgid "Delete all"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:104
+#: src/Admin/ConvertCodesPage.php:105
 msgid "Code"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:105
-#: src/Admin/ConvertCodesPage.php:187
-#: src/Admin/PaymentsAuditPage.php:137
-msgid "Tier"
-msgstr ""
-
 #: src/Admin/ConvertCodesPage.php:106
-#: src/Admin/ConvertCodesPage.php:205
-#: src/Admin/PaymentsAuditPage.php:139
-msgid "Cycles"
+msgid "Contents"
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:107
@@ -159,19 +151,25 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:130
+#. translators: 1: credit amount, 2: validity in days.
+#: src/Admin/ConvertCodesPage.php:129
+#, php-format
+msgid "Credits ×%1$d · %2$d days"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:139
 msgid "Redeemed"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:130
+#: src/Admin/ConvertCodesPage.php:139
 msgid "Unused"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:148
+#: src/Admin/ConvertCodesPage.php:157
 msgid "Delete this code?"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:152
+#: src/Admin/ConvertCodesPage.php:161
 #: src/Admin/CronsPage.php:200
 #: src/Admin/DiscussionModerationPage.php:207
 #: src/Admin/DiscussionModerationPage.php:740
@@ -180,31 +178,77 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:158
+#: src/Admin/ConvertCodesPage.php:167
 msgid "No codes stored."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:176
+#: src/Admin/ConvertCodesPage.php:185
 msgid "Generate codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:183
-msgid "Quantity"
+#: src/Admin/ConvertCodesPage.php:192
+msgid "Kind"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:192
+#: src/Admin/ConvertCodesPage.php:195
+msgid "Membership code"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:196
+msgid "Credit code"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:198
+msgid "Membership codes queue the tier like a paid order; credit codes grant the balance straight away."
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:202
+#: src/Admin/PaymentsAuditPage.php:137
+msgid "Tier"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:207
 msgid "— define tiers first —"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:201
+#: src/Admin/ConvertCodesPage.php:216
 msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:208
+#: src/Admin/ConvertCodesPage.php:220
+#: src/Admin/PaymentsAuditPage.php:139
+msgid "Cycles"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:223
 msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:212
+#: src/Admin/ConvertCodesPage.php:227
+#: src/Admin/CreditsPage.php:179
+#: src/Admin/CreditsPage.php:238
+#: src/Admin/PaymentsAuditPage.php:138
+msgid "Amount"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:230
+msgid "The balance the holder receives at redemption."
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:234
+#: src/Admin/CreditsPage.php:185
+msgid "Validity (days)"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:237
+msgid "The granted bucket dies when this expires."
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:241
+msgid "Quantity"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:245
 msgid "Generate"
 msgstr ""
 
@@ -322,16 +366,6 @@ msgstr ""
 #: src/Admin/CreditsPage.php:226
 #: src/Admin/PaymentsAuditPage.php:126
 msgid "Type a username or name…"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:179
-#: src/Admin/CreditsPage.php:238
-#: src/Admin/PaymentsAuditPage.php:138
-msgid "Amount"
-msgstr ""
-
-#: src/Admin/CreditsPage.php:185
-msgid "Validity (days)"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:188
@@ -4410,22 +4444,24 @@ msgstr ""
 msgid "Unpaid orders — abandoned checkouts — leave the payment log after 7 days; paid records are kept forever."
 msgstr ""
 
-#: src/Domain/Redeem/RedeemCodeService.php:39
-#: src/Domain/Redeem/RedeemCodeService.php:56
-#: src/Domain/Redeem/RedeemCodeService.php:68
+#: src/Domain/Redeem/RedeemCodeService.php:43
+#: src/Domain/Redeem/RedeemCodeService.php:60
+#: src/Domain/Redeem/RedeemCodeService.php:75
+#: src/Domain/Redeem/RedeemCodeService.php:82
 msgid "Invalid redemption code."
 msgstr ""
 
-#: src/Domain/Redeem/RedeemCodeService.php:42
+#: src/Domain/Redeem/RedeemCodeService.php:46
 msgid "The redeeming user does not exist."
 msgstr ""
 
-#: src/Domain/Redeem/RedeemCodeService.php:59
-#: src/Domain/Redeem/RedeemCodeService.php:85
+#: src/Domain/Redeem/RedeemCodeService.php:63
+#: src/Domain/Redeem/RedeemCodeService.php:100
 msgid "This code has already been redeemed."
 msgstr ""
 
-#: src/Domain/Redeem/RedeemCodeService.php:100
+#: src/Domain/Redeem/RedeemCodeService.php:129
+#: src/Domain/Redeem/RedeemCodeService.php:152
 msgid "The membership activation failed — the code was not consumed, try again."
 msgstr ""
 

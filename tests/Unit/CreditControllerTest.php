@@ -146,7 +146,7 @@ namespace Aiya\Core\Tests\Unit {
                 ],
             ]);
             $this->db->rows['wp_aiya_redeem_codes'] = [
-                ['id' => 1, 'code' => 'GOLDCODE12345678', 'tier_key' => 'gold', 'cycles' => 2, 'status' => 0, 'user_id' => null, 'used_to' => null, 'created_at' => '2026-10-01 00:00:00'],
+                ['id' => 1, 'code' => 'GOLDCODE12345678', 'kind' => 'tier', 'tier_key' => 'gold', 'cycles' => 2, 'credit_amount' => 0, 'credit_days' => 0, 'status' => 0, 'user_id' => null, 'used_to' => null, 'created_at' => '2026-10-01 00:00:00'],
             ];
         }
 
