@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T00:23:49+00:00\n"
+"POT-Creation-Date: 2026-10-06T00:53:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -86,7 +86,7 @@ msgid "All codes deleted."
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:71
-#: src/Admin/NotificationPage.php:98
+#: src/Admin/NotificationPage.php:95
 msgid "The operation failed — check the values and try again."
 msgstr ""
 
@@ -111,19 +111,19 @@ msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:95
 #: src/Admin/ConvertCodesPage.php:153
-#: src/Admin/PaymentsAuditPage.php:135
+#: src/Admin/PaymentsAuditPage.php:137
 msgid "Tier"
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:96
 #: src/Admin/ConvertCodesPage.php:171
-#: src/Admin/PaymentsAuditPage.php:137
+#: src/Admin/PaymentsAuditPage.php:139
 msgid "Cycles"
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:97
 #: src/Admin/DiscussionModerationPage.php:276
-#: src/Admin/PaymentsAuditPage.php:138
+#: src/Admin/PaymentsAuditPage.php:140
 #: src/Admin/UiSamplePage.php:116
 #: src/Admin/UiSamplePage.php:161
 msgid "Status"
@@ -138,7 +138,7 @@ msgid "Redeemed at"
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:100
-#: src/Admin/NotificationPage.php:111
+#: src/Admin/NotificationPage.php:108
 #: src/Admin/UiSamplePage.php:117
 #: src/Admin/UiSamplePage.php:162
 msgid "Created"
@@ -203,8 +203,8 @@ msgstr ""
 #: src/Admin/CoverMetabox.php:72
 #: src/Admin/DiscussionModerationPage.php:173
 #: src/Admin/DiscussionModerationPage.php:262
-#: src/Admin/NotificationPage.php:108
-#: src/Admin/NotificationPage.php:175
+#: src/Admin/NotificationPage.php:105
+#: src/Admin/NotificationPage.php:171
 #: src/Admin/UiSamplePage.php:115
 #: src/Admin/UiSamplePage.php:160
 #: src/Admin/UiSamplePage.php:285
@@ -251,28 +251,28 @@ msgstr ""
 msgid "Cover generated."
 msgstr ""
 
+#: src/Admin/CreditsPage.php:105
 #: src/Admin/CreditsPage.php:106
-#: src/Admin/CreditsPage.php:107
-#: src/Admin/CreditsPage.php:129
-#: src/Admin/CreditsPage.php:212
+#: src/Admin/CreditsPage.php:131
+#: src/Admin/CreditsPage.php:214
 msgid "Credit ledger"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:118
-#: src/Admin/CreditsPage.php:302
-#: src/Admin/CreditsPage.php:343
+#: src/Admin/CreditsPage.php:117
+#: src/Admin/CreditsPage.php:304
+#: src/Admin/CreditsPage.php:345
 msgid "You are not allowed to manage credits."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:130
+#: src/Admin/CreditsPage.php:132
 msgid "Cost-accounting ledger: grants create expiring buckets, spends burn them earliest-expiry first. Balance is derived from the ledger, never stored twice."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:135
+#: src/Admin/CreditsPage.php:137
 msgid "Credits granted."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:136
+#: src/Admin/CreditsPage.php:138
 #: src/Admin/DiscussionModerationPage.php:137
 #: src/Admin/DiscussionModerationPage.php:376
 #: src/Admin/DiscussionModerationPage.php:423
@@ -280,118 +280,118 @@ msgstr ""
 msgid "The operation failed."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:154
+#: src/Admin/CreditsPage.php:156
 msgid "Manual grant"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:161
-#: src/Admin/CreditsPage.php:233
-#: src/Admin/PaymentsAuditPage.php:133
+#: src/Admin/CreditsPage.php:163
+#: src/Admin/CreditsPage.php:235
+#: src/Admin/PaymentsAuditPage.php:135
 msgid "User"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:170
-#: src/Admin/CreditsPage.php:224
-#: src/Admin/PaymentsAuditPage.php:124
+#: src/Admin/CreditsPage.php:172
+#: src/Admin/CreditsPage.php:226
+#: src/Admin/PaymentsAuditPage.php:126
 msgid "Type a username or name…"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:177
-#: src/Admin/CreditsPage.php:236
-#: src/Admin/PaymentsAuditPage.php:136
+#: src/Admin/CreditsPage.php:179
+#: src/Admin/CreditsPage.php:238
+#: src/Admin/PaymentsAuditPage.php:138
 msgid "Amount"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:183
+#: src/Admin/CreditsPage.php:185
 msgid "Validity (days)"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:186
+#: src/Admin/CreditsPage.php:188
 msgid "The bucket dies when this expires."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:190
+#: src/Admin/CreditsPage.php:192
 msgid "Note"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:193
+#: src/Admin/CreditsPage.php:195
 msgid "Optional; recorded in the ledger reference."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:197
+#: src/Admin/CreditsPage.php:199
 msgid "Grant credits"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:216
+#: src/Admin/CreditsPage.php:218
 #: src/Admin/CronsPage.php:172
-#: src/Admin/PaymentsAuditPage.php:116
+#: src/Admin/PaymentsAuditPage.php:118
 #: src/Admin/PicBedPage.php:227
 #: src/Admin/RewritesPage.php:86
 #: src/Admin/ShortcodesPage.php:67
-#: src/Admin/Ui.php:646
+#: src/Admin/Ui.php:651
 #: src/Admin/UiSamplePage.php:58
 #: src/Admin/UiSamplePage.php:107
 msgid "Filter"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:232
-#: src/Admin/PaymentsAuditPage.php:132
+#: src/Admin/CreditsPage.php:234
+#: src/Admin/PaymentsAuditPage.php:134
 msgid "Time"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:234
+#: src/Admin/CreditsPage.php:236
 msgid "Direction"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:235
-#: src/Admin/PaymentsAuditPage.php:126
-#: src/Admin/PaymentsAuditPage.php:139
+#: src/Admin/CreditsPage.php:237
+#: src/Admin/PaymentsAuditPage.php:128
+#: src/Admin/PaymentsAuditPage.php:141
 msgid "Source"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:237
+#: src/Admin/CreditsPage.php:239
 msgid "Bucket left"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:238
+#: src/Admin/CreditsPage.php:240
 msgid "Expires"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:279
+#: src/Admin/CreditsPage.php:281
 #: src/Admin/OperationsPage.php:314
 #: src/Admin/OperationsPage.php:324
 #: src/Admin/UiSamplePage.php:246
 msgid "Expired"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:285
+#: src/Admin/CreditsPage.php:287
 msgid "No ledger entries for this user yet."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:286
+#: src/Admin/CreditsPage.php:288
 msgid "No ledger entries yet."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:308
+#: src/Admin/CreditsPage.php:310
 #: src/Api/Rest/IntegrationsController.php:151
 #: src/Domain/Credit/LedgerService.php:105
 #: src/Domain/Credit/LedgerService.php:186
 msgid "The credit holder does not exist."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:317
+#: src/Admin/CreditsPage.php:319
 msgid "Amount and validity are required."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:331
+#: src/Admin/CreditsPage.php:333
 msgid "An admin grant with this exact note already exists for this user."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:389
+#: src/Admin/CreditsPage.php:391
 msgid "Credits"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:435
+#: src/Admin/CreditsPage.php:437
 #: src/Admin/OperationsPage.php:383
 #: src/Admin/OperationsPage.php:403
 #: src/Admin/UiSamplePage.php:260
@@ -399,24 +399,24 @@ msgstr ""
 msgid "Check-in"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:436
+#: src/Admin/CreditsPage.php:438
 msgid "Redeem code"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:437
+#: src/Admin/CreditsPage.php:439
 #: src/Admin/OperationsPage.php:384
 #: src/Admin/OperationsPage.php:404
-#: src/Admin/PaymentsAuditPage.php:183
+#: src/Admin/PaymentsAuditPage.php:185
 #: src/Admin/UiSamplePage.php:261
 #: src/Domain/Membership/MembershipModule.php:80
 msgid "Membership"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:438
+#: src/Admin/CreditsPage.php:440
 msgid "Admin grant"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:439
+#: src/Admin/CreditsPage.php:441
 msgid "Download"
 msgstr ""
 
@@ -539,7 +539,7 @@ msgstr ""
 #: src/Admin/CronsPage.php:182
 #: src/Admin/DiscussionModerationPage.php:178
 #: src/Admin/DiscussionModerationPage.php:706
-#: src/Admin/NotificationPage.php:112
+#: src/Admin/NotificationPage.php:109
 #: src/Admin/PicBedPage.php:264
 #: src/Admin/UiSamplePage.php:285
 msgid "Actions"
@@ -561,8 +561,8 @@ msgstr ""
 #: src/Admin/CronsPage.php:200
 #: src/Admin/DiscussionModerationPage.php:207
 #: src/Admin/DiscussionModerationPage.php:740
-#: src/Admin/NotificationPage.php:145
-#: src/Admin/Ui.php:741
+#: src/Admin/NotificationPage.php:142
+#: src/Admin/Ui.php:746
 msgid "Delete"
 msgstr ""
 
@@ -638,7 +638,7 @@ msgid "Reopen selected"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:170
-#: src/Admin/NotificationPage.php:106
+#: src/Admin/NotificationPage.php:103
 #: src/Admin/UiSamplePage.php:158
 msgid "Delete selected"
 msgstr ""
@@ -648,7 +648,7 @@ msgid "Excerpt"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:175
-#: src/Admin/NotificationPage.php:259
+#: src/Admin/NotificationPage.php:255
 #: src/Domain/Content/ContentTypeModule.php:60
 msgid "Author"
 msgstr ""
@@ -684,8 +684,8 @@ msgid "Board"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:286
-#: src/Admin/NotificationPage.php:109
-#: src/Admin/NotificationPage.php:188
+#: src/Admin/NotificationPage.php:106
+#: src/Admin/NotificationPage.php:184
 msgid "Body"
 msgstr ""
 
@@ -704,7 +704,7 @@ msgstr ""
 #: src/Admin/PartsDialog.php:91
 #: src/Admin/PostTypeSwitchBulkAction.php:83
 #: src/Admin/TermMoveBulkAction.php:77
-#: src/Admin/Ui.php:743
+#: src/Admin/Ui.php:748
 #: src/Admin/UiSamplePage.php:303
 msgid "Cancel"
 msgstr ""
@@ -976,92 +976,92 @@ msgstr ""
 msgid "Some metadata fields were not saved:"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:56
-#: src/Admin/NotificationPage.php:57
-#: src/Admin/NotificationPage.php:82
+#: src/Admin/NotificationPage.php:53
+#: src/Admin/NotificationPage.php:54
+#: src/Admin/NotificationPage.php:79
 msgid "Notifications"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:68
-#: src/Admin/NotificationPage.php:201
-#: src/Admin/NotificationPage.php:225
-#: src/Admin/NotificationPage.php:236
+#: src/Admin/NotificationPage.php:65
+#: src/Admin/NotificationPage.php:197
+#: src/Admin/NotificationPage.php:221
+#: src/Admin/NotificationPage.php:232
 msgid "You are not allowed to manage notifications."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:83
+#: src/Admin/NotificationPage.php:80
 msgid "Site-wide announcements for the headless front end. Rows expire automatically after the retention period; the front end tracks read state itself."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:88
+#: src/Admin/NotificationPage.php:85
 msgid "Notification published."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:89
+#: src/Admin/NotificationPage.php:86
 msgid "Notification deleted."
 msgstr ""
 
 #. translators: %d: number of deleted notifications
-#: src/Admin/NotificationPage.php:93
+#: src/Admin/NotificationPage.php:90
 #, php-format
 msgid "Deleted %d notifications."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:103
+#: src/Admin/NotificationPage.php:100
 msgid "Stored notifications"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:110
+#: src/Admin/NotificationPage.php:107
 msgid "Scope"
 msgstr ""
 
 #. translators: %d: user ID.
-#: src/Admin/NotificationPage.php:130
+#: src/Admin/NotificationPage.php:127
 #, php-format
 msgid "User #%d"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:145
+#: src/Admin/NotificationPage.php:142
 msgid "Delete this notification?"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:152
+#: src/Admin/NotificationPage.php:149
 msgid "No notifications stored."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:153
+#: src/Admin/NotificationPage.php:150
 msgid "Delete the selected notifications?"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:168
+#: src/Admin/NotificationPage.php:164
 msgid "Publish announcement"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:179
+#: src/Admin/NotificationPage.php:175
 msgid "Minimum visible role"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:184
+#: src/Admin/NotificationPage.php:180
 msgid "Viewers below this role will not see the announcement. Sponsor also requires a valid membership."
 msgstr ""
 
-#: src/Admin/NotificationPage.php:192
+#: src/Admin/NotificationPage.php:188
 msgid "Publish"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:257
+#: src/Admin/NotificationPage.php:253
 msgid "Subscriber"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:258
+#: src/Admin/NotificationPage.php:254
 msgid "Sponsor"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:260
+#: src/Admin/NotificationPage.php:256
 msgid "Administrator"
 msgstr ""
 
-#: src/Admin/NotificationPage.php:261
+#: src/Admin/NotificationPage.php:257
 msgid "Guest"
 msgstr ""
 
@@ -1287,45 +1287,45 @@ msgstr ""
 msgid "No template parts are registered yet."
 msgstr ""
 
+#: src/Admin/PaymentsAuditPage.php:63
 #: src/Admin/PaymentsAuditPage.php:64
-#: src/Admin/PaymentsAuditPage.php:65
-#: src/Admin/PaymentsAuditPage.php:110
+#: src/Admin/PaymentsAuditPage.php:112
 msgid "Payment ledger"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:90
+#: src/Admin/PaymentsAuditPage.php:89
 msgid "You are not allowed to view payments."
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:103
+#: src/Admin/PaymentsAuditPage.php:105
 msgid "All sources"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:111
+#: src/Admin/PaymentsAuditPage.php:113
 msgid "Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue."
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:134
+#: src/Admin/PaymentsAuditPage.php:136
 msgid "Order"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:170
+#: src/Admin/PaymentsAuditPage.php:172
 msgid "No payments recorded yet."
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:242
+#: src/Admin/PaymentsAuditPage.php:244
 msgid "Epay"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:243
+#: src/Admin/PaymentsAuditPage.php:245
 msgid "Afdian"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:283
+#: src/Admin/PaymentsAuditPage.php:285
 msgid "Paid"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:284
+#: src/Admin/PaymentsAuditPage.php:286
 msgid "Awaiting payment"
 msgstr ""
 
@@ -1376,7 +1376,7 @@ msgid "URL"
 msgstr ""
 
 #: src/Admin/PicBedPage.php:114
-#: src/Admin/Ui.php:555
+#: src/Admin/Ui.php:560
 msgid "Copy"
 msgstr ""
 
@@ -2275,74 +2275,74 @@ msgid "Nothing was moved."
 msgstr ""
 
 #. translators: %s: number of items.
-#: src/Admin/Ui.php:233
+#: src/Admin/Ui.php:238
 #, php-format
 msgid "%s item"
 msgid_plural "%s items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Ui.php:255
+#: src/Admin/Ui.php:260
 msgid "First page"
 msgstr ""
 
-#: src/Admin/Ui.php:256
+#: src/Admin/Ui.php:261
 msgid "Previous page"
 msgstr ""
 
-#: src/Admin/Ui.php:261
+#: src/Admin/Ui.php:266
 msgid "Current Page"
 msgstr ""
 
 #. translators: 1: current page number, 2: total number of pages.
-#: src/Admin/Ui.php:269
+#: src/Admin/Ui.php:274
 #, php-format
 msgctxt "paging"
 msgid "%1$s of %2$s"
 msgstr ""
 
-#: src/Admin/Ui.php:276
+#: src/Admin/Ui.php:281
 msgid "Next page"
 msgstr ""
 
-#: src/Admin/Ui.php:277
+#: src/Admin/Ui.php:282
 msgid "Last page"
 msgstr ""
 
 #. translators: %d: rows per page.
-#: src/Admin/Ui.php:289
+#: src/Admin/Ui.php:294
 #, php-format
 msgid "%d / page"
 msgstr ""
 
-#: src/Admin/Ui.php:292
+#: src/Admin/Ui.php:297
 msgid "Items per page"
 msgstr ""
 
-#: src/Admin/Ui.php:554
+#: src/Admin/Ui.php:559
 msgid "Copied."
 msgstr ""
 
 #. translators: %s: number of rows currently checked.
-#: src/Admin/Ui.php:613
+#: src/Admin/Ui.php:618
 #, php-format
 msgid "Selected: %s"
 msgstr ""
 
-#: src/Admin/Ui.php:629
+#: src/Admin/Ui.php:634
 msgid "Bulk actions"
 msgstr ""
 
-#: src/Admin/Ui.php:630
+#: src/Admin/Ui.php:635
 #: src/Admin/UiSamplePage.php:60
 msgid "Apply"
 msgstr ""
 
-#: src/Admin/Ui.php:659
+#: src/Admin/Ui.php:664
 msgid "Select all"
 msgstr ""
 
-#: src/Admin/Ui.php:736
+#: src/Admin/Ui.php:741
 msgid "Confirm"
 msgstr ""
 
@@ -4011,8 +4011,8 @@ msgid "The membership holder does not exist."
 msgstr ""
 
 #: src/Domain/Membership/EntitlementService.php:77
-#: src/Domain/Payment/OrderService.php:77
-#: src/Domain/Payment/OrderService.php:129
+#: src/Domain/Payment/OrderService.php:86
+#: src/Domain/Payment/OrderService.php:138
 msgid "The order id is required."
 msgstr ""
 
@@ -4091,7 +4091,7 @@ msgstr ""
 
 #. translators: %s: tier keys that still have live checkouts or covering members.
 #: src/Domain/Membership/MembershipModule.php:245
-#: src/Domain/Payment/PaymentModule.php:324
+#: src/Domain/Payment/PaymentModule.php:319
 #, php-format
 msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
 msgstr ""
@@ -4275,18 +4275,18 @@ msgstr ""
 msgid "The Epay channel is not available."
 msgstr ""
 
-#: src/Domain/Payment/OrderService.php:74
-#: src/Domain/Payment/OrderService.php:126
+#: src/Domain/Payment/OrderService.php:83
+#: src/Domain/Payment/OrderService.php:135
 msgid "The order user does not exist."
 msgstr ""
 
-#: src/Domain/Payment/OrderService.php:105
-#: src/Domain/Payment/OrderService.php:153
+#: src/Domain/Payment/OrderService.php:114
+#: src/Domain/Payment/OrderService.php:162
 msgid "This order was already recorded."
 msgstr ""
 
-#: src/Domain/Payment/OrderService.php:108
-#: src/Domain/Payment/OrderService.php:156
+#: src/Domain/Payment/OrderService.php:117
+#: src/Domain/Payment/OrderService.php:165
 msgid "The order could not be stored."
 msgstr ""
 
@@ -4396,11 +4396,7 @@ msgid "Order log"
 msgstr ""
 
 #: src/Domain/Payment/PaymentModule.php:223
-msgid "Unpaid order retention (days)"
-msgstr ""
-
-#: src/Domain/Payment/PaymentModule.php:224
-msgid "Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep)."
+msgid "Unpaid orders — abandoned checkouts — leave the payment log after 7 days; paid records are kept forever."
 msgstr ""
 
 #: src/Domain/Redeem/RedeemCodeService.php:39

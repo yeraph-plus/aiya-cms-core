@@ -90,7 +90,7 @@ final class OrderServiceTest extends TestCase
         $rows[2]['created_at'] = gmdate('Y-m-d H:i:s', time() - 1 * DAY_IN_SECONDS);
         $this->db->rows[$this->db->paymentTable] = $rows;
 
-        $deleted = $orders->pruneUnpaid(30);
+        $deleted = $orders->pruneUnpaid();
 
         self::assertSame(1, $deleted, 'only the aged unpaid cart leaves');
         $orderIds = array_column($this->db->rows[$this->db->paymentTable], 'order_id');

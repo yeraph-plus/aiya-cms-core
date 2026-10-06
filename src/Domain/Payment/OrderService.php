@@ -40,6 +40,15 @@ final class OrderService
     public const PENDING_TTL_DAYS = 7;
 
     /**
+     * Days an unsettled row stays in the payment log before the sweep
+     * deletes it — the ruling is fixed at 7, so a checkout's labelling
+     * window and its lifetime in the log are the same span: the sweep
+     * ages `pending` to `unpaid` and may delete the row in the same
+     * pass, and paid rows are forever.
+     */
+    public const UNPAID_RETENTION_DAYS = 7;
+
+    /**
      * The checkout identity pair for one epay checkout: the platform
      * order number (date + padded user + second entropy + random suffix
      * — two orders in the same second must never collide on
@@ -291,18 +300,16 @@ final class OrderService
      * financial archive and never leave; the unsettled states — abandoned
      * checkouts the sweep aged to `unpaid`, and any `pending` row that
      * somehow outlived the retention window — are deleted once they are
-     * older than the retention. Deletion removes settleability (orderRow()
-     * stops finding the row), so the retention must comfortably outlive
-     * the gateway's own payment latency; the settings reader clamps it
-     * well past the pending TTL for exactly that reason.
+     * older than UNPAID_RETENTION_DAYS. Deletion removes settleability
+     * (orderRow() stops finding the row).
      *
      * @return int rows deleted
      */
-    public function pruneUnpaid(int $retentionDays): int
+    public function pruneUnpaid(): int
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $cutoff = gmdate('Y-m-d H:i:s', time() - max(1, $retentionDays) * DAY_IN_SECONDS);
+        $cutoff = gmdate('Y-m-d H:i:s', time() - self::UNPAID_RETENTION_DAYS * DAY_IN_SECONDS);
         $sql = $wpdb->prepare(
             'DELETE FROM %i WHERE status != %s AND created_at < %s',
             $this->table(),

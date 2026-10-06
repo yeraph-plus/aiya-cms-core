@@ -2944,11 +2944,8 @@ msgstr "在爱发电创作者后台（开发工具 > WebHook）登记该地址�
 msgid "Order log"
 msgstr "订单日志"
 
-msgid "Unpaid order retention (days)"
-msgstr "未支付订单保留期（天）"
-
-msgid "Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep)."
-msgstr "未支付订单（放弃的结算单）将在这么多天后从支付日志中删除；已支付记录永久保留。最小 7 天（越过待支付标记清扫期）。"
+msgid "Unpaid orders — abandoned checkouts — leave the payment log after 7 days; paid records are kept forever."
+msgstr "未支付订单（弃单）7 天后离开支付日志；已支付记录永久保留"
 
 msgid "Invalid redemption code."
 msgstr "无效的兑换码。"

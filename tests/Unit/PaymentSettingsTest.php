@@ -32,19 +32,4 @@ final class PaymentSettingsTest extends TestCase
         self::assertSame([], PaymentSettings::bindings([]));
     }
 
-    /**
-     * The retention purge's safety rail: the window never dips under the
-     * pending TTL (a checkout must be labelled before it can ever be
-     * deleted) and never keeps carts for years. An absent or empty key
-     * is "not configured" and takes the default.
-     */
-    public function testUnpaidRetentionClampsBothEnds(): void
-    {
-        self::assertSame(30, PaymentSettings::unpaidRetention([]), 'unconfigured takes the default');
-        self::assertSame(30, PaymentSettings::unpaidRetention(['unpaid_order_retention' => '0']));
-        self::assertSame(30, PaymentSettings::unpaidRetention(['unpaid_order_retention' => '']));
-        self::assertSame(7, PaymentSettings::unpaidRetention(['unpaid_order_retention' => '3']), 'never under the labelling sweep');
-        self::assertSame(365, PaymentSettings::unpaidRetention(['unpaid_order_retention' => '4000']));
-        self::assertSame(45, PaymentSettings::unpaidRetention(['unpaid_order_retention' => '45']));
-    }
 }

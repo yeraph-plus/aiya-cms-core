@@ -71,7 +71,7 @@ final class PaymentModule implements Module
         add_action(self::SWEEP_HOOK, static function (): void {
             $orders = new OrderService();
             $orders->expirePending();
-            $orders->pruneUnpaid(PaymentSettings::read()['unpaidRetentionDays']);
+            $orders->pruneUnpaid();
         });
 
         add_filter('aiya_core_scheduled_events', function (array $hooks): array {
@@ -218,14 +218,9 @@ final class PaymentModule implements Module
                     'level' => '2',
                 ],
                 [
-                    'id' => 'unpaid_order_retention',
-                    'type' => 'number',
-                    'label' => __('Unpaid order retention (days)', 'aiya-core'),
-                    'description' => __('Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep).', 'aiya-core'),
-                    'default' => 30,
-                    'min' => 7,
-                    'max' => 365,
-                    'step' => 1,
+                    'id' => 'note_order_log',
+                    'type' => 'note',
+                    'label' => __('Unpaid orders — abandoned checkouts — leave the payment log after 7 days; paid records are kept forever.', 'aiya-core'),
                 ],
             ],
         ]);

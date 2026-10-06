@@ -17,16 +17,9 @@ namespace Aiya\Core\Domain\Payment;
  */
 final class PaymentSettings
 {
-    /** Default days the payment log keeps an unsettled order. */
-    public const DEFAULT_UNPAID_RETENTION = 30;
-
-    /** The retention floor: past the pending TTL (7), so the sweep always labels before the purge deletes. */
-    public const MIN_UNPAID_RETENTION = 7;
-
-    public const MAX_UNPAID_RETENTION = 365;
 
     /**
-     * @return array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,afdianEnable:bool,afdianUserId:string,afdianToken:string,afdianBindings:list<array{planId:string,tierKey:string}>,afdianFallbackTier:string,unpaidRetentionDays:int}
+     * @return array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,afdianEnable:bool,afdianUserId:string,afdianToken:string,afdianBindings:list<array{planId:string,tierKey:string}>,afdianFallbackTier:string}
      */
     public static function read(): array
     {
@@ -43,26 +36,7 @@ final class PaymentSettings
             'afdianToken' => (string) ($payments['afdian_token'] ?? ''),
             'afdianBindings' => self::bindings($payments),
             'afdianFallbackTier' => sanitize_key((string) ($payments['afdian_fallback_tier'] ?? '')),
-            'unpaidRetentionDays' => self::unpaidRetention($payments),
         ];
-    }
-
-    /**
-     * Days the payment log keeps an unsettled order (paid rows are
-     * forever). Clamped on both ends so a hand-edited option can never
-     * delete a checkout the sweep has not yet labelled, nor keep carts
-     * around for years.
-     *
-     * @param array<string, mixed> $payments
-     */
-    public static function unpaidRetention(array $payments): int
-    {
-        $days = absint((string) ($payments['unpaid_order_retention'] ?? self::DEFAULT_UNPAID_RETENTION));
-        if ($days === 0) {
-            return self::DEFAULT_UNPAID_RETENTION;
-        }
-
-        return max(self::MIN_UNPAID_RETENTION, min(self::MAX_UNPAID_RETENTION, $days));
     }
 
     /**
