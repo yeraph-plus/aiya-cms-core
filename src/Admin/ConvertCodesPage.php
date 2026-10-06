@@ -117,7 +117,7 @@ final class ConvertCodesPage implements Module
                 'holder' => ['label' => __('Redeemed by', 'aiya-core'), 'width' => '110px'],
                 'usedAt' => ['label' => __('Redeemed at', 'aiya-core'), 'width' => '150px'],
                 'created' => ['label' => __('Created', 'aiya-core'), 'width' => '150px'],
-                'actions' => ['label' => __('Actions', 'aiya-core'), 'width' => '80px'],
+                'actions' => ['label' => __('Actions', 'aiya-core'), 'width' => '120px'],
             ],
             $result['items'],
             static function (object $row, string $column): void {
@@ -127,7 +127,6 @@ final class ConvertCodesPage implements Module
                         break;
                     case 'code':
                         echo '<code>' . esc_html((string) $row->code) . '</code>';
-                        Ui::copyText((string) $row->code);
                         break;
                     case 'contents':
                         if ((string) $row->kind === 'credit') {
@@ -158,10 +157,13 @@ final class ConvertCodesPage implements Module
                         echo esc_html((string) $row->created_at);
                         break;
                     case 'actions':
-                        // Single-code cleanup rides its own POST form; the
-                        // shared danger modal confirms it (per-form text).
+                        // Copy first, delete second: the copy button is a
+                        // plain type=button (no POST), the cleanup rides
+                        // its own POST form — the shared danger modal
+                        // confirms it (per-form text).
+                        Ui::copyText((string) $row->code);
                         ?>
-                        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
+                        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="aiya-core-row-actions"
                             data-aiya-confirm="aiya-code-delete-confirm"
                             data-aiya-confirm-text="<?php esc_attr_e('Delete this code?', 'aiya-core'); ?>">
                             <input type="hidden" name="action" value="<?php echo esc_attr(ConvertCodesPage::ACTION_DELETE); ?>">
