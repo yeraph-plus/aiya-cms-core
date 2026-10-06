@@ -19,7 +19,6 @@ use Aiya\Core\Admin\PaymentsAuditPage;
 use Aiya\Core\Admin\PicBedPage;
 use Aiya\Core\Admin\PartsDialog;
 use Aiya\Core\Admin\PostTypeSwitchBulkAction;
-use Aiya\Core\Admin\SendMailPage;
 use Aiya\Core\Admin\SettingsAdmin;
 use Aiya\Core\Admin\SmiliesDialog;
 use Aiya\Core\Admin\TermMoveBulkAction;
@@ -138,7 +137,6 @@ final class Plugin
         // One gate instance for every consumer: the metabox, the REST
         // controllers and the related-post card's summary projection.
         $visibility = new PostVisibility(fn (int $userId): bool => (new MembershipService())->isSponsor($userId));
-        $this->addModule(new SendMailPage());
         $this->addModule(new AdminBarFrontendLink());
         $this->addModule(new SlugModule($this->settings));
         $this->addModule(new ThemeSupportModule());

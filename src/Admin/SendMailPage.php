@@ -39,9 +39,14 @@ final class SendMailPage implements Module
     private const MIN_SEARCH_LENGTH = 2;
     private const MAX_SUGGESTIONS = 8;
 
+    /**
+     * Registered by the Dev Tools domain behind its WP_DEBUG gate (the
+     * page no longer hooks the registry bus itself): an operator tool the
+     * production rail has no use for rides the workshop. The edit_users
+     * capability stays as the page's own defense in depth.
+     */
     public function register(): void
     {
-        add_action('aiya_core_register', [$this, 'registerPage']);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
         add_filter('user_row_actions', [$this, 'rowAction'], 10, 2);
         add_action('wp_ajax_' . self::AJAX_ACTION, [$this, 'handleSend']);
@@ -56,8 +61,8 @@ final class SendMailPage implements Module
             'title' => __('Send Mail', 'aiya-core'),
             'menu_title' => __('Send Mail', 'aiya-core'),
             'capability' => 'edit_users',
-            'icon' => 'dashicons-email',
-            'position' => 84,
+            'parent' => 'aiya-core-devtools',
+            'menu_position' => 9, // after the two sandboxes, the rail's tail
             'kind' => Page::KIND_CALLBACK,
             'render' => [$this, 'render'],
         ]);
@@ -86,7 +91,7 @@ final class SendMailPage implements Module
      */
     public function rowAction(array $actions, WP_User $user): array
     {
-        if (!current_user_can('edit_users') || (string) $user->user_email === '') {
+        if (!(defined('WP_DEBUG') && WP_DEBUG) || !current_user_can('edit_users') || (string) $user->user_email === '') {
             return $actions;
         }
 

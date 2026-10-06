@@ -13,6 +13,7 @@ use Aiya\Core\Admin\IconsPage;
 use Aiya\Core\Admin\SearchReplacePage;
 use Aiya\Core\Admin\SamplePage;
 use Aiya\Core\Admin\UiSamplePage;
+use Aiya\Core\Admin\SendMailPage;
 use Aiya\Core\Settings\Registry;
 use Aiya\Core\Settings\Schema\Page;
 
@@ -24,8 +25,9 @@ use Aiya\Core\Settings\Schema\Page;
  * scheduled events, rewrite rules, registered shortcodes, dashicons).
  *
  * Everything inside is gated on WP_DEBUG in this one place (SamplePage
- * re-checks as defense in depth) — flipping the constant off removes the
- * menu, the pages and their action handlers from admin entirely.
+ * and SendMailPage re-check their own concerns as defense in depth) —
+ * flipping the constant off removes the menu, the pages and their action
+ * handlers from admin entirely.
  */
 final class DevToolsModule implements Module
 {
@@ -40,6 +42,7 @@ final class DevToolsModule implements Module
     private SearchReplacePage $searchReplace;
     private SamplePage $sample;
     private UiSamplePage $uiSample;
+    private SendMailPage $sendMail;
 
     public function __construct(Registry $registry)
     {
@@ -51,6 +54,7 @@ final class DevToolsModule implements Module
         $this->searchReplace = new SearchReplacePage(new SearchReplace());
         $this->sample = new SamplePage($registry);
         $this->uiSample = new UiSamplePage();
+        $this->sendMail = new SendMailPage();
     }
 
     public function register(): void
@@ -80,6 +84,12 @@ final class DevToolsModule implements Module
             $this->searchReplace->register();
             $this->sample->settings();
             $this->uiSample->register();
+            // Send Mail rides the domain's WP_DEBUG gate from 2026-10-06:
+            // an operator tool the production rail has no use for, its
+            // edit_users capability stays as the page's own defense in
+            // depth behind this domain gate.
+            $this->sendMail->registerPage($registry);
+            $this->sendMail->register();
 
             // Every Dev Tools screen rides the shared settings pipeline as a
             // callback page (batch B); their admin_post endpoints stay on the
