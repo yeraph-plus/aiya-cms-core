@@ -194,6 +194,7 @@ final class EntitlementService
             }
 
             foreach ($rows as $row) {
+                /** @var \stdClass&object{id:int, user_id:int, order_id:string, cycle_days:int, credits_per_cycle:int, cycles_total:int, cycles_granted:int, starts_at:string} $row */
                 $lastId = (int) $row->id;
                 $advanced += $this->advanceRow($row);
             }
@@ -216,9 +217,10 @@ final class EntitlementService
      * key and the counter's compare-and-swap. Zero-credit tiers advance
      * without touching the ledger; a transient grant failure stops the
      * row (cycles are ordered — never skip ahead) and the next run
-     * retries it whole. The row carries the advance() SELECT's field
-     * set (id, user_id, order_id, cycle_days, credits_per_cycle,
-     * cycles_total, cycles_granted, starts_at); every read casts.
+     * retries it whole.
+     *
+     * @param object{id:int, user_id:int, order_id:string, cycle_days:int, credits_per_cycle:int, cycles_total:int, cycles_granted:int, starts_at:string} $row
+     * @return int Number of cycles advanced.
      */
     private function advanceRow(object $row): int
     {
@@ -291,8 +293,12 @@ final class EntitlementService
             substr($orderId, 0, 64),
             self::STATUS_ACTIVE
         ));
+        if (!$row instanceof \stdClass) {
+            return 0;
+        }
+        /** @var \stdClass&object{id:int, user_id:int, order_id:string, cycle_days:int, credits_per_cycle:int, cycles_total:int, cycles_granted:int, starts_at:string} $row */
 
-        return is_object($row) ? $this->advanceRow($row) : 0;
+        return $this->advanceRow($row);
     }
 
     /**

@@ -98,4 +98,27 @@ final class OrderServiceTest extends TestCase
         self::assertContains('epc_NEW', $orderIds, 'a cart inside the retention window is still a maybe');
         self::assertNotContains('epc_OLD', $orderIds);
     }
+
+    /**
+     * The sweep's bookkeeping flip: a pending row past the TTL turns
+     * `unpaid` so the log tells "never paid" apart from "waiting", while
+     * a young checkout keeps waiting. The flip is bookkeeping, not a
+     * refusal — confirm() settling the aged row is its own case above.
+     */
+    public function testExpirePendingFlipsOnlyAgedCheckouts(): void
+    {
+        $orders = new OrderService();
+        $orders->createPending(42, 'epc_AGED', 'gold', 1, 30.0, 'epay');
+        $orders->createPending(42, 'epc_YOUNG', 'gold', 1, 30.0, 'epay');
+        $rows = $this->db->rows[$this->db->paymentTable];
+        $rows[0]['created_at'] = gmdate('Y-m-d H:i:s', time() - 8 * DAY_IN_SECONDS);
+        $rows[1]['created_at'] = gmdate('Y-m-d H:i:s', time() - 1 * DAY_IN_SECONDS);
+        $this->db->rows[$this->db->paymentTable] = $rows;
+
+        $flipped = $orders->expirePending();
+
+        self::assertSame(1, $flipped, 'only the checkout past the TTL flips');
+        self::assertSame('unpaid', $orders->orderRow('epc_AGED')['status']);
+        self::assertSame('pending', $orders->orderRow('epc_YOUNG')['status']);
+    }
 }

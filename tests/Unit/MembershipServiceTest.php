@@ -27,12 +27,16 @@ final class MembershipServiceTest extends TestCase
         delete_option('aiya_core_membership_payments');
         delete_option('aiya_core_membership');
         $GLOBALS['__aiya_test_transients'] = [];
+        // The holder holds no staff capability: the editorial bypass stays
+        // out of the queue verdicts the isSponsor() case asserts on.
+        $GLOBALS['__aiya_test_caps'] = false;
     }
 
     protected function tearDown(): void
     {
         unset($GLOBALS['wpdb']);
         $GLOBALS['__aiya_test_users'] = [];
+        $GLOBALS['__aiya_test_caps'] = true;
     }
 
     public function testCurrentTiersForFoldsOneQueryPerPage(): void
@@ -60,5 +64,26 @@ final class MembershipServiceTest extends TestCase
         $single = $service->currentTier(42);
         self::assertSame('silver', $single['tierKey'] ?? null);
         self::assertNull($service->currentTier(7));
+    }
+
+    /**
+     * Expiry is read-derived, no worker flips anything: a row whose
+     * window closed simply stops covering — it is no one's current tier,
+     * it fails the gate, and the queue end it carries reads as a past
+     * timestamp, the "not a member" answer every derives-from-number
+     * reader needs.
+     */
+    public function testAnExpiredWindowIsNoMembership(): void
+    {
+        $this->db->seedQueueRow(42, 'gold', 'Gold', '-40 days', '-10 days'); // window closed ten days ago
+        $this->db->seedQueueRow(7, 'gold', 'Gold', '-40 days', '+20 days'); // control: still covering
+
+        $service = new MembershipService();
+
+        self::assertArrayNotHasKey(42, $service->currentTiersFor([42, 7]), 'a closed window is nobody\'s current tier');
+        self::assertSame('gold', $service->currentTiersFor([42, 7])[7]['tierKey'] ?? null, 'the covering control survives the fold');
+        self::assertFalse($service->isSponsor(42), 'a closed window fails the gate');
+        self::assertTrue($service->isSponsor(7), 'control: the covering window still gates in');
+        self::assertLessThanOrEqual(time(), $service->expiresAt(42), 'the expired holder\'s queue end reads as a past date');
     }
 }

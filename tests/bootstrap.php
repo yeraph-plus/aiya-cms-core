@@ -1593,6 +1593,36 @@ if (!class_exists('wpdb')) {
                 return 1;
             }
 
+            // The ledger retention purge: the three closed-history branches
+            // (expired in-buckets, out rows, fully consumed buckets) leave
+            // once the retention window has passed their clock. Live
+            // buckets and open-ended (NULL expiry) buckets match no
+            // branch, exactly like the real statement.
+            if (preg_match("/DELETE FROM (\S+)\s+WHERE \(direction = 'in' AND expires_at IS NOT NULL AND expires_at <= '([^']*)'\)\s+OR \(direction = 'out' AND created_at < '([^']*)'\)\s+OR \(direction = 'in' AND remaining <= 0 AND created_at < '([^']*)'/", $sql, $prune) === 1) {
+                $table = $prune[1];
+                $kept = [];
+                $removed = 0;
+                foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
+                    $expired = ($row['direction'] ?? '') === 'in'
+                        && ($row['expires_at'] ?? null) !== null
+                        && (string) $row['expires_at'] <= $prune[2];
+                    $spentOut = ($row['direction'] ?? '') === 'out'
+                        && (string) ($row['created_at'] ?? '') < $prune[3];
+                    $emptied = ($row['direction'] ?? '') === 'in'
+                        && (int) ($row['remaining'] ?? 0) <= 0
+                        && (string) ($row['created_at'] ?? '') < $prune[4];
+                    if ($expired || $spentOut || $emptied) {
+                        $removed++;
+                        continue;
+                    }
+                    $kept[] = $row;
+                }
+                $this->aiya_test_rows[$table] = $kept;
+                $this->rows_affected = $removed;
+
+                return $removed;
+            }
+
             // The ledger's guarded bucket decrement: it only succeeds while the
             // row still covers the take, exactly like the real statement.
             if (preg_match('/UPDATE (\S+) SET remaining = remaining - (\d+) WHERE id = (\d+) AND remaining >= (\d+)/', $sql, $step) === 1) {

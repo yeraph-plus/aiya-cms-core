@@ -118,4 +118,58 @@ final class LedgerExpiryTest extends TestCase
 
         return -1;
     }
+
+    /**
+     * Seeds one ledger row from defaults, overriding by key — the shape
+     * pruneExpired() reads (direction, created_at, expires_at, remaining).
+     *
+     * @param array<string, mixed> $overrides
+     */
+    private function seedRow(array $overrides = []): void
+    {
+        global $wpdb;
+        $defaults = [
+            'id' => count($wpdb->aiya_test_rows['wp_aiya_credit_entries']) + 1,
+            'user_id' => 7,
+            'direction' => 'in',
+            'amount' => 100,
+            'remaining' => 100,
+            'source' => 'test',
+            'ref' => 'seed-' . count($wpdb->aiya_test_rows['wp_aiya_credit_entries']),
+            'dedupe' => 'test:seed-' . count($wpdb->aiya_test_rows['wp_aiya_credit_entries']),
+            'created_at' => gmdate('Y-m-d H:i:s'),
+            'expires_at' => null,
+        ];
+        $wpdb->aiya_test_rows['wp_aiya_credit_entries'][] = $overrides + $defaults;
+    }
+
+    /**
+     * The retention purge's double clock: expiry alone is not the delete
+     * trigger — a bucket the holder can still see (expired inside the
+     * window) stays, and only the retention window's end removes the
+     * closed history. Live buckets and open-ended (NULL expiry) buckets
+     * never match any branch; emptied buckets and out rows age out on
+     * created_at by the same window.
+     */
+    public function testTheRetentionPurgeAgesOnlyClosedHistoryPastItsWindow(): void
+    {
+        $this->seedRow(['ref' => 'live', 'expires_at' => gmdate('Y-m-d H:i:s', strtotime('+10 days'))]);
+        $this->seedRow(['ref' => 'expired-in-window', 'expires_at' => gmdate('Y-m-d H:i:s', strtotime('-10 days'))]);
+        $this->seedRow(['ref' => 'expired-past-window', 'expires_at' => gmdate('Y-m-d H:i:s', strtotime('-60 days'))]);
+        $this->seedRow(['ref' => 'out-recent', 'direction' => 'out', 'amount' => 0, 'remaining' => 0, 'created_at' => gmdate('Y-m-d H:i:s', strtotime('-2 days'))]);
+        $this->seedRow(['ref' => 'out-old', 'direction' => 'out', 'amount' => 0, 'remaining' => 0, 'created_at' => gmdate('Y-m-d H:i:s', strtotime('-60 days'))]);
+        $this->seedRow(['ref' => 'emptied-old', 'remaining' => 0, 'created_at' => gmdate('Y-m-d H:i:s', strtotime('-60 days'))]);
+        $this->seedRow(['ref' => 'permanent-live-old', 'created_at' => gmdate('Y-m-d H:i:s', strtotime('-400 days'))]);
+        $this->seedRow(['ref' => 'permanent-emptied-old', 'remaining' => 0, 'created_at' => gmdate('Y-m-d H:i:s', strtotime('-400 days'))]);
+
+        $deleted = $this->service()->pruneExpired(30);
+
+        self::assertSame(4, $deleted, 'expired-past-window, out-old, emptied-old, permanent-emptied-old leave');
+        $survivors = array_column($GLOBALS['wpdb']->aiya_test_rows['wp_aiya_credit_entries'], 'ref');
+        self::assertSame(
+            ['live', 'expired-in-window', 'out-recent', 'permanent-live-old'],
+            $survivors,
+            'live buckets, expired-but-visible history, recent out rows and the open-ended balance all stay'
+        );
+    }
 }
