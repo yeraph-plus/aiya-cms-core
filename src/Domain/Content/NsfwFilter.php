@@ -47,7 +47,7 @@ final class NsfwFilter
      */
     public function configuredTermIds(PublicType $type): array
     {
-        $stored = aiya_core_opt('content', 'nsfw_' . $type->name, []);
+        $stored = aiya_core_opt('backend', 'nsfw_' . $type->name, []);
         if (!is_array($stored)) {
             return [];
         }

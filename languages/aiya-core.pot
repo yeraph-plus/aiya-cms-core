@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.111.0\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.112.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core-i18n\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T06:28:40+00:00\n"
+"POT-Creation-Date: 2026-10-06T09:27:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -285,7 +285,7 @@ msgstr ""
 #: src/Admin/UiSamplePage.php:160
 #: src/Admin/UiSamplePage.php:285
 #: src/Admin/UiSamplePage.php:297
-#: src/Domain/Blocks/BlocksModule.php:197
+#: src/Domain/Blocks/BlocksModule.php:191
 #: src/Domain/Shortcodes/BuiltinShortcodes.php:118
 #: src/Domain/Shortcodes/BuiltinShortcodes.php:129
 msgid "Title"
@@ -313,7 +313,7 @@ msgstr ""
 
 #: src/Admin/CoverMetabox.php:112
 #: src/Admin/FileServeMetabox.php:294
-#: src/Admin/SendMailPage.php:185
+#: src/Admin/SendMailPage.php:190
 #: src/Domain/Identity/AvatarModule.php:323
 msgid "Request failed."
 msgstr ""
@@ -495,8 +495,8 @@ msgid "You are not allowed to manage scheduled events."
 msgstr ""
 
 #: src/Admin/CronsPage.php:53
-#: src/Domain/DevTools/DevToolsModule.php:105
-#: src/Domain/DevTools/DevToolsModule.php:106
+#: src/Domain/DevTools/DevToolsModule.php:115
+#: src/Domain/DevTools/DevToolsModule.php:116
 msgid "Crons"
 msgstr ""
 
@@ -859,52 +859,50 @@ msgstr ""
 msgid "Closed"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:27
+#: src/Admin/FieldRenderer.php:30
 msgid "General"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:198
+#: src/Admin/FieldRenderer.php:201
 #: src/Admin/SettingsAdmin.php:84
 msgid "Select media"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:199
-#: src/Admin/FieldRenderer.php:309
+#: src/Admin/FieldRenderer.php:202
+#: src/Admin/FieldRenderer.php:312
 msgid "Remove"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:222
+#: src/Admin/FieldRenderer.php:225
 msgid "cache_ttl: 3600"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:232
+#: src/Admin/FieldRenderer.php:235
 msgid "A value is stored; leave blank to keep it"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:237
+#: src/Admin/FieldRenderer.php:240
 msgid "Generate a random key"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:240
+#: src/Admin/FieldRenderer.php:243
 msgid "Clear the stored value"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:264
+#: src/Admin/FieldRenderer.php:267
 msgid "Add item"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:286
+#: src/Admin/FieldRenderer.php:289
 msgid "(no title)"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:311
+#: src/Admin/FieldRenderer.php:314
 msgid "Confirm delete?"
 msgstr ""
 
 #: src/Admin/FileServeMetabox.php:64
 #: src/Admin/FileServeMetabox.php:279
-#: src/Domain/FileServe/FileServeModule.php:69
-#: src/Domain/FileServe/FileServeModule.php:70
 msgid "File downloads"
 msgstr ""
 
@@ -996,8 +994,8 @@ msgid "You are not allowed to view the icon list."
 msgstr ""
 
 #: src/Admin/IconsPage.php:21
-#: src/Domain/DevTools/DevToolsModule.php:132
-#: src/Domain/DevTools/DevToolsModule.php:133
+#: src/Domain/DevTools/DevToolsModule.php:142
+#: src/Domain/DevTools/DevToolsModule.php:143
 msgid "Icons"
 msgstr ""
 
@@ -1419,8 +1417,8 @@ msgstr ""
 
 #: src/Admin/PicBedPage.php:111
 #: src/Admin/PicBedPage.php:263
-#: src/Admin/SamplePage.php:243
-#: src/Domain/Blocks/BlocksModule.php:124
+#: src/Admin/SamplePage.php:245
+#: src/Domain/Blocks/BlocksModule.php:118
 #: src/Domain/Shortcodes/BuiltinShortcodes.php:153
 msgid "URL"
 msgstr ""
@@ -1490,21 +1488,21 @@ msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:70
 #: src/Admin/PostTypeSwitchBulkAction.php:109
-#: src/Domain/Blocks/BlocksModule.php:212
-#: src/Domain/Content/ContentManagementModule.php:136
+#: src/Domain/Blocks/BlocksModule.php:206
+#: src/Domain/Content/ContentManagementModule.php:110
 msgid "Posts"
 msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:71
 #: src/Admin/PostTypeSwitchBulkAction.php:110
-#: src/Domain/Content/ContentManagementModule.php:137
+#: src/Domain/Content/ContentManagementModule.php:111
 msgid "Pages"
 msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:72
 #: src/Admin/PostTypeSwitchBulkAction.php:111
-#: src/Domain/Blocks/BlocksModule.php:213
-#: src/Domain/Content/ContentManagementModule.php:138
+#: src/Domain/Blocks/BlocksModule.php:207
+#: src/Domain/Content/ContentManagementModule.php:112
 msgid "Resources"
 msgstr ""
 
@@ -1551,8 +1549,8 @@ msgid "You are not allowed to view the rewrite rules."
 msgstr ""
 
 #: src/Admin/RewritesPage.php:33
-#: src/Domain/DevTools/DevToolsModule.php:114
-#: src/Domain/DevTools/DevToolsModule.php:115
+#: src/Domain/DevTools/DevToolsModule.php:124
+#: src/Domain/DevTools/DevToolsModule.php:125
 msgid "Permalinks"
 msgstr ""
 
@@ -1607,224 +1605,224 @@ msgstr ""
 msgid "Settings Kit"
 msgstr ""
 
-#: src/Admin/SamplePage.php:47
+#: src/Admin/SamplePage.php:49
 msgid "Declarative field form parts: a field definition array renders as form-table rows through the settings pipeline, with one save and reset endpoint for the whole page. Every persisted field type of the framework is exercised below."
 msgstr ""
 
-#: src/Admin/SamplePage.php:53
+#: src/Admin/SamplePage.php:55
 msgid "Text inputs"
 msgstr ""
 
-#: src/Admin/SamplePage.php:58
+#: src/Admin/SamplePage.php:60
 msgid "Site title"
 msgstr ""
 
-#: src/Admin/SamplePage.php:59
+#: src/Admin/SamplePage.php:61
 msgid "Required text field."
 msgstr ""
 
-#: src/Admin/SamplePage.php:67
+#: src/Admin/SamplePage.php:69
 msgid "Site description"
 msgstr ""
 
-#: src/Admin/SamplePage.php:68
+#: src/Admin/SamplePage.php:70
 msgid "Multiline text stored through sanitize_textarea_field."
 msgstr ""
 
-#: src/Admin/SamplePage.php:74
+#: src/Admin/SamplePage.php:76
 msgid "Cache lifetime"
 msgstr ""
 
-#: src/Admin/SamplePage.php:75
+#: src/Admin/SamplePage.php:77
 msgid "Numeric field with min, max and step constraints."
 msgstr ""
 
-#: src/Admin/SamplePage.php:84
+#: src/Admin/SamplePage.php:86
 msgid "Contact email"
 msgstr ""
 
-#: src/Admin/SamplePage.php:90
+#: src/Admin/SamplePage.php:92
 msgid "Public URL"
 msgstr ""
 
-#: src/Admin/SamplePage.php:91
+#: src/Admin/SamplePage.php:93
 msgid "URL field, validated on save."
 msgstr ""
 
-#: src/Admin/SamplePage.php:98
+#: src/Admin/SamplePage.php:100
 msgid "Sample API key"
 msgstr ""
 
-#: src/Admin/SamplePage.php:99
+#: src/Admin/SamplePage.php:101
 msgid "Write-only password field, the stored value is never echoed back."
 msgstr ""
 
-#: src/Admin/SamplePage.php:110
+#: src/Admin/SamplePage.php:112
 msgid "Choices"
 msgstr ""
 
-#: src/Admin/SamplePage.php:115
+#: src/Admin/SamplePage.php:117
 msgid "Feature flag"
 msgstr ""
 
-#: src/Admin/SamplePage.php:116
+#: src/Admin/SamplePage.php:118
 msgid "Enable the sample feature"
 msgstr ""
 
-#: src/Admin/SamplePage.php:117
+#: src/Admin/SamplePage.php:119
 msgid "The plain checkbox: a hidden value=0 input carries an unticked state through the submission."
 msgstr ""
 
-#: src/Admin/SamplePage.php:123
+#: src/Admin/SamplePage.php:125
 msgid "Debug mode"
 msgstr ""
 
-#: src/Admin/SamplePage.php:124
+#: src/Admin/SamplePage.php:126
 msgid "Enable debug mode"
 msgstr ""
 
-#: src/Admin/SamplePage.php:125
+#: src/Admin/SamplePage.php:127
 msgid "The boolean switch: native checkbox semantics under a styled track, the stored value stays 0 or 1."
 msgstr ""
 
-#: src/Admin/SamplePage.php:131
+#: src/Admin/SamplePage.php:133
 msgid "Content mode"
 msgstr ""
 
-#: src/Admin/SamplePage.php:134
+#: src/Admin/SamplePage.php:136
 msgid "Classic"
 msgstr ""
 
-#: src/Admin/SamplePage.php:135
+#: src/Admin/SamplePage.php:137
 msgid "Hybrid"
 msgstr ""
 
-#: src/Admin/SamplePage.php:136
+#: src/Admin/SamplePage.php:138
 msgid "Headless"
 msgstr ""
 
-#: src/Admin/SamplePage.php:142
+#: src/Admin/SamplePage.php:144
 msgid "Default locale"
 msgstr ""
 
-#: src/Admin/SamplePage.php:143
+#: src/Admin/SamplePage.php:145
 msgid "Radio options render inline with even spacing."
 msgstr ""
 
-#: src/Admin/SamplePage.php:146
+#: src/Admin/SamplePage.php:148
 msgid "Simplified Chinese"
 msgstr ""
 
-#: src/Admin/SamplePage.php:147
+#: src/Admin/SamplePage.php:149
 msgid "Traditional Chinese"
 msgstr ""
 
-#: src/Admin/SamplePage.php:148
+#: src/Admin/SamplePage.php:150
 msgid "English"
 msgstr ""
 
-#: src/Admin/SamplePage.php:154
+#: src/Admin/SamplePage.php:156
 msgid "Enabled modules"
 msgstr ""
 
-#: src/Admin/SamplePage.php:155
+#: src/Admin/SamplePage.php:157
 msgid "Checkbox options render inline with even spacing."
 msgstr ""
 
-#: src/Admin/SamplePage.php:158
+#: src/Admin/SamplePage.php:160
 msgid "SEO"
 msgstr ""
 
-#: src/Admin/SamplePage.php:159
+#: src/Admin/SamplePage.php:161
 msgid "Cache"
 msgstr ""
 
-#: src/Admin/SamplePage.php:160
+#: src/Admin/SamplePage.php:162
 msgid "Translation"
 msgstr ""
 
-#: src/Admin/SamplePage.php:161
+#: src/Admin/SamplePage.php:163
 msgid "CDN"
 msgstr ""
 
-#: src/Admin/SamplePage.php:167
+#: src/Admin/SamplePage.php:169
 msgid "Media and value lists"
 msgstr ""
 
-#: src/Admin/SamplePage.php:172
+#: src/Admin/SamplePage.php:174
 msgid "Media fields store the attachment ID."
 msgstr ""
 
-#: src/Admin/SamplePage.php:178
+#: src/Admin/SamplePage.php:180
 msgid "Accent color"
 msgstr ""
 
-#: src/Admin/SamplePage.php:184
+#: src/Admin/SamplePage.php:186
 msgid "Logo"
 msgstr ""
 
-#: src/Admin/SamplePage.php:185
+#: src/Admin/SamplePage.php:187
 msgid "The field stores a WordPress attachment ID rather than a URL."
 msgstr ""
 
-#: src/Admin/SamplePage.php:191
+#: src/Admin/SamplePage.php:193
 msgid "Allowed hosts"
 msgstr ""
 
-#: src/Admin/SamplePage.php:192
+#: src/Admin/SamplePage.php:194
 msgid "Enter comma-separated values."
 msgstr ""
 
-#: src/Admin/SamplePage.php:198
+#: src/Admin/SamplePage.php:200
 msgid "Custom headers"
 msgstr ""
 
-#: src/Admin/SamplePage.php:199
+#: src/Admin/SamplePage.php:201
 msgid "One \"key: value\" pair per line; keys are normalized through sanitize_key()."
 msgstr ""
 
-#: src/Admin/SamplePage.php:205
+#: src/Admin/SamplePage.php:207
 msgid "Editor content"
 msgstr ""
 
-#: src/Admin/SamplePage.php:210
+#: src/Admin/SamplePage.php:212
 msgid "JSON configuration"
 msgstr ""
 
-#: src/Admin/SamplePage.php:211
+#: src/Admin/SamplePage.php:213
 msgid "Uses the WP code editor (wp.codeEditor)."
 msgstr ""
 
-#: src/Admin/SamplePage.php:218
+#: src/Admin/SamplePage.php:220
 msgid "Classic editor content"
 msgstr ""
 
-#: src/Admin/SamplePage.php:219
+#: src/Admin/SamplePage.php:221
 msgid "Uses the classic editor through wp_editor with TinyMCE."
 msgstr ""
 
-#: src/Admin/SamplePage.php:225
+#: src/Admin/SamplePage.php:227
 msgid "Dynamic rows"
 msgstr ""
 
-#: src/Admin/SamplePage.php:230
+#: src/Admin/SamplePage.php:232
 msgid "Navigation links"
 msgstr ""
 
-#: src/Admin/SamplePage.php:231
+#: src/Admin/SamplePage.php:233
 msgid "Backbone manages item creation; jQuery UI provides drag sorting."
 msgstr ""
 
-#: src/Admin/SamplePage.php:237
-#: src/Domain/Blocks/BlocksModule.php:117
+#: src/Admin/SamplePage.php:239
+#: src/Domain/Blocks/BlocksModule.php:111
 msgid "Label"
 msgstr ""
 
-#: src/Admin/SamplePage.php:249
+#: src/Admin/SamplePage.php:251
 msgid "Priority"
 msgstr ""
 
-#: src/Admin/SamplePage.php:257
+#: src/Admin/SamplePage.php:259
 #: src/Domain/Membership/MembershipModule.php:106
 msgid "Enabled"
 msgstr ""
@@ -1835,8 +1833,8 @@ msgid "You are not allowed to run search and replace."
 msgstr ""
 
 #: src/Admin/SearchReplacePage.php:43
-#: src/Domain/DevTools/DevToolsModule.php:141
-#: src/Domain/DevTools/DevToolsModule.php:142
+#: src/Domain/DevTools/DevToolsModule.php:151
+#: src/Domain/DevTools/DevToolsModule.php:152
 msgid "Search & Replace"
 msgstr ""
 
@@ -1943,74 +1941,74 @@ msgstr ""
 msgid "Execute replace"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:56
-#: src/Admin/SendMailPage.php:57
-#: src/Admin/SendMailPage.php:94
-#: src/Admin/SendMailPage.php:111
+#: src/Admin/SendMailPage.php:61
+#: src/Admin/SendMailPage.php:62
+#: src/Admin/SendMailPage.php:99
+#: src/Admin/SendMailPage.php:116
 msgid "Send Mail"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:102
+#: src/Admin/SendMailPage.php:107
 msgid "You are not allowed to send mail."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:112
+#: src/Admin/SendMailPage.php:117
 msgid "Compose an HTML email and send it right away. Delivery runs through wp_mail, so whatever SMTP plugin the site uses handles transport."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:114
+#: src/Admin/SendMailPage.php:119
 msgid "Compose"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:118
+#: src/Admin/SendMailPage.php:123
 msgid "Recipient"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:134
+#: src/Admin/SendMailPage.php:139
 msgid "Any email address works, registered or not. Typing a username or name suggests site users."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:138
+#: src/Admin/SendMailPage.php:143
 msgid "Subject"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:142
+#: src/Admin/SendMailPage.php:147
 msgid "Message"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:148
-#: src/Admin/SendMailPage.php:187
+#: src/Admin/SendMailPage.php:153
+#: src/Admin/SendMailPage.php:192
 msgid "Send email"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:164
+#: src/Admin/SendMailPage.php:169
 msgid "Sending…"
 msgstr ""
 
-#: src/Admin/SendMailPage.php:173
-#: src/Admin/SendMailPage.php:307
+#: src/Admin/SendMailPage.php:178
+#: src/Admin/SendMailPage.php:312
 msgid "The email could not be sent."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:204
-#: src/Admin/SendMailPage.php:255
+#: src/Admin/SendMailPage.php:209
+#: src/Admin/SendMailPage.php:260
 msgid "You are not allowed to send mail to users."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:220
+#: src/Admin/SendMailPage.php:225
 msgid "Too many emails sent in a short time — wait a few minutes."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:225
+#: src/Admin/SendMailPage.php:230
 msgid "Enter a valid recipient email address."
 msgstr ""
 
-#: src/Admin/SendMailPage.php:231
+#: src/Admin/SendMailPage.php:236
 msgid "A subject and a message body are required."
 msgstr ""
 
 #. translators: %s: recipient email address.
-#: src/Admin/SendMailPage.php:247
+#: src/Admin/SendMailPage.php:252
 #, php-format
 msgid "Email sent to %s."
 msgstr ""
@@ -2020,8 +2018,8 @@ msgid "You are not allowed to view the server status."
 msgstr ""
 
 #: src/Admin/ServerStatusPage.php:38
-#: src/Domain/DevTools/DevToolsModule.php:94
-#: src/Domain/DevTools/DevToolsModule.php:96
+#: src/Domain/DevTools/DevToolsModule.php:104
+#: src/Domain/DevTools/DevToolsModule.php:106
 msgid "Server Status"
 msgstr ""
 
@@ -2213,8 +2211,8 @@ msgid "You are not allowed to view the shortcode registry."
 msgstr ""
 
 #: src/Admin/ShortcodesPage.php:29
-#: src/Domain/DevTools/DevToolsModule.php:123
-#: src/Domain/DevTools/DevToolsModule.php:124
+#: src/Domain/DevTools/DevToolsModule.php:133
+#: src/Domain/DevTools/DevToolsModule.php:134
 msgid "Shortcodes"
 msgstr ""
 
@@ -2403,8 +2401,8 @@ msgid "You are not allowed to view Dev Tools."
 msgstr ""
 
 #: src/Admin/UiSamplePage.php:51
-#: src/Domain/DevTools/DevToolsModule.php:150
-#: src/Domain/DevTools/DevToolsModule.php:151
+#: src/Domain/DevTools/DevToolsModule.php:160
+#: src/Domain/DevTools/DevToolsModule.php:161
 msgid "UI Kit"
 msgstr ""
 
@@ -2807,212 +2805,175 @@ msgstr ""
 msgid "No avatar image was uploaded."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:38
-#: src/Domain/Blocks/BlocksModule.php:39
-msgid "Blocks"
+#: src/Domain/Blocks/BlocksModule.php:42
+msgid "Page blocks"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:46
+#: src/Domain/Blocks/BlocksModule.php:48
 msgid "Home sections"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:47
+#: src/Domain/Blocks/BlocksModule.php:49
 msgid "Query templates for the front page, in listed order: a heading row (icon + title, \"more\" link at the right) over a list of posts. The front end resolves each section against its public list reads; rows without a title are skipped."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:55
-msgid "These lists replace the WordPress menu system and feed the shell's dynamic slots: the front end reads them through the `blocks` group of GET /aiya/core/v1/site, rows in listed order."
-msgstr ""
-
-#: src/Domain/Blocks/BlocksModule.php:61
+#: src/Domain/Blocks/BlocksModule.php:56
 msgid "Primary menu"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:62
+#: src/Domain/Blocks/BlocksModule.php:57
 msgid "The main navigation of the front-end shell (site header). Internal targets are front-end paths (/posts/), external ones absolute https URLs."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:76
+#: src/Domain/Blocks/BlocksModule.php:71
 msgid "Secondary menu"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:77
+#: src/Domain/Blocks/BlocksModule.php:72
 msgid "The auxiliary navigation of the front-end shell (footer, legal links). Same rules as the primary menu."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:87
+#: src/Domain/Blocks/BlocksModule.php:82
 msgid "Page-top advertisements"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:88
+#: src/Domain/Blocks/BlocksModule.php:83
 msgid "Ad slots rendered at the top of front-end pages, in listed order."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:95
+#: src/Domain/Blocks/BlocksModule.php:90
 msgid "Page-bottom advertisements"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:96
+#: src/Domain/Blocks/BlocksModule.php:91
 msgid "Ad slots rendered at the bottom of front-end pages, in listed order."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:125
+#: src/Domain/Blocks/BlocksModule.php:119
 msgid "Front-end path (/posts/) or external URL; empty falls back to the home path."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:132
-#: src/Domain/Blocks/BlocksModule.php:203
-#: src/Domain/Content/FrontendModule.php:214
+#: src/Domain/Blocks/BlocksModule.php:126
+#: src/Domain/Blocks/BlocksModule.php:197
+#: src/Domain/Content/FrontendModule.php:245
 #: src/Domain/Content/TermExtrasModule.php:59
 msgid "Icon"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:133
+#: src/Domain/Blocks/BlocksModule.php:127
 msgid "Optional Lucide icon name for the sidebar (e.g. \"home\", \"image\", \"file-text\")."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:139
+#: src/Domain/Blocks/BlocksModule.php:133
 msgid "Open in"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:142
+#: src/Domain/Blocks/BlocksModule.php:136
 msgid "Same window"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:143
+#: src/Domain/Blocks/BlocksModule.php:137
 msgid "New window"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:164
-#: src/Domain/Content/FrontendModule.php:208
+#: src/Domain/Blocks/BlocksModule.php:158
+#: src/Domain/Content/FrontendModule.php:239
 msgid "Link"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:165
+#: src/Domain/Blocks/BlocksModule.php:159
 msgid "Front-end path or external URL; empty renders the banner without a link."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:170
+#: src/Domain/Blocks/BlocksModule.php:164
 msgid "Link text"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:171
+#: src/Domain/Blocks/BlocksModule.php:165
 msgid "Also used as the banner image alt text."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:176
+#: src/Domain/Blocks/BlocksModule.php:170
 msgid "Ad image"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:177
+#: src/Domain/Blocks/BlocksModule.php:171
 msgid "The banner artwork from the media library."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:204
+#: src/Domain/Blocks/BlocksModule.php:198
 msgid "Optional Lucide icon name beside the title (e.g. \"newspaper\", \"flame\", \"star\")."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:209
+#: src/Domain/Blocks/BlocksModule.php:203
 msgid "Content type"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:219
+#: src/Domain/Blocks/BlocksModule.php:213
 msgid "Categories"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:220
+#: src/Domain/Blocks/BlocksModule.php:214
 msgid "Nothing checked shows every category of the type; the listed vocabularies cover posts and resources alike."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:231
+#: src/Domain/Blocks/BlocksModule.php:225
 msgid "Post count"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:232
+#: src/Domain/Blocks/BlocksModule.php:226
 msgid "How many posts the section lists (1-100)."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:241
+#: src/Domain/Blocks/BlocksModule.php:235
 msgid "\"More\" link"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:242
+#: src/Domain/Blocks/BlocksModule.php:236
 msgid "Optional override for the heading row's link; empty derives the type's own archive path (with the chosen categories)."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:63
-msgid "Operational content settings: retention periods, the site-level SEO head values served through GET /aiya/core/v1/site, and the NSFW vocabularies the read path can exclude on request."
-msgstr ""
-
-#: src/Domain/Content/ContentManagementModule.php:69
+#: src/Domain/Content/ContentManagementModule.php:70
 msgid "Retention policy"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:75
+#: src/Domain/Content/ContentManagementModule.php:76
 msgid "Notification retention (days)"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:76
+#: src/Domain/Content/ContentManagementModule.php:77
 msgid "A daily cleanup removes stored notifications older than this many days."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:84
+#: src/Domain/Content/ContentManagementModule.php:85
 msgid "Ledger retention (days)"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:85
+#: src/Domain/Content/ContentManagementModule.php:86
 msgid "How long closed credit history (spent rows, emptied buckets) is kept before the daily cleanup removes it. Live unexpired buckets are never touched."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:93
-msgid "SEO & analytics"
-msgstr ""
-
-#: src/Domain/Content/ContentManagementModule.php:99
-msgid "SEO keywords"
-msgstr ""
-
-#: src/Domain/Content/ContentManagementModule.php:100
-msgid "Comma-separated keywords for the site home page."
-msgstr ""
-
-#: src/Domain/Content/ContentManagementModule.php:106
-msgid "SEO description"
-msgstr ""
-
-#: src/Domain/Content/ContentManagementModule.php:107
-msgid "Meta description for the site home page."
-msgstr ""
-
-#: src/Domain/Content/ContentManagementModule.php:113
-msgid "Google Analytics ID"
-msgstr ""
-
-#: src/Domain/Content/ContentManagementModule.php:114
-msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
-msgstr ""
-
-#: src/Domain/Content/ContentManagementModule.php:120
+#: src/Domain/Content/ContentManagementModule.php:94
 msgid "NSFW filter"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:127
+#: src/Domain/Content/ContentManagementModule.php:101
 msgid "Terms picked here count as NSFW: the front end asks for them to be dropped from listings (any matching category excludes the post). Untouched by default — detail pages and direct archive visits stay reachable, and a signed-in user with \"always show NSFW content\" ignores the filter."
 msgstr ""
 
 #. translators: %s: content type label (e.g. Posts).
-#: src/Domain/Content/ContentManagementModule.php:155
+#: src/Domain/Content/ContentManagementModule.php:129
 #, php-format
 msgid "NSFW terms — %s"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:156
+#: src/Domain/Content/ContentManagementModule.php:130
 msgid "Every picked term is treated as NSFW content for this type; posts carrying any of them drop out of requested listings."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:167
-#: src/Domain/Content/ContentManagementModule.php:168
-msgid "Content management"
+#: src/Domain/Content/ContentManagementModule.php:141
+#: src/Domain/Content/ContentManagementModule.php:142
+msgid "Backend"
 msgstr ""
 
 #: src/Domain/Content/ContentTypeModule.php:46
@@ -3035,211 +2996,232 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:73
+#: src/Domain/Content/FrontendModule.php:88
+#: src/Domain/Content/FrontendModule.php:90
 msgid "Frontend"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:74
+#: src/Domain/Content/FrontendModule.php:89
 msgid "AIYA CMS Core"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:83
-msgid "These fields feed the front-end shell through GET /aiya/core/v1/site; leave a footer string empty to keep it out of the footer."
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:89
+#: src/Domain/Content/FrontendModule.php:99
 msgid "Basic settings"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:95
+#: src/Domain/Content/FrontendModule.php:105
 msgid "Frontend domain"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:96
+#: src/Domain/Content/FrontendModule.php:106
 msgid "The canonical front-end origin including the scheme, for example https://www.example.com. When set, password-reset links always point here; more front-end-facing features will reuse this value. Leave empty to keep reset links on this site address."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:102
+#: src/Domain/Content/FrontendModule.php:112
 msgid "Front-end language"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:103
+#: src/Domain/Content/FrontendModule.php:113
 msgid "The interface language signed-out visitors start with; signed-in members override it from their account settings. Auto follows the WordPress site language."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:106
+#: src/Domain/Content/FrontendModule.php:116
 msgid "Auto (site language)"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:116
-msgid "Presentation defaults"
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:122
+#: src/Domain/Content/FrontendModule.php:126
 msgid "Theme color"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:123
+#: src/Domain/Content/FrontendModule.php:127
 msgid "Buttons, links and active states across the front end derive from this color."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:129
+#: src/Domain/Content/FrontendModule.php:133
 msgid "Default color mode"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:130
+#: src/Domain/Content/FrontendModule.php:134
 msgid "Color scheme a first-time visitor starts with."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:133
+#: src/Domain/Content/FrontendModule.php:137
 msgid "Follow the system"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:134
+#: src/Domain/Content/FrontendModule.php:138
 msgid "Dark"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:135
+#: src/Domain/Content/FrontendModule.php:139
 msgid "Light"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:141
+#: src/Domain/Content/FrontendModule.php:145
+msgid "Fallback images & banner"
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:151
 msgid "Site fallback cover"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:142
+#: src/Domain/Content/FrontendModule.php:152
 msgid "Used wherever a card cover is missing: list card thumbnails and category cards — each surface derives its own crop from this one image. The article hero has its own default below."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:148
+#: src/Domain/Content/FrontendModule.php:158
 msgid "Default article hero"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:149
+#: src/Domain/Content/FrontendModule.php:159
 msgid "The banner crop served as the article hero for posts whose author did not set a featured image. Leave unset to let those heroes fall back to the card cover chain instead."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:155
+#: src/Domain/Content/FrontendModule.php:165
 msgid "Empty state image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:156
+#: src/Domain/Content/FrontendModule.php:166
 msgid "Placeholder shown on empty lists and error cards across the front end."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:162
-msgid "Header banner"
-msgstr ""
-
-#: src/Domain/Content/FrontendModule.php:168
+#: src/Domain/Content/FrontendModule.php:172
 msgid "Show the header banner"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:169
+#: src/Domain/Content/FrontendModule.php:173
 msgid "Turns the compact top bar into a tall header backed by the banner image."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:175
+#: src/Domain/Content/FrontendModule.php:179
 msgid "Banner image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:176
+#: src/Domain/Content/FrontendModule.php:180
 msgid "Wide image shown behind the top navigation while the banner is on."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:182
+#: src/Domain/Content/FrontendModule.php:186
+msgid "SEO & analytics"
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:192
+msgid "SEO keywords"
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:193
+msgid "Comma-separated keywords for the site home page."
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:199
+msgid "SEO description"
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:200
+msgid "Meta description for the site home page."
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:206
+msgid "Google Analytics ID"
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:207
+msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
+msgstr ""
+
+#: src/Domain/Content/FrontendModule.php:213
 msgid "Compliance footer"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:188
+#: src/Domain/Content/FrontendModule.php:219
 msgid "Footer hitokoto"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:189
+#: src/Domain/Content/FrontendModule.php:220
 msgid "Show a random one-liner quote as the footer sign-off."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:195
+#: src/Domain/Content/FrontendModule.php:226
 msgid "Compliance links"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:196
+#: src/Domain/Content/FrontendModule.php:227
 msgid "One row per filing shown in the footer, e.g. ICP or public security."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:202
-#: src/Modules/MediaModule.php:256
+#: src/Domain/Content/FrontendModule.php:233
+#: src/Modules/MediaModule.php:260
 msgid "Text"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:217
+#: src/Domain/Content/FrontendModule.php:248
 msgid "Shield (ICP)"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:218
+#: src/Domain/Content/FrontendModule.php:249
 msgid "Police badge"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:219
+#: src/Domain/Content/FrontendModule.php:250
 msgid "Custom image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:225
+#: src/Domain/Content/FrontendModule.php:256
 msgid "Custom icon URL"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:226
+#: src/Domain/Content/FrontendModule.php:257
 msgid "Used when the icon template is set to custom."
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:66
+#: src/Domain/Content/SlugModule.php:67
 msgid "Slug generation"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:71
+#: src/Domain/Content/SlugModule.php:72
 msgid "Post slug generation"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:72
+#: src/Domain/Content/SlugModule.php:73
 msgid "Pinyin fills empty slugs from the title; the ID modes force an ID-based slug on every save."
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:75
-#: src/Domain/Content/SlugModule.php:95
+#: src/Domain/Content/SlugModule.php:76
+#: src/Domain/Content/SlugModule.php:96
 #: src/Domain/Identity/AvatarModule.php:107
-#: src/Infrastructure/Security/SecurityModule.php:126
+#: src/Infrastructure/Security/SecurityModule.php:113
 msgid "Off"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:76
+#: src/Domain/Content/SlugModule.php:77
 msgid "Pinyin from title"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:77
+#: src/Domain/Content/SlugModule.php:78
 msgid "ID, zero padded (AV style)"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:78
+#: src/Domain/Content/SlugModule.php:79
 msgid "ID, XDE encoded (BV style)"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:84
+#: src/Domain/Content/SlugModule.php:85
 msgid "ID slug prefix"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:85
+#: src/Domain/Content/SlugModule.php:86
 msgid "Prepended to ID-based post slugs in both ID modes; non-URL characters are stripped."
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:91
+#: src/Domain/Content/SlugModule.php:92
 msgid "Taxonomy slug pinyin"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:92
+#: src/Domain/Content/SlugModule.php:93
 msgid "For every taxonomy: an empty term slug is filled with pinyin converted from the term name."
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:96
+#: src/Domain/Content/SlugModule.php:97
 msgid "Pinyin from the term name"
 msgstr ""
 
@@ -3309,17 +3291,17 @@ msgid "Holders at this role level or above spend at zero on every consumer — d
 msgstr ""
 
 #: src/Domain/Credit/CreditModule.php:112
-#: src/Infrastructure/Security/SecurityModule.php:129
+#: src/Infrastructure/Security/SecurityModule.php:116
 msgid "Author and above"
 msgstr ""
 
 #: src/Domain/Credit/CreditModule.php:113
-#: src/Infrastructure/Security/SecurityModule.php:130
+#: src/Infrastructure/Security/SecurityModule.php:117
 msgid "Editor and above"
 msgstr ""
 
 #: src/Domain/Credit/CreditModule.php:114
-#: src/Infrastructure/Security/SecurityModule.php:131
+#: src/Infrastructure/Security/SecurityModule.php:118
 msgid "Administrator only"
 msgstr ""
 
@@ -3354,7 +3336,7 @@ msgstr ""
 msgid "This spend was already recorded."
 msgstr ""
 
-#: src/Domain/DevTools/DevToolsModule.php:95
+#: src/Domain/DevTools/DevToolsModule.php:105
 msgid "Dev Tools"
 msgstr ""
 
@@ -3637,23 +3619,28 @@ msgstr ""
 msgid "Data group %1$s: %2$s"
 msgstr ""
 
-#: src/Domain/FileServe/FileServeModule.php:77
+#: src/Domain/FileServe/FileServeModule.php:71
+#: src/Domain/FileServe/FileServeModule.php:72
+msgid "External services"
+msgstr ""
+
+#: src/Domain/FileServe/FileServeModule.php:80
 msgid "File lists"
 msgstr ""
 
-#: src/Domain/FileServe/FileServeModule.php:83
+#: src/Domain/FileServe/FileServeModule.php:86
 msgid "List cache (minutes)"
 msgstr ""
 
-#: src/Domain/FileServe/FileServeModule.php:84
+#: src/Domain/FileServe/FileServeModule.php:87
 msgid "How long a list is served from the object cache before its source is asked again; 0 disables caching. Editing a post's groups starts a new cache generation on its own."
 msgstr ""
 
-#: src/Domain/FileServe/FileServeModule.php:93
+#: src/Domain/FileServe/FileServeModule.php:96
 msgid "File type icons"
 msgstr ""
 
-#: src/Domain/FileServe/FileServeModule.php:94
+#: src/Domain/FileServe/FileServeModule.php:97
 msgid "Classify each row by extension so the front end can pick an icon."
 msgstr ""
 
@@ -3865,23 +3852,23 @@ msgstr ""
 msgid "The session token could not be stored."
 msgstr ""
 
-#: src/Domain/Integrations/IntegrationsModule.php:40
+#: src/Domain/Integrations/IntegrationsModule.php:41
 msgid "Service integrations"
 msgstr ""
 
-#: src/Domain/Integrations/IntegrationsModule.php:46
+#: src/Domain/Integrations/IntegrationsModule.php:47
 msgid "Service key"
 msgstr ""
 
-#: src/Domain/Integrations/IntegrationsModule.php:47
+#: src/Domain/Integrations/IntegrationsModule.php:48
 msgid "One shared key for every self-hosted companion service that binds site sign-in and credit spending. Generate a random key with the button (or paste your own) and configure it in each service; leave empty to switch the integration endpoints off. Rotating the key means updating every bound service."
 msgstr ""
 
-#: src/Domain/Integrations/ServiceKey.php:46
+#: src/Domain/Integrations/ServiceKey.php:47
 msgid "The service integration is not configured."
 msgstr ""
 
-#: src/Domain/Integrations/ServiceKey.php:54
+#: src/Domain/Integrations/ServiceKey.php:55
 msgid "Service authentication failed."
 msgstr ""
 
@@ -4688,249 +4675,237 @@ msgstr ""
 msgid "Optimization"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:80
-msgid "Stripping is enforced at runtime; REST reads for content stay available for the Astro front end."
-msgstr ""
-
-#: src/Infrastructure/Headless/HeadlessModule.php:86
+#: src/Infrastructure/Headless/HeadlessModule.php:81
 msgid "Disabled features"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:92
+#: src/Infrastructure/Headless/HeadlessModule.php:87
 msgid "Block editor (Gutenberg)"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:93
+#: src/Infrastructure/Headless/HeadlessModule.php:88
 msgid "Force the classic editor for every post type"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:99
+#: src/Infrastructure/Headless/HeadlessModule.php:94
 msgid "Block widgets"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:100
+#: src/Infrastructure/Headless/HeadlessModule.php:95
 msgid "Revert the widgets screen to the classic interface"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:106
+#: src/Infrastructure/Headless/HeadlessModule.php:101
 msgid "Site editor and menus"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:107
+#: src/Infrastructure/Headless/HeadlessModule.php:102
 msgid "Remove the site editor and menus screens and block direct access"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:108
+#: src/Infrastructure/Headless/HeadlessModule.php:103
 msgid "The customizer and themes screens stay available for the shell theme."
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:114
+#: src/Infrastructure/Headless/HeadlessModule.php:109
 msgid "Font library and global styles"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:115
+#: src/Infrastructure/Headless/HeadlessModule.php:110
 msgid "Remove the font library screen and the font/global-style REST routes"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:121
+#: src/Infrastructure/Headless/HeadlessModule.php:116
 msgid "Block patterns and block directory"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:122
+#: src/Infrastructure/Headless/HeadlessModule.php:117
 msgid "Drop core block patterns, remote patterns and their REST routes"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:128
+#: src/Infrastructure/Headless/HeadlessModule.php:123
 msgid "Post revisions"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:129
+#: src/Infrastructure/Headless/HeadlessModule.php:124
 msgid "Stop saving revisions and editor autosave snapshots for every post type"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:130
+#: src/Infrastructure/Headless/HeadlessModule.php:125
 msgid "Revisions already in the database stay untouched; nothing consumes them on the contract API."
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:136
+#: src/Infrastructure/Headless/HeadlessModule.php:131
 msgid "Pingbacks and trackbacks"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:137
+#: src/Infrastructure/Headless/HeadlessModule.php:132
 msgid "Disable the pingback/trackback protocols entirely"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:143
+#: src/Infrastructure/Headless/HeadlessModule.php:138
 msgid "Emoji"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:144
+#: src/Infrastructure/Headless/HeadlessModule.php:139
 msgid "Remove the emoji detection script and staticization filters"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:150
+#: src/Infrastructure/Headless/HeadlessModule.php:145
 msgid "oEmbed discovery"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:151
+#: src/Infrastructure/Headless/HeadlessModule.php:146
 msgid "Remove discovery links, the embed route and auto-embeds"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:157
+#: src/Infrastructure/Headless/HeadlessModule.php:152
 msgid "XML-RPC"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:158
+#: src/Infrastructure/Headless/HeadlessModule.php:153
 msgid "Disable the XML-RPC server entirely"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:164
+#: src/Infrastructure/Headless/HeadlessModule.php:159
 msgid "Front-end head cleanup"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:165
+#: src/Infrastructure/Headless/HeadlessModule.php:160
 msgid "Strip generator, RSD, shortlink, REST hints and block CSS from front-end output"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:171
+#: src/Infrastructure/Headless/HeadlessModule.php:166
 msgid "Native /wp/v2 REST API"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:172
+#: src/Infrastructure/Headless/HeadlessModule.php:167
 msgid "Answer 404 for the whole /wp/v2 API — only the aiya contract routes stay public"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:173
-msgid "The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Sessions meeting the Security page's back-end minimum role keep the full /wp/v2 for admin screens such as the media picker — author level and above while that gate is off; signed-in sessions below the level are redirected to the front-end site."
+#: src/Infrastructure/Headless/HeadlessModule.php:168
+msgid "The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Sessions meeting the Admin protection group's back-end minimum role keep the full /wp/v2 for admin screens such as the media picker — author level and above while that gate is off; signed-in sessions below the level are redirected to the front-end site."
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:179
+#: src/Infrastructure/Headless/HeadlessModule.php:174
 msgid "XML sitemaps"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:180
+#: src/Infrastructure/Headless/HeadlessModule.php:175
 msgid "Answer 404 for wp-sitemap.xml and drop the robots.txt sitemap line"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:186
+#: src/Infrastructure/Headless/HeadlessModule.php:181
 msgid "Feeds"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:187
+#: src/Infrastructure/Headless/HeadlessModule.php:182
 msgid "Answer 404 for every RSS/RDF/Atom feed URL"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:550
+#: src/Infrastructure/Headless/HeadlessModule.php:545
 msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA CMS Core > Optimization."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:74
-#: src/Infrastructure/Security/SecurityModule.php:75
-msgid "Security hardening"
-msgstr ""
-
 #: src/Infrastructure/Security/SecurityModule.php:82
-msgid "REST route control"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:88
-msgid "REST cross-origin origins"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:89
-msgid "Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here."
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:95
 msgid "Login restrictions"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:101
+#: src/Infrastructure/Security/SecurityModule.php:88
 msgid "Email-address logins"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:102
+#: src/Infrastructure/Security/SecurityModule.php:89
 msgid "Only accept email addresses as the login field"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:108
+#: src/Infrastructure/Security/SecurityModule.php:95
 msgid "Login page countdown gate"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:109
+#: src/Infrastructure/Security/SecurityModule.php:96
 msgid "Show a countdown before the wp-login.php form becomes usable"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:110
+#: src/Infrastructure/Security/SecurityModule.php:97
 msgid "The login form loads by itself after a short countdown; nothing to configure. Credential-stuffing requests that never wait out the countdown reach a page without a form, and the unlock parameter rotates by itself every 30 minutes."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:116
+#: src/Infrastructure/Security/SecurityModule.php:103
 msgid "Admin protection"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:122
+#: src/Infrastructure/Security/SecurityModule.php:109
 msgid "Admin back end minimum role"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:123
-msgid "Users below the selected role are redirected to the front-end site. The same level unlocks the native /wp/v2 API for their sessions (see Optimization). Off by default."
+#: src/Infrastructure/Security/SecurityModule.php:110
+msgid "Users below the selected role are redirected to the front-end site. The same level unlocks the native /wp/v2 API for their sessions (see Disabled features). Off by default."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:127
+#: src/Infrastructure/Security/SecurityModule.php:114
 msgid "Subscriber and above"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:128
+#: src/Infrastructure/Security/SecurityModule.php:115
 msgid "Contributor and above"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:137
+#: src/Infrastructure/Security/SecurityModule.php:124
 msgid "Request URI guard"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:138
+#: src/Infrastructure/Security/SecurityModule.php:125
 msgid "Reject logged-out requests with oversized or probe-shaped URIs (414, REST routes excepted)"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:144
-msgid "Uninstall"
+#: src/Infrastructure/Security/SecurityModule.php:131
+msgid "REST route control"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:151
-msgid "Deleting the plugin keeps all of its data — reinstalling picks up where it left off. The Plugins screen always asks before erasing; the switch below is the standing answer for WP-CLI and scripted uninstalls, and wiping cannot be undone."
+#: src/Infrastructure/Security/SecurityModule.php:137
+msgid "REST cross-origin origins"
+msgstr ""
+
+#: src/Infrastructure/Security/SecurityModule.php:138
+msgid "Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here."
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:157
-msgid "Erase data on scripted uninstalls"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:158
-msgid "Wipe everything on WP-CLI / scripted uninstalls"
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:159
-msgid "Off (default) keeps the data. AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php forces the wipe everywhere and skips the question."
-msgstr ""
-
-#: src/Infrastructure/Security/SecurityModule.php:179
 msgid "Please log in with your email address."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:344
+#: src/Infrastructure/Security/SecurityModule.php:322
 msgid "Sign in"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:359
+#: src/Infrastructure/Security/SecurityModule.php:337
 msgid "This sign-in page opens automatically."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:361
+#: src/Infrastructure/Security/SecurityModule.php:339
 msgid "Please wait a moment — the sign-in form loads by itself."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:362
+#: src/Infrastructure/Security/SecurityModule.php:340
 msgid "Continue to the sign-in form"
+msgstr ""
+
+#: src/Infrastructure/Uninstall/UninstallModule.php:38
+#: src/Infrastructure/Uninstall/UninstallModule.php:39
+msgid "Uninstall"
+msgstr ""
+
+#: src/Infrastructure/Uninstall/UninstallModule.php:47
+msgid "Erase data on scripted uninstalls"
+msgstr ""
+
+#: src/Infrastructure/Uninstall/UninstallModule.php:48
+msgid "Wipe everything on WP-CLI / scripted uninstalls"
+msgstr ""
+
+#: src/Infrastructure/Uninstall/UninstallModule.php:49
+msgid "Off (default) keeps all of the plugin's data — reinstalling picks up where it left off. The Plugins screen always asks before erasing; this switch is the standing answer for WP-CLI and scripted uninstalls, and wiping cannot be undone. AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php forces the wipe everywhere and skips the question."
 msgstr ""
 
 #: src/Modules/AvatarAjaxModule.php:37
@@ -4959,155 +4934,158 @@ msgid "Image processor"
 msgstr ""
 
 #: src/Modules/MediaModule.php:186
-#: src/Modules/MediaModule.php:255
-msgid "Image"
+msgid "Image & watermark"
 msgstr ""
 
-#: src/Modules/MediaModule.php:193
+#: src/Modules/MediaModule.php:197
 msgid "Image processing"
 msgstr ""
 
-#: src/Modules/MediaModule.php:199
+#: src/Modules/MediaModule.php:203
 msgid "Media library takeover"
 msgstr ""
 
-#: src/Modules/MediaModule.php:200
+#: src/Modules/MediaModule.php:204
 msgid "Run uploads through the image processor: scale, watermark, format conversion"
 msgstr ""
 
-#: src/Modules/MediaModule.php:201
+#: src/Modules/MediaModule.php:205
 msgid "WebP/AVIF saving requires the libwebp/libavif PHP libraries; unsupported targets fall back to the source format."
 msgstr ""
 
-#: src/Modules/MediaModule.php:207
+#: src/Modules/MediaModule.php:211
 msgid "Save format"
 msgstr ""
 
-#: src/Modules/MediaModule.php:210
+#: src/Modules/MediaModule.php:214
 msgid "Keep source format"
 msgstr ""
 
-#: src/Modules/MediaModule.php:211
+#: src/Modules/MediaModule.php:215
 msgid "JPG"
 msgstr ""
 
-#: src/Modules/MediaModule.php:212
+#: src/Modules/MediaModule.php:216
 msgid "WebP"
 msgstr ""
 
-#: src/Modules/MediaModule.php:213
+#: src/Modules/MediaModule.php:217
 msgid "AVIF"
 msgstr ""
 
-#: src/Modules/MediaModule.php:219
+#: src/Modules/MediaModule.php:223
 msgid "Max image width"
 msgstr ""
 
-#: src/Modules/MediaModule.php:220
+#: src/Modules/MediaModule.php:224
 msgid "Uploads wider than this are scaled down; 0 disables the limit."
 msgstr ""
 
-#: src/Modules/MediaModule.php:228
+#: src/Modules/MediaModule.php:232
 msgid "Image quality"
 msgstr ""
 
-#: src/Modules/MediaModule.php:229
+#: src/Modules/MediaModule.php:233
 msgid "Save quality from 0 to 100; PNG maps it to the compression level."
 msgstr ""
 
-#: src/Modules/MediaModule.php:238
+#: src/Modules/MediaModule.php:242
 msgid "Font file"
 msgstr ""
 
-#: src/Modules/MediaModule.php:239
+#: src/Modules/MediaModule.php:243
 msgid "Content URL, content-relative path or absolute path for cover titles and text watermarks. Leave empty to use the bundled font."
 msgstr ""
 
-#: src/Modules/MediaModule.php:245
+#: src/Modules/MediaModule.php:249
 msgid "Watermark"
 msgstr ""
 
-#: src/Modules/MediaModule.php:251
+#: src/Modules/MediaModule.php:255
 msgid "Watermark mode"
 msgstr ""
 
-#: src/Modules/MediaModule.php:254
+#: src/Modules/MediaModule.php:258
 msgid "Disabled"
 msgstr ""
 
-#: src/Modules/MediaModule.php:262
-msgid "Watermark position"
-msgstr ""
-
-#: src/Modules/MediaModule.php:265
-msgid "Center"
+#: src/Modules/MediaModule.php:259
+msgid "Image"
 msgstr ""
 
 #: src/Modules/MediaModule.php:266
-msgid "Center left"
-msgstr ""
-
-#: src/Modules/MediaModule.php:267
-msgid "Center right"
-msgstr ""
-
-#: src/Modules/MediaModule.php:268
-msgid "Center top"
+msgid "Watermark position"
 msgstr ""
 
 #: src/Modules/MediaModule.php:269
-msgid "Center bottom"
+msgid "Center"
 msgstr ""
 
 #: src/Modules/MediaModule.php:270
-msgid "Top right"
+msgid "Center left"
 msgstr ""
 
 #: src/Modules/MediaModule.php:271
-msgid "Top left"
+msgid "Center right"
 msgstr ""
 
 #: src/Modules/MediaModule.php:272
-msgid "Top center"
+msgid "Center top"
 msgstr ""
 
 #: src/Modules/MediaModule.php:273
-msgid "Bottom right"
+msgid "Center bottom"
 msgstr ""
 
 #: src/Modules/MediaModule.php:274
-msgid "Bottom left"
+msgid "Top right"
 msgstr ""
 
 #: src/Modules/MediaModule.php:275
+msgid "Top left"
+msgstr ""
+
+#: src/Modules/MediaModule.php:276
+msgid "Top center"
+msgstr ""
+
+#: src/Modules/MediaModule.php:277
+msgid "Bottom right"
+msgstr ""
+
+#: src/Modules/MediaModule.php:278
+msgid "Bottom left"
+msgstr ""
+
+#: src/Modules/MediaModule.php:279
 msgid "Bottom center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:281
+#: src/Modules/MediaModule.php:285
 msgid "Watermark image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:282
+#: src/Modules/MediaModule.php:286
 msgid "Media library attachment used in image mode; its own alpha is kept as-is."
 msgstr ""
 
-#: src/Modules/MediaModule.php:288
+#: src/Modules/MediaModule.php:292
 msgid "Watermark text"
 msgstr ""
 
-#: src/Modules/MediaModule.php:294
+#: src/Modules/MediaModule.php:298
 msgid "Watermark font size"
 msgstr ""
 
-#: src/Modules/MediaModule.php:302
+#: src/Modules/MediaModule.php:306
 msgid "Watermark opacity (text)"
 msgstr ""
 
-#: src/Modules/MediaModule.php:303
+#: src/Modules/MediaModule.php:307
 msgid "0 = fully transparent, 100 = fully opaque; applies to the text watermark only."
 msgstr ""
 
-#: src/Modules/MediaModule.php:397
+#: src/Modules/MediaModule.php:401
 msgid "Image processing failed; the upload was cancelled."
 msgstr ""
 

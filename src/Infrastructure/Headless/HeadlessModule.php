@@ -73,13 +73,8 @@ final class HeadlessModule implements Module
             'menu_title' => __('Optimization', 'aiya-core'),
             'parent' => 'aiya-core-frontend',
             'option_name' => 'aiya_core_optimization',
+            'menu_position' => 2,
             'fields' => [
-                [
-                    'id' => 'note_scope',
-                    'type' => 'note',
-                    'label' => __('Stripping is enforced at runtime; REST reads for content stay available for the Astro front end.', 'aiya-core'),
-                    'default' => null,
-                ],
                 [
                     'id' => 'heading_features',
                     'type' => 'heading',
@@ -170,7 +165,7 @@ final class HeadlessModule implements Module
                     'type' => 'switch',
                     'label' => __('Native /wp/v2 REST API', 'aiya-core'),
                     'checkbox_label' => __('Answer 404 for the whole /wp/v2 API — only the aiya contract routes stay public', 'aiya-core'),
-                    'description' => __('The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Sessions meeting the Security page\'s back-end minimum role keep the full /wp/v2 for admin screens such as the media picker — author level and above while that gate is off; signed-in sessions below the level are redirected to the front-end site.', 'aiya-core'),
+                    'description' => __('The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Sessions meeting the Admin protection group\'s back-end minimum role keep the full /wp/v2 for admin screens such as the media picker — author level and above while that gate is off; signed-in sessions below the level are redirected to the front-end site.', 'aiya-core'),
                     'default' => true,
                 ],
                 [

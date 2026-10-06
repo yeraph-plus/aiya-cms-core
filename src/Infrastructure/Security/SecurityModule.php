@@ -13,8 +13,10 @@ use Aiya\Core\Settings\Registry;
  * surface of the legacy basic-security component.
  *
  * Scope (batch 1 of docs/optimize-migration-assessment.md; the native /wp/v2
- * surface lock and the sitemap toggles moved to HeadlessModule in the
- * current batch — the API lock now lives with the other headless strips):
+ * surface lock and the sitemap toggles moved to HeadlessModule in that
+ * batch — the API lock lives with the other headless strips; the settings
+ * regroup folded this module's groups into the Optimization page, and the
+ * uninstall switch moved to its own Uninstall page):
  *  - force email-address logins for wp-admin;
  *  - optional role gate for the admin back end — the one access level both
  *    guarded surfaces read: wp-admin redirects below-gate sessions to the
@@ -33,7 +35,8 @@ use Aiya\Core\Settings\Registry;
  */
 final class SecurityModule implements Module
 {
-    private const PAGE_SLUG = 'security';
+    /** The Optimization page this module contributes its groups to. */
+    private const PAGE_SLUG = 'optimization';
     private const GATE_COOKIE = 'aiya_core_login_gate';
     private const GATE_COOKIE_TTL = 10 * MINUTE_IN_SECONDS;
     private const GATE_PARAM = 'login_open';
@@ -69,96 +72,71 @@ final class SecurityModule implements Module
 
     public function settings(): void
     {
-        $this->settings->addPage([
-            'slug' => self::PAGE_SLUG,
-            'title' => __('Security hardening', 'aiya-core'),
-            'menu_title' => __('Security hardening', 'aiya-core'),
-            'parent' => 'aiya-core-frontend',
-            'option_name' => 'aiya_core_security',
-            'fields' => [
-                [
-                    'id' => 'heading_rest',
-                    'type' => 'heading',
-                    'label' => __('REST route control', 'aiya-core'),
-                    'level' => '2',
+        // Priority 11 appends the groups behind HeadlessModule's page
+        // registration (priority 10); the avatar group follows in the same
+        // priority band.
+        $this->settings->addFields(self::PAGE_SLUG, [
+            [
+                'id' => 'heading_login',
+                'type' => 'heading',
+                'label' => __('Login restrictions', 'aiya-core'),
+                'level' => '2',
+            ],
+            [
+                'id' => 'force_email_login',
+                'type' => 'switch',
+                'label' => __('Email-address logins', 'aiya-core'),
+                'checkbox_label' => __('Only accept email addresses as the login field', 'aiya-core'),
+                'default' => true,
+            ],
+            [
+                'id' => 'login_param_gate_enable',
+                'type' => 'switch',
+                'label' => __('Login page countdown gate', 'aiya-core'),
+                'checkbox_label' => __('Show a countdown before the wp-login.php form becomes usable', 'aiya-core'),
+                'description' => __('The login form loads by itself after a short countdown; nothing to configure. Credential-stuffing requests that never wait out the countdown reach a page without a form, and the unlock parameter rotates by itself every 30 minutes.', 'aiya-core'),
+                'default' => false,
+            ],
+            [
+                'id' => 'heading_admin',
+                'type' => 'heading',
+                'label' => __('Admin protection', 'aiya-core'),
+                'level' => '2',
+            ],
+            [
+                'id' => 'admin_backend_min_role',
+                'type' => 'select',
+                'label' => __('Admin back end minimum role', 'aiya-core'),
+                'description' => __('Users below the selected role are redirected to the front-end site. The same level unlocks the native /wp/v2 API for their sessions (see Disabled features). Off by default.', 'aiya-core'),
+                'default' => 'off',
+                'options' => [
+                    'off' => __('Off', 'aiya-core'),
+                    'subscriber' => __('Subscriber and above', 'aiya-core'),
+                    'contributor' => __('Contributor and above', 'aiya-core'),
+                    'author' => __('Author and above', 'aiya-core'),
+                    'editor' => __('Editor and above', 'aiya-core'),
+                    'administrator' => __('Administrator only', 'aiya-core'),
                 ],
-                [
-                    'id' => 'rest_allowed_origins',
-                    'type' => 'array',
-                    'label' => __('REST cross-origin origins', 'aiya-core'),
-                    'description' => __('Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here.', 'aiya-core'),
-                    'default' => [],
-                ],
-                [
-                    'id' => 'heading_login',
-                    'type' => 'heading',
-                    'label' => __('Login restrictions', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'force_email_login',
-                    'type' => 'switch',
-                    'label' => __('Email-address logins', 'aiya-core'),
-                    'checkbox_label' => __('Only accept email addresses as the login field', 'aiya-core'),
-                    'default' => true,
-                ],
-                [
-                    'id' => 'login_param_gate_enable',
-                    'type' => 'switch',
-                    'label' => __('Login page countdown gate', 'aiya-core'),
-                    'checkbox_label' => __('Show a countdown before the wp-login.php form becomes usable', 'aiya-core'),
-                    'description' => __('The login form loads by itself after a short countdown; nothing to configure. Credential-stuffing requests that never wait out the countdown reach a page without a form, and the unlock parameter rotates by itself every 30 minutes.', 'aiya-core'),
-                    'default' => false,
-                ],
-                [
-                    'id' => 'heading_admin',
-                    'type' => 'heading',
-                    'label' => __('Admin protection', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'admin_backend_min_role',
-                    'type' => 'select',
-                    'label' => __('Admin back end minimum role', 'aiya-core'),
-                    'description' => __('Users below the selected role are redirected to the front-end site. The same level unlocks the native /wp/v2 API for their sessions (see Optimization). Off by default.', 'aiya-core'),
-                    'default' => 'off',
-                    'options' => [
-                        'off' => __('Off', 'aiya-core'),
-                        'subscriber' => __('Subscriber and above', 'aiya-core'),
-                        'contributor' => __('Contributor and above', 'aiya-core'),
-                        'author' => __('Author and above', 'aiya-core'),
-                        'editor' => __('Editor and above', 'aiya-core'),
-                        'administrator' => __('Administrator only', 'aiya-core'),
-                    ],
-                ],
-                [
-                    'id' => 'request_uri_guard',
-                    'type' => 'switch',
-                    'label' => __('Request URI guard', 'aiya-core'),
-                    'checkbox_label' => __('Reject logged-out requests with oversized or probe-shaped URIs (414, REST routes excepted)', 'aiya-core'),
-                    'default' => true,
-                ],
-                [
-                    'id' => 'heading_uninstall',
-                    'type' => 'heading',
-                    'label' => __('Uninstall', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'note_uninstall',
-                    'type' => 'note',
-                    'variant' => 'warning',
-                    'label' => __('Deleting the plugin keeps all of its data — reinstalling picks up where it left off. The Plugins screen always asks before erasing; the switch below is the standing answer for WP-CLI and scripted uninstalls, and wiping cannot be undone.', 'aiya-core'),
-                    'default' => null,
-                ],
-                [
-                    'id' => 'uninstall_purge',
-                    'type' => 'switch',
-                    'label' => __('Erase data on scripted uninstalls', 'aiya-core'),
-                    'checkbox_label' => __('Wipe everything on WP-CLI / scripted uninstalls', 'aiya-core'),
-                    'description' => __('Off (default) keeps the data. AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php forces the wipe everywhere and skips the question.', 'aiya-core'),
-                    'default' => false,
-                ],
+            ],
+            [
+                'id' => 'request_uri_guard',
+                'type' => 'switch',
+                'label' => __('Request URI guard', 'aiya-core'),
+                'checkbox_label' => __('Reject logged-out requests with oversized or probe-shaped URIs (414, REST routes excepted)', 'aiya-core'),
+                'default' => true,
+            ],
+            [
+                'id' => 'heading_rest',
+                'type' => 'heading',
+                'label' => __('REST route control', 'aiya-core'),
+                'level' => '3',
+            ],
+            [
+                'id' => 'rest_allowed_origins',
+                'type' => 'array',
+                'label' => __('REST cross-origin origins', 'aiya-core'),
+                'description' => __('Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here.', 'aiya-core'),
+                'default' => [],
             ],
         ]);
     }

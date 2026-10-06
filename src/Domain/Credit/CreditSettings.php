@@ -54,7 +54,7 @@ final class CreditSettings
     /** Ledger retention, configured on the content-management page (`credit_retention`). */
     public static function retentionDays(): int
     {
-        $days = absint((string) aiya_core_opt('content', 'credit_retention', self::DEFAULT_RETENTION_DAYS));
+        $days = absint((string) aiya_core_opt('backend', 'credit_retention', self::DEFAULT_RETENTION_DAYS));
 
         return $days > 0 ? min($days, self::MAX_RETENTION_DAYS) : self::DEFAULT_RETENTION_DAYS;
     }

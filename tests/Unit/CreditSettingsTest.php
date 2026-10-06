@@ -84,23 +84,23 @@ final class CreditSettingsTest extends TestCase
 
     public function testRetentionReadsTheContentPageSetting(): void
     {
-        $GLOBALS['__aiya_test_options']['content']['credit_retention'] = 14;
+        $GLOBALS['__aiya_test_options']['backend']['credit_retention'] = 14;
 
         self::assertSame(14, CreditSettings::retentionDays());
     }
 
     public function testRetentionClampsAtTheTenYearCeiling(): void
     {
-        $GLOBALS['__aiya_test_options']['content']['credit_retention'] = 99999;
+        $GLOBALS['__aiya_test_options']['backend']['credit_retention'] = 99999;
         self::assertSame(3650, CreditSettings::retentionDays());
 
-        $GLOBALS['__aiya_test_options']['content']['credit_retention'] = 3650;
+        $GLOBALS['__aiya_test_options']['backend']['credit_retention'] = 3650;
         self::assertSame(3650, CreditSettings::retentionDays());
     }
 
     public function testARetentionOfZeroFallsBackToTheDefault(): void
     {
-        $GLOBALS['__aiya_test_options']['content']['credit_retention'] = 0;
+        $GLOBALS['__aiya_test_options']['backend']['credit_retention'] = 0;
 
         self::assertSame(30, CreditSettings::retentionDays());
     }
@@ -108,14 +108,14 @@ final class CreditSettingsTest extends TestCase
     public function testRetentionReadsANegativeSettingThroughAbsint(): void
     {
         // absint is the house idiom: the sign never survives the read.
-        $GLOBALS['__aiya_test_options']['content']['credit_retention'] = '-7';
+        $GLOBALS['__aiya_test_options']['backend']['credit_retention'] = '-7';
 
         self::assertSame(7, CreditSettings::retentionDays());
     }
 
     public function testRetentionTreatsNonNumericJunkAsUnset(): void
     {
-        $GLOBALS['__aiya_test_options']['content']['credit_retention'] = 'soon';
+        $GLOBALS['__aiya_test_options']['backend']['credit_retention'] = 'soon';
 
         self::assertSame(30, CreditSettings::retentionDays());
     }

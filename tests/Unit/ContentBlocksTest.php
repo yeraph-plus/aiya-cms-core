@@ -13,12 +13,12 @@ final class ContentBlocksTest extends TestCase
 {
     protected function tearDown(): void
     {
-        unset($GLOBALS['__aiya_test_options'][BlocksModule::PAGE_SLUG]);
+        unset($GLOBALS['__aiya_test_options']['frontend']);
     }
 
     private function setOption(array $value): void
     {
-        $GLOBALS['__aiya_test_options'][BlocksModule::PAGE_SLUG] = $value;
+        $GLOBALS['__aiya_test_options']['frontend'] = $value;
     }
 
     public function testMenusProjectInOrderWithSelfIncrementingIds(): void

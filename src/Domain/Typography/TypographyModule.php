@@ -15,7 +15,7 @@ use Aiya\Core\Settings\Registry as SettingsRegistry;
  * resource 编辑屏侧栏的四个 action_checkbox——重置发布日期、自动检索标签、
  * 格式清理、中文排版纠正。勾选保存时经由 MetaboxAdmin 的 one-shot action 钩子
  * 触发本模块的处理器；处理器直接改写文章数据，busy 闸门阻断 save_post 重入
- * 递归。中文排版纠正的方法子集在 Optimization 页配置（typography_methods，
+ * 递归。中文排版纠正的方法子集在 Backend 页配置（typography_methods，
  * 逗号分隔，白名单校验），缺省为旧版默认的 insertSpace/removeSpace/full2Half。
  * 自动检索标签只对携带 post_tag 词法的类型生效（页面与资源贴走各自的标签
  * 词法或没有标签，处理器跳过）。
@@ -32,8 +32,8 @@ final class TypographyModule implements Module
 
     public function register(): void
     {
-        // Priority 12 appends this module's group after the avatar and slug
-        // groups (both priority 11) on the shared Optimization page.
+        // Priority 12 appends this module's group after the slug group
+        // (priority 11) on the shared Backend page.
         add_action('aiya_core_register', [$this, 'registerBoxAndSettings'], 12, 0);
         add_action('aiya_core_typography_refresh_date', [$this, 'onRefreshDate']);
         add_action('aiya_core_typography_match_tags', [$this, 'onMatchTags']);
@@ -81,7 +81,7 @@ final class TypographyModule implements Module
             ],
         ]);
 
-        $this->settings->addFields('optimization', [
+        $this->settings->addFields('backend', [
             [
                 'id' => 'heading_typography',
                 'type' => 'heading',
@@ -197,7 +197,7 @@ final class TypographyModule implements Module
     /** @return list<string> */
     private function enabledMethods(): array
     {
-        $configured = (array) aiya_core_opt('optimization', 'typography_methods', ['insertSpace', 'removeSpace', 'full2Half']);
+        $configured = (array) aiya_core_opt('backend', 'typography_methods', ['insertSpace', 'removeSpace', 'full2Half']);
 
         return array_values(array_intersect(
             array_map('strval', $configured),

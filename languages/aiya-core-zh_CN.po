@@ -2004,7 +2004,7 @@ msgid "Other"
 msgstr "其他"
 
 msgid "Frontend"
-msgstr "前台设置"
+msgstr "前台页面"
 
 msgid "AIYA CMS Core"
 msgstr "AIYA CMS Core"
@@ -3143,7 +3143,7 @@ msgid "Remove paragraph indentation"
 msgstr "移除段首缩进"
 
 msgid "Optimization"
-msgstr "优化"
+msgstr "优化设置"
 
 msgid "Stripping is enforced at runtime; REST reads for content stay available for the Astro front end."
 msgstr "裁剪在运行时强制执行；内容相关的 REST 读取仍对 Astro 前端可用。"
@@ -3299,7 +3299,7 @@ msgid "Reject logged-out requests with oversized or probe-shaped URIs (414, REST
 msgstr "拒绝未登录状态下 URI 过长或形如探测的请求（414，REST 路由除外）"
 
 msgid "Uninstall"
-msgstr "卸载"
+msgstr "卸载核心"
 
 msgid "Deleting the plugin keeps all of its data — reinstalling picks up where it left off. The Plugins screen always asks before erasing; the switch below is the standing answer for WP-CLI and scripted uninstalls, and wiping cannot be undone."
 msgstr "删除插件默认保留其全部数据，重装后可原样恢复。从插件列表删除时总会先询问；下方开关是 WP-CLI 与脚本化卸载的既定答案，清除操作不可撤销。"
@@ -3562,3 +3562,36 @@ msgstr "vendor/ 等大型依赖目录会被瞬时移出、避免删除过程长�
 msgid "Cancel, back to the plugin list"
 msgstr "取消，返回插件列表"
 
+#: src/Domain/Content/ContentManagementModule.php:141
+#: src/Domain/Content/ContentManagementModule.php:142
+msgid "Backend"
+msgstr "后台设置"
+
+#: src/Domain/FileServe/FileServeModule.php:71
+#: src/Domain/FileServe/FileServeModule.php:72
+msgid "External services"
+msgstr "外部服务"
+
+#: src/Domain/Content/FrontendModule.php:145
+msgid "Fallback images & banner"
+msgstr "缺省图与横幅"
+
+#: src/Modules/MediaModule.php:186
+msgid "Image & watermark"
+msgstr "图像水印"
+
+#: src/Domain/Blocks/BlocksModule.php:42
+msgid "Page blocks"
+msgstr "页面区块"
+
+#: src/Infrastructure/Uninstall/UninstallModule.php:49
+msgid "Off (default) keeps all of the plugin's data — reinstalling picks up where it left off. The Plugins screen always asks before erasing; this switch is the standing answer for WP-CLI and scripted uninstalls, and wiping cannot be undone. AIYA_CORE_UNINSTALL_PURGE = true in wp-config.php forces the wipe everywhere and skips the question."
+msgstr "关闭（默认）时保留全部插件数据——重新安装后原样续用。插件列表页删除前总会询问；本开关是 WP-CLI 与脚本化卸载的常设答案，清除后无法撤销。wp-config.php 中定义 AIYA_CORE_UNINSTALL_PURGE = true 可在所有场景强制清除并跳过询问"
+
+#: src/Infrastructure/Headless/HeadlessModule.php:168
+msgid "The front end consumes aiya/core/v1 only, so the native API has no public consumer left and user enumeration goes with it. Sessions meeting the Admin protection group's back-end minimum role keep the full /wp/v2 for admin screens such as the media picker — author level and above while that gate is off; signed-in sessions below the level are redirected to the front-end site."
+msgstr "前台只消费 aiya/core/v1，原生 API 已无公开消费者，用户枚举也随之消失。达到「后台防护」组后台最低角色的会话在管理界面（如媒体选择器）保留完整 /wp/v2——门禁关闭时为作者级及以上；低于该级别的登录会话会被重定向到前台站点"
+
+#: src/Infrastructure/Security/SecurityModule.php:110
+msgid "Users below the selected role are redirected to the front-end site. The same level unlocks the native /wp/v2 API for their sessions (see Disabled features). Off by default."
+msgstr "低于所选角色的用户访问后台时会被重定向到前台站点。同一级别也决定其会话能否使用原生 /wp/v2 API（见「停用功能」）。默认关闭"

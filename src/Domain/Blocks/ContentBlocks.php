@@ -28,11 +28,11 @@ final class ContentBlocks
     public function all(): SiteBlocks
     {
         return new SiteBlocks(
-            $this->menu(array_values((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'primary_items', [])), true),
-            $this->menu(array_values((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'secondary_items', []))),
-            $this->ads(array_values((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'ads_top', []))),
-            $this->ads(array_values((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'ads_bottom', []))),
-            $this->sections(array_values((array) aiya_core_opt(BlocksModule::PAGE_SLUG, 'home_sections', []))),
+            $this->menu(array_values((array) aiya_core_opt('frontend', 'primary_items', [])), true),
+            $this->menu(array_values((array) aiya_core_opt('frontend', 'secondary_items', []))),
+            $this->ads(array_values((array) aiya_core_opt('frontend', 'ads_top', []))),
+            $this->ads(array_values((array) aiya_core_opt('frontend', 'ads_bottom', []))),
+            $this->sections(array_values((array) aiya_core_opt('frontend', 'home_sections', []))),
         );
     }
 

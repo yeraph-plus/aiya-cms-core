@@ -30,8 +30,8 @@ final class SlugModuleTest extends TestCase
 
     public function testTheBvCandidateKeepsTheNativeMixedCase(): void
     {
-        $GLOBALS['__aiya_test_options']['optimization']['slug_post_mode'] = 'id_bv';
-        $GLOBALS['__aiya_test_options']['optimization']['slug_id_prefix'] = 'TV';
+        $GLOBALS['__aiya_test_options']['backend']['slug_post_mode'] = 'id_bv';
+        $GLOBALS['__aiya_test_options']['backend']['slug_id_prefix'] = 'TV';
 
         $expected = 'TV' . (new IdSlugEncoder(8))->encodeId(383);
         self::assertNotSame(strtolower($expected), $expected, 'the fixture must actually carry uppercase');
@@ -40,22 +40,22 @@ final class SlugModuleTest extends TestCase
 
     public function testTheAvCandidateStaysDigitPadded(): void
     {
-        $GLOBALS['__aiya_test_options']['optimization']['slug_post_mode'] = 'id_av';
-        $GLOBALS['__aiya_test_options']['optimization']['slug_id_prefix'] = '';
+        $GLOBALS['__aiya_test_options']['backend']['slug_post_mode'] = 'id_av';
+        $GLOBALS['__aiya_test_options']['backend']['slug_id_prefix'] = '';
 
         self::assertSame('00000383', $this->module->forcedIdSlug('old', 383, 'publish', 'post', 0));
     }
 
     public function testModeOffLeavesTheIncomingSlugAlone(): void
     {
-        $GLOBALS['__aiya_test_options']['optimization']['slug_post_mode'] = 'off';
+        $GLOBALS['__aiya_test_options']['backend']['slug_post_mode'] = 'off';
 
         self::assertSame('editor-slug', $this->module->forcedIdSlug('editor-slug', 383, 'publish', 'post', 0));
     }
 
     public function testUnsupportedTypesAreNeverRewritten(): void
     {
-        $GLOBALS['__aiya_test_options']['optimization']['slug_post_mode'] = 'id_bv';
+        $GLOBALS['__aiya_test_options']['backend']['slug_post_mode'] = 'id_bv';
 
         self::assertSame('editor-slug', $this->module->forcedIdSlug('editor-slug', 383, 'publish', 'nav_menu_item', 0));
     }
@@ -65,8 +65,8 @@ final class SlugModuleTest extends TestCase
         // forcedIdSlug re-runs the candidate through wp_unique_post_slug for
         // deduplication; the pass-through double proves the mixed case comes
         // back out the other side untouched.
-        $GLOBALS['__aiya_test_options']['optimization']['slug_post_mode'] = 'id_bv';
-        $GLOBALS['__aiya_test_options']['optimization']['slug_id_prefix'] = '';
+        $GLOBALS['__aiya_test_options']['backend']['slug_post_mode'] = 'id_bv';
+        $GLOBALS['__aiya_test_options']['backend']['slug_id_prefix'] = '';
 
         $expected = (new IdSlugEncoder(8))->encodeId(383);
         self::assertSame($expected, $this->module->forcedIdSlug(strtolower($expected), 383, 'publish', 'post', 0),

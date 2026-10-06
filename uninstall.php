@@ -13,8 +13,8 @@
  * Off the Plugins screen (WP-CLI, scripted uninstall_plugin() calls)
  * there is no UI to ask, so the standing answers decide:
  *
- * - the "Erase data on uninstall" switch on the Security hardening page
- *   (field uninstall_purge in the aiya_core_security option, default
+ * - the "Erase data on uninstall" switch on the Uninstall settings page
+ *   (field uninstall_purge in the aiya_core_uninstall option, default
  *   off); or
  * - AIYA_CORE_UNINSTALL_PURGE === true defined in wp-config.php, which
  *   forces the wipe everywhere and skips the on-screen question.
@@ -235,8 +235,11 @@ if (aiya_core_uninstall_is_screen_delete()) {
     }
 } else {
     // No UI to ask (WP-CLI, scripted uninstall_plugin() calls): the
-    // standing answers decide, both defaulting to keeping the data.
-    $settings = get_option('aiya_core_security', []);
+    // standing answers decide, both defaulting to keeping the data. The
+    // switch lives on the Uninstall settings page (0.112.0 moved it here
+    // from the retired Security hardening page; stored values under the
+    // old page were not carried over — re-enter the answer there once).
+    $settings = get_option('aiya_core_uninstall', []);
     $eraseData = is_array($settings) && !empty($settings['uninstall_purge']);
     if (defined('AIYA_CORE_UNINSTALL_PURGE')) {
         $eraseData = $eraseData || AIYA_CORE_UNINSTALL_PURGE === true;

@@ -9,14 +9,17 @@ use Aiya\Core\Domain\Shared\PublicTypes;
 use Aiya\Core\Settings\Registry;
 
 /**
- * The content-management settings page (AIYA Core submenu): the operational
- * content knobs that are not shell presentation. Hosts the retention
- * periods (notifications, credit ledger), the site-level SEO/analytics
- * head values, and the NSFW vocabularies.
+ * The Backend settings page (AIYA CMS Core submenu): the operational knobs
+ * for the behavior core itself adds to WordPress — the retention periods
+ * (notifications, credit ledger), the NSFW vocabularies, the automatic
+ * slug generation (contributed by SlugModule through addFields) and the
+ * Chinese typesetting correctors (contributed by TypographyModule).
  *
- * The SEO values keep riding GET /site unchanged (SiteDefaults) — only the
- * admin storage moved here from the Frontend page (0.96.0 split of media
- * settings and operations settings).
+ * The page was the "Content management" page until the settings regroup;
+ * its SEO/analytics fields moved back to the Frontend page they serve
+ * (GET /site head values), the retention and NSFW fields stayed here under
+ * the new identity, and the slug/typography groups joined from the
+ * Optimization page.
  *
  * The NSFW fields list every non-tag vocabulary of each public type as a
  * multi-select; the picked terms are the "NSFW" terms the read path
@@ -26,12 +29,9 @@ use Aiya\Core\Settings\Registry;
  */
 final class ContentManagementModule implements Module
 {
+    public const PAGE_SLUG = 'backend';
+    public const OPTION_NAME = 'aiya_core_backend';
 
-    /**
-     * The field ids that moved from the Frontend page option to this
-     * page's option; the reader sites switched page keys in the same
-     * batch, so the copy has to be exact.
-     */
     public function __construct(private Registry $settings)
     {
     }
@@ -45,24 +45,16 @@ final class ContentManagementModule implements Module
         // through delete_option — drops the group so the new configuration
         // shows immediately — the list queries read the option live either
         // way.
-        add_action('update_option_aiya_core_content', static function (): void {
-            wp_cache_flush_group('aiya_core_content');
-        }, 10, 0);
-        add_action('delete_option_aiya_core_content', static function (): void {
-            wp_cache_flush_group('aiya_core_content');
-        }, 10, 0);
+        foreach (['update_option_' . self::OPTION_NAME, 'delete_option_' . self::OPTION_NAME] as $hook) {
+            add_action($hook, static function (): void {
+                wp_cache_flush_group('aiya_core_content');
+            }, 10, 0);
+        }
     }
 
     public function settings(): void
     {
         $fields = [
-            [
-                'id' => 'note_scope',
-                'type' => 'note',
-                'variant' => 'info',
-                'label' => __('Operational content settings: retention periods, the site-level SEO head values served through GET /aiya/core/v1/site, and the NSFW vocabularies the read path can exclude on request.', 'aiya-core'),
-                'default' => null,
-            ],
             [
                 'id' => 'heading_retention',
                 'type' => 'heading',
@@ -86,33 +78,6 @@ final class ContentManagementModule implements Module
                 'default' => 30,
                 'min' => 1,
                 'max' => 3650,
-            ],
-            [
-                'id' => 'heading_seo',
-                'type' => 'heading',
-                'label' => __('SEO & analytics', 'aiya-core'),
-                'level' => '2',
-            ],
-            [
-                'id' => 'seo_keywords',
-                'type' => 'text',
-                'label' => __('SEO keywords', 'aiya-core'),
-                'description' => __('Comma-separated keywords for the site home page.', 'aiya-core'),
-                'default' => '',
-            ],
-            [
-                'id' => 'seo_description',
-                'type' => 'textarea',
-                'label' => __('SEO description', 'aiya-core'),
-                'description' => __('Meta description for the site home page.', 'aiya-core'),
-                'default' => '',
-            ],
-            [
-                'id' => 'ga_measurement_id',
-                'type' => 'text',
-                'label' => __('Google Analytics ID', 'aiya-core'),
-                'description' => __('Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable.', 'aiya-core'),
-                'default' => '',
             ],
             [
                 'id' => 'heading_nsfw',
@@ -163,13 +128,13 @@ final class ContentManagementModule implements Module
         }
 
         $this->settings->addPage([
-            'slug' => 'content',
-            'title' => __('Content management', 'aiya-core'),
-            'menu_title' => __('Content management', 'aiya-core'),
+            'slug' => self::PAGE_SLUG,
+            'title' => __('Backend', 'aiya-core'),
+            'menu_title' => __('Backend', 'aiya-core'),
             'parent' => 'aiya-core-frontend',
-            // Right after the AIYA Core mirror entry, ahead of the tool pages.
-            'menu_position' => 1,
-            'option_name' => 'aiya_core_content',
+            // Right after the Optimization entry, ahead of the tool pages.
+            'menu_position' => 3,
+            'option_name' => self::OPTION_NAME,
             'fields' => $fields,
         ]);
     }

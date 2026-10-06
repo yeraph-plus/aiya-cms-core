@@ -65,6 +65,7 @@ Directories are created when their first working tracer slice is implemented; em
 | `plugin/register-theme-post-type.php` | ✅ 0.7.0: rebuilt as the code-first `Domain/Content/ContentTypeModule` (`show_in_rest` default on); the sticky-in-archive `the_posts` hack retires with the front end |
 | `plugin/register-theme-taxonomy.php` | ✅ 0.7.0 / 0.15.0: code-first taxonomy registrar (`ContentTypeModule`; resource vocabularies 0.15.0, `show_in_rest` on) |
 | TinyMCE and shortcode manager | Shortcode inserter redesigned as "template parts". ✅ 0.34.0 editor-side framework: `Domain/Parts` PartType/PartRegistry/PartModule — wpdialogs dialog (core link-dialog stack), classic toolbar button position kept, insertion via send_to_editor; the 12 legacy shortcode components do NOT carry over (owner decision 2026-09-11: server-rendered Tailwind HTML conflicts with the structured-part semantics; the catalog starts empty and fills via `aiya_core_register_parts`); the structured-parts parser batch was cancelled (2026-09-11): parts WITH renderers register as real shortcodes and render into custom HTML tags server-side; the front end parses those tags into islands TinyMCE itself retires with the classic editor |
+| dissolved settings-page options of the 0.112.0 regroup (`aiya_core_content`, `aiya_core_blocks`, `aiya_core_security`) | Dead data by owner decision: the regroup reshaped the pages without a data-carrier migration — the owner opted to re-enter the stored values by hand; readers moved to `aiya_core_frontend` / `aiya_core_backend` / `aiya_core_optimization` / `aiya_core_uninstall` in the same batch. The three options are never read or written again; a purge uninstall removes them with the rest |
 | REST helper | Do not migrate; design new versioned API — auth/user routes rebuilt at ✅ 0.12.0: `aiya/core/v1` AuthController (register with server-side UUID login name, email-only login, password reset via front-end-supplied origin) + UserController (me / profile / avatar / password) with bearer tokens |
 | AJAX helper | Replace per admin use case |
 | image manager | ✅ 0.9.0: `packages/image-processor` package + `Modules/MediaModule` adapter; cover pipeline and the `_thumb` protocol writer in `Domain/Media/CoverService` (renamed from the legacy `_aya_thumb` key, 0.31.0 — auto-generated value, no compat reads) |
@@ -118,7 +119,8 @@ kept here as the reference the rewrite was measured against:
   (that mode is gone in FileServe — links are built locally).
 - **What replaced each piece**: the port vocabulary became `Domain/FileServe/{Entry,Failure,Adapter}`;
   the two boxes became one JSON meta (`aiya_core_fileserve`, short-id keys, one `adapter` per group);
-  the settings page became `aiya_core_fileserve` (page slug `fileserve`); the listing became
+  the settings page became `aiya_core_fileserve` (page slug `external` since the 0.112.0
+  regroup, option key unchanged); the listing became
   `GET /content/{id}/downloads` (grouped lists, no links) with `POST` on the same route claiming a row
   through the credit ledger. GoFile joined the same domain in 0.91.0 as an additional read-only backend
   (`aiya/gofile-api` + `Adapters/GofileAdapter`), which is new work rather than a legacy migration.

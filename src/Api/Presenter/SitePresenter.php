@@ -59,9 +59,9 @@ final class SitePresenter
                 $this->attachmentImage((int) aiya_core_opt('frontend', 'default_thumb', 0)),
                 $this->attachmentImage((int) aiya_core_opt('frontend', 'empty_image', 0)),
                 new SiteTheme($this->colorPrimary()),
-                trim((string) aiya_core_opt('content', 'seo_keywords', '')),
-                trim((string) aiya_core_opt('content', 'seo_description', '')),
-                trim((string) aiya_core_opt('content', 'ga_measurement_id', ''))
+                trim((string) aiya_core_opt('frontend', 'seo_keywords', '')),
+                trim((string) aiya_core_opt('frontend', 'seo_description', '')),
+                trim((string) aiya_core_opt('frontend', 'ga_measurement_id', ''))
             ),
             $this->footer(),
             $this->blocks->all()

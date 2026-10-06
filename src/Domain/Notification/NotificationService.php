@@ -336,7 +336,7 @@ final class NotificationService
      */
     public function retentionDays(): int
     {
-        $days = absint((string) aiya_core_opt('content', 'notification_retention', self::DEFAULT_RETENTION_DAYS));
+        $days = absint((string) aiya_core_opt('backend', 'notification_retention', self::DEFAULT_RETENTION_DAYS));
 
         return $days > 0 ? min($days, self::MAX_RETENTION_DAYS) : self::DEFAULT_RETENTION_DAYS;
     }

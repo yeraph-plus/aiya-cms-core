@@ -120,16 +120,16 @@ final class SecurityModuleTest extends TestCase
             'bogus' => null,
         ];
 
-        $stored = &$GLOBALS['__aiya_test_options']['security']['admin_backend_min_role'];
+        $stored = &$GLOBALS['__aiya_test_options']['optimization']['admin_backend_min_role'];
         try {
             foreach ($expected as $value => $capability) {
                 $stored = $value;
                 self::assertSame($capability, SecurityModule::backendGateCapability(), "gate value '{$value}'");
             }
-            unset($GLOBALS['__aiya_test_options']['security']['admin_backend_min_role']);
+            unset($GLOBALS['__aiya_test_options']['optimization']['admin_backend_min_role']);
             self::assertNull(SecurityModule::backendGateCapability(), 'an unset gate reads as off');
         } finally {
-            unset($GLOBALS['__aiya_test_options']['security']);
+            unset($GLOBALS['__aiya_test_options']['optimization']);
         }
     }
 }

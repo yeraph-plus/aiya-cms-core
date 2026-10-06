@@ -161,7 +161,7 @@ final class HeadlessModuleTest extends TestCase
 
         // Gate off: the fallback posture is author-level, anonymous keeps
         // the first-party routes only.
-        $GLOBALS['__aiya_test_options']['security']['admin_backend_min_role'] = 'off';
+        $GLOBALS['__aiya_test_options']['optimization']['admin_backend_min_role'] = 'off';
         $GLOBALS['__aiya_test_caps'] = false;
         $locked = $this->module->lockWpV2($endpoints);
         self::assertArrayNotHasKey('/wp/v2/posts', $locked);
@@ -177,7 +177,7 @@ final class HeadlessModuleTest extends TestCase
         // Gate at contributor: a session below it stays stripped even signed
         // in — the first-party target keeps the request off the redirect
         // branch, which is exactly the shape a front-end call carries.
-        $GLOBALS['__aiya_test_options']['security']['admin_backend_min_role'] = 'contributor';
+        $GLOBALS['__aiya_test_options']['optimization']['admin_backend_min_role'] = 'contributor';
         $GLOBALS['__aiya_test_caps'] = false;
         $GLOBALS['__aiya_test_current_user_id'] = 7;
         $_SERVER['REQUEST_URI'] = '/wp-json/aiya/core/v1/content';

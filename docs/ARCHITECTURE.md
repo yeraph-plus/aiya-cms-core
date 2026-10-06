@@ -63,7 +63,7 @@ The plugin owns a full lifecycle and can be activated normally from `wp-content/
 - `uninstall.php` never erases data silently. Deleting from the Plugins screen stops at a confirmation
   first: keep everything (the default, built for delete-and-reinstall updates) or erase the plugin's
   data along with the files. Off-screen uninstalls (WP-CLI, scripted calls) follow the standing answer:
-  the `uninstall_purge` switch on the Security page (default off = keep), force-overridden everywhere
+  the `uninstall_purge` switch on the Uninstall page (default off = keep), force-overridden everywhere
   by `AIYA_CORE_UNINSTALL_PURGE === true` in wp-config.php. When purging, every option under the
   `aiya_core_` prefix, the plugin-owned tables, meta residue, transients and cron events are removed
   across all sites in multisite; uploaded media, the `aiya_thumbnail/` tree and the pic-bed pool stay.
@@ -253,7 +253,7 @@ required nor expected across generators.
 ## HTTP surface policy (CORS and caching)
 
 - **CORS**: WordPress core's permissive origin echo is removed; contract
-  routes emit CORS headers only for origins on the Security settings
+  routes emit CORS headers only for origins on the Optimization page's
   allowlist (`rest_allowed_origins` / `aiya_core_rest_allowed_origins`
   filter). No credentials — the bearer token travels in the Authorization
   header. The core removal must re-hook on `rest_api_init` at priority 20

@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Integrations;
 
 use WP_Error;
+use Aiya\Core\Domain\FileServe\FileServeModule;
 
 /**
  * The single shared credential every self-hosted companion service must
  * present to bind into this site's authentication and credit ledger (the
  * `aiya/integrations/v1` machine endpoints): one key, stored in the
- * file-serve page's options like every other service credential in this
+ * external-services page's options like every other service credential in this
  * plugin (raw, never re-displayed). Deliberately not per-service — the
  * key holder is trusted infrastructure by definition, so issuing several
  * keys would only add rotation work without shrinking anyone's blast
@@ -61,6 +62,6 @@ final class ServiceKey
 
     private static function stored(): string
     {
-        return trim((string) aiya_core_opt('fileserve', self::FIELD_ID, ''));
+        return trim((string) aiya_core_opt(FileServeModule::PAGE_SLUG, self::FIELD_ID, ''));
     }
 }

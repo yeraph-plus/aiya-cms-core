@@ -171,7 +171,7 @@ namespace Aiya\Core\Tests\Unit {
 
         private function stageKey(): void
         {
-            $GLOBALS['__aiya_test_options']['fileserve']['service_key'] = self::KEY;
+            $GLOBALS['__aiya_test_options']['external']['service_key'] = self::KEY;
         }
 
         private function requireRouteSurface(): void

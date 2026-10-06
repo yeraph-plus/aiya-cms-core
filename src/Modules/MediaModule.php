@@ -183,8 +183,12 @@ final class MediaModule implements Module
         $this->settings->addPage([
             'slug' => self::PAGE_SLUG,
             'title' => __('Image processor', 'aiya-core'),
-            'menu_title' => __('Image', 'aiya-core'),
+            'menu_title' => __('Image & watermark', 'aiya-core'),
             'parent' => 'aiya-core-frontend',
+            'menu_position' => 4,
+            // The two section headings stay as inline separators; the short
+            // page reads better flat than tabbed.
+            'tabs' => false,
             'option_name' => self::OPTION_NAME,
             'fields' => [
                 [

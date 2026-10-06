@@ -298,7 +298,7 @@ final class FileServeTest extends TestCase
 
     public function testTheRowsAreCachedAndEditingTheGroupStartsANewGeneration(): void
     {
-        $GLOBALS['__aiya_test_options']['fileserve']['fileserve_cache_minutes'] = 5;
+        $GLOBALS['__aiya_test_options']['external']['fileserve_cache_minutes'] = 5;
         $this->post(1);
         $this->store(1, ['1' => ['adapter' => 'stub', 'title' => '', 'path' => '/docs', 'price' => 0]]);
 
@@ -321,7 +321,7 @@ final class FileServeTest extends TestCase
 
     public function testChangingTheAdapterSiteConfigStartsANewGeneration(): void
     {
-        $GLOBALS['__aiya_test_options']['fileserve']['fileserve_cache_minutes'] = 5;
+        $GLOBALS['__aiya_test_options']['external']['fileserve_cache_minutes'] = 5;
         $this->post(1);
         $this->store(1, ['1' => ['adapter' => 'stub', 'title' => '', 'path' => '/docs', 'price' => 0]]);
 
@@ -339,7 +339,7 @@ final class FileServeTest extends TestCase
 
     public function testAFailedGroupIsNegativeCachedSoAnonymousReadsStopPayingTheUpstream(): void
     {
-        $GLOBALS['__aiya_test_options']['fileserve']['fileserve_cache_minutes'] = 5;
+        $GLOBALS['__aiya_test_options']['external']['fileserve_cache_minutes'] = 5;
         $this->post(1);
         $this->store(1, ['1' => ['adapter' => 'broken', 'title' => '', 'path' => '/x', 'price' => 0]]);
 
@@ -373,7 +373,7 @@ final class FileServeTest extends TestCase
 
     public function testAnEmptyListingIsCachedOnlyBriefly(): void
     {
-        $GLOBALS['__aiya_test_options']['fileserve']['fileserve_cache_minutes'] = 5;
+        $GLOBALS['__aiya_test_options']['external']['fileserve_cache_minutes'] = 5;
         $this->post(1);
         $this->store(1, ['1' => ['adapter' => 'stub', 'title' => '', 'path' => '/empty', 'price' => 0]]);
 
@@ -412,7 +412,7 @@ final class FileServeTest extends TestCase
 
     public function testThePreviewAlwaysReadsThrough(): void
     {
-        $GLOBALS['__aiya_test_options']['fileserve']['fileserve_cache_minutes'] = 5;
+        $GLOBALS['__aiya_test_options']['external']['fileserve_cache_minutes'] = 5;
         $this->post(1);
 
         $stub = $this->stub([new Entry('a.pdf')]);

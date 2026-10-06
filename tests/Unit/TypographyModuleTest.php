@@ -140,9 +140,9 @@ namespace Aiya\Core\Tests\Unit {
 
             $this->settings = new SettingsRegistry();
             $this->settings->addPage([
-                'slug' => 'optimization',
-                'title' => 'Optimization',
-                'option_name' => 'aiya_core_optimization',
+                'slug' => 'backend',
+                'title' => 'Backend',
+                'option_name' => 'aiya_core_backend',
             ]);
         }
 
@@ -186,7 +186,7 @@ namespace Aiya\Core\Tests\Unit {
          */
         private function typesetContent(string $content, array $methods): string
         {
-            $GLOBALS['__aiya_test_options']['optimization']['typography_methods'] = $methods;
+            $GLOBALS['__aiya_test_options']['backend']['typography_methods'] = $methods;
             $this->seedPost(31, '', $content);
             $this->module()->onChineseTypesetting(31);
 
@@ -504,11 +504,11 @@ namespace Aiya\Core\Tests\Unit {
             // 'ｐｈｐ' 区分顺序：先转半角则专有名词修出 PHP，先修名词则
             // 全角字形不在词库命中、转完只剩小写 php（insertSpace 由
             // correct() 强制垫底，不参与顺序博弈）。
-            $GLOBALS['__aiya_test_options']['optimization']['typography_methods'] = ['properNoun', 'full2Half'];
+            $GLOBALS['__aiya_test_options']['backend']['typography_methods'] = ['properNoun', 'full2Half'];
             $this->seedPost(22, 'ｐｈｐ', '');
             $this->module()->onChineseTypesetting(22);
 
-            $GLOBALS['__aiya_test_options']['optimization']['typography_methods'] = ['full2Half', 'properNoun'];
+            $GLOBALS['__aiya_test_options']['backend']['typography_methods'] = ['full2Half', 'properNoun'];
             $this->seedPost(23, 'ｐｈｐ', '');
             $this->module()->onChineseTypesetting(23);
 
@@ -581,12 +581,12 @@ namespace Aiya\Core\Tests\Unit {
             ], $actions, 'each action checkbox fires exactly its one-shot hook');
 
             $methods = null;
-            foreach ($this->settings->page('optimization')?->fields() ?? [] as $field) {
+            foreach ($this->settings->page('backend')?->fields() ?? [] as $field) {
                 if ($field->id() === 'typography_methods') {
                     $methods = $field;
                 }
             }
-            self::assertNotNull($methods, 'the corrector multicheck lives on the shared Optimization page');
+            self::assertNotNull($methods, 'the corrector multicheck lives on the shared Backend page');
             self::assertSame('multicheck', $methods->type());
             self::assertSame(['insertSpace', 'removeSpace', 'full2Half'], $methods->defaultValue());
             self::assertSame(

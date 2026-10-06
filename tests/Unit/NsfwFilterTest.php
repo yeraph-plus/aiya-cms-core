@@ -53,7 +53,7 @@ final class NsfwFilterTest extends TestCase
 
     public function testReadsTheConfiguredTermListPerType(): void
     {
-        $GLOBALS['__aiya_test_options']['content']['nsfw_post'] = ['3', '7', 7, 'x', 0, '-2'];
+        $GLOBALS['__aiya_test_options']['backend']['nsfw_post'] = ['3', '7', 7, 'x', 0, '-2'];
 
         $ids = (new NsfwFilter())->configuredTermIds(PublicTypes::get('post') ?? throw new \RuntimeException());
 
@@ -69,7 +69,7 @@ final class NsfwFilterTest extends TestCase
         $this->term(12, 112, 'category');
         $this->term(13, 113, 'category');
         $this->term(14, 114, 'category');
-        $GLOBALS['__aiya_test_options']['content']['nsfw_post'] = [11];
+        $GLOBALS['__aiya_test_options']['backend']['nsfw_post'] = [11];
         $GLOBALS['__aiya_test_term_children'][11] = [12, 13, 14];
         $GLOBALS['__aiya_test_term_children'][12] = [13];
 
@@ -83,7 +83,7 @@ final class NsfwFilterTest extends TestCase
 
     public function testUnresolvableConfiguredTermsExpandToNothing(): void
     {
-        $GLOBALS['__aiya_test_options']['content']['nsfw_post'] = [99];
+        $GLOBALS['__aiya_test_options']['backend']['nsfw_post'] = [99];
 
         $ids = (new NsfwFilter())->configuredTermIds(PublicTypes::get('post') ?? throw new \RuntimeException());
 
@@ -92,7 +92,7 @@ final class NsfwFilterTest extends TestCase
 
     public function testAnswersNothingWithoutTheRequestFlag(): void
     {
-        $GLOBALS['__aiya_test_options']['content']['nsfw_post'] = ['3'];
+        $GLOBALS['__aiya_test_options']['backend']['nsfw_post'] = ['3'];
         $this->term(3, 103, 'category');
 
         $filter = new NsfwFilter();
@@ -106,7 +106,7 @@ final class NsfwFilterTest extends TestCase
 
     public function testResolvesTaxonomyIdsForTheRequestedTypeOnly(): void
     {
-        $GLOBALS['__aiya_test_options']['content']['nsfw_post'] = ['3', '7'];
+        $GLOBALS['__aiya_test_options']['backend']['nsfw_post'] = ['3', '7'];
         // Term 5 belongs to another type's vocabulary (page_category): a
         // configured id must resolve only within the asked type's own
         // vocabularies.
@@ -123,7 +123,7 @@ final class NsfwFilterTest extends TestCase
 
     public function testDropsConfiguredIdsThatNoLongerResolve(): void
     {
-        $GLOBALS['__aiya_test_options']['content']['nsfw_post'] = ['3', '99'];
+        $GLOBALS['__aiya_test_options']['backend']['nsfw_post'] = ['3', '99'];
         $this->term(3, 103, 'category');
 
         $filter = new NsfwFilter();
@@ -133,7 +133,7 @@ final class NsfwFilterTest extends TestCase
 
     public function testTheAlwaysShowViewerOverridesTheRequest(): void
     {
-        $GLOBALS['__aiya_test_options']['content']['nsfw_post'] = ['3'];
+        $GLOBALS['__aiya_test_options']['backend']['nsfw_post'] = ['3'];
         $this->term(3, 103, 'category');
         $GLOBALS['__aiya_test_current_user_id'] = 9;
         ShowNsfw::set(9, true);
@@ -147,7 +147,7 @@ final class NsfwFilterTest extends TestCase
 
     public function testAPlainSignedInViewerKeepsTheExclusion(): void
     {
-        $GLOBALS['__aiya_test_options']['content']['nsfw_post'] = ['3'];
+        $GLOBALS['__aiya_test_options']['backend']['nsfw_post'] = ['3'];
         $this->term(3, 103, 'category');
         $GLOBALS['__aiya_test_current_user_id'] = 9;
 

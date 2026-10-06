@@ -274,7 +274,7 @@ final class FileService
      */
     private function project(array $group): array
     {
-        $icons = (bool) aiya_core_opt('fileserve', 'fileserve_icons', true);
+        $icons = (bool) aiya_core_opt(FileServeModule::PAGE_SLUG, 'fileserve_icons', true);
         $entries = $group['entries'] instanceof Failure ? [] : $group['entries'];
 
         $items = [];
@@ -301,6 +301,6 @@ final class FileService
     /** How long a group's rows may be served from the object cache; 0 disables it. */
     private function cacheMinutes(): int
     {
-        return max(0, (int) aiya_core_opt('fileserve', 'fileserve_cache_minutes', self::DEFAULT_CACHE_MINUTES));
+        return max(0, (int) aiya_core_opt(FileServeModule::PAGE_SLUG, 'fileserve_cache_minutes', self::DEFAULT_CACHE_MINUTES));
     }
 }

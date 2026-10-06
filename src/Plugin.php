@@ -79,6 +79,7 @@ use Aiya\Core\Infrastructure\Headless\HeadlessModule;
 use Aiya\Core\Infrastructure\Http\TrustedProxy;
 use Aiya\Core\Infrastructure\Security\SecurityModule;
 use Aiya\Core\Infrastructure\Uninstall\RemnantCleanupModule;
+use Aiya\Core\Infrastructure\Uninstall\UninstallModule;
 use Aiya\Core\Infrastructure\Updates\UpdateCheckerModule;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
 use Aiya\Core\Modules\MediaModule;
@@ -130,6 +131,7 @@ final class Plugin
         $this->addModule(new SecurityModule($this->settings));
         $this->addModule(new TrustedProxy());
         $this->addModule(new RemnantCleanupModule());
+        $this->addModule(new UninstallModule($this->settings));
         $this->addModule(new UpdateCheckerModule());
         $avatar = new AvatarModule($this->settings);
         $this->addModule($avatar);

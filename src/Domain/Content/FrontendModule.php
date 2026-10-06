@@ -11,24 +11,28 @@ use Aiya\Core\Settings\Registry;
 /**
  * Owns the front-end shell configuration served through GET
  * /aiya/core/v1/site: presentation defaults (initial color mode, the
- * site-wide fallback cover, the header banner switch + image) and the
- * compliance footer strings. Media fields store attachment IDs;
- * SitePresenter resolves them to URLs.
+ * site-wide fallback cover, the header banner switch + image), the
+ * compliance footer strings, the site-level SEO/analytics head values,
+ * and the page blocks (home sections, the two navigation repeaters and
+ * the page-top/bottom ad lists — contributed by BlocksModule through
+ * addFields). Media fields store attachment IDs; SitePresenter resolves
+ * them to URLs.
  *
  * One cover setting serves every surface that has to supply an image —
  * list cards, category cards and the article hero. Each consumer derives
  * its own crop from that single attachment (640x360 for cards, 1000x240
  * for the hero), so the surfaces never drift apart.
  *
- * This page is the presentation/media half of the old shell settings; the
- * operational half (retention periods, SEO head values, NSFW vocabularies)
- * lives on the content-management page since 0.96.0.
+ * The SEO/analytics fields have lived on this page before (0.96.0 moved
+ * them to the content-management page; the settings regroup moved them
+ * back, because they are shell head values served through the same GET
+ * /site payload). Retention periods and the NSFW vocabularies stay
+ * operational knobs and live on the Backend page.
  *
  * The basic-settings group carries the front-end domain: the canonical
  * origin the back end uses when it has to name the front end itself
  * (password-reset links and the admin-bar shortcut since 0.97.0, more
- * consumers planned). It lives here rather than on the Security page,
- * whose host allowlist it replaces.
+ * consumers planned).
  */
 final class FrontendModule implements Module
 {
@@ -61,28 +65,34 @@ final class FrontendModule implements Module
     public function register(): void
     {
         add_action('aiya_core_register', [$this, 'settings'], 10, 0);
+
+        // The /site payload (and everything else in the presenter cache
+        // group) is cached for a few minutes; a settings save — or a
+        // Reset, which goes through delete_option — drops the group so
+        // the new shell configuration shows immediately.
+        foreach (['update_option_' . self::OPTION_NAME, 'delete_option_' . self::OPTION_NAME] as $hook) {
+            add_action($hook, static function (): void {
+                wp_cache_flush_group('aiya_core_content');
+            }, 10, 0);
+        }
     }
 
     public function settings(): void
     {
         // No parent: this page owns the plugin's top-level menu ("AIYA CMS Core")
         // and sits first in the submenu list — the shell settings are the
-        // most-used surface.
+        // most-used surface. The mirror entry names the page itself so the
+        // rail reads Frontend / Optimization / Backend / …
         $this->settings->addPage([
             'slug' => 'frontend',
             'title' => __('Frontend', 'aiya-core'),
             'menu_title' => __('AIYA CMS Core', 'aiya-core'),
+            'mirror_title' => __('Frontend', 'aiya-core'),
             'icon' => 'dashicons-admin-generic',
             'position' => 81,
+            'menu_position' => 1,
             'option_name' => self::OPTION_NAME,
             'fields' => [
-                [
-                    'id' => 'note_source',
-                    'type' => 'note',
-                    'variant' => 'info',
-                    'label' => __('These fields feed the front-end shell through GET /aiya/core/v1/site; leave a footer string empty to keep it out of the footer.', 'aiya-core'),
-                    'default' => null,
-                ],
                 [
                     'id' => 'heading_basic',
                     'type' => 'heading',
@@ -111,12 +121,6 @@ final class FrontendModule implements Module
                     ],
                 ],
                 [
-                    'id' => 'heading_appearance',
-                    'type' => 'heading',
-                    'label' => __('Presentation defaults', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
                     'id' => 'color_primary',
                     'type' => 'color',
                     'label' => __('Theme color', 'aiya-core'),
@@ -134,6 +138,12 @@ final class FrontendModule implements Module
                         'dark' => __('Dark', 'aiya-core'),
                         'light' => __('Light', 'aiya-core'),
                     ],
+                ],
+                [
+                    'id' => 'heading_images',
+                    'type' => 'heading',
+                    'label' => __('Fallback images & banner', 'aiya-core'),
+                    'level' => '2',
                 ],
                 [
                     'id' => 'default_thumb',
@@ -157,12 +167,6 @@ final class FrontendModule implements Module
                     'default' => 0,
                 ],
                 [
-                    'id' => 'heading_banner',
-                    'type' => 'heading',
-                    'label' => __('Header banner', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
                     'id' => 'banner_enabled',
                     'type' => 'switch',
                     'label' => __('Show the header banner', 'aiya-core'),
@@ -175,6 +179,33 @@ final class FrontendModule implements Module
                     'label' => __('Banner image', 'aiya-core'),
                     'description' => __('Wide image shown behind the top navigation while the banner is on.', 'aiya-core'),
                     'default' => 0,
+                ],
+                [
+                    'id' => 'heading_seo',
+                    'type' => 'heading',
+                    'label' => __('SEO & analytics', 'aiya-core'),
+                    'level' => '2',
+                ],
+                [
+                    'id' => 'seo_keywords',
+                    'type' => 'text',
+                    'label' => __('SEO keywords', 'aiya-core'),
+                    'description' => __('Comma-separated keywords for the site home page.', 'aiya-core'),
+                    'default' => '',
+                ],
+                [
+                    'id' => 'seo_description',
+                    'type' => 'textarea',
+                    'label' => __('SEO description', 'aiya-core'),
+                    'description' => __('Meta description for the site home page.', 'aiya-core'),
+                    'default' => '',
+                ],
+                [
+                    'id' => 'ga_measurement_id',
+                    'type' => 'text',
+                    'label' => __('Google Analytics ID', 'aiya-core'),
+                    'description' => __('Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable.', 'aiya-core'),
+                    'default' => '',
                 ],
                 [
                     'id' => 'heading_compliance',

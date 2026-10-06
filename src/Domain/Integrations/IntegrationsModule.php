@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Integrations;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\FileServe\FileServeModule;
 use Aiya\Core\Settings\Registry;
 
 /**
  * Owns the generic companion-service binding surface's domain side: one
- * shared service key, fielded at the top of the file-serve page (the
- * download-services page this integration exists for), plus the ticket
+ * shared service key, fielded at the top of the external-services page
+ * (the companion-service page this integration exists for), plus the ticket
  * and service-key vocabulary the machine endpoints consume (ticket
  * sign-in, credit spending, balance reads — the controller mounts those
  * and announces their namespace to the headless REST gate). The first
@@ -33,7 +34,7 @@ final class IntegrationsModule implements Module
 
     public function settings(): void
     {
-        $this->settings->prependFields('fileserve', [
+        $this->settings->prependFields(FileServeModule::PAGE_SLUG, [
             [
                 'id' => 'heading_integrations',
                 'type' => 'heading',

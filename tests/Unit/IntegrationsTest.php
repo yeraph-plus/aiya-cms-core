@@ -114,7 +114,7 @@ final class IntegrationsTest extends TestCase
 
     public function testAWrongKeyIsRejected(): void
     {
-        $GLOBALS['__aiya_test_options']['fileserve']['service_key'] = 'correct-key';
+        $GLOBALS['__aiya_test_options']['external']['service_key'] = 'correct-key';
 
         // The REST boundary (TokenAuthentication::presentedToken) owns
         // Bearer parsing — well-formed strangers and malformed headers
@@ -129,17 +129,17 @@ final class IntegrationsTest extends TestCase
 
     public function testTheConfiguredKeyPasses(): void
     {
-        $GLOBALS['__aiya_test_options']['fileserve']['service_key'] = 'correct-key';
+        $GLOBALS['__aiya_test_options']['external']['service_key'] = 'correct-key';
 
         self::assertNull(ServiceKey::guard('correct-key'));
     }
 
-    public function testTheKeyGroupLeadsTheFileServePage(): void
+    public function testTheKeyGroupLeadsTheExternalServicesPage(): void
     {
         $registry = new Registry();
         $registry->addPage([
-            'slug' => 'fileserve',
-            'title' => 'File serving',
+            'slug' => 'external',
+            'title' => 'External services',
             'fields' => [
                 ['id' => 'heading_files', 'type' => 'heading', 'label' => 'Files'],
                 ['id' => 'cache_minutes', 'type' => 'number', 'label' => 'Cache minutes', 'default' => 0],
@@ -148,7 +148,7 @@ final class IntegrationsTest extends TestCase
 
         (new IntegrationsModule($registry))->settings();
 
-        $fields = $registry->page('fileserve')->fields();
+        $fields = $registry->page('external')->fields();
         self::assertSame(
             ['heading_integrations', 'service_key', 'heading_files', 'cache_minutes'],
             array_map(static fn ($field): string => $field->id(), $fields)

@@ -11,23 +11,25 @@ use Aiya\Core\Domain\FileServe\Adapters\PlatformAdapter;
 use Aiya\Core\Settings\Registry as SettingsRegistry;
 
 /**
- * The FileServe domain: the settings page every adapter adds its own section
- * to, the adapters the domain ships itself, and the two services the rest of
- * the plugin takes.
+ * The External services page: the settings page every externally-connected
+ * system configures itself against — the companion-service key (the
+ * Integrations domain prepends its group), the download delivery knobs
+ * every adapter list obeys (cache minutes, icon categories), and one
+ * section per remote file backend. Each backend is a request-exit package
+ * plus an adapter module under `src/Modules/` that registers its own
+ * settings fields and its own adapters here (OpenList and GoFile both do)
+ * — and the metabox's picker is built from that same registry, so a new
+ * backend needs no admin or API change either.
  *
- * Remote backends are not this module's business: each one is a request-exit
- * package plus an adapter module under `src/Modules/` that registers its own
- * settings fields and its own adapters here (OpenList and GoFile both do) — and
- * the metabox's picker is built from that same registry, so a new backend needs
- * no admin or API change either.
- *
- * The page carries the two knobs every list obeys (cache minutes, icon
- * categories); each backend adds its own section to it, and each declares the
- * fields its groups are configured with.
+ * Formerly the "File downloads" page (the download services this page
+ * exists for); the settings regroup gave it the broader name its content
+ * already carried. The page slug changed with the rename while the storage
+ * option key aiya_core_fileserve and the fileserve_* field ids are
+ * standing storage contracts and stay untouched.
  */
 final class FileServeModule implements Module
 {
-    public const PAGE_SLUG = 'fileserve';
+    public const PAGE_SLUG = 'external';
     public const OPTION_NAME = 'aiya_core_fileserve';
 
     private FileService $files;
@@ -66,9 +68,10 @@ final class FileServeModule implements Module
     {
         $this->settings->addPage([
             'slug' => self::PAGE_SLUG,
-            'title' => __('File downloads', 'aiya-core'),
-            'menu_title' => __('File downloads', 'aiya-core'),
+            'title' => __('External services', 'aiya-core'),
+            'menu_title' => __('External services', 'aiya-core'),
             'parent' => 'aiya-core-frontend',
+            'menu_position' => 5,
             'option_name' => self::OPTION_NAME,
             'fields' => [
                 [

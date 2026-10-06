@@ -36,7 +36,8 @@ use Aiya\Infra\SlugToolkit\PinyinConverter;
  */
 final class SlugModule implements Module
 {
-    private const PAGE_SLUG = 'optimization';
+    /** The Backend page this module contributes its group to. */
+    private const PAGE_SLUG = 'backend';
     private const MAX_PINYIN_LENGTH = 60;
 
     private ?PinyinConverter $pinyin = null;
