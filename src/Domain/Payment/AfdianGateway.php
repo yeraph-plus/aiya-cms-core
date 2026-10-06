@@ -13,29 +13,22 @@ use Aiya\Infra\PaymentAfdian\Gateway;
  * the `aiya/payment-afdian` package. It owns every WordPress touchpoint:
  * the settings read, the `wp_remote_post` transport the package client
  * calls through, the site-name remark the platform shows the buyer, and
- * the plan→tier binding table (2026-09-21 model: many plans may bind, each
- * to one tier, plus a fallback tier for the amount-only plan). The
- * package turns the primary binding into the deep link; the resolution
- * helpers (tierForPlan/planForTier/fallbackTier) are what the activation
- * chain settles purchases with.
+ * the single binding that aims the deep link at one platform plan. The
+ * 2026-10-06 ruling collapsed the old many-plan binding table and the
+ * fallback tier: every Afdian order settles into the one bound tier,
+ * whatever plan it was paid under.
  */
 final class AfdianGateway implements PaymentGateway
 {
-    /** @var array<string, array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}> plan id => tier it activates */
-    private array $planTiers;
-
     /**
-     * @param array<string, array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}> $planTiers
-     * @param array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}|null $fallbackTier
+     * @param array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,cycles:int}|null $boundTier the tier every Afdian order activates; null leaves the channel unoffered
      */
     public function __construct(
         private Client $client,
         private Gateway $gateway,
         private bool $enabled,
-        array $planTiers,
-        private ?array $fallbackTier,
+        private ?array $boundTier,
     ) {
-        $this->planTiers = $planTiers;
     }
 
     /** Builds the adapter from the domain settings (null when disabled/unconfigured). */
@@ -45,7 +38,7 @@ final class AfdianGateway implements PaymentGateway
         if (!$settings['afdianEnable'] || $settings['afdianUserId'] === '' || $settings['afdianToken'] === '') {
             return null;
         }
-        $tiers = MembershipSettings::read()['tiers'];
+        $tier = MembershipSettings::tierByKey(MembershipSettings::read()['tiers'], $settings['afdianTier']);
 
         // The real HTTP transport for the open API: raw JSON in, response
         // body out (API-level errors ride HTTP 200 with their own ec).
@@ -68,34 +61,21 @@ final class AfdianGateway implements PaymentGateway
             }
         );
 
-        // The binding table: plan id → tier. The first row wins for a
-        // duplicated plan id (an admin slip), and bindings naming a tier
-        // that no longer exists drop out here — they resolve like unknown
-        // plans: ignored, never a purchase.
-        $planTiers = [];
-        foreach ($settings['afdianBindings'] as $binding) {
-            $tier = MembershipSettings::tierByKey($tiers, $binding['tierKey']);
-            if ($binding['planId'] !== '' && $tier !== null && !array_key_exists($binding['planId'], $planTiers)) {
-                $planTiers[$binding['planId']] = $tier;
-            }
-        }
-
-        $primaryPlan = (string) array_key_first($planTiers);
+        $planId = $settings['afdianPlanId'];
 
         return new self(
             $client,
             new Gateway(
                 $client,
-                $primaryPlan,
-                $primaryPlan === '' ? null : $planTiers[$primaryPlan]['key'],
+                $planId,
+                $tier !== null && $planId !== '' ? $tier['key'] : null,
                 // The remark rides the outbound payment page, so it reads in
                 // the site language like every other buyer-facing string.
                 /* translators: %s: site name. */
                 sprintf(__('A membership order from %s', 'aiya-core'), wp_specialchars_decode((string) get_bloginfo('name'), ENT_QUOTES))
             ),
             true,
-            $planTiers,
-            MembershipSettings::tierByKey($tiers, $settings['afdianFallbackTier'])
+            $tier !== null && $planId !== '' ? $tier : null,
         );
     }
 
@@ -126,10 +106,10 @@ final class AfdianGateway implements PaymentGateway
     }
 
     /**
-     * The order-create deep link for the primary binding on behalf of one
-     * user. With several bindings the deep link can only point at one —
-     * it targets the first bound plan, and the webhook still settles by
-     * whatever plan the buyer actually paid.
+     * The order-create deep link for the single bound plan on behalf of
+     * one user. The custom_order_id segment carries the user binding back
+     * into the webhook; empty when the plan/tier pairing is unconfigured
+     * so callers can hide the jump.
      *
      * @param array{orderId:string, title:string, amount:float, channel:string, binding:string} $payment
      */
@@ -139,21 +119,12 @@ final class AfdianGateway implements PaymentGateway
     }
 
     /**
-     * The personalized order-create deep link; empty when nothing is bound.
-     * With a tier key the link targets that tier's bound plan — an unbound
-     * tier refuses (empty), never silently landing on another plan's page.
+     * The personalized order-create deep link; empty when the plan/tier
+     * pairing is unconfigured.
      */
-    public function orderUrl(int $userId, int $month = 0, string $tierKey = ''): string
+    public function orderUrl(int $userId, int $month = 0): string
     {
-        if ($tierKey === '') {
-            return $this->gateway->orderUrl($userId, $month);
-        }
-        $planId = $this->planForTier($tierKey);
-        if ($planId === null) {
-            return '';
-        }
-
-        return $this->gateway->orderUrl($userId, $month, $planId);
+        return $this->gateway->orderUrl($userId, $month);
     }
 
     /**
@@ -169,41 +140,13 @@ final class AfdianGateway implements PaymentGateway
     }
 
     /**
-     * The tier a bound plan activates; null for unknown plans.
+     * The tier every Afdian order activates; null while the plan/tier
+     * pairing is unconfigured (the channel stays unoffered).
      *
      * @return array{key:string, name:string, description:string, price:float, cycleDays:int, creditsPerCycle:int, cycles:int}|null
      */
-    public function tierForPlan(string $planId): ?array
+    public function boundTier(): ?array
     {
-        return $this->planTiers[$planId] ?? null;
-    }
-
-    /** The first plan bound to a tier; null when the tier has none. Feeds the per-tier plan id (a contract field the v1 Tier shape does not carry yet). */
-    public function planForTier(string $tierKey): ?string
-    {
-        foreach ($this->planTiers as $planId => $tier) {
-            if ($tier['key'] === $tierKey) {
-                return $planId;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * The tier the amount-only plan (empty plan_id) falls into; null
-     * refuses those orders.
-     *
-     * @return array{key:string, name:string, description:string, price:float, cycleDays:int, creditsPerCycle:int, cycles:int}|null
-     */
-    public function fallbackTier(): ?array
-    {
-        return $this->fallbackTier;
-    }
-
-    /** The purchase channel exists only while at least one plan is bound. */
-    public function hasBindings(): bool
-    {
-        return $this->planTiers !== [];
+        return $this->boundTier;
     }
 }

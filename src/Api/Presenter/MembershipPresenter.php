@@ -24,7 +24,7 @@ final class MembershipPresenter
      * @param list<string> $methods
      * @return array<string, mixed>
      */
-    public function plans(bool $epay, bool $afdian, array $methods, array $tierRows): array
+    public function plans(bool $epay, bool $afdian, string $afdianTierKey, array $methods, array $tierRows): array
     {
         $tiers = [];
         foreach ($tierRows as $row) {
@@ -40,7 +40,7 @@ final class MembershipPresenter
             );
         }
 
-        return (new TiersPayload(new PlanChannels($epay, $afdian, $methods), $tiers))->toArray();
+        return (new TiersPayload(new PlanChannels($epay, $afdian, $afdianTierKey, $methods), $tiers))->toArray();
     }
 
     /**

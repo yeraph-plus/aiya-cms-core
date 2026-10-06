@@ -112,29 +112,23 @@ final class AfdianGatewayTest extends TestCase
     // ------------------------------------------------- the core-side adapter
 
     /**
-     * The WordPress half: settings → binding table. Many plans may bind,
-     * one tier each; the amount-only plan falls into the fallback tier;
-     * dangling bindings (tier deleted since) resolve like unknown plans.
+     * The WordPress half: settings → the single plan/tier pairing. The
+     * pairing needs both halves — a plan id without a tier (or the tier
+     * deleted since) keeps the channel dark, never a half-bound deep link.
      */
-    public function testTheAdapterResolvesTheBindingTable(): void
+    public function testTheAdapterResolvesTheSinglePairing(): void
     {
         update_option('aiya_core_membership', [
             'tiers' => [
                 ['key' => 'gold', 'name' => 'Gold', 'price' => 30, 'cycle_days' => 30, 'credits_per_cycle' => 100],
-                ['key' => 'silver', 'name' => 'Silver', 'price' => 10, 'cycle_days' => 30, 'credits_per_cycle' => 20],
             ],
         ]);
         update_option('aiya_core_membership_payments', [
             'afdian_enable' => true,
             'afdian_user_id' => 'user-1',
             'afdian_token' => self::TOKEN,
-            'afdian_bindings' => [
-                ['plan_id' => self::BOUND_PLAN, 'tier_key' => 'gold'],
-                ['plan_id' => 'plan-other', 'tier_key' => 'ghost-tier'], // dangling: dropped
-                ['plan_id' => self::BOUND_PLAN, 'tier_key' => 'silver'], // duplicate plan: first row wins
-                ['plan_id' => '', 'tier_key' => 'gold'], // plan-less row: dropped
-            ],
-            'afdian_fallback_tier' => 'silver',
+            'afdian_plan_id' => self::BOUND_PLAN,
+            'afdian_tier' => 'gold',
         ]);
 
         $adapter = AfdianGateway::fromSettings();
@@ -143,43 +137,29 @@ final class AfdianGatewayTest extends TestCase
         self::assertTrue($adapter->enabled());
         self::assertSame([], $adapter->channels(), 'Afdian never rides the cashier');
         self::assertSame('afd_pending_AB', $adapter->orderId('pending_AB'));
-        self::assertTrue($adapter->hasBindings());
+        self::assertSame('gold', $adapter->boundTier()['key'] ?? null);
 
-        // Plan resolution: bound plan → its tier, unknown plan → null.
-        self::assertSame('gold', $adapter->tierForPlan(self::BOUND_PLAN)['key'] ?? null);
-        self::assertNull($adapter->tierForPlan('plan-other'), 'a binding naming a deleted tier resolves like an unknown plan');
-        self::assertNull($adapter->tierForPlan('never-seen'));
-
-        // The reverse lookup and the fallback.
-        self::assertSame(self::BOUND_PLAN, $adapter->planForTier('gold'));
-        self::assertNull($adapter->planForTier('silver'), 'the duplicate row lost, so silver has no plan');
-        self::assertSame('silver', $adapter->fallbackTier()['key'] ?? null);
-
-        // The deep link carries the user binding and the month pre-select.
+        // The deep link carries the single bound plan and the user binding,
+        // with the month pre-select riding through.
         $url = $adapter->orderUrl(42, 3);
         self::assertStringContainsString('plan_id=' . self::BOUND_PLAN, $url);
         self::assertStringContainsString('custom_order_id=' . (new IdSlugEncoder(8))->encodeId(42), $url);
         self::assertStringContainsString('month=3', $url);
-
-        // Per-tier links target the tier's own bound plan; a tier with no
-        // binding refuses instead of landing on another plan's page.
-        self::assertStringContainsString('plan_id=' . self::BOUND_PLAN, $adapter->orderUrl(42, 1, 'gold'));
-        self::assertSame('', $adapter->orderUrl(42, 1, 'silver'), 'an unbound tier must not deep-link to the primary plan');
     }
 
-    public function testWithoutBindingsTheChannelExistsButNothingIsBound(): void
+    public function testWithoutThePairingTheChannelGoesDark(): void
     {
         update_option('aiya_core_membership_payments', [
             'afdian_enable' => true,
             'afdian_user_id' => 'user-1',
             'afdian_token' => self::TOKEN,
+            // A plan without a tier — the pairing is half-configured.
+            'afdian_plan_id' => self::BOUND_PLAN,
         ]);
 
         $adapter = AfdianGateway::fromSettings();
         self::assertNotNull($adapter);
-        self::assertFalse($adapter->hasBindings(), 'no binding rows: the plans() channel goes dark');
-        self::assertNull($adapter->fallbackTier());
-        self::assertNull($adapter->tierForPlan(self::BOUND_PLAN));
+        self::assertNull($adapter->boundTier(), 'no tier bound: the plans() channel goes dark');
         self::assertSame('', $adapter->orderUrl(42));
     }
 

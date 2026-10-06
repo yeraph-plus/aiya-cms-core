@@ -1805,8 +1805,8 @@ msgstr "会员档位不存在。"
 msgid "This membership tier is not available."
 msgstr "该会员档位不可用。"
 
-msgid "This tier is not bound to an Afdian plan."
-msgstr "该档位未绑定爱发电方案。"
+msgid "The Afdian plan/tier pairing is not configured."
+msgstr "爱发电计划/档位配对未配置"
 
 msgid "No payment gateway is available."
 msgstr "没有可用的支付网关。"
@@ -2851,36 +2851,6 @@ msgstr "无效的通知接收者。"
 msgid "The notification could not be stored."
 msgstr "通知保存失败。"
 
-msgid "This order has already been activated."
-msgstr "该订单已经激活过。"
-
-msgid "The membership activation failed — try again."
-msgstr "会员激活失败，请重试。"
-
-msgid "The Afdian API is unreachable — try again later."
-msgstr "爱发电接口暂时无法访问，请稍后再试。"
-
-msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
-msgstr "爱发电拒绝了请求（时间戳过期），请检查本服务器时钟。"
-
-msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
-msgstr "爱发电拒绝了请求，请检查支付设置页中的爱发电用户 ID 与 API Token。"
-
-msgid "No matching Afdian order — check the order number."
-msgstr "没有匹配的爱发电订单，请核对订单号。"
-
-msgid "This order is not a paid trade."
-msgstr "该订单不是已支付的交易。"
-
-msgid "This order's Afdian plan is not bound to a membership tier."
-msgstr "该订单对应的爱发电方案未绑定会员档位。"
-
-msgid "This order is bound to another account."
-msgstr "该订单已绑定其他账号。"
-
-msgid "The order carries no account binding — activate it from the account page with the order number."
-msgstr "该订单未携带账号绑定——请在账户页用订单号激活。"
-
 msgid "A membership order from %s"
 msgstr "来自%s的会员订单"
 
@@ -2935,29 +2905,20 @@ msgstr "爱发电（平台推送）"
 msgid "Afdian integration"
 msgstr "爱发电集成"
 
-msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
-msgstr "从爱发电激活会员：webhook 推送与订单号自助核销。在下方把爱发电方案绑定到站内档位——推送以回查平台的结果结算，绝不信任推送内容本身。"
-
-msgid "Afdian plan bindings"
-msgstr "爱发电方案绑定"
-
-msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
-msgstr "每行把一个爱发电方案（方案页 URL 中的 plan_id 段）绑定到其购买所激活的会员档位。未绑定方案的推送会被忽略。"
+msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Every order settles into the single tier bound below — pushes are settled by re-querying the platform, never by trusting the push body."
+msgstr "从爱发电激活会员：webhook 推送与订单号自助核销。所有订单都结算进下方绑定的唯一档位——结算以重新查询平台为准，绝不信任推送体"
 
 msgid "Afdian plan ID"
 msgstr "爱发电方案 ID"
 
+msgid "The plan_id segment of the Afdian plan page URL — it aims the buyer's deep link. Leave empty to keep the channel unoffered."
+msgstr "爱发电计划页 URL 中的 plan_id 段——指向买家的深链。留空则不开放该渠道"
+
 msgid "Membership tier"
 msgstr "会员档位"
 
-msgid "The tier (from the membership settings page) that this plan activates."
-msgstr "该方案所激活的档位（来自会员设置页）。"
-
-msgid "Fallback tier"
-msgstr "兜底档位"
-
-msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
-msgstr "任意金额方案（无 plan_id 的普通充电）的订单将激活此档位。留空则拒绝这类订单。"
+msgid "The one tier (from the membership settings page) that every Afdian order activates, whatever plan it was paid under."
+msgstr "每笔爱发电订单（无论购买的是哪个计划）都激活的唯一档位（来自会员设置页）"
 
 msgid "Afdian user id"
 msgstr "爱发电用户 ID"
@@ -2976,6 +2937,36 @@ msgstr "订单日志"
 
 msgid "Unpaid orders — abandoned checkouts — leave the payment log after 7 days; paid records are kept forever."
 msgstr "未支付订单（弃单）7 天后离开支付日志；已支付记录永久保留"
+
+msgid "This order has already been activated."
+msgstr "该订单已经激活过。"
+
+msgid "The membership activation failed — try again."
+msgstr "会员激活失败，请重试。"
+
+msgid "The Afdian API is unreachable — try again later."
+msgstr "爱发电接口暂时无法访问，请稍后再试。"
+
+msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
+msgstr "爱发电拒绝了请求（时间戳过期），请检查本服务器时钟。"
+
+msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
+msgstr "爱发电拒绝了请求，请检查支付设置页中的爱发电用户 ID 与 API Token。"
+
+msgid "No matching Afdian order — check the order number."
+msgstr "没有匹配的爱发电订单，请核对订单号。"
+
+msgid "This order is not a paid trade."
+msgstr "该订单不是已支付的交易。"
+
+msgid "The Afdian tier is not configured on the payments settings page."
+msgstr "支付设置页未配置爱发电档位"
+
+msgid "This order is bound to another account."
+msgstr "该订单已绑定其他账号。"
+
+msgid "The order carries no account binding — activate it from the account page with the order number."
+msgstr "该订单未携带账号绑定——请在账户页用订单号激活。"
 
 msgid "Invalid redemption code."
 msgstr "无效的兑换码。"

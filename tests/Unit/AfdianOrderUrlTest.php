@@ -101,7 +101,8 @@ final class AfdianOrderUrlTest extends TestCase
             'afdian_enable' => true,
             'afdian_user_id' => 'user-1',
             'afdian_token' => 't',
-            'afdian_bindings' => [['plan_id' => 'plan-gold', 'tier_key' => 'gold']],
+            'afdian_plan_id' => 'plan-gold',
+            'afdian_tier' => 'gold',
         ]);
         update_option('aiya_core_membership', [
             'tiers' => [['key' => 'gold', 'name' => 'Gold', 'price' => 30, 'cycle_days' => 30, 'credits_per_cycle' => 100, 'enabled' => false]],
@@ -126,7 +127,8 @@ final class AfdianOrderUrlTest extends TestCase
             'afdian_enable' => true,
             'afdian_user_id' => 'user-1',
             'afdian_token' => 't',
-            'afdian_bindings' => [['plan_id' => 'plan-gold', 'tier_key' => 'gold']],
+            'afdian_plan_id' => 'plan-gold',
+            'afdian_tier' => 'gold',
         ]);
         update_option('aiya_core_membership', [
             'tiers' => [['key' => 'gold', 'name' => 'Gold', 'price' => 30, 'cycle_days' => 30, 'credits_per_cycle' => 100]],

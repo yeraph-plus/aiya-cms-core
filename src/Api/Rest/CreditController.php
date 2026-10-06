@@ -12,7 +12,7 @@ use Aiya\Core\Api\Presenter\CreditPresenter;
 use Aiya\Core\Domain\Credit\CheckinService;
 use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Identity\UserBan;
-use Aiya\Core\Domain\Payment\AfdianActivator;
+use Aiya\Core\Domain\Redeem\AfdianRedemption;
 use Aiya\Core\Domain\Redeem\RedeemCodeService;
 use WP_Error;
 use WP_REST_Request;
@@ -136,12 +136,12 @@ final class CreditController
                 return RestGuard::rateLimited();
             }
 
-            $activator = AfdianActivator::fromSettings();
-            if ($activator === null) {
+            $redemption = AfdianRedemption::fromSettings();
+            if ($redemption === null) {
                 return new WP_Error('aiya_afdian_unavailable', __('The Afdian channel is not available.', 'aiya-core'), ['status' => 502]);
             }
 
-            $result = $activator->activate($userId, $code);
+            $result = $redemption->redeem($userId, $code);
         } else {
             $result = $this->codes->redeem($code, $userId);
         }

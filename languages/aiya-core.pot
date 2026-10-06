@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T02:29:27+00:00\n"
+"POT-Creation-Date: 2026-10-06T03:38:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -2715,7 +2715,7 @@ msgid "This account is disabled."
 msgstr ""
 
 #: src/Api/Rest/CreditController.php:141
-#: src/Api/Rest/MembershipController.php:119
+#: src/Api/Rest/MembershipController.php:122
 msgid "The Afdian channel is not available."
 msgstr ""
 
@@ -2743,30 +2743,30 @@ msgstr ""
 msgid "Thread not found."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:130
-#: src/Api/Rest/MembershipController.php:190
+#: src/Api/Rest/MembershipController.php:135
+#: src/Api/Rest/MembershipController.php:195
 msgid "Unknown membership tier."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:136
-#: src/Api/Rest/MembershipController.php:198
+#: src/Api/Rest/MembershipController.php:141
+#: src/Api/Rest/MembershipController.php:203
 msgid "This membership tier is not available."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:143
-msgid "This tier is not bound to an Afdian plan."
+#: src/Api/Rest/MembershipController.php:148
+msgid "The Afdian plan/tier pairing is not configured."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:180
+#: src/Api/Rest/MembershipController.php:185
 msgid "No payment gateway is available."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:183
+#: src/Api/Rest/MembershipController.php:188
 #: src/Domain/Payment/EpayGateway.php:87
 msgid "The requested payment channel is not available."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:219
+#: src/Api/Rest/MembershipController.php:224
 msgid "The return URL is not a valid absolute http(s) address."
 msgstr ""
 
@@ -4136,7 +4136,7 @@ msgstr ""
 
 #. translators: %s: tier keys that still have live checkouts or covering members.
 #: src/Domain/Membership/MembershipModule.php:245
-#: src/Domain/Payment/PaymentModule.php:319
+#: src/Domain/Payment/PaymentModule.php:297
 #, php-format
 msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
 msgstr ""
@@ -4267,50 +4267,8 @@ msgstr ""
 msgid "The notification could not be stored."
 msgstr ""
 
-#: src/Domain/Payment/AfdianActivator.php:87
-msgid "This order has already been activated."
-msgstr ""
-
-#: src/Domain/Payment/AfdianActivator.php:88
-#: src/Domain/Payment/AfdianActivator.php:231
-msgid "The membership activation failed — try again."
-msgstr ""
-
-#: src/Domain/Payment/AfdianActivator.php:151
-#: src/Domain/Payment/AfdianActivator.php:170
-msgid "The Afdian API is unreachable — try again later."
-msgstr ""
-
-#: src/Domain/Payment/AfdianActivator.php:155
-msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
-msgstr ""
-
-#: src/Domain/Payment/AfdianActivator.php:156
-msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
-msgstr ""
-
-#: src/Domain/Payment/AfdianActivator.php:173
-msgid "No matching Afdian order — check the order number."
-msgstr ""
-
-#: src/Domain/Payment/AfdianActivator.php:179
-msgid "This order is not a paid trade."
-msgstr ""
-
-#: src/Domain/Payment/AfdianActivator.php:188
-msgid "This order's Afdian plan is not bound to a membership tier."
-msgstr ""
-
-#: src/Domain/Payment/AfdianActivator.php:196
-msgid "This order is bound to another account."
-msgstr ""
-
-#: src/Domain/Payment/AfdianActivator.php:201
-msgid "The order carries no account binding — activate it from the account page with the order number."
-msgstr ""
-
 #. translators: %s: site name.
-#: src/Domain/Payment/AfdianGateway.php:94
+#: src/Domain/Payment/AfdianGateway.php:75
 #, php-format
 msgid "A membership order from %s"
 msgstr ""
@@ -4389,59 +4347,89 @@ msgid "Afdian integration"
 msgstr ""
 
 #: src/Domain/Payment/PaymentModule.php:148
-msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
+msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Every order settles into the single tier bound below — pushes are settled by re-querying the platform, never by trusting the push body."
 msgstr ""
 
 #: src/Domain/Payment/PaymentModule.php:154
-msgid "Afdian plan bindings"
-msgstr ""
-
-#: src/Domain/Payment/PaymentModule.php:155
-msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
-msgstr ""
-
-#: src/Domain/Payment/PaymentModule.php:161
 msgid "Afdian plan ID"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:167
+#: src/Domain/Payment/PaymentModule.php:155
+msgid "The plan_id segment of the Afdian plan page URL — it aims the buyer's deep link. Leave empty to keep the channel unoffered."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:161
 msgid "Membership tier"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:168
-msgid "The tier (from the membership settings page) that this plan activates."
+#: src/Domain/Payment/PaymentModule.php:162
+msgid "The one tier (from the membership settings page) that every Afdian order activates, whatever plan it was paid under."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:183
-msgid "Fallback tier"
-msgstr ""
-
-#: src/Domain/Payment/PaymentModule.php:184
-msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
-msgstr ""
-
-#: src/Domain/Payment/PaymentModule.php:197
+#: src/Domain/Payment/PaymentModule.php:175
 msgid "Afdian user id"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:203
+#: src/Domain/Payment/PaymentModule.php:181
 msgid "Afdian API token"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:210
+#: src/Domain/Payment/PaymentModule.php:188
 msgid "Afdian webhook address"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:211
+#: src/Domain/Payment/PaymentModule.php:189
 msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/membership/v1/afdian/callback — POST only."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:217
+#: src/Domain/Payment/PaymentModule.php:195
 msgid "Order log"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:223
+#: src/Domain/Payment/PaymentModule.php:201
 msgid "Unpaid orders — abandoned checkouts — leave the payment log after 7 days; paid records are kept forever."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:76
+msgid "This order has already been activated."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:77
+#: src/Domain/Redeem/AfdianRedemption.php:217
+msgid "The membership activation failed — try again."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:140
+#: src/Domain/Redeem/AfdianRedemption.php:159
+msgid "The Afdian API is unreachable — try again later."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:144
+msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:145
+msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:162
+msgid "No matching Afdian order — check the order number."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:168
+msgid "This order is not a paid trade."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:175
+msgid "The Afdian tier is not configured on the payments settings page."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:183
+msgid "This order is bound to another account."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:188
+msgid "The order carries no account binding — activate it from the account page with the order number."
 msgstr ""
 
 #: src/Domain/Redeem/RedeemCodeService.php:43

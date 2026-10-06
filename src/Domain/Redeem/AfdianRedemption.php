@@ -2,39 +2,34 @@
 
 declare(strict_types=1);
 
-namespace Aiya\Core\Domain\Payment;
+namespace Aiya\Core\Domain\Redeem;
 
 use Aiya\Core\Domain\Membership\EntitlementService;
-use Aiya\Infra\PaymentAfdian\Client;
-use Aiya\Infra\PaymentAfdian\Gateway;
-
+use Aiya\Core\Domain\Payment\AfdianGateway;
+use Aiya\Core\Domain\Payment\OrderService;
 use WP_Error;
 
 /**
- * The Afdian activation chain (2026-09-21 webhook rewrite): one
- * ping→query-order→verify→settle sequence, shared by both triggers — the
- * buyer typing the order number into the redeem box, and the webhook
- * whose push is only a hint carrying the trade number. Every purchase
- * fact (paid?, amount, cycles, plan) is read from the platform's own
+ * The Afdian order handler, owned by the redeem domain (2026-10-06
+ * ruling): one ping→query-order→verify→settle sequence shared by both
+ * triggers — the buyer typing the order number into the redeem box, and
+ * the webhook whose push is only a hint carrying the trade number. Every
+ * purchase fact (paid?, amount, cycles) is read from the platform's own
  * API answer; a push body is never trusted beyond its trade number, and
  * the RSA signature check is retired with that push-trust model.
  *
- * Plan resolution runs through the gateway's binding table: a bound plan
- * activates its tier, the amount-only plan (empty plan_id — a plain tip)
- * falls into the configured fallback tier, and an unknown plan is
- * refused. Attribution rides the deep-link binding (custom_order_id):
- * the webhook attributes to the bound account only, while the manual
- * path lets the caller claim an unbound order.
- *
- * The site writes no checkout row for Afdian purchases (0.104.0 dropped
- * the deep-link placeholders): a purchase the query vouches for books
- * straight into the paid log under the platform's own order id (`afd_`
- * prefix). The order-id unique keys in the payment log and the
+ * The plan is not part of the settlement: every order the platform
+ * carries settles into the single tier bound on the payments page
+ * (AfdianGateway::boundTier) — the multi-plan binding table and the
+ * fallback tier are retired with this rewrite. The site writes no
+ * checkout row for Afdian purchases: a purchase the query vouches for
+ * books straight into the paid log under the platform's own order id
+ * (`afd_` prefix). The order-id unique keys in the payment log and the
  * entitlement queue make replays from either trigger idempotent — a
  * re-pushed or re-submitted number is a clean no-op, never a double
  * grant.
  */
-final class AfdianActivator
+final class AfdianRedemption
 {
     // Aligned with the tier settings' cycles ceiling (the repeater field's
     // max): a queried order that really bought more months must not lose
@@ -42,10 +37,9 @@ final class AfdianActivator
     private const MAX_CYCLES = 60;
 
     public function __construct(
-        private Client $client,
+        private AfdianGateway $gateway,
         private OrderService $orders,
         private EntitlementService $entitlements,
-        private AfdianGateway $gateway,
     ) {
     }
 
@@ -57,12 +51,7 @@ final class AfdianActivator
             return null;
         }
 
-        return new self(
-            $gateway->client(),
-            new OrderService(),
-            new EntitlementService(),
-            $gateway,
-        );
+        return new self($gateway, new OrderService(), new EntitlementService());
     }
 
     /**
@@ -70,7 +59,7 @@ final class AfdianActivator
      *
      * @return array{tierKey:string, tierName:string, cycles:int}|WP_Error
      */
-    public function activate(int $userId, string $orderNo): array|WP_Error
+    public function redeem(int $userId, string $orderNo): array|WP_Error
     {
         $resolved = $this->resolvePurchase($orderNo, $userId);
         if (is_wp_error($resolved)) {
@@ -98,7 +87,7 @@ final class AfdianActivator
     /**
      * The webhook's settle of one push body: extract the trade number,
      * re-read the purchase from the open API, settle it — the same chain
-     * as activate(), attributed from the order's own deep-link binding.
+     * as redeem(), attributed from the order's own deep-link binding.
      * Every outcome is normal traffic, so the answer is always success;
      * the return value is the operator-facing log line.
      *
@@ -146,7 +135,7 @@ final class AfdianActivator
     {
         // Official open-API ec table: 200 ok, 0 = no answer (this side),
         // 400002 = ts expired (clock skew), 400004/400005 = bad credentials.
-        $ec = $this->client->ping();
+        $ec = $this->gateway->client()->ping();
         if ($ec === 0) {
             return new WP_Error('aiya_afdian_unavailable', __('The Afdian API is unreachable — try again later.', 'aiya-core'), ['status' => 502]);
         }
@@ -158,7 +147,7 @@ final class AfdianActivator
             return new WP_Error('aiya_afdian_rejected', $message, ['status' => 502]);
         }
 
-        $order = $this->client->queryOrder($orderNo);
+        $order = $this->gateway->client()->queryOrder($orderNo);
         if ($order === null) {
             // Null covers both "no such order" and a platform/transport
             // failure mid-conversation. A second ping tells those apart:
@@ -166,7 +155,7 @@ final class AfdianActivator
             // outage, not a missing purchase — answer 502 so the caller
             // (and the webhook log) reads a retryable condition instead
             // of writing a real order off as never seen.
-            if ($this->client->ping() !== 200) {
+            if ($this->gateway->client()->ping() !== 200) {
                 return new WP_Error('aiya_afdian_unavailable', __('The Afdian API is unreachable — try again later.', 'aiya-core'), ['status' => 502]);
             }
 
@@ -179,18 +168,16 @@ final class AfdianActivator
             return new WP_Error('aiya_order_not_paid', __('This order is not a paid trade.', 'aiya-core'), ['status' => 422]);
         }
 
-        // Plan resolution: a bound plan activates its tier; the amount-only
-        // plan falls into the fallback tier; anything else is refused (and
-        // logged by the webhook, surfaced as 422 to the manual caller).
-        $planId = (string) ($order['plan_id'] ?? '');
-        $tier = $planId === '' ? $this->gateway->fallbackTier() : $this->gateway->tierForPlan($planId);
+        // The single bound tier takes every order in — the platform plan
+        // carries no settlement weight (2026-10-06 ruling).
+        $tier = $this->gateway->boundTier();
         if ($tier === null) {
-            return new WP_Error('aiya_plan_unbound', __('This order\'s Afdian plan is not bound to a membership tier.', 'aiya-core'), ['status' => 422]);
+            return new WP_Error('aiya_plan_unbound', __('The Afdian tier is not configured on the payments settings page.', 'aiya-core'), ['status' => 422]);
         }
 
         // Attribution: an order placed through the personalized deep link
         // carries the account binding in custom_order_id.
-        $boundUser = $this->client->resolveUser((string) ($order['custom_order_id'] ?? ''));
+        $boundUser = $this->gateway->client()->resolveUser((string) ($order['custom_order_id'] ?? ''));
         if ($claimant !== null) {
             if ($boundUser > 0 && $boundUser !== $claimant) {
                 return new WP_Error('aiya_order_bound', __('This order is bound to another account.', 'aiya-core'), ['status' => 409]);
@@ -205,7 +192,7 @@ final class AfdianActivator
 
         return [
             'orderNo' => $orderNo,
-            'orderId' => Gateway::ORDER_PREFIX . $orderNo,
+            'orderId' => $this->gateway->orderId($orderNo),
             'userId' => $userId,
             'tier' => $tier,
             'cycles' => max(1, min(self::MAX_CYCLES, (int) ($order['month'] ?? 1))),
@@ -216,10 +203,9 @@ final class AfdianActivator
     /**
      * Books the money, then queues the entitlement — both directly under
      * the platform's own order id. There is no local checkout row to
-     * settle (0.104.0 dropped the deep-link placeholders): the verified
-     * query is the booking authority, and the order-id unique keys
-     * absorb replays from either trigger into one booked row and one
-     * activation.
+     * settle: the verified query is the booking authority, and the
+     * order-id unique keys absorb replays from either trigger into one
+     * booked row and one activation.
      *
      * @param array{orderId:string, userId:int, tier:array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}, cycles:int, amount:float} $resolved
      * @return true|WP_Error aiya_duplicate_order = already activated

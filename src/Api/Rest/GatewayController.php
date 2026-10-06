@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
-use Aiya\Core\Domain\Payment\AfdianActivator;
+use Aiya\Core\Domain\Redeem\AfdianRedemption;
 use Aiya\Core\Domain\Payment\EpayGateway;
 use Aiya\Core\Domain\Membership\EntitlementService;
 use Aiya\Core\Domain\Payment\OrderService;
@@ -220,14 +220,14 @@ final class GatewayController
             return new WP_REST_Response(['ec' => 429, 'em' => 'rate limited'], 429);
         }
 
-        $activator = AfdianActivator::fromSettings();
-        if ($activator === null) {
+        $redemption = AfdianRedemption::fromSettings();
+        if ($redemption === null) {
             WebhookLogger::write('Afdian push ignored: the integration is off.', '');
 
             return new WP_REST_Response(['ec' => 200, 'em' => 'done'], 200);
         }
 
-        $outcome = $activator->settlePush($body);
+        $outcome = $redemption->settlePush($body);
         WebhookLogger::write('Afdian push: ' . $outcome, '');
 
         return new WP_REST_Response(['ec' => 200, 'em' => 'done'], 200);

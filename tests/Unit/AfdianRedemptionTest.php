@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
-use Aiya\Core\Domain\Payment\AfdianActivator;
+use Aiya\Core\Domain\Redeem\AfdianRedemption;
 use Aiya\Core\Domain\Payment\AfdianGateway;
 use Aiya\Core\Domain\Membership\EntitlementService;
 use Aiya\Core\Domain\Payment\OrderService;
@@ -17,17 +17,19 @@ use WP_Error;
 require_once __DIR__ . '/../Fixture/MembershipTestWpdb.php';
 
 /**
- * The Afdian activation chain, webhook side first (2026-09-21 rewrite;
- * placeholders dropped 0.104.0): the push trades only its order number,
- * the open-API query answers for everything else, and a purchase the
- * query vouches for books straight into the paid log under the
- * platform's own order id — no local checkout row exists to settle.
- * Replays stay idempotent, and unusable pushes log an "ignored" outcome
- * without touching the books. The confirm() settle guard, the users-list
- * batch read and the tier deletion guard live in their own class files
- * since 2026-10-05 and share this file's wpdb double.
+ * The Afdian redemption chain over the redeem domain's own handler
+ * (2026-10-06 takeover; the multi-plan binding table and the fallback
+ * tier are retired): the push or the redeem box trades only its order
+ * number, the open-API query answers for everything else, and every
+ * order — whatever plan it was paid under — settles into the single
+ * bound tier, booked straight into the paid log under the platform's own
+ * order id. Replays stay idempotent, and unusable pushes log an
+ * "ignored" outcome without touching the books. The confirm() settle
+ * guard, the users-list batch read and the tier deletion guard live in
+ * their own class files since 2026-10-05 and share this file's wpdb
+ * double.
  */
-final class AfdianActivatorTest extends TestCase
+final class AfdianRedemptionTest extends TestCase
 {
     private const TOKEN = 'secret-token';
 
@@ -62,7 +64,7 @@ final class AfdianActivatorTest extends TestCase
     }
 
     /** The activator over a fake transport: ping answers the staged ec, query-order the staged orders. */
-    private function activator(): AfdianActivator
+    private function redemption(): AfdianRedemption
     {
         $client = new Client('user-1', self::TOKEN, function (string $url, string $payload): ?string {
             if (str_ends_with($url, '/ping')) {
@@ -84,11 +86,10 @@ final class AfdianActivatorTest extends TestCase
             $client,
             new Gateway($client, 'plan-gold', 'gold', ''),
             true,
-            ['plan-gold' => self::GOLD],
-            self::SILVER
+            self::GOLD
         );
 
-        return new AfdianActivator($client, new OrderService(), new EntitlementService(), $gateway);
+        return new AfdianRedemption($gateway, new OrderService(), new EntitlementService());
     }
 
     /** A paid-trade order the API vouches for, attributed to a site account. @param array<string, mixed> $overrides */
@@ -128,7 +129,7 @@ final class AfdianActivatorTest extends TestCase
         $orders = new OrderService();
         $this->paidOrder('T100', ['month' => 2, 'total_amount' => '51.00']);
 
-        $outcome = $this->activator()->settlePush($this->push('T100'));
+        $outcome = $this->redemption()->settlePush($this->push('T100'));
 
         self::assertStringContainsString('activated order T100', $outcome);
         self::assertStringContainsString('tier gold ×2', $outcome);
@@ -153,29 +154,33 @@ final class AfdianActivatorTest extends TestCase
         self::assertSame('gold', $queue[0]['tier_key']);
     }
 
-    public function testTheAmountOnlyPlanFallsIntoTheFallbackTier(): void
+    public function testWhateverPlanTheOrderCarriedItSettlesIntoTheBoundTier(): void
     {
+        // The plan_id carries no settlement weight (2026-10-06 ruling): a
+        // plain amount-only boost and a total stranger plan both land in
+        // the one bound tier, booked from the queried facts.
         $this->paidOrder('T200', ['plan_id' => '']);
+        $this->paidOrder('T201', ['plan_id' => 'plan-nobody-bound']);
 
-        $outcome = $this->activator()->settlePush($this->push('T200'));
+        $redemption = $this->redemption();
+        self::assertStringContainsString('activated order T200', $redemption->settlePush($this->push('T200')));
+        self::assertStringContainsString('activated order T201', $redemption->settlePush($this->push('T201')));
 
-        self::assertStringContainsString('activated order T200', $outcome);
-        self::assertStringContainsString('tier silver', $outcome, 'the amount-only plan falls into the fallback tier');
-
-        $row = (new OrderService())->orderRow('afd_T200');
-        self::assertNotNull($row);
-        self::assertSame('paid', $row['status']);
-        self::assertSame('silver', $row['tier_key']);
-        self::assertSame(30.0, $row['amount'], 'the queried total_amount, not the push body’s 0.01');
+        $first = (new OrderService())->orderRow('afd_T200');
+        self::assertNotNull($first);
+        self::assertSame('paid', $first['status']);
+        self::assertSame('gold', $first['tier_key'], 'the bound tier takes every order');
+        self::assertSame(30.0, $first['amount'], 'the queried total_amount, not the push body’s 0.01');
+        self::assertSame('gold', (new OrderService())->orderRow('afd_T201')['tier_key']);
     }
 
     public function testWebhookReplayIsIdempotent(): void
     {
         $this->paidOrder('T300');
-        $activator = $this->activator();
+        $redemption = $this->redemption();
 
-        $first = $activator->settlePush($this->push('T300'));
-        $second = $activator->settlePush($this->push('T300'));
+        $first = $redemption->settlePush($this->push('T300'));
+        $second = $redemption->settlePush($this->push('T300'));
 
         self::assertStringContainsString('activated order T300', $first);
         self::assertStringContainsString('already activated', $second, 'the unique keys absorb the replay');
@@ -185,25 +190,25 @@ final class AfdianActivatorTest extends TestCase
 
     public function testUnusablePushesAreLoggedAndTouchedNothing(): void
     {
-        $activator = $this->activator();
+        $redemption = $this->redemption();
 
         // No trade number in the push at all.
-        self::assertStringContainsString('no order number', $activator->settlePush(['data' => 'garbage']));
+        self::assertStringContainsString('no order number', $redemption->settlePush(['data' => 'garbage']));
 
-        // Unknown, unpaid, unattributed, unbound — each names its reason.
-        self::assertStringContainsString('aiya_order_not_found', $activator->settlePush($this->push('GHOST')));
+        // Unknown, unpaid, unattributed — each names its reason. The
+        // platform plan is not a refusal reason any more (2026-10-06:
+        // every order settles into the bound tier).
+        self::assertStringContainsString('aiya_order_not_found', $redemption->settlePush($this->push('GHOST')));
         $this->paidOrder('T401', ['status' => 1]);
-        self::assertStringContainsString('aiya_order_not_paid', $activator->settlePush($this->push('T401')));
+        self::assertStringContainsString('aiya_order_not_paid', $redemption->settlePush($this->push('T401')));
         $this->paidOrder('T402', ['custom_order_id' => '!!!not-a-code']);
-        self::assertStringContainsString('aiya_order_unattributed', $activator->settlePush($this->push('T402')));
-        $this->paidOrder('T403', ['plan_id' => 'plan-mystery']);
-        self::assertStringContainsString('aiya_plan_unbound', $activator->settlePush($this->push('T403')));
+        self::assertStringContainsString('aiya_order_unattributed', $redemption->settlePush($this->push('T402')));
 
         // API outage and credential rejection.
         $this->pingEc = 0;
-        self::assertStringContainsString('aiya_afdian_unavailable', $activator->settlePush($this->push('T404')));
+        self::assertStringContainsString('aiya_afdian_unavailable', $redemption->settlePush($this->push('T404')));
         $this->pingEc = 400002;
-        self::assertStringContainsString('aiya_afdian_rejected', $activator->settlePush($this->push('T404')));
+        self::assertStringContainsString('aiya_afdian_rejected', $redemption->settlePush($this->push('T404')));
 
         self::assertSame([], $this->db->rows[$this->db->paymentTable] ?? [], 'no money booked by unusable pushes');
         self::assertSame([], $this->db->rows[$this->db->queueTable] ?? [], 'no rights queued by unusable pushes');
@@ -216,22 +221,22 @@ final class AfdianActivatorTest extends TestCase
         $this->paidOrder('T500', ['custom_order_id' => '']); // placed on the platform, no deep link
         $this->paidOrder('T501'); // carries user 42's binding
 
-        $activator = $this->activator();
+        $redemption = $this->redemption();
 
         self::assertSame(
             ['tierKey' => 'gold', 'tierName' => 'Gold', 'cycles' => 1],
-            $activator->activate(7, 'T500'),
+            $redemption->redeem(7, 'T500'),
             'an unbound order belongs to the caller who typed its number'
         );
 
-        $bound = $activator->activate(7, 'T501');
+        $bound = $redemption->redeem(7, 'T501');
         self::assertInstanceOf(WP_Error::class, $bound);
         self::assertSame('aiya_order_bound', $bound->get_error_code());
 
         // The owner can still activate it, and the already-activated
         // answer covers the double-typed number.
-        self::assertSame(['tierKey' => 'gold', 'tierName' => 'Gold', 'cycles' => 1], $activator->activate(42, 'T501'));
-        $used = $activator->activate(42, 'T501');
+        self::assertSame(['tierKey' => 'gold', 'tierName' => 'Gold', 'cycles' => 1], $redemption->redeem(42, 'T501'));
+        $used = $redemption->redeem(42, 'T501');
         self::assertInstanceOf(WP_Error::class, $used);
         self::assertSame('aiya_order_used', $used->get_error_code());
     }
@@ -245,7 +250,7 @@ final class AfdianActivatorTest extends TestCase
 
         self::assertSame(
             ['tierKey' => 'gold', 'tierName' => 'Gold', 'cycles' => 60],
-            $this->activator()->activate(42, 'T600')
+            $this->redemption()->redeem(42, 'T600')
         );
     }
 }

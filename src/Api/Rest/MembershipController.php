@@ -82,14 +82,17 @@ final class MembershipController
     {
         $gateway = $this->gateway();
         $afdian = AfdianGateway::fromSettings();
+        $afdianTier = $afdian?->boundTier();
 
         // Each gateway's own answer is authoritative: it knows both the
         // admin switch and whether credentials exist. The Afdian purchase
-        // channel exists only while at least one plan is bound — with no
-        // binding there is no deep link to offer the buyer.
+        // channel rides exactly one tier — the single tier bound on the
+        // payments page — and the payload names it so the purchase UI
+        // offers the channel on that tier's card alone.
         return new WP_REST_Response($this->presenter->plans(
             $gateway !== null && $gateway->enabled(),
-            $afdian !== null && $afdian->enabled() && $afdian->hasBindings(),
+            $afdian !== null && $afdianTier !== null,
+            $afdianTier !== null ? (string) $afdianTier['key'] : '',
             $gateway?->channels() ?? [],
             MembershipSettings::read()['tiers']
         ));
@@ -119,9 +122,11 @@ final class MembershipController
             return new WP_Error('aiya_afdian_unavailable', __('The Afdian channel is not available.', 'aiya-core'), ['status' => 502]);
         }
 
-        // The tier decides the cycle count (there is no front-end picker):
-        // the deep link only pre-selects it on the platform page — the
-        // webhook's queried order settles the reality (id, cycles, plan).
+        // The single bound tier owns the Afdian channel: the requested
+        // tier must be it. The tier still decides the cycle count (there
+        // is no front-end picker): the deep link only pre-selects it on
+        // the platform page — the webhook's queried order settles the
+        // reality (id, cycles, amount).
         $tier = MembershipSettings::tierByKey(
             MembershipSettings::read()['tiers'],
             sanitize_key((string) $request->get_param('tierKey'))
@@ -138,9 +143,9 @@ final class MembershipController
         $cycles = (int) $tier['cycles'];
 
         $userId = (int) get_current_user_id();
-        $url = $gateway->orderUrl($userId, $cycles, (string) $tier['key']);
+        $url = $gateway->orderUrl($userId, $cycles);
         if ($url === '') {
-            return new WP_Error('aiya_plan_unbound', __('This tier is not bound to an Afdian plan.', 'aiya-core'), ['status' => 422]);
+            return new WP_Error('aiya_plan_unbound', __('The Afdian plan/tier pairing is not configured.', 'aiya-core'), ['status' => 422]);
         }
 
         return new WP_REST_Response(['url' => $url]);

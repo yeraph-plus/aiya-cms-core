@@ -249,8 +249,8 @@ namespace Aiya\Core\Tests\Unit {
                 'afdian_enable' => true,
                 'afdian_user_id' => 'user-1',
                 'afdian_token' => 't',
-                'afdian_bindings' => [['plan_id' => 'plan-gold', 'tier_key' => 'gold']],
-                'afdian_fallback_tier' => 'silver',
+                'afdian_plan_id' => 'plan-gold',
+                'afdian_tier' => 'gold',
             ]);
             update_option('aiya_core_membership', [
                 'tiers' => [
