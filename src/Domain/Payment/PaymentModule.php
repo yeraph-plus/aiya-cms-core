@@ -96,8 +96,13 @@ final class PaymentModule implements Module
                 [
                     'id' => 'heading_epay',
                     'type' => 'heading',
-                    'label' => __('Epay gateway (cashier integration)', 'aiya-core'),
+                    'label' => __('Epay gateway', 'aiya-core'),
                     'level' => '2',
+                ],
+                [
+                    'id' => 'note_epay_sdk',
+                    'type' => 'note',
+                    'label' => __('The Epay gateway is SDK-compatible; it signs with the V2 scheme.', 'aiya-core'),
                 ],
                 [
                     'id' => 'epay_enable',
@@ -138,8 +143,19 @@ final class PaymentModule implements Module
                 [
                     'id' => 'heading_afdian',
                     'type' => 'heading',
-                    'label' => __('Afdian (platform push)', 'aiya-core'),
+                    'label' => __('Afdian', 'aiya-core'),
                     'level' => '2',
+                ],
+                [
+                    'id' => 'note_afdian_link',
+                    'type' => 'note',
+                    /* translators: the platform link. */
+                    'label' => __('Support creators on <a href="https://afdian.com/">Afdian</a>.', 'aiya-core'),
+                ],
+                [
+                    'id' => 'note_afdian_webhook',
+                    'type' => 'note',
+                    'label' => site_url('/wp-json/aiya/membership/v1/afdian/callback'),
                 ],
                 [
                     'id' => 'afdian_enable',
@@ -180,25 +196,6 @@ final class PaymentModule implements Module
                     'type' => 'password',
                     'label' => __('Afdian API token', 'aiya-core'),
                     'default' => '',
-                ],
-                [
-                    'id' => 'afdian_webhook_note',
-                    'type' => 'note',
-                    'variant' => 'info',
-                    'label' => __('Afdian webhook address', 'aiya-core'),
-                    'description' => __('Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/membership/v1/afdian/callback — POST only.', 'aiya-core'),
-                    'default' => null,
-                ],
-                [
-                    'id' => 'heading_order_log',
-                    'type' => 'heading',
-                    'label' => __('Order log', 'aiya-core'),
-                    'level' => '2',
-                ],
-                [
-                    'id' => 'note_order_log',
-                    'type' => 'note',
-                    'label' => __('Unpaid orders — abandoned checkouts — leave the payment log after 7 days; paid records are kept forever.', 'aiya-core'),
                 ],
             ],
         ]);

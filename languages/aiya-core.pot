@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T06:01:23+00:00\n"
+"POT-Creation-Date: 2026-10-06T06:28:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -1367,6 +1367,7 @@ msgid "Epay"
 msgstr ""
 
 #: src/Admin/PaymentsAuditPage.php:245
+#: src/Domain/Payment/PaymentModule.php:146
 msgid "Afdian"
 msgstr ""
 
@@ -4140,7 +4141,7 @@ msgstr ""
 
 #. translators: %s: tier keys that still have live checkouts or covering members.
 #: src/Domain/Membership/MembershipModule.php:239
-#: src/Domain/Payment/PaymentModule.php:297
+#: src/Domain/Payment/PaymentModule.php:294
 #, php-format
 msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
 msgstr ""
@@ -4303,95 +4304,84 @@ msgid "Payment settings"
 msgstr ""
 
 #: src/Domain/Payment/PaymentModule.php:99
-msgid "Epay gateway (cashier integration)"
+msgid "Epay gateway"
 msgstr ""
 
 #: src/Domain/Payment/PaymentModule.php:105
+msgid "The Epay gateway is SDK-compatible; it signs with the V2 scheme."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:110
 msgid "Epay integration"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:111
+#: src/Domain/Payment/PaymentModule.php:116
 msgid "Merchant id (pid)"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:117
+#: src/Domain/Payment/PaymentModule.php:122
 msgid "Merchant key"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:123
+#: src/Domain/Payment/PaymentModule.php:128
 msgid "Gateway submit URL"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:129
+#: src/Domain/Payment/PaymentModule.php:134
 msgid "Payment channels"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:130
+#: src/Domain/Payment/PaymentModule.php:135
 msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:133
+#: src/Domain/Payment/PaymentModule.php:138
 msgid "Alipay"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:134
+#: src/Domain/Payment/PaymentModule.php:139
 msgid "WeChat Pay"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:135
+#: src/Domain/Payment/PaymentModule.php:140
 msgid "USDT (TRC20)"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:141
-msgid "Afdian (platform push)"
+#. translators: the platform link.
+#: src/Domain/Payment/PaymentModule.php:153
+msgid "Support creators on <a href=\"https://afdian.com/\">Afdian</a>."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:147
+#: src/Domain/Payment/PaymentModule.php:163
 msgid "Afdian integration"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:148
+#: src/Domain/Payment/PaymentModule.php:164
 msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Every order settles into the single tier bound below — pushes are settled by re-querying the platform, never by trusting the push body."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:154
+#: src/Domain/Payment/PaymentModule.php:170
 msgid "Afdian plan ID"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:155
+#: src/Domain/Payment/PaymentModule.php:171
 msgid "The plan_id segment of the Afdian plan page URL — it aims the buyer's deep link. Leave empty to keep the channel unoffered."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:161
+#: src/Domain/Payment/PaymentModule.php:177
 msgid "Membership tier"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:162
+#: src/Domain/Payment/PaymentModule.php:178
 msgid "The one tier (from the membership settings page) that every Afdian order activates, whatever plan it was paid under."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:175
+#: src/Domain/Payment/PaymentModule.php:191
 msgid "Afdian user id"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:181
+#: src/Domain/Payment/PaymentModule.php:197
 msgid "Afdian API token"
-msgstr ""
-
-#: src/Domain/Payment/PaymentModule.php:188
-msgid "Afdian webhook address"
-msgstr ""
-
-#: src/Domain/Payment/PaymentModule.php:189
-msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/membership/v1/afdian/callback — POST only."
-msgstr ""
-
-#: src/Domain/Payment/PaymentModule.php:195
-msgid "Order log"
-msgstr ""
-
-#: src/Domain/Payment/PaymentModule.php:201
-msgid "Unpaid orders — abandoned checkouts — leave the payment log after 7 days; paid records are kept forever."
 msgstr ""
 
 #: src/Domain/Redeem/AfdianRedemption.php:76

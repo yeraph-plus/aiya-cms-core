@@ -2869,8 +2869,11 @@ msgstr "订单保存失败。"
 msgid "Payment settings"
 msgstr "支付设置"
 
-msgid "Epay gateway (cashier integration)"
-msgstr "易支付网关（收银台集成）"
+msgid "Epay gateway"
+msgstr "易支付网关"
+
+msgid "The Epay gateway is SDK-compatible; it signs with the V2 scheme."
+msgstr "易支付网关兼容 SDK，使用 V2 版签名方式"
 
 msgid "Epay integration"
 msgstr "易支付集成"
@@ -2899,8 +2902,8 @@ msgstr "微信支付"
 msgid "USDT (TRC20)"
 msgstr "USDT（TRC20）"
 
-msgid "Afdian (platform push)"
-msgstr "爱发电（平台推送）"
+msgid "Support creators on <a href=\"https://afdian.com/\">Afdian</a>."
+msgstr "支持创作，<a href=\"https://afdian.com/\">用爱发电</a>"
 
 msgid "Afdian integration"
 msgstr "爱发电集成"
@@ -2925,18 +2928,6 @@ msgstr "爱发电用户 ID"
 
 msgid "Afdian API token"
 msgstr "爱发电 API Token"
-
-msgid "Afdian webhook address"
-msgstr "爱发电 Webhook 地址"
-
-msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/membership/v1/afdian/callback — POST only."
-msgstr "在爱发电创作者后台（开发工具 > WebHook）登记该地址：{site url}/wp-json/aiya/membership/v1/afdian/callback，仅接受 POST。"
-
-msgid "Order log"
-msgstr "订单日志"
-
-msgid "Unpaid orders — abandoned checkouts — leave the payment log after 7 days; paid records are kept forever."
-msgstr "未支付订单（弃单）7 天后离开支付日志；已支付记录永久保留"
 
 msgid "This order has already been activated."
 msgstr "该订单已经激活过。"
