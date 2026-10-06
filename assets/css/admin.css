@@ -519,6 +519,7 @@ details.aiya-core-card > .aiya-core-card__summary::marker {
    repainting the text. */
 .aiya-core-button-danger,
 .button.aiya-core-button-danger {
+    border-color: #d63638;
     color: #d63638;
     text-decoration: none;
 }
@@ -527,6 +528,7 @@ details.aiya-core-card > .aiya-core-card__summary::marker {
 .aiya-core-button-danger:focus,
 .button.aiya-core-button-danger:hover,
 .button.aiya-core-button-danger:focus {
+    border-color: #b32d2e;
     color: #b32d2e;
 }
 
