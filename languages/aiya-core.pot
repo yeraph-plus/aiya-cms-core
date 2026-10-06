@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T03:38:09+00:00\n"
+"POT-Creation-Date: 2026-10-06T04:01:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -68,9 +68,9 @@ msgid "Redemption codes"
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:66
-#: src/Admin/ConvertCodesPage.php:265
-#: src/Admin/ConvertCodesPage.php:310
-#: src/Admin/ConvertCodesPage.php:321
+#: src/Admin/ConvertCodesPage.php:267
+#: src/Admin/ConvertCodesPage.php:312
+#: src/Admin/ConvertCodesPage.php:323
 msgid "You are not allowed to manage redemption codes."
 msgstr ""
 
@@ -96,29 +96,29 @@ msgid "The operation failed — check the values and try again."
 msgstr ""
 
 #. translators: %s: number of stored codes.
-#: src/Admin/ConvertCodesPage.php:88
+#: src/Admin/ConvertCodesPage.php:90
 #, php-format
 msgid "Stored codes (%s)"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:94
+#: src/Admin/ConvertCodesPage.php:101
 msgid "Delete ALL codes? This cannot be undone."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:97
+#: src/Admin/ConvertCodesPage.php:104
 #: src/Admin/UiSamplePage.php:66
 msgid "Delete all"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:105
+#: src/Admin/ConvertCodesPage.php:113
 msgid "Code"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:106
+#: src/Admin/ConvertCodesPage.php:114
 msgid "Contents"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:107
+#: src/Admin/ConvertCodesPage.php:115
 #: src/Admin/DiscussionModerationPage.php:276
 #: src/Admin/PaymentsAuditPage.php:140
 #: src/Admin/UiSamplePage.php:116
@@ -126,22 +126,22 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:108
+#: src/Admin/ConvertCodesPage.php:116
 msgid "Redeemed by"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:109
+#: src/Admin/ConvertCodesPage.php:117
 msgid "Redeemed at"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:110
+#: src/Admin/ConvertCodesPage.php:118
 #: src/Admin/NotificationPage.php:108
 #: src/Admin/UiSamplePage.php:117
 #: src/Admin/UiSamplePage.php:162
 msgid "Created"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:111
+#: src/Admin/ConvertCodesPage.php:119
 #: src/Admin/CronsPage.php:182
 #: src/Admin/DiscussionModerationPage.php:178
 #: src/Admin/DiscussionModerationPage.php:706
@@ -152,24 +152,24 @@ msgid "Actions"
 msgstr ""
 
 #. translators: 1: credit amount, 2: validity in days.
-#: src/Admin/ConvertCodesPage.php:129
+#: src/Admin/ConvertCodesPage.php:137
 #, php-format
 msgid "Credits ×%1$d · %2$d days"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:139
+#: src/Admin/ConvertCodesPage.php:147
 msgid "Redeemed"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:139
+#: src/Admin/ConvertCodesPage.php:147
 msgid "Unused"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:157
+#: src/Admin/ConvertCodesPage.php:165
 msgid "Delete this code?"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:161
+#: src/Admin/ConvertCodesPage.php:169
 #: src/Admin/CronsPage.php:200
 #: src/Admin/DiscussionModerationPage.php:207
 #: src/Admin/DiscussionModerationPage.php:740
@@ -178,78 +178,68 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:167
+#: src/Admin/ConvertCodesPage.php:175
 msgid "No codes stored."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:185
-msgid "Generate codes"
+#: src/Admin/ConvertCodesPage.php:186
+msgid "Generate credit codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:192
-msgid "Kind"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:195
-msgid "Membership code"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:196
-msgid "Credit code"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:198
-msgid "Membership codes queue the tier like a paid order; credit codes grant the balance straight away."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:202
-#: src/Admin/PaymentsAuditPage.php:137
-msgid "Tier"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:207
-msgid "— define tiers first —"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:216
-msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:220
-#: src/Admin/PaymentsAuditPage.php:139
-msgid "Cycles"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:223
-msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:227
+#: src/Admin/ConvertCodesPage.php:194
 #: src/Admin/CreditsPage.php:179
 #: src/Admin/CreditsPage.php:238
 #: src/Admin/PaymentsAuditPage.php:138
 msgid "Amount"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:230
+#: src/Admin/ConvertCodesPage.php:197
 msgid "The balance the holder receives at redemption."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:234
+#: src/Admin/ConvertCodesPage.php:201
 #: src/Admin/CreditsPage.php:185
 msgid "Validity (days)"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:237
+#: src/Admin/ConvertCodesPage.php:204
 msgid "The granted bucket dies when this expires."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:241
+#: src/Admin/ConvertCodesPage.php:208
+#: src/Admin/ConvertCodesPage.php:254
 msgid "Quantity"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:245
+#: src/Admin/ConvertCodesPage.php:212
+#: src/Admin/ConvertCodesPage.php:258
 msgid "Generate"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:221
+msgid "Generate membership codes"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:229
+#: src/Admin/PaymentsAuditPage.php:137
+msgid "Tier"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:234
+msgid "— define tiers first —"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:243
+msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:247
+#: src/Admin/PaymentsAuditPage.php:139
+msgid "Cycles"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:250
+msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
 msgstr ""
 
 #: src/Admin/CoverMetabox.php:41

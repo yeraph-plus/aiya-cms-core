@@ -81,23 +81,31 @@ final class ConvertCodesPage implements Module
             'failed' => [__('The operation failed — check the values and try again.', 'aiya-core'), 'error'],
         ]);
 
-        $this->generateCard();
+        $open = sanitize_key((string) ($_GET['aiya_note'] ?? '')) === 'failed'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash state
+        $this->creditCard($open);
+        $this->membershipCard($open);
 
         Ui::heading(sprintf(
             /* translators: %s: number of stored codes. */
             __('Stored codes (%s)', 'aiya-core'),
             (string) $result['total']
         ));
-        ?>
-        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin:0 0 12px;"
-            data-aiya-confirm="aiya-code-delete-confirm"
-            data-aiya-confirm-text="<?php esc_attr_e('Delete ALL codes? This cannot be undone.', 'aiya-core'); ?>">
-            <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_DELETE_ALL); ?>">
-            <?php wp_nonce_field(self::ACTION_DELETE_ALL); ?>
-            <button type="submit" class="button button-link-delete"><?php esc_html_e('Delete all', 'aiya-core'); ?></button>
-        </form>
-        <?php
-        $navArgs = ['jump_nav' => true];
+        $navArgs = [
+            'jump_nav' => true,
+            // The wipe-everything hammer lives in the list's operation bar —
+            // its own POST form, confirmed through the shared danger modal.
+            'actions' => static function (): void {
+                ?>
+                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
+                    data-aiya-confirm="aiya-code-delete-confirm"
+                    data-aiya-confirm-text="<?php esc_attr_e('Delete ALL codes? This cannot be undone.', 'aiya-core'); ?>">
+                    <input type="hidden" name="action" value="<?php echo esc_attr(ConvertCodesPage::ACTION_DELETE_ALL); ?>">
+                    <?php wp_nonce_field(ConvertCodesPage::ACTION_DELETE_ALL); ?>
+                    <button type="submit" class="button button-link-delete"><?php esc_html_e('Delete all', 'aiya-core'); ?></button>
+                </form>
+                <?php
+            },
+        ];
         Ui::listNav($result['total'], $paged, self::PER_PAGE, 'top', $navArgs);
         Ui::listTable(
             [
@@ -172,33 +180,52 @@ final class ConvertCodesPage implements Module
         Ui::pageFoot();
     }
 
-    /**
-     * The generation form as a collapsible card, seeded collapsed — the
-     * stored list is the page's primary surface. A failed round trip
-     * opens the card so the operator sees the refusal next to the form
-     * (the credits page's grant card, same posture).
-     */
-    private function generateCard(): void
+    /** The single-shot credit variant: amount and bucket validity. */
+    private function creditCard(bool $open): void
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash state
-        $open = sanitize_key((string) ($_GET['aiya_note'] ?? '')) === 'failed';
-        Ui::card(__('Generate codes', 'aiya-core'), static function (): void {
+        Ui::card(__('Generate credit codes', 'aiya-core'), static function (): void {
             ?>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <input type="hidden" name="action" value="<?php echo esc_attr(ConvertCodesPage::ACTION_GENERATE); ?>">
+                <input type="hidden" name="kind" value="credit">
                 <?php wp_nonce_field(ConvertCodesPage::ACTION_GENERATE); ?>
                 <table class="form-table" role="presentation"><tbody>
                     <tr>
-                        <th scope="row"><label for="aiya-codes-kind"><?php esc_html_e('Kind', 'aiya-core'); ?></label></th>
+                        <th scope="row"><label for="aiya-codes-amount"><?php esc_html_e('Amount', 'aiya-core'); ?></label></th>
                         <td>
-                            <select id="aiya-codes-kind" name="kind" data-aiya-codes-kind>
-                                <option value="tier"><?php esc_html_e('Membership code', 'aiya-core'); ?></option>
-                                <option value="credit"><?php esc_html_e('Credit code', 'aiya-core'); ?></option>
-                            </select>
-                            <p class="description"><?php esc_html_e('Membership codes queue the tier like a paid order; credit codes grant the balance straight away.', 'aiya-core'); ?></p>
+                            <input type="number" class="small-text" id="aiya-codes-amount" name="credit_amount" min="1" max="100000" value="100">
+                            <p class="description"><?php esc_html_e('The balance the holder receives at redemption.', 'aiya-core'); ?></p>
                         </td>
                     </tr>
-                    <tr data-aiya-codes-group="tier">
+                    <tr>
+                        <th scope="row"><label for="aiya-codes-days"><?php esc_html_e('Validity (days)', 'aiya-core'); ?></label></th>
+                        <td>
+                            <input type="number" class="small-text" id="aiya-codes-days" name="credit_days" min="1" max="3650" value="365">
+                            <p class="description"><?php esc_html_e('The granted bucket dies when this expires.', 'aiya-core'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aiya-codes-quantity"><?php esc_html_e('Quantity', 'aiya-core'); ?></label></th>
+                        <td><input type="number" class="small-text" id="aiya-codes-quantity" name="quantity" min="1" max="100" value="1"></td>
+                    </tr>
+                </tbody></table>
+                <p><?php Ui::button(__('Generate', 'aiya-core'), ['type' => 'submit', 'variant' => 'button-primary']); ?></p>
+            </form>
+            <?php
+        }, $open);
+    }
+
+    /** The membership variant: one tier × cycles, queued like a paid order. */
+    private function membershipCard(bool $open): void
+    {
+        Ui::card(__('Generate membership codes', 'aiya-core'), static function (): void {
+            ?>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <input type="hidden" name="action" value="<?php echo esc_attr(ConvertCodesPage::ACTION_GENERATE); ?>">
+                <input type="hidden" name="kind" value="tier">
+                <?php wp_nonce_field(ConvertCodesPage::ACTION_GENERATE); ?>
+                <table class="form-table" role="presentation"><tbody>
+                    <tr>
                         <th scope="row"><label for="aiya-codes-tier"><?php esc_html_e('Tier', 'aiya-core'); ?></label></th>
                         <td>
                             <select id="aiya-codes-tier" name="tier_key">
@@ -216,45 +243,20 @@ final class ConvertCodesPage implements Module
                             <p class="description"><?php esc_html_e('The membership product this code grants; the tier snapshot is taken at redemption time.', 'aiya-core'); ?></p>
                         </td>
                     </tr>
-                    <tr data-aiya-codes-group="tier">
+                    <tr>
                         <th scope="row"><label for="aiya-codes-cycles"><?php esc_html_e('Cycles', 'aiya-core'); ?></label></th>
                         <td>
                             <input type="number" class="small-text" id="aiya-codes-cycles" name="cycles" min="1" max="60" value="1">
                             <p class="description"><?php esc_html_e('How many cycles of the tier the code grants (credits follow the regular cycle grants).', 'aiya-core'); ?></p>
                         </td>
                     </tr>
-                    <tr data-aiya-codes-group="credit" hidden>
-                        <th scope="row"><label for="aiya-codes-amount"><?php esc_html_e('Amount', 'aiya-core'); ?></label></th>
-                        <td>
-                            <input type="number" class="small-text" id="aiya-codes-amount" name="credit_amount" min="1" max="100000" value="100">
-                            <p class="description"><?php esc_html_e('The balance the holder receives at redemption.', 'aiya-core'); ?></p>
-                        </td>
-                    </tr>
-                    <tr data-aiya-codes-group="credit" hidden>
-                        <th scope="row"><label for="aiya-codes-days"><?php esc_html_e('Validity (days)', 'aiya-core'); ?></label></th>
-                        <td>
-                            <input type="number" class="small-text" id="aiya-codes-days" name="credit_days" min="1" max="3650" value="365">
-                            <p class="description"><?php esc_html_e('The granted bucket dies when this expires.', 'aiya-core'); ?></p>
-                        </td>
-                    </tr>
                     <tr>
                         <th scope="row"><label for="aiya-codes-quantity"><?php esc_html_e('Quantity', 'aiya-core'); ?></label></th>
-                        <td><input type="number" class="small-text" id="aiya-codes-quantity" name="quantity" min="1" max="100" value="1"></td>
+                        <td><input type="number" class="small-text" id="aiya-codes-quantity-m" name="quantity" min="1" max="100" value="1"></td>
                     </tr>
                 </tbody></table>
                 <p><?php Ui::button(__('Generate', 'aiya-core'), ['type' => 'submit', 'variant' => 'button-primary']); ?></p>
             </form>
-            <script>
-                // Kind switch: the two payload groups trade visibility; the
-                // form posts both groups and the server validates per kind.
-                jQuery(function ($) {
-                    $('[data-aiya-codes-kind]').on('change', function () {
-                        $('[data-aiya-codes-group]').each(function () {
-                            this.hidden = $(this).attr('data-aiya-codes-group') !== this.form.elements.kind.value;
-                        });
-                    });
-                });
-            </script>
             <?php
         }, $open);
     }
