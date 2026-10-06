@@ -21,6 +21,7 @@ final class Page
         private string $menuTitle,
         private string $mirrorTitle,
         private string $capability,
+        private bool $tabs,
         private string $parentSlug,
         private string $icon,
         private float $position,
@@ -77,6 +78,7 @@ final class Page
             $menuTitle,
             (string) ($definition['mirror_title'] ?? $menuTitle),
             (string) ($definition['capability'] ?? 'manage_options'),
+            (bool) ($definition['tabs'] ?? true),
             (string) ($definition['parent'] ?? ''),
             (string) ($definition['icon'] ?? 'dashicons-admin-generic'),
             // Fractional positions slot a page between two integer rail
@@ -106,6 +108,8 @@ final class Page
      */
     public function mirrorTitle(): string { return $this->mirrorTitle; }
     public function capability(): string { return $this->capability; }
+    /** Display-only pages opt out of the automatic tab sections. */
+    public function tabs(): bool { return $this->tabs; }
     public function parent(): string { return $this->parentSlug; }
     public function icon(): string { return $this->icon; }
     public function position(): float { return $this->position; }

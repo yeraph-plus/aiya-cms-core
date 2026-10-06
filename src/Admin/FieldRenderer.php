@@ -9,11 +9,14 @@ use Aiya\Core\Settings\Options\OptionsResolver;
 
 final class FieldRenderer
 {
-    /** @param list<Field> $fields
-     *  @param array<string, mixed> $values */
-    public function table(array $fields, array $values, string $tabKey = 'settings'): void
+    /**
+     * @param list<Field>       $fields
+     * @param array<string, mixed> $values
+     * @param string|null       $tabKey null = display-only page, never tabbed
+     */
+    public function table(array $fields, array $values, ?string $tabKey = 'settings'): void
     {
-        $groups = $this->panelGroups($fields);
+        $groups = $tabKey === null ? null : $this->panelGroups($fields);
         if ($groups === null) {
             $this->flatTable($fields, $values);
             return;

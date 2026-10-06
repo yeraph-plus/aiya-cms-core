@@ -307,7 +307,7 @@ final class SettingsAdmin implements Module
         // fragment); empty on flat pages.
         echo '<input type="hidden" name="aiya_core_tab" value="">';
         wp_nonce_field('aiya_core_save_' . $page->slug());
-        (new FieldRenderer())->table($page->fields(), $values, $page->slug());
+        (new FieldRenderer())->table($page->fields(), $values, $page->tabs() ? $page->slug() : null);
         echo '<p class="submit"><button class="button button-primary" name="command" value="save">' . esc_html__('Save changes', 'aiya-core') . '</button> ';
         echo '<button class="button" name="command" value="reset" onclick="return window.confirm(' . esc_attr((string) wp_json_encode(__('Reset all settings on this page?', 'aiya-core'))) . ')">' . esc_html__('Reset', 'aiya-core') . '</button></p></form></div>';
         return null;

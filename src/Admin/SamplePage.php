@@ -39,6 +39,8 @@ final class SamplePage implements Module
             'menu_title' => __('Settings Kit', 'aiya-core'),
             'parent' => 'aiya-core-devtools',
             'menu_position' => 7, // after the server status mirror, ahead of the UI Kit sandbox
+            // The sandbox is display-only: the field parts stay flat, no tab sections.
+            'tabs' => false,
             'option_name' => 'aiya_core_sample',
             'fields' => [
                 [

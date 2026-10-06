@@ -142,6 +142,23 @@ final class FieldTest extends TestCase
         self::assertStringContainsString('name="values[b]"', $out);
     }
 
+    public function testTableWithNullTabKeyStaysFlatRegardlessOfHeadings(): void
+    {
+        $fields = [
+            Field::fromArray(['id' => 'a', 'type' => 'text', 'label' => 'A']),
+            Field::fromArray(['id' => 'h1', 'type' => 'heading', 'label' => 'One']),
+            Field::fromArray(['id' => 'b', 'type' => 'text', 'label' => 'B']),
+            Field::fromArray(['id' => 'h2', 'type' => 'heading', 'label' => 'Two']),
+            Field::fromArray(['id' => 'c', 'type' => 'text', 'label' => 'C']),
+        ];
+
+        // A display-only page opts out: two-plus headings never tab it.
+        $out = self::captureOut(fn () => (new FieldRenderer())->table($fields, [], null));
+        self::assertStringNotContainsString('data-aiya-tabs', $out);
+        self::assertStringContainsString('aiya-core-row--heading', $out);
+        self::assertStringContainsString('<table class="form-table" role="presentation"><tbody>', $out);
+    }
+
     public function testTableStaysFlatBelowTwoSectionHeadings(): void
     {
         $fields = [
