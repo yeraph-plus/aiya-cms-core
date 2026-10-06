@@ -16,10 +16,13 @@ use WP_Error;
  * Purchases queue sequentially per holder: a row's `starts_at` is
  * max(now, the holder's current queue tail), so tiers and extra periods
  * run in purchase order — buying a year never grants its credits up
- * front; the daily cron hands out one bucket per cycle start (bucket
- * expiry = that cycle's end, the monthly-allowance policy). Idempotency:
- * the order_id unique key blocks double activation, the (source, ref,
- * user) ledger key plus the compare-and-swap counter block double grants.
+ * front. Cycle windows are fixed back-to-back from `starts_at`, so the
+ * granting moment shifts no validity: the first due bucket rides the
+ * activation itself, later cycle starts are handed out by the daily
+ * cron (bucket expiry = that cycle's end, the monthly-allowance
+ * policy). Idempotency: the order_id unique key blocks double
+ * activation, the (source, ref, user) ledger key plus the
+ * compare-and-swap counter block double grants.
  *
  * The legacy `sponsor_expiration` / `aya_force_cancel_sponsor` protocol
  * meta are retired here: validity derives from the queue. The `status`
@@ -137,6 +140,15 @@ final class EntitlementService
 
         do_action('aiya_core_membership_activated', $userId, $orderId);
 
+        // The first bucket rides the activation itself: cycle windows are
+        // fixed back-to-back from starts_at, so granting immediately
+        // shifts no validity — it only removes the wait for the next
+        // daily tick (later cycles still ride the cron). Idempotent
+        // through the CAS counter and the ledger dedupe key; a failure
+        // here never un-does the activation — the nightly run self-heals
+        // whatever is left due.
+        $this->grantDueNow($orderId);
+
         return true;
     }
 
@@ -154,7 +166,6 @@ final class EntitlementService
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $now = time();
         $advanced = 0;
         $lastId = 0;
         $batch = 500;
@@ -184,48 +195,7 @@ final class EntitlementService
 
             foreach ($rows as $row) {
                 $lastId = (int) $row->id;
-                $startsAt = (int) get_date_from_gmt((string) $row->starts_at, 'U');
-                $due = MembershipScheduler::dueCycles(
-                    $startsAt,
-                    (int) $row->cycle_days,
-                    (int) $row->cycles_total,
-                    (int) $row->cycles_granted,
-                    $now
-                );
-
-                foreach ($due as $window) {
-                    $credits = (int) $row->credits_per_cycle;
-                    if ($credits > 0) {
-                        $credited = $this->ledger->grant(
-                            (int) $row->user_id,
-                            $credits,
-                            LedgerService::SOURCE_MEMBERSHIP,
-                            $row->order_id . '#c' . $window['cycle'],
-                            $window['endsAt']
-                        );
-                        if (is_wp_error($credited) && $credited->get_error_code() !== 'aiya_credit_duplicate') {
-                            if (defined('WP_DEBUG') && WP_DEBUG) {
-                                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
-                                error_log('[aiya-core] Membership cycle grant failed: ' . $credited->get_error_message());
-                            }
-                            break; // transient failure — retry the whole row next run, never skip ahead
-                        }
-                        // A duplicate means a previous lost race already
-                        // granted this bucket; the counter still advances.
-                    }
-
-                    $sql = $wpdb->prepare(
-                        'UPDATE %i SET cycles_granted = %d WHERE id = %d AND cycles_granted < %d',
-                        $this->table(),
-                        $window['cycle'],
-                        (int) $row->id,
-                        $window['cycle']
-                    );
-                    $swapped = is_string($sql) ? (int) $wpdb->query($sql) : 0; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
-                    if ($swapped === 1) {
-                        ++$advanced;
-                    }
-                }
+                $advanced += $this->advanceRow($row);
             }
 
             if (count($rows) < $batch) {
@@ -238,6 +208,91 @@ final class EntitlementService
         self::forgetQueue();
 
         return $advanced;
+    }
+
+    /**
+     * The per-row body of advance(), shared with the activation rider:
+     * every due cycle's bucket, in order, through the ledger's dedupe
+     * key and the counter's compare-and-swap. Zero-credit tiers advance
+     * without touching the ledger; a transient grant failure stops the
+     * row (cycles are ordered — never skip ahead) and the next run
+     * retries it whole. The row carries the advance() SELECT's field
+     * set (id, user_id, order_id, cycle_days, credits_per_cycle,
+     * cycles_total, cycles_granted, starts_at); every read casts.
+     */
+    private function advanceRow(object $row): int
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $startsAt = (int) get_date_from_gmt((string) $row->starts_at, 'U');
+        $due = MembershipScheduler::dueCycles(
+            $startsAt,
+            (int) $row->cycle_days,
+            (int) $row->cycles_total,
+            (int) $row->cycles_granted,
+            time()
+        );
+
+        $advanced = 0;
+        foreach ($due as $window) {
+            $credits = (int) $row->credits_per_cycle;
+            if ($credits > 0) {
+                $credited = $this->ledger->grant(
+                    (int) $row->user_id,
+                    $credits,
+                    LedgerService::SOURCE_MEMBERSHIP,
+                    $row->order_id . '#c' . $window['cycle'],
+                    $window['endsAt']
+                );
+                if (is_wp_error($credited) && $credited->get_error_code() !== 'aiya_credit_duplicate') {
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+                        error_log('[aiya-core] Membership cycle grant failed: ' . $credited->get_error_message());
+                    }
+                    break; // transient failure — retry the whole row next run, never skip ahead
+                }
+                // A duplicate means a previous lost race already
+                // granted this bucket; the counter still advances.
+            }
+
+            $sql = $wpdb->prepare(
+                'UPDATE %i SET cycles_granted = %d WHERE id = %d AND cycles_granted < %d',
+                $this->table(),
+                $window['cycle'],
+                (int) $row->id,
+                $window['cycle']
+            );
+            $swapped = is_string($sql) ? (int) $wpdb->query($sql) : 0; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+            if ($swapped === 1) {
+                ++$advanced;
+            }
+        }
+
+        return $advanced;
+    }
+
+    /**
+     * The activation rider: grants whatever cycle buckets of this one
+     * row are already due — cycle 1 for a fresh purchase (its start IS
+     * the activation moment), nothing for a purchase queued behind the
+     * holder's tail. Mirrors advance()'s per-row pass exactly, scoped
+     * to the row.
+     *
+     * @return int Cycles advanced (0 or 1 in practice).
+     */
+    private function grantDueNow(string $orderId): int
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $row = $wpdb->get_row($wpdb->prepare(
+            'SELECT id, user_id, order_id, cycle_days, credits_per_cycle, cycles_total, cycles_granted, starts_at
+             FROM %i WHERE order_id = %s AND status = %s',
+            $this->table(),
+            substr($orderId, 0, 64),
+            self::STATUS_ACTIVE
+        ));
+
+        return is_object($row) ? $this->advanceRow($row) : 0;
     }
 
     /**

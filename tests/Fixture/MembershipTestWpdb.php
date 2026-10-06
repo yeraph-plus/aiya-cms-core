@@ -27,18 +27,29 @@ final class MembershipTestWpdb
 
     public string $queueTable = 'wp_aiya_memberships';
 
+    /** The users table name the orphan sweep's LEFT JOIN interpolates. */
+    public string $users = 'wp_users';
+
     /** Seeds one queue row; relative day offsets keep the windows valid. */
-    public function seedQueueRow(int $userId, string $tierKey, string $tierName, string $starts, string $ends): void
-    {
+    public function seedQueueRow(
+        int $userId,
+        string $tierKey,
+        string $tierName,
+        string $starts,
+        string $ends,
+        int $creditsPerCycle = 0,
+        int $cycleDays = 30,
+        int $cyclesTotal = 1
+    ): void {
         $this->rows[$this->queueTable][] = [
             'id' => count($this->rows[$this->queueTable] ?? []) + 1,
             'user_id' => $userId,
             'order_id' => 'seed_' . (count($this->rows[$this->queueTable] ?? []) + 1),
             'tier_key' => $tierKey,
             'tier_name' => $tierName,
-            'cycle_days' => 30,
-            'credits_per_cycle' => 0,
-            'cycles_total' => 1,
+            'cycle_days' => $cycleDays,
+            'credits_per_cycle' => $creditsPerCycle,
+            'cycles_total' => $cyclesTotal,
             'cycles_granted' => 0,
             'starts_at' => gmdate('Y-m-d H:i:s', (int) strtotime($starts)),
             'ends_at' => gmdate('Y-m-d H:i:s', (int) strtotime($ends)),
@@ -79,6 +90,18 @@ final class MembershipTestWpdb
                 $this->last_error = sprintf("Duplicate entry '%s' for key 'order_id'", (string) $data['order_id']);
 
                 return false;
+            }
+        }
+        // The credit ledger's (dedupe, user) unique key: a second row
+        // with the same pair is the duplicate signal grant() and the
+        // one-shot spend() branch on.
+        if (isset($data['dedupe'])) {
+            foreach ($this->rows[$table] ?? [] as $row) {
+                if (($row['dedupe'] ?? '') === ($data['dedupe'] ?? '') && (int) ($row['user_id'] ?? 0) === (int) $data['user_id']) {
+                    $this->last_error = sprintf("Duplicate entry '%s' for key 'dedupe'", (string) $data['dedupe']);
+
+                    return false;
+                }
             }
         }
         $this->last_error = '';
@@ -172,6 +195,26 @@ final class MembershipTestWpdb
     {
         if (str_contains($sql, 'RELEASE_LOCK(')) {
             return 1;
+        }
+
+        // The cycle counter's compare-and-swap: wins exactly when the
+        // row's counter is still below the window being written — the
+        // same 1/0 the real affected-rows answer gives.
+        if (preg_match("/UPDATE\s+(\S+)\s+SET\s+cycles_granted = (\d+)\s+WHERE\s+id = (\d+)\s+AND\s+cycles_granted < (\d+)/", $sql, $cas) === 1) {
+            foreach ($this->rows[$cas[1]] ?? [] as $index => $row) {
+                if ((int) ($row['id'] ?? 0) !== (int) $cas[3]) {
+                    continue;
+                }
+                if ((int) ($row['cycles_granted'] ?? 0) < (int) $cas[4]) {
+                    $this->rows[$cas[1]][$index]['cycles_granted'] = (int) $cas[2];
+
+                    return 1;
+                }
+
+                return 0;
+            }
+
+            return 0;
         }
 
         // The retention purge: paid rows are forever, unsettled rows past

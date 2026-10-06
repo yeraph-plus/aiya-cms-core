@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.113.0\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.113.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core-i18n\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
