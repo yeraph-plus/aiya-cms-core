@@ -29,7 +29,6 @@ final class PaymentsAuditPage implements Module
 {
     private const MENU_SLUG = 'aiya-core-payments';
     private const PARENT_SLUG = 'aiya-core-membership';
-    private const PER_PAGE = 20;
     /** Same AJAX action the credits ledger picker posts to. */
     private const AJAX_SEARCH = 'aiya_core_credit_search';
 
@@ -92,13 +91,16 @@ final class PaymentsAuditPage implements Module
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination/filter
         $paged = max(1, absint((string) ($_GET['paged'] ?? '1')));
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ditto
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page size
+        $requested = (int) ($_GET['per_page'] ?? (string) Ui::PER_PAGE_DEFAULT);
+        $perPage = in_array($requested, Ui::PER_PAGE_CHOICES, true) ? $requested : Ui::PER_PAGE_DEFAULT;
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only viewer filter
         $userId = absint((string) ($_GET['user'] ?? '0'));
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ditto
         $source = sanitize_key((string) ($_GET['source'] ?? ''));
 
         $sources = $this->sources();
-        $result = $this->orders->list($paged, self::PER_PAGE, $userId > 0 ? $userId : null, $source !== '' ? $source : null, $sources);
+        $result = $this->orders->list($paged, $perPage, $userId > 0 ? $userId : null, $source !== '' ? $source : null, $sources);
 
         $sourceOptions = ['' => __('All sources', 'aiya-core')];
         foreach ($sources as $sourceId) {
@@ -110,8 +112,8 @@ final class PaymentsAuditPage implements Module
             __('Payment ledger', 'aiya-core'),
             __('Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue.', 'aiya-core')
         );
-        $navArgs = ['jump_nav' => true];
-        Ui::listNav($result['total'], $paged, self::PER_PAGE, 'top', $navArgs + [
+        $navArgs = ['jump_nav' => true, 'per_page_nav' => true];
+        Ui::listNav($result['total'], $paged, $perPage, 'top', $navArgs + [
             'actions' => static function () use ($userId, $source, $sourceOptions, $searchNonce): void {
                 Ui::filterBar(__('Filter', 'aiya-core'), static function () use ($userId, $source, $sourceOptions, $searchNonce): void {
                     Ui::userPicker([
@@ -169,7 +171,7 @@ final class PaymentsAuditPage implements Module
             },
             __('No payments recorded yet.', 'aiya-core')
         );
-        Ui::listNav($result['total'], $paged, self::PER_PAGE, 'bottom', $navArgs);
+        Ui::listNav($result['total'], $paged, $perPage, 'bottom', $navArgs);
         Ui::pageFoot();
     }
 

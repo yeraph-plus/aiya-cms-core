@@ -28,7 +28,6 @@ final class CreditsPage implements Module
     private const ACTION_GRANT = 'aiya_core_credit_grant';
     private const AJAX_SEARCH = 'aiya_core_credit_search';
     private const NONCE_SEARCH = 'aiya_core_credit_search';
-    private const PER_PAGE = 20;
     private const MIN_SEARCH_LENGTH = 2;
     private const MAX_SUGGESTIONS = 8;
 
@@ -122,6 +121,9 @@ final class CreditsPage implements Module
         $userId = absint((string) ($_GET['user'] ?? '0'));
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination
         $paged = max(1, absint((string) ($_GET['paged'] ?? '1')));
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page size
+        $requested = (int) ($_GET['per_page'] ?? (string) Ui::PER_PAGE_DEFAULT);
+        $perPage = in_array($requested, Ui::PER_PAGE_CHOICES, true) ? $requested : Ui::PER_PAGE_DEFAULT;
         $settings = CreditSettings::read();
         $searchNonce = wp_create_nonce(self::NONCE_SEARCH);
 
@@ -136,7 +138,7 @@ final class CreditsPage implements Module
             'failed' => [$message !== '' ? $message : __('The operation failed.', 'aiya-core'), 'error'],
         ]);
         $this->grantCard($settings, $searchNonce);
-        $this->ledgerSection($userId, $paged, $searchNonce);
+        $this->ledgerSection($userId, $paged, $perPage, $searchNonce);
         Ui::pageFoot();
     }
 
@@ -206,12 +208,12 @@ final class CreditsPage implements Module
      * whole log by default, one holder's ledger once the filter names
      * them.
      */
-    private function ledgerSection(int $userId, int $paged, string $searchNonce): void
+    private function ledgerSection(int $userId, int $paged, int $perPage, string $searchNonce): void
     {
-        $result = $this->ledger->entries($userId > 0 ? $userId : null, $paged, self::PER_PAGE);
+        $result = $this->ledger->entries($userId > 0 ? $userId : null, $paged, $perPage);
         Ui::heading(__('Credit ledger', 'aiya-core'));
-        $navArgs = ['jump_nav' => true];
-        Ui::listNav($result['total'], $paged, self::PER_PAGE, 'top', $navArgs + [
+        $navArgs = ['jump_nav' => true, 'per_page_nav' => true];
+        Ui::listNav($result['total'], $paged, $perPage, 'top', $navArgs + [
             'actions' => static function () use ($userId, $searchNonce): void {
                 Ui::filterBar(__('Filter', 'aiya-core'), static function () use ($userId, $searchNonce): void {
                     Ui::userPicker([
@@ -285,7 +287,7 @@ final class CreditsPage implements Module
                 ? __('No ledger entries for this user yet.', 'aiya-core')
                 : __('No ledger entries yet.', 'aiya-core')
         );
-        Ui::listNav($result['total'], $paged, self::PER_PAGE, 'bottom', $navArgs);
+        Ui::listNav($result['total'], $paged, $perPage, 'bottom', $navArgs);
     }
 
     /** Holder display label for a ledger row (same shape as the order-records table). */

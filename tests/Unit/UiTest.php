@@ -441,6 +441,19 @@ final class UiTest extends TestCase
         self::assertStringContainsString("value=\"8\" selected='selected'", $bottom);
     }
 
+    public function testListNavPerPageFallsBackToTheKitRail(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/wp-admin/admin.php?page=demo';
+        $out = $this->captureOut(fn () => Ui::listNav(23, 1, 8, 'bottom', ['per_page_nav' => true]));
+        self::assertStringContainsString('20 / page', $out);
+        self::assertStringContainsString('50 / page', $out);
+        self::assertStringContainsString('100 / page', $out);
+        self::assertStringNotContainsString('10 / page', $out, 'the kit rail is 20/50/100');
+        // The caller's current size rides the rail even off-choice, so the
+        // select keeps showing it.
+        self::assertStringContainsString("value=\"8\" selected='selected'", $out);
+    }
+
     public function testInputJumpPageSwitch(): void
     {
         $out = $this->captureOut(fn () => Ui::input('paged', 'text', '2', ['jump_page' => true]));

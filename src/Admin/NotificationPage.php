@@ -26,9 +26,6 @@ use Aiya\Core\Domain\Shared\DateLabels;
 final class NotificationPage implements Module
 {
     private const MENU_SLUG = 'aiya-core-notifications';
-    private const DEFAULT_PER_PAGE = 20;
-    private const PER_PAGE_CHOICES = [20, 50, 100];
-
     private const ACTION_CREATE = 'aiya_core_notification_create';
     private const ACTION_DELETE = 'aiya_core_notification_delete';
     private const ACTION_BULK_DELETE = 'aiya_core_notification_bulk_delete';
@@ -71,8 +68,8 @@ final class NotificationPage implements Module
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only pagination; writes go through nonced admin_post handlers
         $paged = max(1, absint((string) ($_GET['paged'] ?? '1')));
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page size
-        $requested = (int) ($_GET['per_page'] ?? (string) self::DEFAULT_PER_PAGE);
-        $perPage = in_array($requested, self::PER_PAGE_CHOICES, true) ? $requested : self::DEFAULT_PER_PAGE;
+        $requested = (int) ($_GET['per_page'] ?? (string) Ui::PER_PAGE_DEFAULT);
+        $perPage = in_array($requested, Ui::PER_PAGE_CHOICES, true) ? $requested : Ui::PER_PAGE_DEFAULT;
 
         $rows = $this->notifications->adminRows();
         $totalPages = max(1, (int) ceil(count($rows) / $perPage));
@@ -154,7 +151,7 @@ final class NotificationPage implements Module
                 'nav' => true,
                 'paged' => $paged,
                 'per_page' => $perPage,
-                'per_page_choices' => self::PER_PAGE_CHOICES,
+                'per_page_choices' => Ui::PER_PAGE_CHOICES,
                 'jump_nav' => true,
                 'per_page_nav' => true,
             ]

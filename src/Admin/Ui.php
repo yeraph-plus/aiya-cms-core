@@ -15,6 +15,11 @@ namespace Aiya\Core\Admin;
  */
 final class Ui
 {
+    /** The shared per-page rail: the default size and the choices a
+     * list's per-page select offers unless the caller passes its own. */
+    public const PER_PAGE_DEFAULT = 20;
+    public const PER_PAGE_CHOICES = [20, 50, 100];
+
     /**
      * Opens the page shell: wrap, h1 and an optional lead description.
      * The wrap carries data-aiya-ui so assets/js/admin.js attaches the
@@ -278,7 +283,7 @@ final class Ui
 
         echo '</span>' . "\n";
         if (!empty($args['per_page_nav'])) {
-            $choices = $args['per_page_choices'] ?? [10, 20, 50, 100];
+            $choices = $args['per_page_choices'] ?? self::PER_PAGE_CHOICES;
             if (!in_array($perPage, $choices, true)) {
                 $choices[] = $perPage;
                 sort($choices);
