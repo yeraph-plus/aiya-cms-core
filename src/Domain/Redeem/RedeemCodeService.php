@@ -191,6 +191,14 @@ final class RedeemCodeService
         }
     }
 
+    /** Deletes one code row by id — any state; the operator's explicit cleanup. */
+    public function delete(int $id): bool
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        return (bool) $wpdb->delete($this->table(), ['id' => $id], ['%d']);
+    }
+
     /** Creates the codes table; the 0.54.0 schema migration. */
     public static function installTable(): void
     {

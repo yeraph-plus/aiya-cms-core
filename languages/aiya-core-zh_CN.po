@@ -57,6 +57,9 @@ msgstr "兑换码已生成。"
 msgid "All codes deleted."
 msgstr "兑换码已全部删除。"
 
+msgid "Code deleted."
+msgstr "兑换码已删除"
+
 msgid "The operation failed — check the values and try again."
 msgstr "操作失败——请检查输入后重试。"
 
@@ -90,11 +93,20 @@ msgstr "兑换时间"
 msgid "Created"
 msgstr "创建时间"
 
+msgid "Actions"
+msgstr "操作"
+
 msgid "Redeemed"
 msgstr "已兑换"
 
 msgid "Unused"
 msgstr "未使用"
+
+msgid "Delete this code?"
+msgstr "删除该兑换码？"
+
+msgid "Delete"
+msgstr "删除"
 
 msgid "No codes stored."
 msgstr "尚无兑换码。"
@@ -330,9 +342,6 @@ msgstr "定时作业（%d）"
 msgid "Filter by hook name…"
 msgstr "按 hook 名称筛选…"
 
-msgid "Actions"
-msgstr "操作"
-
 msgid "Run this hook now?"
 msgstr "立即执行这个 hook？"
 
@@ -341,9 +350,6 @@ msgstr "立即执行"
 
 msgid "Delete this scheduled event?"
 msgstr "删除这条定时作业？"
-
-msgid "Delete"
-msgstr "删除"
 
 msgid "No scheduled events match."
 msgstr "没有匹配的定时作业。"

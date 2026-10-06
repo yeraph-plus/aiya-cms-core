@@ -550,11 +550,13 @@ final class Ui
     /**
      * One-click copy button: the behavior layer writes the data attribute
      * to the clipboard and flashes the confirmation text on the button.
+     * Small by default — the button rides beside code cells and readonly
+     * inputs, not in an operation row.
      */
     public static function copyText(string $text, string $label = ''): void
     {
         printf(
-            '<button type="button" class="button aiya-core-copy" data-aiya-copy="%1$s" data-done="%2$s">%3$s</button>',
+            '<button type="button" class="button button-small aiya-core-copy" data-aiya-copy="%1$s" data-done="%2$s">%3$s</button>',
             esc_attr($text),
             esc_attr(__('Copied.', 'aiya-core')),
             esc_html($label !== '' ? $label : __('Copy', 'aiya-core'))

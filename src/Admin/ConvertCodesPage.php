@@ -24,6 +24,7 @@ final class ConvertCodesPage implements Module
     private const MENU_SLUG = 'aiya-core-convert-codes';
     private const ACTION_GENERATE = 'aiya_core_codes_generate';
     private const ACTION_DELETE_ALL = 'aiya_core_codes_delete_all';
+    private const ACTION_DELETE = 'aiya_core_codes_delete';
     private const PER_PAGE = 20;
 
     public function __construct(private RedeemCodeService $codes)
@@ -35,6 +36,7 @@ final class ConvertCodesPage implements Module
         add_action('aiya_core_register', [$this, 'registerPage']);
         add_action('admin_post_' . self::ACTION_GENERATE, [$this, 'handleGenerate']);
         add_action('admin_post_' . self::ACTION_DELETE_ALL, [$this, 'handleDeleteAll']);
+        add_action('admin_post_' . self::ACTION_DELETE, [$this, 'handleDelete']);
     }
 
     /** Registers through the shared settings pipeline as a callback page. */
@@ -48,6 +50,12 @@ final class ConvertCodesPage implements Module
             'menu_position' => 3,
             'kind' => Page::KIND_CALLBACK,
             'render' => [$this, 'render'],
+            // The destructive confirmations run through the shared danger
+            // modal; SettingsAdmin's uniform enqueue does not carry the
+            // dialog stack.
+            'assets' => static function (): void {
+                Ui::modalAssets();
+            },
         ]);
     }
 
@@ -68,6 +76,7 @@ final class ConvertCodesPage implements Module
         Ui::flash('aiya_note', [
             'generated' => [__('Codes generated.', 'aiya-core'), 'success'],
             'cleared' => [__('All codes deleted.', 'aiya-core'), 'success'],
+            'deleted' => [__('Code deleted.', 'aiya-core'), 'success'],
             'failed' => [__('The operation failed — check the values and try again.', 'aiya-core'), 'error'],
         ]);
 
@@ -80,7 +89,8 @@ final class ConvertCodesPage implements Module
         ));
         ?>
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin:0 0 12px;"
-            onsubmit="return window.confirm(<?php echo esc_attr((string) wp_json_encode(__('Delete ALL codes? This cannot be undone.', 'aiya-core'))); ?>);">
+            data-aiya-confirm="aiya-code-delete-confirm"
+            data-aiya-confirm-text="<?php esc_attr_e('Delete ALL codes? This cannot be undone.', 'aiya-core'); ?>">
             <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_DELETE_ALL); ?>">
             <?php wp_nonce_field(self::ACTION_DELETE_ALL); ?>
             <button type="submit" class="button button-link-delete"><?php esc_html_e('Delete all', 'aiya-core'); ?></button>
@@ -98,6 +108,7 @@ final class ConvertCodesPage implements Module
                 'holder' => ['label' => __('Redeemed by', 'aiya-core'), 'width' => '110px'],
                 'usedAt' => ['label' => __('Redeemed at', 'aiya-core'), 'width' => '150px'],
                 'created' => ['label' => __('Created', 'aiya-core'), 'width' => '150px'],
+                'actions' => ['label' => __('Actions', 'aiya-core'), 'width' => '80px'],
             ],
             $result['items'],
             static function (object $row, string $column): void {
@@ -128,18 +139,41 @@ final class ConvertCodesPage implements Module
                     case 'created':
                         echo esc_html((string) $row->created_at);
                         break;
+                    case 'actions':
+                        // Single-code cleanup rides its own POST form; the
+                        // shared danger modal confirms it (per-form text).
+                        ?>
+                        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
+                            data-aiya-confirm="aiya-code-delete-confirm"
+                            data-aiya-confirm-text="<?php esc_attr_e('Delete this code?', 'aiya-core'); ?>">
+                            <input type="hidden" name="action" value="<?php echo esc_attr(ConvertCodesPage::ACTION_DELETE); ?>">
+                            <input type="hidden" name="code_id" value="<?php echo esc_attr((string) $row->id); ?>">
+                            <?php wp_nonce_field(ConvertCodesPage::ACTION_DELETE); ?>
+                            <button type="submit" class="button button-small aiya-core-button-danger"><?php esc_html_e('Delete', 'aiya-core'); ?></button>
+                        </form>
+                        <?php
+                        break;
                 }
             },
             __('No codes stored.', 'aiya-core')
         );
         Ui::listNav($result['total'], $paged, self::PER_PAGE, 'bottom', $navArgs);
+        // One danger shell serves the delete-all and the per-row forms.
+        Ui::confirmModal('aiya-code-delete-confirm', '');
         Ui::pageFoot();
     }
 
-    /** The generation form as a static card — the page's one operation surface. */
+    /**
+     * The generation form as a collapsible card, seeded collapsed — the
+     * stored list is the page's primary surface. A failed round trip
+     * opens the card so the operator sees the refusal next to the form
+     * (the credits page's grant card, same posture).
+     */
     private function generateCard(): void
     {
-        Ui::staticCard(__('Generate codes', 'aiya-core'), static function (): void {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash state
+        $open = sanitize_key((string) ($_GET['aiya_note'] ?? '')) === 'failed';
+        Ui::card(__('Generate codes', 'aiya-core'), static function (): void {
             ?>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <input type="hidden" name="action" value="<?php echo esc_attr(ConvertCodesPage::ACTION_GENERATE); ?>">
@@ -178,7 +212,7 @@ final class ConvertCodesPage implements Module
                 <p><?php Ui::button(__('Generate', 'aiya-core'), ['type' => 'submit', 'variant' => 'button-primary']); ?></p>
             </form>
             <?php
-        });
+        }, $open);
     }
 
     public function handleGenerate(): void
@@ -217,6 +251,18 @@ final class ConvertCodesPage implements Module
 
         $this->codes->deleteAll();
         Ui::redirect(self::pageUrl(), ['aiya_note' => 'cleared']);
+    }
+
+    public function handleDelete(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You are not allowed to manage redemption codes.', 'aiya-core'));
+        }
+        check_admin_referer(self::ACTION_DELETE);
+
+        $id = absint((string) ($_POST['code_id'] ?? '0'));
+        $deleted = $id > 0 && $this->codes->delete($id);
+        Ui::redirect(self::pageUrl(), ['aiya_note' => $deleted ? 'deleted' : 'failed']);
     }
 
     /** The page's own admin URL, the Ui::redirect base for every round trip. */

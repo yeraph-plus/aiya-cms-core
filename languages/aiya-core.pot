@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T00:53:03+00:00\n"
+"POT-Creation-Date: 2026-10-06T01:21:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -61,67 +61,72 @@ msgstr[1] ""
 msgid "No thumbnails were refreshed."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:45
-#: src/Admin/ConvertCodesPage.php:46
-#: src/Admin/ConvertCodesPage.php:65
+#: src/Admin/ConvertCodesPage.php:47
+#: src/Admin/ConvertCodesPage.php:48
+#: src/Admin/ConvertCodesPage.php:73
 msgid "Redemption codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:57
-#: src/Admin/ConvertCodesPage.php:187
-#: src/Admin/ConvertCodesPage.php:214
+#: src/Admin/ConvertCodesPage.php:65
+#: src/Admin/ConvertCodesPage.php:221
+#: src/Admin/ConvertCodesPage.php:248
+#: src/Admin/ConvertCodesPage.php:259
 msgid "You are not allowed to manage redemption codes."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:66
+#: src/Admin/ConvertCodesPage.php:74
 msgid "Membership gift codes users redeem themselves on the front end. Codes are single-use; redeeming queues the tier entitlement like a paid order and credits arrive per cycle."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:69
+#: src/Admin/ConvertCodesPage.php:77
 msgid "Codes generated."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:70
+#: src/Admin/ConvertCodesPage.php:78
 msgid "All codes deleted."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:71
+#: src/Admin/ConvertCodesPage.php:79
+msgid "Code deleted."
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:80
 #: src/Admin/NotificationPage.php:95
 msgid "The operation failed — check the values and try again."
 msgstr ""
 
 #. translators: %s: number of stored codes.
-#: src/Admin/ConvertCodesPage.php:78
+#: src/Admin/ConvertCodesPage.php:87
 #, php-format
 msgid "Stored codes (%s)"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:83
+#: src/Admin/ConvertCodesPage.php:93
 msgid "Delete ALL codes? This cannot be undone."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:86
+#: src/Admin/ConvertCodesPage.php:96
 #: src/Admin/UiSamplePage.php:66
 msgid "Delete all"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:94
+#: src/Admin/ConvertCodesPage.php:104
 msgid "Code"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:95
-#: src/Admin/ConvertCodesPage.php:153
+#: src/Admin/ConvertCodesPage.php:105
+#: src/Admin/ConvertCodesPage.php:187
 #: src/Admin/PaymentsAuditPage.php:137
 msgid "Tier"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:96
-#: src/Admin/ConvertCodesPage.php:171
+#: src/Admin/ConvertCodesPage.php:106
+#: src/Admin/ConvertCodesPage.php:205
 #: src/Admin/PaymentsAuditPage.php:139
 msgid "Cycles"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:97
+#: src/Admin/ConvertCodesPage.php:107
 #: src/Admin/DiscussionModerationPage.php:276
 #: src/Admin/PaymentsAuditPage.php:140
 #: src/Admin/UiSamplePage.php:116
@@ -129,54 +134,77 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:98
+#: src/Admin/ConvertCodesPage.php:108
 msgid "Redeemed by"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:99
+#: src/Admin/ConvertCodesPage.php:109
 msgid "Redeemed at"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:100
+#: src/Admin/ConvertCodesPage.php:110
 #: src/Admin/NotificationPage.php:108
 #: src/Admin/UiSamplePage.php:117
 #: src/Admin/UiSamplePage.php:162
 msgid "Created"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:119
+#: src/Admin/ConvertCodesPage.php:111
+#: src/Admin/CronsPage.php:182
+#: src/Admin/DiscussionModerationPage.php:178
+#: src/Admin/DiscussionModerationPage.php:706
+#: src/Admin/NotificationPage.php:109
+#: src/Admin/PicBedPage.php:264
+#: src/Admin/UiSamplePage.php:285
+msgid "Actions"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:130
 msgid "Redeemed"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:119
+#: src/Admin/ConvertCodesPage.php:130
 msgid "Unused"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:133
-msgid "No codes stored."
+#: src/Admin/ConvertCodesPage.php:148
+msgid "Delete this code?"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:142
-msgid "Generate codes"
-msgstr ""
-
-#: src/Admin/ConvertCodesPage.php:149
-msgid "Quantity"
+#: src/Admin/ConvertCodesPage.php:152
+#: src/Admin/CronsPage.php:200
+#: src/Admin/DiscussionModerationPage.php:207
+#: src/Admin/DiscussionModerationPage.php:740
+#: src/Admin/NotificationPage.php:142
+#: src/Admin/Ui.php:748
+msgid "Delete"
 msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:158
+msgid "No codes stored."
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:176
+msgid "Generate codes"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:183
+msgid "Quantity"
+msgstr ""
+
+#: src/Admin/ConvertCodesPage.php:192
 msgid "— define tiers first —"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:167
+#: src/Admin/ConvertCodesPage.php:201
 msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:174
+#: src/Admin/ConvertCodesPage.php:208
 msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:178
+#: src/Admin/ConvertCodesPage.php:212
 msgid "Generate"
 msgstr ""
 
@@ -328,7 +356,7 @@ msgstr ""
 #: src/Admin/PicBedPage.php:227
 #: src/Admin/RewritesPage.php:86
 #: src/Admin/ShortcodesPage.php:67
-#: src/Admin/Ui.php:651
+#: src/Admin/Ui.php:653
 #: src/Admin/UiSamplePage.php:58
 #: src/Admin/UiSamplePage.php:107
 msgid "Filter"
@@ -536,15 +564,6 @@ msgstr ""
 msgid "Filter by hook name…"
 msgstr ""
 
-#: src/Admin/CronsPage.php:182
-#: src/Admin/DiscussionModerationPage.php:178
-#: src/Admin/DiscussionModerationPage.php:706
-#: src/Admin/NotificationPage.php:109
-#: src/Admin/PicBedPage.php:264
-#: src/Admin/UiSamplePage.php:285
-msgid "Actions"
-msgstr ""
-
 #: src/Admin/CronsPage.php:199
 msgid "Run this hook now?"
 msgstr ""
@@ -556,14 +575,6 @@ msgstr ""
 
 #: src/Admin/CronsPage.php:200
 msgid "Delete this scheduled event?"
-msgstr ""
-
-#: src/Admin/CronsPage.php:200
-#: src/Admin/DiscussionModerationPage.php:207
-#: src/Admin/DiscussionModerationPage.php:740
-#: src/Admin/NotificationPage.php:142
-#: src/Admin/Ui.php:746
-msgid "Delete"
 msgstr ""
 
 #: src/Admin/CronsPage.php:205
@@ -704,7 +715,7 @@ msgstr ""
 #: src/Admin/PartsDialog.php:91
 #: src/Admin/PostTypeSwitchBulkAction.php:83
 #: src/Admin/TermMoveBulkAction.php:77
-#: src/Admin/Ui.php:748
+#: src/Admin/Ui.php:750
 #: src/Admin/UiSamplePage.php:303
 msgid "Cancel"
 msgstr ""
@@ -1376,7 +1387,7 @@ msgid "URL"
 msgstr ""
 
 #: src/Admin/PicBedPage.php:114
-#: src/Admin/Ui.php:560
+#: src/Admin/Ui.php:562
 msgid "Copy"
 msgstr ""
 
@@ -2319,30 +2330,30 @@ msgstr ""
 msgid "Items per page"
 msgstr ""
 
-#: src/Admin/Ui.php:559
+#: src/Admin/Ui.php:561
 msgid "Copied."
 msgstr ""
 
 #. translators: %s: number of rows currently checked.
-#: src/Admin/Ui.php:618
+#: src/Admin/Ui.php:620
 #, php-format
 msgid "Selected: %s"
 msgstr ""
 
-#: src/Admin/Ui.php:634
+#: src/Admin/Ui.php:636
 msgid "Bulk actions"
 msgstr ""
 
-#: src/Admin/Ui.php:635
+#: src/Admin/Ui.php:637
 #: src/Admin/UiSamplePage.php:60
 msgid "Apply"
 msgstr ""
 
-#: src/Admin/Ui.php:664
+#: src/Admin/Ui.php:666
 msgid "Select all"
 msgstr ""
 
-#: src/Admin/Ui.php:741
+#: src/Admin/Ui.php:743
 msgid "Confirm"
 msgstr ""
 
