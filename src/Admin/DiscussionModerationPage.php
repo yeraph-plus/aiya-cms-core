@@ -30,6 +30,7 @@ final class DiscussionModerationPage implements Module
     /** Editor floor: the moderation surface is for the editorial staff, not site owners alone. */
     private const CAPABILITY = 'edit_others_posts';
     private const ACTION_BULK = 'aiya_core_discussion_bulk';
+    private const AJAX_REPLIES = 'aiya_core_discussion_replies';
     private const BOARD_ACTION_SAVE = 'aiya_core_board_save';
     private const BOARD_ACTION_DELETE = 'aiya_core_board_delete';
     private const DEFAULT_PER_PAGE = 20;
@@ -48,6 +49,7 @@ final class DiscussionModerationPage implements Module
         add_action('admin_post_' . self::ACTION_BULK, [$this, 'handleBulk']);
         add_action('admin_post_' . self::BOARD_ACTION_SAVE, [$this, 'handleBoardSave']);
         add_action('admin_post_' . self::BOARD_ACTION_DELETE, [$this, 'handleBoardDelete']);
+        add_action('wp_ajax_' . self::AJAX_REPLIES, [$this, 'handleRepliesList']);
     }
 
     /** Registers through the shared settings pipeline as a callback page. */
@@ -173,7 +175,7 @@ final class DiscussionModerationPage implements Module
                 'author' => ['label' => __('Author', 'aiya-core'), 'width' => '120px'],
                 'replies' => ['label' => __('Replies', 'aiya-core'), 'width' => '70px'],
                 'activity' => ['label' => __('Last activity', 'aiya-core'), 'width' => '150px'],
-                'actions' => ['label' => __('Actions', 'aiya-core'), 'width' => '130px'],
+                'actions' => ['label' => __('Actions', 'aiya-core'), 'width' => '175px'],
             ],
             $result['items'],
             static function (object $row, string $column): void {
@@ -197,9 +199,11 @@ final class DiscussionModerationPage implements Module
                     case 'actions':
                         printf(
                             '<button type="button" class="button button-small aiya-thread-edit" data-id="%1$s">%2$s</button> '
-                            . '<button type="submit" class="button button-small aiya-core-button-danger" data-aiya-single-delete="delete">%3$s</button>',
+                            . '<button type="button" class="button button-small aiya-thread-replies" data-id="%1$s">%3$s</button> '
+                            . '<button type="submit" class="button button-small aiya-core-button-danger" data-aiya-single-delete="delete">%4$s</button>',
                             esc_attr((string) $row->id),
                             esc_html__('Edit', 'aiya-core'),
+                            esc_html__('Replies', 'aiya-core'),
                             esc_html__('Delete', 'aiya-core')
                         );
                         break;
@@ -223,6 +227,7 @@ final class DiscussionModerationPage implements Module
         );
 
         $this->threadDialog($result['items']);
+        $this->repliesDialog();
 
         Ui::pageFoot();
     }
@@ -378,6 +383,197 @@ final class DiscussionModerationPage implements Module
             });
         </script>
         <?php
+    }
+
+    /**
+     * The replies dialog: one shell serving every thread row. The list
+     * loads lazily per thread through the raw-row ajax endpoint below —
+     * edits keep the stored markup instead of the REST projection's
+     * expanded body — while adds and edits ride the REST controller.
+     * Closed threads hide the add form (their replies lock, the service
+     * rejects them anyway).
+     */
+    private function repliesDialog(): void
+    {
+        Ui::modal('aiya-replies-dialog', __('Replies', 'aiya-core'), static function (): void {
+            ?>
+            <div id="aiya-replies-list" aria-live="polite"></div>
+            <div id="aiya-replies-closed" class="notice notice-info inline" style="display:none;"><p><?php esc_html_e('This thread is closed.', 'aiya-core'); ?></p></div>
+            <div id="aiya-replies-error" class="notice notice-error inline" style="display:none;"><p></p></div>
+            <div id="aiya-reply-new">
+                <textarea id="aiya-reply-content" rows="4" class="large-text"></textarea>
+                <p><?php Ui::button(__('Reply', 'aiya-core'), ['type' => 'button', 'variant' => 'button-primary', 'id' => 'aiya-reply-submit']); ?></p>
+            </div>
+            <?php
+        }, ['width' => 720]);
+        ?>
+        <script>
+            jQuery(function ($) {
+                var dialog = $('#aiya-replies-dialog');
+                var rest = <?php echo wp_json_encode(rest_url('aiya/core/v1/discussions')); ?>;
+                var nonce = <?php echo wp_json_encode(wp_create_nonce('wp_rest')); ?>;
+                var threads = JSON.parse(document.querySelector('script.aiya-threads-bootstrap').textContent);
+                var threadId = 0;
+                var texts = {
+                    reply: <?php echo wp_json_encode(__('Reply', 'aiya-core')); ?>,
+                    edit: <?php echo wp_json_encode(__('Edit', 'aiya-core')); ?>,
+                    save: <?php echo wp_json_encode(__('Save', 'aiya-core')); ?>,
+                    cancel: <?php echo wp_json_encode(__('Cancel', 'aiya-core')); ?>,
+                    empty: <?php echo wp_json_encode(__('No replies yet.', 'aiya-core')); ?>,
+                    failed: <?php echo wp_json_encode(__('The operation failed.', 'aiya-core')); ?>
+                };
+
+                function showError(message) {
+                    $('#aiya-replies-error').show().find('p').text(message);
+                }
+
+                function readError(xhr) {
+                    var message = texts.failed;
+                    try {
+                        message = JSON.parse(xhr.responseText).message || message;
+                    } catch (e) {}
+                    return message;
+                }
+
+                function load() {
+                    $('#aiya-replies-error').hide();
+                    // The _ param breaks the browser cache: a GET list must
+                    // not replay a stale empty answer after a write.
+                    $.getJSON(window.ajaxurl, {
+                        action: <?php echo wp_json_encode(self::AJAX_REPLIES); ?>,
+                        nonce: <?php echo wp_json_encode(wp_create_nonce(self::AJAX_REPLIES)); ?>,
+                        thread_id: threadId,
+                        _: Date.now()
+                    }).done(function (res) {
+                        var $list = $('#aiya-replies-list').empty();
+                        if (!res || !res.success) {
+                            showError(texts.failed);
+                            return;
+                        }
+                        if (!res.data.items.length) {
+                            $list.append($('<p class="description">').text(texts.empty));
+                            return;
+                        }
+                        $.each(res.data.items, function (_i, item) {
+                            $list.append(renderReply(item));
+                        });
+                    }).fail(function () {
+                        showError(texts.failed);
+                    });
+                }
+
+                function renderReply(item) {
+                    var $row = $('<div class="aiya-reply-row">');
+                    $row.append($('<p class="aiya-reply-meta">').text(item.author + ' — ' + item.date));
+                    // The stored body was kses-sanitized at write time; it
+                    // renders here as it does on the front end.
+                    var $body = $('<div class="aiya-reply-body">').html(item.content);
+                    $row.append($body);
+                    var $actions = $('<p class="aiya-reply-actions">');
+                    var $edit = $('<button type="button" class="button button-small">').text(texts.edit);
+                    $edit.on('click', function () {
+                        if ($row.find('textarea').length) {
+                            return;
+                        }
+                        $body.hide();
+                        $actions.hide();
+                        var $field = $('<textarea rows="4" class="large-text">').val(item.content);
+                        var $save = $('<button type="button" class="button button-small button-primary">').text(texts.save);
+                        var $cancel = $('<button type="button" class="button button-small">').text(texts.cancel);
+                        $cancel.on('click', function () {
+                            $field.remove();
+                            $save.closest('p').remove();
+                            $body.show();
+                            $actions.show();
+                        });
+                        $save.on('click', function () {
+                            $save.prop('disabled', true);
+                            $.ajax({
+                                url: rest + '/' + threadId + '/replies/' + item.id,
+                                method: 'POST',
+                                headers: { 'X-WP-Nonce': nonce },
+                                data: { content: $field.val() }
+                            }).done(function () {
+                                load();
+                            }).fail(function (xhr) {
+                                $save.prop('disabled', false);
+                                showError(readError(xhr));
+                            });
+                        });
+                        $body.before($field);
+                        $field.after($('<p>').append($save, ' ', $cancel));
+                    });
+                    $actions.append($edit);
+                    $row.append($actions);
+                    return $row;
+                }
+
+                $(document).on('click', '.aiya-thread-replies', function () {
+                    threadId = String($(this).data('id'));
+                    var data = threads[threadId];
+                    var closed = !!data && data.status === 'closed';
+                    $('#aiya-reply-new').toggle(!closed);
+                    $('#aiya-replies-closed').toggle(closed);
+                    $('#aiya-replies-error').hide();
+                    $('#aiya-reply-content').val('');
+                    dialog.dialog('option', 'title', <?php echo wp_json_encode(__('Replies', 'aiya-core')); ?>).dialog('open');
+                    load();
+                });
+
+                $('#aiya-reply-submit').on('click', function () {
+                    var $button = $(this);
+                    var content = $('#aiya-reply-content').val();
+                    if (!String(content).trim()) {
+                        return;
+                    }
+                    $button.prop('disabled', true);
+                    $.ajax({
+                        url: rest + '/' + threadId + '/replies',
+                        method: 'POST',
+                        headers: { 'X-WP-Nonce': nonce },
+                        data: { content: content }
+                    }).done(function () {
+                        $('#aiya-reply-content').val('');
+                        load();
+                    }).fail(function (xhr) {
+                        showError(readError(xhr));
+                    }).always(function () {
+                        $button.prop('disabled', false);
+                    });
+                });
+            });
+        </script>
+        <?php
+    }
+
+    /**
+     * Raw reply rows for the moderation dialog: the read side stays out
+     * of the REST projection's expanded body so an admin edit round trip
+     * keeps the stored markup (smilies, mention handles, shortcodes).
+     */
+    public function handleRepliesList(): void
+    {
+        if (!current_user_can(self::CAPABILITY)) {
+            wp_send_json(['success' => false], 403);
+        }
+        check_ajax_referer(self::AJAX_REPLIES, 'nonce');
+
+        $threadId = absint((string) ($_REQUEST['thread_id'] ?? '0'));
+        if ($threadId < 1 || $this->threads->byId($threadId) === null) {
+            wp_send_json(['success' => false], 404);
+        }
+
+        $result = $this->threads->replies($threadId, 1, 100);
+        $items = [];
+        foreach ($result['items'] as $row) {
+            $items[] = [
+                'id' => (int) $row->id,
+                'author' => get_the_author_meta('display_name', (int) $row->user_id),
+                'date' => DateLabels::fromGmt((string) $row->created_at),
+                'content' => (string) $row->content,
+            ];
+        }
+        wp_send_json(['success' => true, 'data' => ['items' => $items, 'total' => (int) $result['total']]]);
     }
 
     /**

@@ -429,6 +429,15 @@ msgstr "取消"
 msgid "Edit thread"
 msgstr "编辑帖子"
 
+msgid "This thread is closed."
+msgstr "该帖子已关闭"
+
+msgid "Reply"
+msgstr "回复"
+
+msgid "No replies yet."
+msgstr "还没有回复"
+
 msgid "Board created."
 msgstr "板块已创建。"
 

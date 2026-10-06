@@ -600,6 +600,38 @@ details.aiya-core-card > .aiya-core-card__summary::marker {
     width: 100%;
 }
 
+/* Replies dialog (Light Community): stacked stored-markup rows with a
+   meta line, scrolled so long threads stay inside the dialog. */
+#aiya-replies-list {
+    margin-bottom: 12px;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.aiya-reply-row {
+    border-bottom: 1px solid #dcdcde;
+    padding: 10px 0;
+}
+
+.aiya-reply-row:first-child {
+    padding-top: 0;
+}
+
+.aiya-reply-meta {
+    color: #646970;
+    font-size: 12px;
+    margin: 0 0 4px;
+}
+
+.aiya-reply-body img {
+    height: auto;
+    max-width: 100%;
+}
+
+.aiya-reply-body p:first-child {
+    margin-top: 0;
+}
+
 /* Credits page: direction colors for the ledger amount cells. */
 .aiya-core-credit-in {
     color: #00a32a;
