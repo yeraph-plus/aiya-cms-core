@@ -61,8 +61,8 @@ final class PaymentsAuditPage implements Module
     {
         $registry->addPage([
             'slug' => 'payments',
-            'title' => __('Order records', 'aiya-core'),
-            'menu_title' => __('Order records', 'aiya-core'),
+            'title' => __('Payment ledger', 'aiya-core'),
+            'menu_title' => __('Payment ledger', 'aiya-core'),
             'parent' => self::PARENT_SLUG,
             'menu_position' => 2,
             'kind' => Page::KIND_CALLBACK,
@@ -107,7 +107,7 @@ final class PaymentsAuditPage implements Module
         $searchNonce = wp_create_nonce(self::AJAX_SEARCH);
 
         Ui::pageHead(
-            __('Order records', 'aiya-core'),
+            __('Payment ledger', 'aiya-core'),
             __('Every gateway payment on record — money facts only; the entitlement they purchased lives in the membership queue.', 'aiya-core')
         );
         $navArgs = ['jump_nav' => true];

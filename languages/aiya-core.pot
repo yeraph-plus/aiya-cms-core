@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T00:03:33+00:00\n"
+"POT-Creation-Date: 2026-10-06T00:23:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -63,65 +63,65 @@ msgstr ""
 
 #: src/Admin/ConvertCodesPage.php:45
 #: src/Admin/ConvertCodesPage.php:46
-#: src/Admin/ConvertCodesPage.php:64
+#: src/Admin/ConvertCodesPage.php:65
 msgid "Redemption codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:56
-#: src/Admin/ConvertCodesPage.php:186
-#: src/Admin/ConvertCodesPage.php:213
+#: src/Admin/ConvertCodesPage.php:57
+#: src/Admin/ConvertCodesPage.php:187
+#: src/Admin/ConvertCodesPage.php:214
 msgid "You are not allowed to manage redemption codes."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:65
+#: src/Admin/ConvertCodesPage.php:66
 msgid "Membership gift codes users redeem themselves on the front end. Codes are single-use; redeeming queues the tier entitlement like a paid order and credits arrive per cycle."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:68
+#: src/Admin/ConvertCodesPage.php:69
 msgid "Codes generated."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:69
+#: src/Admin/ConvertCodesPage.php:70
 msgid "All codes deleted."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:70
+#: src/Admin/ConvertCodesPage.php:71
 #: src/Admin/NotificationPage.php:98
 msgid "The operation failed — check the values and try again."
 msgstr ""
 
 #. translators: %s: number of stored codes.
-#: src/Admin/ConvertCodesPage.php:77
+#: src/Admin/ConvertCodesPage.php:78
 #, php-format
 msgid "Stored codes (%s)"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:82
+#: src/Admin/ConvertCodesPage.php:83
 msgid "Delete ALL codes? This cannot be undone."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:85
+#: src/Admin/ConvertCodesPage.php:86
 #: src/Admin/UiSamplePage.php:66
 msgid "Delete all"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:93
+#: src/Admin/ConvertCodesPage.php:94
 msgid "Code"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:94
-#: src/Admin/ConvertCodesPage.php:152
+#: src/Admin/ConvertCodesPage.php:95
+#: src/Admin/ConvertCodesPage.php:153
 #: src/Admin/PaymentsAuditPage.php:135
 msgid "Tier"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:95
-#: src/Admin/ConvertCodesPage.php:170
+#: src/Admin/ConvertCodesPage.php:96
+#: src/Admin/ConvertCodesPage.php:171
 #: src/Admin/PaymentsAuditPage.php:137
 msgid "Cycles"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:96
+#: src/Admin/ConvertCodesPage.php:97
 #: src/Admin/DiscussionModerationPage.php:276
 #: src/Admin/PaymentsAuditPage.php:138
 #: src/Admin/UiSamplePage.php:116
@@ -129,54 +129,54 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:97
+#: src/Admin/ConvertCodesPage.php:98
 msgid "Redeemed by"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:98
+#: src/Admin/ConvertCodesPage.php:99
 msgid "Redeemed at"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:99
+#: src/Admin/ConvertCodesPage.php:100
 #: src/Admin/NotificationPage.php:111
 #: src/Admin/UiSamplePage.php:117
 #: src/Admin/UiSamplePage.php:162
 msgid "Created"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:118
+#: src/Admin/ConvertCodesPage.php:119
 msgid "Redeemed"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:118
+#: src/Admin/ConvertCodesPage.php:119
 msgid "Unused"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:132
+#: src/Admin/ConvertCodesPage.php:133
 msgid "No codes stored."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:141
+#: src/Admin/ConvertCodesPage.php:142
 msgid "Generate codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:148
+#: src/Admin/ConvertCodesPage.php:149
 msgid "Quantity"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:157
+#: src/Admin/ConvertCodesPage.php:158
 msgid "— define tiers first —"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:166
+#: src/Admin/ConvertCodesPage.php:167
 msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:173
+#: src/Admin/ConvertCodesPage.php:174
 msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:177
+#: src/Admin/ConvertCodesPage.php:178
 msgid "Generate"
 msgstr ""
 
@@ -276,7 +276,7 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:137
 #: src/Admin/DiscussionModerationPage.php:376
 #: src/Admin/DiscussionModerationPage.php:423
-#: src/Admin/DiscussionModerationPage.php:639
+#: src/Admin/DiscussionModerationPage.php:642
 msgid "The operation failed."
 msgstr ""
 
@@ -538,7 +538,7 @@ msgstr ""
 
 #: src/Admin/CronsPage.php:182
 #: src/Admin/DiscussionModerationPage.php:178
-#: src/Admin/DiscussionModerationPage.php:703
+#: src/Admin/DiscussionModerationPage.php:706
 #: src/Admin/NotificationPage.php:112
 #: src/Admin/PicBedPage.php:264
 #: src/Admin/UiSamplePage.php:285
@@ -560,7 +560,7 @@ msgstr ""
 
 #: src/Admin/CronsPage.php:200
 #: src/Admin/DiscussionModerationPage.php:207
-#: src/Admin/DiscussionModerationPage.php:737
+#: src/Admin/DiscussionModerationPage.php:740
 #: src/Admin/NotificationPage.php:145
 #: src/Admin/Ui.php:741
 msgid "Delete"
@@ -577,7 +577,7 @@ msgid "Light Community"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:82
-#: src/Admin/DiscussionModerationPage.php:586
+#: src/Admin/DiscussionModerationPage.php:589
 msgid "You are not allowed to moderate the community."
 msgstr ""
 
@@ -656,7 +656,7 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:176
 #: src/Admin/DiscussionModerationPage.php:206
 #: src/Admin/DiscussionModerationPage.php:398
-#: src/Admin/DiscussionModerationPage.php:516
+#: src/Admin/DiscussionModerationPage.php:519
 msgid "Replies"
 msgstr ""
 
@@ -666,7 +666,7 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:205
 #: src/Admin/DiscussionModerationPage.php:419
-#: src/Admin/DiscussionModerationPage.php:730
+#: src/Admin/DiscussionModerationPage.php:733
 #: src/Admin/UiSamplePage.php:290
 msgid "Edit"
 msgstr ""
@@ -726,87 +726,87 @@ msgstr ""
 msgid "No replies yet."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:636
+#: src/Admin/DiscussionModerationPage.php:639
 msgid "Board created."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:637
+#: src/Admin/DiscussionModerationPage.php:640
 msgid "Board saved."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:638
+#: src/Admin/DiscussionModerationPage.php:641
 msgid "Board deleted."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:655
+#: src/Admin/DiscussionModerationPage.php:658
 msgid "Boards"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:663
-#: src/Admin/DiscussionModerationPage.php:699
+#: src/Admin/DiscussionModerationPage.php:666
+#: src/Admin/DiscussionModerationPage.php:702
 msgid "Slug"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:667
+#: src/Admin/DiscussionModerationPage.php:670
 msgid "The slug is fixed once threads reference it."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:670
+#: src/Admin/DiscussionModerationPage.php:673
 msgid "Lowercase letters, digits, dashes or underscores."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:675
-#: src/Admin/DiscussionModerationPage.php:698
+#: src/Admin/DiscussionModerationPage.php:678
+#: src/Admin/DiscussionModerationPage.php:701
 #: src/Admin/FileServeMetabox.php:288
-#: src/Domain/Membership/MembershipModule.php:118
+#: src/Domain/Membership/MembershipModule.php:119
 msgid "Name"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:679
-#: src/Admin/DiscussionModerationPage.php:700
-#: src/Domain/Membership/MembershipModule.php:124
+#: src/Admin/DiscussionModerationPage.php:682
+#: src/Admin/DiscussionModerationPage.php:703
+#: src/Domain/Membership/MembershipModule.php:125
 msgid "Description"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:683
-#: src/Admin/DiscussionModerationPage.php:701
+#: src/Admin/DiscussionModerationPage.php:686
+#: src/Admin/DiscussionModerationPage.php:704
 msgid "Sort order"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:688
+#: src/Admin/DiscussionModerationPage.php:691
 msgid "Save board"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:688
+#: src/Admin/DiscussionModerationPage.php:691
 msgid "Add board"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:690
+#: src/Admin/DiscussionModerationPage.php:693
 msgid "Cancel editing"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:702
+#: src/Admin/DiscussionModerationPage.php:705
 msgid "Threads"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:733
+#: src/Admin/DiscussionModerationPage.php:736
 msgid "Delete this board? Its threads move to the first remaining board."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:744
+#: src/Admin/DiscussionModerationPage.php:747
 msgid "No boards yet."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:754
-#: src/Admin/DiscussionModerationPage.php:786
+#: src/Admin/DiscussionModerationPage.php:757
+#: src/Admin/DiscussionModerationPage.php:789
 msgid "You are not allowed to manage the community."
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:819
+#: src/Admin/DiscussionModerationPage.php:822
 msgid "Normal"
 msgstr ""
 
-#: src/Admin/DiscussionModerationPage.php:820
+#: src/Admin/DiscussionModerationPage.php:823
 msgid "Closed"
 msgstr ""
 
@@ -1068,11 +1068,11 @@ msgstr ""
 #: src/Admin/OperationsPage.php:52
 #: src/Admin/OperationsPage.php:53
 #: src/Admin/OperationsPage.php:76
-msgid "Operations report"
+msgid "Operations dashboard"
 msgstr ""
 
 #: src/Admin/OperationsPage.php:64
-msgid "You are not allowed to view the operations report."
+msgid "You are not allowed to view the operations dashboard."
 msgstr ""
 
 #: src/Admin/OperationsPage.php:77
@@ -1098,7 +1098,7 @@ msgid "In the payment currency; the month's cost derives as downloads × this ra
 msgstr ""
 
 #: src/Admin/OperationsPage.php:118
-msgid "You are not allowed to configure the operations report."
+msgid "You are not allowed to configure the operations dashboard."
 msgstr ""
 
 #: src/Admin/OperationsPage.php:157
@@ -1290,7 +1290,7 @@ msgstr ""
 #: src/Admin/PaymentsAuditPage.php:64
 #: src/Admin/PaymentsAuditPage.php:65
 #: src/Admin/PaymentsAuditPage.php:110
-msgid "Order records"
+msgid "Payment ledger"
 msgstr ""
 
 #: src/Admin/PaymentsAuditPage.php:90
@@ -1775,7 +1775,7 @@ msgid "Priority"
 msgstr ""
 
 #: src/Admin/SamplePage.php:257
-#: src/Domain/Membership/MembershipModule.php:105
+#: src/Domain/Membership/MembershipModule.php:106
 msgid "Enabled"
 msgstr ""
 
@@ -4033,65 +4033,65 @@ msgstr ""
 msgid "Membership settings"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:92
+#: src/Domain/Membership/MembershipModule.php:93
 msgid "Tiers"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:98
+#: src/Domain/Membership/MembershipModule.php:99
 msgid "Tier list"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:99
+#: src/Domain/Membership/MembershipModule.php:100
 msgid "Each tier is one purchasable membership product: buyers pay price × cycles and the credits are handed out per cycle (a 12-cycle purchase never pays out up front). Tier config is snapshotted into purchases; later edits only affect new ones."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:106
+#: src/Domain/Membership/MembershipModule.php:107
 msgid "Disabled tiers stay out of the purchase list; existing holders keep their membership."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:112
+#: src/Domain/Membership/MembershipModule.php:113
 msgid "Key"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:125
+#: src/Domain/Membership/MembershipModule.php:126
 msgid "One-liner shown on the plan card (what the tier includes)."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:131
+#: src/Domain/Membership/MembershipModule.php:132
 msgid "Price (per cycle)"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:132
+#: src/Domain/Membership/MembershipModule.php:133
 msgid "Up to 500, two decimals."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:141
+#: src/Domain/Membership/MembershipModule.php:142
 msgid "Cycle length (days)"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:142
+#: src/Domain/Membership/MembershipModule.php:143
 msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:151
+#: src/Domain/Membership/MembershipModule.php:152
 msgid "Credits per cycle"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:152
+#: src/Domain/Membership/MembershipModule.php:153
 msgid "Credit bucket granted at each cycle start."
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:160
+#: src/Domain/Membership/MembershipModule.php:161
 msgid "Cycles per purchase"
 msgstr ""
 
-#: src/Domain/Membership/MembershipModule.php:161
+#: src/Domain/Membership/MembershipModule.php:162
 msgid "One purchase of this tier always queues this many cycles; the front end shows the total, there is no cycle picker."
 msgstr ""
 
 #. translators: %s: tier keys that still have live checkouts or covering members.
-#: src/Domain/Membership/MembershipModule.php:244
-#: src/Domain/Payment/PaymentModule.php:323
+#: src/Domain/Membership/MembershipModule.php:245
+#: src/Domain/Payment/PaymentModule.php:324
 #, php-format
 msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
 msgstr ""
@@ -4292,114 +4292,114 @@ msgstr ""
 
 #: src/Domain/Payment/PaymentModule.php:90
 #: src/Domain/Payment/PaymentModule.php:91
-msgid "Payments"
+msgid "Payment settings"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:98
+#: src/Domain/Payment/PaymentModule.php:99
 msgid "Epay gateway (cashier integration)"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:104
+#: src/Domain/Payment/PaymentModule.php:105
 msgid "Epay integration"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:110
+#: src/Domain/Payment/PaymentModule.php:111
 msgid "Merchant id (pid)"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:116
+#: src/Domain/Payment/PaymentModule.php:117
 msgid "Merchant key"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:122
+#: src/Domain/Payment/PaymentModule.php:123
 msgid "Gateway submit URL"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:128
+#: src/Domain/Payment/PaymentModule.php:129
 msgid "Payment channels"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:129
+#: src/Domain/Payment/PaymentModule.php:130
 msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:132
+#: src/Domain/Payment/PaymentModule.php:133
 msgid "Alipay"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:133
+#: src/Domain/Payment/PaymentModule.php:134
 msgid "WeChat Pay"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:134
+#: src/Domain/Payment/PaymentModule.php:135
 msgid "USDT (TRC20)"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:140
+#: src/Domain/Payment/PaymentModule.php:141
 msgid "Afdian (platform push)"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:146
+#: src/Domain/Payment/PaymentModule.php:147
 msgid "Afdian integration"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:147
+#: src/Domain/Payment/PaymentModule.php:148
 msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Bind the Afdian plans to local tiers below — pushes are settled by re-querying the platform, never by trusting the push body."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:153
+#: src/Domain/Payment/PaymentModule.php:154
 msgid "Afdian plan bindings"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:154
+#: src/Domain/Payment/PaymentModule.php:155
 msgid "Each row binds one Afdian plan (the plan_id segment of the plan page URL) to the membership tier its purchases activate. Pushes for an unbound plan are ignored."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:160
+#: src/Domain/Payment/PaymentModule.php:161
 msgid "Afdian plan ID"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:166
+#: src/Domain/Payment/PaymentModule.php:167
 msgid "Membership tier"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:167
+#: src/Domain/Payment/PaymentModule.php:168
 msgid "The tier (from the membership settings page) that this plan activates."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:182
+#: src/Domain/Payment/PaymentModule.php:183
 msgid "Fallback tier"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:183
+#: src/Domain/Payment/PaymentModule.php:184
 msgid "Orders for the amount-only plan (no plan_id — a plain boost of any amount) activate this tier. Leave empty to refuse them."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:196
+#: src/Domain/Payment/PaymentModule.php:197
 msgid "Afdian user id"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:202
+#: src/Domain/Payment/PaymentModule.php:203
 msgid "Afdian API token"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:209
+#: src/Domain/Payment/PaymentModule.php:210
 msgid "Afdian webhook address"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:210
+#: src/Domain/Payment/PaymentModule.php:211
 msgid "Register this address in the Afdian creator console (开发工具 > WebHook): {site url}/wp-json/aiya/membership/v1/afdian/callback — POST only."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:216
+#: src/Domain/Payment/PaymentModule.php:217
 msgid "Order log"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:222
+#: src/Domain/Payment/PaymentModule.php:223
 msgid "Unpaid order retention (days)"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:223
+#: src/Domain/Payment/PaymentModule.php:224
 msgid "Unpaid orders — abandoned checkouts — are deleted from the payment log after this many days. Paid records are kept forever. Minimum 7 (past the waiting-payment labelling sweep)."
 msgstr ""
 

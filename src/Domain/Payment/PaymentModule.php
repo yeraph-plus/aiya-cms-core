@@ -87,9 +87,10 @@ final class PaymentModule implements Module
         // settings extend here without crowding the tier screen.
         $this->settings->addPage([
             'slug' => self::PAGE_SLUG,
-            'title' => __('Payments', 'aiya-core'),
-            'menu_title' => __('Payments', 'aiya-core'),
+            'title' => __('Payment settings', 'aiya-core'),
+            'menu_title' => __('Payment settings', 'aiya-core'),
             'parent' => 'aiya-core-membership',
+            'menu_position' => 5,
             'option_name' => self::OPTION_NAME,
             'fields' => [
                 [

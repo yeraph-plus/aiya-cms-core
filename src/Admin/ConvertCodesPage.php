@@ -45,6 +45,7 @@ final class ConvertCodesPage implements Module
             'title' => __('Redemption codes', 'aiya-core'),
             'menu_title' => __('Redemption codes', 'aiya-core'),
             'parent' => self::PARENT_SLUG,
+            'menu_position' => 3,
             'kind' => Page::KIND_CALLBACK,
             'render' => [$this, 'render'],
         ]);

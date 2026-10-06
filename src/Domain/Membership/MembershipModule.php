@@ -79,11 +79,12 @@ final class MembershipModule implements Module
             'title' => __('Membership settings', 'aiya-core'),
             'menu_title' => __('Membership', 'aiya-core'),
             // The outermost entry carries the group name (会员) while the
-            // operations report leads the group; the mirror keeps the full
-            // settings label so the two stay distinguishable.
+            // operations dashboard leads the group; the mirror keeps the
+            // full settings label so the two stay distinguishable.
             'mirror_title' => __('Membership settings', 'aiya-core'),
             'icon' => 'dashicons-awards',
             'position' => 27,
+            'menu_position' => 4,
             'option_name' => self::OPTION_NAME,
             'fields' => [
                 [

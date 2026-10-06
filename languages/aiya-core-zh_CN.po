@@ -669,11 +669,11 @@ msgstr "管理员"
 msgid "Guest"
 msgstr "访客"
 
-msgid "Operations report"
-msgstr "运营统计"
+msgid "Operations dashboard"
+msgstr "运营看板"
 
-msgid "You are not allowed to view the operations report."
-msgstr "您无权查看运营统计。"
+msgid "You are not allowed to view the operations dashboard."
+msgstr "您无权查看运营看板"
 
 msgid "Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger's spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
 msgstr "积分流水、会员与流量的月度报表。消耗直接取自账本的 spend 事件，下载由文件下载域计量——每次交付计一次，扣费与免费均算。数据自安装起累计，更早的月份无法从账本重建。"
@@ -690,8 +690,8 @@ msgstr "单次下载成本"
 msgid "In the payment currency; the month's cost derives as downloads × this rate and freezes when the month closes."
 msgstr "以支付货币计；当月成本 = 下载次数 × 此单价，月份关闭时冻结。"
 
-msgid "You are not allowed to configure the operations report."
-msgstr "您无权配置运营统计。"
+msgid "You are not allowed to configure the operations dashboard."
+msgstr "您无权配置运营看板"
 
 msgid "Month"
 msgstr "月份"
@@ -813,8 +813,8 @@ msgstr "插入"
 msgid "No template parts are registered yet."
 msgstr "尚未注册任何模板零件。"
 
-msgid "Order records"
-msgstr "订单记录"
+msgid "Payment ledger"
+msgstr "支付账本"
 
 msgid "You are not allowed to view payments."
 msgstr "您无权查看支付记录。"
@@ -2866,8 +2866,8 @@ msgstr "该订单已被记录。"
 msgid "The order could not be stored."
 msgstr "订单保存失败。"
 
-msgid "Payments"
-msgstr "支付"
+msgid "Payment settings"
+msgstr "支付设置"
 
 msgid "Epay gateway (cashier integration)"
 msgstr "易支付网关（收银台集成）"

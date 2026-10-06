@@ -49,8 +49,8 @@ final class OperationsPage implements Module
     {
         $registry->addPage([
             'slug' => 'operations',
-            'title' => __('Operations report', 'aiya-core'),
-            'menu_title' => __('Operations report', 'aiya-core'),
+            'title' => __('Operations dashboard', 'aiya-core'),
+            'menu_title' => __('Operations dashboard', 'aiya-core'),
             'parent' => self::PARENT_SLUG,
             'menu_position' => 0,
             'kind' => Page::KIND_CALLBACK,
@@ -61,7 +61,7 @@ final class OperationsPage implements Module
     public function render(): void
     {
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You are not allowed to view the operations report.', 'aiya-core'));
+            wp_die(esc_html__('You are not allowed to view the operations dashboard.', 'aiya-core'));
         }
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only month filter
@@ -73,7 +73,7 @@ final class OperationsPage implements Module
         $row = $this->rowOf($trend, $month) ?? $this->query->month($month);
 
         Ui::pageHead(
-            __('Operations report', 'aiya-core'),
+            __('Operations dashboard', 'aiya-core'),
             __('Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger\'s spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger.', 'aiya-core')
         );
         Ui::flash('cost', [
@@ -115,7 +115,7 @@ final class OperationsPage implements Module
     public function handleCost(): void
     {
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You are not allowed to configure the operations report.', 'aiya-core'));
+            wp_die(esc_html__('You are not allowed to configure the operations dashboard.', 'aiya-core'));
         }
         check_admin_referer(self::ACTION_COST);
 
