@@ -218,18 +218,26 @@ final class TelegramFeedIngestorTest extends TestCase
                 ['type' => 'italic', 'offset' => 6, 'length' => 5],
                 ['type' => 'spoiler', 'offset' => 12, 'length' => 4],
                 ['type' => 'text_link', 'offset' => 17, 'length' => 4, 'url' => 'https://a.test/x'],
+                ['type' => 'text_mention', 'offset' => 21, 'length' => 3],
                 ['type' => 'custom_emoji', 'offset' => 0, 'length' => 1, 'custom_emoji_id' => 'e1'],
                 ['type' => 'underline', 'offset' => 0, 'length' => 0, 'note' => 'zero length drops'],
                 ['type' => 'text_link', 'offset' => 17, 'length' => 4, 'url' => 'javascript:alert(1)'],
+                ['type' => 'text_link', 'offset' => 17, 'length' => 4, 'url' => 'https://user:pass@a.test/y'],
             ],
         ])));
 
         $row = $this->rows()[0];
         $entities = (array) json_decode((string) $row['entities'], true);
         self::assertSame(
-            [['type' => 'bold', 'offset' => 0, 'length' => 5], ['type' => 'italic', 'offset' => 6, 'length' => 5], ['type' => 'spoiler', 'offset' => 12, 'length' => 4], ['type' => 'text_link', 'offset' => 17, 'length' => 4, 'url' => 'https://a.test/x']],
+            [
+                ['type' => 'bold', 'offset' => 0, 'length' => 5],
+                ['type' => 'italic', 'offset' => 6, 'length' => 5],
+                ['type' => 'spoiler', 'offset' => 12, 'length' => 4],
+                ['type' => 'link', 'offset' => 17, 'length' => 4, 'url' => 'https://a.test/x'],
+                ['type' => 'mention', 'offset' => 21, 'length' => 3],
+            ],
             $entities,
-            'known spans ride verbatim, custom emoji and non-web links drop'
+            'platform names map onto the contract vocabulary; emoji, non-web and credential-carrying links drop'
         );
     }
 

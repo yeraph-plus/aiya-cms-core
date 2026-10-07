@@ -38,13 +38,19 @@ class FeedIngestor
      * The entity types the mirror carries, mapped from the platform's
      * message entities. Styling is the front end's business: the row
      * stores the plain text plus these structured spans, never built
-     * HTML. Payload-less decoration types (url, mention, hashtag) ride
-     * their own names; custom_emoji and unknown types drop.
+     * HTML. text_link/text_mention map onto the contract's link/mention
+     * vocabulary; custom_emoji and unknown types drop.
      */
     private const ENTITY_TYPES = [
         'bold', 'italic', 'underline', 'strikethrough', 'spoiler',
         'blockquote', 'code', 'pre', 'text_link', 'text_mention',
         'url', 'mention', 'hashtag',
+    ];
+
+    /** Platform type → contract vocabulary. */
+    private const ENTITY_TYPE_MAP = [
+        'text_link' => 'link',
+        'text_mention' => 'mention',
     ];
 
     public const KIND_TEXT = 1;
@@ -428,12 +434,15 @@ class FeedIngestor
                 continue;
             }
 
-            $span = ['type' => $type, 'offset' => $offset, 'length' => $length];
+            $span = ['type' => self::ENTITY_TYPE_MAP[$type] ?? $type, 'offset' => $offset, 'length' => $length];
             if ($type === 'text_link') {
                 $url = is_string($entity['url'] ?? null) ? (string) $entity['url'] : '';
                 $scheme = $url === '' ? false : wp_parse_url($url, PHP_URL_SCHEME);
-                if ($url === '' || !in_array(strtolower((string) $scheme), ['http', 'https'], true)) {
-                    continue;
+                $parts = $url === '' ? [] : (wp_parse_url($url) ?: []);
+                if ($url === '' || !in_array(strtolower((string) $scheme), ['http', 'https'], true)
+                    || isset($parts['user'], $parts['pass'])
+                ) {
+                    continue; // Non-web or credential-carrying links never reach the contract.
                 }
                 $span['url'] = $url;
             }
