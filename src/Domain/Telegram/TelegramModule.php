@@ -82,7 +82,7 @@ final class TelegramModule implements Module
                 [
                     'id' => 'tg_id_probe',
                     'type' => 'switch',
-                    'checkbox_label' => __('Answer /id with the asking chat\'s id (discovery helper — send /id to the bot or post it in the channel, then turn this off)', 'aiya-core'),
+                    'checkbox_label' => __('Answer /status (configuration + discovered administered chats) and /id (the asking chat\'s id) in place — operator helpers; turn off once configured', 'aiya-core'),
                     'default' => false,
                 ],
                 [
@@ -146,7 +146,7 @@ final class TelegramModule implements Module
                     'id' => 'tg_relay_owner_chat_id',
                     'type' => 'text',
                     'label' => __('Owner chat id', 'aiya-core'),
-                    'description' => __('Your private chat with the bot. Send it any message and `wp aiya telegram poll` logs the id; only replies to relayed visitor messages flow back to the web.', 'aiya-core'),
+                    'description' => __('Your private chat with the bot. With the helper switch on, send /status there and it replies with the id; only replies to relayed visitor messages flow back to the web.', 'aiya-core'),
                     'default' => '',
                 ],
             ],

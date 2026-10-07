@@ -113,7 +113,7 @@ final class TelegramPollIntakeTest extends TestCase
 
         // A short poll returns quickly: the wire call carried the shared
         // offset and no hold window.
-        self::assertSame('{"offset":0,"timeout":0,"limit":10}', (string) $GLOBALS['__aiya_test_http'][0]['args']['body']);
+        self::assertSame('{"offset":0,"timeout":0,"limit":10,"allowed_updates":["message","channel_post","edited_channel_post","my_chat_member"]}', (string) $GLOBALS['__aiya_test_http'][0]['args']['body']);
 
         // The second tick with nothing pending leaves the offset alone.
         $this->stage([]);

@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Telegram;
 
 /**
- * The one update funnel both intakes ride (the webhook controller and the
- * CLI long poll): an Update is routed to the domain route that owns its
- * chat, and the chat-id whitelists are enforced here — anything not
- * addressed to a configured chat drops before any route logic sees it.
- * That gate is the bot-has-no-user-features stance turned into code: the
- * bot answers exactly the chats the site configured, nothing else.
+ * The one update funnel both intakes ride (the webhook controller and
+ * the site-side poll intake): an Update is routed to the domain route
+ * that owns its chat, and the chat-id whitelists are enforced here —
+ * anything not addressed to a configured chat drops before any route
+ * logic sees it. That gate is the bot-has-no-user-features stance turned
+ * into code: the bot answers exactly the chats the site configured,
+ * nothing else. Every update first registers its source chat in the
+ * discovery registry, and the switched-on /status & /id operator
+ * commands ride ahead of the whitelists (the bootstrap exception).
  *
  * Verdicts are strings so intake logging (and the tests) can assert what
  * happened without side effects.
@@ -25,13 +28,13 @@ final class UpdateProcessor
 
     private Relay $relay;
 
-    private IdProbe $probe;
+    private StatusCommand $commands;
 
-    public function __construct(?FeedIngestor $feed = null, ?Relay $relay = null, ?IdProbe $probe = null)
+    public function __construct(?FeedIngestor $feed = null, ?Relay $relay = null, ?StatusCommand $commands = null)
     {
         $this->feed = $feed ?? new FeedIngestor();
         $this->relay = $relay ?? new Relay();
-        $this->probe = $probe ?? new IdProbe();
+        $this->commands = $commands ?? new StatusCommand();
     }
 
     /**
@@ -39,6 +42,12 @@ final class UpdateProcessor
      */
     public function process(array $update): string
     {
+        // Discovery rides ahead of every verdict: the funnel registers
+        // each update's source chat (including the ones the whitelists
+        // drop and the bot-membership pushes), the closest the platform
+        // allows to a chat directory.
+        $this->discover($update);
+
         $channelPost = $update['channel_post'] ?? null;
         if (is_array($channelPost)) {
             return $this->channelPost(self::chatId($channelPost), $channelPost, false);
@@ -63,8 +72,8 @@ final class UpdateProcessor
      */
     private function channelPost(int $chatId, array $post, bool $isEdit): string
     {
-        // Fresh asks only: editing an answered /id post is not a new ask.
-        if (!$isEdit && $this->probeAnswers($chatId, $post, true)) {
+        // Fresh asks only: editing an answered command post is not a new ask.
+        if (!$isEdit && $this->commandAnswers($chatId, $post, true)) {
             return self::PROBED;
         }
         if ($chatId === 0 || !TelegramSettings::mirrorEnabled() || !in_array($chatId, TelegramSettings::sourceChatIds(), true)) {
@@ -81,7 +90,7 @@ final class UpdateProcessor
      */
     private function ownerMessage(int $chatId, array $message): string
     {
-        if ($this->probeAnswers($chatId, $message, false)) {
+        if ($this->commandAnswers($chatId, $message, false)) {
             return self::PROBED;
         }
         if ($chatId === 0 || $chatId !== TelegramSettings::ownerChatId() || !TelegramSettings::relayEnabled()) {
@@ -96,22 +105,53 @@ final class UpdateProcessor
     }
 
     /**
-     * The discovery probe rides ahead of the whitelists: filling the ids
+     * The operator commands ride ahead of the whitelists: filling the ids
      * is the very thing the whitelists wait on, so an explicitly switched-
-     * on probe is the one bootstrap exception. It only ever echoes the
-     * asking chat's own id back into that chat.
+     * on command set is the one bootstrap exception. It only ever replies
+     * into the asking chat itself.
      *
      * @param array<string, mixed> $message
      */
-    private function probeAnswers(int $chatId, array $message, bool $isChannel): bool
+    private function commandAnswers(int $chatId, array $message, bool $isChannel): bool
     {
-        if ($chatId === 0 || !TelegramSettings::idProbeEnabled() || !IdProbe::matches($message)) {
+        if ($chatId === 0 || !TelegramSettings::idProbeEnabled() || !StatusCommand::matches($message)) {
             return false;
         }
 
-        $this->probe->answer($chatId, $isChannel);
+        $this->commands->answer($chatId, $isChannel, $message);
 
         return true;
+    }
+
+    /**
+     * Registers every update's source chat, and the bot-membership
+     * pushes' verdict on the bot's own status there.
+     *
+     * @param array<string, mixed> $update
+     */
+    private function discover(array $update): void
+    {
+        $member = $update['my_chat_member'] ?? null;
+        if (is_array($member)) {
+            $chat = is_array($member['chat'] ?? null) ? $member['chat'] : [];
+            KnownChats::observe($chat);
+            $new = is_array($member['new_chat_member'] ?? null) ? $member['new_chat_member'] : [];
+            $status = $new['status'] ?? null;
+            $chatId = is_int($chat['id'] ?? null) ? (int) $chat['id'] : 0;
+            if ($chatId !== 0 && is_string($status) && $status !== '') {
+                KnownChats::recordStatus($chatId, $status);
+            }
+
+            return;
+        }
+
+        foreach (['channel_post', 'edited_channel_post', 'message'] as $key) {
+            $payload = $update[$key] ?? null;
+            if (is_array($payload)) {
+                KnownChats::observe(is_array($payload['chat'] ?? null) ? $payload['chat'] : []);
+                return;
+            }
+        }
     }
 
     /**

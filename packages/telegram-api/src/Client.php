@@ -91,6 +91,18 @@ final class Client
     }
 
     /**
+     * One member's status in one chat — the bot asking about itself is
+     * how a discovery flow verifies its own administrator rights without
+     * a chat-directory API (which the platform does not offer).
+     *
+     * @return array<int|string, mixed>|Error The ChatMember object (status, …) on success.
+     */
+    public function getChatMember(int|string $chatId, int $userId): array|Error
+    {
+        return $this->call('getChatMember', ['chat_id' => $chatId, 'user_id' => $userId]);
+    }
+
+    /**
      * @param array<string, mixed> $params url, secret_token, allowed_updates,
      *                                     drop_pending_updates, …
      * @return array<int|string, mixed>|Error

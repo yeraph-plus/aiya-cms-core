@@ -3094,8 +3094,8 @@ msgstr "来自 @BotFather，仅存服务端、永不外显"
 msgid "The webhook secret token is managed, not entered: `wp aiya telegram set-webhook` mints it automatically, stores it server-side and registers it with the platform, which echoes it back in a request header on every push. Nothing to fill in here."
 msgstr "Webhook 秘密令牌是管理值而非填写项：`wp aiya telegram set-webhook` 会自动铸造、仅存服务端并注册给平台，平台每次推送都会在请求头回传它。此处无需填写"
 
-msgid "Answer /id with the asking chat's id (discovery helper — send /id to the bot or post it in the channel, then turn this off)"
-msgstr "用 /id 换取提问会话的 id（发现辅助——给 bot 发 /id 或在频道里发 /id 帖，配置完毕即关闭）"
+msgid "Answer /status (configuration + discovered administered chats) and /id (the asking chat's id) in place — operator helpers; turn off once configured"
+msgstr "原地应答 /status（配置概况 + 已发现的管理频道）与 /id（提问会话的 id）——运维辅助；配置完成后即关闭"
 
 msgid "Publish push"
 msgstr "发布推送"
@@ -3136,8 +3136,8 @@ msgstr "把网页客服会话中继到与 bot 的私聊，你的回复再回到�
 msgid "Owner chat id"
 msgstr "站长会话 id"
 
-msgid "Your private chat with the bot. Send it any message and `wp aiya telegram poll` logs the id; only replies to relayed visitor messages flow back to the web."
-msgstr "你与 bot 的私聊。先给它发任意消息，`wp aiya telegram poll` 会记录该 id；只有对中继消息的回复会回流到网页"
+msgid "Your private chat with the bot. With the helper switch on, send /status there and it replies with the id; only replies to relayed visitor messages flow back to the web."
+msgstr "你与 bot 的私聊。辅助开关开启时，在此发送 /status 即可得到本会话 id；只有对中继消息的回复会回流到网页"
 
 msgid "Typography tools"
 msgstr "排版工具"

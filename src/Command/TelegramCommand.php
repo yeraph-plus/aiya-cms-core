@@ -63,7 +63,7 @@ final class TelegramCommand
             $updates = $client->getUpdates([
                 'offset' => $offset,
                 'timeout' => 25,
-                'allowed_updates' => ['message', 'channel_post', 'edited_channel_post'],
+                'allowed_updates' => ['message', 'channel_post', 'edited_channel_post', 'my_chat_member'],
             ]);
             if ($updates instanceof Error) {
                 TelegramBot::report('poll', $updates);
@@ -122,7 +122,7 @@ final class TelegramCommand
         $result = $client->setWebhook([
             'url' => $url,
             'secret_token' => $secret,
-            'allowed_updates' => ['message', 'channel_post', 'edited_channel_post'],
+            'allowed_updates' => ['message', 'channel_post', 'edited_channel_post', 'my_chat_member'],
             'drop_pending_updates' => true,
         ]);
         if ($result instanceof Error) {

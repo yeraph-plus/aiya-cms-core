@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Core\Domain\Telegram\FeedIngestor;
-use Aiya\Core\Domain\Telegram\IdProbe;
+use Aiya\Core\Domain\Telegram\KnownChats;
 use Aiya\Core\Domain\Telegram\Relay;
+use Aiya\Core\Domain\Telegram\StatusCommand;
 use Aiya\Core\Domain\Telegram\UpdateProcessor;
 use PHPUnit\Framework\TestCase;
 
@@ -50,26 +51,26 @@ final class TelegramUpdateProcessorTest extends TestCase
                 $this->received[] = [$chatId, $message];
             }
         };
-        $fakeProbe = new class extends IdProbe {
-            /** @var list<array{int, bool}> */
+        $fakeCommands = new class extends StatusCommand {
+            /** @var list<array{int, bool, array<string, mixed>}> */
             public array $answered = [];
 
-            public function answer(int $chatId, bool $isChannel): void
+            public function answer(int $chatId, bool $isChannel, array $message): void
             {
-                $this->answered[] = [$chatId, $isChannel];
+                $this->answered[] = [$chatId, $isChannel, $message];
             }
         };
         $this->fakeFeed = $fakeFeed;
         $this->fakeRelay = $fakeRelay;
-        $this->fakeProbe = $fakeProbe;
-        $this->processor = new UpdateProcessor($fakeFeed, $fakeRelay, $fakeProbe);
+        $this->fakeCommands = $fakeCommands;
+        $this->processor = new UpdateProcessor($fakeFeed, $fakeRelay, $fakeCommands);
     }
 
     private FeedIngestor $fakeFeed;
 
     private Relay $fakeRelay;
 
-    private IdProbe $fakeProbe;
+    private StatusCommand $fakeCommands;
 
     private function configure(array $overrides = []): void
     {
@@ -84,7 +85,7 @@ final class TelegramUpdateProcessorTest extends TestCase
     /** A message-shaped channel post payload (what sits under 'channel_post'). */
     private function channelMessage(int $chatId, string $text = 'hello'): array
     {
-        return ['message_id' => 5, 'chat' => ['id' => $chatId, 'type' => 'channel'], 'text' => $text];
+        return ['message_id' => 5, 'chat' => ['id' => $chatId, 'type' => 'channel', 'title' => 'CatACG Hub', 'username' => 'CatACG'], 'text' => $text];
     }
 
     /** An update-shaped channel post. */
@@ -200,7 +201,7 @@ final class TelegramUpdateProcessorTest extends TestCase
             'a channel /id answers in the channel, whitelist or not — that is the bootstrap point'
         );
 
-        self::assertSame([[777, false], [-100999, true]], $this->fakeProbe->answered);
+        self::assertSame([[777, false], [-100999, true]], array_map(static fn (array $a): array => [$a[0], $a[1]], $this->fakeCommands->answered));
         self::assertSame([], $this->fakeFeed->ingested, 'the /id post never becomes a feed row');
     }
 
@@ -209,7 +210,7 @@ final class TelegramUpdateProcessorTest extends TestCase
         $this->configure();
 
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->idMessage(999)));
-        self::assertSame([], $this->fakeProbe->answered, 'the default-off probe never speaks');
+        self::assertSame([], $this->fakeCommands->answered, 'the default-off probe never speaks');
     }
 
     public function testAProbeMatchesOnlyTheBareCommand(): void
@@ -225,7 +226,7 @@ final class TelegramUpdateProcessorTest extends TestCase
             ['message' => ['message_id' => 12, 'chat' => ['id' => 999, 'type' => 'private'], 'text' => '/id please']]
         ), 'prose with an /id prefix is a normal message (from a non-owner chat: dropped)');
 
-        self::assertCount(1, $this->fakeProbe->answered);
+        self::assertCount(1, $this->fakeCommands->answered);
     }
 
     public function testAnEditedIdPostIsNotProbed(): void
@@ -237,6 +238,50 @@ final class TelegramUpdateProcessorTest extends TestCase
             $this->processor->process(['edited_channel_post' => ['message_id' => 10, 'chat' => ['id' => -100999, 'type' => 'channel'], 'text' => '/id']]),
             'edits ride the gate, the probe answers fresh asks only'
         );
-        self::assertSame([], $this->fakeProbe->answered);
+        self::assertSame([], $this->fakeCommands->answered);
+    }
+
+    // ---- the discovery registry ------------------------------------------------
+
+    public function testEveryUpdateRegistersItsSourceChatEvenWhenDropped(): void
+    {
+        $this->configure();
+
+        $this->processor->process($this->channelPost(-100999));
+        $this->processor->process($this->ownerMessage(888));
+
+        $known = KnownChats::all();
+        self::assertSame([-100999, 888], array_keys($known), 'dropped chats register too — discovery precedes the whitelists (PHP normalizes numeric-string keys to int)');
+        self::assertSame('CatACG Hub', $known[-100999]['title']);
+    }
+
+    public function testAMembershipPushRecordsTheBotStatus(): void
+    {
+        $this->configure();
+
+        $verdict = $this->processor->process([
+            'my_chat_member' => [
+                'chat' => ['id' => -100999, 'type' => 'channel', 'title' => 'New Channel'],
+                'from' => ['id' => 526909701],
+                'old_chat_member' => ['status' => 'left'],
+                'new_chat_member' => ['status' => 'administrator', 'user' => ['is_bot' => true]],
+            ],
+        ]);
+
+        self::assertSame(UpdateProcessor::DROPPED, $verdict, 'membership pushes carry no route payload');
+        $known = KnownChats::all()['-100999'];
+        self::assertSame('New Channel', $known['title']);
+        self::assertSame('administrator', $known['status']);
+        self::assertGreaterThan(0, $known['verified_at']);
+    }
+
+    public function testADroppedUpdateStillRegistersTheChatButWithoutStatus(): void
+    {
+        $this->configure();
+
+        $this->processor->process($this->channelPost(-100999));
+
+        $known = KnownChats::all()['-100999'];
+        self::assertArrayNotHasKey('status', $known, 'a traffic-observed chat has no status until verified');
     }
 }

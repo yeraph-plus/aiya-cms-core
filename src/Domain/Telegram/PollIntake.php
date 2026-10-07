@@ -41,7 +41,16 @@ class PollIntake
         }
 
         $offset = (int) get_option('aiya_core_tg_poll_offset', 0);
-        $updates = $client->getUpdates(['offset' => $offset, 'timeout' => 0, 'limit' => 10]);
+        $updates = $client->getUpdates([
+            'offset' => $offset,
+            'timeout' => 0,
+            'limit' => 10,
+            // Explicit on purpose: once any explicit list was set (a
+            // webhook, the CLI poll), the platform reuses that list for
+            // param-less polls — and the discovery registry needs
+            // my_chat_member, which the route whitelists never consume.
+            'allowed_updates' => ['message', 'channel_post', 'edited_channel_post', 'my_chat_member'],
+        ]);
         if ($updates instanceof Error) {
             // A 409 here means another intake (a webhook registration or
             // the CLI long poll) holds the platform's single slot; the
