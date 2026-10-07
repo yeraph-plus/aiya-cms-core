@@ -44,6 +44,8 @@ final class ChannelController
                     'minimum' => 1,
                     'maximum' => self::MAX_PER_PAGE,
                 ],
+                'channelId' => ['type' => 'integer'],
+                'search' => ['type' => 'string', 'maxLength' => 100],
             ],
         ]);
     }
@@ -52,9 +54,11 @@ final class ChannelController
     {
         $page = (int) $request->get_param('page');
         $perPage = (int) $request->get_param('perPage');
+        $channelId = $request->get_param('channelId');
+        $search = trim((string) ($request->get_param('search') ?? ''));
 
-        $total = $this->feed->count();
-        $rows = $this->feed->page($perPage, ($page - 1) * $perPage);
+        $total = $this->feed->count($channelId, $search);
+        $rows = $this->feed->page($perPage, ($page - 1) * $perPage, $channelId, $search);
 
         return Envelope::payload(
             array_map([$this, 'present'], $rows),

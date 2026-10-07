@@ -1425,21 +1425,6 @@ if (!class_exists('wpdb')) {
                 );
             }
 
-            // The feed page read: id DESC with LIMIT/OFFSET, simulated for
-            // real — a natural-order shortcut would fake the pagination
-            // semantics the controller's windows depend on.
-            if ($table !== null && str_contains($table, 'aiya_channel_feed') && str_contains($sql, 'ORDER BY id DESC')) {
-                preg_match('/LIMIT (\d+) OFFSET (\d+)/', $sql, $window);
-                $rows = $this->aiya_test_rows[$table] ?? [];
-                usort($rows, static fn (array $a, array $b): int => (int) ($b['id'] ?? 0) <=> (int) ($a['id'] ?? 0));
-                $rows = array_slice($rows, (int) ($window[2] ?? 0), (int) ($window[1] ?? count($rows)));
-
-                return array_map(
-                    static fn (array $row): array|object => $output === ARRAY_A ? $row : (object) $row,
-                    $rows
-                );
-            }
-
             $matched = [];
             foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
                 if (str_contains($sql, "direction = 'in'") && ($row['direction'] ?? '') !== 'in') {
@@ -1466,6 +1451,21 @@ if (!class_exists('wpdb')) {
                     && (int) ($row['tg_message_id'] ?? -1) !== (int) $tgm[1]
                 ) {
                     continue;
+                }
+                // The feed's channel filter: rows of the prepared source.
+                if (preg_match('/source_chat_id = (-?\d+)/', $sql, $src) === 1
+                    && (int) ($row['source_chat_id'] ?? 0) !== (int) $src[1]
+                ) {
+                    continue;
+                }
+                // The feed's substring search: the escaped LIKE un-escapes
+                // before the contains check, the way MySQL reads it.
+                if (preg_match("/text LIKE '([^']*)'/", $sql, $like) === 1) {
+                    $needle = trim($like[1], '%');
+                    $needle = str_replace(['\\%', '\\_', '\\\\'], ['%', '_', '\\'], $needle);
+                    if (!str_contains((string) ($row['text'] ?? ''), $needle)) {
+                        continue;
+                    }
                 }
                 // A standalone primary-key probe (the like service's thread
                 // existence read) narrows to the matching row, the way the
@@ -1499,6 +1499,17 @@ if (!class_exists('wpdb')) {
                 usort($matched, static fn (array $a, array $b): int =>
                     [($a['expires_at'] ?? null) === null, (string) ($a['expires_at'] ?? ''), (int) ($a['id'] ?? 0)]
                         <=> [($b['expires_at'] ?? null) === null, (string) ($b['expires_at'] ?? ''), (int) ($b['id'] ?? 0)]);
+            }
+
+            // The feed page read: id DESC with LIMIT/OFFSET, simulated for
+            // real — the WHERE filters (channel, text LIKE) already ran in
+            // the generic loop above, and a natural-order shortcut would
+            // fake the pagination semantics the controller's windows
+            // depend on.
+            if ($table !== null && str_contains($table, 'aiya_channel_feed') && str_contains($sql, 'ORDER BY id DESC')) {
+                usort($matched, static fn (array $a, array $b): int => (int) ($b['id'] ?? 0) <=> (int) ($a['id'] ?? 0));
+                preg_match('/LIMIT (\d+) OFFSET (\d+)/', $sql, $window);
+                $matched = array_slice($matched, (int) ($window[2] ?? 0), (int) ($window[1] ?? count($matched)));
             }
 
             $rows = [];
@@ -1569,6 +1580,12 @@ if (!class_exists('wpdb')) {
             );
         }
 
+        /** Escapes LIKE wildcards the way the real statement does. */
+        public function esc_like(string $text): string
+        {
+            return addcslashes($text, '_%\\');
+        }
+
         public function get_var(string $sql): mixed
         {
             $this->aiya_test_reads++;
@@ -1605,9 +1622,23 @@ if (!class_exists('wpdb')) {
 
             // The feed's page count: the whole table, no filters.
             if (str_contains($sql, 'COUNT(id)') && str_contains($sql, 'aiya_channel_feed')) {
+                preg_match('/source_chat_id = (-?\d+)/', $sql, $src);
+                preg_match("/text LIKE '([^']*)'/", $sql, $like);
+                $needle = $like === [] ? null : trim($like[1], '%');
+                $needle = $needle === null ? null : str_replace(['\\%', '\\_', '\\\\'], ['%', '_', '\\'], $needle);
                 $table = $this->aiya_test_table($sql);
+                $count = 0;
+                foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
+                    if ($src !== [] && (int) ($row['source_chat_id'] ?? 0) !== (int) $src[1]) {
+                        continue;
+                    }
+                    if ($needle !== null && !str_contains((string) ($row['text'] ?? ''), $needle)) {
+                        continue;
+                    }
+                    $count++;
+                }
 
-                return count($this->aiya_test_rows[$table] ?? []);
+                return $count;
             }
 
             // Advisory locks answer granted — the double has no concurrency

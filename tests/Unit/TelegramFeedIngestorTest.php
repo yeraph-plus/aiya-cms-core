@@ -175,6 +175,34 @@ final class TelegramFeedIngestorTest extends TestCase
         self::assertSame([1], array_map(static fn (array $row): int => (int) $row['message_id'], $second));
     }
 
+    public function testTheQuerySurfaceFiltersByChannelAndSearches(): void
+    {
+        $this->ingestor->ingest(-100111, $this->channelPost(['message_id' => 1, 'text' => 'alpha release']));
+        $this->ingestor->ingest(-100111, $this->channelPost(['message_id' => 2, 'text' => 'beta update']));
+        $this->ingestor->ingest(-100222, $this->channelPost(['message_id' => 9, 'text' => 'alpha from elsewhere']));
+
+        // The channel key narrows to its own rows only.
+        $scoped = $this->ingestor->page(10, 0, -100222);
+        self::assertSame([9], array_map(static fn (array $row): int => (int) $row['message_id'], $scoped));
+        self::assertSame(1, $this->ingestor->count(-100222));
+
+        // The search matches the text as a substring, across channels.
+        $hits = $this->ingestor->page(10, 0, null, 'alpha');
+        self::assertSame([9, 1], array_map(static fn (array $row): int => (int) $row['message_id'], $hits));
+        self::assertSame(2, $this->ingestor->count(null, 'alpha'));
+
+        // Both keys compose.
+        self::assertSame(1, $this->ingestor->count(-100111, 'alpha'));
+
+        // LIKE wildcards in the visitor input stay literal.
+        $this->ingestor->ingest(-100111, $this->channelPost(['message_id' => 3, 'text' => 'one hundred percent ok']));
+        self::assertSame(0, $this->ingestor->count(null, 'hundred%'), 'a wildcard stays literal');
+        self::assertSame(1, $this->ingestor->count(null, 'hundred percent'), 'the plain words match');
+
+        // A search that matches nothing answers an empty page, not an error.
+        self::assertSame([], $this->ingestor->page(10, 0, null, 'no such words'));
+    }
+
     public function testAMessageWithoutAnIdIsSkipped(): void
     {
         self::assertSame('skipped', $this->ingestor->ingest(-100111, ['text' => 'no id']));

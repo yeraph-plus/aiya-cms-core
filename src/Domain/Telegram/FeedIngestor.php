@@ -220,12 +220,19 @@ class FeedIngestor
         return 'stored';
     }
 
-    public function count(): int
+    public function count(?int $channelId = null, string $search = ''): int
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
+        [$conditions, $bits] = $this->filters($channelId, $search);
+        $sql = 'SELECT COUNT(id) FROM %i WHERE ' . implode(' AND ', $conditions);
 
-        return (int) $wpdb->get_var($wpdb->prepare('SELECT COUNT(id) FROM %i', $wpdb->prefix . self::TABLE));
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- same fixed-condition assembly as page()
+        $prepared = $wpdb->prepare($sql, ...array_merge([$wpdb->prefix . self::TABLE], $bits)); // @phpstan-ignore argument.type
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $prepared came from prepare() directly above
+        return (int) $wpdb->get_var($prepared);
     }
 
     /**
@@ -256,22 +263,54 @@ class FeedIngestor
     }
 
     /**
-     * The feed page, newest first.
+     * The feed page, newest first, optionally scoped to one source
+     * channel and/or a plain substring match on the text (wildcards in
+     * the visitor input stay literal).
      *
      * @return list<array<string, mixed>>
      */
-    public function page(int $perPage, int $offset): array
+    public function page(int $perPage, int $offset, ?int $channelId = null, string $search = ''): array
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $table = $wpdb->prefix . self::TABLE;
+        [$conditions, $bits] = $this->filters($channelId, $search);
+        $sql = 'SELECT * FROM %i WHERE ' . implode(' AND ', $conditions) . ' ORDER BY id DESC LIMIT %d OFFSET %d';
+
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- the WHERE assembles from this class's own fixed condition strings; every value rides a %i/%d/%s placeholder
+        $prepared = $wpdb->prepare($sql, ...array_merge([$wpdb->prefix . self::TABLE], $bits, [$perPage, $offset])); // @phpstan-ignore argument.type
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
         $rows = $wpdb->get_results(
-            $wpdb->prepare('SELECT * FROM %i ORDER BY id DESC LIMIT %d OFFSET %d', $table, $perPage, $offset),
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $prepared came from prepare() directly above
+            $prepared,
             ARRAY_A
         );
 
         return is_array($rows) ? $rows : [];
+    }
+
+    /**
+     * The query surface's WHERE: the channel whitelist id and/or the
+     * escaped substring match.
+     *
+     * @return array{0: list<string>, 1: list<int|string>}
+     */
+    private function filters(?int $channelId, string $search): array
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $conditions = ['1=1'];
+        $bits = [];
+        if ($channelId !== null && $channelId !== 0) {
+            $conditions[] = 'source_chat_id = %d';
+            $bits[] = $channelId;
+        }
+        if ($search !== '') {
+            $conditions[] = 'text LIKE %s';
+            $bits[] = '%' . $wpdb->esc_like($search) . '%';
+        }
+
+        return [$conditions, $bits];
     }
 
     private function existingId(string $table, int $chatId, int $messageId): ?int
