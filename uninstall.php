@@ -398,6 +398,7 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
     }
     wp_clear_scheduled_hook('aiya_core_sponsor_expiry_scan');
     wp_clear_scheduled_hook('aiya_core_remnants_cleanup');
+    wp_clear_scheduled_hook('aiya_core_tg_poll_cron');
     // The self-hosted update checker's own event; PUC names it after the slug.
     wp_clear_scheduled_hook('puc_cron_check_updates-aiya-core');
     wp_cache_flush();

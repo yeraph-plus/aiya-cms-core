@@ -11,7 +11,8 @@ use Aiya\Core\Settings\Registry;
  * The Telegram Bot domain module: the settings page the three routes
  * configure against, the push listeners, and the two post-1.0 table
  * migrations. The webhook intake route is assembled by the Api layer
- * (RestController), the operator CLI by the entry file — the domain owns
+ * (RestController), the operator CLI by the entry file; the development
+ * site-side intake is driven by a workspace mu-plugin — the domain owns
  * neither transport.
  */
 final class TelegramModule implements Module
@@ -68,17 +69,6 @@ final class TelegramModule implements Module
                     'label' => __('Bot token', 'aiya-core'),
                     'description' => __('From @BotFather. Stored server-side and never exposed.', 'aiya-core'),
                     'default' => '',
-                ],
-                [
-                    'id' => 'tg_mode',
-                    'type' => 'radio',
-                    'label' => __('Update intake', 'aiya-core'),
-                    'description' => __('The webhook needs a publicly reachable HTTPS host (ports 443, 80, 88 or 8443) and outbound reachability of api.telegram.org. The CLI long poll is its development twin — the platform allows only one intake at a time.', 'aiya-core'),
-                    'default' => 'poll',
-                    'options' => [
-                        'poll' => __('CLI long poll (development)', 'aiya-core'),
-                        'webhook' => __('Webhook (production)', 'aiya-core'),
-                    ],
                 ],
                 [
                     'id' => 'tg_webhook_secret',

@@ -3091,18 +3091,6 @@ msgstr "Bot token"
 msgid "From @BotFather. Stored server-side and never exposed."
 msgstr "来自 @BotFather，仅存服务端、永不外显"
 
-msgid "Update intake"
-msgstr "更新接收入口"
-
-msgid "The webhook needs a publicly reachable HTTPS host (ports 443, 80, 88 or 8443) and outbound reachability of api.telegram.org. The CLI long poll is its development twin — the platform allows only one intake at a time."
-msgstr "webhook 需要公网可达的 HTTPS 主机（端口限 443、80、88、8443）且出站可达 api.telegram.org；CLI 长轮询是它的开发期替身，平台侧两者同时只允许一个"
-
-msgid "CLI long poll (development)"
-msgstr "CLI 长轮询（开发期）"
-
-msgid "Webhook (production)"
-msgstr "Webhook（生产）"
-
 msgid "Webhook secret token"
 msgstr "Webhook 秘密令牌"
 

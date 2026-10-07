@@ -37,7 +37,11 @@ final class TelegramCommand
     /**
      * Long-poll intake: updates are routed through the same processor the
      * webhook uses, so a local run exercises the full whitelist posture.
-     * The offset persists across runs; Ctrl+C stops the loop.
+     * The offset persists across runs; Ctrl+C stops the loop. This is the
+     * interactive debugger of the poll machinery — the mu-plugin dev
+     * intake also drives the same offset when its cron is scheduled, and
+     * the platform answers the second concurrent intake with a 409 (stop
+     * one of the two).
      *
      * @param list<string>          $args
      * @param array<string, string> $assocArgs
@@ -45,6 +49,9 @@ final class TelegramCommand
     public static function poll(array $args, array $assocArgs): void
     {
         $client = self::requireClient();
+        if (wp_next_scheduled(\Aiya\Core\Domain\Telegram\PollIntake::CRON_HOOK) !== false) {
+            \WP_CLI::warning('The mu-plugin dev intake is also scheduled — expect an occasional 409 stop when both poll at once.');
+        }
         $offset = (int) get_option('aiya_core_tg_poll_offset', 0);
         \WP_CLI::log('Long-polling Telegram; Ctrl+C stops the loop.');
 

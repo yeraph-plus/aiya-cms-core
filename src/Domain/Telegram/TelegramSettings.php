@@ -20,14 +20,6 @@ final class TelegramSettings
         return trim((string) aiya_core_opt(self::PAGE_SLUG, 'tg_bot_token', ''));
     }
 
-    /** 'webhook' | 'poll' — the update intake the site is driven through. */
-    public static function mode(): string
-    {
-        $mode = (string) aiya_core_opt(self::PAGE_SLUG, 'tg_mode', 'poll');
-
-        return $mode === 'webhook' ? 'webhook' : 'poll';
-    }
-
     public static function webhookSecret(): string
     {
         return trim((string) aiya_core_opt(self::PAGE_SLUG, 'tg_webhook_secret', ''));
