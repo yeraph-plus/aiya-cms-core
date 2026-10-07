@@ -29,6 +29,7 @@ use Aiya\Core\Api\Presenter\PostCardPresenter;
 use Aiya\Core\Api\Presenter\RefPresenter;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Rest\RestController;
+use Aiya\Core\Api\Rest\TelegramWebhookController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
 use Aiya\Core\Domain\Content\ContentManagementModule;

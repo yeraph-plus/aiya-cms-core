@@ -128,6 +128,10 @@ final class RestController implements Module
             // metered sends; the Telegram side rides the webhook).
             (new ChatController(new ChatStore(), new Relay(), new RateLimiter()))->registerRoutes();
 
+            // The Telegram webhook intake (platform pushes, outside the
+            // contract namespace).
+            (new TelegramWebhookController())->registerRoutes();
+
             (new SmiliesController($smilies, new SmiliesPresenter()))->registerRoutes();
 
             (new NotificationController(new NotificationService(), $presenter, new NotificationPresenter(new NotificationLinker())))->registerRoutes();

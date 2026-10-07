@@ -48,7 +48,7 @@ final class TelegramSettings
     {
         $template = trim((string) aiya_core_opt(self::PAGE_SLUG, 'tg_push_link_template', ''));
 
-        return $template !== '' ? $template : '/resource/{slug}/';
+        return $template !== '' ? $template : '/resources/{slug}/';
     }
 
     public static function mirrorEnabled(): bool

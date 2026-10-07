@@ -81,7 +81,9 @@ final class TelegramCommand
                 }
                 \WP_CLI::log(sprintf('update %s: %s', is_int($updateId) ? (string) $updateId : '?', $processor->process($update)));
             }
-            update_option('aiya_core_tg_poll_offset', $offset, false);
+            if ($offset !== (int) get_option('aiya_core_tg_poll_offset', 0)) {
+                update_option('aiya_core_tg_poll_offset', $offset, false);
+            }
         }
     }
 

@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Telegram;
 
-use Aiya\Core\Api\Rest\TelegramWebhookController;
-use Aiya\Core\Command\TelegramCommand;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Registry;
 
 /**
- * The Telegram Bot domain skeleton: the settings page the three routes
- * configure against, the webhook intake route, and the operator CLI. The
- * routes themselves land batch by batch — publish push, channel mirror,
- * support relay — but the update funnel and its whitelists exist from
- * here on, so both intakes are exercisable end to end.
+ * The Telegram Bot domain module: the settings page the three routes
+ * configure against, the push listeners, and the two post-1.0 table
+ * migrations. The webhook intake route is assembled by the Api layer
+ * (RestController), the operator CLI by the entry file — the domain owns
+ * neither transport.
  */
 final class TelegramModule implements Module
 {
@@ -25,8 +23,6 @@ final class TelegramModule implements Module
     public function register(): void
     {
         add_action('aiya_core_register', [$this, 'settings'], 10, 0);
-        add_action('rest_api_init', [$this, 'routes'], 10, 0);
-        TelegramCommand::register();
 
         // Route 1 (publish push): the pusher gates on its own settings, so
         // the listeners ride every request cost-free while the route is
@@ -49,12 +45,6 @@ final class TelegramModule implements Module
 
             return $migrations;
         });
-    }
-
-    /** The webhook intake route plus its first-party namespace declaration. */
-    public function routes(): void
-    {
-        (new TelegramWebhookController())->registerRoutes();
     }
 
     public function settings(): void
@@ -92,9 +82,9 @@ final class TelegramModule implements Module
                 ],
                 [
                     'id' => 'tg_webhook_secret',
-                    'type' => 'text',
+                    'type' => 'password',
                     'label' => __('Webhook secret token', 'aiya-core'),
-                    'description' => __('Set by `wp aiya telegram set-webhook` when left empty. Telegram echoes it in a request header on every push; treat it like a password.', 'aiya-core'),
+                    'description' => __('Minted by `wp aiya telegram set-webhook` when none is stored yet; never displayed. Telegram echoes it in a request header on every push; treat it like a password.', 'aiya-core'),
                     'default' => '',
                 ],
                 [
@@ -121,7 +111,7 @@ final class TelegramModule implements Module
                     'type' => 'text',
                     'label' => __('Front-end link template', 'aiya-core'),
                     'description' => __('Path template for the article link in the notice; {slug} is replaced with the post slug on top of the configured front-end domain.', 'aiya-core'),
-                    'default' => '/resource/{slug}/',
+                    'default' => '/resources/{slug}/',
                 ],
                 [
                     'id' => 'tg_heading_mirror',

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AIYA CMS - Headless Core
  * Description: Headless-first administration and content framework for AIYA CMS.
- * Version: 0.119.1
+ * Version: 0.119.2
  * Requires at least: 7.0
  * Requires PHP: 8.5
  * Author: Yeraph
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AIYA_CORE_VERSION', '0.119.1');
+define('AIYA_CORE_VERSION', '0.119.2');
 define('AIYA_CORE_FILE', __FILE__);
 define('AIYA_CORE_PATH', plugin_dir_path(__FILE__));
 define('AIYA_CORE_URL', plugin_dir_url(__FILE__));
@@ -126,5 +126,6 @@ register_activation_hook(__FILE__, [aiya_core(), 'activate']);
 register_deactivation_hook(__FILE__, [aiya_core(), 'deactivate']);
 
 Aiya\Core\Command\ContractsSnapshot::register();
+Aiya\Core\Command\TelegramCommand::register();
 
 aiya_core()->boot();

@@ -46,7 +46,7 @@ final class TelegramPusherTest extends TestCase
             'tg_push_enabled' => true,
             'tg_push_chat_id' => '@channel',
             'tg_bot_token' => 'TOK',
-            'tg_push_link_template' => '/resource/{slug}/',
+            'tg_push_link_template' => '/resources/{slug}/',
         ], $overrides);
     }
 
@@ -121,7 +121,7 @@ final class TelegramPusherTest extends TestCase
         self::assertSame('@channel', $body['chat_id']);
         self::assertSame('HTML', $body['parse_mode']);
         self::assertSame(
-            '<a href="https://aiya.test/resource/hello/">Hello World</a>' . "\n\n" . 'first second',
+            '<a href="https://aiya.test/resources/hello/">Hello World</a>' . "\n\n" . 'first second',
             $body['text'],
             'the title link rides the front-end domain + template, the content excerpt is stripped and collapsed'
         );
@@ -140,6 +140,16 @@ final class TelegramPusherTest extends TestCase
         $this->pusher->onPublished($GLOBALS['__aiya_test_posts'][5]);
 
         self::assertSame([], $this->calls());
+    }
+
+    public function testAnUnpublishedPostIsIgnored(): void
+    {
+        $this->seedPost(['post_status' => 'draft']);
+        $this->stage(['ok' => true, 'result' => ['message_id' => 1]]);
+
+        $this->pusher->onPublished($GLOBALS['__aiya_test_posts'][5]);
+
+        self::assertSame([], $this->calls(), 'a draft never rides the wire, even through a retry');
     }
 
     public function testTheRouteGatesOnItsSettings(): void
@@ -284,7 +294,7 @@ final class TelegramPusherTest extends TestCase
 
         $text = (string) $this->lastBody()['text'];
         self::assertLessThanOrEqual(4096, mb_strlen($text), 'the platform limit holds');
-        self::assertStringStartsWith('<a href="https://aiya.test/resource/hello/">', $text, 'the link line survives untouched');
+        self::assertStringStartsWith('<a href="https://aiya.test/resources/hello/">', $text, 'the link line survives untouched');
         self::assertStringEndsWith('…', $text, 'the cut excerpt carries the ellipsis');
     }
 }

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.116.0\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.119.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-07T03:34:21+00:00\n"
+"POT-Creation-Date: 2026-10-07T05:39:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -4591,100 +4591,100 @@ msgstr ""
 msgid "Thread ID"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:42
-#: src/Domain/Telegram/TelegramModule.php:43
+#: src/Domain/Telegram/TelegramModule.php:54
+#: src/Domain/Telegram/TelegramModule.php:55
 msgid "Telegram Bot"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:50
+#: src/Domain/Telegram/TelegramModule.php:62
 msgid "Bot connection"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:56
+#: src/Domain/Telegram/TelegramModule.php:68
 msgid "Bot token"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:57
+#: src/Domain/Telegram/TelegramModule.php:69
 msgid "From @BotFather. Stored server-side and never exposed."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:63
+#: src/Domain/Telegram/TelegramModule.php:75
 msgid "Update intake"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:64
+#: src/Domain/Telegram/TelegramModule.php:76
 msgid "The webhook needs a publicly reachable HTTPS host (ports 443, 80, 88 or 8443) and outbound reachability of api.telegram.org. The CLI long poll is its development twin — the platform allows only one intake at a time."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:67
+#: src/Domain/Telegram/TelegramModule.php:79
 msgid "CLI long poll (development)"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:68
+#: src/Domain/Telegram/TelegramModule.php:80
 msgid "Webhook (production)"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:74
+#: src/Domain/Telegram/TelegramModule.php:86
 msgid "Webhook secret token"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:75
-msgid "Set by `wp aiya telegram set-webhook` when left empty. Telegram echoes it in a request header on every push; treat it like a password."
-msgstr ""
-
-#: src/Domain/Telegram/TelegramModule.php:81
-msgid "Publish push"
-msgstr ""
-
 #: src/Domain/Telegram/TelegramModule.php:87
-msgid "Push resource posts to the target chat when published, edit the sent message in place on update"
+msgid "Minted by `wp aiya telegram set-webhook` when none is stored yet; never displayed. Telegram echoes it in a request header on every push; treat it like a password."
 msgstr ""
 
 #: src/Domain/Telegram/TelegramModule.php:93
+msgid "Publish push"
+msgstr ""
+
+#: src/Domain/Telegram/TelegramModule.php:99
+msgid "Push resource posts to the target chat when published, edit the sent message in place on update"
+msgstr ""
+
+#: src/Domain/Telegram/TelegramModule.php:105
 msgid "Push target"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:94
+#: src/Domain/Telegram/TelegramModule.php:106
 msgid "Numeric chat id or @channelusername the publish/update notices go to."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:100
+#: src/Domain/Telegram/TelegramModule.php:112
 msgid "Front-end link template"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:101
+#: src/Domain/Telegram/TelegramModule.php:113
 msgid "Path template for the article link in the notice; {slug} is replaced with the post slug on top of the configured front-end domain."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:107
+#: src/Domain/Telegram/TelegramModule.php:119
 msgid "Channel mirror"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:113
+#: src/Domain/Telegram/TelegramModule.php:125
 msgid "Ingest the source channels' posts into the mirror feed (images transfer into the image pool; videos and files surface as t.me links)"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:119
+#: src/Domain/Telegram/TelegramModule.php:131
 msgid "Source channels"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:120
+#: src/Domain/Telegram/TelegramModule.php:132
 msgid "Numeric ids of the channels the bot administers, one per line. Posts from any other chat are dropped. A private channel's t.me links only open for its members."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:126
+#: src/Domain/Telegram/TelegramModule.php:138
 msgid "Support relay"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:132
+#: src/Domain/Telegram/TelegramModule.php:144
 msgid "Relay the web support chat into your private chat with the bot, and your replies back to the web"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:138
+#: src/Domain/Telegram/TelegramModule.php:150
 msgid "Owner chat id"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:139
+#: src/Domain/Telegram/TelegramModule.php:151
 msgid "Your private chat with the bot. Send it any message and `wp aiya telegram poll` logs the id; only replies to relayed visitor messages flow back to the web."
 msgstr ""
 

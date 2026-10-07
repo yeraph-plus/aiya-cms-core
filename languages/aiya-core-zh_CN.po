@@ -3106,8 +3106,8 @@ msgstr "Webhook（生产）"
 msgid "Webhook secret token"
 msgstr "Webhook 秘密令牌"
 
-msgid "Set by `wp aiya telegram set-webhook` when left empty. Telegram echoes it in a request header on every push; treat it like a password."
-msgstr "留空时由 `wp aiya telegram set-webhook` 自动生成；Telegram 每次推送会在请求头回传它，请按密码对待"
+msgid "Minted by `wp aiya telegram set-webhook` when none is stored yet; never displayed. Telegram echoes it in a request header on every push; treat it like a password."
+msgstr "尚无存值时由 `wp aiya telegram set-webhook` 铸造；永不回显。Telegram 每次推送会在请求头回传它，请按密码对待"
 
 msgid "Publish push"
 msgstr "发布推送"
