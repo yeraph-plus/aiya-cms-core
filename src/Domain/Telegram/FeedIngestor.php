@@ -438,7 +438,10 @@ class FeedIngestor
             if ($type === 'text_link') {
                 $url = is_string($entity['url'] ?? null) ? (string) $entity['url'] : '';
                 $scheme = $url === '' ? false : wp_parse_url($url, PHP_URL_SCHEME);
-                $parts = $url === '' ? [] : (wp_parse_url($url) ?: []);
+                $parts = [];
+                if ($url !== '') {
+                    $parts = wp_parse_url($url) ?: [];
+                }
                 if ($url === '' || !in_array(strtolower((string) $scheme), ['http', 'https'], true)
                     || isset($parts['user'], $parts['pass'])
                 ) {
