@@ -3091,11 +3091,8 @@ msgstr "Bot token"
 msgid "From @BotFather. Stored server-side and never exposed."
 msgstr "来自 @BotFather，仅存服务端、永不外显"
 
-msgid "Webhook secret token"
-msgstr "Webhook 秘密令牌"
-
-msgid "Minted by `wp aiya telegram set-webhook` when none is stored yet; never displayed. Telegram echoes it in a request header on every push; treat it like a password."
-msgstr "尚无存值时由 `wp aiya telegram set-webhook` 铸造；永不回显。Telegram 每次推送会在请求头回传它，请按密码对待"
+msgid "The webhook secret token is managed, not entered: `wp aiya telegram set-webhook` mints it automatically, stores it server-side and registers it with the platform, which echoes it back in a request header on every push. Nothing to fill in here."
+msgstr "Webhook 秘密令牌是管理值而非填写项：`wp aiya telegram set-webhook` 会自动铸造、仅存服务端并注册给平台，平台每次推送都会在请求头回传它。此处无需填写"
 
 msgid "Answer /id with the asking chat's id (discovery helper — send /id to the bot or post it in the channel, then turn this off)"
 msgstr "用 /id 换取提问会话的 id（发现辅助——给 bot 发 /id 或在频道里发 /id 帖，配置完毕即关闭）"

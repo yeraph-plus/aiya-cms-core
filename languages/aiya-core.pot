@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-07T06:49:55+00:00\n"
+"POT-Creation-Date: 2026-10-07T07:03:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -4608,12 +4608,8 @@ msgstr ""
 msgid "From @BotFather. Stored server-side and never exposed."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:76
-msgid "Webhook secret token"
-msgstr ""
-
 #: src/Domain/Telegram/TelegramModule.php:77
-msgid "Minted by `wp aiya telegram set-webhook` when none is stored yet; never displayed. Telegram echoes it in a request header on every push; treat it like a password."
+msgid "The webhook secret token is managed, not entered: `wp aiya telegram set-webhook` mints it automatically, stores it server-side and registers it with the platform, which echoes it back in a request header on every push. Nothing to fill in here."
 msgstr ""
 
 #: src/Domain/Telegram/TelegramModule.php:83

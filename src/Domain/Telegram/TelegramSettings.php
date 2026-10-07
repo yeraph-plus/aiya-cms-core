@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Telegram;
 
-use Aiya\Core\Settings\Storage\OptionStore;
-
 /**
  * Typed reads over the Telegram settings page (one place owns the field
  * ids); every reader answers the field default on an unsaved option, so a
@@ -15,6 +13,14 @@ final class TelegramSettings
 {
     public const PAGE_SLUG = 'telegram';
 
+    /**
+     * The webhook secret is machine state, not a setting: minted by the
+     * CLI's set-webhook and never rendered. A dedicated option (not a page
+     * field) keeps the settings save pipeline — which replaces the page's
+     * option wholesale with its registered fields — from ever wiping it.
+     */
+    public const SECRET_OPTION = 'aiya_core_tg_webhook_secret';
+
     public static function botToken(): string
     {
         return trim((string) aiya_core_opt(self::PAGE_SLUG, 'tg_bot_token', ''));
@@ -22,7 +28,7 @@ final class TelegramSettings
 
     public static function webhookSecret(): string
     {
-        return trim((string) aiya_core_opt(self::PAGE_SLUG, 'tg_webhook_secret', ''));
+        return trim((string) get_option(self::SECRET_OPTION, ''));
     }
 
     /** The /id discovery probe: on, /id gets the asking chat's id back. */
@@ -90,21 +96,12 @@ final class TelegramSettings
     }
 
     /**
-     * Persists the webhook secret from the CLI path (the page field may
-     * sit empty until set-webhook mints one). A direct store write on
-     * purpose: the settings form pipeline is not involved in CLI-generated
-     * values, and the aiya_core_opt memo clears itself on the write.
+     * Persists the webhook secret minted on the CLI path. A direct option
+     * write on purpose: the settings form pipeline is not involved in
+     * CLI-generated values.
      */
     public static function storeSecret(string $secret): void
     {
-        $page = aiya_core()->settings()->page(self::PAGE_SLUG);
-        if ($page === null) {
-            return;
-        }
-
-        $store = new OptionStore($page->optionName(), $page->network());
-        $values = $store->all();
-        $values['tg_webhook_secret'] = $secret;
-        $store->replace($values);
+        update_option(self::SECRET_OPTION, $secret, false);
     }
 }
