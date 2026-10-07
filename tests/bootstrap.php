@@ -1387,6 +1387,20 @@ if (!class_exists('wpdb')) {
                 return [];
             }
 
+            // The chat thread page: same honest simulation, session-scoped.
+            if ($table !== null && str_contains($table, 'aiya_chat_messages') && str_contains($sql, 'ORDER BY id DESC')) {
+                preg_match("/session_id = '([^']+)'/", $sql, $session);
+                preg_match('/LIMIT (\d+) OFFSET (\d+)/', $sql, $window);
+                $rows = array_values(array_filter($this->aiya_test_rows[$table] ?? [], static fn (array $row): bool => $session === [] || ($row['session_id'] ?? '') === $session[1]));
+                usort($rows, static fn (array $a, array $b): int => (int) ($b['id'] ?? 0) <=> (int) ($a['id'] ?? 0));
+                $rows = array_slice($rows, (int) ($window[2] ?? 0), (int) ($window[1] ?? count($rows)));
+
+                return array_map(
+                    static fn (array $row): array|object => $output === ARRAY_A ? $row : (object) $row,
+                    $rows
+                );
+            }
+
             // The feed page read: id DESC with LIMIT/OFFSET, simulated for
             // real — a natural-order shortcut would fake the pagination
             // semantics the controller's windows depend on.
@@ -1414,6 +1428,18 @@ if (!class_exists('wpdb')) {
                 }
                 if (preg_match('/user_id = (\d+)/', $sql, $user) === 1
                     && (int) ($row['user_id'] ?? 0) !== (int) $user[1]
+                ) {
+                    continue;
+                }
+                // The support relay's binding read: the visitor row the
+                // owner's reply points at, by the stored bot-copy pair.
+                if (preg_match('/tg_chat_id = (-?\d+)/', $sql, $tgc) === 1
+                    && (int) ($row['tg_chat_id'] ?? -1) !== (int) $tgc[1]
+                ) {
+                    continue;
+                }
+                if (preg_match('/tg_message_id = (\d+)/', $sql, $tgm) === 1
+                    && (int) ($row['tg_message_id'] ?? -1) !== (int) $tgm[1]
                 ) {
                     continue;
                 }
@@ -1538,6 +1564,19 @@ if (!class_exists('wpdb')) {
                 }
 
                 return null;
+            }
+
+            // The chat session's page count.
+            if (str_contains($sql, 'COUNT(id)') && str_contains($sql, 'aiya_chat_messages')) {
+                preg_match("/session_id = '([^']+)'/", $sql, $session);
+                $count = 0;
+                foreach ($this->aiya_test_rows[$this->aiya_test_table($sql)] ?? [] as $row) {
+                    if ($session === [] || ($row['session_id'] ?? '') === $session[1]) {
+                        $count++;
+                    }
+                }
+
+                return $count;
             }
 
             // The feed's page count: the whole table, no filters.

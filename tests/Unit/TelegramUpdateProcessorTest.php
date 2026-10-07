@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Core\Domain\Telegram\FeedIngestor;
+use Aiya\Core\Domain\Telegram\Relay;
 use Aiya\Core\Domain\Telegram\UpdateProcessor;
 use PHPUnit\Framework\TestCase;
 
@@ -28,7 +29,7 @@ final class TelegramUpdateProcessorTest extends TestCase
         $GLOBALS['__aiya_test_options'] = [];
         $this->ingested = [];
 
-        $fake = new class extends FeedIngestor {
+        $fakeFeed = new class extends FeedIngestor {
             /** @var list<array{int, array<string, mixed>, bool}> */
             public array $ingested = [];
 
@@ -39,11 +40,23 @@ final class TelegramUpdateProcessorTest extends TestCase
                 return $isEdit ? 'updated' : 'stored';
             }
         };
-        $this->fake = $fake;
-        $this->processor = new UpdateProcessor($fake);
+        $fakeRelay = new class extends Relay {
+            /** @var list<array{int, array<string, mixed>}> */
+            public array $received = [];
+
+            public function onOwnerMessage(int $chatId, array $message): void
+            {
+                $this->received[] = [$chatId, $message];
+            }
+        };
+        $this->fakeFeed = $fakeFeed;
+        $this->fakeRelay = $fakeRelay;
+        $this->processor = new UpdateProcessor($fakeFeed, $fakeRelay);
     }
 
-    private FeedIngestor $fake;
+    private FeedIngestor $fakeFeed;
+
+    private Relay $fakeRelay;
 
     private function configure(array $overrides = []): void
     {
@@ -84,11 +97,11 @@ final class TelegramUpdateProcessorTest extends TestCase
             'an edit rides the same gate as its original'
         );
 
-        self::assertCount(2, $this->fake->ingested);
-        self::assertSame(-100111, $this->fake->ingested[0][0]);
-        self::assertFalse($this->fake->ingested[0][2], 'a fresh channel post is not an edit');
-        self::assertSame(-100222, $this->fake->ingested[1][0]);
-        self::assertTrue($this->fake->ingested[1][2], 'the edit lands as a rewrite');
+        self::assertCount(2, $this->fakeFeed->ingested);
+        self::assertSame(-100111, $this->fakeFeed->ingested[0][0]);
+        self::assertFalse($this->fakeFeed->ingested[0][2], 'a fresh channel post is not an edit');
+        self::assertSame(-100222, $this->fakeFeed->ingested[1][0]);
+        self::assertTrue($this->fakeFeed->ingested[1][2], 'the edit lands as a rewrite');
     }
 
     public function testAChannelPostFromAnyOtherChatDrops(): void
@@ -96,7 +109,7 @@ final class TelegramUpdateProcessorTest extends TestCase
         $this->configure();
 
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->channelPost(-100999)));
-        self::assertSame([], $this->fake->ingested, 'a dropped update never reaches the store');
+        self::assertSame([], $this->fakeFeed->ingested, 'a dropped update never reaches the store');
     }
 
     public function testTheMirrorSwitchGatesTheWholeRoute(): void
@@ -104,7 +117,7 @@ final class TelegramUpdateProcessorTest extends TestCase
         $this->configure(['tg_mirror_enabled' => false]);
 
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->channelPost(-100111)));
-        self::assertSame([], $this->fake->ingested);
+        self::assertSame([], $this->fakeFeed->ingested);
     }
 
     public function testAChannelIdListParsesThroughWhitespaceAndCommas(): void
@@ -114,7 +127,7 @@ final class TelegramUpdateProcessorTest extends TestCase
         self::assertSame(UpdateProcessor::ROUTED, $this->processor->process($this->channelPost(-100333)));
         self::assertSame(UpdateProcessor::ROUTED, $this->processor->process($this->channelPost(-100444)));
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->channelPost(-100222)), 'a removed id drops immediately');
-        self::assertCount(2, $this->fake->ingested);
+        self::assertCount(2, $this->fakeFeed->ingested);
     }
 
     public function testAnOwnerMessageRoutesOnlyWhenTheRelayPointsAtThatChat(): void
@@ -123,6 +136,8 @@ final class TelegramUpdateProcessorTest extends TestCase
 
         self::assertSame(UpdateProcessor::ROUTED, $this->processor->process($this->ownerMessage(777)));
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->ownerMessage(888)));
+        self::assertCount(1, $this->fakeRelay->received, 'the routed payload reaches the relay');
+        self::assertSame(777, $this->fakeRelay->received[0][0]);
     }
 
     public function testTheRelaySwitchGatesTheWholeRoute(): void
@@ -141,7 +156,7 @@ final class TelegramUpdateProcessorTest extends TestCase
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process(['channel_post' => ['message_id' => 1]]), 'a post without a chat shape has no owner');
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process(['message' => ['chat' => ['id' => 'not-int']]]));
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process([]));
-        self::assertSame([], $this->fake->ingested);
+        self::assertSame([], $this->fakeFeed->ingested);
     }
 
     public function testAnUnconfiguredSiteDropsEverything(): void
@@ -150,6 +165,6 @@ final class TelegramUpdateProcessorTest extends TestCase
         // every update no matter whom it is addressed to.
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->channelPost(-100111)));
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->ownerMessage(777)));
-        self::assertSame([], $this->fake->ingested);
+        self::assertSame([], $this->fakeFeed->ingested);
     }
 }

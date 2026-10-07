@@ -22,9 +22,12 @@ final class UpdateProcessor
 
     private FeedIngestor $feed;
 
-    public function __construct(?FeedIngestor $feed = null)
+    private Relay $relay;
+
+    public function __construct(?FeedIngestor $feed = null, ?Relay $relay = null)
     {
         $this->feed = $feed ?? new FeedIngestor();
+        $this->relay = $relay ?? new Relay();
     }
 
     /**
@@ -74,8 +77,10 @@ final class UpdateProcessor
             return self::DROPPED;
         }
 
-        // The relay takes the message from here in the support batch: only
-        // replies to relayed visitor messages flow back to the web.
+        // The relay routes replies to relayed visitor messages back to the
+        // web; a bare owner message has no destination and is a no-op.
+        $this->relay->onOwnerMessage($chatId, $message);
+
         return self::ROUTED;
     }
 

@@ -40,7 +40,9 @@ use Aiya\Core\Domain\Identity\TokenStore;
 use Aiya\Core\Domain\Integrations\TicketService;
 use Aiya\Core\Domain\Notification\NotificationService;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
+use Aiya\Core\Domain\Telegram\ChatStore;
 use Aiya\Core\Domain\Telegram\FeedIngestor;
+use Aiya\Core\Domain\Telegram\Relay;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
 use Aiya\Core\Domain\Membership\EntitlementService;
 use Aiya\Core\Domain\Membership\MembershipService;
@@ -121,6 +123,10 @@ final class RestController implements Module
             // The channel mirror's public feed (the Telegram domain's one
             // contract surface).
             (new ChannelController(new FeedIngestor()))->registerRoutes();
+
+            // The support chat's visitor surface (login-only reads and
+            // metered sends; the Telegram side rides the webhook).
+            (new ChatController(new ChatStore(), new Relay(), new RateLimiter()))->registerRoutes();
 
             (new SmiliesController($smilies, new SmiliesPresenter()))->registerRoutes();
 
