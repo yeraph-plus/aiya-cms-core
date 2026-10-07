@@ -93,7 +93,10 @@ final class ChannelController
     }
 
     /**
-     * @return list<array{type: string, offset: int, length: int, url?: string}>
+     * The stored span JSON onto the wire — `url` always present (null on
+     * the payload-less types) so the front-end schema stays exact.
+     *
+     * @return list<array{type: string, offset: int, length: int, url: string|null}>
      */
     private static function entities(mixed $raw): array
     {
@@ -110,15 +113,13 @@ final class ChannelController
             if (!is_array($entity) || !is_string($entity['type'] ?? null)) {
                 continue;
             }
-            $span = [
+            $url = $entity['url'] ?? null;
+            $entities[] = [
                 'type' => (string) $entity['type'],
                 'offset' => (int) ($entity['offset'] ?? 0),
                 'length' => (int) ($entity['length'] ?? 0),
+                'url' => is_string($url) && $url !== '' ? $url : null,
             ];
-            if (is_string($entity['url'] ?? null) && $entity['url'] !== '') {
-                $span['url'] = (string) $entity['url'];
-            }
-            $entities[] = $span;
         }
 
         return $entities;

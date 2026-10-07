@@ -21,7 +21,7 @@ final class ChannelPost
 {
     /**
      * @param list<array{url: string, width: int, height: int}> $media
-     * @param list<array{type: string, offset: int, length: int, url?: string}> $entities
+     * @param list<array{type: string, offset: int, length: int, url: string|null}> $entities
      */
     public function __construct(
         public readonly int $id,
