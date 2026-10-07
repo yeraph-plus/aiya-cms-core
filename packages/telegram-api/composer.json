@@ -1,0 +1,14 @@
+{
+    "name": "aiya/telegram-api",
+    "description": "Telegram Bot API request exit for AIYA CMS: message send/edit, file reads, webhook and update intake (WordPress-free, no site types).",
+    "type": "library",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "php": ">=8.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aiya\\Infra\\Telegram\\": "src/"
+        }
+    }
+}

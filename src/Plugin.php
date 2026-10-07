@@ -75,6 +75,7 @@ use Aiya\Core\Domain\Redeem\RedeemModule;
 use Aiya\Core\Domain\Smilies\SmiliesModule;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
+use Aiya\Core\Domain\Telegram\TelegramModule;
 use Aiya\Core\Domain\ThemeSupport\ThemeSupportModule;
 use Aiya\Core\Infrastructure\Headless\HeadlessModule;
 use Aiya\Core\Infrastructure\Http\TrustedProxy;
@@ -161,6 +162,7 @@ final class Plugin
         $this->addModule(new NotificationModule());
         $this->addModule(new NotificationActions());
         $this->addModule(new MailModule());
+        $this->addModule(new TelegramModule($this->settings));
         $this->addModule(new CreditModule($this->settings));
         $this->addModule(new IntegrationsModule($this->settings));
         $this->addModule(new CreditsPage());

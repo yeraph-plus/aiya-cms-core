@@ -20,13 +20,14 @@ parameters:
         - packages/opencc-convert/src
         - packages/payment-epay/src
         - packages/payment-afdian/src
+        - packages/telegram-api/src
 
     # The bundled packages are not composer-installed, so PHPStan cannot
     # discover Aiya\Infra\* symbols from the vendor autoload map — scan them.
-    # (Six wired packages' src/ are analysed in paths above — gofile-api,
-    # image-processor, openlist, opencc-convert, payment-epay, payment-afdian.
-    # slug-toolkit and typesetting are wired too — SlugModule and
-    # TypographyModule consume them — but only symbol-scanned, their APIs
+    # (Seven wired packages' src/ are analysed in paths above — gofile-api,
+    # image-processor, openlist, opencc-convert, payment-epay, payment-afdian,
+    # telegram-api. slug-toolkit and typesetting are wired too — SlugModule
+    # and TypographyModule consume them — but only symbol-scanned, their APIs
     # being small and stable.)
     scanDirectories:
         - packages
