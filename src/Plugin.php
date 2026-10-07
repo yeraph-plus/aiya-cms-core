@@ -11,7 +11,7 @@ use Aiya\Core\Admin\ConvertCodesPage;
 use Aiya\Core\Admin\DiscussionModerationPage;
 use Aiya\Core\Admin\CreditsPage;
 use Aiya\Core\Admin\EditorPlugins;
-use Aiya\Core\Admin\FileServeMetabox;
+use Aiya\Core\Admin\FileServeDialog;
 use Aiya\Core\Admin\MetaboxAdmin;
 use Aiya\Core\Admin\NotificationPage;
 use Aiya\Core\Admin\OperationsPage;
@@ -212,7 +212,7 @@ final class Plugin
         $this->addModule($fileServe);
         $this->addModule(new OpenListModule($this->settings, $adapters));
         $this->addModule(new GofileModule($this->settings, $adapters));
-        $this->addModule(new FileServeMetabox($adapters, $fileServe->files(), new FilePresenter()));
+        $this->addModule(new FileServeDialog($adapters, $fileServe->files(), new FilePresenter()));
 
         $this->addModule(new SchemaVersionRunner());
         $this->addModule(new VisibilityMetabox($visibility));

@@ -1,6 +1,8 @@
 /*
- * File configuration metabox. Scoped to its own root: internals only, nothing
- * here reaches another screen or the settings pages.
+ * File configuration dialog. Scoped to its own root: internals only,
+ * nothing here reaches another screen or the settings pages. The layout
+ * is flex all the way down, so the 760px dialog shell needs no extra
+ * breakpoints.
  */
 .aiya-fileserve__nav {
 	display: flex;

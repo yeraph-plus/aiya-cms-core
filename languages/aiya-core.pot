@@ -2,30 +2,30 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.114.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core-i18n\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.115.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/i18n-src\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T09:27:53+00:00\n"
+"POT-Creation-Date: 2026-10-07T01:34:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
 
 #. Plugin Name of the plugin
-#: aiya-core.php:3
+#: aiya-core.php
 msgid "AIYA CMS - Headless Core"
 msgstr ""
 
 #. Description of the plugin
-#: aiya-core.php:4
+#: aiya-core.php
 msgid "Headless-first administration and content framework for AIYA CMS."
 msgstr ""
 
 #. Author of the plugin
-#: aiya-core.php:8
+#: aiya-core.php
 msgid "Yeraph"
 msgstr ""
 
@@ -285,7 +285,7 @@ msgstr ""
 #: src/Admin/UiSamplePage.php:160
 #: src/Admin/UiSamplePage.php:285
 #: src/Admin/UiSamplePage.php:297
-#: src/Domain/Blocks/BlocksModule.php:191
+#: src/Domain/Blocks/BlocksModule.php:192
 #: src/Domain/Shortcodes/BuiltinShortcodes.php:118
 #: src/Domain/Shortcodes/BuiltinShortcodes.php:129
 msgid "Title"
@@ -312,14 +312,14 @@ msgid "Generation failed."
 msgstr ""
 
 #: src/Admin/CoverMetabox.php:112
-#: src/Admin/FileServeMetabox.php:294
+#: src/Admin/FileServeDialog.php:258
 #: src/Admin/SendMailPage.php:190
 #: src/Domain/Identity/AvatarModule.php:323
 msgid "Request failed."
 msgstr ""
 
 #: src/Admin/CoverMetabox.php:126
-#: src/Admin/FileServeMetabox.php:320
+#: src/Admin/FileServeDialog.php:285
 msgid "You are not allowed to edit this post."
 msgstr ""
 
@@ -751,8 +751,8 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:295
 #: src/Admin/DiscussionModerationPage.php:421
 #: src/Admin/PartsDialog.php:91
-#: src/Admin/PostTypeSwitchBulkAction.php:83
-#: src/Admin/TermMoveBulkAction.php:77
+#: src/Admin/PostTypeSwitchBulkAction.php:123
+#: src/Admin/TermMoveBulkAction.php:133
 #: src/Admin/Ui.php:750
 #: src/Admin/UiSamplePage.php:303
 msgid "Cancel"
@@ -806,7 +806,7 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:678
 #: src/Admin/DiscussionModerationPage.php:701
-#: src/Admin/FileServeMetabox.php:288
+#: src/Admin/FileServeDialog.php:252
 #: src/Domain/Membership/MembershipModule.php:121
 msgid "Name"
 msgstr ""
@@ -901,92 +901,92 @@ msgstr ""
 msgid "Confirm delete?"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:64
-#: src/Admin/FileServeMetabox.php:279
+#: src/Admin/FileServeDialog.php:73
+#: src/Admin/FileServeDialog.php:243
 msgid "File downloads"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:86
+#: src/Admin/FileServeDialog.php:92
 msgid "Each data group becomes its own list on the front end. Readers see the file names and what a download costs; the link itself is handed over when they claim it."
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:91
+#: src/Admin/FileServeDialog.php:98
 msgid "Add a data group"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:98
+#: src/Admin/FileServeDialog.php:105
 msgid "Add data group"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:105
+#: src/Admin/FileServeDialog.php:112
 msgid "Save configuration"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:108
+#: src/Admin/FileServeDialog.php:115
 msgid "Preview file lists"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:139
+#: src/Admin/FileServeDialog.php:147
 msgid "File configuration saved."
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:171
+#: src/Admin/FileServeDialog.php:179
 msgid "Lists refreshed from their sources."
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:220
-msgid "The file configuration was not saved."
-msgstr ""
-
-#: src/Admin/FileServeMetabox.php:280
+#: src/Admin/FileServeDialog.php:244
 msgid "Data group"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:281
+#: src/Admin/FileServeDialog.php:245
 msgid "Remove this group"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:282
+#: src/Admin/FileServeDialog.php:246
 msgid "Remove this data group? Its settings are dropped when you save."
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:283
+#: src/Admin/FileServeDialog.php:247
 msgid "This group has nothing configured yet."
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:284
+#: src/Admin/FileServeDialog.php:248
 msgid "No list has anything to show yet."
 msgstr ""
 
 #. translators: %d: credits charged for one file.
-#: src/Admin/FileServeMetabox.php:286
+#: src/Admin/FileServeDialog.php:250
 #, php-format
 msgid "%d credits per file"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:287
+#: src/Admin/FileServeDialog.php:251
 msgid "Free"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:289
+#: src/Admin/FileServeDialog.php:253
 msgid "Type"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:290
+#: src/Admin/FileServeDialog.php:254
 msgid "Size"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:291
+#: src/Admin/FileServeDialog.php:255
 #: src/Admin/PicBedPage.php:262
 msgid "Preview"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:292
+#: src/Admin/FileServeDialog.php:256
 msgid "Saving…"
 msgstr ""
 
-#: src/Admin/FileServeMetabox.php:293
+#: src/Admin/FileServeDialog.php:257
 msgid "Reading the sources…"
+msgstr ""
+
+#: src/Admin/FileServeDialog.php:259
+msgid "Close without saving? Unsaved changes to the file configuration are lost."
 msgstr ""
 
 #: src/Admin/IconsPage.php:18
@@ -1418,7 +1418,7 @@ msgstr ""
 #: src/Admin/PicBedPage.php:111
 #: src/Admin/PicBedPage.php:263
 #: src/Admin/SamplePage.php:245
-#: src/Domain/Blocks/BlocksModule.php:118
+#: src/Domain/Blocks/BlocksModule.php:119
 #: src/Domain/Shortcodes/BuiltinShortcodes.php:153
 msgid "URL"
 msgstr ""
@@ -1486,46 +1486,43 @@ msgstr ""
 msgid "Switch post type…"
 msgstr ""
 
-#: src/Admin/PostTypeSwitchBulkAction.php:70
-#: src/Admin/PostTypeSwitchBulkAction.php:109
-#: src/Domain/Blocks/BlocksModule.php:206
-#: src/Domain/Content/ContentManagementModule.php:110
-msgid "Posts"
-msgstr ""
-
-#: src/Admin/PostTypeSwitchBulkAction.php:71
-#: src/Admin/PostTypeSwitchBulkAction.php:110
-#: src/Domain/Content/ContentManagementModule.php:111
-msgid "Pages"
-msgstr ""
-
-#: src/Admin/PostTypeSwitchBulkAction.php:72
-#: src/Admin/PostTypeSwitchBulkAction.php:111
-#: src/Domain/Blocks/BlocksModule.php:207
-#: src/Domain/Content/ContentManagementModule.php:112
-msgid "Resources"
-msgstr ""
-
-#: src/Admin/PostTypeSwitchBulkAction.php:81
-msgid "Switch post type"
-msgstr ""
-
-#: src/Admin/PostTypeSwitchBulkAction.php:82
-#: src/Admin/TermMoveBulkAction.php:76
-msgid "Move"
-msgstr ""
-
 #. translators: %d: number of selected items
-#: src/Admin/PostTypeSwitchBulkAction.php:87
-#: src/Admin/PostTypeSwitchBulkAction.php:89
+#: src/Admin/PostTypeSwitchBulkAction.php:80
+#: src/Admin/PostTypeSwitchBulkAction.php:82
 #, php-format
 msgid "Move %d selected item to:"
 msgid_plural "Move %d selected items to:"
 msgstr[0] ""
 msgstr[1] ""
 
+#: src/Admin/PostTypeSwitchBulkAction.php:101
+#: src/Domain/Blocks/BlocksModule.php:207
+#: src/Domain/Content/ContentManagementModule.php:101
+msgid "Posts"
+msgstr ""
+
+#: src/Admin/PostTypeSwitchBulkAction.php:102
+#: src/Domain/Content/ContentManagementModule.php:102
+msgid "Pages"
+msgstr ""
+
+#: src/Admin/PostTypeSwitchBulkAction.php:103
+#: src/Domain/Blocks/BlocksModule.php:208
+#: src/Domain/Content/ContentManagementModule.php:103
+msgid "Resources"
+msgstr ""
+
+#: src/Admin/PostTypeSwitchBulkAction.php:107
+msgid "Switch post type"
+msgstr ""
+
+#: src/Admin/PostTypeSwitchBulkAction.php:124
+#: src/Admin/TermMoveBulkAction.php:134
+msgid "Move"
+msgstr ""
+
 #. translators: %d: switched item count.
-#: src/Admin/PostTypeSwitchBulkAction.php:166
+#: src/Admin/PostTypeSwitchBulkAction.php:161
 #, php-format
 msgid "%d item switched to the new post type."
 msgid_plural "%d items switched to the new post type."
@@ -1533,14 +1530,14 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: skipped item count.
-#: src/Admin/PostTypeSwitchBulkAction.php:168
+#: src/Admin/PostTypeSwitchBulkAction.php:163
 #, php-format
 msgid "%d item skipped (unchanged or not permitted)."
 msgid_plural "%d items skipped (unchanged or not permitted)."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/PostTypeSwitchBulkAction.php:169
+#: src/Admin/PostTypeSwitchBulkAction.php:164
 msgid "Nothing was switched."
 msgstr ""
 
@@ -1814,7 +1811,7 @@ msgid "Backbone manages item creation; jQuery UI provides drag sorting."
 msgstr ""
 
 #: src/Admin/SamplePage.php:239
-#: src/Domain/Blocks/BlocksModule.php:111
+#: src/Domain/Blocks/BlocksModule.php:112
 msgid "Label"
 msgstr ""
 
@@ -2251,59 +2248,59 @@ msgstr ""
 msgid "Move to another taxonomy…"
 msgstr ""
 
-#: src/Admin/TermMoveBulkAction.php:75
-msgid "Move to another taxonomy"
-msgstr ""
-
 #. translators: %d: number of selected terms
-#: src/Admin/TermMoveBulkAction.php:79
-#: src/Admin/TermMoveBulkAction.php:81
+#: src/Admin/TermMoveBulkAction.php:78
+#: src/Admin/TermMoveBulkAction.php:80
 #, php-format
 msgid "Move %d selected term to:"
 msgid_plural "Move %d selected terms to:"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/TermMoveBulkAction.php:99
+#: src/Admin/TermMoveBulkAction.php:97
 msgid "Post categories"
 msgstr ""
 
-#: src/Admin/TermMoveBulkAction.php:100
+#: src/Admin/TermMoveBulkAction.php:98
 msgid "Post tags"
 msgstr ""
 
-#: src/Admin/TermMoveBulkAction.php:101
+#: src/Admin/TermMoveBulkAction.php:99
 #: src/Domain/Content/ContentTypeModule.php:34
 msgid "Page categories"
 msgstr ""
 
-#: src/Admin/TermMoveBulkAction.php:102
+#: src/Admin/TermMoveBulkAction.php:100
 #: src/Domain/Content/ContentTypeModule.php:53
 msgid "Resource categories"
 msgstr ""
 
-#: src/Admin/TermMoveBulkAction.php:103
+#: src/Admin/TermMoveBulkAction.php:101
 msgid "Resource tags — original work"
 msgstr ""
 
-#: src/Admin/TermMoveBulkAction.php:104
+#: src/Admin/TermMoveBulkAction.php:102
 msgid "Resource tags — characters"
 msgstr ""
 
-#: src/Admin/TermMoveBulkAction.php:105
+#: src/Admin/TermMoveBulkAction.php:103
 msgid "Resource tags — authors"
 msgstr ""
 
-#: src/Admin/TermMoveBulkAction.php:106
+#: src/Admin/TermMoveBulkAction.php:104
 msgid "Resource tags — content description"
 msgstr ""
 
-#: src/Admin/TermMoveBulkAction.php:107
+#: src/Admin/TermMoveBulkAction.php:105
 msgid "Resource tags — other"
 msgstr ""
 
+#: src/Admin/TermMoveBulkAction.php:120
+msgid "Move to another taxonomy"
+msgstr ""
+
 #. translators: %d: moved term count.
-#: src/Admin/TermMoveBulkAction.php:172
+#: src/Admin/TermMoveBulkAction.php:175
 #, php-format
 msgid "%d term moved to the new taxonomy."
 msgid_plural "%d terms moved to the new taxonomy."
@@ -2311,14 +2308,14 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: skipped term count.
-#: src/Admin/TermMoveBulkAction.php:174
+#: src/Admin/TermMoveBulkAction.php:177
 #, php-format
 msgid "%d term skipped (unchanged or not permitted)."
 msgid_plural "%d terms skipped (unchanged or not permitted)."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/TermMoveBulkAction.php:175
+#: src/Admin/TermMoveBulkAction.php:178
 msgid "Nothing was moved."
 msgstr ""
 
@@ -2805,174 +2802,174 @@ msgstr ""
 msgid "No avatar image was uploaded."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:42
+#: src/Domain/Blocks/BlocksModule.php:43
 msgid "Page blocks"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:48
+#: src/Domain/Blocks/BlocksModule.php:49
 msgid "Home sections"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:49
+#: src/Domain/Blocks/BlocksModule.php:50
 msgid "Query templates for the front page, in listed order: a heading row (icon + title, \"more\" link at the right) over a list of posts. The front end resolves each section against its public list reads; rows without a title are skipped."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:56
+#: src/Domain/Blocks/BlocksModule.php:57
 msgid "Primary menu"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:57
+#: src/Domain/Blocks/BlocksModule.php:58
 msgid "The main navigation of the front-end shell (site header). Internal targets are front-end paths (/posts/), external ones absolute https URLs."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:71
+#: src/Domain/Blocks/BlocksModule.php:72
 msgid "Secondary menu"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:72
+#: src/Domain/Blocks/BlocksModule.php:73
 msgid "The auxiliary navigation of the front-end shell (footer, legal links). Same rules as the primary menu."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:82
+#: src/Domain/Blocks/BlocksModule.php:83
 msgid "Page-top advertisements"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:83
+#: src/Domain/Blocks/BlocksModule.php:84
 msgid "Ad slots rendered at the top of front-end pages, in listed order."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:90
+#: src/Domain/Blocks/BlocksModule.php:91
 msgid "Page-bottom advertisements"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:91
+#: src/Domain/Blocks/BlocksModule.php:92
 msgid "Ad slots rendered at the bottom of front-end pages, in listed order."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:119
+#: src/Domain/Blocks/BlocksModule.php:120
 msgid "Front-end path (/posts/) or external URL; empty falls back to the home path."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:126
-#: src/Domain/Blocks/BlocksModule.php:197
+#: src/Domain/Blocks/BlocksModule.php:127
+#: src/Domain/Blocks/BlocksModule.php:198
 #: src/Domain/Content/FrontendModule.php:245
 #: src/Domain/Content/TermExtrasModule.php:59
 msgid "Icon"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:127
+#: src/Domain/Blocks/BlocksModule.php:128
 msgid "Optional Lucide icon name for the sidebar (e.g. \"home\", \"image\", \"file-text\")."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:133
+#: src/Domain/Blocks/BlocksModule.php:134
 msgid "Open in"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:136
+#: src/Domain/Blocks/BlocksModule.php:137
 msgid "Same window"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:137
+#: src/Domain/Blocks/BlocksModule.php:138
 msgid "New window"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:158
+#: src/Domain/Blocks/BlocksModule.php:159
 #: src/Domain/Content/FrontendModule.php:239
 msgid "Link"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:159
+#: src/Domain/Blocks/BlocksModule.php:160
 msgid "Front-end path or external URL; empty renders the banner without a link."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:164
+#: src/Domain/Blocks/BlocksModule.php:165
 msgid "Link text"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:165
+#: src/Domain/Blocks/BlocksModule.php:166
 msgid "Also used as the banner image alt text."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:170
+#: src/Domain/Blocks/BlocksModule.php:171
 msgid "Ad image"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:171
+#: src/Domain/Blocks/BlocksModule.php:172
 msgid "The banner artwork from the media library."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:198
+#: src/Domain/Blocks/BlocksModule.php:199
 msgid "Optional Lucide icon name beside the title (e.g. \"newspaper\", \"flame\", \"star\")."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:203
+#: src/Domain/Blocks/BlocksModule.php:204
 msgid "Content type"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:213
+#: src/Domain/Blocks/BlocksModule.php:214
 msgid "Categories"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:214
+#: src/Domain/Blocks/BlocksModule.php:215
 msgid "Nothing checked shows every category of the type; the listed vocabularies cover posts and resources alike."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:225
+#: src/Domain/Blocks/BlocksModule.php:226
 msgid "Post count"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:226
+#: src/Domain/Blocks/BlocksModule.php:227
 msgid "How many posts the section lists (1-100)."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:235
+#: src/Domain/Blocks/BlocksModule.php:236
 msgid "\"More\" link"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:236
+#: src/Domain/Blocks/BlocksModule.php:237
 msgid "Optional override for the heading row's link; empty derives the type's own archive path (with the chosen categories)."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:70
+#: src/Domain/Content/ContentManagementModule.php:61
 msgid "Retention policy"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:76
+#: src/Domain/Content/ContentManagementModule.php:67
 msgid "Notification retention (days)"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:77
+#: src/Domain/Content/ContentManagementModule.php:68
 msgid "A daily cleanup removes stored notifications older than this many days."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:85
+#: src/Domain/Content/ContentManagementModule.php:76
 msgid "Ledger retention (days)"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:86
+#: src/Domain/Content/ContentManagementModule.php:77
 msgid "How long closed credit history (spent rows, emptied buckets) is kept before the daily cleanup removes it. Live unexpired buckets are never touched."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:94
+#: src/Domain/Content/ContentManagementModule.php:85
 msgid "NSFW filter"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:101
+#: src/Domain/Content/ContentManagementModule.php:92
 msgid "Terms picked here count as NSFW: the front end asks for them to be dropped from listings (any matching category excludes the post). Untouched by default — detail pages and direct archive visits stay reachable, and a signed-in user with \"always show NSFW content\" ignores the filter."
 msgstr ""
 
 #. translators: %s: content type label (e.g. Posts).
-#: src/Domain/Content/ContentManagementModule.php:129
+#: src/Domain/Content/ContentManagementModule.php:120
 #, php-format
 msgid "NSFW terms — %s"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:130
+#: src/Domain/Content/ContentManagementModule.php:121
 msgid "Every picked term is treated as NSFW content for this type; posts carrying any of them drop out of requested listings."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:141
-#: src/Domain/Content/ContentManagementModule.php:142
+#: src/Domain/Content/ContentManagementModule.php:132
+#: src/Domain/Content/ContentManagementModule.php:133
 msgid "Backend"
 msgstr ""
 
@@ -4043,25 +4040,25 @@ msgstr ""
 msgid "The image URL could not be resolved."
 msgstr ""
 
-#: src/Domain/Membership/EntitlementService.php:74
+#: src/Domain/Membership/EntitlementService.php:77
 msgid "The membership holder does not exist."
 msgstr ""
 
-#: src/Domain/Membership/EntitlementService.php:77
+#: src/Domain/Membership/EntitlementService.php:80
 #: src/Domain/Payment/OrderService.php:86
 #: src/Domain/Payment/OrderService.php:138
 msgid "The order id is required."
 msgstr ""
 
-#: src/Domain/Membership/EntitlementService.php:85
+#: src/Domain/Membership/EntitlementService.php:88
 msgid "The membership is being updated — try again."
 msgstr ""
 
-#: src/Domain/Membership/EntitlementService.php:122
+#: src/Domain/Membership/EntitlementService.php:125
 msgid "This order was already activated."
 msgstr ""
 
-#: src/Domain/Membership/EntitlementService.php:125
+#: src/Domain/Membership/EntitlementService.php:128
 msgid "The membership could not be stored."
 msgstr ""
 

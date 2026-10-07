@@ -1,11 +1,13 @@
 /**
- * File configuration metabox (Admin/FileServeMetabox): builds the two layers
- * from the bootstrap data — one tab per data group to fill in, one preview
- * read back through the same service the front end uses.
+ * File configuration dialog (Admin/FileServeDialog, 0.115.0 — the editor
+ * metabox's wpdialogs successor beside the parts/smilies inserters): builds
+ * the two layers from the bootstrap data — one tab per data group to fill
+ * in, one preview read back through the same service the front end uses.
  *
- * The panels are the editor's view; the storage is the hidden JSON field,
- * which this keeps in step on every change so a plain Publish/Update carries
- * the same value the buttons do. Data reaches the DOM through textContent and
+ * The AJAX save is the only write path (the metabox-era hidden field and
+ * save_post fallback are gone), so closing is guarded: the dialog refuses
+ * to close over a configuration that differs from the last stored one
+ * unless the editor confirms. Data reaches the DOM through textContent and
  * createElement only.
  */
 ( function ( $ ) {
@@ -27,7 +29,7 @@
 		return;
 	}
 
-	var hidden = document.getElementById( boot.inputId );
+	var $dialog = $( '#aiya-fileserve' );
 	var tabs = document.getElementById( 'aiya-fileserve-tabs' );
 	var panels = document.getElementById( 'aiya-fileserve-panels' );
 	var status = document.getElementById( 'aiya-fileserve-status' );
@@ -36,7 +38,7 @@
 	var addButton = document.getElementById( 'aiya-fileserve-add-confirm' );
 	var saveButton = document.getElementById( 'aiya-fileserve-save' );
 	var previewButton = document.getElementById( 'aiya-fileserve-preview' );
-	if ( ! hidden || ! tabs || ! panels ) {
+	if ( ! $dialog.length || ! tabs || ! panels ) {
 		return;
 	}
 
@@ -61,7 +63,10 @@
 	var state = {
 		config: normalizeConfig( boot.config ),
 		nextId: String( boot.nextId || '1' ),
-		active: null
+		active: null,
+		// The configuration as last stored: the close guard compares the
+		// live panels against this, so nothing can be lost unseen.
+		stored: JSON.stringify( normalizeConfig( boot.config ) )
 	};
 
 	function defaultsFor( adapter ) {
@@ -95,7 +100,6 @@
 			var field = input.getAttribute( 'data-field' );
 			state.config[ id ][ field ] = input.type === 'number' ? Number( input.value || 0 ) : input.value;
 		} );
-		hidden.value = JSON.stringify( state.config );
 	}
 
 	function control( id, field ) {
@@ -221,8 +225,6 @@
 			empty.textContent = boot.strings.empty;
 			panels.appendChild( empty );
 		}
-
-		hidden.value = JSON.stringify( state.config );
 	}
 
 	function sizeText( bytes ) {
@@ -303,14 +305,12 @@
 
 	function send( action, done ) {
 		collect();
-		// The configuration travels under the same field name the server reads
-		// for the classic save, so both paths post one shape.
 		var payload = {
 			action: action,
 			nonce: boot.nonce,
 			post_id: boot.postId
 		};
-		payload[ boot.inputId ] = JSON.stringify( state.config );
+		payload[ boot.field ] = JSON.stringify( state.config );
 		$.post( ajaxurl, payload )
 			.done( function ( res ) {
 				if ( ! res || ! res.success ) {
@@ -346,6 +346,7 @@
 				state.config = normalizeConfig( data.config || state.config );
 				state.nextId = String( data.nextId || state.nextId );
 				render();
+				state.stored = JSON.stringify( state.config );
 				status.textContent = data.message || '';
 			} );
 		} );
@@ -360,6 +361,31 @@
 			} );
 		} );
 	}
+
+	// The wpdialogs shell (the same family the parts and smilies dialogs
+	// wear): every close path — X, ESC, a future programmatic one — funnels
+	// through beforeClose, so the guard cannot be bypassed.
+	function closeGuard() {
+		collect();
+		if ( JSON.stringify( state.config ) === state.stored ) {
+			return true;
+		}
+		return window.confirm( boot.strings.confirmUnsaved );
+	}
+
+	$dialog.wpdialog( {
+		title: boot.strings.title,
+		dialogClass: 'wp-dialog aiya-fileserve-dialog',
+		autoOpen: false,
+		modal: true,
+		width: 760,
+		closeOnEscape: true,
+		beforeClose: closeGuard
+	} );
+
+	$( document ).on( 'click', '.aiya-fileserve-open', function () {
+		$dialog.wpdialog( 'open' );
+	} );
 
 	render();
 } )( jQuery );

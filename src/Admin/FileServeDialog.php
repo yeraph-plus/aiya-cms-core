@@ -14,30 +14,34 @@ use WP_Post;
 use WP_Screen;
 
 /**
- * The file configuration metabox: one screen with two layers, both AJAX —
- * a tab per data group for filling it in, and a preview that reads the list
- * back through the same service and projection the front end uses.
+ * The file configuration dialog (0.115.0, replacing the editor metabox):
+ * one wpdialogs workbench beside the template-parts and smilies inserters —
+ * a toolbar button opens it, the same shell family the other two editor
+ * dialogs wear. Two layers, both AJAX: a tab per data group for filling it
+ * in, and a preview that reads the list back through the same service and
+ * projection the front end uses.
  *
  * The stored value is one JSON string; the editor's view of it is built by
  * the script from the bootstrap below, so the panel markup, the field
  * rendering and the picker all come from the adapters' own field tables —
- * adding a backend changes nothing here. The hidden field is rendered
- * server-side, so a save without scripting keeps the configuration exactly as
- * it was rather than emptying it.
+ * adding a backend changes nothing here. The AJAX save is the ONLY write
+ * path: the metabox-era hidden field and save_post fallback are gone
+ * (outside a metabox there is no form field to carry the value, and a
+ * fallback reading an absent one would wipe the configuration on every
+ * Publish), so the dialog's close guard — the script's unsaved-changes
+ * confirm — is what stands between an edit and losing it.
  *
- * The cover box's pattern, one notch richer: bespoke markup, its own assets,
- * `wp_ajax_` endpoints with a nonce and an edit_post check, and a save_post
- * fallback so a normal Publish/Update never loses an edit.
+ * The cover box's pattern, one notch richer: bespoke markup, its own
+ * assets, `wp_ajax_` endpoints with a nonce and an edit_post check.
  */
-final class FileServeMetabox implements Module
+final class FileServeDialog implements Module
 {
-    private const BOX_ID = 'aiya-core-fileserve';
+    private const DIALOG_ID = 'aiya-fileserve';
     private const NONCE_ACTION = 'aiya_core_fileserve';
-    /** The posted field carrying the whole configuration as JSON. */
+    /** The AJAX field carrying the whole configuration as JSON. */
     public const FIELD = 'aiya_core_fileserve_config';
     private const AJAX_SAVE = 'aiya_core_fileserve_save';
     private const AJAX_PREVIEW = 'aiya_core_fileserve_preview';
-    private const ERROR_TRANSIENT = 'aiya_core_fileserve_save_errors_';
 
     public function __construct(
         private AdapterRegistry $adapters,
@@ -48,68 +52,72 @@ final class FileServeMetabox implements Module
 
     public function register(): void
     {
-        add_action('add_meta_boxes', [$this, 'addMetaBox'], 10, 0);
+        add_action('media_buttons', [$this, 'toolbarButton'], 40);
+        add_action('admin_footer', [$this, 'dialogMarkup']);
         add_action('wp_ajax_' . self::AJAX_SAVE, [$this, 'handleSave']);
         add_action('wp_ajax_' . self::AJAX_PREVIEW, [$this, 'handlePreview']);
-        add_action('save_post', [$this, 'saveFromPost'], 10, 2);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
-        add_action('admin_notices', [$this, 'renderSaveErrors']);
     }
 
-    public function addMetaBox(): void
+    /** The classic toolbar position, below the smilies inserter, on the box's screens only. */
+    public function toolbarButton(string $editorId = 'content'): void
     {
-        foreach (PostTypes::all() as $postType) {
-            add_meta_box(
-                self::BOX_ID,
-                __('File downloads', 'aiya-core'),
-                [$this, 'render'],
-                $postType,
-                'normal',
-                'default'
-            );
+        $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+        if ($screen === null || $screen->base !== 'post' || !PostTypes::supports((string) $screen->post_type)) {
+            return;
         }
-    }
-
-    public function render(WP_Post $post): void
-    {
-        $config = Config::read((int) $post->ID, $this->adapters);
-        wp_nonce_field(self::NONCE_ACTION, self::NONCE_ACTION . '_nonce');
 
         printf(
-            '<input type="hidden" id="%1$s" name="%1$s" value="%2$s" />',
-            esc_attr(self::FIELD),
-            esc_attr(Config::encode($config))
+            '<button type="button" class="button aiya-fileserve-open" data-editor="%s"><span class="dashicons dashicons-download" aria-hidden="true"></span> %s</button>',
+            esc_attr($editorId),
+            esc_html__('File downloads', 'aiya-core')
         );
+    }
+
+    /** The hidden dialog shell with its bootstrap; the panels build at page load. */
+    public function dialogMarkup(): void
+    {
+        global $pagenow, $post;
+        if ($pagenow !== 'post.php' && $pagenow !== 'post-new.php') {
+            return;
+        }
+        if (!$post instanceof WP_Post || !PostTypes::supports((string) $post->post_type)) {
+            return;
+        }
+
+        $config = Config::read((int) $post->ID, $this->adapters);
         ?>
-        <div class="aiya-fileserve" id="aiya-fileserve">
+        <div id="<?php echo esc_attr(self::DIALOG_ID); ?>" class="hidden">
             <p class="description">
                 <?php esc_html_e('Each data group becomes its own list on the front end. Readers see the file names and what a download costs; the link itself is handed over when they claim it.', 'aiya-core'); ?>
             </p>
-            <div class="aiya-fileserve__nav">
-                <ul id="aiya-fileserve-tabs" role="tablist"></ul>
-                <p class="aiya-fileserve__add">
-                    <label class="screen-reader-text" for="aiya-fileserve-add"><?php esc_html_e('Add a data group', 'aiya-core'); ?></label>
-                    <select id="aiya-fileserve-add">
-                        <?php foreach ($this->adapters->all() as $adapter) : ?>
-                            <option value="<?php echo esc_attr($adapter->id()); ?>"><?php echo esc_html($adapter->label()); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button type="button" class="button" id="aiya-fileserve-add-confirm">
-                        <?php esc_html_e('Add data group', 'aiya-core'); ?>
+            <div class="aiya-fileserve">
+                <div class="aiya-fileserve__nav">
+                    <ul id="aiya-fileserve-tabs" role="tablist"></ul>
+                    <p class="aiya-fileserve__add">
+                        <label class="screen-reader-text" for="aiya-fileserve-add"><?php esc_html_e('Add a data group', 'aiya-core'); ?></label>
+                        <select id="aiya-fileserve-add">
+                            <?php foreach ($this->adapters->all() as $adapter) : ?>
+                                <option value="<?php echo esc_attr($adapter->id()); ?>"><?php echo esc_html($adapter->label()); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="button" class="button" id="aiya-fileserve-add-confirm">
+                            <?php esc_html_e('Add data group', 'aiya-core'); ?>
+                        </button>
+                    </p>
+                </div>
+                <div class="aiya-fileserve__panels" id="aiya-fileserve-panels"></div>
+                <p class="aiya-fileserve__actions">
+                    <button type="button" class="button button-primary" id="aiya-fileserve-save">
+                        <?php esc_html_e('Save configuration', 'aiya-core'); ?>
                     </button>
+                    <button type="button" class="button" id="aiya-fileserve-preview">
+                        <?php esc_html_e('Preview file lists', 'aiya-core'); ?>
+                    </button>
+                    <span class="description" id="aiya-fileserve-status" role="status" aria-live="polite"></span>
                 </p>
+                <div class="aiya-fileserve__preview" id="aiya-fileserve-preview-box"></div>
             </div>
-            <div class="aiya-fileserve__panels" id="aiya-fileserve-panels"></div>
-            <p class="aiya-fileserve__actions">
-                <button type="button" class="button button-primary" id="aiya-fileserve-save">
-                    <?php esc_html_e('Save configuration', 'aiya-core'); ?>
-                </button>
-                <button type="button" class="button" id="aiya-fileserve-preview">
-                    <?php esc_html_e('Preview file lists', 'aiya-core'); ?>
-                </button>
-                <span class="description" id="aiya-fileserve-status" role="status" aria-live="polite"></span>
-            </p>
-            <div class="aiya-fileserve__preview" id="aiya-fileserve-preview-box"></div>
         </div>
         <script id="aiya-fileserve-bootstrap" type="application/json">
             <?php
@@ -173,57 +181,6 @@ final class FileServeMetabox implements Module
         ]);
     }
 
-    /**
-     * The classic save path: the script keeps the hidden field in step with the
-     * panels, so a Publish/Update that never touched the buttons still stores
-     * what the editor sees. A configuration that could not be read stores
-     * nothing and says so — a partially parsed save would drop groups quietly.
-     */
-    public function saveFromPost(int $postId, mixed $post): void
-    {
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            return;
-        }
-        if (wp_is_post_revision($postId) || wp_is_post_autosave($postId) || !current_user_can('edit_post', $postId)) {
-            return;
-        }
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- the read below is the verification.
-        $nonce = isset($_POST[self::NONCE_ACTION . '_nonce']) ? (string) $_POST[self::NONCE_ACTION . '_nonce'] : '';
-        if ($nonce === '' || !wp_verify_nonce($nonce, self::NONCE_ACTION)) {
-            return;
-        }
-
-        $parsed = Config::parse($this->submitted(), $this->adapters);
-        if ($parsed['errors'] !== []) {
-            set_transient(
-                self::ERROR_TRANSIENT . get_current_user_id(),
-                $parsed['errors'],
-                2 * MINUTE_IN_SECONDS
-            );
-
-            return;
-        }
-
-        $this->store($postId, $parsed['config']);
-    }
-
-    /** Surfaces a refused save where the framework's own boxes do, after the redirect. */
-    public function renderSaveErrors(): void
-    {
-        $errors = get_transient(self::ERROR_TRANSIENT . get_current_user_id());
-        if (!is_array($errors) || $errors === []) {
-            return;
-        }
-        delete_transient(self::ERROR_TRANSIENT . get_current_user_id());
-
-        echo '<div class="notice notice-error is-dismissible"><p><strong>'
-            . esc_html__('The file configuration was not saved.', 'aiya-core') . '</strong></p><ul style="list-style:disc;margin-left:20px;">';
-        foreach (array_slice($errors, 0, 5) as $error) {
-            echo '<li>' . esc_html((string) $error) . '</li>';
-        }
-        echo '</ul></div>';
-    }
-
     /** Enqueues the box's assets on the screens it is declared for. */
     public function assets(string $hook): void
     {
@@ -232,7 +189,7 @@ final class FileServeMetabox implements Module
         }
 
         $screen = get_current_screen();
-        if (!$screen instanceof WP_Screen || !in_array((string) $screen->post_type, PostTypes::all(), true)) {
+        if (!$screen instanceof WP_Screen || !PostTypes::supports((string) $screen->post_type)) {
             return;
         }
 
@@ -242,9 +199,14 @@ final class FileServeMetabox implements Module
             $version .= $mtime > 0 ? '.' . $mtime : '';
         }
 
-        wp_enqueue_style('aiya-core-admin', AIYA_CORE_URL . 'assets/css/admin.css', ['common', 'forms', 'buttons', 'dashicons'], $version);
-        wp_enqueue_style('aiya-fileserve', AIYA_CORE_URL . 'assets/css/fileserve.css', ['aiya-core-admin'], $version);
-        wp_enqueue_script('aiya-fileserve', AIYA_CORE_URL . 'assets/js/fileserve.js', ['jquery'], $version, true);
+        // The dialog shell is the wpdialogs family (the same wrapper the
+        // template-parts and smilies dialogs open through); fileserve.js
+        // binds the workbench onto it. aiya-core-admin carries the kit
+        // classes the panels reuse (the adapter badge).
+        wp_enqueue_script('wpdialogs');
+        wp_enqueue_style('wp-jquery-ui-dialog');
+        wp_enqueue_style('aiya-fileserve', AIYA_CORE_URL . 'assets/css/fileserve.css', ['wp-jquery-ui-dialog', 'aiya-core-admin'], $version);
+        wp_enqueue_script('aiya-fileserve', AIYA_CORE_URL . 'assets/js/fileserve.js', ['jquery', 'wpdialogs'], $version, true);
     }
 
     /**
@@ -268,7 +230,9 @@ final class FileServeMetabox implements Module
 
         return [
             'postId' => $postId,
-            'inputId' => self::FIELD,
+            // The AJAX field name the configuration travels under — the
+            // script never hardcodes it.
+            'field' => self::FIELD,
             'nextId' => Config::nextId($config),
             // An empty configuration must reach the script as an object, not a JSON array.
             'config' => (object) $config,
@@ -292,6 +256,7 @@ final class FileServeMetabox implements Module
                 'saving' => __('Saving…', 'aiya-core'),
                 'loading' => __('Reading the sources…', 'aiya-core'),
                 'requestFailed' => __('Request failed.', 'aiya-core'),
+                'confirmUnsaved' => __('Close without saving? Unsaved changes to the file configuration are lost.', 'aiya-core'),
             ],
         ];
     }

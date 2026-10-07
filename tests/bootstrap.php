@@ -2462,6 +2462,17 @@ if (!function_exists('__return_false')) {
 }
 
 if (!function_exists('__return_true')) {
+    /**
+     * The current admin screen, staged per test via
+     * $GLOBALS['__aiya_test_screen'] (null = no screen context).
+     */
+    function get_current_screen(): ?object
+    {
+        $screen = $GLOBALS['__aiya_test_screen'] ?? null;
+
+        return is_object($screen) ? $screen : null;
+    }
+
     function __return_true(): bool
     {
         return true;
