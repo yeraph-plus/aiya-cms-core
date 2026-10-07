@@ -110,6 +110,13 @@ final class TelegramModule implements Module
                     'default' => '/resources/{slug}/',
                 ],
                 [
+                    'id' => 'tg_push_template',
+                    'type' => 'textarea',
+                    'label' => __('Message template', 'aiya-core'),
+                    'description' => __('The push message body in Telegram HTML, with {title}, {link} and {excerpt} placeholders. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first.', 'aiya-core'),
+                    'default' => '<a href="{link}">{title}</a>' . "\n\n" . '{excerpt}',
+                ],
+                [
                     'id' => 'tg_heading_mirror',
                     'type' => 'heading',
                     'label' => __('Channel mirror', 'aiya-core'),

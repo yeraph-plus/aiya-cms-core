@@ -155,35 +155,65 @@ final class Pusher
     }
 
     /**
-     * The notice text: title link on the front-end domain, excerpt under
-     * it, HTML parse mode, clamped to the platform's 4096 characters (tags
-     * count — the excerpt yields first, the link line stays intact).
+     * The notice text: the message template (a settings field) with the
+     * {title}/{link}/{excerpt} placeholders filled — HTML parse mode,
+     * every substitution escaped (the markup the operator writes is the
+     * only markup), clamped to the platform's 4096 characters (tags
+     * count — the excerpt yields first, the rest of the template stays
+     * intact).
      */
     private function message(WP_Post $post): string
     {
-        $link = $this->titleLink($post);
-        $excerpt = $this->excerpt($post);
+        $template = TelegramSettings::pushTemplate();
+        $link = esc_url($this->frontUrl($post));
+        $titleRaw = $this->clamp(wp_strip_all_tags((string) $post->post_title), self::TITLE_CHARS);
+        $excerptRaw = $this->excerpt($post);
+        $title = esc_html($titleRaw);
+        $excerpt = esc_html($excerptRaw);
 
-        $text = $excerpt === '' ? $link : $link . "\n\n" . $excerpt;
-        if (mb_strlen($text) <= self::MAX_CHARS) {
-            return $text;
+        $built = str_replace(['{title}', '{link}', '{excerpt}'], [$title, $link, $excerpt], $template);
+        if (mb_strlen($built) <= self::MAX_CHARS) {
+            return $built;
         }
 
-        $budget = self::MAX_CHARS - mb_strlen($link) - 2;
-        if ($budget >= 80) {
-            return $link . "\n\n" . $this->clamp($excerpt, $budget);
+        if (str_contains($template, '{excerpt}')) {
+            [$prefix, $suffix] = self::excerptSplit($template, $title, $link);
+            $budget = self::MAX_CHARS - mb_strlen($prefix) - mb_strlen($suffix);
+            if ($budget >= 80) {
+                $built = $prefix . esc_html($this->clamp($excerptRaw, $budget)) . $suffix;
+                if (mb_strlen($built) <= self::MAX_CHARS) {
+                    return $built;
+                }
+            }
         }
 
-        return $link; // A URL long enough to break this branch will not fit any layout; the send reports it.
+        // Last resort (an excerpt-less template that still overflows, or
+        // escaped entities pushing past the clamp): a hard character cut
+        // keeps the send within the platform limit.
+        return $this->clamp($built, self::MAX_CHARS);
     }
 
-    private function titleLink(WP_Post $post): string
+    /**
+     * The template split around the excerpt slot, the other placeholders
+     * already filled — the fixed cost the excerpt budget is computed from.
+     *
+     * @return array{0: string, 1: string}
+     */
+    private static function excerptSplit(string $template, string $title, string $link): array
     {
-        $title = $this->clamp(wp_strip_all_tags((string) $post->post_title), self::TITLE_CHARS);
-        $path = str_replace('{slug}', (string) $post->post_name, TelegramSettings::pushLinkTemplate());
-        $url = FrontendDomain::originOrHome() . $path;
+        $parts = explode('{excerpt}', $template, 2);
 
-        return sprintf('<a href="%s">%s</a>', esc_url($url), esc_html($title));
+        return [
+            str_replace(['{title}', '{link}'], [$title, $link], (string) ($parts[0] ?? '')),
+            str_replace(['{title}', '{link}'], [$title, $link], (string) ($parts[1] ?? '')),
+        ];
+    }
+
+    private function frontUrl(WP_Post $post): string
+    {
+        $path = str_replace('{slug}', (string) $post->post_name, TelegramSettings::pushLinkTemplate());
+
+        return FrontendDomain::originOrHome() . $path;
     }
 
     private function excerpt(WP_Post $post): string

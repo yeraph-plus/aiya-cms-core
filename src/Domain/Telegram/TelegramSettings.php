@@ -55,6 +55,17 @@ final class TelegramSettings
         return $template !== '' ? $template : '/resources/{slug}/';
     }
 
+    /**
+     * The push message body template: {title}, {link} and {excerpt}
+     * placeholders on the wire; empty restores the shipped two-line shape.
+     */
+    public static function pushTemplate(): string
+    {
+        $template = trim((string) aiya_core_opt(self::PAGE_SLUG, 'tg_push_template', ''));
+
+        return $template !== '' ? $template : '<a href="{link}">{title}</a>' . "\n\n" . '{excerpt}';
+    }
+
     public static function mirrorEnabled(): bool
     {
         return (bool) aiya_core_opt(self::PAGE_SLUG, 'tg_mirror_enabled', false);

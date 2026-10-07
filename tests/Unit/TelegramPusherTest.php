@@ -297,4 +297,60 @@ final class TelegramPusherTest extends TestCase
         self::assertStringStartsWith('<a href="https://aiya.test/resources/hello/">', $text, 'the link line survives untouched');
         self::assertStringEndsWith('…', $text, 'the cut excerpt carries the ellipsis');
     }
+
+    public function testACustomTemplateRearrangesWrapsAndEscapes(): void
+    {
+        $this->seedPost(['post_title' => 'Bears & "Bulls"']);
+        $this->configure(['tg_push_template' => "<b>{title}</b>\n{link}\n\n{excerpt}"]);
+        $this->stage(['ok' => true, 'result' => ['message_id' => 1]]);
+
+        $this->pusher->onPublished($GLOBALS['__aiya_test_posts'][5]);
+
+        self::assertSame(
+            "<b>Bears &amp; &quot;Bulls&quot;</b>\nhttps://aiya.test/resources/hello/\n\nfirst second",
+            $this->lastBody()['text'],
+            'the operator\'s markup is the only markup; substitutions arrive escaped'
+        );
+    }
+
+    public function testAnEmptyTemplateFallsBackToTheShippedShape(): void
+    {
+        $this->configure(['tg_push_template' => '']);
+        $this->stage(['ok' => true, 'result' => ['message_id' => 1]]);
+
+        $this->pusher->onPublished($GLOBALS['__aiya_test_posts'][5]);
+
+        self::assertSame(
+            '<a href="https://aiya.test/resources/hello/">Hello World</a>' . "\n\n" . 'first second',
+            $this->lastBody()['text'],
+            'an empty template is the shipped two-line shape'
+        );
+    }
+
+    public function testATemplateWithoutTheExcerptSlotDropsIt(): void
+    {
+        $this->seedPost(['post_content' => str_repeat('字', 1200)]);
+        $this->configure(['tg_push_template' => '<a href="{link}">{title}</a>']);
+        $this->stage(['ok' => true, 'result' => ['message_id' => 1]]);
+
+        $this->pusher->onPublished($GLOBALS['__aiya_test_posts'][5]);
+
+        $text = (string) $this->lastBody()['text'];
+        self::assertSame('<a href="https://aiya.test/resources/hello/">Hello World</a>', $text, 'no excerpt slot, no excerpt');
+        self::assertLessThanOrEqual(4096, mb_strlen($text));
+    }
+
+    public function testACustomTemplateWithALongExcerptKeepsItsShape(): void
+    {
+        $this->seedPost(['post_excerpt' => '', 'post_content' => str_repeat('字', 1200)]);
+        $this->configure(['tg_push_template' => "[{title}]({link}) =>\n{excerpt}\n— end"]);
+        $this->stage(['ok' => true, 'result' => ['message_id' => 1]]);
+
+        $this->pusher->onPublished($GLOBALS['__aiya_test_posts'][5]);
+
+        $text = (string) $this->lastBody()['text'];
+        self::assertLessThanOrEqual(4096, mb_strlen($text), 'the platform limit holds');
+        self::assertStringStartsWith('[Hello World](https://aiya.test/resources/hello/) =>', $text, 'the prefix survives the budget cut');
+        self::assertStringEndsWith('— end', $text, 'the suffix survives the budget cut');
+    }
 }
