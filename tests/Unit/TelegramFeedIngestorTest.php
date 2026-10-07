@@ -178,6 +178,66 @@ final class TelegramFeedIngestorTest extends TestCase
         self::assertSame([], $this->rows());
     }
 
+    public function testStylingEntitiesSurviveTheWhitelistIntoTheRow(): void
+    {
+        self::assertSame('stored', $this->ingestor->ingest(-100111, $this->channelPost([
+            'text' => 'plain words with a link',
+            'entities' => [
+                ['type' => 'bold', 'offset' => 0, 'length' => 5],
+                ['type' => 'italic', 'offset' => 6, 'length' => 5],
+                ['type' => 'spoiler', 'offset' => 12, 'length' => 4],
+                ['type' => 'text_link', 'offset' => 17, 'length' => 4, 'url' => 'https://a.test/x'],
+                ['type' => 'custom_emoji', 'offset' => 0, 'length' => 1, 'custom_emoji_id' => 'e1'],
+                ['type' => 'underline', 'offset' => 0, 'length' => 0, 'note' => 'zero length drops'],
+                ['type' => 'text_link', 'offset' => 17, 'length' => 4, 'url' => 'javascript:alert(1)'],
+            ],
+        ])));
+
+        $row = $this->rows()[0];
+        $entities = (array) json_decode((string) $row['entities'], true);
+        self::assertSame(
+            [['type' => 'bold', 'offset' => 0, 'length' => 5], ['type' => 'italic', 'offset' => 6, 'length' => 5], ['type' => 'spoiler', 'offset' => 12, 'length' => 4], ['type' => 'text_link', 'offset' => 17, 'length' => 4, 'url' => 'https://a.test/x']],
+            $entities,
+            'known spans ride verbatim, custom emoji and non-web links drop'
+        );
+    }
+
+    public function testCaptionEntitiesAreTheStylingSourceForMediaPosts(): void
+    {
+        $GLOBALS['__aiya_test_options']['telegram']['tg_bot_token'] = 'TOK';
+        $bytes = (string) base64_decode(self::JPEG_1X1, true);
+        $GLOBALS['__aiya_test_http_responder'] = static function (string $method, string $url) use ($bytes): array {
+            if (str_contains($url, '/getFile')) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- staged wire payload
+                return ['response' => ['code' => 200], 'body' => (string) json_encode(['ok' => true, 'result' => ['file_id' => 'IMG1', 'file_path' => 'photos/f.jpg']])];
+            }
+            return ['response' => ['code' => 200], 'body' => $bytes];
+        };
+
+        $this->ingestor->ingest(-100111, $this->channelPost([
+            'caption' => 'styled caption',
+            'photo' => [['file_id' => 'IMG1', 'width' => 10, 'height' => 10]],
+            'caption_entities' => [['type' => 'blockquote', 'offset' => 0, 'length' => 14]],
+        ]));
+
+        $entities = (array) json_decode((string) $this->rows()[0]['entities'], true);
+        self::assertSame([['type' => 'blockquote', 'offset' => 0, 'length' => 14]], $entities);
+    }
+
+    public function testAnEditRewritesTheEntitiesAlongsideTheText(): void
+    {
+        $this->ingestor->ingest(-100111, $this->channelPost());
+
+        $this->ingestor->ingest(-100111, $this->channelPost([
+            'text' => 'rewritten',
+            'entities' => [['type' => 'strikethrough', 'offset' => 0, 'length' => 9]],
+        ]), true);
+
+        $row = $this->rows()[0];
+        self::assertSame('rewritten', $row['text']);
+        self::assertSame([['type' => 'strikethrough', 'offset' => 0, 'length' => 9]], (array) json_decode((string) $row['entities'], true));
+    }
+
     /** @return list<array{method: string, url: string, args: array<string, mixed>}> */
     private function calls(): array
     {

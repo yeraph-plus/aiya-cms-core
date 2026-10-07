@@ -9,20 +9,25 @@ namespace Aiya\Core\Api\Contract;
  * Telegram channel posts mirrored into the web feed, 入库即显. `kind`
  * names the display shape — 'text', 'photo' (media carries the
  * transferred pool URLs), 'media' (video/files: `tgLink` is the only
- * access path). `text` is the sanitized plain text (entities are not
- * converted). An album arrives as several rows sharing `mediaGroupId`;
- * the front end groups consecutive ones. Rows are immutable from the
- * site side — the channel is the single source of truth.
+ * access path). `text` is the sanitized plain text; `entities` carries
+ * the styling spans ({type, offset, length, url}) — offsets are UTF-16
+ * code units into `text`, so a JS renderer slices natively; building the
+ * styled output is the front end's work. An album arrives as several
+ * rows sharing `mediaGroupId`; the front end groups consecutive ones.
+ * Rows are immutable from the site side — the channel is the single
+ * source of truth.
  */
 final class ChannelPost
 {
     /**
      * @param list<array{url: string, width: int, height: int}> $media
+     * @param list<array{type: string, offset: int, length: int, url?: string}> $entities
      */
     public function __construct(
         public readonly int $id,
         public readonly string $kind,
         public readonly string $text,
+        public readonly array $entities,
         public readonly array $media,
         public readonly string $tgLink,
         public readonly ?string $mediaGroupId,
@@ -37,6 +42,7 @@ final class ChannelPost
             'id' => $this->id,
             'kind' => $this->kind,
             'text' => $this->text,
+            'entities' => $this->entities,
             'media' => $this->media,
             'tgLink' => $this->tgLink,
             'mediaGroupId' => $this->mediaGroupId,

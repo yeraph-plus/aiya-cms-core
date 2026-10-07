@@ -28,7 +28,22 @@ class FeedIngestor
 {
     public const MIGRATION_VERSION = '1.1.0';
 
+    public const ENTITIES_MIGRATION_VERSION = '1.3.0';
+
     private const TABLE = 'aiya_channel_feed';
+
+    /**
+     * The entity types the mirror carries, mapped from the platform's
+     * message entities. Styling is the front end's business: the row
+     * stores the plain text plus these structured spans, never built
+     * HTML. Payload-less decoration types (url, mention, hashtag) ride
+     * their own names; custom_emoji and unknown types drop.
+     */
+    private const ENTITY_TYPES = [
+        'bold', 'italic', 'underline', 'strikethrough', 'spoiler',
+        'blockquote', 'code', 'pre', 'text_link', 'text_mention',
+        'url', 'mention', 'hashtag',
+    ];
 
     public const KIND_TEXT = 1;
 
@@ -72,6 +87,7 @@ class FeedIngestor
                 media_group_id VARCHAR(64) DEFAULT NULL,
                 kind TINYINT UNSIGNED NOT NULL DEFAULT 1,
                 text LONGTEXT NULL,
+                entities LONGTEXT NULL,
                 media LONGTEXT NULL,
                 tg_link VARCHAR(255) NOT NULL DEFAULT '',
                 posted_at DATETIME NOT NULL,
@@ -84,6 +100,27 @@ class FeedIngestor
 
         if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) !== $table) {
             throw new \RuntimeException(sprintf('Table %s was not created.', $table));
+        }
+    }
+
+    /**
+     * The 1.3.0 reconciliation: databases that ran the 1.1.0 installer
+     * before the entities column existed gain it here; fresh installs
+     * created it with the CREATE above and skip through the guard.
+     */
+    public static function addEntitiesColumn(): void
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $table = $wpdb->prefix . self::TABLE;
+        if ($wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $table, 'entities')) !== null) {
+            return;
+        }
+
+        $alter = $wpdb->prepare('ALTER TABLE %i ADD COLUMN entities LONGTEXT NULL AFTER text', $table);
+        if (is_string($alter)) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
+            $wpdb->query($alter);
         }
     }
 
@@ -113,9 +150,9 @@ class FeedIngestor
             // old one orphaned — a media swap is a registered later item.
             $wpdb->update(
                 $table,
-                ['text' => $this->text($post)],
+                ['text' => $this->text($post), 'entities' => $this->entitiesJson($post)],
                 ['source_chat_id' => $chatId, 'message_id' => $messageId],
-                ['%s'],
+                ['%s', '%s'],
                 ['%d', '%d']
             );
 
@@ -136,12 +173,13 @@ class FeedIngestor
                 'media_group_id' => $this->mediaGroupId($post),
                 'kind' => $this->kind($post),
                 'text' => $this->text($post),
+                'entities' => $this->entitiesJson($post),
                 'media' => $this->mediaJson($post, $chatId, $messageId),
                 'tg_link' => $this->tgLink($chatId, $post),
                 'posted_at' => gmdate('Y-m-d H:i:s', (int) ($post['date'] ?? time())),
                 'created_at' => current_time('mysql', true),
             ],
-            ['%d', '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s']
+            ['%d', '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s']
         );
 
         return 'stored';
@@ -256,6 +294,53 @@ class FeedIngestor
         ];
 
         return (string) wp_json_encode([$landed]);
+    }
+
+    /**
+     * The message's styling spans, normalized from the platform's
+     * entities (message entities for text posts, caption entities for
+     * media posts). Offsets are UTF-16 code units — stored verbatim, the
+     * front end slices natively. Unknown and payload-heavy types drop;
+     * links keep their URL only when it is a web link.
+     *
+     * @param array<string, mixed> $post
+     */
+    private function entitiesJson(array $post): ?string
+    {
+        $raw = $post['entities'] ?? $post['caption_entities'] ?? null;
+        if (!is_array($raw)) {
+            return null;
+        }
+
+        $entities = [];
+        foreach ($raw as $entity) {
+            if (!is_array($entity)) {
+                continue;
+            }
+            $type = $entity['type'] ?? null;
+            if (!is_string($type) || !in_array($type, self::ENTITY_TYPES, true)) {
+                continue;
+            }
+            $offset = (int) ($entity['offset'] ?? -1);
+            $length = (int) ($entity['length'] ?? -1);
+            if ($offset < 0 || $length <= 0) {
+                continue;
+            }
+
+            $span = ['type' => $type, 'offset' => $offset, 'length' => $length];
+            if ($type === 'text_link') {
+                $url = is_string($entity['url'] ?? null) ? (string) $entity['url'] : '';
+                $scheme = $url === '' ? false : wp_parse_url($url, PHP_URL_SCHEME);
+                if ($url === '' || !in_array(strtolower((string) $scheme), ['http', 'https'], true)) {
+                    continue;
+                }
+                $span['url'] = $url;
+            }
+
+            $entities[] = $span;
+        }
+
+        return $entities === [] ? null : (string) wp_json_encode($entities);
     }
 
     /**

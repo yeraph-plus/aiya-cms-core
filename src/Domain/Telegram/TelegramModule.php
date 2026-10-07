@@ -43,6 +43,7 @@ final class TelegramModule implements Module
         add_filter('aiya_core_schema_migrations', static function (array $migrations): array {
             $migrations[] = ['version' => FeedIngestor::MIGRATION_VERSION, 'callback' => [FeedIngestor::class, 'installTables']];
             $migrations[] = ['version' => ChatStore::MIGRATION_VERSION, 'callback' => [ChatStore::class, 'installTables']];
+            $migrations[] = ['version' => FeedIngestor::ENTITIES_MIGRATION_VERSION, 'callback' => [FeedIngestor::class, 'addEntitiesColumn']];
 
             return $migrations;
         });

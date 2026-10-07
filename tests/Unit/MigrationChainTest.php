@@ -31,9 +31,9 @@ use PHPUnit\Framework\TestCase;
  * pre-1.0 era retired with the 1.0.0 clean model — databases that need
  * them were reconciled by the 0.102.0 chain before this trim landed.
  * Post-1.0 entries land at their own conscious version — 1.1.0 the
- * Telegram channel feed's table, 1.2.0 the support chat's messages —
- * and every one of them updates this test, never an accident of
- * copying an old constant.
+ * Telegram channel feed's table, 1.2.0 the support chat's messages,
+ * 1.3.0 the feed's entities column — and every one of them updates
+ * this test, never an accident of copying an old constant.
  */
 final class MigrationChainTest extends TestCase
 {
@@ -65,11 +65,11 @@ final class MigrationChainTest extends TestCase
 
         $migrations = apply_filters('aiya_core_schema_migrations', []);
 
-        self::assertCount(10, $migrations, 'eight 1.0.0 installers plus the two Telegram tables');
+        self::assertCount(11, $migrations, 'eight 1.0.0 installers plus the three Telegram entries');
         $flat = array_filter($migrations, static fn (array $migration): bool => $migration['version'] === '1.0.0');
         self::assertCount(8, $flat, 'the 1.0.0 base chain stays at eight (the data carriers retired with the clean model)');
         $post = array_values(array_filter($migrations, static fn (array $migration): bool => $migration['version'] !== '1.0.0'));
-        self::assertSame(['1.1.0', '1.2.0'], array_column($post, 'version'), 'the conscious post-1.0 chain, in order');
+        self::assertSame(['1.1.0', '1.2.0', '1.3.0'], array_column($post, 'version'), 'the conscious post-1.0 chain, in order');
         foreach ($post as $migration) {
             self::assertIsCallable($migration['callback']);
         }

@@ -75,6 +75,7 @@ final class ChannelController
             (int) ($row['id'] ?? 0),
             self::kindName((int) ($row['kind'] ?? 0)),
             (string) ($row['text'] ?? ''),
+            self::entities($row['entities'] ?? null),
             self::media($row['media'] ?? null),
             (string) ($row['tg_link'] ?? ''),
             self::groupId($row['media_group_id'] ?? null),
@@ -89,6 +90,38 @@ final class ChannelController
             FeedIngestor::KIND_MEDIA => 'media',
             default => 'text',
         };
+    }
+
+    /**
+     * @return list<array{type: string, offset: int, length: int, url?: string}>
+     */
+    private static function entities(mixed $raw): array
+    {
+        if (!is_string($raw) || $raw === '') {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        $entities = [];
+        foreach ($decoded as $entity) {
+            if (!is_array($entity) || !is_string($entity['type'] ?? null)) {
+                continue;
+            }
+            $span = [
+                'type' => (string) $entity['type'],
+                'offset' => (int) ($entity['offset'] ?? 0),
+                'length' => (int) ($entity['length'] ?? 0),
+            ];
+            if (is_string($entity['url'] ?? null) && $entity['url'] !== '') {
+                $span['url'] = (string) $entity['url'];
+            }
+            $entities[] = $span;
+        }
+
+        return $entities;
     }
 
     /**
