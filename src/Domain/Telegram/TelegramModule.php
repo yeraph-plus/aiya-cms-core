@@ -40,6 +40,14 @@ final class TelegramModule implements Module
 
             return $hooks;
         });
+
+        // The channel feed table lands as the chain's first post-1.0
+        // entry (MigrationChainTest pins the count and the version).
+        add_filter('aiya_core_schema_migrations', static function (array $migrations): array {
+            $migrations[] = ['version' => FeedIngestor::MIGRATION_VERSION, 'callback' => [FeedIngestor::class, 'installTables']];
+
+            return $migrations;
+        });
     }
 
     /** The webhook intake route plus its first-party namespace declaration. */

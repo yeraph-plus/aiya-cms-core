@@ -294,6 +294,7 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
         $wpdb->prefix . 'aiya_discussion_replies',
         $wpdb->prefix . 'aiya_discussion_boards',
         $wpdb->prefix . 'aiya_discussion_likes',
+        $wpdb->prefix . 'aiya_channel_feed',
     ] as $table) {
         $run($wpdb->prepare('DROP TABLE IF EXISTS %i', $table));
     }

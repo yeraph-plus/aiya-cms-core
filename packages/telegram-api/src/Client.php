@@ -123,6 +123,16 @@ final class Client
     }
 
     /**
+     * The download URL for a getFile file_path — valid at least an hour,
+     * the bot token in the path per the protocol. The bytes ride the
+     * caller's own plain GET binary leg, not this client's POST JSON wire.
+     */
+    public function fileUrl(string $filePath): string
+    {
+        return $this->baseUrl . '/file/bot' . $this->botToken . '/' . ltrim($filePath, '/');
+    }
+
+    /**
      * @param array<string, mixed> $params
      * @return array<int|string, mixed>|Error
      */

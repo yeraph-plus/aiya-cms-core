@@ -150,4 +150,12 @@ final class TelegramClientTest extends TestCase
         self::assertStringEndsWith('/bot123:abc/setWebhook', $urls[1]);
         self::assertStringEndsWith('/bot123:abc/deleteWebhook', $urls[2]);
     }
+
+    public function testTheFileUrlBuildsTheTokenizedDownloadPath(): void
+    {
+        $client = new Client('123:abc', fn (): ?array => null);
+
+        self::assertSame('https://api.telegram.org/file/bot123:abc/photos/file_0.jpg', $client->fileUrl('photos/file_0.jpg'));
+        self::assertSame('https://api.telegram.org/file/bot123:abc/x.jpg', $client->fileUrl('/x.jpg'), 'a leading slash does not double');
+    }
 }

@@ -694,6 +694,33 @@ if (!function_exists('wp_strip_all_tags')) {
     }
 }
 
+if (!function_exists('wp_kses')) {
+    /**
+     * An allowlist approximation of core's kses: script/style blocks go
+     * with their content, every non-allowed tag is dropped while its
+     * inner text stays. Enough fidelity for the whitelist assertions the
+     * comment read/write paths pin (the canonical definition, previously
+     * a CommentsControllerTest-local guard that lost the load-order race
+     * the moment a second consumer appeared).
+     *
+     * @param array<string, mixed> $allowedHtml
+     * @param list<string> $allowedProtocols
+     */
+    function wp_kses(string $content, array $allowedHtml = [], array $allowedProtocols = []): string
+    {
+        $allowed = array_map('strtolower', array_keys($allowedHtml));
+        $content = preg_replace('@<(script|style)\b[^>]*>.*?</\1>@si', '', $content) ?? $content;
+
+        return (string) preg_replace_callback(
+            '/<\/?([a-zA-Z][a-zA-Z0-9-]*)\b[^>]*\/*>/',
+            static function (array $match) use ($allowed): string {
+                return in_array(strtolower($match[1]), $allowed, true) ? $match[0] : '';
+            },
+            $content
+        );
+    }
+}
+
 if (!function_exists('wp_kses_post')) {
     function wp_kses_post(string $content): string
     {
@@ -1360,6 +1387,21 @@ if (!class_exists('wpdb')) {
                 return [];
             }
 
+            // The feed page read: id DESC with LIMIT/OFFSET, simulated for
+            // real — a natural-order shortcut would fake the pagination
+            // semantics the controller's windows depend on.
+            if ($table !== null && str_contains($table, 'aiya_channel_feed') && str_contains($sql, 'ORDER BY id DESC')) {
+                preg_match('/LIMIT (\d+) OFFSET (\d+)/', $sql, $window);
+                $rows = $this->aiya_test_rows[$table] ?? [];
+                usort($rows, static fn (array $a, array $b): int => (int) ($b['id'] ?? 0) <=> (int) ($a['id'] ?? 0));
+                $rows = array_slice($rows, (int) ($window[2] ?? 0), (int) ($window[1] ?? count($rows)));
+
+                return array_map(
+                    static fn (array $row): array|object => $output === ARRAY_A ? $row : (object) $row,
+                    $rows
+                );
+            }
+
             $matched = [];
             foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
                 if (str_contains($sql, "direction = 'in'") && ($row['direction'] ?? '') !== 'in') {
@@ -1480,6 +1522,30 @@ if (!class_exists('wpdb')) {
         public function get_var(string $sql): mixed
         {
             $this->aiya_test_reads++;
+
+            // The channel feed's binding read: the id of the prepared
+            // (source_chat_id, message_id) pair, null when never stored.
+            if (str_contains($sql, 'SELECT id FROM') && str_contains($sql, 'aiya_channel_feed')) {
+                $table = $this->aiya_test_table($sql);
+                preg_match('/source_chat_id = (-?\d+)/', $sql, $chat);
+                preg_match('/message_id = (\d+)/', $sql, $msg);
+                foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
+                    if ((int) ($row['source_chat_id'] ?? 0) === (int) $chat[1]
+                        && (int) ($row['message_id'] ?? 0) === (int) $msg[1]
+                    ) {
+                        return (int) $row['id'];
+                    }
+                }
+
+                return null;
+            }
+
+            // The feed's page count: the whole table, no filters.
+            if (str_contains($sql, 'COUNT(id)') && str_contains($sql, 'aiya_channel_feed')) {
+                $table = $this->aiya_test_table($sql);
+
+                return count($this->aiya_test_rows[$table] ?? []);
+            }
 
             // Advisory locks answer granted — the double has no concurrency
             // to serialize (the schema runner and the entitlement queue both
@@ -2635,5 +2701,35 @@ if (!function_exists('strip_shortcodes')) {
     function strip_shortcodes(string $content): string
     {
         return $content;
+    }
+}
+
+if (!function_exists('wp_unique_filename')) {
+    /**
+     * Collision-checked naming, simulated: a same-name fixture file gets
+     * the numeric suffix the real directory walker would produce.
+     */
+    function wp_unique_filename(string $dir, string $filename): string
+    {
+        if (!is_file($dir . '/' . $filename)) {
+            return $filename;
+        }
+        $dot = strrpos($filename, '.');
+        $base = $dot === false ? $filename : substr($filename, 0, $dot);
+        $ext = $dot === false ? '' : substr($filename, $dot);
+        $n = 1;
+        while (is_file($dir . '/' . $base . '-' . $n . $ext)) {
+            $n++;
+        }
+
+        return $base . '-' . $n . $ext;
+    }
+}
+
+if (!function_exists('wp_delete_file')) {
+    function wp_delete_file(string $file): void
+    {
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- the shim IS the stand-in for core's unlink wrapper
+        @unlink($file);
     }
 }

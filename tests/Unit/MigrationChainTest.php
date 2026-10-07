@@ -13,6 +13,7 @@ use Aiya\Core\Domain\Identity\IdentityModule;
 use Aiya\Core\Domain\Membership\MembershipModule;
 use Aiya\Core\Domain\Notification\NotificationModule;
 use Aiya\Core\Domain\Operations\OperationsModule;
+use Aiya\Core\Domain\Telegram\TelegramModule;
 use Aiya\Core\Domain\Payment\PaymentModule;
 use Aiya\Core\Domain\Redeem\RedeemModule;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
@@ -28,8 +29,9 @@ use PHPUnit\Framework\TestCase;
  * reconcile pre-1.0 databases; the discussion entry alone installs
  * boards, threads, replies and likes). The four data carriers of the
  * pre-1.0 era retired with the 1.0.0 clean model — databases that need
- * them were reconciled by the 0.102.0 chain before this trim landed. A
- * post-1.0 migration landing at a new version is a conscious act that
+ * them were reconciled by the 0.102.0 chain before this trim landed.
+ * Post-1.0 entries land at their own conscious version: 1.1.0 is the
+ * Telegram channel feed's table (the first), and every one of them
  * updates this test, never an accident of copying an old constant.
  */
 final class MigrationChainTest extends TestCase
@@ -51,6 +53,7 @@ final class MigrationChainTest extends TestCase
             new PaymentModule($settings),
             new RedeemModule(),
             new OperationsModule(),
+            new TelegramModule($settings),
             new ContentManagementModule($settings),
             new FrontendModule($settings),
             new AvatarModule($settings),
@@ -61,10 +64,11 @@ final class MigrationChainTest extends TestCase
 
         $migrations = apply_filters('aiya_core_schema_migrations', []);
 
-        self::assertCount(8, $migrations, 'eight table installers, the data carriers retired with the clean 1.0.0 model');
-        foreach ($migrations as $migration) {
-            self::assertSame('1.0.0', $migration['version'], 'the chain stays flat at one version');
-            self::assertIsCallable($migration['callback']);
-        }
+        self::assertCount(9, $migrations, 'eight 1.0.0 installers plus the channel feed at 1.1.0');
+        $flat = array_filter($migrations, static fn (array $migration): bool => $migration['version'] === '1.0.0');
+        self::assertCount(8, $flat, 'the 1.0.0 base chain stays at eight (the data carriers retired with the clean model)');
+        $post = array_values(array_filter($migrations, static fn (array $migration): bool => $migration['version'] === '1.1.0'));
+        self::assertCount(1, $post, 'one conscious post-1.0 entry: the channel feed table');
+        self::assertIsCallable($post[0]['callback']);
     }
 }

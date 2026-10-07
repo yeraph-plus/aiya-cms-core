@@ -20,6 +20,13 @@ final class UpdateProcessor
     public const ROUTED = 'routed';
     public const DROPPED = 'dropped';
 
+    private FeedIngestor $feed;
+
+    public function __construct(?FeedIngestor $feed = null)
+    {
+        $this->feed = $feed ?? new FeedIngestor();
+    }
+
     /**
      * @param array<string, mixed> $update One platform Update object.
      */
@@ -27,36 +34,41 @@ final class UpdateProcessor
     {
         $channelPost = $update['channel_post'] ?? null;
         if (is_array($channelPost)) {
-            return $this->channelPost(self::chatId($channelPost));
+            return $this->channelPost(self::chatId($channelPost), $channelPost, false);
         }
 
         $editedChannelPost = $update['edited_channel_post'] ?? null;
         if (is_array($editedChannelPost)) {
-            // Edits ride the same gate; the route's rewrite lands with the
-            // feed ingestor.
-            return $this->channelPost(self::chatId($editedChannelPost));
+            // An edit rides the same gate and rewrites its row.
+            return $this->channelPost(self::chatId($editedChannelPost), $editedChannelPost, true);
         }
 
         $message = $update['message'] ?? null;
         if (is_array($message)) {
-            return $this->ownerMessage(self::chatId($message));
+            return $this->ownerMessage(self::chatId($message), $message);
         }
 
         return self::DROPPED; // unsupported update types (callback_query, my_chat_member, …)
     }
 
-    private function channelPost(int $chatId): string
+    /**
+     * @param array<string, mixed> $post
+     */
+    private function channelPost(int $chatId, array $post, bool $isEdit): string
     {
         if ($chatId === 0 || !TelegramSettings::mirrorEnabled() || !in_array($chatId, TelegramSettings::sourceChatIds(), true)) {
             return self::DROPPED;
         }
 
-        // The feed ingestor (instant-public rows, edited rewrites, image
-        // transfer) takes the payload from here in the mirror batch.
+        $this->feed->ingest($chatId, $post, $isEdit);
+
         return self::ROUTED;
     }
 
-    private function ownerMessage(int $chatId): string
+    /**
+     * @param array<string, mixed> $message
+     */
+    private function ownerMessage(int $chatId, array $message): string
     {
         if ($chatId === 0 || $chatId !== TelegramSettings::ownerChatId() || !TelegramSettings::relayEnabled()) {
             return self::DROPPED;
