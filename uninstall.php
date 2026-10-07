@@ -386,6 +386,14 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
             wp_clear_scheduled_hook('aiya_core_thumbnail_generate_single', $singleArgs);
         }
     }
+    // The Telegram push retry carries [postId, attempt] args — same
+    // enumeration (Pusher::RETRY_HOOK; classes are not autoloaded here).
+    foreach (_get_cron_array() as $cronHooks) {
+        foreach (($cronHooks['aiya_core_tg_push_retry'] ?? []) as $singleEvent) {
+            $singleArgs = array_values((array) ($singleEvent['args'] ?? []));
+            wp_clear_scheduled_hook('aiya_core_tg_push_retry', $singleArgs);
+        }
+    }
     wp_clear_scheduled_hook('aiya_core_sponsor_expiry_scan');
     wp_clear_scheduled_hook('aiya_core_remnants_cleanup');
     // The self-hosted update checker's own event; PUC names it after the slug.

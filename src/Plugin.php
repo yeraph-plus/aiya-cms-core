@@ -75,6 +75,7 @@ use Aiya\Core\Domain\Redeem\RedeemModule;
 use Aiya\Core\Domain\Smilies\SmiliesModule;
 use Aiya\Core\Domain\Smilies\SmiliesRegistry;
 use Aiya\Core\Domain\Smilies\SmiliesRenderer;
+use Aiya\Core\Domain\Telegram\Pusher;
 use Aiya\Core\Domain\Telegram\TelegramModule;
 use Aiya\Core\Domain\ThemeSupport\ThemeSupportModule;
 use Aiya\Core\Infrastructure\Headless\HeadlessModule;
@@ -310,6 +311,12 @@ final class Plugin
             foreach (($cronHooks[MediaModule::CARD_SINGLE_HOOK] ?? []) as $singleEvent) {
                 $singleArgs = array_values((array) ($singleEvent['args'] ?? []));
                 wp_clear_scheduled_hook(MediaModule::CARD_SINGLE_HOOK, $singleArgs);
+            }
+        }
+        foreach (_get_cron_array() as $cronHooks) {
+            foreach (($cronHooks[Pusher::RETRY_HOOK] ?? []) as $singleEvent) {
+                $singleArgs = array_values((array) ($singleEvent['args'] ?? []));
+                wp_clear_scheduled_hook(Pusher::RETRY_HOOK, $singleArgs);
             }
         }
     }

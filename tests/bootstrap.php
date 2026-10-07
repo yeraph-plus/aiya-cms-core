@@ -2580,3 +2580,60 @@ if (!function_exists('do_action')) {
         }
     }
 }
+
+
+// --- Scheduled events (single-event retries, the Telegram push) -----------
+
+if (!function_exists('wp_schedule_single_event')) {
+    /**
+     * Recorder double: events land in __aiya_test_cron as
+     * {hook, timestamp, args} (timestamp = the offset the caller asked
+     * for, relative to the test's frozen time), so assertions read the
+     * schedule instead of waiting on a runner that does not exist here.
+     */
+    function wp_schedule_single_event(int $timestamp, string $hook, array $args = []): bool
+    {
+        $GLOBALS['__aiya_test_cron'][] = ['hook' => $hook, 'timestamp' => $timestamp, 'args' => $args];
+
+        return true;
+    }
+}
+
+if (!function_exists('wp_next_scheduled')) {
+    /** Answers the offset of the first matching entry, false when none. */
+    function wp_next_scheduled(string $hook, array $args = []): int|false
+    {
+        foreach ($GLOBALS['__aiya_test_cron'] ?? [] as $event) {
+            if ($event['hook'] === $hook && $event['args'] === $args) {
+                return (int) $event['timestamp'];
+            }
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('wp_clear_scheduled_hook')) {
+    function wp_clear_scheduled_hook(string $hook, array $args = []): void
+    {
+        $kept = [];
+        foreach ($GLOBALS['__aiya_test_cron'] ?? [] as $event) {
+            if ($event['hook'] === $hook && ($args === [] || $event['args'] === $args)) {
+                continue;
+            }
+            $kept[] = $event;
+        }
+        $GLOBALS['__aiya_test_cron'] = $kept;
+    }
+}
+
+if (!function_exists('strip_shortcodes')) {
+    /**
+     * Pass-through: the suite's fixture content carries no registered
+     * shortcodes, so the strip step has nothing to remove in tests.
+     */
+    function strip_shortcodes(string $content): string
+    {
+        return $content;
+    }
+}

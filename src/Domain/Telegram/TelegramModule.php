@@ -27,6 +27,19 @@ final class TelegramModule implements Module
         add_action('aiya_core_register', [$this, 'settings'], 10, 0);
         add_action('rest_api_init', [$this, 'routes'], 10, 0);
         TelegramCommand::register();
+
+        // Route 1 (publish push): the pusher gates on its own settings, so
+        // the listeners ride every request cost-free while the route is
+        // off. Failures retry through the single-event backoff below.
+        $pusher = new Pusher();
+        add_action('aiya_core_post_published', [$pusher, 'onPublished']);
+        add_action('aiya_core_post_updated', [$pusher, 'onUpdated']);
+        add_action(Pusher::RETRY_HOOK, [$pusher, 'onRetry'], 10, 2);
+        add_filter('aiya_core_scheduled_events', static function (array $hooks): array {
+            $hooks[] = Pusher::RETRY_HOOK;
+
+            return $hooks;
+        });
     }
 
     /** The webhook intake route plus its first-party namespace declaration. */
