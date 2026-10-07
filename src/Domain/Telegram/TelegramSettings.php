@@ -31,12 +31,6 @@ final class TelegramSettings
         return trim((string) get_option(self::SECRET_OPTION, ''));
     }
 
-    /** The /id discovery probe: on, /id gets the asking chat's id back. */
-    public static function idProbeEnabled(): bool
-    {
-        return (bool) aiya_core_opt(self::PAGE_SLUG, 'tg_id_probe', false);
-    }
-
     public static function pushEnabled(): bool
     {
         return (bool) aiya_core_opt(self::PAGE_SLUG, 'tg_push_enabled', false);
@@ -50,15 +44,16 @@ final class TelegramSettings
 
     /**
      * The push message body template: post-object placeholders on the
-     * wire ({front}, {link}, {type}, {slug}, {id}, {title}, {excerpt},
-     * {tags}, {categories}, {date}, {author}); empty restores the
-     * shipped two-line shape.
+     * wire ({front}, {type}, {slug}, {id}, {title}, {excerpt}, {tags},
+     * {categories}, {date}, {author}); links are the operator's own
+     * composition from those — the backend keeps no front-end route
+     * shapes. Empty restores the shipped two-line shape.
      */
     public static function pushTemplate(): string
     {
         $template = trim((string) aiya_core_opt(self::PAGE_SLUG, 'tg_push_template', ''));
 
-        return $template !== '' ? $template : '<a href="{link}">{title}</a>' . "\n\n" . '{excerpt}';
+        return $template !== '' ? $template : '{title}' . "\n\n" . '{excerpt}';
     }
 
     public static function mirrorEnabled(): bool
@@ -67,25 +62,106 @@ final class TelegramSettings
     }
 
     /**
-     * The source channels of the mirror route, one numeric id per line
-     * (commas and semicolons also separate); noise lines are ignored.
+     * The mirror's source rows as the repeater saves them, `chat`
+     * normalized (leading @ stripped, usernames lowercased, numeric ids
+     * kept as digit strings). A legacy string value (the old textarea,
+     * ids one per line) reads as bare rows until the page saves the
+     * repeater shape over it.
+     *
+     * @return list<array{title: string, chat: string, nsfw: bool}>
+     */
+    public static function mirrorChannels(): array
+    {
+        $raw = aiya_core_opt(self::PAGE_SLUG, 'tg_mirror_source_chat_ids', '');
+        if (is_string($raw)) {
+            // The legacy textarea carried numeric ids only; noise lines
+            // drop exactly as they always did.
+            $rows = [];
+            $lines = preg_split('/[\s,;]+/u', trim($raw));
+            foreach (is_array($lines) ? $lines : [] as $line) {
+                $id = filter_var((string) $line, FILTER_VALIDATE_INT);
+                if (is_int($id) && $id !== 0) {
+                    $rows[] = ['title' => '', 'chat' => (string) $id, 'nsfw' => false];
+                }
+            }
+
+            return $rows;
+        }
+
+        $rows = [];
+        foreach (is_array($raw) ? $raw : [] as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $chat = self::normalizeChat((string) ($row['chat'] ?? ''));
+            if ($chat === '') {
+                continue;
+            }
+            $rows[] = [
+                'title' => trim((string) ($row['title'] ?? '')),
+                'chat' => $chat,
+                'nsfw' => (bool) ($row['nsfw'] ?? false),
+            ];
+        }
+
+        return $rows;
+    }
+
+    /** Rows speak numeric ids or @usernames; both normalize here. */
+    private static function normalizeChat(string $chat): string
+    {
+        $chat = ltrim(trim($chat), '@');
+
+        return $chat === '' ? '' : (is_numeric($chat) ? $chat : strtolower($chat));
+    }
+
+    /**
+     * The numeric ids among the source rows — the shape the funnel's
+     * legacy gate spoke.
      *
      * @return list<int>
      */
     public static function sourceChatIds(): array
     {
-        $raw = (string) aiya_core_opt(self::PAGE_SLUG, 'tg_mirror_source_chat_ids', '');
-        $lines = preg_split('/[\s,;]+/u', trim($raw));
-        $lines = is_array($lines) ? $lines : [];
         $ids = [];
-        foreach ($lines as $line) {
-            $id = filter_var((string) $line, FILTER_VALIDATE_INT);
-            if (is_int($id) && $id !== 0) {
-                $ids[] = $id;
+        foreach (self::mirrorChannels() as $row) {
+            if (is_numeric($row['chat']) && (int) $row['chat'] !== 0) {
+                $ids[] = (int) $row['chat'];
             }
         }
 
         return $ids;
+    }
+
+    /** The mirror gate: a channel post rides when its chat id or (on public channels) its username matches a source row. */
+    public static function mirrorAccepts(int $chatId, ?string $username): bool
+    {
+        return self::mirrorRow($chatId, $username) !== null;
+    }
+
+    /**
+     * The configured row a feed row's channel rides — the display-title
+     * override and the NSFW mark live there. Null when the channel left
+     * the config (its already-stored rows keep serving, unmarked).
+     *
+     * @return array{title: string, chat: string, nsfw: bool}|null
+     */
+    public static function mirrorRow(int $chatId, ?string $username): ?array
+    {
+        $username = self::normalizeChat((string) $username);
+        foreach (self::mirrorChannels() as $row) {
+            if (is_numeric($row['chat'])) {
+                if ((int) $row['chat'] === $chatId) {
+                    return $row;
+                }
+                continue;
+            }
+            if ($username !== '' && $username === $row['chat']) {
+                return $row;
+            }
+        }
+
+        return null;
     }
 
     public static function relayEnabled(): bool

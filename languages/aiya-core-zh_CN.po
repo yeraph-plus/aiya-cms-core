@@ -3094,9 +3094,6 @@ msgstr "来自 @BotFather，仅存服务端、永不外显"
 msgid "The webhook secret token is managed, not entered: `wp aiya telegram set-webhook` mints it automatically, stores it server-side and registers it with the platform, which echoes it back in a request header on every push. Nothing to fill in here."
 msgstr "Webhook 秘密令牌是管理值而非填写项：`wp aiya telegram set-webhook` 会自动铸造、仅存服务端并注册给平台，平台每次推送都会在请求头回传它。此处无需填写"
 
-msgid "Answer /status (configuration + discovered administered chats) and /id (the asking chat's id) in place — operator helpers; turn off once configured"
-msgstr "原地应答 /status（配置概况 + 已发现的管理频道）与 /id（提问会话的 id）——运维辅助；配置完成后即关闭"
-
 msgid "Publish push"
 msgstr "发布推送"
 
@@ -3112,8 +3109,8 @@ msgstr "接收发布/更新通知的数字会话 id 或 @频道用户名"
 msgid "Message template"
 msgstr "消息模板"
 
-msgid "The push message body in Telegram HTML. Placeholders: {front} the front-end origin, {link} the article URL (each type's own route), {type}, {slug}, {id}, {title}, {excerpt}, {tags} and {categories} display names with a # prefix, {date}, {author}. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first."
-msgstr "Telegram HTML 格式的推送消息正文。占位符：{front} 前台 origin、{link} 文章链接（各类型自己的路由）、{type}、{slug}、{id}、{title}、{excerpt}、{tags} 与 {categories}（显示名加 # 前缀）、{date}、{author}。所有替换值均会转义，你写在这里的标签是唯一生效的标签；省略某个占位符即去掉该部分，留空恢复默认。限制：标题上限 250 字符，摘要上限 400 字符（手填摘要优先，否则取剥离后的正文），整条消息钳在平台 4096 字符内，超长时先裁摘要"
+msgid "The push message body in Telegram HTML. Placeholders: {front} the front-end origin, {type} and {slug} the post's public type and slug, {id}, {title}, {excerpt}, {tags} and {categories} display names with a # prefix, {date}, {author}. Links are yours to compose from {front}, {type} and {slug}; the backend keeps no front-end route shapes. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first."
+msgstr "推送消息正文，Telegram HTML 格式。占位符：{front} 前台源站，{type} 与 {slug} 为文章的公开类型与别名，{id}、{title}、{excerpt}、{tags} 与 {categories} 为加 # 前缀的显示名，{date}、{author}。链接由你自行用 {front}、{type}、{slug} 拼装，后端不记录前台路由形状。所有替换值均经转义，这里写的标记就是唯一标记；省略占位符即省略该部分。留空恢复默认。边界：标题上限 250 字符，摘要上限 400（先取手填摘要，否则取剥离标签后的正文），整条消息钳制到平台 4096 字符上限，超长时先压缩摘要。"
 
 msgid "Channel mirror"
 msgstr "频道镜像"
@@ -3124,8 +3121,17 @@ msgstr "把源频道的帖子采集进镜像 feed（图片转存进图床；视�
 msgid "Source channels"
 msgstr "源频道"
 
-msgid "Numeric ids of the channels the bot administers, one per line. Posts from any other chat are dropped. A private channel's t.me links only open for its members."
-msgstr "bot 管理的频道数字 id，每行一个；其他任何会话的帖子都会丢弃。私有频道的 t.me 链接仅成员可打开"
+msgid "The channels mirrored into the web feed, one row each: an optional display title (the feed prefers it over the channel's own name), the channel's numeric id or @username, and the NSFW mark the row carries into the feed. Posts from any other chat are dropped. A private channel's t.me links only open for its members."
+msgstr "镜像进网页信息流的源频道，一行一个频道：可选的显示标题（信息流优先使用它，缺省回落频道自身名称）、频道的数字 id 或 @用户名，以及随该行带进信息流的 NSFW 标记。来自其他聊天的帖子一律丢弃。私有频道的 t.me 链接仅成员可见。"
+
+msgid "Display title"
+msgstr "显示标题"
+
+msgid "Channel id or @username"
+msgstr "频道 id 或 @用户名"
+
+msgid "NSFW"
+msgstr "NSFW"
 
 msgid "Support relay"
 msgstr "客服中继"
@@ -3136,8 +3142,8 @@ msgstr "把网页客服会话中继到与 bot 的私聊，你的回复再回到�
 msgid "Owner chat id"
 msgstr "站长会话 id"
 
-msgid "Your private chat with the bot. With the helper switch on, send /status there and it replies with the id; only replies to relayed visitor messages flow back to the web."
-msgstr "你与 bot 的私聊。辅助开关开启时，在此发送 /status 即可得到本会话 id；只有对中继消息的回复会回流到网页"
+msgid "Your private chat with the bot. Send /status there and the bot replies with the id; only replies to relayed visitor messages flow back to the web."
+msgstr "你与 bot 的私聊。向它发送 /status，bot 会回复这个 id；只有对访客留言的回复会回流到网页。"
 
 msgid "Typography tools"
 msgstr "排版工具"

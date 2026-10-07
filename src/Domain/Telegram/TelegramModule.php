@@ -57,7 +57,9 @@ final class TelegramModule implements Module
             'title' => __('Telegram Bot', 'aiya-core'),
             'menu_title' => __('Telegram Bot', 'aiya-core'),
             'parent' => 'aiya-core-frontend',
+            'menu_position' => 6, // takes the uninstall page's old rail slot; the uninstall page itself drops to 99, the rail's permanent end
             'option_name' => 'aiya_core_telegram',
+            'tabs' => false, // one short page: the section headings stay inline, no tab rail
             'fields' => [
                 [
                     'id' => 'tg_heading_connection',
@@ -80,12 +82,6 @@ final class TelegramModule implements Module
                     'default' => null,
                 ],
                 [
-                    'id' => 'tg_id_probe',
-                    'type' => 'switch',
-                    'checkbox_label' => __('Answer /status (configuration + discovered administered chats) and /id (the asking chat\'s id) in place — operator helpers; turn off once configured', 'aiya-core'),
-                    'default' => false,
-                ],
-                [
                     'id' => 'tg_heading_push',
                     'type' => 'heading',
                     'label' => __('Publish push', 'aiya-core'),
@@ -94,6 +90,7 @@ final class TelegramModule implements Module
                 [
                     'id' => 'tg_push_enabled',
                     'type' => 'switch',
+                    'label' => __('Enabled', 'aiya-core'),
                     'checkbox_label' => __('Push published posts and resources to the target chat, editing the sent message in place on update', 'aiya-core'),
                     'default' => false,
                 ],
@@ -108,8 +105,8 @@ final class TelegramModule implements Module
                     'id' => 'tg_push_template',
                     'type' => 'textarea',
                     'label' => __('Message template', 'aiya-core'),
-                    'description' => __('The push message body in Telegram HTML. Placeholders: {front} the front-end origin, {link} the article URL (each type\'s own route), {type}, {slug}, {id}, {title}, {excerpt}, {tags} and {categories} display names with a # prefix, {date}, {author}. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first.', 'aiya-core'),
-                    'default' => '<a href="{link}">{title}</a>' . "\n\n" . '{excerpt}',
+                    'description' => __('The push message body in Telegram HTML. Placeholders: {front} the front-end origin, {type} and {slug} the post\'s public type and slug, {id}, {title}, {excerpt}, {tags} and {categories} display names with a # prefix, {date}, {author}. Links are yours to compose from {front}, {type} and {slug}; the backend keeps no front-end route shapes. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first.', 'aiya-core'),
+                    'default' => '{title}' . "\n\n" . '{excerpt}',
                 ],
                 [
                     'id' => 'tg_heading_mirror',
@@ -120,15 +117,37 @@ final class TelegramModule implements Module
                 [
                     'id' => 'tg_mirror_enabled',
                     'type' => 'switch',
+                    'label' => __('Enabled', 'aiya-core'),
                     'checkbox_label' => __('Ingest the source channels\' posts into the mirror feed (images transfer into the image pool; videos and files surface as t.me links)', 'aiya-core'),
                     'default' => false,
                 ],
                 [
                     'id' => 'tg_mirror_source_chat_ids',
-                    'type' => 'textarea',
+                    'type' => 'repeater',
                     'label' => __('Source channels', 'aiya-core'),
-                    'description' => __('Numeric ids of the channels the bot administers, one per line. Posts from any other chat are dropped. A private channel\'s t.me links only open for its members.', 'aiya-core'),
-                    'default' => '',
+                    'description' => __('The channels mirrored into the web feed, one row each: an optional display title (the feed prefers it over the channel\'s own name), the channel\'s numeric id or @username, and the NSFW mark the row carries into the feed. Posts from any other chat are dropped. A private channel\'s t.me links only open for its members.', 'aiya-core'),
+                    'default' => [],
+                    'children' => [
+                        [
+                            'id' => 'title',
+                            'type' => 'text',
+                            'label' => __('Display title', 'aiya-core'),
+                            'default' => '',
+                        ],
+                        [
+                            'id' => 'chat',
+                            'type' => 'text',
+                            'label' => __('Channel id or @username', 'aiya-core'),
+                            'default' => '',
+                            'required' => true,
+                        ],
+                        [
+                            'id' => 'nsfw',
+                            'type' => 'switch',
+                            'label' => __('NSFW', 'aiya-core'),
+                            'default' => false,
+                        ],
+                    ],
                 ],
                 [
                     'id' => 'tg_heading_relay',
@@ -139,6 +158,7 @@ final class TelegramModule implements Module
                 [
                     'id' => 'tg_relay_enabled',
                     'type' => 'switch',
+                    'label' => __('Enabled', 'aiya-core'),
                     'checkbox_label' => __('Relay the web support chat into your private chat with the bot, and your replies back to the web', 'aiya-core'),
                     'default' => false,
                 ],
@@ -146,7 +166,7 @@ final class TelegramModule implements Module
                     'id' => 'tg_relay_owner_chat_id',
                     'type' => 'text',
                     'label' => __('Owner chat id', 'aiya-core'),
-                    'description' => __('Your private chat with the bot. With the helper switch on, send /status there and it replies with the id; only replies to relayed visitor messages flow back to the web.', 'aiya-core'),
+                    'description' => __('Your private chat with the bot. Send /status there and the bot replies with the id; only replies to relayed visitor messages flow back to the web.', 'aiya-core'),
                     'default' => '',
                 ],
             ],

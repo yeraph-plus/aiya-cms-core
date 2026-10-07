@@ -38,7 +38,7 @@ final class UninstallModule implements Module
             'title' => __('Uninstall', 'aiya-core'),
             'menu_title' => __('Uninstall', 'aiya-core'),
             'parent' => 'aiya-core-frontend',
-            'menu_position' => 6,
+            'menu_position' => 99, // the rail's permanent end: the destructive switch stays out of the working pages' way
             'option_name' => self::OPTION_NAME,
             'fields' => [
                 [

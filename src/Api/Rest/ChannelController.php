@@ -9,6 +9,7 @@ use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Contract\Pagination;
 use Aiya\Core\Api\Presenter\WireDates;
 use Aiya\Core\Domain\Telegram\FeedIngestor;
+use Aiya\Core\Domain\Telegram\TelegramSettings;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -69,12 +70,20 @@ final class ChannelController
     /**
      * The row → contract mapping. The pool's content-relative path stays
      * server-side; the wire carries the resolved URL only (internal keys
-     * never surface, per the storage protocol).
+     * never surface, per the storage protocol). The channel identity
+     * prefers the mirror config's display title and carries its NSFW
+     * mark; a channel that left the config keeps serving from its stored
+     * snapshot, unmarked.
      *
      * @param array<string, mixed> $row
      */
     private function present(array $row): ChannelPost
     {
+        $identity = TelegramSettings::mirrorRow(
+            (int) ($row['source_chat_id'] ?? 0),
+            self::groupId($row['chat_username'] ?? null)
+        );
+
         return new ChannelPost(
             (int) ($row['id'] ?? 0),
             self::kindName((int) ($row['kind'] ?? 0)),
@@ -83,8 +92,11 @@ final class ChannelController
             self::media($row['media'] ?? null),
             [
                 'id' => (int) ($row['source_chat_id'] ?? 0),
-                'title' => (string) ($row['chat_title'] ?? ''),
+                'title' => $identity !== null && $identity['title'] !== ''
+                    ? $identity['title']
+                    : (string) ($row['chat_title'] ?? ''),
                 'username' => self::groupId($row['chat_username'] ?? null),
+                'nsfw' => $identity !== null && $identity['nsfw'],
             ],
             (string) ($row['tg_link'] ?? ''),
             self::groupId($row['media_group_id'] ?? null),

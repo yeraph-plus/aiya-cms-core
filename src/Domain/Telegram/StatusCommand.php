@@ -8,13 +8,14 @@ use Aiya\Infra\Telegram\Client;
 use Aiya\Infra\Telegram\Error;
 
 /**
- * The private-chat operator commands, gated by the discovery switch:
- * `/id` answers the asking chat's id (the original probe), `/status`
- * answers that plus the configuration state and the chats the bot
- * actually holds administrator rights in — discovered from traffic and
- * verified through getChatMember, the closest the platform allows to a
- * chat directory. Everything answers in the asking chat itself; the
- * config summary only ever lands in private chats, never groups.
+ * The private-chat operator command, the funnel's one bootstrap
+ * exception: `/status` answers the asking chat's id plus, in private
+ * chats, the configuration state and the chats the bot actually holds
+ * administrator rights in — discovered from traffic and verified through
+ * getChatMember, the closest the platform allows to a chat directory.
+ * Everything answers in the asking chat itself; the config summary only
+ * ever lands in private chats, never groups. (The original `/id` alias
+ * is retired — `/status` covers it.)
  *
  * Not final on purpose: the update-funnel tests ride a recording
  * subclass.
@@ -33,7 +34,7 @@ class StatusCommand
 
         // In private chats the command arrives bare; group-scope commands
         // carry the bot username suffix — both are the same ask.
-        return preg_match('#^/(status|id)(@[A-Za-z0-9_]+)?\s*$#', trim($text)) === 1;
+        return preg_match('#^/status(@[A-Za-z0-9_]+)?\s*$#', trim($text)) === 1;
     }
 
     /**
@@ -46,8 +47,7 @@ class StatusCommand
             return;
         }
 
-        $text = trim(is_string($message['text'] ?? null) ? (string) $message['text'] : '');
-        if (str_starts_with($text, '/status') && !$isChannel && $this->isPrivate($message)) {
+        if (!$isChannel && $this->isPrivate($message)) {
             $reply = $this->statusReport($chatId, $client);
         } else {
             $reply = sprintf('%s: %d', $isChannel ? 'channel id' : 'chat id', $chatId);
@@ -80,7 +80,7 @@ class StatusCommand
             $config[] = 'push -> ' . TelegramSettings::pushChatId();
         }
         if (TelegramSettings::mirrorEnabled()) {
-            $config[] = 'mirror -> ' . count(TelegramSettings::sourceChatIds()) . ' source(s)';
+            $config[] = 'mirror -> ' . count(TelegramSettings::mirrorChannels()) . ' source(s)';
         }
         if (TelegramSettings::relayEnabled()) {
             $owner = TelegramSettings::ownerChatId();

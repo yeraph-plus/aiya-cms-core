@@ -76,7 +76,10 @@ final class TelegramUpdateProcessorTest extends TestCase
     {
         $GLOBALS['__aiya_test_options']['telegram'] = array_merge([
             'tg_mirror_enabled' => true,
-            'tg_mirror_source_chat_ids' => "-100111\n-100222",
+            'tg_mirror_source_chat_ids' => [
+                ['title' => 'Hub', 'chat' => '-100111', 'nsfw' => false],
+                ['title' => '', 'chat' => '-100222', 'nsfw' => false],
+            ],
             'tg_relay_enabled' => true,
             'tg_relay_owner_chat_id' => '777',
         ], $overrides);
@@ -134,14 +137,28 @@ final class TelegramUpdateProcessorTest extends TestCase
         self::assertSame([], $this->fakeFeed->ingested);
     }
 
-    public function testAChannelIdListParsesThroughWhitespaceAndCommas(): void
+    public function testTheLegacyTextareaValueStillGatesTheMirror(): void
     {
+        // The pre-repeater option value (ids one per line, commas and
+        // semicolons also separating) keeps gating until the settings page
+        // saves the repeater shape over it.
         $this->configure(['tg_mirror_source_chat_ids' => "-100111, -100333; -100444\nnoise"]);
 
         self::assertSame(UpdateProcessor::ROUTED, $this->processor->process($this->channelPost(-100333)));
         self::assertSame(UpdateProcessor::ROUTED, $this->processor->process($this->channelPost(-100444)));
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->channelPost(-100222)), 'a removed id drops immediately');
         self::assertCount(2, $this->fakeFeed->ingested);
+    }
+
+    public function testAUsernameRowGatesPublicChannelsByIdentity(): void
+    {
+        $this->configure(['tg_mirror_source_chat_ids' => [['title' => '', 'chat' => '@CatACG', 'nsfw' => false]]]);
+
+        self::assertSame(UpdateProcessor::ROUTED, $this->processor->process($this->channelPost(-100999)), 'the username matches with or without the @, case-insensitively');
+        self::assertSame(UpdateProcessor::DROPPED, $this->processor->process(
+            ['channel_post' => ['message_id' => 7, 'chat' => ['id' => -100888, 'type' => 'channel', 'title' => 'Other', 'username' => 'OtherCH'], 'text' => 'hi']]
+        ));
+        self::assertCount(1, $this->fakeFeed->ingested);
     }
 
     public function testAnOwnerMessageRoutesOnlyWhenTheRelayPointsAtThatChat(): void
@@ -182,61 +199,63 @@ final class TelegramUpdateProcessorTest extends TestCase
         self::assertSame([], $this->fakeFeed->ingested);
     }
 
-    // ---- the /id discovery probe ---------------------------------------------
+    // ---- the /status operator command ------------------------------------------
 
-    /** An update-shaped bare /id private message from an unconfigured chat. */
+    /** An update-shaped bare /id private message (the retired alias). */
     private function idMessage(int $chatId): array
     {
         return ['message' => ['message_id' => 9, 'chat' => ['id' => $chatId, 'type' => 'private'], 'text' => '/id']];
     }
 
-    public function testAProbeOnAnswersIdWhereverItComesFrom(): void
+    /** An update-shaped bare /status private message. */
+    private function statusMessage(int $chatId): array
     {
-        $this->configure(['tg_id_probe' => true]);
+        return ['message' => ['message_id' => 9, 'chat' => ['id' => $chatId, 'type' => 'private'], 'text' => '/status']];
+    }
 
-        self::assertSame(UpdateProcessor::PROBED, $this->processor->process($this->idMessage(777)));
+    public function testStatusAnswersWhereverItComesFromWithoutAnySwitch(): void
+    {
+        // No options at all: the command is the bootstrap exception, it
+        // answers before the whitelists exist — exactly so they can be filled.
+        self::assertSame(UpdateProcessor::PROBED, $this->processor->process($this->statusMessage(777)));
         self::assertSame(
             UpdateProcessor::PROBED,
-            $this->processor->process(['channel_post' => ['message_id' => 10, 'chat' => ['id' => -100999, 'type' => 'channel'], 'text' => '/id']]),
-            'a channel /id answers in the channel, whitelist or not — that is the bootstrap point'
+            $this->processor->process(['channel_post' => ['message_id' => 10, 'chat' => ['id' => -100999, 'type' => 'channel'], 'text' => '/status']]),
+            'a channel /status answers in the channel, whitelist or not — that is the bootstrap point'
         );
 
         self::assertSame([[777, false], [-100999, true]], array_map(static fn (array $a): array => [$a[0], $a[1]], $this->fakeCommands->answered));
-        self::assertSame([], $this->fakeFeed->ingested, 'the /id post never becomes a feed row');
+        self::assertSame([], $this->fakeFeed->ingested, 'the /status post never becomes a feed row');
     }
 
-    public function testAProbeOffLeavesTheWhitelistsAlone(): void
+    public function testTheRetiredIdAliasIsGone(): void
     {
-        $this->configure();
-
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->idMessage(999)));
-        self::assertSame([], $this->fakeCommands->answered, 'the default-off probe never speaks');
+        self::assertSame([], $this->fakeCommands->answered, '/id no longer speaks — /status covers it');
     }
 
-    public function testAProbeMatchesOnlyTheBareCommand(): void
+    public function testStatusMatchesOnlyTheBareCommand(): void
     {
-        $this->configure(['tg_id_probe' => true]);
-
         self::assertSame(
             UpdateProcessor::PROBED,
-            $this->processor->process(['message' => ['message_id' => 11, 'chat' => ['id' => 777, 'type' => 'private'], 'text' => '/id@MyBot']]),
+            $this->processor->process(['message' => ['message_id' => 11, 'chat' => ['id' => 777, 'type' => 'private'], 'text' => '/status@MyBot']]),
             'the group-scope command spelling is the same ask'
         );
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process(
-            ['message' => ['message_id' => 12, 'chat' => ['id' => 999, 'type' => 'private'], 'text' => '/id please']]
-        ), 'prose with an /id prefix is a normal message (from a non-owner chat: dropped)');
+            ['message' => ['message_id' => 12, 'chat' => ['id' => 999, 'type' => 'private'], 'text' => '/status please']]
+        ), 'prose with a /status prefix is a normal message (from a non-owner chat: dropped)');
 
         self::assertCount(1, $this->fakeCommands->answered);
     }
 
-    public function testAnEditedIdPostIsNotProbed(): void
+    public function testAnEditedStatusPostIsNotProbed(): void
     {
-        $this->configure(['tg_id_probe' => true]);
+        $this->configure();
 
         self::assertSame(
             UpdateProcessor::DROPPED,
-            $this->processor->process(['edited_channel_post' => ['message_id' => 10, 'chat' => ['id' => -100999, 'type' => 'channel'], 'text' => '/id']]),
-            'edits ride the gate, the probe answers fresh asks only'
+            $this->processor->process(['edited_channel_post' => ['message_id' => 10, 'chat' => ['id' => -100999, 'type' => 'channel'], 'text' => '/status']]),
+            'edits ride the gate, the command answers fresh asks only'
         );
         self::assertSame([], $this->fakeCommands->answered);
     }

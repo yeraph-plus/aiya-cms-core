@@ -12,8 +12,8 @@ namespace Aiya\Core\Domain\Telegram;
  * logic sees it. That gate is the bot-has-no-user-features stance turned
  * into code: the bot answers exactly the chats the site configured,
  * nothing else. Every update first registers its source chat in the
- * discovery registry, and the switched-on /status & /id operator
- * commands ride ahead of the whitelists (the bootstrap exception).
+ * discovery registry, and the /status operator command rides ahead of
+ * the whitelists (the bootstrap exception).
  *
  * Verdicts are strings so intake logging (and the tests) can assert what
  * happened without side effects.
@@ -76,7 +76,9 @@ final class UpdateProcessor
         if (!$isEdit && $this->commandAnswers($chatId, $post, true)) {
             return self::PROBED;
         }
-        if ($chatId === 0 || !TelegramSettings::mirrorEnabled() || !in_array($chatId, TelegramSettings::sourceChatIds(), true)) {
+        $chat = is_array($post['chat'] ?? null) ? $post['chat'] : [];
+        $username = is_string($chat['username'] ?? null) ? $chat['username'] : null;
+        if ($chatId === 0 || !TelegramSettings::mirrorEnabled() || !TelegramSettings::mirrorAccepts($chatId, $username)) {
             return self::DROPPED;
         }
 
@@ -105,16 +107,16 @@ final class UpdateProcessor
     }
 
     /**
-     * The operator commands ride ahead of the whitelists: filling the ids
-     * is the very thing the whitelists wait on, so an explicitly switched-
-     * on command set is the one bootstrap exception. It only ever replies
-     * into the asking chat itself.
+     * The operator command rides ahead of the whitelists: filling the ids
+     * is the very thing the whitelists wait on, so /status is the one
+     * bootstrap exception — always on, replying only into the asking
+     * chat itself.
      *
      * @param array<string, mixed> $message
      */
     private function commandAnswers(int $chatId, array $message, bool $isChannel): bool
     {
-        if ($chatId === 0 || !TelegramSettings::idProbeEnabled() || !StatusCommand::matches($message)) {
+        if ($chatId === 0 || !StatusCommand::matches($message)) {
             return false;
         }
 

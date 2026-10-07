@@ -194,23 +194,18 @@ final class Pusher
 
     /**
      * The post-object placeholder map, every value already escaped for
-     * the wire. {link} is the canonical front URL: the front-end origin
-     * plus the public type's own path pattern, so each post type lands
-     * on its real route without a per-type template.
+     * the wire. Links are the operator's composition from {front},
+     * {type} and {slug} — the backend keeps no front-end route shapes
+     * ({link} is retired).
      *
      * @return array<string, string>
      */
     private function values(WP_Post $post): array
     {
         $type = PublicTypes::forPostType((string) $post->post_type);
-        $link = FrontendDomain::originOrHome();
-        if ($type !== null) {
-            $link .= sprintf($type->urlPattern, (string) $post->post_name);
-        }
 
         return [
             '{front}' => esc_url(FrontendDomain::originOrHome()),
-            '{link}' => esc_url($link),
             '{type}' => esc_url($type !== null ? $type->name : (string) $post->post_type),
             '{slug}' => esc_url((string) $post->post_name),
             '{id}' => (string) $post->ID,
