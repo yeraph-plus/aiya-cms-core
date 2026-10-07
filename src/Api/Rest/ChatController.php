@@ -7,6 +7,7 @@ namespace Aiya\Core\Api\Rest;
 use Aiya\Core\Api\Contract\ChatMessage;
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Contract\Pagination;
+use Aiya\Core\Api\Presenter\WireDates;
 use Aiya\Core\Domain\Telegram\ChatStore;
 use Aiya\Core\Domain\Telegram\Relay;
 use WP_Error;
@@ -106,7 +107,7 @@ final class ChatController
             (int) ($row['id'] ?? 0),
             (int) ($row['sender'] ?? 0) === ChatStore::SENDER_STAFF ? 'staff' : 'visitor',
             (string) ($row['body'] ?? ''),
-            (string) ($row['created_at'] ?? '')
+            WireDates::fromGmt((string) ($row['created_at'] ?? ''))
         );
     }
 }

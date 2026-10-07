@@ -7,6 +7,7 @@ namespace Aiya\Core\Api\Rest;
 use Aiya\Core\Api\Contract\ChannelPost;
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Contract\Pagination;
+use Aiya\Core\Api\Presenter\WireDates;
 use Aiya\Core\Domain\Telegram\FeedIngestor;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -77,7 +78,7 @@ final class ChannelController
             self::media($row['media'] ?? null),
             (string) ($row['tg_link'] ?? ''),
             self::groupId($row['media_group_id'] ?? null),
-            (string) ($row['posted_at'] ?? '')
+            WireDates::fromGmt((string) ($row['posted_at'] ?? ''))
         );
     }
 
