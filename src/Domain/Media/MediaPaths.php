@@ -28,7 +28,10 @@ final class MediaPaths
      * Resolves a content URL, an absolute filesystem path or a
      * content-relative path to an existing local file inside the content
      * directory. Everything else (external URLs, query strings, paths
-     * outside wp-content, missing files) resolves to null.
+     * outside wp-content, traversal segments, missing files) resolves to
+     * null. Traversal is rejected before resolution, not after: realpath
+     * collapses `a/../..` segments first, and a prefix check on the
+     * collapsed result would let `/content/a/../../x` through.
      */
     public function urlToLocal(string $value): ?string
     {
@@ -41,7 +44,7 @@ final class MediaPaths
 
         if (preg_match('#^https?://#i', $normalized) === 1) {
             $path = ltrim((string) wp_parse_url($normalized, PHP_URL_PATH), '/');
-            if ($path === '') {
+            if ($path === '' || in_array('..', explode('/', $path), true)) {
                 return null;
             }
 
@@ -54,6 +57,10 @@ final class MediaPaths
             }
 
             return $this->existingInsideContent($this->contentDir() . '/' . $path);
+        }
+
+        if (in_array('..', explode('/', trim($normalized, '/')), true)) {
+            return null;
         }
 
         if (str_starts_with($normalized, '/')) {

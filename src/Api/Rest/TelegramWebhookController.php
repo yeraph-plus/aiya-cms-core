@@ -27,6 +27,13 @@ final class TelegramWebhookController
 {
     public const API_NAMESPACE = 'aiya/telegram/v1';
 
+    private UpdateProcessor $processor;
+
+    public function __construct(?UpdateProcessor $processor = null)
+    {
+        $this->processor = $processor ?? new UpdateProcessor();
+    }
+
     public function registerRoutes(): void
     {
         register_rest_route(self::API_NAMESPACE, 'webhook', [
@@ -55,7 +62,7 @@ final class TelegramWebhookController
 
         $update = json_decode((string) $request->get_body(), true);
         if (is_array($update)) {
-            (new UpdateProcessor())->process($update);
+            $this->processor->process($update);
         }
 
         return new WP_REST_Response(['ok' => true], 200);

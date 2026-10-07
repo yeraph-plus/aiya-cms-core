@@ -7,21 +7,28 @@ namespace Aiya\Core\Domain\Telegram;
 use Aiya\Infra\Telegram\Error;
 use Aiya\Core\Domain\Media\MediaPaths;
 use Aiya\Core\Domain\Media\MimeType;
+use Closure;
+use Throwable;
 
 /**
  * The channel-mirror's photo transfer: one Telegram file_id in, one image
  * file in the pool's telegram subtree out. The chain is the pic-bed
  * pipeline reshaped for a remote source — getFile resolves the download
  * path, the bytes ride a plain GET binary leg, the stored extension
- * derives from the finfo-detected MIME (never from the file name), and
- * the landed file resolves through MediaPaths to its URL and content-
- * relative key. Every failure answers null; the caller ships the row
- * without media and reports through the funnel.
+ * derives from the finfo-detected MIME (never from the file name), the
+ * landed file runs through the media pipeline closure (resize, watermark,
+ * format — the same treatment every site image gets) and resolves through
+ * MediaPaths to its URL and content-relative key. A failed pipeline run
+ * keeps the raw transfer (a mirrored photo degrades, never disappears);
+ * every other failure answers null; the caller ships the row without
+ * media and reports through the funnel.
  */
 final class TelegramImageStore
 {
-    public function __construct(private readonly MediaPaths $paths = new MediaPaths())
-    {
+    public function __construct(
+        private readonly MediaPaths $paths = new MediaPaths(),
+        private readonly ?Closure $processUpload = null,
+    ) {
     }
 
     /**
@@ -97,6 +104,20 @@ final class TelegramImageStore
             return null;
         }
 
+        // The media pipeline (resize, watermark, format conversion) gives a
+        // mirrored photo the same treatment every site image gets; when the
+        // run fails the raw transfer stays — degraded, not gone.
+        if ($this->processUpload !== null) {
+            try {
+                $processed = ($this->processUpload)($target);
+            } catch (Throwable) {
+                $processed = false;
+            }
+            if (is_string($processed) && $processed !== '' && is_file($processed)) {
+                $target = $processed;
+            }
+        }
+
         $url = $this->paths->localToUrl($target);
         $path = $this->paths->relativePath($target);
         if ($url === null || $path === null) {
@@ -113,6 +134,30 @@ final class TelegramImageStore
             'width' => is_array($size) ? (int) $size[0] : 0,
             'height' => is_array($size) ? (int) $size[1] : 0,
         ];
+    }
+
+    /**
+     * Deletes the pool files a feed row's media JSON references. Every
+     * path resolves through MediaPaths (realpath containment check), so a
+     * planted or outside value cannot steer the unlink — the domain owns
+     * its subtree and nothing beyond it.
+     */
+    public function purge(string $mediaJson): void
+    {
+        $decoded = json_decode($mediaJson, true);
+        if (!is_array($decoded)) {
+            return;
+        }
+
+        foreach ($decoded as $image) {
+            if (!is_array($image) || !is_string($image['path'] ?? null) || $image['path'] === '') {
+                continue;
+            }
+            $local = $this->paths->urlToLocal((string) $image['path']);
+            if ($local !== null) {
+                wp_delete_file($local);
+            }
+        }
     }
 
     private function download(string $url): ?string

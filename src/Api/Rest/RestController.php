@@ -12,6 +12,7 @@ use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\ProfilePresenter;
 use Aiya\Core\Api\Presenter\SitePresenter;
 use Aiya\Core\Api\Presenter\SmiliesPresenter;
+use Aiya\Core\Domain\Telegram\UpdateProcessor;
 use Aiya\Core\Api\Presenter\MembershipPresenter;
 use Aiya\Core\Api\Presenter\UploadPresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
@@ -67,6 +68,7 @@ final class RestController implements Module
         private Closure $processUpload,
         private MediaPaths $paths,
         private PostVisibility $visibility,
+        private UpdateProcessor $telegramIntake,
     ) {
     }
 
@@ -130,7 +132,7 @@ final class RestController implements Module
 
             // The Telegram webhook intake (platform pushes, outside the
             // contract namespace).
-            (new TelegramWebhookController())->registerRoutes();
+            (new TelegramWebhookController($this->telegramIntake))->registerRoutes();
 
             (new SmiliesController($smilies, new SmiliesPresenter()))->registerRoutes();
 

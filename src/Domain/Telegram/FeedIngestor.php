@@ -194,6 +194,33 @@ class FeedIngestor
     }
 
     /**
+     * Deletes one row and its transferred pool files — the domain's own
+     * cleanup surface (no admin screen rides on it yet; the CLI and a
+     * future delete page are the callers). Answers whether a row died.
+     */
+    public function delete(int $feedId): bool
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $table = $wpdb->prefix . self::TABLE;
+        $rows = $wpdb->get_results($wpdb->prepare('SELECT media FROM %i WHERE id = %d', $table, $feedId), ARRAY_A);
+        $rows = is_array($rows) ? $rows : [];
+        $row = $rows[0] ?? null;
+        if (!is_array($row)) {
+            return false;
+        }
+
+        $media = is_string($row['media'] ?? null) ? (string) $row['media'] : '';
+        if ($media !== '') {
+            (new TelegramImageStore())->purge($media);
+        }
+
+        $wpdb->delete($table, ['id' => $feedId], ['%d']);
+
+        return true;
+    }
+
+    /**
      * The feed page, newest first.
      *
      * @return list<array<string, mixed>>

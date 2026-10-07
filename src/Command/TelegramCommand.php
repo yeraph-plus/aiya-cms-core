@@ -55,7 +55,7 @@ final class TelegramCommand
         $offset = (int) get_option('aiya_core_tg_poll_offset', 0);
         \WP_CLI::log('Long-polling Telegram; Ctrl+C stops the loop.');
 
-        $processor = new UpdateProcessor();
+        $processor = aiya_core()->telegramIntake();
         // The operator loop: Ctrl+C is the stop, a platform rejection is
         // the loud stop, everything else retries on schedule.
         // @phpstan-ignore-next-line while.alwaysTrue (the loop is the process)

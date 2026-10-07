@@ -89,6 +89,9 @@ use Aiya\Core\Metadata\Registry as MetadataRegistry;
 use Aiya\Core\Modules\MediaModule;
 use Aiya\Core\Modules\GofileModule;
 use Aiya\Core\Modules\OpenListModule;
+use Aiya\Core\Domain\Telegram\FeedIngestor;
+use Aiya\Core\Domain\Telegram\TelegramImageStore;
+use Aiya\Core\Domain\Telegram\UpdateProcessor;
 use Aiya\Core\Runtime\SchemaVersionRunner;
 use Aiya\Core\Settings\Registry;
 
@@ -102,6 +105,9 @@ final class Plugin
 
     /** @var array<class-string<Module>, Module> */
     private array $modules = [];
+
+    /** The Telegram update funnel, built once at the composition root. */
+    private UpdateProcessor $telegramIntake;
 
     /** One-shot rewrite flush marker set by activate() (autoload off). */
     private const FLUSH_REWRITE_FLAG = 'aiya_core_flush_rewrite';
@@ -164,7 +170,6 @@ final class Plugin
         $this->addModule(new NotificationModule());
         $this->addModule(new NotificationActions());
         $this->addModule(new MailModule());
-        $this->addModule(new TelegramModule($this->settings));
         $this->addModule(new CreditModule($this->settings));
         $this->addModule(new IntegrationsModule($this->settings));
         $this->addModule(new CreditsPage());
@@ -195,6 +200,15 @@ final class Plugin
         }));
         $this->addModule(new TagCloudModule());
 
+        // The Telegram update funnel is built once here: the mirror's
+        // photo transfers run the same media pipeline (resize, watermark,
+        // format) as every site image, and only the composition root can
+        // hand that closure into the domain.
+        $this->telegramIntake = new UpdateProcessor(
+            new FeedIngestor(new TelegramImageStore($media->paths(), $media->uploadProcessor()))
+        );
+        $this->addModule(new TelegramModule($this->settings));
+
         // The card part reads a post through the Api-layer projection, so
         // the composition root injects that renderer; it needs the media
         // stack above, hence the late registration.
@@ -222,7 +236,7 @@ final class Plugin
 
         $this->addModule(new SchemaVersionRunner());
         $this->addModule(new VisibilityMetabox($visibility));
-        $this->addModule(new RestController($avatar, $fileServe->files(), $fileServe->downloads(), $media->cards(), $media->uploadProcessor(), $media->paths(), $visibility));
+        $this->addModule(new RestController($avatar, $fileServe->files(), $fileServe->downloads(), $media->cards(), $media->uploadProcessor(), $media->paths(), $visibility, $this->telegramIntake));
 
         // WP 7.1's load_plugin_textdomain no longer falls back to the
         // plugin-local languages dir, so the own .mo is loaded directly
@@ -325,6 +339,17 @@ final class Plugin
     public function settings(): Registry
     {
         return $this->settings;
+    }
+
+    /**
+     * The Telegram update funnel built at the composition root: the
+     * mirror's photo transfers carry the media pipeline closure, which is
+     * only reachable here — the webhook, the CLI poll and the mu-plugin
+     * intake all ride this one instance.
+     */
+    public function telegramIntake(): UpdateProcessor
+    {
+        return $this->telegramIntake;
     }
 
     public function metadata(): MetadataRegistry
