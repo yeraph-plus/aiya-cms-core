@@ -8,10 +8,11 @@ use Aiya\Core\Domain\Telegram\TelegramSettings;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The mirror source rows normalize once, here: the legacy textarea value
- * reads as bare id rows, the repeater shape normalizes @/case/whitespace
- * away, and the three answers every consumer speaks (accepts / row /
- * ids) come off the one normalized list.
+ * The mirror source rows normalize once, here: anything but the
+ * repeater shape reads as no sources (the feature is pre-launch, no
+ * older shape is honored), rows normalize @/case/whitespace away, and
+ * the two answers every consumer speaks (accepts / row) come off the
+ * one normalized list.
  */
 final class TelegramSettingsTest extends TestCase
 {
@@ -26,15 +27,12 @@ final class TelegramSettingsTest extends TestCase
         $GLOBALS['__aiya_test_options']['telegram'] = ['tg_mirror_source_chat_ids' => $sources];
     }
 
-    public function testALegacyTextareaStillReadsAsBareIdRows(): void
+    public function testAnythingButTheRepeaterShapeReadsAsNoSources(): void
     {
-        $this->configure("-100111, -100444; @CatACG\nnoise\n0");
+        $this->configure('-100111, -100444');
+        self::assertSame([], TelegramSettings::mirrorChannels(), 'a stale string value is dead data, not sources');
 
-        self::assertSame([
-            ['title' => '', 'chat' => '-100111', 'nsfw' => false],
-            ['title' => '', 'chat' => '-100444', 'nsfw' => false],
-        ], TelegramSettings::mirrorChannels(), 'the legacy format carried ids only; noise and zero drop as always');
-        self::assertSame([-100111, -100444], TelegramSettings::sourceChatIds());
+        self::assertSame([], TelegramSettings::mirrorChannels(), 'no option at all reads as no sources');
     }
 
     public function testRepeaterRowsNormalize(): void
@@ -50,7 +48,6 @@ final class TelegramSettingsTest extends TestCase
             ['title' => 'Cat Cafe', 'chat' => 'catacg', 'nsfw' => true],
             ['title' => '', 'chat' => '-100222', 'nsfw' => false],
         ], TelegramSettings::mirrorChannels(), 'the @ strips, usernames lowercase, empty rows drop');
-        self::assertSame([-100222], TelegramSettings::sourceChatIds(), 'only numeric rows speak ids');
     }
 
     public function testMirrorAcceptsSpeaksIdsAndUsernames(): void

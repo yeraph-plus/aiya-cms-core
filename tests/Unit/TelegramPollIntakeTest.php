@@ -63,7 +63,7 @@ final class TelegramPollIntakeTest extends TestCase
         $GLOBALS['__aiya_test_options']['telegram'] = array_merge([
             'tg_bot_token' => 'TOK',
             'tg_mirror_enabled' => true,
-            'tg_mirror_source_chat_ids' => '-100111',
+            'tg_mirror_source_chat_ids' => [['chat' => '-100111']],
         ], $overrides);
     }
 

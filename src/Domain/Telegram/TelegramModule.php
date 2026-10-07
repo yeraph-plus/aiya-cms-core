@@ -75,13 +75,6 @@ final class TelegramModule implements Module
                     'default' => '',
                 ],
                 [
-                    'id' => 'tg_webhook_secret_note',
-                    'type' => 'note',
-                    'variant' => 'info',
-                    'label' => __('The webhook secret token is managed, not entered: `wp aiya telegram set-webhook` mints it automatically, stores it server-side and registers it with the platform, which echoes it back in a request header on every push. Nothing to fill in here.', 'aiya-core'),
-                    'default' => null,
-                ],
-                [
                     'id' => 'tg_heading_push',
                     'type' => 'heading',
                     'label' => __('Publish push', 'aiya-core'),

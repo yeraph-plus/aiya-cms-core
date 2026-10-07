@@ -64,29 +64,14 @@ final class TelegramSettings
     /**
      * The mirror's source rows as the repeater saves them, `chat`
      * normalized (leading @ stripped, usernames lowercased, numeric ids
-     * kept as digit strings). A legacy string value (the old textarea,
-     * ids one per line) reads as bare rows until the page saves the
-     * repeater shape over it.
+     * kept as digit strings). Anything but the repeater shape reads as
+     * no sources — the feature is pre-launch and carries no older shape.
      *
      * @return list<array{title: string, chat: string, nsfw: bool}>
      */
     public static function mirrorChannels(): array
     {
-        $raw = aiya_core_opt(self::PAGE_SLUG, 'tg_mirror_source_chat_ids', '');
-        if (is_string($raw)) {
-            // The legacy textarea carried numeric ids only; noise lines
-            // drop exactly as they always did.
-            $rows = [];
-            $lines = preg_split('/[\s,;]+/u', trim($raw));
-            foreach (is_array($lines) ? $lines : [] as $line) {
-                $id = filter_var((string) $line, FILTER_VALIDATE_INT);
-                if (is_int($id) && $id !== 0) {
-                    $rows[] = ['title' => '', 'chat' => (string) $id, 'nsfw' => false];
-                }
-            }
-
-            return $rows;
-        }
+        $raw = aiya_core_opt(self::PAGE_SLUG, 'tg_mirror_source_chat_ids', []);
 
         $rows = [];
         foreach (is_array($raw) ? $raw : [] as $row) {
@@ -113,24 +98,6 @@ final class TelegramSettings
         $chat = ltrim(trim($chat), '@');
 
         return $chat === '' ? '' : (is_numeric($chat) ? $chat : strtolower($chat));
-    }
-
-    /**
-     * The numeric ids among the source rows — the shape the funnel's
-     * legacy gate spoke.
-     *
-     * @return list<int>
-     */
-    public static function sourceChatIds(): array
-    {
-        $ids = [];
-        foreach (self::mirrorChannels() as $row) {
-            if (is_numeric($row['chat']) && (int) $row['chat'] !== 0) {
-                $ids[] = (int) $row['chat'];
-            }
-        }
-
-        return $ids;
     }
 
     /** The mirror gate: a channel post rides when its chat id or (on public channels) its username matches a source row. */

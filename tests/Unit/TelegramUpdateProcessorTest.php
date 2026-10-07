@@ -137,17 +137,14 @@ final class TelegramUpdateProcessorTest extends TestCase
         self::assertSame([], $this->fakeFeed->ingested);
     }
 
-    public function testTheLegacyTextareaValueStillGatesTheMirror(): void
+    public function testAnythingButTheRepeaterShapeGatesTheMirrorOff(): void
     {
-        // The pre-repeater option value (ids one per line, commas and
-        // semicolons also separating) keeps gating until the settings page
-        // saves the repeater shape over it.
-        $this->configure(['tg_mirror_source_chat_ids' => "-100111, -100333; -100444\nnoise"]);
+        // The clean-cut rule: a stale non-array value is dead data, the
+        // mirror reads no sources from it and everything drops.
+        $this->configure(['tg_mirror_source_chat_ids' => "-100111\n-100222"]);
 
-        self::assertSame(UpdateProcessor::ROUTED, $this->processor->process($this->channelPost(-100333)));
-        self::assertSame(UpdateProcessor::ROUTED, $this->processor->process($this->channelPost(-100444)));
-        self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->channelPost(-100222)), 'a removed id drops immediately');
-        self::assertCount(2, $this->fakeFeed->ingested);
+        self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->channelPost(-100111)));
+        self::assertSame([], $this->fakeFeed->ingested);
     }
 
     public function testAUsernameRowGatesPublicChannelsByIdentity(): void
