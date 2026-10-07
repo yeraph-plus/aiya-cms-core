@@ -77,6 +77,11 @@ final class ChannelController
             (string) ($row['text'] ?? ''),
             self::entities($row['entities'] ?? null),
             self::media($row['media'] ?? null),
+            [
+                'id' => (int) ($row['source_chat_id'] ?? 0),
+                'title' => (string) ($row['chat_title'] ?? ''),
+                'username' => self::groupId($row['chat_username'] ?? null),
+            ],
             (string) ($row['tg_link'] ?? ''),
             self::groupId($row['media_group_id'] ?? null),
             WireDates::fromGmt((string) ($row['posted_at'] ?? ''))

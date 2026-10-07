@@ -30,6 +30,8 @@ class FeedIngestor
 
     public const ENTITIES_MIGRATION_VERSION = '1.3.0';
 
+    public const CHAT_IDENTITY_MIGRATION_VERSION = '1.4.0';
+
     private const TABLE = 'aiya_channel_feed';
 
     /**
@@ -86,6 +88,8 @@ class FeedIngestor
                 message_id BIGINT UNSIGNED NOT NULL,
                 media_group_id VARCHAR(64) DEFAULT NULL,
                 kind TINYINT UNSIGNED NOT NULL DEFAULT 1,
+                chat_title VARCHAR(255) NOT NULL DEFAULT '',
+                chat_username VARCHAR(64) DEFAULT NULL,
                 text LONGTEXT NULL,
                 entities LONGTEXT NULL,
                 media LONGTEXT NULL,
@@ -125,6 +129,30 @@ class FeedIngestor
     }
 
     /**
+     * The 1.4.0 reconciliation: the source channel's display identity
+     * (title + username snapshot) joins the row, so a multi-channel feed
+     * can name and group what it serves.
+     */
+    public static function addChatIdentityColumns(): void
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $table = $wpdb->prefix . self::TABLE;
+        if ($wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $table, 'chat_title')) !== null) {
+            return;
+        }
+
+        $alter = $wpdb->prepare(
+            "ALTER TABLE %i ADD COLUMN chat_title VARCHAR(255) NOT NULL DEFAULT '', ADD COLUMN chat_username VARCHAR(64) DEFAULT NULL AFTER chat_title",
+            $table
+        );
+        if (is_string($alter)) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
+            $wpdb->query($alter);
+        }
+    }
+
+    /**
      * Ingests one channel_post (or an edited_channel_post rewrite).
      * Verdicts are strings so intake logging asserts what happened:
      * 'stored' | 'updated' | 'skipped' (a platform replay of a stored
@@ -150,9 +178,14 @@ class FeedIngestor
             // old one orphaned — a media swap is a registered later item.
             $wpdb->update(
                 $table,
-                ['text' => $this->text($post), 'entities' => $this->entitiesJson($post)],
+                [
+                    'text' => $this->text($post),
+                    'entities' => $this->entitiesJson($post),
+                    'chat_title' => $this->chatTitle($post),
+                    'chat_username' => $this->chatUsername($post),
+                ],
                 ['source_chat_id' => $chatId, 'message_id' => $messageId],
-                ['%s', '%s'],
+                ['%s', '%s', '%s', '%s'],
                 ['%d', '%d']
             );
 
@@ -170,6 +203,8 @@ class FeedIngestor
             [
                 'source_chat_id' => $chatId,
                 'message_id' => $messageId,
+                'chat_title' => $this->chatTitle($post),
+                'chat_username' => $this->chatUsername($post),
                 'media_group_id' => $this->mediaGroupId($post),
                 'kind' => $this->kind($post),
                 'text' => $this->text($post),
@@ -179,7 +214,7 @@ class FeedIngestor
                 'posted_at' => gmdate('Y-m-d H:i:s', (int) ($post['date'] ?? time())),
                 'created_at' => current_time('mysql', true),
             ],
-            ['%d', '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s']
+            ['%d', '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s']
         );
 
         return 'stored';
@@ -368,6 +403,34 @@ class FeedIngestor
         }
 
         return $entities === [] ? null : (string) wp_json_encode($entities);
+    }
+
+    /**
+     * The source channel's display name (chat.title), empty when the
+     * shape is off.
+     *
+     * @param array<string, mixed> $post
+     */
+    private function chatTitle(array $post): string
+    {
+        $chat = is_array($post['chat'] ?? null) ? $post['chat'] : [];
+        $title = $chat['title'] ?? null;
+
+        return is_string($title) ? trim($title) : '';
+    }
+
+    /**
+     * The source channel's username without the @, null on private
+     * channels.
+     *
+     * @param array<string, mixed> $post
+     */
+    private function chatUsername(array $post): ?string
+    {
+        $chat = is_array($post['chat'] ?? null) ? $post['chat'] : [];
+        $username = $chat['username'] ?? null;
+
+        return is_string($username) && $username !== '' ? $username : null;
     }
 
     /**

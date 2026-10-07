@@ -44,6 +44,7 @@ final class TelegramModule implements Module
             $migrations[] = ['version' => FeedIngestor::MIGRATION_VERSION, 'callback' => [FeedIngestor::class, 'installTables']];
             $migrations[] = ['version' => ChatStore::MIGRATION_VERSION, 'callback' => [ChatStore::class, 'installTables']];
             $migrations[] = ['version' => FeedIngestor::ENTITIES_MIGRATION_VERSION, 'callback' => [FeedIngestor::class, 'addEntitiesColumn']];
+            $migrations[] = ['version' => FeedIngestor::CHAT_IDENTITY_MIGRATION_VERSION, 'callback' => [FeedIngestor::class, 'addChatIdentityColumns']];
 
             return $migrations;
         });

@@ -50,7 +50,7 @@ final class TelegramFeedIngestorTest extends TestCase
     {
         return array_merge([
             'message_id' => 55,
-            'chat' => ['id' => -1001234567890, 'type' => 'channel', 'username' => 'mychan'],
+            'chat' => ['id' => -1001234567890, 'type' => 'channel', 'username' => 'mychan', 'title' => 'My Channel'],
             'text' => 'hello world',
             'date' => 1728000000,
         ], $overrides);
@@ -72,6 +72,8 @@ final class TelegramFeedIngestorTest extends TestCase
         $row = $this->rows()[0];
         self::assertSame(1, (int) $row['kind']);
         self::assertSame('hello world', $row['text']);
+        self::assertSame('My Channel', $row['chat_title'], 'the channel identity snapshots at ingest');
+        self::assertSame('mychan', $row['chat_username']);
         self::assertNull($row['media']);
         self::assertSame('https://t.me/mychan/55', $row['tg_link'], 'a public channel builds from its username');
         self::assertSame('2024-10-04 00:00:00', $row['posted_at'], 'the platform date is the row stamp');
@@ -91,9 +93,10 @@ final class TelegramFeedIngestorTest extends TestCase
     {
         $this->ingestor->ingest(-1001234567890, $this->channelPost());
 
-        self::assertSame('updated', $this->ingestor->ingest(-1001234567890, $this->channelPost(['text' => 'rewritten']), true));
+        self::assertSame('updated', $this->ingestor->ingest(-1001234567890, $this->channelPost(['text' => 'rewritten', 'chat' => ['id' => -1001234567890, 'type' => 'channel', 'username' => 'mychan', 'title' => 'Renamed Channel']]), true));
         self::assertCount(1, $this->rows());
         self::assertSame('rewritten', $this->rows()[0]['text']);
+        self::assertSame('Renamed Channel', $this->rows()[0]['chat_title'], 'an edit refreshes the identity snapshot');
     }
 
     public function testAnEditForAnUnstoredMessageLandsFresh(): void
