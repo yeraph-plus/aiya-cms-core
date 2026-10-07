@@ -1467,6 +1467,9 @@ msgstr "没有匹配的短代码。"
 msgid "Smilies"
 msgstr "表情包"
 
+msgid "Browse all tags"
+msgstr "从全部标签中选择"
+
 msgid "Move to another taxonomy…"
 msgstr "移动到其他分类法…"
 

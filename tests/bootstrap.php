@@ -2343,7 +2343,12 @@ if (!function_exists('get_taxonomy')) {
         if (!array_key_exists($taxonomy, $GLOBALS['__aiya_test_terms'])) {
             return null;
         }
-        return (object) ['labels' => (object) ['singular_name' => ucfirst($taxonomy)]];
+        // Cached per name, so a test that mutates the taxonomy object (the
+        // tag-cloud label rewrite) sees the mutation on the next read.
+        $GLOBALS['__aiya_test_taxonomies'] ??= [];
+        $GLOBALS['__aiya_test_taxonomies'][$taxonomy] ??= (object) ['labels' => (object) ['singular_name' => ucfirst($taxonomy)]];
+
+        return $GLOBALS['__aiya_test_taxonomies'][$taxonomy];
     }
 }
 

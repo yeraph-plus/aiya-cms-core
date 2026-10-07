@@ -10,6 +10,7 @@ use Aiya\Core\Admin\CardThumbnailBulkAction;
 use Aiya\Core\Admin\ConvertCodesPage;
 use Aiya\Core\Admin\DiscussionModerationPage;
 use Aiya\Core\Admin\CreditsPage;
+use Aiya\Core\Admin\TagCloudModule;
 use Aiya\Core\Admin\EditorPlugins;
 use Aiya\Core\Admin\FileServeDialog;
 use Aiya\Core\Admin\MetaboxAdmin;
@@ -188,6 +189,7 @@ final class Plugin
         $this->addModule(new CardThumbnailBulkAction(static function (int $postId, bool $force = false) use ($media): void {
             $media->scheduleCardRefresh($postId, $force);
         }));
+        $this->addModule(new TagCloudModule());
 
         // The card part reads a post through the Api-layer projection, so
         // the composition root injects that renderer; it needs the media
