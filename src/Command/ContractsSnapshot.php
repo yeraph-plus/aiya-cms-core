@@ -67,6 +67,17 @@ final class ContractsSnapshot
             ['name' => 'viewerFavorited', 'type' => 'bool', 'nullable' => false],
             ['name' => 'viewerRating', 'type' => 'int', 'nullable' => true],
         ],
+        'ChannelPost' => [
+            ['name' => 'id', 'type' => 'int', 'nullable' => false],
+            ['name' => 'kind', 'type' => 'string', 'nullable' => false],
+            ['name' => 'text', 'type' => 'string', 'nullable' => false],
+            ['name' => 'entities', 'type' => 'array', 'nullable' => false],
+            ['name' => 'media', 'type' => 'array', 'nullable' => false],
+            ['name' => 'channel', 'type' => 'object', 'nullable' => false],
+            ['name' => 'tgLink', 'type' => 'string', 'nullable' => false],
+            ['name' => 'mediaGroupId', 'type' => 'string', 'nullable' => true],
+            ['name' => 'postedAt', 'type' => 'string', 'nullable' => false],
+        ],
         'DiscussionDetail' => [
             ['name' => 'id', 'type' => 'int', 'nullable' => false],
             ['name' => 'title', 'type' => 'string', 'nullable' => false],
