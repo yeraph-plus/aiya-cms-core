@@ -48,16 +48,11 @@ final class TelegramSettings
         return trim((string) aiya_core_opt(self::PAGE_SLUG, 'tg_push_chat_id', ''));
     }
 
-    public static function pushLinkTemplate(): string
-    {
-        $template = trim((string) aiya_core_opt(self::PAGE_SLUG, 'tg_push_link_template', ''));
-
-        return $template !== '' ? $template : '/resources/{slug}/';
-    }
-
     /**
-     * The push message body template: {title}, {link} and {excerpt}
-     * placeholders on the wire; empty restores the shipped two-line shape.
+     * The push message body template: post-object placeholders on the
+     * wire ({front}, {link}, {type}, {slug}, {id}, {title}, {excerpt},
+     * {tags}, {categories}, {date}, {author}); empty restores the
+     * shipped two-line shape.
      */
     public static function pushTemplate(): string
     {

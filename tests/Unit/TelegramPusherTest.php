@@ -34,6 +34,8 @@ final class TelegramPusherTest extends TestCase
         $GLOBALS['__aiya_test_posts'] = [];
         $GLOBALS['__aiya_test_cron'] = [];
         $GLOBALS['__aiya_test_filters'] = [];
+        $GLOBALS['__aiya_test_terms'] = [];
+        $GLOBALS['__aiya_test_user_meta'] = [];
 
         $this->pusher = new Pusher();
         $this->seedPost();
@@ -46,7 +48,6 @@ final class TelegramPusherTest extends TestCase
             'tg_push_enabled' => true,
             'tg_push_chat_id' => '@channel',
             'tg_bot_token' => 'TOK',
-            'tg_push_link_template' => '/resources/{slug}/',
         ], $overrides);
     }
 
@@ -132,9 +133,23 @@ final class TelegramPusherTest extends TestCase
         self::assertGreaterThan(0, $mapping['pushed_at']);
     }
 
-    public function testANonResourcePostIsIgnored(): void
+    public function testARegularPostIsPushedOnItsOwnRoute(): void
     {
         $this->seedPost(['post_type' => 'post']);
+        $this->stage(['ok' => true, 'result' => ['message_id' => 1]]);
+
+        $this->pusher->onPublished($GLOBALS['__aiya_test_posts'][5]);
+
+        self::assertSame(
+            '<a href="https://aiya.test/posts/hello/">Hello World</a>' . "\n\n" . 'first second',
+            $this->lastBody()['text'],
+            'the canonical link follows the public type route pattern'
+        );
+    }
+
+    public function testANonPublicTypeIsIgnored(): void
+    {
+        $this->seedPost(['post_type' => 'page']);
         $this->stage(['ok' => true, 'result' => ['message_id' => 1]]);
 
         $this->pusher->onPublished($GLOBALS['__aiya_test_posts'][5]);
@@ -352,5 +367,27 @@ final class TelegramPusherTest extends TestCase
         self::assertLessThanOrEqual(4096, mb_strlen($text), 'the platform limit holds');
         self::assertStringStartsWith('[Hello World](https://aiya.test/resources/hello/) =>', $text, 'the prefix survives the budget cut');
         self::assertStringEndsWith('— end', $text, 'the suffix survives the budget cut');
+    }
+
+    public function testACompositionTemplateServesBothTypesWithPostFacts(): void
+    {
+        $GLOBALS['__aiya_test_user_meta'][7] = ['display_name' => 'Alice'];
+        $GLOBALS['__aiya_test_terms']['post_tag'] = [(object) ['name' => 'news'], (object) ['name' => 'dev']];
+        $GLOBALS['__aiya_test_terms']['category'] = [(object) ['name' => '普通文章']];
+        $this->seedPost([
+            'post_type' => 'post',
+            'post_author' => 7,
+            'post_date_gmt' => '2026-10-07 08:00:00',
+        ]);
+        $this->configure(['tg_push_template' => '{date} {author} {tags} {categories} {type} {slug} {front}']);
+        $this->stage(['ok' => true, 'result' => ['message_id' => 1]]);
+
+        $this->pusher->onPublished($GLOBALS['__aiya_test_posts'][5]);
+
+        self::assertSame(
+            '2026-10-07 08:00 Alice #news #dev #普通文章 post hello https://aiya.test',
+            $this->lastBody()['text'],
+            'the operator composes the route ({type}s/{slug}) and the facts ride along'
+        );
     }
 }

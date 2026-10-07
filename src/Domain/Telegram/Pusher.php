@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Telegram;
 
 use Aiya\Core\Domain\Shared\FrontendDomain;
+use Aiya\Core\Domain\Shared\PublicTypes;
 use Aiya\Infra\Telegram\Error;
 use WP_Post;
 
@@ -30,6 +31,9 @@ final class Pusher
     public const META_KEY = 'aiya_core_telegram';
 
     public const RETRY_HOOK = 'aiya_core_tg_push_retry';
+
+    /** The post types the push route speaks for. */
+    public const PUSH_TYPES = ['post', 'resource'];
 
     private const MAX_ATTEMPTS = 3;
 
@@ -72,7 +76,7 @@ final class Pusher
     public function push(int $postId, int $attempt = 1): void
     {
         $post = get_post($postId);
-        if (!$post instanceof WP_Post || $post->post_type !== 'resource' || $post->post_status !== 'publish') {
+        if (!$post instanceof WP_Post || !in_array($post->post_type, self::PUSH_TYPES, true) || $post->post_status !== 'publish') {
             return;
         }
         if (!TelegramSettings::pushEnabled() || TelegramSettings::pushChatId() === '') {
@@ -156,31 +160,26 @@ final class Pusher
 
     /**
      * The notice text: the message template (a settings field) with the
-     * {title}/{link}/{excerpt} placeholders filled — HTML parse mode,
-     * every substitution escaped (the markup the operator writes is the
-     * only markup), clamped to the platform's 4096 characters (tags
-     * count — the excerpt yields first, the rest of the template stays
-     * intact).
+     * post-object placeholders filled — HTML parse mode, every
+     * substitution escaped (the markup the operator writes is the only
+     * markup), clamped to the platform's 4096 characters (tags count —
+     * the excerpt yields first, the rest of the template stays intact).
      */
     private function message(WP_Post $post): string
     {
         $template = TelegramSettings::pushTemplate();
-        $link = esc_url($this->frontUrl($post));
-        $titleRaw = $this->clamp(wp_strip_all_tags((string) $post->post_title), self::TITLE_CHARS);
-        $excerptRaw = $this->excerpt($post);
-        $title = esc_html($titleRaw);
-        $excerpt = esc_html($excerptRaw);
+        $values = $this->values($post);
 
-        $built = str_replace(['{title}', '{link}', '{excerpt}'], [$title, $link, $excerpt], $template);
+        $built = str_replace(array_keys($values), array_values($values), $template);
         if (mb_strlen($built) <= self::MAX_CHARS) {
             return $built;
         }
 
         if (str_contains($template, '{excerpt}')) {
-            [$prefix, $suffix] = self::excerptSplit($template, $title, $link);
+            [$prefix, $suffix] = self::excerptSplit($template, $values);
             $budget = self::MAX_CHARS - mb_strlen($prefix) - mb_strlen($suffix);
             if ($budget >= 80) {
-                $built = $prefix . esc_html($this->clamp($excerptRaw, $budget)) . $suffix;
+                $built = $prefix . esc_html($this->clamp($this->excerpt($post), $budget)) . $suffix;
                 if (mb_strlen($built) <= self::MAX_CHARS) {
                     return $built;
                 }
@@ -194,26 +193,83 @@ final class Pusher
     }
 
     /**
-     * The template split around the excerpt slot, the other placeholders
-     * already filled — the fixed cost the excerpt budget is computed from.
+     * The post-object placeholder map, every value already escaped for
+     * the wire. {link} is the canonical front URL: the front-end origin
+     * plus the public type's own path pattern, so each post type lands
+     * on its real route without a per-type template.
      *
-     * @return array{0: string, 1: string}
+     * @return array<string, string>
      */
-    private static function excerptSplit(string $template, string $title, string $link): array
+    private function values(WP_Post $post): array
     {
-        $parts = explode('{excerpt}', $template, 2);
+        $type = PublicTypes::forPostType((string) $post->post_type);
+        $link = FrontendDomain::originOrHome();
+        if ($type !== null) {
+            $link .= sprintf($type->urlPattern, (string) $post->post_name);
+        }
 
         return [
-            str_replace(['{title}', '{link}'], [$title, $link], (string) ($parts[0] ?? '')),
-            str_replace(['{title}', '{link}'], [$title, $link], (string) ($parts[1] ?? '')),
+            '{front}' => esc_url(FrontendDomain::originOrHome()),
+            '{link}' => esc_url($link),
+            '{type}' => esc_url($type !== null ? $type->name : (string) $post->post_type),
+            '{slug}' => esc_url((string) $post->post_name),
+            '{id}' => (string) $post->ID,
+            '{title}' => esc_html($this->clamp(wp_strip_all_tags((string) $post->post_title), self::TITLE_CHARS)),
+            '{excerpt}' => esc_html($this->excerpt($post)),
+            '{tags}' => esc_html($this->termNames($post, 'tag')),
+            '{categories}' => esc_html($this->termNames($post, 'category')),
+            '{date}' => esc_html((string) wp_date('Y-m-d H:i', (int) get_post_timestamp($post))),
+            '{author}' => esc_html(trim((string) get_the_author_meta('display_name', (int) $post->post_author))),
         ];
     }
 
-    private function frontUrl(WP_Post $post): string
+    /**
+     * The post's terms of one contract role, display names joined with a
+     * # prefix — the template carries no term URLs by design.
+     */
+    private function termNames(WP_Post $post, string $contract): string
     {
-        $path = str_replace('{slug}', (string) $post->post_name, TelegramSettings::pushLinkTemplate());
+        $type = PublicTypes::forPostType((string) $post->post_type);
+        if ($type === null) {
+            return '';
+        }
 
-        return FrontendDomain::originOrHome() . $path;
+        $taxonomies = [];
+        foreach ($type->taxonomies as [$wpTaxonomy, $role]) {
+            if ($role === $contract) {
+                $taxonomies[] = $wpTaxonomy;
+            }
+        }
+        if ($taxonomies === []) {
+            return '';
+        }
+
+        $names = wp_get_object_terms((int) $post->ID, $taxonomies, ['fields' => 'names']);
+        $names = is_array($names) ? array_values(array_filter($names, 'is_string')) : [];
+        if ($names === []) {
+            return '';
+        }
+
+        return '#' . implode(' #', $names);
+    }
+
+    /**
+     * The template split around the excerpt slot, the other placeholders
+     * already filled — the fixed cost the excerpt budget is computed from.
+     *
+     * @param array<string, string> $values
+     * @return array{0: string, 1: string}
+     */
+    private static function excerptSplit(string $template, array $values): array
+    {
+        $fixed = $values;
+        unset($fixed['{excerpt}']);
+        $parts = explode('{excerpt}', $template, 2);
+
+        return [
+            str_replace(array_keys($fixed), array_values($fixed), (string) ($parts[0] ?? '')),
+            str_replace(array_keys($fixed), array_values($fixed), (string) ($parts[1] ?? '')),
+        ];
     }
 
     private function excerpt(WP_Post $post): string

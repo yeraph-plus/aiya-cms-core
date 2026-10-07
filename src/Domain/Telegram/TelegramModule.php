@@ -92,7 +92,7 @@ final class TelegramModule implements Module
                 [
                     'id' => 'tg_push_enabled',
                     'type' => 'switch',
-                    'checkbox_label' => __('Push resource posts to the target chat when published, edit the sent message in place on update', 'aiya-core'),
+                    'checkbox_label' => __('Push published posts and resources to the target chat, editing the sent message in place on update', 'aiya-core'),
                     'default' => false,
                 ],
                 [
@@ -103,17 +103,10 @@ final class TelegramModule implements Module
                     'default' => '',
                 ],
                 [
-                    'id' => 'tg_push_link_template',
-                    'type' => 'text',
-                    'label' => __('Front-end link template', 'aiya-core'),
-                    'description' => __('Path template for the article link in the notice; {slug} is replaced with the post slug on top of the configured front-end domain.', 'aiya-core'),
-                    'default' => '/resources/{slug}/',
-                ],
-                [
                     'id' => 'tg_push_template',
                     'type' => 'textarea',
                     'label' => __('Message template', 'aiya-core'),
-                    'description' => __('The push message body in Telegram HTML, with {title}, {link} and {excerpt} placeholders. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first.', 'aiya-core'),
+                    'description' => __('The push message body in Telegram HTML. Placeholders: {front} the front-end origin, {link} the article URL (each type\'s own route), {type}, {slug}, {id}, {title}, {excerpt}, {tags} and {categories} display names with a # prefix, {date}, {author}. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first.', 'aiya-core'),
                     'default' => '<a href="{link}">{title}</a>' . "\n\n" . '{excerpt}',
                 ],
                 [

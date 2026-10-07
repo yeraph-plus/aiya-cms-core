@@ -694,6 +694,30 @@ if (!function_exists('wp_strip_all_tags')) {
     }
 }
 
+if (!function_exists('wp_get_object_terms')) {
+    /**
+     * The term names of the seeded vocabularies: fixtures fill
+     * $GLOBALS['__aiya_test_terms'][taxonomy] with objects or arrays
+     * carrying a name. Object relations are not modeled — the consumers
+     * in the suite (the push template's term placeholders) read whole
+     * vocabularies.
+     */
+    function wp_get_object_terms(mixed $objectIds, array|string $taxonomies, array|string $args = []): array
+    {
+        $names = [];
+        foreach ((array) $taxonomies as $taxonomy) {
+            foreach ($GLOBALS['__aiya_test_terms'][(string) $taxonomy] ?? [] as $term) {
+                $name = is_object($term) ? ($term->name ?? '') : (is_array($term) ? ($term['name'] ?? '') : '');
+                if (is_string($name) && $name !== '') {
+                    $names[] = $name;
+                }
+            }
+        }
+
+        return $names;
+    }
+}
+
 if (!function_exists('wp_kses')) {
     /**
      * An allowlist approximation of core's kses: script/style blocks go

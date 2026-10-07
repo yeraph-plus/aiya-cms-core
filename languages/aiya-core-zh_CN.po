@@ -3100,8 +3100,8 @@ msgstr "用 /id 换取提问会话的 id（发现辅助——给 bot 发 /id 或
 msgid "Publish push"
 msgstr "发布推送"
 
-msgid "Push resource posts to the target chat when published, edit the sent message in place on update"
-msgstr "resource 文章发布时推送到目标会话，更新时原地编辑已发消息"
+msgid "Push published posts and resources to the target chat, editing the sent message in place on update"
+msgstr "文章与资源发布时推送到目标会话，更新时原地编辑已发消息"
 
 msgid "Push target"
 msgstr "推送目标"
@@ -3109,17 +3109,11 @@ msgstr "推送目标"
 msgid "Numeric chat id or @channelusername the publish/update notices go to."
 msgstr "接收发布/更新通知的数字会话 id 或 @频道用户名"
 
-msgid "Front-end link template"
-msgstr "前台链接模板"
-
-msgid "Path template for the article link in the notice; {slug} is replaced with the post slug on top of the configured front-end domain."
-msgstr "通知里文章链接的路径模板；{slug} 会替换为文章 slug，拼在前台域名之后"
-
 msgid "Message template"
 msgstr "消息模板"
 
-msgid "The push message body in Telegram HTML, with {title}, {link} and {excerpt} placeholders. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first."
-msgstr "Telegram HTML 格式的推送消息正文，占位符 {title}、{link}、{excerpt}。所有替换值均会转义，你写在这里的标签是唯一生效的标签；省略某个占位符即去掉该部分，留空恢复默认。限制：标题上限 250 字符，摘要上限 400 字符（手填摘要优先，否则取剥离后的正文），整条消息钳在平台 4096 字符内，超长时先裁摘要"
+msgid "The push message body in Telegram HTML. Placeholders: {front} the front-end origin, {link} the article URL (each type's own route), {type}, {slug}, {id}, {title}, {excerpt}, {tags} and {categories} display names with a # prefix, {date}, {author}. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first."
+msgstr "Telegram HTML 格式的推送消息正文。占位符：{front} 前台 origin、{link} 文章链接（各类型自己的路由）、{type}、{slug}、{id}、{title}、{excerpt}、{tags} 与 {categories}（显示名加 # 前缀）、{date}、{author}。所有替换值均会转义，你写在这里的标签是唯一生效的标签；省略某个占位符即去掉该部分，留空恢复默认。限制：标题上限 250 字符，摘要上限 400 字符（手填摘要优先，否则取剥离后的正文），整条消息钳在平台 4096 字符内，超长时先裁摘要"
 
 msgid "Channel mirror"
 msgstr "频道镜像"
