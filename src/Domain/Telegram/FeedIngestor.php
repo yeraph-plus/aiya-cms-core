@@ -220,7 +220,7 @@ class FeedIngestor
                 'posted_at' => gmdate('Y-m-d H:i:s', (int) ($post['date'] ?? time())),
                 'created_at' => current_time('mysql', true),
             ],
-            ['%d', '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s']
+            ['%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s']
         );
 
         return 'stored';
