@@ -79,7 +79,12 @@ final class TelegramCommand
                 if (is_int($updateId)) {
                     $offset = max($offset, $updateId + 1);
                 }
-                \WP_CLI::log(sprintf('update %s: %s', is_int($updateId) ? (string) $updateId : '?', $processor->process($update)));
+                \WP_CLI::log(sprintf(
+                    'update %s | chat %s | %s',
+                    is_int($updateId) ? (string) $updateId : '?',
+                    self::chatLabel($update),
+                    $processor->process($update)
+                ));
             }
             if ($offset !== (int) get_option('aiya_core_tg_poll_offset', 0)) {
                 update_option('aiya_core_tg_poll_offset', $offset, false);
@@ -188,5 +193,32 @@ final class TelegramCommand
         }
 
         return $client;
+    }
+
+    /**
+     * The update's chat label: the numeric chat id plus the title/username
+     * when present. The poll is the configuration-time discovery tool —
+     * the operator reads the chat ids off this line to fill the settings
+     * page's push target, source channels and owner chat.
+     *
+     * @param array<string, mixed> $update
+     */
+    private static function chatLabel(array $update): string
+    {
+        $chat = $update['channel_post']['chat']
+            ?? $update['edited_channel_post']['chat']
+            ?? $update['message']['chat']
+            ?? null;
+        if (!is_array($chat)) {
+            return '?';
+        }
+
+        $id = $chat['id'] ?? null;
+        $names = array_values(array_filter([
+            is_string($chat['title'] ?? null) ? $chat['title'] : '',
+            is_string($chat['username'] ?? null) ? '@' . $chat['username'] : '',
+        ]));
+
+        return (is_int($id) ? (string) $id : '?') . ($names === [] ? '' : ' (' . implode(' ', $names) . ')');
     }
 }
