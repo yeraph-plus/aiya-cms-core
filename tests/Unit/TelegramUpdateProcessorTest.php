@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Tests\Unit;
 
 use Aiya\Core\Domain\Telegram\FeedIngestor;
+use Aiya\Core\Domain\Telegram\IdProbe;
 use Aiya\Core\Domain\Telegram\Relay;
 use Aiya\Core\Domain\Telegram\UpdateProcessor;
 use PHPUnit\Framework\TestCase;
@@ -49,14 +50,26 @@ final class TelegramUpdateProcessorTest extends TestCase
                 $this->received[] = [$chatId, $message];
             }
         };
+        $fakeProbe = new class extends IdProbe {
+            /** @var list<array{int, bool}> */
+            public array $answered = [];
+
+            public function answer(int $chatId, bool $isChannel): void
+            {
+                $this->answered[] = [$chatId, $isChannel];
+            }
+        };
         $this->fakeFeed = $fakeFeed;
         $this->fakeRelay = $fakeRelay;
-        $this->processor = new UpdateProcessor($fakeFeed, $fakeRelay);
+        $this->fakeProbe = $fakeProbe;
+        $this->processor = new UpdateProcessor($fakeFeed, $fakeRelay, $fakeProbe);
     }
 
     private FeedIngestor $fakeFeed;
 
     private Relay $fakeRelay;
+
+    private IdProbe $fakeProbe;
 
     private function configure(array $overrides = []): void
     {
@@ -166,5 +179,64 @@ final class TelegramUpdateProcessorTest extends TestCase
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->channelPost(-100111)));
         self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->ownerMessage(777)));
         self::assertSame([], $this->fakeFeed->ingested);
+    }
+
+    // ---- the /id discovery probe ---------------------------------------------
+
+    /** An update-shaped bare /id private message from an unconfigured chat. */
+    private function idMessage(int $chatId): array
+    {
+        return ['message' => ['message_id' => 9, 'chat' => ['id' => $chatId, 'type' => 'private'], 'text' => '/id']];
+    }
+
+    public function testAProbeOnAnswersIdWhereverItComesFrom(): void
+    {
+        $this->configure(['tg_id_probe' => true]);
+
+        self::assertSame(UpdateProcessor::PROBED, $this->processor->process($this->idMessage(777)));
+        self::assertSame(
+            UpdateProcessor::PROBED,
+            $this->processor->process(['channel_post' => ['message_id' => 10, 'chat' => ['id' => -100999, 'type' => 'channel'], 'text' => '/id']]),
+            'a channel /id answers in the channel, whitelist or not — that is the bootstrap point'
+        );
+
+        self::assertSame([[777, false], [-100999, true]], $this->fakeProbe->answered);
+        self::assertSame([], $this->fakeFeed->ingested, 'the /id post never becomes a feed row');
+    }
+
+    public function testAProbeOffLeavesTheWhitelistsAlone(): void
+    {
+        $this->configure();
+
+        self::assertSame(UpdateProcessor::DROPPED, $this->processor->process($this->idMessage(999)));
+        self::assertSame([], $this->fakeProbe->answered, 'the default-off probe never speaks');
+    }
+
+    public function testAProbeMatchesOnlyTheBareCommand(): void
+    {
+        $this->configure(['tg_id_probe' => true]);
+
+        self::assertSame(
+            UpdateProcessor::PROBED,
+            $this->processor->process(['message' => ['message_id' => 11, 'chat' => ['id' => 777, 'type' => 'private'], 'text' => '/id@MyBot']]),
+            'the group-scope command spelling is the same ask'
+        );
+        self::assertSame(UpdateProcessor::DROPPED, $this->processor->process(
+            ['message' => ['message_id' => 12, 'chat' => ['id' => 999, 'type' => 'private'], 'text' => '/id please']]
+        ), 'prose with an /id prefix is a normal message (from a non-owner chat: dropped)');
+
+        self::assertCount(1, $this->fakeProbe->answered);
+    }
+
+    public function testAnEditedIdPostIsNotProbed(): void
+    {
+        $this->configure(['tg_id_probe' => true]);
+
+        self::assertSame(
+            UpdateProcessor::DROPPED,
+            $this->processor->process(['edited_channel_post' => ['message_id' => 10, 'chat' => ['id' => -100999, 'type' => 'channel'], 'text' => '/id']]),
+            'edits ride the gate, the probe answers fresh asks only'
+        );
+        self::assertSame([], $this->fakeProbe->answered);
     }
 }

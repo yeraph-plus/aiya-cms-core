@@ -88,6 +88,12 @@ final class TelegramModule implements Module
                     'default' => '',
                 ],
                 [
+                    'id' => 'tg_id_probe',
+                    'type' => 'switch',
+                    'checkbox_label' => __('Answer /id with the asking chat\'s id (discovery helper — send /id to the bot or post it in the channel, then turn this off)', 'aiya-core'),
+                    'default' => false,
+                ],
+                [
                     'id' => 'tg_heading_push',
                     'type' => 'heading',
                     'label' => __('Publish push', 'aiya-core'),

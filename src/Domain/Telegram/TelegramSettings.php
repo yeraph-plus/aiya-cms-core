@@ -33,6 +33,12 @@ final class TelegramSettings
         return trim((string) aiya_core_opt(self::PAGE_SLUG, 'tg_webhook_secret', ''));
     }
 
+    /** The /id discovery probe: on, /id gets the asking chat's id back. */
+    public static function idProbeEnabled(): bool
+    {
+        return (bool) aiya_core_opt(self::PAGE_SLUG, 'tg_id_probe', false);
+    }
+
     public static function pushEnabled(): bool
     {
         return (bool) aiya_core_opt(self::PAGE_SLUG, 'tg_push_enabled', false);

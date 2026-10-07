@@ -3109,6 +3109,9 @@ msgstr "Webhook 秘密令牌"
 msgid "Minted by `wp aiya telegram set-webhook` when none is stored yet; never displayed. Telegram echoes it in a request header on every push; treat it like a password."
 msgstr "尚无存值时由 `wp aiya telegram set-webhook` 铸造；永不回显。Telegram 每次推送会在请求头回传它，请按密码对待"
 
+msgid "Answer /id with the asking chat's id (discovery helper — send /id to the bot or post it in the channel, then turn this off)"
+msgstr "用 /id 换取提问会话的 id（发现辅助——给 bot 发 /id 或在频道里发 /id 帖，配置完毕即关闭）"
+
 msgid "Publish push"
 msgstr "发布推送"
 

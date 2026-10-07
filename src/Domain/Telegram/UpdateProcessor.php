@@ -19,15 +19,19 @@ final class UpdateProcessor
 {
     public const ROUTED = 'routed';
     public const DROPPED = 'dropped';
+    public const PROBED = 'probed';
 
     private FeedIngestor $feed;
 
     private Relay $relay;
 
-    public function __construct(?FeedIngestor $feed = null, ?Relay $relay = null)
+    private IdProbe $probe;
+
+    public function __construct(?FeedIngestor $feed = null, ?Relay $relay = null, ?IdProbe $probe = null)
     {
         $this->feed = $feed ?? new FeedIngestor();
         $this->relay = $relay ?? new Relay();
+        $this->probe = $probe ?? new IdProbe();
     }
 
     /**
@@ -59,6 +63,10 @@ final class UpdateProcessor
      */
     private function channelPost(int $chatId, array $post, bool $isEdit): string
     {
+        // Fresh asks only: editing an answered /id post is not a new ask.
+        if (!$isEdit && $this->probeAnswers($chatId, $post, true)) {
+            return self::PROBED;
+        }
         if ($chatId === 0 || !TelegramSettings::mirrorEnabled() || !in_array($chatId, TelegramSettings::sourceChatIds(), true)) {
             return self::DROPPED;
         }
@@ -73,6 +81,9 @@ final class UpdateProcessor
      */
     private function ownerMessage(int $chatId, array $message): string
     {
+        if ($this->probeAnswers($chatId, $message, false)) {
+            return self::PROBED;
+        }
         if ($chatId === 0 || $chatId !== TelegramSettings::ownerChatId() || !TelegramSettings::relayEnabled()) {
             return self::DROPPED;
         }
@@ -82,6 +93,25 @@ final class UpdateProcessor
         $this->relay->onOwnerMessage($chatId, $message);
 
         return self::ROUTED;
+    }
+
+    /**
+     * The discovery probe rides ahead of the whitelists: filling the ids
+     * is the very thing the whitelists wait on, so an explicitly switched-
+     * on probe is the one bootstrap exception. It only ever echoes the
+     * asking chat's own id back into that chat.
+     *
+     * @param array<string, mixed> $message
+     */
+    private function probeAnswers(int $chatId, array $message, bool $isChannel): bool
+    {
+        if ($chatId === 0 || !TelegramSettings::idProbeEnabled() || !IdProbe::matches($message)) {
+            return false;
+        }
+
+        $this->probe->answer($chatId, $isChannel);
+
+        return true;
     }
 
     /**
