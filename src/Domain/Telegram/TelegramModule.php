@@ -46,6 +46,12 @@ final class TelegramModule implements Module
             (new FeedIngestor())->wipe();
         });
 
+        // Route 2's reset surface: the same action-checkbox semantics, and
+        // the chat table carries no files — one bare delete is the wipe.
+        add_action(ChatStore::WIPE_ACTION, static function (): void {
+            (new ChatStore())->wipe();
+        });
+
         // The channel feed table lands as the chain's first post-1.0
         // entry (MigrationChainTest pins the count and the version).
         add_filter('aiya_core_schema_migrations', static function (array $migrations): array {
@@ -178,6 +184,15 @@ final class TelegramModule implements Module
                     'label' => __('Owner chat id', 'aiya-core'),
                     'description' => __('Your private chat with the bot. Send /status there and the bot replies with the id; only replies to relayed visitor messages flow back to the web.', 'aiya-core'),
                     'default' => '',
+                ],
+                [
+                    'id' => 'tg_relay_wipe',
+                    'type' => 'action_checkbox',
+                    'label' => __('Clear the relay history', 'aiya-core'),
+                    'checkbox_label' => __('Delete every relayed conversation on this save', 'aiya-core'),
+                    'description' => __('The web thread is the source of truth for the support chat: this erases the visitors\' messages, your replies and the Telegram bindings in one go, and old bot copies in your chat stop routing replies back. The mirror feed\'s table is a different one and stays.', 'aiya-core'),
+                    'action' => ChatStore::WIPE_ACTION,
+                    'default' => null,
                 ],
             ],
         ]);

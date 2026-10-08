@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.124.0\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.125.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core-pot\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-08T00:57:30+00:00\n"
+"POT-Creation-Date: 2026-10-08T04:21:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -1821,9 +1821,9 @@ msgstr ""
 
 #: src/Admin/SamplePage.php:259
 #: src/Domain/Membership/MembershipModule.php:106
-#: src/Domain/Telegram/TelegramModule.php:94
-#: src/Domain/Telegram/TelegramModule.php:121
-#: src/Domain/Telegram/TelegramModule.php:171
+#: src/Domain/Telegram/TelegramModule.php:100
+#: src/Domain/Telegram/TelegramModule.php:127
+#: src/Domain/Telegram/TelegramModule.php:177
 msgid "Enabled"
 msgstr ""
 
@@ -4594,101 +4594,113 @@ msgstr ""
 msgid "Thread ID"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:65
-#: src/Domain/Telegram/TelegramModule.php:66
+#: src/Domain/Telegram/TelegramModule.php:71
+#: src/Domain/Telegram/TelegramModule.php:72
 msgid "Telegram Bot"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:75
+#: src/Domain/Telegram/TelegramModule.php:81
 msgid "Bot connection"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:81
+#: src/Domain/Telegram/TelegramModule.php:87
 msgid "Bot token"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:82
+#: src/Domain/Telegram/TelegramModule.php:88
 msgid "From @BotFather. Stored server-side and never exposed."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:88
+#: src/Domain/Telegram/TelegramModule.php:94
 msgid "Publish push"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:95
+#: src/Domain/Telegram/TelegramModule.php:101
 msgid "Push published posts and resources to the target chat, editing the sent message in place on update"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:101
+#: src/Domain/Telegram/TelegramModule.php:107
 msgid "Push target"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:102
+#: src/Domain/Telegram/TelegramModule.php:108
 msgid "Numeric chat id or @channelusername the publish/update notices go to."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:108
+#: src/Domain/Telegram/TelegramModule.php:114
 msgid "Message template"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:109
+#: src/Domain/Telegram/TelegramModule.php:115
 msgid "The push message body in Telegram HTML. Placeholders: {front} the front-end origin, {type} and {slug} the post's public type and slug, {id}, {title}, {excerpt}, {tags} and {categories} display names with a # prefix, {date}, {author}. Links are yours to compose from {front}, {type} and {slug}; the backend keeps no front-end route shapes. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:115
+#: src/Domain/Telegram/TelegramModule.php:121
 msgid "Channel mirror"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:122
+#: src/Domain/Telegram/TelegramModule.php:128
 msgid "Ingest the source channels' posts into the mirror feed (images transfer into the image pool; videos and files surface as t.me links)"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:128
+#: src/Domain/Telegram/TelegramModule.php:134
 msgid "Source channels"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:129
+#: src/Domain/Telegram/TelegramModule.php:135
 msgid "The channels mirrored into the web feed, one row each: an optional display title (the feed prefers it over the channel's own name), the channel's numeric id or @username, and the NSFW mark the row carries into the feed. Posts from any other chat are dropped. A private channel's t.me links only open for its members."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:135
+#: src/Domain/Telegram/TelegramModule.php:141
 msgid "Display title"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:141
+#: src/Domain/Telegram/TelegramModule.php:147
 msgid "Channel id or @username"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:148
+#: src/Domain/Telegram/TelegramModule.php:154
 msgid "NSFW"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:156
+#: src/Domain/Telegram/TelegramModule.php:162
 msgid "Clear the local mirror"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:157
+#: src/Domain/Telegram/TelegramModule.php:163
 msgid "Delete every mirrored row and its transferred images on this save"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:158
+#: src/Domain/Telegram/TelegramModule.php:164
 msgid "The mirror is one-way: the channel is the source of truth and this table only holds the local copy. Cleared rows never come back — the platform cannot replay channel history, so the feed refills from new channel posts only. The support relay's messages live in their own table and stay."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:165
+#: src/Domain/Telegram/TelegramModule.php:171
 msgid "Support relay"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:172
+#: src/Domain/Telegram/TelegramModule.php:178
 msgid "Relay the web support chat into your private chat with the bot, and your replies back to the web"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:178
+#: src/Domain/Telegram/TelegramModule.php:184
 msgid "Owner chat id"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:179
+#: src/Domain/Telegram/TelegramModule.php:185
 msgid "Your private chat with the bot. Send /status there and the bot replies with the id; only replies to relayed visitor messages flow back to the web."
+msgstr ""
+
+#: src/Domain/Telegram/TelegramModule.php:191
+msgid "Clear the relay history"
+msgstr ""
+
+#: src/Domain/Telegram/TelegramModule.php:192
+msgid "Delete every relayed conversation on this save"
+msgstr ""
+
+#: src/Domain/Telegram/TelegramModule.php:193
+msgid "The web thread is the source of truth for the support chat: this erases the visitors' messages, your replies and the Telegram bindings in one go, and old bot copies in your chat stop routing replies back. The mirror feed's table is a different one and stays."
 msgstr ""
 
 #: src/Domain/Typography/TypographyModule.php:48

@@ -91,4 +91,18 @@ final class TelegramChatStoreTest extends TestCase
         self::assertSame(['three', 'two'], array_column($first, 'body'), 'newest first');
         self::assertSame(['one'], array_column($second, 'body'), 'the window walks back');
     }
+
+    public function testTheWipeEmptiesEverySessionAndAnswersTheCount(): void
+    {
+        $this->store->post(7, 'one');
+        $row = $this->store->post(7, 'two');
+        $this->store->bindTelegram((int) $row['id'], 777, 500);
+        $this->store->post(8, 'other session');
+
+        self::assertSame(3, $this->store->wipe(), 'the wipe answers the removed-row count');
+        self::assertSame(0, $this->store->countSession('u7'), 'no session survives, bindings included');
+        self::assertSame(0, $this->store->countSession('u8'));
+        self::assertNull($this->store->storeOwnerReply(777, 500, 'late reply'), 'an old bot copy routes to nothing after the wipe');
+        self::assertSame(0, $this->store->wipe(), 'a second wipe on the empty table answers zero');
+    }
 }

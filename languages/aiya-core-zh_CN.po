@@ -3151,6 +3151,15 @@ msgstr "站长会话 id"
 msgid "Your private chat with the bot. Send /status there and the bot replies with the id; only replies to relayed visitor messages flow back to the web."
 msgstr "你与 bot 的私聊。向它发送 /status，bot 会回复这个 id；只有对访客留言的回复会回流到网页。"
 
+msgid "Clear the relay history"
+msgstr "清空中继历史"
+
+msgid "Delete every relayed conversation on this save"
+msgstr "本次保存时删除全部中继会话"
+
+msgid "The web thread is the source of truth for the support chat: this erases the visitors' messages, your replies and the Telegram bindings in one go, and old bot copies in your chat stop routing replies back. The mirror feed's table is a different one and stays."
+msgstr "网页客服线程是事实源：此操作一并擦除访客留言、你的回复与 Telegram 绑定，私聊里旧 bot 副本的回复将不再回流。镜像 feed 的表在另一张，不受影响。"
+
 msgid "Typography tools"
 msgstr "排版工具"
 

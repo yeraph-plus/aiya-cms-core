@@ -23,6 +23,9 @@ class ChatStore
 
     public const SENDER_STAFF = 2;
 
+    /** The settings page's one-shot table wipe (never stored, fired on save). */
+    public const WIPE_ACTION = 'aiya_core_telegram_wipe_chat';
+
     public static function sessionFor(int $userId): string
     {
         return 'u' . $userId;
@@ -210,5 +213,27 @@ class ChatStore
         $row = $rows[0] ?? null;
 
         return is_array($row) ? $row : null;
+    }
+
+    /**
+     * The settings page's one reset surface for the relay: visitor rows,
+     * staff replies and the Telegram bindings die together — an owner
+     * reply to an old bot copy finds nothing afterwards and drops on the
+     * funnel's null path. This is erasing the web thread (the source of
+     * truth), not a cache reset. Answers the removed-row count.
+     */
+    public function wipe(): int
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $prepared = $wpdb->prepare('DELETE FROM %i', $wpdb->prefix . self::TABLE);
+        if (!is_string($prepared)) {
+            return 0;
+        }
+
+        /** @var int|false $removed */
+        $removed = $wpdb->query($prepared);
+
+        return is_int($removed) ? $removed : 0;
     }
 }
