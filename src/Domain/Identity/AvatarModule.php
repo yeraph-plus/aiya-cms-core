@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Identity;
 
 use Aiya\Core\Contracts\Module;
+use Aiya\Core\Domain\Media\MediaPaths;
+use Aiya\Core\Domain\Media\MediaStore;
 use Aiya\Core\Settings\Registry;
 use Aiya\Infra\ImageProcessor\CropGenerator;
 use Aiya\Infra\ImageProcessor\ImagineFactory;
-use FilesystemIterator;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use RuntimeException;
-use SplFileInfo;
-use Throwable;
 
 /**
  * Avatar handling for the headless backend: local avatars per user, a
@@ -69,8 +66,11 @@ final class AvatarModule implements Module
         'weavatar' => 'weavatar.com',
     ];
 
-    public function __construct(private Registry $settings)
-    {
+    public function __construct(
+        private Registry $settings,
+        private readonly MediaPaths $paths = new MediaPaths(),
+        private readonly MediaStore $store = new MediaStore(),
+    ) {
     }
 
     public function register(): void
@@ -255,10 +255,9 @@ final class AvatarModule implements Module
 
         // File avatar: swap the size file under the user's avatar directory.
         $chosen = $size <= self::SMALL_SIZE ? self::SMALL_SIZE : self::LARGE_SIZE;
-        $url = content_url('/' . ltrim(dirname($full), '/') . '/' . $chosen . '.jpg');
         $version = isset($meta['v']) ? (int) $meta['v'] : 0;
 
-        return $version > 0 ? $url . '?v=' . $version : $url;
+        return $this->paths->avatarUrl($userId, $chosen, $version);
     }
 
     /** True while the user has a file avatar (current shape) in place. */
@@ -279,7 +278,7 @@ final class AvatarModule implements Module
     {
         $version = $this->fileAvatarVersion($user->ID);
         $previewUrl = $version > 0
-            ? content_url('/aiya_thumbnail/avatars/' . $user->ID . '/' . self::LARGE_SIZE . '.jpg?v=' . $version)
+            ? $this->paths->avatarUrl($user->ID, self::LARGE_SIZE, $version)
             : null;
 
         $nonce = wp_create_nonce('aiya_core_avatar_' . $user->ID);
@@ -373,7 +372,7 @@ final class AvatarModule implements Module
      */
     public function versionedUrl(int $userId): string
     {
-        return content_url('/aiya_thumbnail/avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg?v=' . $this->fileAvatarVersion($userId));
+        return $this->paths->avatarUrl($userId, self::LARGE_SIZE, $this->fileAvatarVersion($userId));
     }
 
     /**
@@ -403,7 +402,7 @@ final class AvatarModule implements Module
             throw new RuntimeException(__('No avatar image was provided.', 'aiya-core'));
         }
 
-        $dir = $this->avatarsDir($userId);
+        $dir = $this->paths->avatarDir($userId);
         $quality = min(100, max(1, (int) aiya_core_opt('image', 'image_quality', 96)));
         $crops = new CropGenerator(static fn (): \Imagine\Image\ImagineInterface => ImagineFactory::create());
 
@@ -415,7 +414,7 @@ final class AvatarModule implements Module
         }
 
         update_user_meta($userId, self::META_KEY, [
-            'full' => 'aiya_thumbnail/avatars/' . $userId . '/' . self::LARGE_SIZE . '.jpg',
+            'full' => $this->paths->avatarKey($userId, self::LARGE_SIZE),
             'v' => time(),
         ]);
     }
@@ -427,26 +426,7 @@ final class AvatarModule implements Module
             return;
         }
 
-        $dir = WP_CONTENT_DIR . '/aiya_thumbnail/avatars/' . $userId;
-        if (is_dir($dir)) {
-            $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::CHILD_FIRST
-            );
-            foreach ($iterator as $item) {
-                if (!$item instanceof SplFileInfo) {
-                    continue;
-                }
-                if ($item->isDir()) {
-                    // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- best-effort cleanup of our own pool.
-                    @rmdir($item->getPathname());
-                } else {
-                    wp_delete_file($item->getPathname());
-                }
-            }
-            // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- best-effort cleanup of our own pool.
-            @rmdir($dir);
-        }
+        $this->store->deleteTree($this->paths->avatarDir($userId));
 
         delete_user_meta($userId, self::META_KEY);
     }
@@ -494,15 +474,5 @@ final class AvatarModule implements Module
         if ($mime === null || !in_array($mime, self::SOURCE_MIMES, true)) {
             throw new RuntimeException(__('Only JPEG, PNG, WebP and GIF images can be used as an avatar.', 'aiya-core'));
         }
-    }
-
-    private function avatarsDir(int $userId): string
-    {
-        $dir = WP_CONTENT_DIR . '/aiya_thumbnail/avatars/' . $userId;
-        if (!is_dir($dir)) {
-            wp_mkdir_p($dir);
-        }
-
-        return $dir;
     }
 }

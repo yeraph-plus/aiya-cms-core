@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Smilies;
 
+use Aiya\Core\Domain\Media\MediaPaths;
+
 /**
  * Directory-convention smilies registry: packs live as plain folders under
  * `wp-content/aiya_smilies/{pack}/{code}.{ext}` — the site owner drops a ready-
@@ -44,7 +46,18 @@ final class SmiliesRegistry
     public function __construct(
         private readonly ?string $directory = null,
         private readonly ?string $baseUrl = null,
+        private readonly ?MediaPaths $paths = null,
     ) {
+    }
+
+    private function resolveDirectory(): string
+    {
+        return $this->directory ?? ($this->paths ?? new MediaPaths())->smiliesDir();
+    }
+
+    private function resolveBaseUrl(): string
+    {
+        return $this->baseUrl ?? ($this->paths ?? new MediaPaths())->smiliesUrl();
     }
 
     /**
@@ -191,11 +204,11 @@ final class SmiliesRegistry
 
     private function directory(): string
     {
-        return $this->directory ?? (defined('WP_CONTENT_DIR') ? WP_CONTENT_DIR . '/aiya_smilies' : 'smilies');
+        return $this->resolveDirectory();
     }
 
     private function baseUrl(): string
     {
-        return $this->baseUrl ?? content_url('aiya_smilies');
+        return $this->resolveBaseUrl();
     }
 }

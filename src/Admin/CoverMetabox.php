@@ -6,6 +6,7 @@ namespace Aiya\Core\Admin;
 
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Media\CoverService;
+use Aiya\Core\Domain\Media\MediaPaths;
 use WP_Post;
 
 /**
@@ -23,7 +24,7 @@ final class CoverMetabox implements Module
     private const NONCE_ACTION = 'aiya_core_generate_cover';
     private const AJAX_ACTION = 'aiya_core_generate_cover';
 
-    public function __construct(private CoverService $covers)
+    public function __construct(private CoverService $covers, private readonly MediaPaths $paths = new MediaPaths())
     {
     }
 
@@ -158,7 +159,7 @@ final class CoverMetabox implements Module
             return $value;
         }
 
-        return (string) content_url('/' . ltrim($value, '/'));
+        return $this->paths->keyToUrl($value);
     }
 
     /** Legacy presentation cleanup: drop bracket groups and punctuation. */

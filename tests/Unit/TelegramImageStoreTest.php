@@ -47,13 +47,13 @@ final class TelegramImageStoreTest extends TestCase
     public function testThePipelineClosureTransformsTheLandedFile(): void
     {
         $this->stagePhoto();
-        $store = new TelegramImageStore(new \Aiya\Core\Domain\Media\MediaPaths(), static function (string $target): string|false {
+        $store = new TelegramImageStore(new \Aiya\Core\Domain\Media\MediaPaths(), new \Aiya\Core\Domain\Media\MediaStore(new \Aiya\Core\Domain\Media\MediaPaths(), static function (string $target, bool $watermark = true): string|false {
             // A conversion-shaped pipeline: the source dies, a webp lands.
             $converted = $target . '.webp';
             rename($target, $converted);
 
             return $converted;
-        });
+        }));
 
         $image = $store->transfer('IMG1', -100111, 5);
 
@@ -66,9 +66,9 @@ final class TelegramImageStoreTest extends TestCase
     public function testAFailingPipelineKeepsTheRawTransfer(): void
     {
         $this->stagePhoto();
-        $store = new TelegramImageStore(new \Aiya\Core\Domain\Media\MediaPaths(), static function (string $target): string|false {
+        $store = new TelegramImageStore(new \Aiya\Core\Domain\Media\MediaPaths(), new \Aiya\Core\Domain\Media\MediaStore(new \Aiya\Core\Domain\Media\MediaPaths(), static function (string $target, bool $watermark = true): string|false {
             throw new \RuntimeException('pipeline exploded');
-        });
+        }));
 
         $image = $store->transfer('IMG1', -100111, 5);
 
@@ -79,7 +79,7 @@ final class TelegramImageStoreTest extends TestCase
     public function testPurgeDeletesOnlyTheReferencedPoolFiles(): void
     {
         $this->stagePhoto();
-        $store = new TelegramImageStore(new \Aiya\Core\Domain\Media\MediaPaths());
+        $store = new TelegramImageStore(new \Aiya\Core\Domain\Media\MediaPaths(), new \Aiya\Core\Domain\Media\MediaStore(new \Aiya\Core\Domain\Media\MediaPaths()));
         $image = $store->transfer('IMG1', -100111, 5);
         self::assertNotNull($image);
 

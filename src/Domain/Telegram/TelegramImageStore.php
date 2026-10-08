@@ -6,9 +6,8 @@ namespace Aiya\Core\Domain\Telegram;
 
 use Aiya\Infra\Telegram\Error;
 use Aiya\Core\Domain\Media\MediaPaths;
+use Aiya\Core\Domain\Media\MediaStore;
 use Aiya\Core\Domain\Media\MimeType;
-use Closure;
-use Throwable;
 
 /**
  * The channel-mirror's photo transfer: one Telegram file_id in, one image
@@ -16,18 +15,19 @@ use Throwable;
  * pipeline reshaped for a remote source — getFile resolves the download
  * path, the bytes ride a plain GET binary leg, the stored extension
  * derives from the finfo-detected MIME (never from the file name), the
- * landed file runs through the media pipeline closure (resize, watermark,
- * format — the same treatment every site image gets) and resolves through
- * MediaPaths to its URL and content-relative key. A failed pipeline run
- * keeps the raw transfer (a mirrored photo degrades, never disappears);
- * every other failure answers null; the caller ships the row without
- * media and reports through the funnel.
+ * landed file runs through the media store's pipeline (resize, watermark,
+ * format — the same treatment every site image gets, watermark included)
+ * and resolves through the store's fact sheet to its URL and
+ * content-relative key. A failed pipeline run keeps the raw transfer (a
+ * mirrored photo degrades, never disappears); every other failure
+ * answers null; the caller ships the row without media and reports
+ * through the funnel.
  */
 final class TelegramImageStore
 {
     public function __construct(
         private readonly MediaPaths $paths = new MediaPaths(),
-        private readonly ?Closure $processUpload = null,
+        private readonly MediaStore $store = new MediaStore(),
     ) {
     }
 
@@ -107,21 +107,14 @@ final class TelegramImageStore
         // The media pipeline (resize, watermark, format conversion) gives a
         // mirrored photo the same treatment every site image gets; when the
         // run fails the raw transfer stays — degraded, not gone.
-        if ($this->processUpload !== null) {
-            try {
-                $processed = ($this->processUpload)($target);
-            } catch (Throwable) {
-                $processed = false;
-            }
-            if (is_string($processed) && $processed !== '' && is_file($processed)) {
-                $target = $processed;
-            }
+        $processed = $this->store->process($target);
+        if ($processed !== null) {
+            $target = $processed;
         }
 
-        $url = $this->paths->localToUrl($target);
-        $path = $this->paths->relativePath($target);
-        if ($url === null || $path === null) {
-            wp_delete_file($target);
+        $facts = $this->store->facts($target);
+        if ($facts === null) {
+            $this->store->delete($target);
 
             return null;
         }
@@ -129,8 +122,8 @@ final class TelegramImageStore
         $size = getimagesize($target);
 
         return [
-            'path' => $path,
-            'url' => $url,
+            'path' => $facts['path'],
+            'url' => $facts['url'],
             'width' => is_array($size) ? (int) $size[0] : 0,
             'height' => is_array($size) ? (int) $size[1] : 0,
         ];
@@ -138,9 +131,9 @@ final class TelegramImageStore
 
     /**
      * Deletes the pool files a feed row's media JSON references. Every
-     * path resolves through MediaPaths (realpath containment check), so a
-     * planted or outside value cannot steer the unlink — the domain owns
-     * its subtree and nothing beyond it.
+     * reference resolves through the store (realpath containment check),
+     * so a planted or outside value cannot steer the unlink — the domain
+     * owns its subtree and nothing beyond it.
      */
     public function purge(string $mediaJson): void
     {
@@ -153,10 +146,7 @@ final class TelegramImageStore
             if (!is_array($image) || !is_string($image['path'] ?? null) || $image['path'] === '') {
                 continue;
             }
-            $local = $this->paths->urlToLocal((string) $image['path']);
-            if ($local !== null) {
-                wp_delete_file($local);
-            }
+            $this->store->delete((string) $image['path']);
         }
     }
 

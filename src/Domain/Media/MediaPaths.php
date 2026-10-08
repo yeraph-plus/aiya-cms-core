@@ -75,7 +75,17 @@ final class MediaPaths
     {
         $relative = $this->relativePath($absolutePath);
 
-        return $relative === null ? null : $this->contentUrl() . '/' . $relative;
+        return $relative === null ? null : $this->keyToUrl($relative);
+    }
+
+    /**
+     * The one URL derivation from a content-relative key — the storage
+     * seam an external-driver iteration replaces (a CDN/S3 driver swaps
+     * this base; every consumer keeps calling the same method).
+     */
+    public function keyToUrl(string $relativeKey): string
+    {
+        return $this->contentUrl() . '/' . ltrim(str_replace('\\', '/', $relativeKey), './');
     }
 
     /** Content-relative, forward-slashed path, or null when outside. */
@@ -99,6 +109,31 @@ final class MediaPaths
     public function thumbnailDir(int $width, int $height): string
     {
         return $this->ensureDir($this->contentDir() . '/aiya_thumbnail/' . $width . 'x' . $height);
+    }
+
+    /**
+     * The file-avatar recipe, single author of all three shapes: the
+     * directory (writes), the storage key (the `basic_user_avatar` meta
+     * protocol), and the versioned URL (the wire). Avatars deliberately
+     * never meet the watermark: the crop leg is their whole pipeline.
+     */
+    public function avatarDir(int $userId): string
+    {
+        return $this->ensureDir($this->contentDir() . '/aiya_thumbnail/avatars/' . $userId);
+    }
+
+    /** The content-relative storage key of one avatar size file. */
+    public function avatarKey(int $userId, int $size): string
+    {
+        return 'aiya_thumbnail/avatars/' . $userId . '/' . $size . '.jpg';
+    }
+
+    /** The versioned wire URL of one avatar size file. */
+    public function avatarUrl(int $userId, int $size, int $version = 0): string
+    {
+        $url = $this->keyToUrl($this->avatarKey($userId, $size));
+
+        return $version > 0 ? $url . '?v=' . $version : $url;
     }
 
     /**
@@ -136,7 +171,33 @@ final class MediaPaths
      */
     public function coverManualDir(): string
     {
-        return $this->ensureDir($this->contentDir() . '/aiya_thumbnail/cover/manual/' . wp_date('Y/m'));
+        return $this->ensureDir($this->coverManualTree() . '/' . wp_date('Y/m'));
+    }
+
+    /** Whether a stored `_thumb` value (key or URL) names a manual cover — the recognition rides the same tree the writer builds into. */
+    public function isManualCover(string $value): bool
+    {
+        $normalized = str_replace('\\', '/', trim($value));
+        if (preg_match('#^https?://#i', $normalized) === 1) {
+            $base = trim((string) wp_parse_url($this->contentUrl(), PHP_URL_PATH), '/');
+            $path = ltrim((string) wp_parse_url($normalized, PHP_URL_PATH), '/');
+            if ($base !== '' && str_starts_with($path, $base . '/')) {
+                $path = substr($path, strlen($base) + 1);
+            }
+            $normalized = $path;
+        }
+
+        return str_contains('/' . ltrim($normalized, '/'), '/' . $this->coverManualTreeFragment());
+    }
+
+    private function coverManualTree(): string
+    {
+        return $this->contentDir() . '/aiya_thumbnail/cover/manual';
+    }
+
+    private function coverManualTreeFragment(): string
+    {
+        return $this->relativePath($this->coverManualTree()) . '/';
     }
 
     /** Automatic card pipeline output (save hook / cron), no title. */
@@ -175,6 +236,20 @@ final class MediaPaths
     public function telegramDir(): string
     {
         return $this->ensureDir($this->contentDir() . '/aiya_upload_pics/telegram/' . wp_date('Y/m'));
+    }
+
+    /**
+     * The operator-shipped smilies tree: one directory recipe, one URL
+     * recipe — the same pair every other pool subtree answers through.
+     */
+    public function smiliesDir(): string
+    {
+        return $this->contentDir() . '/aiya_smilies';
+    }
+
+    public function smiliesUrl(): string
+    {
+        return $this->keyToUrl('aiya_smilies');
     }
 
     private function ensureDir(string $dir): string

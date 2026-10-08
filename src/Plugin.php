@@ -193,19 +193,19 @@ final class Plugin
 
         $media = new MediaModule($this->settings);
         $this->addModule($media);
-        $this->addModule(new CoverMetabox($media->covers()));
-        $this->addModule(new PicBedPage($media->uploadProcessor(), $media->paths()));
+        $this->addModule(new CoverMetabox($media->covers(), $media->paths()));
+        $this->addModule(new PicBedPage($media->store(), $media->paths()));
         $this->addModule(new CardThumbnailBulkAction(static function (int $postId, bool $force = false) use ($media): void {
             $media->scheduleCardRefresh($postId, $force);
         }));
         $this->addModule(new TagCloudModule());
 
         // The Telegram update funnel is built once here: the mirror's
-        // photo transfers run the same media pipeline (resize, watermark,
+        // photo transfers run the media store's pipeline (resize, watermark,
         // format) as every site image, and only the composition root can
-        // hand that closure into the domain.
+        // hand the store into the domain.
         $this->telegramIntake = new UpdateProcessor(
-            new FeedIngestor(new TelegramImageStore($media->paths(), $media->uploadProcessor()))
+            new FeedIngestor(new TelegramImageStore($media->paths(), $media->store()))
         );
         $this->addModule(new TelegramModule($this->settings));
 
@@ -236,7 +236,7 @@ final class Plugin
 
         $this->addModule(new SchemaVersionRunner());
         $this->addModule(new VisibilityMetabox($visibility));
-        $this->addModule(new RestController($avatar, $fileServe->files(), $fileServe->downloads(), $media->cards(), $media->uploadProcessor(), $media->paths(), $visibility, $this->telegramIntake));
+        $this->addModule(new RestController($avatar, $fileServe->files(), $fileServe->downloads(), $media->cards(), $media->store(), $media->paths(), $visibility, $this->telegramIntake));
 
         // WP 7.1's load_plugin_textdomain no longer falls back to the
         // plugin-local languages dir, so the own .mo is loaded directly

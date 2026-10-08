@@ -49,6 +49,7 @@ namespace Aiya\Core\Tests\Unit {
     use Aiya\Core\Api\Rest\RateLimiter;
     use Aiya\Core\Api\Rest\UploadsController;
     use Aiya\Core\Domain\Media\MediaPaths;
+use Aiya\Core\Domain\Media\MediaStore;
     use PHPUnit\Framework\TestCase;
     use WP_Error;
     use WP_REST_Server;
@@ -108,7 +109,7 @@ namespace Aiya\Core\Tests\Unit {
         private function controller(): UploadsController
         {
             return new UploadsController(
-                static fn (string $processed): string|false => false, // the pipeline never runs in this suite
+                new MediaStore(new MediaPaths(), static fn (string $processed, bool $watermark = true): string|false => false), // the pipeline never runs in this suite
                 new MediaPaths(),
                 new RateLimiter(),
                 new UploadPresenter(),

@@ -392,11 +392,11 @@ final class CardThumbnailService
     {
         $previous = get_post_meta($postId, self::THUMB_KEY, true);
 
-        // A manually generated titled cover (aiya_thumbnail/cover/manual/) wins
-        // over every automatic path — save hook, cron, even a forced batch
-        // refresh. Redoing a cover means pressing "Generate cover" in the
-        // editor again.
-        if (is_string($previous) && str_contains($previous, '/aiya_thumbnail/cover/manual/')) {
+        // A manually generated titled cover (cover/manual/) wins over every
+        // automatic path — save hook, cron, even a forced batch refresh.
+        // Redoing a cover means pressing "Generate cover" in the editor
+        // again.
+        if (is_string($previous) && $this->paths->isManualCover($previous)) {
             return false;
         }
 

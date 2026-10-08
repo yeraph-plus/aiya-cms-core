@@ -8,6 +8,7 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Media\CoverService;
 use Aiya\Core\Domain\Media\MediaPaths;
+use Aiya\Core\Domain\Media\MediaStore;
 use Aiya\Core\Domain\Media\ThumbnailService;
 use Aiya\Core\Settings\Registry;
 use Aiya\Infra\ImageProcessor\Assets;
@@ -49,6 +50,7 @@ final class MediaModule implements Module
     private ThumbnailService|null $thumbnails = null;
     private CoverService|null $covers = null;
     private CardThumbnailService|null $cards = null;
+    private MediaStore|null $store = null;
 
     public function __construct(private Registry $settings)
     {
@@ -319,6 +321,12 @@ final class MediaModule implements Module
         return $this->paths ??= new MediaPaths();
     }
 
+    /** The pool's unified file-operations point (pipeline + facts + deletes) — the storage seam for a future external driver. */
+    public function store(): MediaStore
+    {
+        return $this->store ??= new MediaStore($this->paths(), $this->uploadProcessor());
+    }
+
     public function thumbnails(): ThumbnailService
     {
         return $this->thumbnails ??= new ThumbnailService(
@@ -371,7 +379,7 @@ final class MediaModule implements Module
      */
     public function uploadProcessor(): Closure
     {
-        return fn (string $file): string|false => $this->processUploadedImage($file);
+        return fn (string $file, bool $watermark = true): string|false => $this->processUploadedImage($file, $watermark);
     }
 
     /**
@@ -422,12 +430,13 @@ final class MediaModule implements Module
 
     /**
      * Runs the package pipeline over a local file with the current
-     * settings: max width, watermark, format conversion with an
-     * editor-support check.
+     * settings: max width, watermark (per call — pool uploads carry it,
+     * avatar crops never do), format conversion with an editor-support
+     * check.
      *
      * @return string|false The processed local path, or false on failure.
      */
-    public function processUploadedImage(string $source): string|false
+    public function processUploadedImage(string $source, bool $watermark = true): string|false
     {
         if ($source === '' || !is_file($source)) {
             return false;
@@ -438,7 +447,7 @@ final class MediaModule implements Module
 
         return $applier->process(
             $source,
-            $this->watermarkSpec(),
+            $this->watermarkSpec($watermark),
             $format,
             (int) aiya_core_opt(self::PAGE_SLUG, 'image_max_width', 0),
             SaveOptions::for($format, (int) aiya_core_opt(self::PAGE_SLUG, 'image_quality', 96))
@@ -450,10 +459,10 @@ final class MediaModule implements Module
         return static fn (): ImagineInterface => ImagineFactory::create();
     }
 
-    private function watermarkSpec(): WatermarkSpec
+    private function watermarkSpec(bool $enabled = true): WatermarkSpec
     {
         return WatermarkSpec::fromArray([
-            'mode_type' => (string) aiya_core_opt(self::PAGE_SLUG, 'image_watermark_mode', 'off'),
+            'mode_type' => $enabled ? (string) aiya_core_opt(self::PAGE_SLUG, 'image_watermark_mode', 'off') : 'off',
             'position' => (string) aiya_core_opt(self::PAGE_SLUG, 'image_watermark_position', 'bottom-right'),
             'font_file' => $this->fontFile(),
             'text' => (string) aiya_core_opt(self::PAGE_SLUG, 'image_watermark_text', ''),

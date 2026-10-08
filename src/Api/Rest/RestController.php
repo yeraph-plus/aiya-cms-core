@@ -29,6 +29,7 @@ use Aiya\Core\Domain\Discussion\DiscussionLikeService;
 use Aiya\Core\Domain\Discussion\DiscussionService;
 use Aiya\Core\Domain\Media\CardThumbnailService;
 use Aiya\Core\Domain\Media\MediaPaths;
+use Aiya\Core\Domain\Media\MediaStore;
 use Aiya\Core\Domain\Engagement\CounterService;
 use Aiya\Core\Domain\FileServe\DownloadService;
 use Aiya\Core\Domain\FileServe\FileService;
@@ -50,7 +51,6 @@ use Aiya\Core\Domain\Membership\MembershipService;
 use Aiya\Core\Domain\Payment\OrderService;
 use Aiya\Core\Domain\Redeem\RedeemCodeService;
 use Aiya\Infra\OpenCc\Converter;
-use Closure;
 
 /**
  * Module owning the versioned headless API (`aiya/core/v1`): bearer-token
@@ -65,7 +65,7 @@ final class RestController implements Module
         private FileService $files,
         private DownloadService $downloads,
         private CardThumbnailService $cards,
-        private Closure $processUpload,
+        private MediaStore $store,
         private MediaPaths $paths,
         private PostVisibility $visibility,
         private UpdateProcessor $telegramIntake,
@@ -110,7 +110,7 @@ final class RestController implements Module
 
             (new CommentsController(new RateLimiter(), new CommentQuery($this->visibility), new CommentPresenter($smiliesRenderer, $mentions)))->registerRoutes();
 
-            (new UploadsController($this->processUpload, $this->paths, new RateLimiter(), new UploadPresenter()))->registerRoutes();
+            (new UploadsController($this->store, $this->paths, new RateLimiter(), new UploadPresenter()))->registerRoutes();
 
             (new ContentController(
                 new ContentQuery($this->visibility),

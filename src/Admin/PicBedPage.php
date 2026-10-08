@@ -7,10 +7,10 @@ namespace Aiya\Core\Admin;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Media\PicBedStore;
 use Aiya\Core\Domain\Media\MediaPaths;
+use Aiya\Core\Domain\Media\MediaStore;
 use Aiya\Core\Domain\Media\MimeType;
 use Aiya\Core\Settings\Registry;
 use Aiya\Core\Settings\Schema\Page;
-use Closure;
 use FilesystemIterator;
 use RecursiveCallbackFilterIterator;
 use RecursiveDirectoryIterator;
@@ -43,11 +43,8 @@ final class PicBedPage implements Module
     private const NONCE_ACTION = 'aiya_core_pic_bed_upload';
     private const MAX_SIZE_MB = 10;
 
-    /**
-     * @param Closure(string): (string|false) $processUpload Media pipeline.
-     */
     public function __construct(
-        private readonly Closure $processUpload,
+        private readonly MediaStore $store,
         private readonly MediaPaths $paths
     ) {
     }
@@ -202,7 +199,7 @@ final class PicBedPage implements Module
 
         // The shared pipeline (also behind the REST composer upload);
         // its rejections carry the user-facing message already.
-        $stored = (new PicBedStore($this->paths, $this->processUpload, self::MAX_SIZE_MB * 1024 * 1024))
+        $stored = (new PicBedStore($this->store, self::MAX_SIZE_MB * 1024 * 1024))
             ->store($file, $this->paths->picBedDir(), (string) ($file['name'] ?? ''));
 
         return [

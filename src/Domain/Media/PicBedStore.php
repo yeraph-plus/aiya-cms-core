@@ -4,27 +4,21 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Media;
 
-use Closure;
-use Throwable;
-
 /**
  * The one pic-bed upload pipeline, shared by the admin page and the
  * REST composer endpoint: validate the posted file (size cap, real MIME
  * via finfo — the extension derives from the type, never from the
  * client-supplied name), land it in the pool under a collision-checked
- * name, run the media pipeline over it, and resolve the URL/path facts
- * both faces answer with. Only the destination directory and the size
- * cap differ between the two faces; errors surface as UploadException
- * so each caller maps them into its own transport shape.
+ * name, run the media pipeline over it (watermark on — pool uploads
+ * carry it), and resolve the URL/path facts both faces answer with.
+ * Only the destination directory and the size cap differ between the
+ * two faces; errors surface as UploadException so each caller maps them
+ * into its own transport shape.
  */
 final class PicBedStore
 {
-    /**
-     * @param Closure(string): (string|false) $processUpload Media pipeline.
-     */
     public function __construct(
-        private readonly MediaPaths $paths,
-        private readonly Closure $processUpload,
+        private readonly MediaStore $store,
         private readonly int $maxBytes,
     ) {
     }
@@ -65,29 +59,24 @@ final class PicBedStore
             throw new UploadException(__('The file could not be written.', 'aiya-core'), 500);
         }
 
-        try {
-            $processed = ($this->processUpload)($target);
-        } catch (Throwable) {
-            $processed = false;
-        }
-        if (!is_string($processed) || !is_file($processed)) {
-            wp_delete_file($target);
+        $processed = $this->store->process($target);
+        if ($processed === null) {
+            $this->store->delete($target);
             throw new UploadException(__('Image processing failed.', 'aiya-core'), 422);
         }
         $target = $processed;
 
-        $url = $this->paths->localToUrl($target);
-        $path = $this->paths->relativePath($target);
-        if ($url === null || $path === null) {
-            wp_delete_file($target);
+        $facts = $this->store->facts($target);
+        if ($facts === null) {
+            $this->store->delete($target);
             throw new UploadException(__('The image URL could not be resolved.', 'aiya-core'), 500);
         }
 
         $size = getimagesize($target);
 
         return [
-            'url' => $url,
-            'path' => $path,
+            'url' => $facts['url'],
+            'path' => $facts['path'],
             'width' => is_array($size) ? (int) $size[0] : 0,
             'height' => is_array($size) ? (int) $size[1] : 0,
             'mime' => is_array($size) ? (string) $size['mime'] : $mime,

@@ -7,9 +7,9 @@ namespace Aiya\Core\Api\Rest;
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Presenter\UploadPresenter;
 use Aiya\Core\Domain\Media\MediaPaths;
+use Aiya\Core\Domain\Media\MediaStore;
 use Aiya\Core\Domain\Media\PicBedStore;
 use Aiya\Core\Domain\Media\UploadException;
-use Closure;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -37,11 +37,8 @@ final class UploadsController
     private const HITS = 10;
     private const WINDOW = HOUR_IN_SECONDS;
 
-    /**
-     * @param Closure(string): (string|false) $processUpload Media pipeline.
-     */
     public function __construct(
-        private Closure $processUpload,
+        private MediaStore $store,
         private MediaPaths $paths,
         private RateLimiter $rateLimiter,
         private UploadPresenter $presenter
@@ -73,7 +70,7 @@ final class UploadsController
         // The shared pipeline (also behind the admin pic bed); its
         // rejections carry the user-facing message and HTTP status.
         try {
-            $stored = (new PicBedStore($this->paths, $this->processUpload, self::MAX_SIZE_MB * 1024 * 1024))
+            $stored = (new PicBedStore($this->store, self::MAX_SIZE_MB * 1024 * 1024))
                 ->store($file, $this->paths->userPicBedDir(get_current_user_id()), (string) ($file['name'] ?? ''));
         } catch (UploadException $error) {
             return new WP_Error('aiya_upload_rejected', $error->getMessage(), ['status' => $error->httpStatus]);
