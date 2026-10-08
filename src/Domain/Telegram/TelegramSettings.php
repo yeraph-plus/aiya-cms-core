@@ -100,6 +100,32 @@ final class TelegramSettings
         return $chat === '' ? '' : (is_numeric($chat) ? $chat : strtolower($chat));
     }
 
+    /**
+     * The NSFW-marked source rows as query-filter identity sets — the
+     * feed read drops whole channels (the mark is channel-grained: the
+     * operator marked the source, the source yields). Live read, the
+     * same semantics as the title override.
+     *
+     * @return array{ids: list<int>, usernames: list<string>}
+     */
+    public static function nsfwChannels(): array
+    {
+        $ids = [];
+        $usernames = [];
+        foreach (self::mirrorChannels() as $row) {
+            if (!$row['nsfw']) {
+                continue;
+            }
+            if (is_numeric($row['chat'])) {
+                $ids[] = (int) $row['chat'];
+            } else {
+                $usernames[] = $row['chat'];
+            }
+        }
+
+        return ['ids' => $ids, 'usernames' => $usernames];
+    }
+
     /** The mirror gate: a channel post rides when its chat id or (on public channels) its username matches a source row. */
     public static function mirrorAccepts(int $chatId, ?string $username): bool
     {

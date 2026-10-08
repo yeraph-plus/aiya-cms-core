@@ -8,6 +8,7 @@ use Aiya\Core\Api\Contract\ChannelPost;
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Api\Contract\Pagination;
 use Aiya\Core\Api\Presenter\WireDates;
+use Aiya\Core\Domain\Identity\ShowNsfw;
 use Aiya\Core\Domain\Telegram\FeedIngestor;
 use Aiya\Core\Domain\Telegram\TelegramSettings;
 use WP_REST_Request;
@@ -18,8 +19,15 @@ use WP_REST_Server;
  * The channel-mirror feed: the source channels' posts as the front end
  * pulls them (public read, page-ordered newest first — the same page
  * vocabulary every other list endpoint speaks). Rows are presentational
- * facts only: no viewer state, no moderation surface, the channel is the
- * single source of truth.
+ * facts only: no moderation surface, the channel is the single source
+ * of truth. The one viewer-aware input is the optional `excludeNsfw`
+ * flag, resolving exactly like the content reads' flag: off (default)
+ * ships everything, on drops the NSFW-marked source channels' rows
+ * server-side (count included, so the pagination stays honest) — and a
+ * signed-in viewer with the "always show NSFW" account override wins
+ * over the flag, the meta being server-side truth the front end cannot
+ * know better. The mark is channel-grained: the operator marked the
+ * whole source, the whole source yields.
  */
 final class ChannelController
 {
@@ -47,6 +55,7 @@ final class ChannelController
                 ],
                 'channelId' => ['type' => 'integer'],
                 'search' => ['type' => 'string', 'maxLength' => 100],
+                'excludeNsfw' => ['type' => 'boolean', 'default' => false],
             ],
         ]);
     }
@@ -57,9 +66,12 @@ final class ChannelController
         $perPage = (int) $request->get_param('perPage');
         $channelId = $request->get_param('channelId');
         $search = trim((string) ($request->get_param('search') ?? ''));
+        $excludeNsfw = (bool) $request->get_param('excludeNsfw') && !ShowNsfw::always((int) get_current_user_id())
+            ? TelegramSettings::nsfwChannels()
+            : [];
 
-        $total = $this->feed->count($channelId, $search);
-        $rows = $this->feed->page($perPage, ($page - 1) * $perPage, $channelId, $search);
+        $total = $this->feed->count($channelId, $search, $excludeNsfw);
+        $rows = $this->feed->page($perPage, ($page - 1) * $perPage, $channelId, $search, $excludeNsfw);
 
         return Envelope::payload(
             array_map([$this, 'present'], $rows),

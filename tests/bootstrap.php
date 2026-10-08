@@ -1467,6 +1467,22 @@ if (!class_exists('wpdb')) {
                         continue;
                     }
                 }
+                // The feed's NSFW channel exclusion: the prepared NOT IN
+                // lists drop the marked sources; a NULL username row
+                // survives the username list the way MySQL reads
+                // `chat_username IS NULL OR chat_username NOT IN`.
+                if (preg_match('/source_chat_id NOT IN \(([^)]*)\)/', $sql, $notIds) === 1
+                    && in_array((int) ($row['source_chat_id'] ?? 0), array_map('intval', explode(',', $notIds[1])), true)
+                ) {
+                    continue;
+                }
+                if (preg_match("/chat_username NOT IN \(([^)]*)\)/", $sql, $notUsers) === 1) {
+                    $username = $row['chat_username'] ?? null;
+                    $listed = array_map(static fn (string $item): string => trim($item, "'"), explode(',', $notUsers[1]));
+                    if ($username !== null && in_array((string) $username, $listed, true)) {
+                        continue;
+                    }
+                }
                 // A standalone primary-key probe (the like service's thread
                 // existence read) narrows to the matching row, the way the
                 // real WHERE id = N does.
@@ -1620,12 +1636,15 @@ if (!class_exists('wpdb')) {
                 return $count;
             }
 
-            // The feed's page count: the whole table, no filters.
+            // The feed's page count: the same filters the page read runs.
             if (str_contains($sql, 'COUNT(id)') && str_contains($sql, 'aiya_channel_feed')) {
                 preg_match('/source_chat_id = (-?\d+)/', $sql, $src);
                 preg_match("/text LIKE '([^']*)'/", $sql, $like);
                 $needle = $like === [] ? null : trim($like[1], '%');
                 $needle = $needle === null ? null : str_replace(['\\%', '\\_', '\\\\'], ['%', '_', '\\'], $needle);
+                preg_match('/source_chat_id NOT IN \(([^)]*)\)/', $sql, $notIds);
+                preg_match("/chat_username NOT IN \(([^)]*)\)/", $sql, $notUsers);
+                $listed = $notUsers === [] ? [] : array_map(static fn (string $item): string => trim($item, "'"), explode(',', $notUsers[1]));
                 $table = $this->aiya_test_table($sql);
                 $count = 0;
                 foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
@@ -1633,6 +1652,13 @@ if (!class_exists('wpdb')) {
                         continue;
                     }
                     if ($needle !== null && !str_contains((string) ($row['text'] ?? ''), $needle)) {
+                        continue;
+                    }
+                    if ($notIds !== [] && in_array((int) ($row['source_chat_id'] ?? 0), array_map('intval', explode(',', $notIds[1])), true)) {
+                        continue;
+                    }
+                    $username = $row['chat_username'] ?? null;
+                    if ($username !== null && in_array((string) $username, $listed, true)) {
                         continue;
                     }
                     $count++;

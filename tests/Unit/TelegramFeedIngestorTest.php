@@ -203,6 +203,31 @@ final class TelegramFeedIngestorTest extends TestCase
         self::assertSame([], $this->ingestor->page(10, 0, null, 'no such words'));
     }
 
+    public function testTheNsfwExclusionDropsMarkedChannelsByIdAndUsername(): void
+    {
+        // A: id-marked private channel; B: username-marked public channel
+        // (its rows still carry the numeric id — the username list bites
+        // only through the stored identity); C: unmarked private channel
+        // whose rows have no username at all.
+        $this->ingestor->ingest(-100111, $this->channelPost(['message_id' => 1, 'chat' => ['id' => -100111, 'type' => 'channel', 'title' => 'A'], 'text' => 'spicy one']));
+        $this->ingestor->ingest(-100222, $this->channelPost(['message_id' => 2, 'chat' => ['id' => -100222, 'type' => 'channel', 'username' => 'spicy', 'title' => 'B'], 'text' => 'spicy two']));
+        $this->ingestor->ingest(-100333, $this->channelPost(['message_id' => 3, 'chat' => ['id' => -100333, 'type' => 'channel', 'title' => 'C'], 'text' => 'calm words']));
+
+        $clean = $this->ingestor->page(10, 0, null, '', ['ids' => [-100111], 'usernames' => ['spicy']]);
+        self::assertSame([3], array_map(static fn (array $row): int => (int) $row['message_id'], $clean), 'both marked channels yield; the username-less row survives the username list');
+        self::assertSame(1, $this->ingestor->count(null, '', ['ids' => [-100111], 'usernames' => ['spicy']]), 'the count filters by the same key');
+
+        // Each half alone bites, an empty set ships everything.
+        self::assertSame([3, 2], array_map(static fn (array $row): int => (int) $row['message_id'], $this->ingestor->page(10, 0, null, '', ['ids' => [-100111], 'usernames' => []])));
+        self::assertSame([3, 1], array_map(static fn (array $row): int => (int) $row['message_id'], $this->ingestor->page(10, 0, null, '', ['ids' => [], 'usernames' => ['spicy']])));
+        self::assertSame(3, $this->ingestor->count());
+
+        // The exclusion composes with the other keys: the search hits the
+        // two spicy rows, the id list drops the marked one.
+        self::assertSame(0, $this->ingestor->count(-100222, 'spicy', ['ids' => [], 'usernames' => ['spicy']]));
+        self::assertSame([2], array_map(static fn (array $row): int => (int) $row['message_id'], $this->ingestor->page(10, 0, null, 'spicy', ['ids' => [-100111]])));
+    }
+
     public function testAMessageWithoutAnIdIsSkipped(): void
     {
         self::assertSame('skipped', $this->ingestor->ingest(-100111, ['text' => 'no id']));

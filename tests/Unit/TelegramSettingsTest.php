@@ -64,6 +64,22 @@ final class TelegramSettingsTest extends TestCase
         self::assertFalse(TelegramSettings::mirrorAccepts(-100999, null), 'a private channel without an id row never matches');
     }
 
+    public function testNsfwChannelsProjectMarkedRowsIntoFilterSets(): void
+    {
+        $this->configure([
+            ['title' => 'A', 'chat' => '-100111', 'nsfw' => true],
+            ['title' => 'B', 'chat' => '@CatACG', 'nsfw' => true],
+            ['title' => 'C', 'chat' => '-100333', 'nsfw' => false],
+            ['title' => 'D', 'chat' => '@calm', 'nsfw' => false],
+        ]);
+
+        self::assertSame(
+            ['ids' => [-100111], 'usernames' => ['catacg']],
+            TelegramSettings::nsfwChannels(),
+            'only marked rows yield; ids and usernames split by shape'
+        );
+    }
+
     public function testMirrorRowCarriesTheTitleAndTheMark(): void
     {
         $this->configure([

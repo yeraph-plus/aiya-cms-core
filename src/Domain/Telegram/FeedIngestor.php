@@ -226,11 +226,14 @@ class FeedIngestor
         return 'stored';
     }
 
-    public function count(?int $channelId = null, string $search = ''): int
+    /**
+     * @param array{ids?: list<int>, usernames?: list<string>} $excludeNsfw
+     */
+    public function count(?int $channelId = null, string $search = '', array $excludeNsfw = []): int
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        [$conditions, $bits] = $this->filters($channelId, $search);
+        [$conditions, $bits] = $this->filters($channelId, $search, $excludeNsfw);
         $sql = 'SELECT COUNT(id) FROM %i WHERE ' . implode(' AND ', $conditions);
 
         // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- same fixed-condition assembly as page()
@@ -271,15 +274,19 @@ class FeedIngestor
     /**
      * The feed page, newest first, optionally scoped to one source
      * channel and/or a plain substring match on the text (wildcards in
-     * the visitor input stay literal).
+     * the visitor input stay literal), and/or with the NSFW-marked
+     * source channels' rows dropped (the exclusion set rides prepared
+     * NOT IN lists — a NULL username row survives the username list, the
+     * way MySQL reads it).
      *
+     * @param array{ids?: list<int>, usernames?: list<string>} $excludeNsfw
      * @return list<array<string, mixed>>
      */
-    public function page(int $perPage, int $offset, ?int $channelId = null, string $search = ''): array
+    public function page(int $perPage, int $offset, ?int $channelId = null, string $search = '', array $excludeNsfw = []): array
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        [$conditions, $bits] = $this->filters($channelId, $search);
+        [$conditions, $bits] = $this->filters($channelId, $search, $excludeNsfw);
         $sql = 'SELECT * FROM %i WHERE ' . implode(' AND ', $conditions) . ' ORDER BY id DESC LIMIT %d OFFSET %d';
 
         // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- the WHERE assembles from this class's own fixed condition strings; every value rides a %i/%d/%s placeholder
@@ -296,12 +303,13 @@ class FeedIngestor
     }
 
     /**
-     * The query surface's WHERE: the channel whitelist id and/or the
-     * escaped substring match.
+     * The query surface's WHERE: the channel whitelist id, the escaped
+     * substring match, and the NSFW channel exclusion.
      *
+     * @param array{ids?: list<int>, usernames?: list<string>} $excludeNsfw
      * @return array{0: list<string>, 1: list<int|string>}
      */
-    private function filters(?int $channelId, string $search): array
+    private function filters(?int $channelId, string $search, array $excludeNsfw = []): array
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
@@ -314,6 +322,17 @@ class FeedIngestor
         if ($search !== '') {
             $conditions[] = 'text LIKE %s';
             $bits[] = '%' . $wpdb->esc_like($search) . '%';
+        }
+        $ids = is_array($excludeNsfw['ids'] ?? null) ? $excludeNsfw['ids'] : [];
+        if ($ids !== []) {
+            $conditions[] = 'source_chat_id NOT IN (' . implode(',', array_fill(0, count($ids), '%d')) . ')';
+            $bits = array_merge($bits, $ids);
+        }
+        $usernames = is_array($excludeNsfw['usernames'] ?? null) ? $excludeNsfw['usernames'] : [];
+        if ($usernames !== []) {
+            $conditions[] = '(chat_username IS NULL OR chat_username NOT IN ('
+                . implode(',', array_fill(0, count($usernames), '%s')) . '))';
+            $bits = array_merge($bits, $usernames);
         }
 
         return [$conditions, $bits];
