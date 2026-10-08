@@ -38,6 +38,14 @@ final class TelegramModule implements Module
             return $hooks;
         });
 
+        // Route 1.5: the settings page's one-shot table wipe. The action
+        // checkbox never stores a value; the settings save pipeline fires
+        // this hook when the operator ticks it. A fresh FeedIngestor is
+        // enough — the purge path needs no media pipeline closure.
+        add_action(FeedIngestor::WIPE_ACTION, static function (): void {
+            (new FeedIngestor())->wipe();
+        });
+
         // The channel feed table lands as the chain's first post-1.0
         // entry (MigrationChainTest pins the count and the version).
         add_filter('aiya_core_schema_migrations', static function (array $migrations): array {
@@ -141,6 +149,15 @@ final class TelegramModule implements Module
                             'default' => false,
                         ],
                     ],
+                ],
+                [
+                    'id' => 'tg_mirror_wipe',
+                    'type' => 'action_checkbox',
+                    'label' => __('Clear the local mirror', 'aiya-core'),
+                    'checkbox_label' => __('Delete every mirrored row and its transferred images on this save', 'aiya-core'),
+                    'description' => __('The mirror is one-way: the channel is the source of truth and this table only holds the local copy. Cleared rows never come back — the platform cannot replay channel history, so the feed refills from new channel posts only. The support relay\'s messages live in their own table and stay.', 'aiya-core'),
+                    'action' => FeedIngestor::WIPE_ACTION,
+                    'default' => null,
                 ],
                 [
                     'id' => 'tg_heading_relay',

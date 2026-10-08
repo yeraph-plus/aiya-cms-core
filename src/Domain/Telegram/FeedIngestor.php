@@ -59,6 +59,9 @@ class FeedIngestor
 
     public const KIND_MEDIA = 3;
 
+    /** The settings page's one-shot table wipe (never stored, fired on save). */
+    public const WIPE_ACTION = 'aiya_core_telegram_wipe_mirror';
+
     private const ALLOWED_TAGS = [
         'a' => ['href' => true, 'title' => true],
         'b' => [],
@@ -269,6 +272,38 @@ class FeedIngestor
         $wpdb->delete($table, ['id' => $feedId], ['%d']);
 
         return true;
+    }
+
+    /**
+     * The settings page's one reset surface: every row's transferred pool
+     * files purge (the same per-row path delete() rides), then the table
+     * empties. One-way mirror, local copy: wiped rows do not come back —
+     * the platform cannot replay channel history, so the feed refills
+     * from new channel traffic only. Answers the removed-row count.
+     */
+    public function wipe(): int
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $table = $wpdb->prefix . self::TABLE;
+        $rows = $wpdb->get_results($wpdb->prepare('SELECT media FROM %i', $table), ARRAY_A);
+        $rows = is_array($rows) ? $rows : [];
+        foreach ($rows as $row) {
+            $media = is_string($row['media'] ?? null) ? (string) $row['media'] : '';
+            if ($media !== '') {
+                (new TelegramImageStore())->purge($media);
+            }
+        }
+
+        $prepared = $wpdb->prepare('DELETE FROM %i', $table);
+        if (!is_string($prepared)) {
+            return count($rows);
+        }
+
+        /** @var int|false $removed */
+        $removed = $wpdb->query($prepared);
+
+        return is_int($removed) ? $removed : count($rows);
     }
 
     /**

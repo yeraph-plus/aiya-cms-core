@@ -58,6 +58,20 @@ final class FieldRenderer
      * @param array<string, mixed> $values */
     private function fieldRow(Field $field, array $values): void
     {
+        if ($field->type() === 'action_checkbox') {
+            // One-shot save trigger on the settings form: it posts under
+            // the dedicated actions namespace (never stored) and the save
+            // path fires the field's `action` hook when ticked — the
+            // metabox pipeline's same semantics, in table layout.
+            $id = 'aiya-core-' . $field->id();
+            echo '<tr class="aiya-core-field aiya-core-field--action"><th scope="row"><label for="' . esc_attr($id) . '">' . esc_html($field->label()) . '</label></th><td>';
+            $this->control($field, false, 'aiya_core_actions[' . $field->id() . ']', $id);
+            if ($field->description() !== '') {
+                echo '<p class="description">' . wp_kses_post($field->description()) . '</p>';
+            }
+            echo '</td></tr>';
+            return;
+        }
         if (!$field->isPersistable()) {
             $rowClass = $field->type() === 'heading' ? 'aiya-core-row--heading' : 'aiya-core-row--note';
             echo '<tr class="aiya-core-nondata ' . esc_attr($rowClass) . '"><td colspan="2">';

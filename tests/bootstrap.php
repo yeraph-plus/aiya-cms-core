@@ -1779,6 +1779,17 @@ if (!class_exists('wpdb')) {
                 return 1;
             }
 
+            // The mirror wipe's bare `DELETE FROM <table>` (no WHERE —
+            // every row goes). Answers the affected-row count.
+            if (preg_match('/^DELETE FROM \S+$/i', trim($sql)) === 1) {
+                $table = $this->aiya_test_table($sql);
+                $removed = isset($this->aiya_test_rows[$table]) ? count($this->aiya_test_rows[$table]) : 0;
+                $this->aiya_test_rows[$table] = [];
+                $this->rows_affected = $removed;
+
+                return $removed;
+            }
+
             // The ledger retention purge: the three closed-history branches
             // (expired in-buckets, out rows, fully consumed buckets) leave
             // once the retention window has passed their clock. Live

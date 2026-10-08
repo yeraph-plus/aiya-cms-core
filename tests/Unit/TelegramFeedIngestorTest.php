@@ -228,6 +228,20 @@ final class TelegramFeedIngestorTest extends TestCase
         self::assertSame([2], array_map(static fn (array $row): int => (int) $row['message_id'], $this->ingestor->page(10, 0, null, 'spicy', ['ids' => [-100111]])));
     }
 
+    public function testTheWipePurgesMediaAndEmptiesTheTable(): void
+    {
+        global $wpdb;
+        $wpdb->aiya_test_rows['wp_aiya_channel_feed'] = [
+            ['id' => 1, 'source_chat_id' => -100111, 'message_id' => 1, 'media' => '[{"path":"aiya_upload_pics/telegram/2026/10/x.jpg","url":"https://a.test/x.jpg","width":10,"height":10}]'],
+            ['id' => 2, 'source_chat_id' => -100222, 'message_id' => 2, 'media' => null],
+        ];
+
+        self::assertSame(2, $this->ingestor->wipe(), 'the wipe answers the removed-row count');
+        self::assertSame([], $this->rows(), 'the table is empty after the wipe');
+        self::assertSame(0, $this->ingestor->count());
+        self::assertSame(0, $this->ingestor->wipe(), 'a second wipe on the empty table answers zero');
+    }
+
     public function testAMessageWithoutAnIdIsSkipped(): void
     {
         self::assertSame('skipped', $this->ingestor->ingest(-100111, ['text' => 'no id']));

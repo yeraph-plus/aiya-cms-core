@@ -119,6 +119,21 @@ final class FieldTest extends TestCase
         self::assertStringContainsString('> Ordered list</label>', $out);
     }
 
+    public function testAnActionCheckboxPostsUnderTheActionsNamespace(): void
+    {
+        $fields = [
+            Field::fromArray(['id' => 'flag', 'type' => 'text', 'label' => 'Flag']),
+            Field::fromArray(['id' => 'wipe', 'type' => 'action_checkbox', 'label' => 'Wipe', 'checkbox_label' => 'Wipe it on save', 'action' => 'my_hook']),
+        ];
+        $out = self::captureOut(fn () => (new FieldRenderer())->table($fields, ['flag' => 'kept'], null));
+
+        self::assertStringContainsString('name="aiya_core_actions[wipe]"', $out, 'the trigger posts outside the stored values namespace');
+        self::assertStringContainsString('> Wipe it on save</label>', $out, 'the checkbox_label is the tool sentence');
+        self::assertStringContainsString('>Wipe</label>', $out, 'the row label still names the tool');
+        self::assertStringNotContainsString('name="values[wipe]"', $out, 'the trigger never rides the stored namespace');
+        self::assertStringContainsString('name="values[flag]"', $out);
+    }
+
     public function testTableSplitsAtSectionHeadingsIntoTabs(): void
     {
         $fields = [

@@ -3130,6 +3130,15 @@ msgstr "频道 id 或 @用户名"
 msgid "NSFW"
 msgstr "NSFW"
 
+msgid "Clear the local mirror"
+msgstr "清空本地镜像"
+
+msgid "Delete every mirrored row and its transferred images on this save"
+msgstr "本次保存时删除全部镜像行及其转存图片"
+
+msgid "The mirror is one-way: the channel is the source of truth and this table only holds the local copy. Cleared rows never come back — the platform cannot replay channel history, so the feed refills from new channel posts only. The support relay's messages live in their own table and stay."
+msgstr "镜像是单向的：频道是唯一事实源，本表只保存本地副本。清掉的行不会回来——平台无法重放频道历史，信息流此后只从新的频道帖子回填。客服中继的消息在另一张表里，不受影响。"
+
 msgid "Support relay"
 msgstr "客服中继"
 

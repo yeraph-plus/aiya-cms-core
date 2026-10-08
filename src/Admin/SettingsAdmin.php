@@ -129,6 +129,23 @@ final class SettingsAdmin implements Module
         }
 
         $store->replace($values);
+
+        // One-shot action checkboxes: a ticked field fires its code-declared
+        // `action` hook after the values land, nothing is stored, and the
+        // standard saved notice follows. The field list is code-registered,
+        // so the hook names are not request data; the tick itself is just
+        // the admin pushing a button they could push anyway.
+        $actions = isset($_POST['aiya_core_actions']) && is_array($_POST['aiya_core_actions']) ? wp_unslash($_POST['aiya_core_actions']) : [];
+        foreach ($page->fields() as $field) {
+            if ($field->type() !== 'action_checkbox') {
+                continue;
+            }
+            $hook = (string) $field->setting('action', '');
+            if ($hook !== '' && !empty($actions[$field->id()])) {
+                do_action($hook);
+            }
+        }
+
         $this->redirect($page, 'saved', '', $tab);
     }
 
