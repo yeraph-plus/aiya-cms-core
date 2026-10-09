@@ -705,23 +705,8 @@ msgstr "运营看板"
 msgid "You are not allowed to view the operations dashboard."
 msgstr "您无权查看运营看板"
 
-msgid "Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger's spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
-msgstr "积分流水、会员与流量的月度报表。消耗直接取自账本的 spend 事件，下载由文件下载域计量——每次交付计一次，扣费与免费均算。数据自安装起累计，更早的月份无法从账本重建。"
-
-msgid "Cost per download saved."
-msgstr "单次下载成本已保存。"
-
 msgid "Enter a valid number."
 msgstr "请输入有效数字。"
-
-msgid "Upstream cost per download"
-msgstr "单次下载成本"
-
-msgid "In the payment currency; the month's cost derives as downloads × this rate and freezes when the month closes."
-msgstr "以支付货币计；当月成本 = 下载次数 × 此单价，月份关闭时冻结。"
-
-msgid "You are not allowed to configure the operations dashboard."
-msgstr "您无权配置运营看板"
 
 msgid "Month"
 msgstr "月份"
@@ -768,18 +753,6 @@ msgstr "确认收入"
 msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once and its months sum back to the order total. Booked revenue for the month — not a forward-looking MRR run rate."
 msgstr "订单金额按服务周期摊分，多周期购买不会一次性入账，各月之和回到订单总额。这是当月确认收入，而非前瞻性的 MRR 运行率。"
 
-msgid "Cost"
-msgstr "成本"
-
-msgid "Downloads × %1$s per download, %2$s"
-msgstr "下载次数 × 单次 %1$s，%2$s"
-
-msgid "rate frozen when the month closed"
-msgstr "单价已于月末冻结"
-
-msgid "at the current rate; frozen when the month closes"
-msgstr "按当前单价计算，月末冻结"
-
 msgid "Outstanding credits"
 msgstr "未消耗积分"
 
@@ -800,9 +773,6 @@ msgstr "付费用户平均下载量"
 
 msgid "Revenue per paying user"
 msgstr "每个付费用户带来的收入"
-
-msgid "Cost per paying user"
-msgstr "每个付费用户的实际成本"
 
 msgid "Trailing 12 months"
 msgstr "近 12 个月趋势"
@@ -3631,3 +3601,45 @@ msgstr "vendor/ 等大型依赖目录会被瞬时移出、避免删除过程长�
 msgid "Cancel, back to the plugin list"
 msgstr "取消，返回插件列表"
 
+msgid "One month's credit flow, membership and traffic, with the trailing year behind it."
+msgstr "单月积分流水、会员与流量，背后附近一年趋势。"
+
+msgid "Consumed against granted this month."
+msgstr "本月消耗占发放的比例。"
+
+msgid "Payments received in the month."
+msgstr "本月实际收到的付款。"
+
+msgid "Files delivered, charged or free."
+msgstr "已交付的文件数，扣费与免费均算。"
+
+msgid "What every holder could still spend right now."
+msgstr "所有持有者当前仍可消耗的积分。"
+
+msgid "Detail tables"
+msgstr "明细表"
+
+msgid "Volume"
+msgstr "用量"
+
+msgid "Users"
+msgstr "用户"
+
+msgid "Revenue"
+msgstr "收入"
+
+msgid "Efficiency"
+msgstr "效率"
+
+msgid "Liability"
+msgstr "负债"
+
+msgid "Revenue basis"
+msgstr "收入口径"
+
+msgid "User funnel"
+msgstr "用户漏斗"
+
+msgctxt "month label"
+msgid "F Y"
+msgstr "Y年n月"

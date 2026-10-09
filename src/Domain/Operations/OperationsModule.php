@@ -17,10 +17,6 @@ use Aiya\Core\Domain\Credit\CreditModule;
  * `aiya_core_credits_cleanup` at priority 5 — CreditModule's prune is
  * registered at the default priority 10, so the same tick always books
  * expiries before deleting the buckets that carry them.
- *
- * The download rate (the one thing the report prices) lives on the
- * report's own page — OperationsPage renders its form and stores it in
- * the `aiya_core_operations` option; StatsSettings reads it.
  */
 final class OperationsModule implements Module
 {
@@ -66,7 +62,7 @@ final class OperationsModule implements Module
 
         // Book expiries in the same tick as the prune, before it runs.
         add_action(CreditModule::CRON_HOOK, static function () use ($recorder): void {
-            $recorder->sweep();
+            $recorder->sweepExpirations();
         }, 5);
     }
 
@@ -87,12 +83,4 @@ final class OperationsModule implements Module
 
         return $userId;
     }
-
-    /**
-     * The report's rate moved off the membership settings page (the
-     * membership option) onto the report's own page (the operations
-     * option). A numeric source value moves across unless the target
-     * already holds one; anything else drops and the operator re-enters
-     * it in place. An emptied membership option is deleted.
-     */
 }

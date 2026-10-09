@@ -32,7 +32,7 @@ namespace Aiya\Core\Tests\Unit {
      * A wpdb double scoped to the operations report: the monthly upsert
      * with additive ON DUPLICATE KEY UPDATE assignments (the atomic
      * accumulation the recorder rides), the MAU INSERT IGNORE primary-key
-     * probe, the freeze UPDATE, the expiry sweep's GROUP BY aggregation,
+     * probe, the expiry sweep's GROUP BY aggregation,
      * the entitlement queue's LEFT JOIN, the payment log's COALESCE read,
      * the outstanding-liability SUM, the advisory lock and the SHOW
      * TABLES/COLUMNS verification installTables() relies on. Anything else
@@ -52,6 +52,9 @@ namespace Aiya\Core\Tests\Unit {
 
         /** Whether the MAU table still carries the retired first_seen column. */
         public bool $activeHasFirstSeen = false;
+
+        /** @var list<string> retired columns the monthly table still carries. */
+        public array $monthlyRetiredColumns = [];
 
         /** When true, dbDelta creates nothing (the transient DB hiccup shape). */
         public bool $schemaFails = false;
@@ -90,8 +93,6 @@ namespace Aiya\Core\Tests\Unit {
                 'consumed' => 0,
                 'expired' => 0,
                 'downloads' => 0,
-                'unit_cost' => 0.0,
-                'frozen' => 0,
             ], $counters);
         }
 
@@ -221,7 +222,18 @@ namespace Aiya\Core\Tests\Unit {
                 return null;
             }
             if (str_contains($sql, 'SHOW COLUMNS')) {
-                return $this->activeHasFirstSeen ? 'first_seen' : null;
+                if (preg_match("/SHOW COLUMNS FROM (\S+) LIKE '([^']+)'/", $sql, $column) === 1) {
+                    if ($column[1] === $this->activeTable) {
+                        return $this->activeHasFirstSeen && $column[2] === 'first_seen' ? $column[2] : null;
+                    }
+                    if ($column[1] === $this->monthlyTable) {
+                        return in_array($column[2], $this->monthlyRetiredColumns, true) ? $column[2] : null;
+                    }
+
+                    return null;
+                }
+
+                return null;
             }
             // The outstanding-liability read: live buckets only, every holder.
             if (str_contains($sql, 'SUM(remaining)')) {
@@ -280,10 +292,6 @@ namespace Aiya\Core\Tests\Unit {
             if (preg_match('/^INSERT (IGNORE )?INTO (\S+) \(([^)]+)\) VALUES \(([^)]+)\)(?:\s+ON DUPLICATE KEY UPDATE (.+))?$/s', $sql, $insert) === 1) {
                 return $this->insert($insert);
             }
-            if (preg_match('/^UPDATE (\S+) SET (.+?) WHERE (.+)$/s', $sql, $update) === 1) {
-                return $this->updateWhere($update);
-            }
-
             return 0;
         }
 
@@ -313,8 +321,6 @@ namespace Aiya\Core\Tests\Unit {
                 'consumed' => 0,
                 'expired' => 0,
                 'downloads' => 0,
-                'unit_cost' => 0.0,
-                'frozen' => 0,
             ] : [];
             foreach ($columns as $index => $column) {
                 $row[$column] = $this->literal($values[$index] ?? 'NULL');
@@ -341,60 +347,6 @@ namespace Aiya\Core\Tests\Unit {
             $this->rows[$table][] = $row;
 
             return 1;
-        }
-
-        /**
-         * The freeze UPDATE and its WHERE shapes: only the comparisons the
-         * recorder issues (equality plus string-comparable month bounds —
-         * 'Y-m-d H:i:s' compares lexicographically, like MySQL DATETIME).
-         *
-         * @param list<string> $match 1 table, 2 set clause, 3 where clause
-         */
-        private function updateWhere(array $match): int
-        {
-            $table = $match[1];
-            $set = [];
-            foreach (explode(', ', $match[2]) as $piece) {
-                if (preg_match('/^(\w+) = (.+)$/s', trim($piece), $pair) === 1) {
-                    $set[$pair[1]] = $this->literal($pair[2]);
-                }
-            }
-
-            $count = 0;
-            foreach ($this->rows[$table] ?? [] as $index => $row) {
-                if (!$this->matches($row, $match[3])) {
-                    continue;
-                }
-                $this->rows[$table][$index] = array_merge($row, $set);
-                $count++;
-            }
-
-            return $count;
-        }
-
-        /** @param array<string, mixed> $row */
-        private function matches(array $row, string $where): bool
-        {
-            foreach (explode(' AND ', $where) as $condition) {
-                if (preg_match('/^(\w+) (=|<|<=|>|>=) (.+)$/s', trim($condition), $c) !== 1) {
-                    continue;
-                }
-                $value = (string) ($row[$c[1]] ?? '');
-                $bound = (string) $this->literal($c[3]);
-                $ok = match ($c[2]) {
-                    '=' => $value === $bound,
-                    '<' => $value < $bound,
-                    '<=' => $value <= $bound,
-                    '>' => $value > $bound,
-                    '>=' => $value >= $bound,
-                    default => false,
-                };
-                if (!$ok) {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         /**

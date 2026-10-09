@@ -205,7 +205,6 @@ final class StatsMathTest extends TestCase
             'activeUsers' => 10,
             'payingUsers' => 5,
             'mrr' => 250.0,
-            'cost' => 25.0,
         ]);
 
         self::assertSame([
@@ -214,7 +213,6 @@ final class StatsMathTest extends TestCase
             'downloadsPerActive' => 5.0,
             'downloadsPerPaying' => 10.0,
             'revenuePerPaying' => 50.0,
-            'costPerPaying' => 5.0,
         ], $derived);
     }
 
@@ -230,7 +228,6 @@ final class StatsMathTest extends TestCase
             'activeUsers' => 0,
             'payingUsers' => 0,
             'mrr' => 0.0,
-            'cost' => 0.0,
         ]);
 
         self::assertSame(0.0, $derived['consumptionRate']);
@@ -238,7 +235,6 @@ final class StatsMathTest extends TestCase
         self::assertNull($derived['downloadsPerActive']);
         self::assertNull($derived['downloadsPerPaying']);
         self::assertNull($derived['revenuePerPaying']);
-        self::assertNull($derived['costPerPaying']);
     }
 
     public function testDerivedOnAnEmptyMonthAnswersOnlyNulls(): void
@@ -251,7 +247,6 @@ final class StatsMathTest extends TestCase
             'downloadsPerActive' => null,
             'downloadsPerPaying' => null,
             'revenuePerPaying' => null,
-            'costPerPaying' => null,
         ], StatsMath::derived([]));
     }
 }

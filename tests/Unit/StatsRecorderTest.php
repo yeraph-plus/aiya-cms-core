@@ -42,9 +42,8 @@ namespace Aiya\Core\Tests\Unit {
      * request and once per holder per month, the expiry sweep books each
      * bucket into the month it actually expired in — window edges are
      * strict, row order must not matter, and the cursor advance is what
-     * keeps a missed cron from booking anything twice — and month freeze
-     * only ever touches months that already ended. All month keys come
-     * from a fixed-epoch clock, never from the wall clock.
+     * keeps a missed cron from booking anything twice. All month keys
+     * come from a fixed-epoch clock, never from the wall clock.
      */
     final class StatsRecorderTest extends TestCase
     {
@@ -132,6 +131,40 @@ namespace Aiya\Core\Tests\Unit {
             ));
             self::assertCount(1, $alters, 'the upgrade cleanup drops the retired column exactly once');
             self::assertStringContainsString('DROP COLUMN first_seen', $alters[0]);
+        }
+
+        public function testInstallTablesDropsTheRetiredCostColumns(): void
+        {
+            $this->db->monthlyRetiredColumns = ['unit_cost', 'frozen'];
+
+            (new StatsRecorder())->installTables();
+
+            $alters = array_values(array_filter(
+                $this->db->written,
+                static fn (string $sql): bool => str_contains($sql, 'DROP COLUMN')
+            ));
+            self::assertCount(2, $alters, 'each retired cost column is dropped exactly once');
+            self::assertStringContainsString('DROP COLUMN unit_cost', $alters[0]);
+            self::assertStringContainsString('DROP COLUMN frozen', $alters[1]);
+        }
+
+        public function testInstallTablesRetiresTheOrphanRateOption(): void
+        {
+            $GLOBALS['__aiya_test_options']['aiya_core_operations'] = ['ops_unit_cost' => 0.5];
+            update_option(StatsRecorder::OPTION_EXPIRY_WATERMARK, 12345, false);
+
+            (new StatsRecorder())->installTables();
+
+            self::assertArrayNotHasKey(
+                'aiya_core_operations',
+                $GLOBALS['__aiya_test_options'],
+                'the retired rate option is dropped with the columns it fed'
+            );
+            self::assertSame(
+                12345,
+                get_option(StatsRecorder::OPTION_EXPIRY_WATERMARK),
+                'the expiry watermark is sweep state, not a setting — it must survive'
+            );
         }
 
         public function testInstallTablesThrowsWhenSchemaCreationFails(): void
@@ -371,47 +404,6 @@ namespace Aiya\Core\Tests\Unit {
 
             self::assertLessThan($future, (int) get_option(StatsRecorder::OPTION_EXPIRY_WATERMARK));
             self::assertNull($this->db->monthRow('2026-08'));
-        }
-
-        public function testSweepAlsoFreezesTheClosedMonths(): void
-        {
-            $GLOBALS['__aiya_test_options']['aiya_core_operations'] = ['ops_unit_cost' => 0.5];
-            update_option(StatsRecorder::OPTION_EXPIRY_WATERMARK, (int) strtotime('2026-07-31 00:00:00 UTC'), false);
-            $this->db->seedBucket('in', 30, '2026-08-01 12:00:00');
-            $this->db->seedMonth('2026-08', ['granted' => 100]);
-
-            (new StatsRecorder())->sweep();
-
-            $august = $this->db->monthRow('2026-08');
-            self::assertNotNull($august);
-            self::assertSame(30, (int) $august['expired'], 'the expiry pass books the window');
-            self::assertSame(1, (int) $august['frozen'], 'the freeze pass closes the ended month');
-            self::assertSame(0.5, (float) $august['unit_cost'], 'the closing month freezes the live rate');
-        }
-
-        // ---- freezeClosedMonths ------------------------------------------------------
-
-        public function testFreezeClosesOnlyPastMonthsWithTheLiveRate(): void
-        {
-            $GLOBALS['__aiya_test_options']['aiya_core_operations'] = ['ops_unit_cost' => 0.75];
-            $this->db->seedMonth('2026-07', ['frozen' => 1, 'unit_cost' => 0.1]); // closed long ago at an older rate
-            $this->db->seedMonth('2026-08');
-            $this->db->seedMonth('2026-10'); // the running month
-            $this->db->seedMonth('2026-11'); // after the clocked month
-
-            (new StatsRecorder())->freezeClosedMonths();
-
-            $july = $this->db->monthRow('2026-07');
-            self::assertSame(0.1, (float) $july['unit_cost'], 'an already closed month keeps its own rate');
-            self::assertSame(1, (int) $july['frozen']);
-            $august = $this->db->monthRow('2026-08');
-            self::assertSame(0.75, (float) $august['unit_cost']);
-            self::assertSame(1, (int) $august['frozen']);
-            $october = $this->db->monthRow('2026-10');
-            self::assertSame(0, (int) $october['frozen'], 'the running month never freezes');
-            self::assertSame(0.0, (float) $october['unit_cost']);
-            $november = $this->db->monthRow('2026-11');
-            self::assertSame(0, (int) $november['frozen']);
         }
     }
 }

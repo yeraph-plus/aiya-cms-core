@@ -112,8 +112,6 @@ final class StatsMath
             'downloadsPerPaying' => self::ratio((float) ($row['downloads'] ?? 0), (float) ($row['payingUsers'] ?? 0)),
             // 每个付费用户带来的收入.
             'revenuePerPaying' => self::ratio((float) ($row['mrr'] ?? 0), (float) ($row['payingUsers'] ?? 0)),
-            // 每个付费用户的实际成本.
-            'costPerPaying' => self::ratio((float) ($row['cost'] ?? 0), (float) ($row['payingUsers'] ?? 0)),
         ];
     }
 

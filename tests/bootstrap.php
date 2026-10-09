@@ -666,18 +666,27 @@ if (!function_exists('wp_parse_url')) {
 
 if (!function_exists('add_query_arg')) {
     /**
-     * Array-first form only: the suite's callers hand the query args as
-     * an array plus the target URL, and the real function keeps the
-     * array order.
+     * Both core forms: (array $args, $url) and ($key, $value, $url). The
+     * array form keeps its order; the scalar form builds the one-pair
+     * array core would, which is what the pages linking a single query
+     * argument hand over.
      */
-    function add_query_arg(array $args, string $uri = ''): string
+    function add_query_arg(array|string $args, mixed $valueOrUri = '', string $uri = ''): string
     {
-        $query = http_build_query($args);
-        if ($query === '') {
-            return $uri;
+        if (is_array($args)) {
+            $pairs = $args;
+            $target = is_string($valueOrUri) ? $valueOrUri : '';
+        } else {
+            $pairs = [$args => $valueOrUri];
+            $target = $uri;
         }
 
-        return $uri . (str_contains($uri, '?') ? '&' : '?') . $query;
+        $query = http_build_query($pairs);
+        if ($query === '') {
+            return $target;
+        }
+
+        return $target . (str_contains($target, '?') ? '&' : '?') . $query;
     }
 }
 

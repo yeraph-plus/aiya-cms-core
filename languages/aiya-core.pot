@@ -2,30 +2,30 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.126.0\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.127.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-08T11:34:29+00:00\n"
+"POT-Creation-Date: 2026-10-09T12:39:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
 
 #. Plugin Name of the plugin
-#: aiya-core.php:3
+#: aiya-core.php
 msgid "AIYA CMS - Headless Core"
 msgstr ""
 
 #. Description of the plugin
-#: aiya-core.php:4
+#: aiya-core.php
 msgid "Headless-first administration and content framework for AIYA CMS."
 msgstr ""
 
 #. Author of the plugin
-#: aiya-core.php:8
+#: aiya-core.php
 msgid "Yeraph"
 msgstr ""
 
@@ -61,64 +61,64 @@ msgstr[1] ""
 msgid "No thumbnails were refreshed."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:48
 #: src/Admin/ConvertCodesPage.php:49
-#: src/Admin/ConvertCodesPage.php:74
+#: src/Admin/ConvertCodesPage.php:50
+#: src/Admin/ConvertCodesPage.php:75
 msgid "Redemption codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:66
-#: src/Admin/ConvertCodesPage.php:303
-#: src/Admin/ConvertCodesPage.php:364
-#: src/Admin/ConvertCodesPage.php:375
+#: src/Admin/ConvertCodesPage.php:67
+#: src/Admin/ConvertCodesPage.php:304
+#: src/Admin/ConvertCodesPage.php:365
+#: src/Admin/ConvertCodesPage.php:376
 msgid "You are not allowed to manage redemption codes."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:75
+#: src/Admin/ConvertCodesPage.php:76
 msgid "Membership gift codes users redeem themselves on the front end. Codes are single-use; redeeming queues the tier entitlement like a paid order and credits arrive per cycle."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:78
+#: src/Admin/ConvertCodesPage.php:79
 msgid "Codes generated."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:79
+#: src/Admin/ConvertCodesPage.php:80
 msgid "All codes deleted."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:80
+#: src/Admin/ConvertCodesPage.php:81
 msgid "Code deleted."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:81
+#: src/Admin/ConvertCodesPage.php:82
 #: src/Admin/NotificationPage.php:95
 msgid "The operation failed — check the values and try again."
 msgstr ""
 
 #. translators: %s: number of stored codes.
-#: src/Admin/ConvertCodesPage.php:91
+#: src/Admin/ConvertCodesPage.php:92
 #, php-format
 msgid "Stored codes (%s)"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:102
+#: src/Admin/ConvertCodesPage.php:103
 msgid "Delete ALL codes? This cannot be undone."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:105
+#: src/Admin/ConvertCodesPage.php:106
 #: src/Admin/UiSamplePage.php:66
 msgid "Delete all"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:114
+#: src/Admin/ConvertCodesPage.php:115
 msgid "Code"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:115
+#: src/Admin/ConvertCodesPage.php:116
 msgid "Contents"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:116
+#: src/Admin/ConvertCodesPage.php:117
 #: src/Admin/DiscussionModerationPage.php:276
 #: src/Admin/PaymentsAuditPage.php:140
 #: src/Admin/UiSamplePage.php:116
@@ -126,22 +126,22 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:117
+#: src/Admin/ConvertCodesPage.php:118
 msgid "Redeemed by"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:118
+#: src/Admin/ConvertCodesPage.php:119
 msgid "Redeemed at"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:119
+#: src/Admin/ConvertCodesPage.php:120
 #: src/Admin/NotificationPage.php:108
 #: src/Admin/UiSamplePage.php:117
 #: src/Admin/UiSamplePage.php:162
 msgid "Created"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:120
+#: src/Admin/ConvertCodesPage.php:121
 #: src/Admin/CronsPage.php:182
 #: src/Admin/DiscussionModerationPage.php:178
 #: src/Admin/DiscussionModerationPage.php:706
@@ -152,24 +152,24 @@ msgid "Actions"
 msgstr ""
 
 #. translators: 1: credit amount, 2: validity in days.
-#: src/Admin/ConvertCodesPage.php:137
+#: src/Admin/ConvertCodesPage.php:138
 #, php-format
 msgid "Credits ×%1$d · %2$d days"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:147
+#: src/Admin/ConvertCodesPage.php:148
 msgid "Redeemed"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:147
+#: src/Admin/ConvertCodesPage.php:148
 msgid "Unused"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:168
+#: src/Admin/ConvertCodesPage.php:169
 msgid "Delete this code?"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:172
+#: src/Admin/ConvertCodesPage.php:173
 #: src/Admin/CronsPage.php:200
 #: src/Admin/DiscussionModerationPage.php:207
 #: src/Admin/DiscussionModerationPage.php:740
@@ -178,81 +178,81 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:178
+#: src/Admin/ConvertCodesPage.php:179
 msgid "No codes stored."
 msgstr ""
 
 #. translators: %s: number of freshly generated codes.
-#: src/Admin/ConvertCodesPage.php:208
+#: src/Admin/ConvertCodesPage.php:209
 #, php-format
 msgid "Fresh codes (%s)"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:213
+#: src/Admin/ConvertCodesPage.php:214
 msgid "Fresh codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:214
+#: src/Admin/ConvertCodesPage.php:215
 msgid "Copy all"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:222
+#: src/Admin/ConvertCodesPage.php:223
 msgid "Generate credit codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:230
+#: src/Admin/ConvertCodesPage.php:231
 #: src/Admin/CreditsPage.php:179
 #: src/Admin/CreditsPage.php:238
 #: src/Admin/PaymentsAuditPage.php:138
 msgid "Amount"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:233
+#: src/Admin/ConvertCodesPage.php:234
 msgid "The balance the holder receives at redemption."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:237
+#: src/Admin/ConvertCodesPage.php:238
 #: src/Admin/CreditsPage.php:185
 msgid "Validity (days)"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:240
+#: src/Admin/ConvertCodesPage.php:241
 msgid "The granted bucket dies when this expires."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:244
-#: src/Admin/ConvertCodesPage.php:290
+#: src/Admin/ConvertCodesPage.php:245
+#: src/Admin/ConvertCodesPage.php:291
 msgid "Quantity"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:248
-#: src/Admin/ConvertCodesPage.php:294
+#: src/Admin/ConvertCodesPage.php:249
+#: src/Admin/ConvertCodesPage.php:295
 msgid "Generate"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:257
+#: src/Admin/ConvertCodesPage.php:258
 msgid "Generate membership codes"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:265
+#: src/Admin/ConvertCodesPage.php:266
 #: src/Admin/PaymentsAuditPage.php:137
 msgid "Tier"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:270
+#: src/Admin/ConvertCodesPage.php:271
 msgid "— define tiers first —"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:279
+#: src/Admin/ConvertCodesPage.php:280
 msgid "The membership product this code grants; the tier snapshot is taken at redemption time."
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:283
+#: src/Admin/ConvertCodesPage.php:284
 #: src/Admin/PaymentsAuditPage.php:139
 msgid "Cycles"
 msgstr ""
 
-#: src/Admin/ConvertCodesPage.php:286
+#: src/Admin/ConvertCodesPage.php:287
 msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
 msgstr ""
 
@@ -390,6 +390,7 @@ msgstr ""
 
 #: src/Admin/CreditsPage.php:218
 #: src/Admin/CronsPage.php:172
+#: src/Admin/OperationsPage.php:192
 #: src/Admin/PaymentsAuditPage.php:118
 #: src/Admin/PicBedPage.php:224
 #: src/Admin/RewritesPage.php:86
@@ -424,8 +425,8 @@ msgid "Expires"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:281
-#: src/Admin/OperationsPage.php:314
-#: src/Admin/OperationsPage.php:324
+#: src/Admin/OperationsPage.php:403
+#: src/Admin/OperationsPage.php:425
 #: src/Admin/UiSamplePage.php:246
 msgid "Expired"
 msgstr ""
@@ -458,8 +459,8 @@ msgid "Credits"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:437
-#: src/Admin/OperationsPage.php:383
-#: src/Admin/OperationsPage.php:403
+#: src/Admin/OperationsPage.php:549
+#: src/Admin/OperationsPage.php:575
 #: src/Admin/UiSamplePage.php:260
 #: src/Domain/Credit/CreditModule.php:81
 msgid "Check-in"
@@ -470,8 +471,8 @@ msgid "Redeem code"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:439
-#: src/Admin/OperationsPage.php:384
-#: src/Admin/OperationsPage.php:404
+#: src/Admin/OperationsPage.php:550
+#: src/Admin/OperationsPage.php:576
 #: src/Admin/PaymentsAuditPage.php:185
 #: src/Admin/UiSamplePage.php:261
 #: src/Domain/Membership/MembershipModule.php:80
@@ -744,7 +745,6 @@ msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:294
 #: src/Admin/DiscussionModerationPage.php:420
-#: src/Admin/OperationsPage.php:107
 msgid "Save"
 msgstr ""
 
@@ -1112,208 +1112,230 @@ msgstr ""
 msgid "Guest"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:52
-#: src/Admin/OperationsPage.php:53
-#: src/Admin/OperationsPage.php:76
+#: src/Admin/OperationsPage.php:55
+#: src/Admin/OperationsPage.php:56
+#: src/Admin/OperationsPage.php:78
 msgid "Operations dashboard"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:64
+#: src/Admin/OperationsPage.php:67
 msgid "You are not allowed to view the operations dashboard."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:77
-msgid "Monthly credit flow, membership and traffic. Consumption is booked straight from the ledger's spend events, and downloads are metered by the file download domain — one per delivered download, charged or free. Figures accumulate from install time onward; earlier months cannot be rebuilt from the ledger."
+#: src/Admin/OperationsPage.php:79
+msgid "One month's credit flow, membership and traffic, with the trailing year behind it."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:80
-msgid "Cost per download saved."
-msgstr ""
-
-#: src/Admin/OperationsPage.php:81
-#: src/Settings/ValueNormalizer.php:150
-msgid "Enter a valid number."
-msgstr ""
-
-#: src/Admin/OperationsPage.php:99
-#: src/Admin/OperationsPage.php:106
-msgid "Upstream cost per download"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:108
-msgid "In the payment currency; the month's cost derives as downloads × this rate and freezes when the month closes."
-msgstr ""
-
-#: src/Admin/OperationsPage.php:118
-msgid "You are not allowed to configure the operations dashboard."
-msgstr ""
-
-#: src/Admin/OperationsPage.php:157
-#: src/Admin/OperationsPage.php:321
-#: src/Admin/OperationsPage.php:402
+#: src/Admin/OperationsPage.php:194
+#: src/Admin/OperationsPage.php:201
+#: src/Admin/OperationsPage.php:202
+#: src/Admin/OperationsPage.php:422
+#: src/Admin/OperationsPage.php:574
 msgid "Month"
 msgstr ""
 
-#. translators: %s: month key, e.g. 2026-09
-#: src/Admin/OperationsPage.php:176
+#. translators: %s: month label, e.g. September 2026
+#: src/Admin/OperationsPage.php:219
 #, php-format
 msgid "Indicators — %s"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:180
+#: src/Admin/OperationsPage.php:225
+#: src/Admin/OperationsPage.php:322
+msgid "Consumption rate"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:229
+msgid "Consumed against granted this month."
+msgstr ""
+
+#: src/Admin/OperationsPage.php:232
+#: src/Admin/OperationsPage.php:311
+#: src/Admin/OperationsPage.php:479
+msgid "Cash collected"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:234
+msgid "Payments received in the month."
+msgstr ""
+
+#: src/Admin/OperationsPage.php:237
+#: src/Admin/OperationsPage.php:302
+#: src/Admin/OperationsPage.php:429
+#: src/Admin/OperationsPage.php:511
+msgid "Paying users"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:239
+#: src/Admin/OperationsPage.php:304
+msgid "Covered holders whose order was actually paid."
+msgstr ""
+
+#: src/Admin/OperationsPage.php:242
+#: src/Admin/OperationsPage.php:289
+#: src/Admin/OperationsPage.php:426
+msgid "Downloads"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:244
+msgid "Files delivered, charged or free."
+msgstr ""
+
+#: src/Admin/OperationsPage.php:247
+#: src/Admin/OperationsPage.php:333
+msgid "Outstanding credits"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:249
+msgid "What every holder could still spend right now."
+msgstr ""
+
+#: src/Admin/OperationsPage.php:269
+msgid "Detail tables"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:273
+msgid "Volume"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:276
 msgid "Credits granted"
 msgstr ""
 
 #. translators: 1: check-in credits, 2: membership credits, 3: code credits, 4: manual credits
-#: src/Admin/OperationsPage.php:187
+#: src/Admin/OperationsPage.php:280
 #, php-format
 msgid "Check-in %1$s · Membership %2$s · Codes %3$s · Manual %4$s"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:198
+#: src/Admin/OperationsPage.php:287
 msgid "Credits consumed"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:202
+#: src/Admin/OperationsPage.php:288
 msgid "Credits expired"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:206
-#: src/Admin/OperationsPage.php:325
-msgid "Downloads"
+#: src/Admin/OperationsPage.php:293
+#: src/Admin/OperationsPage.php:514
+msgid "Users"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:210
-#: src/Admin/OperationsPage.php:326
+#: src/Admin/OperationsPage.php:295
+#: src/Admin/OperationsPage.php:427
+#: src/Admin/OperationsPage.php:509
 msgid "Active users"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:214
-#: src/Admin/OperationsPage.php:327
+#: src/Admin/OperationsPage.php:297
+#: src/Admin/OperationsPage.php:428
+#: src/Admin/OperationsPage.php:510
 msgid "Members"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:217
+#: src/Admin/OperationsPage.php:299
 msgid "Holders whose membership covers this month, codes included."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:221
-#: src/Admin/OperationsPage.php:328
-msgid "Paying users"
+#: src/Admin/OperationsPage.php:309
+msgid "Revenue"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:224
-msgid "Covered holders whose order was actually paid."
-msgstr ""
-
-#: src/Admin/OperationsPage.php:228
-msgid "Cash collected"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:232
+#: src/Admin/OperationsPage.php:313
+#: src/Admin/OperationsPage.php:480
 msgid "Recognized revenue"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:235
+#: src/Admin/OperationsPage.php:315
 msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once and its months sum back to the order total. Booked revenue for the month — not a forward-looking MRR run rate."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:239
-#: src/Admin/OperationsPage.php:331
-msgid "Cost"
+#: src/Admin/OperationsPage.php:320
+msgid "Efficiency"
 msgstr ""
 
-#. translators: 1: rate per download, 2: state of the rate
-#: src/Admin/OperationsPage.php:246
-#, php-format
-msgid "Downloads × %1$s per download, %2$s"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:249
-msgid "rate frozen when the month closed"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:250
-msgid "at the current rate; frozen when the month closes"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:257
-msgid "Outstanding credits"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:260
-msgid "What every holder could still spend right now — the report's liability figure."
-msgstr ""
-
-#: src/Admin/OperationsPage.php:264
-#: src/Admin/OperationsPage.php:332
-msgid "Consumption rate"
-msgstr ""
-
-#: src/Admin/OperationsPage.php:268
+#: src/Admin/OperationsPage.php:323
 msgid "Expiry rate"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:272
+#: src/Admin/OperationsPage.php:324
 msgid "Downloads per active user"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:276
+#: src/Admin/OperationsPage.php:325
 msgid "Downloads per paying user"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:280
+#: src/Admin/OperationsPage.php:326
 msgid "Revenue per paying user"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:284
-msgid "Cost per paying user"
+#: src/Admin/OperationsPage.php:330
+msgid "Liability"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:301
-#: src/Admin/OperationsPage.php:318
+#: src/Admin/OperationsPage.php:335
+msgid "What every holder could still spend right now — the report's liability figure."
+msgstr ""
+
+#: src/Admin/OperationsPage.php:344
+#: src/Admin/OperationsPage.php:388
 msgid "Trailing 12 months"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:312
-#: src/Admin/OperationsPage.php:322
+#: src/Admin/OperationsPage.php:348
+#: src/Admin/OperationsPage.php:536
+msgid "Grants by source"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:401
+#: src/Admin/OperationsPage.php:423
 #: src/Admin/UiSamplePage.php:244
 msgid "Granted"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:313
-#: src/Admin/OperationsPage.php:323
+#: src/Admin/OperationsPage.php:402
+#: src/Admin/OperationsPage.php:424
 #: src/Admin/UiSamplePage.php:245
 msgid "Consumed"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:329
+#: src/Admin/OperationsPage.php:430
 msgid "Cash"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:330
+#: src/Admin/OperationsPage.php:431
 msgid "Recognized"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:378
-#: src/Admin/OperationsPage.php:399
-msgid "Grants by source"
+#: src/Admin/OperationsPage.php:466
+msgid "Revenue basis"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:385
-#: src/Admin/OperationsPage.php:405
+#: src/Admin/OperationsPage.php:497
+msgid "User funnel"
+msgstr ""
+
+#: src/Admin/OperationsPage.php:551
+#: src/Admin/OperationsPage.php:577
 #: src/Admin/UiSamplePage.php:262
 msgid "Codes"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:386
-#: src/Admin/OperationsPage.php:406
+#: src/Admin/OperationsPage.php:552
+#: src/Admin/OperationsPage.php:578
 #: src/Admin/UiSamplePage.php:263
 msgid "Manual"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:407
+#: src/Admin/OperationsPage.php:579
 msgid "Total"
+msgstr ""
+
+#. translators: month label format, e.g. September 2026
+#: src/Admin/OperationsPage.php:606
+msgctxt "month label"
+msgid "F Y"
 msgstr ""
 
 #: src/Admin/PartsDialog.php:48
@@ -1365,7 +1387,7 @@ msgid "Epay"
 msgstr ""
 
 #: src/Admin/PaymentsAuditPage.php:245
-#: src/Domain/Payment/PaymentModule.php:146
+#: src/Domain/Payment/PaymentModule.php:147
 msgid "Afdian"
 msgstr ""
 
@@ -1497,18 +1519,18 @@ msgstr[1] ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:101
 #: src/Domain/Blocks/BlocksModule.php:207
-#: src/Domain/Content/ContentManagementModule.php:101
+#: src/Domain/Content/ContentManagementModule.php:111
 msgid "Posts"
 msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:102
-#: src/Domain/Content/ContentManagementModule.php:102
+#: src/Domain/Content/ContentManagementModule.php:112
 msgid "Pages"
 msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:103
 #: src/Domain/Blocks/BlocksModule.php:208
-#: src/Domain/Content/ContentManagementModule.php:103
+#: src/Domain/Content/ContentManagementModule.php:113
 msgid "Resources"
 msgstr ""
 
@@ -2736,17 +2758,17 @@ msgid "The reply could not be read back."
 msgstr ""
 
 #: src/Api/Rest/DiscussionController.php:414
-#: src/Domain/Discussion/DiscussionService.php:56
-#: src/Domain/Discussion/DiscussionService.php:592
+#: src/Domain/Discussion/DiscussionService.php:57
+#: src/Domain/Discussion/DiscussionService.php:593
 msgid "Unknown board."
 msgstr ""
 
 #: src/Api/Rest/DiscussionController.php:423
 #: src/Domain/Discussion/DiscussionLikeService.php:148
 #: src/Domain/Discussion/DiscussionLikeService.php:209
-#: src/Domain/Discussion/DiscussionService.php:513
-#: src/Domain/Discussion/DiscussionService.php:567
-#: src/Domain/Discussion/DiscussionService.php:630
+#: src/Domain/Discussion/DiscussionService.php:514
+#: src/Domain/Discussion/DiscussionService.php:568
+#: src/Domain/Discussion/DiscussionService.php:631
 msgid "Thread not found."
 msgstr ""
 
@@ -2859,7 +2881,7 @@ msgstr ""
 
 #: src/Domain/Blocks/BlocksModule.php:127
 #: src/Domain/Blocks/BlocksModule.php:198
-#: src/Domain/Content/FrontendModule.php:245
+#: src/Domain/Content/FrontendModule.php:254
 #: src/Domain/Content/TermExtrasModule.php:59
 msgid "Icon"
 msgstr ""
@@ -2881,7 +2903,7 @@ msgid "New window"
 msgstr ""
 
 #: src/Domain/Blocks/BlocksModule.php:159
-#: src/Domain/Content/FrontendModule.php:239
+#: src/Domain/Content/FrontendModule.php:248
 msgid "Link"
 msgstr ""
 
@@ -2937,46 +2959,46 @@ msgstr ""
 msgid "Optional override for the heading row's link; empty derives the type's own archive path (with the chosen categories)."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:61
+#: src/Domain/Content/ContentManagementModule.php:71
 msgid "Retention policy"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:67
+#: src/Domain/Content/ContentManagementModule.php:77
 msgid "Notification retention (days)"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:68
+#: src/Domain/Content/ContentManagementModule.php:78
 msgid "A daily cleanup removes stored notifications older than this many days."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:76
+#: src/Domain/Content/ContentManagementModule.php:86
 msgid "Ledger retention (days)"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:77
+#: src/Domain/Content/ContentManagementModule.php:87
 msgid "How long closed credit history (spent rows, emptied buckets) is kept before the daily cleanup removes it. Live unexpired buckets are never touched."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:85
+#: src/Domain/Content/ContentManagementModule.php:95
 msgid "NSFW filter"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:92
+#: src/Domain/Content/ContentManagementModule.php:102
 msgid "Terms picked here count as NSFW: the front end asks for them to be dropped from listings (any matching category excludes the post). Untouched by default — detail pages and direct archive visits stay reachable, and a signed-in user with \"always show NSFW content\" ignores the filter."
 msgstr ""
 
 #. translators: %s: content type label (e.g. Posts).
-#: src/Domain/Content/ContentManagementModule.php:120
+#: src/Domain/Content/ContentManagementModule.php:130
 #, php-format
 msgid "NSFW terms — %s"
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:121
+#: src/Domain/Content/ContentManagementModule.php:131
 msgid "Every picked term is treated as NSFW content for this type; posts carrying any of them drop out of requested listings."
 msgstr ""
 
-#: src/Domain/Content/ContentManagementModule.php:132
-#: src/Domain/Content/ContentManagementModule.php:133
+#: src/Domain/Content/ContentManagementModule.php:142
+#: src/Domain/Content/ContentManagementModule.php:143
 msgid "Backend"
 msgstr ""
 
@@ -3000,181 +3022,181 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:88
-#: src/Domain/Content/FrontendModule.php:90
+#: src/Domain/Content/FrontendModule.php:97
+#: src/Domain/Content/FrontendModule.php:99
 msgid "Frontend"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:89
+#: src/Domain/Content/FrontendModule.php:98
 msgid "AIYA CMS Core"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:99
+#: src/Domain/Content/FrontendModule.php:108
 msgid "Basic settings"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:105
+#: src/Domain/Content/FrontendModule.php:114
 msgid "Frontend domain"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:106
+#: src/Domain/Content/FrontendModule.php:115
 msgid "The canonical front-end origin including the scheme, for example https://www.example.com. When set, password-reset links always point here; more front-end-facing features will reuse this value. Leave empty to keep reset links on this site address."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:112
+#: src/Domain/Content/FrontendModule.php:121
 msgid "Front-end language"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:113
+#: src/Domain/Content/FrontendModule.php:122
 msgid "The interface language signed-out visitors start with; signed-in members override it from their account settings. Auto follows the WordPress site language."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:116
+#: src/Domain/Content/FrontendModule.php:125
 msgid "Auto (site language)"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:126
+#: src/Domain/Content/FrontendModule.php:135
 msgid "Theme color"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:127
+#: src/Domain/Content/FrontendModule.php:136
 msgid "Buttons, links and active states across the front end derive from this color."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:133
+#: src/Domain/Content/FrontendModule.php:142
 msgid "Default color mode"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:134
+#: src/Domain/Content/FrontendModule.php:143
 msgid "Color scheme a first-time visitor starts with."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:137
+#: src/Domain/Content/FrontendModule.php:146
 msgid "Follow the system"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:138
+#: src/Domain/Content/FrontendModule.php:147
 msgid "Dark"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:139
+#: src/Domain/Content/FrontendModule.php:148
 msgid "Light"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:145
+#: src/Domain/Content/FrontendModule.php:154
 msgid "Fallback images & banner"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:151
+#: src/Domain/Content/FrontendModule.php:160
 msgid "Site fallback cover"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:152
+#: src/Domain/Content/FrontendModule.php:161
 msgid "Used wherever a card cover is missing: list card thumbnails and category cards — each surface derives its own crop from this one image. The article hero has its own default below."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:158
+#: src/Domain/Content/FrontendModule.php:167
 msgid "Default article hero"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:159
+#: src/Domain/Content/FrontendModule.php:168
 msgid "The banner crop served as the article hero for posts whose author did not set a featured image. Leave unset to let those heroes fall back to the card cover chain instead."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:165
+#: src/Domain/Content/FrontendModule.php:174
 msgid "Empty state image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:166
+#: src/Domain/Content/FrontendModule.php:175
 msgid "Placeholder shown on empty lists and error cards across the front end."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:172
+#: src/Domain/Content/FrontendModule.php:181
 msgid "Show the header banner"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:173
+#: src/Domain/Content/FrontendModule.php:182
 msgid "Turns the compact top bar into a tall header backed by the banner image."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:179
+#: src/Domain/Content/FrontendModule.php:188
 msgid "Banner image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:180
+#: src/Domain/Content/FrontendModule.php:189
 msgid "Wide image shown behind the top navigation while the banner is on."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:186
+#: src/Domain/Content/FrontendModule.php:195
 msgid "SEO & analytics"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:192
+#: src/Domain/Content/FrontendModule.php:201
 msgid "SEO keywords"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:193
+#: src/Domain/Content/FrontendModule.php:202
 msgid "Comma-separated keywords for the site home page."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:199
+#: src/Domain/Content/FrontendModule.php:208
 msgid "SEO description"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:200
+#: src/Domain/Content/FrontendModule.php:209
 msgid "Meta description for the site home page."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:206
+#: src/Domain/Content/FrontendModule.php:215
 msgid "Google Analytics ID"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:207
+#: src/Domain/Content/FrontendModule.php:216
 msgid "Measurement ID (e.g. G-XXXXXXXXXX); the front end renders the analytics snippet from it. Leave empty to disable."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:213
+#: src/Domain/Content/FrontendModule.php:222
 msgid "Compliance footer"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:219
+#: src/Domain/Content/FrontendModule.php:228
 msgid "Footer hitokoto"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:220
+#: src/Domain/Content/FrontendModule.php:229
 msgid "Show a random one-liner quote as the footer sign-off."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:226
+#: src/Domain/Content/FrontendModule.php:235
 msgid "Compliance links"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:227
+#: src/Domain/Content/FrontendModule.php:236
 msgid "One row per filing shown in the footer, e.g. ICP or public security."
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:233
+#: src/Domain/Content/FrontendModule.php:242
 #: src/Modules/MediaModule.php:262
 msgid "Text"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:248
+#: src/Domain/Content/FrontendModule.php:257
 msgid "Shield (ICP)"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:249
+#: src/Domain/Content/FrontendModule.php:258
 msgid "Police badge"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:250
+#: src/Domain/Content/FrontendModule.php:259
 msgid "Custom image"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:256
+#: src/Domain/Content/FrontendModule.php:265
 msgid "Custom icon URL"
 msgstr ""
 
-#: src/Domain/Content/FrontendModule.php:257
+#: src/Domain/Content/FrontendModule.php:266
 msgid "Used when the icon template is set to custom."
 msgstr ""
 
@@ -3358,131 +3380,131 @@ msgstr ""
 msgid "The like could not be removed."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:50
+#: src/Domain/Discussion/DiscussionService.php:51
 msgid "The thread author does not exist."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:59
-#: src/Domain/Discussion/DiscussionService.php:581
+#: src/Domain/Discussion/DiscussionService.php:60
+#: src/Domain/Discussion/DiscussionService.php:582
 msgid "The thread body is required."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:63
-#: src/Domain/Discussion/DiscussionService.php:585
+#: src/Domain/Discussion/DiscussionService.php:64
+#: src/Domain/Discussion/DiscussionService.php:586
 msgid "A thread can carry at most nine images."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:90
+#: src/Domain/Discussion/DiscussionService.php:91
 msgid "The thread could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:378
+#: src/Domain/Discussion/DiscussionService.php:379
 msgid "The board slug must be lowercase letters, digits, dashes or underscores."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:381
-#: src/Domain/Discussion/DiscussionService.php:424
+#: src/Domain/Discussion/DiscussionService.php:382
+#: src/Domain/Discussion/DiscussionService.php:425
 msgid "The board name is required."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:384
+#: src/Domain/Discussion/DiscussionService.php:385
 msgid "A board with this slug already exists."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:402
+#: src/Domain/Discussion/DiscussionService.php:403
 msgid "The board could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:417
-#: src/Domain/Discussion/DiscussionService.php:458
+#: src/Domain/Discussion/DiscussionService.php:418
+#: src/Domain/Discussion/DiscussionService.php:459
 msgid "Board not found."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:443
+#: src/Domain/Discussion/DiscussionService.php:444
 msgid "The board could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:471
+#: src/Domain/Discussion/DiscussionService.php:472
 msgid "The last board cannot be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:484
+#: src/Domain/Discussion/DiscussionService.php:485
 msgid "The board threads could not be moved."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:488
+#: src/Domain/Discussion/DiscussionService.php:489
 msgid "The board could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:516
+#: src/Domain/Discussion/DiscussionService.php:517
 msgid "This thread is closed to new replies."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:519
+#: src/Domain/Discussion/DiscussionService.php:520
 msgid "The replying user does not exist."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:522
-#: src/Domain/Discussion/DiscussionService.php:682
+#: src/Domain/Discussion/DiscussionService.php:523
+#: src/Domain/Discussion/DiscussionService.php:683
 msgid "The reply body is required."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:526
-#: src/Domain/Discussion/DiscussionService.php:686
+#: src/Domain/Discussion/DiscussionService.php:527
+#: src/Domain/Discussion/DiscussionService.php:687
 msgid "A reply can carry at most nine images."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:544
+#: src/Domain/Discussion/DiscussionService.php:545
 msgid "The reply could not be stored."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:570
+#: src/Domain/Discussion/DiscussionService.php:571
 msgid "You are not allowed to edit this thread."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:599
+#: src/Domain/Discussion/DiscussionService.php:600
 msgid "Unknown thread status."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:613
+#: src/Domain/Discussion/DiscussionService.php:614
 msgid "The thread could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:633
+#: src/Domain/Discussion/DiscussionService.php:634
 msgid "You are not allowed to delete this thread."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:646
+#: src/Domain/Discussion/DiscussionService.php:647
 msgid "The thread replies could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:652
-#: src/Domain/Discussion/DiscussionService.php:658
+#: src/Domain/Discussion/DiscussionService.php:653
+#: src/Domain/Discussion/DiscussionService.php:659
 msgid "The thread could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:676
-#: src/Domain/Discussion/DiscussionService.php:708
+#: src/Domain/Discussion/DiscussionService.php:677
+#: src/Domain/Discussion/DiscussionService.php:709
 msgid "Reply not found."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:679
+#: src/Domain/Discussion/DiscussionService.php:680
 msgid "You are not allowed to edit this reply."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:697
+#: src/Domain/Discussion/DiscussionService.php:698
 msgid "The reply could not be updated."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:711
+#: src/Domain/Discussion/DiscussionService.php:712
 msgid "You are not allowed to delete this reply."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:718
+#: src/Domain/Discussion/DiscussionService.php:719
 msgid "The reply could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:784
+#: src/Domain/Discussion/DiscussionService.php:785
 msgid "The bound content does not exist or cannot carry discussions."
 msgstr ""
 
@@ -3781,19 +3803,19 @@ msgstr ""
 msgid "The follow could not be stored."
 msgstr ""
 
-#: src/Domain/Identity/IdentityModule.php:73
+#: src/Domain/Identity/IdentityModule.php:74
 msgid "Disable this account"
 msgstr ""
 
-#: src/Domain/Identity/IdentityModule.php:74
+#: src/Domain/Identity/IdentityModule.php:75
 msgid "A disabled account cannot check in, cannot spend credits and is not treated as a member anywhere. Credits and memberships are left untouched — grants keep landing, they simply cannot be used, and the balance keeps expiring on its own schedule."
 msgstr ""
 
-#: src/Domain/Identity/IdentityModule.php:84
+#: src/Domain/Identity/IdentityModule.php:85
 msgid "Always show NSFW content"
 msgstr ""
 
-#: src/Domain/Identity/IdentityModule.php:85
+#: src/Domain/Identity/IdentityModule.php:86
 msgid "NSFW terms configured on the content-management page drop out of listings on request. This switch makes the account ignore that filter everywhere, including the per-browser preference of the front end (0.96.0)."
 msgstr ""
 
@@ -4132,7 +4154,7 @@ msgstr ""
 
 #. translators: %s: tier keys that still have live checkouts or covering members.
 #: src/Domain/Membership/MembershipModule.php:239
-#: src/Domain/Payment/PaymentModule.php:294
+#: src/Domain/Payment/PaymentModule.php:291
 #, php-format
 msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
 msgstr ""
@@ -4289,89 +4311,89 @@ msgstr ""
 msgid "The order could not be stored."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:90
 #: src/Domain/Payment/PaymentModule.php:91
+#: src/Domain/Payment/PaymentModule.php:92
 msgid "Payment settings"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:99
+#: src/Domain/Payment/PaymentModule.php:100
 msgid "Epay gateway"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:105
+#: src/Domain/Payment/PaymentModule.php:106
 msgid "The Epay gateway is SDK-compatible; it signs with the V2 scheme."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:110
+#: src/Domain/Payment/PaymentModule.php:111
 msgid "Epay integration"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:116
+#: src/Domain/Payment/PaymentModule.php:117
 msgid "Merchant id (pid)"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:122
+#: src/Domain/Payment/PaymentModule.php:123
 msgid "Merchant key"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:128
+#: src/Domain/Payment/PaymentModule.php:129
 msgid "Gateway submit URL"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:134
+#: src/Domain/Payment/PaymentModule.php:135
 msgid "Payment channels"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:135
+#: src/Domain/Payment/PaymentModule.php:136
 msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:138
+#: src/Domain/Payment/PaymentModule.php:139
 msgid "Alipay"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:139
+#: src/Domain/Payment/PaymentModule.php:140
 msgid "WeChat Pay"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:140
+#: src/Domain/Payment/PaymentModule.php:141
 msgid "USDT (TRC20)"
 msgstr ""
 
 #. translators: the platform link.
-#: src/Domain/Payment/PaymentModule.php:153
+#: src/Domain/Payment/PaymentModule.php:154
 msgid "Support creators on <a href=\"https://afdian.com/\">Afdian</a>."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:163
+#: src/Domain/Payment/PaymentModule.php:164
 msgid "Afdian integration"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:164
+#: src/Domain/Payment/PaymentModule.php:165
 msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Every order settles into the single tier bound below — pushes are settled by re-querying the platform, never by trusting the push body."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:170
+#: src/Domain/Payment/PaymentModule.php:171
 msgid "Afdian plan ID"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:171
+#: src/Domain/Payment/PaymentModule.php:172
 msgid "The plan_id segment of the Afdian plan page URL — it aims the buyer's deep link. Leave empty to keep the channel unoffered."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:177
+#: src/Domain/Payment/PaymentModule.php:178
 msgid "Membership tier"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:178
+#: src/Domain/Payment/PaymentModule.php:179
 msgid "The one tier (from the membership settings page) that every Afdian order activates, whatever plan it was paid under."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:191
+#: src/Domain/Payment/PaymentModule.php:192
 msgid "Afdian user id"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:197
+#: src/Domain/Payment/PaymentModule.php:198
 msgid "Afdian API token"
 msgstr ""
 
@@ -5264,6 +5286,10 @@ msgstr ""
 
 #: src/Settings/ValueNormalizer.php:45
 msgid "A value is required."
+msgstr ""
+
+#: src/Settings/ValueNormalizer.php:150
+msgid "Enter a valid number."
 msgstr ""
 
 #. translators: %s: minimum allowed value.

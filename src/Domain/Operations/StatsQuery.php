@@ -13,8 +13,7 @@ namespace Aiya\Core\Domain\Operations;
  *   window has passed: grants, consumption, expiries, traffic, MAU;
  * - the entitlement queue and the payment log, read live — they are never
  *   pruned, so copying them would only create a second truth to keep in
- *   sync (members, paying users, cash, recognized revenue);
- * - the current download rate, for the running month's cost.
+ *   sync (members, paying users, cash, recognized revenue).
  *
  * This domain is a read-only reporting consumer of those fact tables: it
  * reads the credit, membership and payment tables and writes only its own
@@ -92,7 +91,6 @@ final class StatsQuery
         $actives = $this->activeUsers($first, $last);
         $entitlements = $this->entitlements($rangeStart, $rangeEnd, $keys);
         $cash = $this->cash($rangeStart, $rangeEnd, $keys);
-        $liveRate = StatsSettings::unitCost();
 
         $rows = [];
         foreach ($keys as $key) {
@@ -100,10 +98,6 @@ final class StatsQuery
 
             $granted = (int) ($stored['granted'] ?? 0);
             $downloads = (int) ($stored['downloads'] ?? 0);
-            $frozen = (int) ($stored['frozen'] ?? 0) === 1;
-            // A closed month keeps the rate it was frozen with; the
-            // running month prices at today's rate.
-            $unitCost = $frozen ? (float) ($stored['unit_cost'] ?? 0) : $liveRate;
 
             $row = [
                 'month' => $key,
@@ -120,9 +114,6 @@ final class StatsQuery
                 'payingUsers' => count($entitlements[$key]['paying'] ?? []),
                 'cash' => round($cash[$key] ?? 0.0, 4),
                 'mrr' => round($entitlements[$key]['mrr'] ?? 0.0, 4),
-                'unitCost' => $unitCost,
-                'frozen' => $frozen,
-                'cost' => round($downloads * $unitCost, 4),
             ];
             $row['ratios'] = StatsMath::derived($row);
 
@@ -145,7 +136,7 @@ final class StatsQuery
         /** @var list<array<string, mixed>>|null $rows */
         $rows = $wpdb->get_results($wpdb->prepare(
             'SELECT month, granted, granted_checkin, granted_membership, granted_code, granted_admin,
-                    consumed, expired, downloads, unit_cost, frozen
+                    consumed, expired, downloads
              FROM %i WHERE month >= %s AND month <= %s',
             $this->table(),
             $keys[0],

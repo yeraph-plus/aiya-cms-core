@@ -20,7 +20,6 @@ namespace {
 namespace Aiya\Core\Tests\Unit {
 
     use Aiya\Core\Domain\Operations\StatsQuery;
-    use Aiya\Core\Domain\Operations\StatsSettings;
     use PHPUnit\Framework\TestCase;
 
     require_once __DIR__ . '/../Fixture/OperationsTestWpdb.php';
@@ -32,9 +31,8 @@ namespace Aiya\Core\Tests\Unit {
      * order), entitlement windows are half-open so a cancelled membership
      * still counts for the months it was held, code-granted holders never
      * count as paying, revenue spreads over the service period and must
-     * reassemble to the paid amount, cash follows the payment moment, a
-     * closed month keeps its frozen rate while the running month prices
-     * at today's, and the outstanding liability only counts live buckets.
+     * reassemble to the paid amount, cash follows the payment moment,
+     * and the outstanding liability only counts live buckets.
      * Every fact sits on fixed epochs; the clocked "current month" is
      * 2026-10 and nothing reads the wall clock.
      */
@@ -77,8 +75,6 @@ namespace Aiya\Core\Tests\Unit {
                 'consumed' => 30,
                 'expired' => 10,
                 'downloads' => 40,
-                'unit_cost' => 0.25,
-                'frozen' => 1,
             ]);
             $this->db->seedMonth('2026-04', ['granted' => 999]); // outside the Aug–Oct trend
             $this->db->seedMonth('2026-09', [
@@ -114,8 +110,6 @@ namespace Aiya\Core\Tests\Unit {
             $this->db->seedOrder('ord-old', 'paid', 50.0, '2026-04-02 00:00:00', '2026-04-02 00:00:00');
             $this->db->seedOrder('ord-edge-in', 'paid', 1.0, '2026-08-01 00:00:00', '2026-08-01 00:00:00');
             $this->db->seedOrder('ord-edge-out', 'paid', 2.0, '2026-11-01 00:00:00', '2026-11-01 00:00:00');
-
-            $GLOBALS['__aiya_test_options'][StatsSettings::OPTION_NAME] = ['ops_unit_cost' => 0.5];
         }
 
         // ---- the trend ------------------------------------------------------------
@@ -169,8 +163,6 @@ namespace Aiya\Core\Tests\Unit {
             self::assertSame(0, $row['activeUsers']);
             self::assertSame(0, $row['members']);
             self::assertSame(0.0, $row['cash']);
-            self::assertSame(0.0, $row['cost']);
-            self::assertFalse($row['frozen']);
             self::assertNull($row['ratios']['consumptionRate'], 'a zero denominator is not computable, never zero');
         }
 
@@ -204,53 +196,11 @@ namespace Aiya\Core\Tests\Unit {
             self::assertSame(2, $row['payingUsers']);
             self::assertSame(19.0, $row['cash'], 'the created_at fallback (12) plus the membership-less order (7)');
             self::assertEqualsWithDelta(13.0667, $row['mrr'], 0.001, '30 over 90 days (26/30 in) plus 12 over 30 days (11/30 in)');
-            self::assertSame(0.5, $row['unitCost'], 'the running month prices at the live rate');
-            self::assertSame(4.0, $row['cost']);
-            self::assertFalse($row['frozen']);
             self::assertSame(0.5, $row['ratios']['consumptionRate']);
             self::assertSame(0.1, $row['ratios']['expiryRate']);
             self::assertSame(8.0, $row['ratios']['downloadsPerActive']);
             self::assertSame(4.0, $row['ratios']['downloadsPerPaying']);
             self::assertEqualsWithDelta(6.5334, $row['ratios']['revenuePerPaying'], 0.0001);
-            self::assertSame(2.0, $row['ratios']['costPerPaying']);
-        }
-
-        // ---- pricing: frozen vs live --------------------------------------------------
-
-        public function testAClosedMonthPricesAtTheRateItWasFrozenWith(): void
-        {
-            $this->seedReportingFixtures();
-
-            $row = (new StatsQuery())->month('2026-08');
-
-            self::assertTrue($row['frozen']);
-            self::assertSame(0.25, $row['unitCost']);
-            self::assertSame(10.0, $row['cost'], '40 downloads at the frozen 0.25');
-        }
-
-        public function testTheRunningMonthPricesAtTheLiveRate(): void
-        {
-            $this->seedReportingFixtures();
-
-            $row = (new StatsQuery())->month('2026-10');
-
-            self::assertFalse($row['frozen']);
-            self::assertSame(0.5, $row['unitCost']);
-            self::assertSame(4.0, $row['cost']);
-        }
-
-        public function testChangingTheLiveRateNeverRewritesAClosedMonth(): void
-        {
-            $this->seedReportingFixtures();
-            $GLOBALS['__aiya_test_options'][StatsSettings::OPTION_NAME] = ['ops_unit_cost' => 0.9];
-
-            $august = (new StatsQuery())->month('2026-08');
-            $october = (new StatsQuery())->month('2026-10');
-
-            self::assertSame(0.25, $august['unitCost'], 'a closed month keeps the rate it was frozen with');
-            self::assertSame(10.0, $august['cost']);
-            self::assertSame(0.9, $october['unitCost'], 'the running month prices at today\'s rate');
-            self::assertEqualsWithDelta(7.2, $october['cost'], 0.0001);
         }
 
         // ---- entitlement queue ------------------------------------------------------------

@@ -93,8 +93,6 @@ final class StatsRecorder
                 consumed BIGINT UNSIGNED NOT NULL DEFAULT 0,
                 expired BIGINT UNSIGNED NOT NULL DEFAULT 0,
                 downloads BIGINT UNSIGNED NOT NULL DEFAULT 0,
-                unit_cost DECIMAL(10,4) NOT NULL DEFAULT 0,
-                frozen TINYINT NOT NULL DEFAULT 0,
                 updated_at DATETIME NOT NULL,
                 PRIMARY KEY  (month)
             )"
@@ -119,6 +117,27 @@ final class StatsRecorder
                 $wpdb->query($drop);
             }
         }
+
+        // The per-download rate and its freeze flag fed only the retired
+        // cost display — the report no longer prices traffic, so the two
+        // columns retire through the same upgrade cleanup. Fresh installs
+        // never create them; upgrade databases drop them here.
+        foreach (['unit_cost', 'frozen'] as $retired) {
+            if ($wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $monthly, $retired)) === null) {
+                continue;
+            }
+            $drop = $wpdb->prepare('ALTER TABLE %i DROP COLUMN %i', $monthly, $retired);
+            if (is_string($drop)) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
+                $wpdb->query($drop);
+            }
+        }
+
+        // The report's rate option (the retired StatsSettings::OPTION_NAME)
+        // outlived its only reader — nothing loads the key any more, so the
+        // row goes with the columns it fed. The expiry watermark is sweep
+        // state, not a setting, and stays.
+        delete_option('aiya_core_operations');
 
         foreach ([$monthly, $active] as $table) {
             $found = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table)));
@@ -225,18 +244,6 @@ final class StatsRecorder
     }
 
     /**
-     * The daily hygiene pass, riding the credit cleanup cron at priority 5
-     * so it runs in the same tick as — and immediately before — the
-     * ledger prune at priority 10: buckets cannot be deleted before their
-     * expiry is booked.
-     */
-    public function sweep(): void
-    {
-        $this->sweepExpirations();
-        $this->freezeClosedMonths();
-    }
-
-    /**
      * Books every bucket that expired since the last sweep, attributed to
      * the month it actually expired in (the cursor is a timestamp, so a
      * missed cron only widens the window — attribution never drifts).
@@ -303,24 +310,6 @@ final class StatsRecorder
                 $wpdb->query($release);
             }
         }
-    }
-
-    /**
-     * Closes every month that ended: the current download rate is frozen
-     * into the row so later rate changes never rewrite a finished month.
-     * The live rate keeps applying to the running month.
-     */
-    public function freezeClosedMonths(): void
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $this->quiet($wpdb->prepare(
-            'UPDATE %i SET unit_cost = %f, frozen = 1, updated_at = %s WHERE frozen = 0 AND month < %s',
-            $this->table(),
-            StatsSettings::unitCost(),
-            $this->now(),
-            $this->localMonth()
-        ));
     }
 
     /**
