@@ -89,7 +89,7 @@ final class CreditModule implements Module
                 'description' => __('Credits added per check-in; 0 disables granting.', 'aiya-core'),
                 'default' => 5,
                 'min' => 0,
-                'max' => 100000,
+                'max' => CreditSettings::MAX_AMOUNT,
                 'step' => 1,
             ],
             [
@@ -99,7 +99,7 @@ final class CreditModule implements Module
                 'description' => __('How long a check-in grant stays spendable. Credits are cost accounting, not savings — every grant expires.', 'aiya-core'),
                 'default' => 30,
                 'min' => 1,
-                'max' => 3650,
+                'max' => CreditSettings::MAX_VALIDITY_DAYS,
                 'step' => 1,
             ],
             [

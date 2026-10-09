@@ -6,10 +6,11 @@ namespace Aiya\Core\Domain\Payment;
 
 /**
  * The membership domain's one random-suffix recipe: an uppercase
- * alphanumeric token cut from a CSPRNG-seeded digest (wp_rand feeds
- * uniqid's entropy; PHP's uniqid is seeded from the RNG source). The
- * Epay checkout's out_trade_no tail reads this helper so the wire shape
- * cannot drift between requests.
+ * alphanumeric token cut from a CSPRNG-seeded digest. The seed is a
+ * CSPRNG value because wp_rand() supplies the uniqid() prefix; uniqid's
+ * own entropy (the timestamp and its LCG tail) is not a CSPRNG, and the
+ * digest inherits both. The Epay checkout's out_trade_no tail reads this
+ * helper so the wire shape cannot drift between requests.
  */
 final class RandomToken
 {

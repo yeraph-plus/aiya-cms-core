@@ -3280,8 +3280,8 @@ msgstr "移除 Emoji 检测脚本与静态化过滤器"
 msgid "oEmbed discovery"
 msgstr "oEmbed 探测"
 
-msgid "Remove discovery links, the embed route and auto-embeds"
-msgstr "移除探测链接、embed 路由与自动嵌入"
+msgid "Remove discovery links, the embed route, the [embed] shortcode and auto-embeds"
+msgstr "移除探测链接、embed 路由、[embed] 短代码与自动嵌入"
 
 msgid "XML-RPC"
 msgstr "XML-RPC"

@@ -9,6 +9,7 @@ use Aiya\Core\Settings\Schema\Page;
 use Aiya\Core\Settings\Registry;
 use Aiya\Core\Domain\Redeem\RedeemCodeService;
 use Aiya\Core\Domain\Membership\MembershipSettings;
+use Aiya\Core\Domain\Credit\CreditSettings;
 
 /**
  * Redemption-code manager (submenu of the membership menu): batch-generate
@@ -229,14 +230,14 @@ final class ConvertCodesPage implements Module
                     <tr>
                         <th scope="row"><label for="aiya-codes-amount"><?php esc_html_e('Amount', 'aiya-core'); ?></label></th>
                         <td>
-                            <input type="number" class="small-text" id="aiya-codes-amount" name="credit_amount" min="1" max="100000" value="100">
+                            <input type="number" class="small-text" id="aiya-codes-amount" name="credit_amount" min="1" max="<?php echo esc_attr((string) CreditSettings::MAX_AMOUNT); ?>" value="100">
                             <p class="description"><?php esc_html_e('The balance the holder receives at redemption.', 'aiya-core'); ?></p>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="aiya-codes-days"><?php esc_html_e('Validity (days)', 'aiya-core'); ?></label></th>
                         <td>
-                            <input type="number" class="small-text" id="aiya-codes-days" name="credit_days" min="1" max="3650" value="365">
+                            <input type="number" class="small-text" id="aiya-codes-days" name="credit_days" min="1" max="<?php echo esc_attr((string) CreditSettings::MAX_VALIDITY_DAYS); ?>" value="365">
                             <p class="description"><?php esc_html_e('The granted bucket dies when this expires.', 'aiya-core'); ?></p>
                         </td>
                     </tr>
@@ -315,7 +316,7 @@ final class ConvertCodesPage implements Module
             // field is an operator mistake, not a minimum.
             $amount = absint($amountRaw);
             $days = absint($daysRaw);
-            if ($quantity < 1 || $quantity > 200 || $amountRaw === '' || $daysRaw === '' || $amount < 1 || $amount > 100000 || $days < 1 || $days > 3650) {
+            if ($quantity < 1 || $quantity > 200 || $amountRaw === '' || $daysRaw === '' || $amount < 1 || $amount > CreditSettings::MAX_AMOUNT || $days < 1 || $days > CreditSettings::MAX_VALIDITY_DAYS) {
                 Ui::redirect(self::pageUrl(), ['aiya_note' => 'failed']);
             }
             $codes = $this->codes->generateCredits($quantity, $amount, $days);

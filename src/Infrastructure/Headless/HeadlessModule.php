@@ -143,7 +143,7 @@ final class HeadlessModule implements Module
                     'id' => 'disable_oembed',
                     'type' => 'switch',
                     'label' => __('oEmbed discovery', 'aiya-core'),
-                    'checkbox_label' => __('Remove discovery links, the embed route and auto-embeds', 'aiya-core'),
+                    'checkbox_label' => __('Remove discovery links, the embed route, the [embed] shortcode and auto-embeds', 'aiya-core'),
                     'default' => true,
                 ],
                 [
@@ -452,6 +452,15 @@ final class HeadlessModule implements Module
 
         if (isset($GLOBALS['wp_embed']) && $GLOBALS['wp_embed'] instanceof \WP_Embed) {
             $wp_embed = $GLOBALS['wp_embed'];
+            // run_shortcode re-registers [embed] on every run, so
+            // remove_shortcode('embed') cannot kill it — the whole
+            // content-filter that processes the tag goes instead. The
+            // placeholder handler WP_Embed registered at construction
+            // (__return_false) remains, so a literal [embed] tag is
+            // stripped at do_shortcode time like any stripped shortcode.
+            remove_filter('the_content', [$wp_embed, 'run_shortcode'], 8);
+            remove_filter('widget_text_content', [$wp_embed, 'run_shortcode'], 8);
+            remove_filter('widget_block_content', [$wp_embed, 'run_shortcode'], 8);
             remove_filter('the_content', [$wp_embed, 'autoembed'], 8);
             remove_filter('widget_text_content', [$wp_embed, 'autoembed'], 8);
             remove_filter('widget_block_content', [$wp_embed, 'autoembed'], 8);

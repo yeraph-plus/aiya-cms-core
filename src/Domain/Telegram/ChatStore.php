@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Telegram;
 
+use Aiya\Core\Runtime\TableInstaller;
 /**
  * The support-relay storage: one table of chat messages (schema 1.2.0),
  * sessions addressed by the session_id column — v1 is login-only with one
@@ -35,12 +36,8 @@ class ChatStore
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $charset = $wpdb->get_charset_collate();
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
         $table = $wpdb->prefix . self::TABLE;
-        dbDelta(
+        TableInstaller::install(
             "CREATE TABLE $table (
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 session_id VARCHAR(64) NOT NULL,
@@ -52,7 +49,7 @@ class ChatStore
                 PRIMARY KEY  (id),
                 KEY session (session_id, id),
                 UNIQUE KEY uk_tg (tg_chat_id, tg_message_id)
-            ) $charset;"
+            )"
         );
 
         if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) !== $table) {
@@ -232,7 +229,7 @@ class ChatStore
         }
 
         /** @var int|false $removed */
-        $removed = $wpdb->query($prepared);
+        $removed = $wpdb->query($prepared); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
 
         return is_int($removed) ? $removed : 0;
     }

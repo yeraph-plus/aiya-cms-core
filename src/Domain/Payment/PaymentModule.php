@@ -6,6 +6,7 @@ namespace Aiya\Core\Domain\Payment;
 
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Membership\MembershipModule;
+use Aiya\Core\Runtime\TableInstaller;
 use Aiya\Core\Settings\Registry;
 use WP_Error;
 
@@ -215,12 +216,8 @@ final class PaymentModule implements Module
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $charset = $wpdb->get_charset_collate();
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
-        $orders = $wpdb->prefix . 'aiya_payment_orders';
-        dbDelta(
+        $orders = TableInstaller::table('aiya_payment_orders');
+        TableInstaller::install(
             "CREATE TABLE $orders (
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 user_id BIGINT UNSIGNED NOT NULL,
@@ -235,7 +232,7 @@ final class PaymentModule implements Module
                 PRIMARY KEY  (id),
                 UNIQUE KEY order_id (order_id),
                 KEY user_id (user_id)
-            ) $charset;"
+            )"
         );
 
         if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($orders))) !== $orders) {

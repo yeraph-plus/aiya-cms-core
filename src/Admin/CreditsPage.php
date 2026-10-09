@@ -178,13 +178,13 @@ final class CreditsPage implements Module
                     <tr>
                         <th scope="row"><label for="aiya-credit-grant-amount"><?php esc_html_e('Amount', 'aiya-core'); ?></label></th>
                         <td>
-                            <input type="number" id="aiya-credit-grant-amount" name="amount" value="1" class="small-text" min="1" max="100000" step="1" required>
+                            <input type="number" id="aiya-credit-grant-amount" name="amount" value="1" class="small-text" min="1" max="<?php echo esc_attr((string) CreditSettings::MAX_AMOUNT); ?>" step="1" required>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="aiya-credit-grant-days"><?php esc_html_e('Validity (days)', 'aiya-core'); ?></label></th>
                         <td>
-                            <input type="number" id="aiya-credit-grant-days" name="days" value="<?php echo esc_attr((string) $settings['validityDays']); ?>" class="small-text" min="1" max="3650" step="1">
+                            <input type="number" id="aiya-credit-grant-days" name="days" value="<?php echo esc_attr((string) $settings['validityDays']); ?>" class="small-text" min="1" max="<?php echo esc_attr((string) CreditSettings::MAX_VALIDITY_DAYS); ?>" step="1">
                             <span class="description"><?php esc_html_e('The bucket dies when this expires.', 'aiya-core'); ?></span>
                         </td>
                     </tr>
@@ -319,8 +319,8 @@ final class CreditsPage implements Module
             Ui::redirect(self::pageUrl(), ['aiya_credit_note' => 'failed', 'aiya_credit_message' => rawurlencode((string) __('Amount and validity are required.', 'aiya-core'))]);
         }
 
-        $amount = min(100000, max(1, absint($amountRaw)));
-        $days = min(3650, max(1, absint($daysRaw)));
+        $amount = min(CreditSettings::MAX_AMOUNT, max(1, absint($amountRaw)));
+        $days = min(CreditSettings::MAX_VALIDITY_DAYS, max(1, absint($daysRaw)));
         $note = sanitize_text_field(wp_unslash((string) ($_POST['note'] ?? '')));
         // The note IS the ledger reference now — the dedupe key is derived
         // from (source, ref), so the same note for the same holder is

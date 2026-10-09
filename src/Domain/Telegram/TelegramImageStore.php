@@ -66,14 +66,14 @@ final class TelegramImageStore
         }
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- a wire payload staged to a scratch file for MIME detection; WP_Filesystem is not the tool here
         if (file_put_contents($tmp, $bytes) === false) {
-            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink -- scratch cleanup
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- scratch cleanup
             unlink($tmp);
 
             return null;
         }
 
         $stored = $this->land($tmp, $bytes, $chatId, $messageId);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink -- scratch cleanup
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- scratch cleanup
         unlink($tmp);
 
         return $stored;

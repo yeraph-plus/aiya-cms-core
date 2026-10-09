@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Operations;
 
 use Aiya\Core\Domain\Credit\LedgerService;
+use Aiya\Core\Runtime\TableInstaller;
 use RuntimeException;
 
 /**
@@ -80,12 +81,8 @@ final class StatsRecorder
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $charset = $wpdb->get_charset_collate();
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
-        $monthly = $wpdb->prefix . 'aiya_stats_monthly';
-        dbDelta(
+        $monthly = TableInstaller::table('aiya_stats_monthly');
+        TableInstaller::install(
             "CREATE TABLE $monthly (
                 month CHAR(7) NOT NULL,
                 granted BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -100,16 +97,16 @@ final class StatsRecorder
                 frozen TINYINT NOT NULL DEFAULT 0,
                 updated_at DATETIME NOT NULL,
                 PRIMARY KEY  (month)
-            ) $charset;"
+            )"
         );
 
-        $active = $wpdb->prefix . 'aiya_stats_active';
-        dbDelta(
+        $active = TableInstaller::table('aiya_stats_active');
+        TableInstaller::install(
             "CREATE TABLE $active (
                 month CHAR(7) NOT NULL,
                 user_id BIGINT UNSIGNED NOT NULL,
                 PRIMARY KEY  (month, user_id)
-            ) $charset;"
+            )"
         );
 
         // The per-holder first-seen stamp was written and never read (the
@@ -381,21 +378,21 @@ final class StatsRecorder
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        return $wpdb->prefix . 'aiya_stats_monthly';
+        return TableInstaller::table('aiya_stats_monthly');
     }
 
     private function activeTable(): string
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        return $wpdb->prefix . 'aiya_stats_active';
+        return TableInstaller::table('aiya_stats_active');
     }
 
     private function ledgerTable(): string
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        return $wpdb->prefix . 'aiya_credit_entries';
+        return TableInstaller::table('aiya_credit_entries');
     }
 
     /** The site-local calendar month the report buckets into. */

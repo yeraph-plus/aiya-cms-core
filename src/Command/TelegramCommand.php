@@ -46,6 +46,7 @@ final class TelegramCommand
      * @param list<string>          $args
      * @param array<string, string> $assocArgs
      */
+    // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WP-CLI hands every callback ($args, $assocArgs); this command reads neither.
     public static function poll(array $args, array $assocArgs): void
     {
         $client = self::requireClient();
@@ -108,6 +109,7 @@ final class TelegramCommand
      * @param list<string>          $args
      * @param array<string, string> $assocArgs
      */
+    // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WP-CLI hands every callback ($args, $assocArgs); this command reads neither.
     public static function set_webhook(array $args, array $assocArgs): void
     {
         $secret = TelegramSettings::webhookSecret();
@@ -143,6 +145,7 @@ final class TelegramCommand
      * @param list<string>          $args
      * @param array<string, string> $assocArgs
      */
+    // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WP-CLI hands every callback ($args, $assocArgs); this command reads neither.
     public static function delete_webhook(array $args, array $assocArgs): void
     {
         $client = self::requireClient();
@@ -164,6 +167,7 @@ final class TelegramCommand
      * @param list<string>          $args
      * @param array<string, string> $assocArgs
      */
+    // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WP-CLI hands every callback ($args, $assocArgs); this command reads neither.
     public static function send_test(array $args, array $assocArgs): void
     {
         $chat = TelegramSettings::pushChatId();

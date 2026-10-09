@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.125.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core-pot\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.126.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-08T04:21:27+00:00\n"
+"POT-Creation-Date: 2026-10-08T11:34:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -146,7 +146,7 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:178
 #: src/Admin/DiscussionModerationPage.php:706
 #: src/Admin/NotificationPage.php:109
-#: src/Admin/PicBedPage.php:264
+#: src/Admin/PicBedPage.php:261
 #: src/Admin/UiSamplePage.php:285
 msgid "Actions"
 msgstr ""
@@ -256,27 +256,27 @@ msgstr ""
 msgid "How many cycles of the tier the code grants (credits follow the regular cycle grants)."
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:41
+#: src/Admin/CoverMetabox.php:42
 msgid "Post cover"
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:61
+#: src/Admin/CoverMetabox.php:62
 msgid "Current generated cover."
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:65
+#: src/Admin/CoverMetabox.php:66
 msgid "Cover model"
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:67
+#: src/Admin/CoverMetabox.php:68
 msgid "Photo background"
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:68
+#: src/Admin/CoverMetabox.php:69
 msgid "Pattern"
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:72
+#: src/Admin/CoverMetabox.php:73
 #: src/Admin/DiscussionModerationPage.php:173
 #: src/Admin/DiscussionModerationPage.php:262
 #: src/Admin/NotificationPage.php:105
@@ -291,39 +291,39 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:76
+#: src/Admin/CoverMetabox.php:77
 msgid "Background color"
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:80
+#: src/Admin/CoverMetabox.php:81
 msgid "Title color"
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:84
+#: src/Admin/CoverMetabox.php:85
 msgid "Generate cover"
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:93
+#: src/Admin/CoverMetabox.php:94
 msgid "Generating…"
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:104
+#: src/Admin/CoverMetabox.php:105
 msgid "Generation failed."
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:112
+#: src/Admin/CoverMetabox.php:113
 #: src/Admin/FileServeDialog.php:258
 #: src/Admin/SendMailPage.php:190
-#: src/Domain/Identity/AvatarModule.php:323
+#: src/Domain/Identity/AvatarModule.php:322
 msgid "Request failed."
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:126
+#: src/Admin/CoverMetabox.php:127
 #: src/Admin/FileServeDialog.php:285
 msgid "You are not allowed to edit this post."
 msgstr ""
 
-#: src/Admin/CoverMetabox.php:143
+#: src/Admin/CoverMetabox.php:144
 msgid "Cover generated."
 msgstr ""
 
@@ -391,7 +391,7 @@ msgstr ""
 #: src/Admin/CreditsPage.php:218
 #: src/Admin/CronsPage.php:172
 #: src/Admin/PaymentsAuditPage.php:118
-#: src/Admin/PicBedPage.php:227
+#: src/Admin/PicBedPage.php:224
 #: src/Admin/RewritesPage.php:86
 #: src/Admin/ShortcodesPage.php:67
 #: src/Admin/Ui.php:653
@@ -973,7 +973,7 @@ msgid "Size"
 msgstr ""
 
 #: src/Admin/FileServeDialog.php:255
-#: src/Admin/PicBedPage.php:262
+#: src/Admin/PicBedPage.php:259
 msgid "Preview"
 msgstr ""
 
@@ -1377,108 +1377,108 @@ msgstr ""
 msgid "Awaiting payment"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:66
-#: src/Admin/PicBedPage.php:67
-#: src/Admin/PicBedPage.php:83
+#: src/Admin/PicBedPage.php:63
+#: src/Admin/PicBedPage.php:64
+#: src/Admin/PicBedPage.php:80
 msgid "Pic bed"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:79
+#: src/Admin/PicBedPage.php:76
 msgid "You are not allowed to manage the pic bed."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:84
+#: src/Admin/PicBedPage.php:81
 msgid "Upload images to wp-content/aiya_upload_pics without using the media library or the uploads directory: no attachment IDs, no WP thumbnail generation. Each image is processed once through the image processor and the processed file is what lands on disk. Admin uploads land under the dated root; the headless route files them under u/{user id}."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:87
+#: src/Admin/PicBedPage.php:84
 msgid "Upload"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:92
-#: src/Admin/PicBedPage.php:173
+#: src/Admin/PicBedPage.php:89
+#: src/Admin/PicBedPage.php:170
 #: src/Admin/UiSamplePage.php:62
 msgid "Upload image"
 msgstr ""
 
 #. translators: %d: maximum upload size in megabytes.
-#: src/Admin/PicBedPage.php:97
+#: src/Admin/PicBedPage.php:94
 #, php-format
 msgid "JPEG, PNG, BMP, GIF, WebP and AVIF are supported, up to %d MB."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:109
+#: src/Admin/PicBedPage.php:106
 msgid "Dimensions"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:110
+#: src/Admin/PicBedPage.php:107
 msgid "Relative path"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:111
-#: src/Admin/PicBedPage.php:263
+#: src/Admin/PicBedPage.php:108
+#: src/Admin/PicBedPage.php:260
 #: src/Admin/SamplePage.php:245
 #: src/Domain/Blocks/BlocksModule.php:119
 #: src/Domain/Shortcodes/BuiltinShortcodes.php:153
 msgid "URL"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:114
+#: src/Admin/PicBedPage.php:111
 #: src/Admin/Ui.php:562
 msgid "Copy"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:120
+#: src/Admin/PicBedPage.php:117
 msgid "Uploaded images"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:136
+#: src/Admin/PicBedPage.php:133
 msgid "Uploading…"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:156
+#: src/Admin/PicBedPage.php:153
 msgid "Upload failed."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:194
+#: src/Admin/PicBedPage.php:191
 msgid "Insufficient permissions."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:200
-#: src/Api/Rest/UploadsController.php:70
-#: src/Domain/Media/PicBedStore.php:45
+#: src/Admin/PicBedPage.php:197
+#: src/Api/Rest/UploadsController.php:67
+#: src/Domain/Media/PicBedStore.php:39
 #: src/Modules/AvatarAjaxModule.php:44
 msgid "No file was uploaded."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:229
+#: src/Admin/PicBedPage.php:226
 #: src/Domain/Shortcodes/BuiltinShortcodes.php:195
 msgid "User ID"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:230
+#: src/Admin/PicBedPage.php:227
 msgid "empty lists the root pool"
 msgstr ""
 
 #. translators: 1: user display name or login, 2: user ID, 3: link to the user page.
-#: src/Admin/PicBedPage.php:241
+#: src/Admin/PicBedPage.php:238
 #, php-format
 msgid "Listing files uploaded by %1$s (#%2$d); %3$s."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:244
+#: src/Admin/PicBedPage.php:241
 msgid "open the user page"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:248
+#: src/Admin/PicBedPage.php:245
 msgid "That user id does not exist; the list stays empty."
 msgstr ""
 
-#: src/Admin/PicBedPage.php:273
+#: src/Admin/PicBedPage.php:270
 msgid "Copy img tag"
 msgstr ""
 
-#: src/Admin/PicBedPage.php:278
+#: src/Admin/PicBedPage.php:275
 msgid "No uploads yet."
 msgstr ""
 
@@ -2782,7 +2782,7 @@ msgid "The return URL is not a valid absolute http(s) address."
 msgstr ""
 
 #: src/Api/Rest/RestGuard.php:38
-#: src/Api/Rest/UploadsController.php:58
+#: src/Api/Rest/UploadsController.php:55
 #: src/Domain/Discussion/DiscussionLikeService.php:144
 #: src/Domain/Discussion/DiscussionLikeService.php:206
 msgid "Authentication required."
@@ -3154,7 +3154,7 @@ msgid "One row per filing shown in the footer, e.g. ICP or public security."
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:233
-#: src/Modules/MediaModule.php:260
+#: src/Modules/MediaModule.php:262
 msgid "Text"
 msgstr ""
 
@@ -3701,59 +3701,59 @@ msgstr ""
 msgid "Custom default"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:288
+#: src/Domain/Identity/AvatarModule.php:287
 msgid "Local avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:295
+#: src/Domain/Identity/AvatarModule.php:294
 msgid "Upload avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:296
+#: src/Domain/Identity/AvatarModule.php:295
 msgid "Remove local avatar"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:298
+#: src/Domain/Identity/AvatarModule.php:297
 msgid "JPEG, PNG, WebP or GIF up to 4 MB. The image is center-cropped and stored as 128px and 64px copies; the uploaded original is not kept."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:317
+#: src/Domain/Identity/AvatarModule.php:316
 msgid "Operation failed."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:333
+#: src/Domain/Identity/AvatarModule.php:332
 msgid "Choose an image first."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:346
+#: src/Domain/Identity/AvatarModule.php:345
 msgid "Avatar updated."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:353
+#: src/Domain/Identity/AvatarModule.php:352
 msgid "Remove the local avatar?"
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:403
+#: src/Domain/Identity/AvatarModule.php:402
 msgid "No avatar image was provided."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:413
+#: src/Domain/Identity/AvatarModule.php:412
 msgid "The avatar could not be processed."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:470
+#: src/Domain/Identity/AvatarModule.php:450
 msgid "Invalid avatar upload."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:473
+#: src/Domain/Identity/AvatarModule.php:453
 msgid "The upload failed with a file error."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:476
+#: src/Domain/Identity/AvatarModule.php:456
 msgid "The avatar image is too large (4 MB maximum)."
 msgstr ""
 
-#: src/Domain/Identity/AvatarModule.php:495
+#: src/Domain/Identity/AvatarModule.php:475
 msgid "Only JPEG, PNG, WebP and GIF images can be used as an avatar."
 msgstr ""
 
@@ -4027,23 +4027,23 @@ msgstr ""
 msgid "The cover URL could not be resolved."
 msgstr ""
 
-#: src/Domain/Media/PicBedStore.php:48
+#: src/Domain/Media/PicBedStore.php:42
 msgid "The file is too large."
 msgstr ""
 
-#: src/Domain/Media/PicBedStore.php:56
+#: src/Domain/Media/PicBedStore.php:50
 msgid "This file type is not supported."
 msgstr ""
 
-#: src/Domain/Media/PicBedStore.php:65
+#: src/Domain/Media/PicBedStore.php:59
 msgid "The file could not be written."
 msgstr ""
 
-#: src/Domain/Media/PicBedStore.php:75
+#: src/Domain/Media/PicBedStore.php:65
 msgid "Image processing failed."
 msgstr ""
 
-#: src/Domain/Media/PicBedStore.php:83
+#: src/Domain/Media/PicBedStore.php:72
 msgid "The image URL could not be resolved."
 msgstr ""
 
@@ -4869,7 +4869,7 @@ msgid "oEmbed discovery"
 msgstr ""
 
 #: src/Infrastructure/Headless/HeadlessModule.php:146
-msgid "Remove discovery links, the embed route and auto-embeds"
+msgid "Remove discovery links, the embed route, the [embed] shortcode and auto-embeds"
 msgstr ""
 
 #: src/Infrastructure/Headless/HeadlessModule.php:152
@@ -4916,7 +4916,7 @@ msgstr ""
 msgid "Answer 404 for every RSS/RDF/Atom feed URL"
 msgstr ""
 
-#: src/Infrastructure/Headless/HeadlessModule.php:545
+#: src/Infrastructure/Headless/HeadlessModule.php:554
 msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA CMS Core > Optimization."
 msgstr ""
 
@@ -5038,167 +5038,167 @@ msgstr ""
 msgid "From the GoFile profile page. The account lists, folders and search endpoints work for any tier, but reading a folder needs Premium — without it every GoFile list reports that it needs Premium."
 msgstr ""
 
-#: src/Modules/MediaModule.php:73
+#: src/Modules/MediaModule.php:75
 msgid "Every five minutes"
 msgstr ""
 
-#: src/Modules/MediaModule.php:185
+#: src/Modules/MediaModule.php:187
 msgid "Image processor"
 msgstr ""
 
-#: src/Modules/MediaModule.php:186
+#: src/Modules/MediaModule.php:188
 msgid "Image & watermark"
 msgstr ""
 
-#: src/Modules/MediaModule.php:197
+#: src/Modules/MediaModule.php:199
 msgid "Image processing"
 msgstr ""
 
-#: src/Modules/MediaModule.php:203
+#: src/Modules/MediaModule.php:205
 msgid "Media library takeover"
 msgstr ""
 
-#: src/Modules/MediaModule.php:204
+#: src/Modules/MediaModule.php:206
 msgid "Run uploads through the image processor: scale, watermark, format conversion"
 msgstr ""
 
-#: src/Modules/MediaModule.php:205
+#: src/Modules/MediaModule.php:207
 msgid "WebP/AVIF saving requires the libwebp/libavif PHP libraries; unsupported targets fall back to the source format."
 msgstr ""
 
-#: src/Modules/MediaModule.php:211
+#: src/Modules/MediaModule.php:213
 msgid "Save format"
 msgstr ""
 
-#: src/Modules/MediaModule.php:214
+#: src/Modules/MediaModule.php:216
 msgid "Keep source format"
 msgstr ""
 
-#: src/Modules/MediaModule.php:215
+#: src/Modules/MediaModule.php:217
 msgid "JPG"
 msgstr ""
 
-#: src/Modules/MediaModule.php:216
+#: src/Modules/MediaModule.php:218
 msgid "WebP"
 msgstr ""
 
-#: src/Modules/MediaModule.php:217
+#: src/Modules/MediaModule.php:219
 msgid "AVIF"
 msgstr ""
 
-#: src/Modules/MediaModule.php:223
+#: src/Modules/MediaModule.php:225
 msgid "Max image width"
 msgstr ""
 
-#: src/Modules/MediaModule.php:224
+#: src/Modules/MediaModule.php:226
 msgid "Uploads wider than this are scaled down; 0 disables the limit."
 msgstr ""
 
-#: src/Modules/MediaModule.php:232
+#: src/Modules/MediaModule.php:234
 msgid "Image quality"
 msgstr ""
 
-#: src/Modules/MediaModule.php:233
+#: src/Modules/MediaModule.php:235
 msgid "Save quality from 0 to 100; PNG maps it to the compression level."
 msgstr ""
 
-#: src/Modules/MediaModule.php:242
+#: src/Modules/MediaModule.php:244
 msgid "Font file"
 msgstr ""
 
-#: src/Modules/MediaModule.php:243
+#: src/Modules/MediaModule.php:245
 msgid "Content URL, content-relative path or absolute path for cover titles and text watermarks. Leave empty to use the bundled font."
 msgstr ""
 
-#: src/Modules/MediaModule.php:249
+#: src/Modules/MediaModule.php:251
 msgid "Watermark"
 msgstr ""
 
-#: src/Modules/MediaModule.php:255
+#: src/Modules/MediaModule.php:257
 msgid "Watermark mode"
 msgstr ""
 
-#: src/Modules/MediaModule.php:258
+#: src/Modules/MediaModule.php:260
 msgid "Disabled"
 msgstr ""
 
-#: src/Modules/MediaModule.php:259
+#: src/Modules/MediaModule.php:261
 msgid "Image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:266
+#: src/Modules/MediaModule.php:268
 msgid "Watermark position"
 msgstr ""
 
-#: src/Modules/MediaModule.php:269
+#: src/Modules/MediaModule.php:271
 msgid "Center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:270
+#: src/Modules/MediaModule.php:272
 msgid "Center left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:271
+#: src/Modules/MediaModule.php:273
 msgid "Center right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:272
+#: src/Modules/MediaModule.php:274
 msgid "Center top"
 msgstr ""
 
-#: src/Modules/MediaModule.php:273
+#: src/Modules/MediaModule.php:275
 msgid "Center bottom"
 msgstr ""
 
-#: src/Modules/MediaModule.php:274
+#: src/Modules/MediaModule.php:276
 msgid "Top right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:275
+#: src/Modules/MediaModule.php:277
 msgid "Top left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:276
+#: src/Modules/MediaModule.php:278
 msgid "Top center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:277
+#: src/Modules/MediaModule.php:279
 msgid "Bottom right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:278
+#: src/Modules/MediaModule.php:280
 msgid "Bottom left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:279
+#: src/Modules/MediaModule.php:281
 msgid "Bottom center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:285
+#: src/Modules/MediaModule.php:287
 msgid "Watermark image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:286
+#: src/Modules/MediaModule.php:288
 msgid "Media library attachment used in image mode; its own alpha is kept as-is."
 msgstr ""
 
-#: src/Modules/MediaModule.php:292
+#: src/Modules/MediaModule.php:294
 msgid "Watermark text"
 msgstr ""
 
-#: src/Modules/MediaModule.php:298
+#: src/Modules/MediaModule.php:300
 msgid "Watermark font size"
 msgstr ""
 
-#: src/Modules/MediaModule.php:306
+#: src/Modules/MediaModule.php:308
 msgid "Watermark opacity (text)"
 msgstr ""
 
-#: src/Modules/MediaModule.php:307
+#: src/Modules/MediaModule.php:309
 msgid "0 = fully transparent, 100 = fully opaque; applies to the text watermark only."
 msgstr ""
 
-#: src/Modules/MediaModule.php:401
+#: src/Modules/MediaModule.php:409
 msgid "Image processing failed; the upload was cancelled."
 msgstr ""
 

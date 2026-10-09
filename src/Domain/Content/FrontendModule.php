@@ -72,6 +72,15 @@ final class FrontendModule implements Module
         // the new shell configuration shows immediately.
         foreach (['update_option_' . self::OPTION_NAME, 'delete_option_' . self::OPTION_NAME] as $hook) {
             add_action($hook, static function (): void {
+                // A drop-in older than the WP 6.1 flush_group contract has no
+                // flush_group(); let the mirrors expire on their own TTLs
+                // rather than fataling on a settings save.
+                if (!function_exists('wp_cache_flush_group')
+                    || (function_exists('wp_cache_supports') && !wp_cache_supports('flush_group'))
+                ) {
+                    return;
+                }
+
                 wp_cache_flush_group('aiya_core_content');
             }, 10, 0);
         }

@@ -283,6 +283,20 @@ required nor expected across generators.
 - `Domain/Telegram` owns the bot's three content routes and nothing user-facing: the publish push listens on the content events and edits one channel message in place per post, the channel mirror ingests the source channels' posts into its own table (instant-public, the channel is the single source of truth), and the support relay moves chat messages between the web thread and the owner's private chat. Its edges: a one-way read-only consumption of `Domain/Media` (`MediaPaths` for the pool's telegram subtree, `MimeType` for the stored extension — the domain brings no pipeline of its own), `Domain/Shared` for the front-end origin, and the `aiya_core_post_published|updated` events as a pure listener. The transport seam is `packages/telegram-api` (WordPress-free, closure transport); the webhook intake route and the contract controllers are assembled by the Api layer, the operator CLI by the entry file — the domain registers settings, listeners and migrations only. On development hosts a workspace mu-plugin (`aiya-telegram-dev-intake.php`, a development dependency that is never deployed to production) drives the same update funnel through a WP-Cron minute bucket; production never carries that file — the platform pushes the webhook directly — and the CLI long poll stays the interactive debugger of the same machinery. The chat-id whitelists in `UpdateProcessor` are the bot-has-no-user-features stance in code: updates from any chat the site has not configured drop before route logic sees them. The one bootstrap exception is the `/id` discovery probe — default off, operator-switched, riding ahead of the whitelists because the whitelists wait on the very ids it reveals, and echoing nothing but the asking chat's own id back into that chat.
 - `packages/` packages never depend back on core; integration is adapter-only.
 - Astro and other front ends consume the versioned API contract; they never load this framework directly.
+- **Outbound request targets are an administrator trust boundary.** The
+  file-service adapters all exit through `Domain/FileServe/WireTransport`,
+  which forwards whatever target the configured backend carries: there is
+  no protocol whitelist, no private-address rejection and no host check at
+  the transport. The OpenList base URL is a settings field
+  (`fileserve_oplist_server_url`) whose description deliberately invites an
+  internal host for containerised deployments; the GoFile host is fixed and
+  the Telegram URLs are derived from the official domain. The settable field
+  therefore *is* the boundary — an administrator can point the server's
+  outbound request at any reachable address, the private network included.
+  That is the design (a site whose file service is not on the public
+  internet has to be able to say so), not an unguarded path; sites needing a
+  tighter rule should restrict the settings capability rather than expect
+  the transport to second-guess the administrator.
 
 ## Administrative UI
 

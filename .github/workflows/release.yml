@@ -58,6 +58,15 @@ jobs:
             - name: Point composer at the official packagist (the repo pins a CN mirror for local dev)
               run: composer config repositories.packagist composer https://repo.packagist.org
 
+            - name: Install development dependencies (for the quality gates)
+              run: composer install --prefer-dist --no-interaction --no-progress
+
+            - name: Run the quality gates (phpcs, phpstan, phpunit)
+              run: |
+                  vendor/bin/phpcs -q
+                  vendor/bin/phpstan analyse --memory-limit=4G --no-progress
+                  vendor/bin/phpunit --no-coverage
+
             - name: Install production dependencies
               run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
 

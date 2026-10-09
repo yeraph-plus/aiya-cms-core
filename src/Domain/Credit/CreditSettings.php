@@ -26,7 +26,15 @@ namespace Aiya\Core\Domain\Credit;
 final class CreditSettings
 {
     public const DEFAULT_RETENTION_DAYS = 30;
-    private const MAX_RETENTION_DAYS = 3650;
+
+    /**
+     * Upper bounds for the credit policy. The settings schema, the admin
+     * forms and the server-side validation all read these, so a limit is
+     * stated once and the three cannot drift apart.
+     */
+    public const MAX_RETENTION_DAYS = 3650;
+    public const MAX_VALIDITY_DAYS = 3650;
+    public const MAX_AMOUNT = 100000;
 
     /** Role levels the waiver radio offers, lowest first. */
     public const EXEMPT_LEVELS = ['author', 'editor', 'administrator'];

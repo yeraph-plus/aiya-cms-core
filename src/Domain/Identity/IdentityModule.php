@@ -6,6 +6,7 @@ namespace Aiya\Core\Domain\Identity;
 
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
+use Aiya\Core\Runtime\TableInstaller;
 
 /**
  * Wires the user relation tables into the runtime (2026-09-09 plan, ten-
@@ -96,12 +97,8 @@ final class IdentityModule implements Module
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $charset = $wpdb->get_charset_collate();
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
-        $favorites = $wpdb->prefix . 'aiya_user_favorites';
-        dbDelta(
+        $favorites = TableInstaller::table('aiya_user_favorites');
+        TableInstaller::install(
             "CREATE TABLE $favorites (
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 user_id BIGINT UNSIGNED NOT NULL,
@@ -111,11 +108,11 @@ final class IdentityModule implements Module
                 UNIQUE KEY user_post (user_id, post_id),
                 KEY user_created (user_id, created_at),
                 KEY post_id (post_id)
-            ) $charset;"
+            )"
         );
 
-        $follows = $wpdb->prefix . 'aiya_user_follows';
-        dbDelta(
+        $follows = TableInstaller::table('aiya_user_follows');
+        TableInstaller::install(
             "CREATE TABLE $follows (
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 follower_id BIGINT UNSIGNED NOT NULL,
@@ -124,11 +121,11 @@ final class IdentityModule implements Module
                 PRIMARY KEY  (id),
                 UNIQUE KEY follower_followed (follower_id, followed_id),
                 KEY followed_id (followed_id)
-            ) $charset;"
+            )"
         );
 
-        $tokens = $wpdb->prefix . 'aiya_auth_tokens';
-        dbDelta(
+        $tokens = TableInstaller::table('aiya_auth_tokens');
+        TableInstaller::install(
             "CREATE TABLE $tokens (
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 token_hash CHAR(64) NOT NULL,
@@ -138,7 +135,7 @@ final class IdentityModule implements Module
                 PRIMARY KEY  (id),
                 UNIQUE KEY token_hash (token_hash),
                 KEY user_id (user_id)
-            ) $charset;"
+            )"
         );
 
         // dbDelta fails silently on transient DB hiccups; verify and let the

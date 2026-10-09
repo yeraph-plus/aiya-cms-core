@@ -18,7 +18,7 @@ final class DiscussionModule implements Module
     public function register(): void
     {
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
-            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [DiscussionService::class, 'installTables']];
+            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [DiscussionTables::class, 'installTables']];
 
             return $migrations;
         });
