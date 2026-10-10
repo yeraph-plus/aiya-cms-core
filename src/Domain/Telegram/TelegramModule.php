@@ -9,14 +9,17 @@ use Aiya\Core\Settings\Registry;
 
 /**
  * The Telegram Bot domain module: the settings page the three routes
- * configure against, the push listeners, and the two post-1.0 table
- * migrations. The webhook intake route is assembled by the Api layer
+ * configure against, the push listeners, and the chain's single
+ * post-1.0 table installer. The webhook intake route is assembled by the Api layer
  * (RestController), the operator CLI by the entry file; the development
  * site-side intake is driven by a workspace mu-plugin — the domain owns
  * neither transport.
  */
 final class TelegramModule implements Module
 {
+    /** The chain's post-1.0 version: both Telegram tables install here. */
+    private const MIGRATION_VERSION = '1.1.0';
+
     public function __construct(private Registry $settings)
     {
     }
@@ -52,16 +55,28 @@ final class TelegramModule implements Module
             (new ChatStore())->wipe();
         });
 
-        // The channel feed table lands as the chain's first post-1.0
-        // entry (MigrationChainTest pins the count and the version).
+        // Both Telegram tables land as the chain's one post-1.0 entry:
+        // pure CREATEs at one version, no multi-step creation
+        // (MigrationChainTest pins the count and the version).
         add_filter('aiya_core_schema_migrations', static function (array $migrations): array {
-            $migrations[] = ['version' => FeedIngestor::MIGRATION_VERSION, 'callback' => [FeedIngestor::class, 'installTables']];
-            $migrations[] = ['version' => ChatStore::MIGRATION_VERSION, 'callback' => [ChatStore::class, 'installTables']];
-            $migrations[] = ['version' => FeedIngestor::ENTITIES_MIGRATION_VERSION, 'callback' => [FeedIngestor::class, 'addEntitiesColumn']];
-            $migrations[] = ['version' => FeedIngestor::CHAT_IDENTITY_MIGRATION_VERSION, 'callback' => [FeedIngestor::class, 'addChatIdentityColumns']];
+            $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'installTables']];
 
             return $migrations;
         });
+    }
+
+    /**
+     * The chain's single post-1.0 installer: the channel-feed mirror and
+     * the support chat's messages, both pure CREATEs at one version. The
+     * 1.3.0 / 1.4.0 column reconciliations retired with the 0.130.x
+     * flattening — the feed's CREATE has declared its final three columns
+     * (chat_title / chat_username / entities) since it landed, so those
+     * two guarded ALTER entries never had work to do.
+     */
+    public static function installTables(): void
+    {
+        FeedIngestor::installTables();
+        ChatStore::installTables();
     }
 
     public function settings(): void

@@ -6,7 +6,7 @@ namespace Aiya\Core\Domain\Telegram;
 
 use Aiya\Core\Runtime\TableInstaller;
 /**
- * The support-relay storage: one table of chat messages (schema 1.2.0),
+ * The support-relay storage: one table of chat messages (schema 1.1.0),
  * sessions addressed by the session_id column — v1 is login-only with one
  * conversation per account ('u{id}'), the column is the anonymous-session
  * hook of a later iteration. Messages are immutable once written and the
@@ -16,8 +16,6 @@ use Aiya\Core\Runtime\TableInstaller;
  */
 class ChatStore
 {
-    public const MIGRATION_VERSION = '1.2.0';
-
     private const TABLE = 'aiya_chat_messages';
 
     public const SENDER_VISITOR = 1;

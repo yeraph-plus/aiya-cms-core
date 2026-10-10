@@ -27,12 +27,6 @@ use Aiya\Infra\Telegram\Error;
  */
 class FeedIngestor
 {
-    public const MIGRATION_VERSION = '1.1.0';
-
-    public const ENTITIES_MIGRATION_VERSION = '1.3.0';
-
-    public const CHAT_IDENTITY_MIGRATION_VERSION = '1.4.0';
-
     private const TABLE = 'aiya_channel_feed';
 
     /**
@@ -110,51 +104,6 @@ class FeedIngestor
 
         if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) !== $table) {
             throw new \RuntimeException(sprintf('Table %s was not created.', $table));
-        }
-    }
-
-    /**
-     * The 1.3.0 reconciliation: databases that ran the 1.1.0 installer
-     * before the entities column existed gain it here; fresh installs
-     * created it with the CREATE above and skip through the guard.
-     */
-    public static function addEntitiesColumn(): void
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $table = $wpdb->prefix . self::TABLE;
-        if ($wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $table, 'entities')) !== null) {
-            return;
-        }
-
-        $alter = $wpdb->prepare('ALTER TABLE %i ADD COLUMN entities LONGTEXT NULL AFTER text', $table);
-        if (is_string($alter)) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
-            $wpdb->query($alter);
-        }
-    }
-
-    /**
-     * The 1.4.0 reconciliation: the source channel's display identity
-     * (title + username snapshot) joins the row, so a multi-channel feed
-     * can name and group what it serves.
-     */
-    public static function addChatIdentityColumns(): void
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $table = $wpdb->prefix . self::TABLE;
-        if ($wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $table, 'chat_title')) !== null) {
-            return;
-        }
-
-        $alter = $wpdb->prepare(
-            "ALTER TABLE %i ADD COLUMN chat_title VARCHAR(255) NOT NULL DEFAULT '', ADD COLUMN chat_username VARCHAR(64) DEFAULT NULL AFTER chat_title",
-            $table
-        );
-        if (is_string($alter)) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
-            $wpdb->query($alter);
         }
     }
 

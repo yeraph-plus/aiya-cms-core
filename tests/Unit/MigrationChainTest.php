@@ -30,17 +30,21 @@ use PHPUnit\Framework\TestCase;
  * boards, threads, replies and likes). The four data carriers of the
  * pre-1.0 era retired with the 1.0.0 clean model — databases that need
  * them were reconciled by the 0.102.0 chain before this trim landed.
- * Post-1.0 entries land at their own conscious version — 1.1.0 the
- * Telegram channel feed's table, 1.2.0 the support chat's messages,
- * 1.3.0 the feed's entities column, 1.4.0 the feed's channel identity — and every one of them updates
- * this test, never an accident of copying an old constant.
+ * Post-1.0 entries land at their own conscious version, and since the
+ * 0.130.x flattening there is exactly one: 1.1.0, the entry that installs
+ * both Telegram tables (the channel-feed mirror and the support chat's
+ * messages) as pure CREATEs. The 1.3.0 / 1.4.0 column reconciliations
+ * retired with it — the feed's CREATE has declared its final three columns
+ * (chat_title / chat_username / entities) since it landed, so those two
+ * guarded ALTER entries never had work to do.
  *
  * The 0.128.0 residue cleanup was the one entry that installed nothing
  * and sat at no 1.x milestone: it carried the plugin's own version on
  * purpose, so the runner's `stored < version` gate retired it by itself
  * once an install had passed through it. Reclaimed in 0.130.0 — the
- * chain is pure installers again: twelve entries, no retirements, no
- * option deletions.
+ * chain is pure installers: nine entries, one version for the base and
+ * one for the Telegram tables, no retirements, no option deletions, no
+ * multi-step creation.
  */
 final class MigrationChainTest extends TestCase
 {
@@ -72,14 +76,14 @@ final class MigrationChainTest extends TestCase
 
         $migrations = apply_filters('aiya_core_schema_migrations', []);
 
-        self::assertCount(12, $migrations, 'eight 1.0.0 installers and the four Telegram entries');
+        self::assertCount(9, $migrations, 'eight 1.0.0 installers and the one Telegram installer');
         $flat = array_filter($migrations, static fn (array $migration): bool => $migration['version'] === '1.0.0');
         self::assertCount(8, $flat, 'the 1.0.0 base chain stays at eight (the data carriers retired with the clean model)');
         $post = array_values(array_filter($migrations, static fn (array $migration): bool => $migration['version'] !== '1.0.0'));
         self::assertSame(
-            ['1.1.0', '1.2.0', '1.3.0', '1.4.0'],
+            ['1.1.0'],
             array_column($post, 'version'),
-            'the conscious post-1.0 chain, in order'
+            'the single conscious post-1.0 entry'
         );
         foreach ($post as $migration) {
             self::assertIsCallable($migration['callback']);
