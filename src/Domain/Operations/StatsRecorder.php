@@ -72,8 +72,8 @@ final class StatsRecorder
      * afterwards and the runner holds the schema version back on failure.
      *
      * Retired columns and the orphan rate option are not reconciled here:
-     * that upgrade residue moved to Runtime\SchemaResidueCleanup with the
-     * 0.128.0 cleanup, so this callback is a pure CREATE again.
+     * the 0.128.0 cleanup entry carried them and was reclaimed in 0.130.0,
+     * so this callback is a pure CREATE.
      *
      * The watermark is seeded once and never rewritten: statistics start
      * at install time, and already-expired buckets are deliberately left

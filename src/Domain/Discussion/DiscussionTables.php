@@ -11,9 +11,9 @@ use Aiya\Core\Runtime\TableInstaller;
  * clean-release migration callback. Kept apart from the service so the
  * store's read/write surface is not read past a hundred lines of DDL.
  *
- * The index and column retirements an upgrade database still needs are not
- * here: they moved to Runtime\SchemaResidueCleanup with the 0.128.0
- * cleanup, so this callback is a pure CREATE again.
+ * The index and column retirements an upgrade database used to need are
+ * not here: the 0.128.0 cleanup entry carried them and was reclaimed in
+ * 0.130.0, so this callback is a pure CREATE.
  */
 final class DiscussionTables
 {
