@@ -9,23 +9,23 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-10T04:15:00+00:00\n"
+"POT-Creation-Date: 2026-10-10T04:51:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
 
 #. Plugin Name of the plugin
-#: aiya-core.php
+#: aiya-core.php:3
 msgid "AIYA CMS - Headless Core"
 msgstr ""
 
 #. Description of the plugin
-#: aiya-core.php
+#: aiya-core.php:4
 msgid "Headless-first administration and content framework for AIYA CMS."
 msgstr ""
 
 #. Author of the plugin
-#: aiya-core.php
+#: aiya-core.php:8
 msgid "Yeraph"
 msgstr ""
 
@@ -286,8 +286,8 @@ msgstr ""
 #: src/Admin/UiSamplePage.php:285
 #: src/Admin/UiSamplePage.php:297
 #: src/Domain/Blocks/BlocksModule.php:192
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:118
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:129
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:116
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:127
 msgid "Title"
 msgstr ""
 
@@ -1441,7 +1441,7 @@ msgstr ""
 #: src/Admin/PicBedPage.php:260
 #: src/Admin/SamplePage.php:245
 #: src/Domain/Blocks/BlocksModule.php:119
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:153
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:151
 msgid "URL"
 msgstr ""
 
@@ -1474,7 +1474,7 @@ msgid "No file was uploaded."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:226
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:195
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:193
 msgid "User ID"
 msgstr ""
 
@@ -1843,9 +1843,9 @@ msgstr ""
 
 #: src/Admin/SamplePage.php:259
 #: src/Domain/Membership/MembershipModule.php:106
-#: src/Domain/Telegram/TelegramModule.php:100
-#: src/Domain/Telegram/TelegramModule.php:127
-#: src/Domain/Telegram/TelegramModule.php:177
+#: src/Domain/Telegram/TelegramModule.php:113
+#: src/Domain/Telegram/TelegramModule.php:140
+#: src/Domain/Telegram/TelegramModule.php:190
 msgid "Enabled"
 msgstr ""
 
@@ -3176,7 +3176,7 @@ msgid "One row per filing shown in the footer, e.g. ICP or public security."
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:242
-#: src/Modules/MediaModule.php:262
+#: src/Modules/MediaModule.php:260
 msgid "Text"
 msgstr ""
 
@@ -3200,54 +3200,54 @@ msgstr ""
 msgid "Used when the icon template is set to custom."
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:67
+#: src/Domain/Content/SlugModule.php:64
 msgid "Slug generation"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:72
+#: src/Domain/Content/SlugModule.php:69
 msgid "Post slug generation"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:73
+#: src/Domain/Content/SlugModule.php:70
 msgid "Pinyin fills empty slugs from the title; the ID modes force an ID-based slug on every save."
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:76
-#: src/Domain/Content/SlugModule.php:96
+#: src/Domain/Content/SlugModule.php:73
+#: src/Domain/Content/SlugModule.php:93
 #: src/Domain/Identity/AvatarModule.php:107
-#: src/Infrastructure/Security/SecurityModule.php:113
+#: src/Infrastructure/Security/SecurityModule.php:112
 msgid "Off"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:77
+#: src/Domain/Content/SlugModule.php:74
 msgid "Pinyin from title"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:78
+#: src/Domain/Content/SlugModule.php:75
 msgid "ID, zero padded (AV style)"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:79
+#: src/Domain/Content/SlugModule.php:76
 msgid "ID, XDE encoded (BV style)"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:85
+#: src/Domain/Content/SlugModule.php:82
 msgid "ID slug prefix"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:86
+#: src/Domain/Content/SlugModule.php:83
 msgid "Prepended to ID-based post slugs in both ID modes; non-URL characters are stripped."
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:92
+#: src/Domain/Content/SlugModule.php:89
 msgid "Taxonomy slug pinyin"
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:93
+#: src/Domain/Content/SlugModule.php:90
 msgid "For every taxonomy: an empty term slug is filled with pinyin converted from the term name."
 msgstr ""
 
-#: src/Domain/Content/SlugModule.php:97
+#: src/Domain/Content/SlugModule.php:94
 msgid "Pinyin from the term name"
 msgstr ""
 
@@ -3317,17 +3317,17 @@ msgid "Holders at this role level or above spend at zero on every consumer — d
 msgstr ""
 
 #: src/Domain/Credit/CreditModule.php:112
-#: src/Infrastructure/Security/SecurityModule.php:116
+#: src/Infrastructure/Security/SecurityModule.php:115
 msgid "Author and above"
 msgstr ""
 
 #: src/Domain/Credit/CreditModule.php:113
-#: src/Infrastructure/Security/SecurityModule.php:117
+#: src/Infrastructure/Security/SecurityModule.php:116
 msgid "Editor and above"
 msgstr ""
 
 #: src/Domain/Credit/CreditModule.php:114
-#: src/Infrastructure/Security/SecurityModule.php:118
+#: src/Infrastructure/Security/SecurityModule.php:117
 msgid "Administrator only"
 msgstr ""
 
@@ -3504,15 +3504,15 @@ msgstr ""
 msgid "The reply could not be deleted."
 msgstr ""
 
-#: src/Domain/Discussion/DiscussionService.php:785
+#: src/Domain/Discussion/DiscussionService.php:784
 msgid "The bound content does not exist or cannot carry discussions."
 msgstr ""
 
-#: src/Domain/Engagement/CounterService.php:225
+#: src/Domain/Engagement/CounterService.php:223
 msgid "The content does not exist."
 msgstr ""
 
-#: src/Domain/Engagement/CounterService.php:228
+#: src/Domain/Engagement/CounterService.php:226
 msgid "This content does not carry counters."
 msgstr ""
 
@@ -3820,16 +3820,16 @@ msgid "NSFW terms configured on the content-management page drop out of listings
 msgstr ""
 
 #. translators: %d: minimum password length.
-#: src/Domain/Identity/PasswordPolicy.php:26
+#: src/Domain/Identity/PasswordPolicy.php:25
 #, php-format
 msgid "Password must be at least %d characters long."
 msgstr ""
 
-#: src/Domain/Identity/PasswordPolicy.php:32
+#: src/Domain/Identity/PasswordPolicy.php:31
 msgid "Password must contain both letters and digits."
 msgstr ""
 
-#: src/Domain/Identity/PasswordPolicy.php:36
+#: src/Domain/Identity/PasswordPolicy.php:35
 msgid "The two passwords do not match."
 msgstr ""
 
@@ -3870,11 +3870,11 @@ msgstr ""
 msgid "The password reset email could not be sent."
 msgstr ""
 
-#: src/Domain/Identity/TokenStore.php:58
+#: src/Domain/Identity/TokenStore.php:56
 msgid "No user to issue a token for."
 msgstr ""
 
-#: src/Domain/Identity/TokenStore.php:78
+#: src/Domain/Identity/TokenStore.php:76
 msgid "The session token could not be stored."
 msgstr ""
 
@@ -4069,25 +4069,25 @@ msgstr ""
 msgid "The image URL could not be resolved."
 msgstr ""
 
-#: src/Domain/Membership/EntitlementService.php:77
+#: src/Domain/Membership/EntitlementService.php:76
 msgid "The membership holder does not exist."
 msgstr ""
 
-#: src/Domain/Membership/EntitlementService.php:80
-#: src/Domain/Payment/OrderService.php:86
-#: src/Domain/Payment/OrderService.php:138
+#: src/Domain/Membership/EntitlementService.php:79
+#: src/Domain/Payment/OrderService.php:84
+#: src/Domain/Payment/OrderService.php:136
 msgid "The order id is required."
 msgstr ""
 
-#: src/Domain/Membership/EntitlementService.php:88
+#: src/Domain/Membership/EntitlementService.php:87
 msgid "The membership is being updated — try again."
 msgstr ""
 
-#: src/Domain/Membership/EntitlementService.php:125
+#: src/Domain/Membership/EntitlementService.php:124
 msgid "This order was already activated."
 msgstr ""
 
-#: src/Domain/Membership/EntitlementService.php:128
+#: src/Domain/Membership/EntitlementService.php:127
 msgid "The membership could not be stored."
 msgstr ""
 
@@ -4296,18 +4296,18 @@ msgstr ""
 msgid "The Epay channel is not available."
 msgstr ""
 
-#: src/Domain/Payment/OrderService.php:83
-#: src/Domain/Payment/OrderService.php:135
+#: src/Domain/Payment/OrderService.php:81
+#: src/Domain/Payment/OrderService.php:133
 msgid "The order user does not exist."
 msgstr ""
 
-#: src/Domain/Payment/OrderService.php:114
-#: src/Domain/Payment/OrderService.php:162
+#: src/Domain/Payment/OrderService.php:112
+#: src/Domain/Payment/OrderService.php:160
 msgid "This order was already recorded."
 msgstr ""
 
-#: src/Domain/Payment/OrderService.php:117
-#: src/Domain/Payment/OrderService.php:165
+#: src/Domain/Payment/OrderService.php:115
+#: src/Domain/Payment/OrderService.php:163
 msgid "The order could not be stored."
 msgstr ""
 
@@ -4460,268 +4460,268 @@ msgstr ""
 msgid "The membership activation failed — the code was not consumed, try again."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:82
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:80
 msgid "Quick list"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:83
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:81
 msgid "Turns lines of text into a list, one item per line."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:86
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:97
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:119
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:143
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:184
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:84
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:95
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:117
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:141
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:182
 msgid "Content"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:87
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:85
 msgid "Ordered list"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:93
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:91
 msgid "Quick list (columns)"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:94
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:92
 msgid "Alternates lines into a description list: first line the term, second the description, and so on."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:101
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:99
 msgid "Term width"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:103
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:101
 msgid "1/4 width terms"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:104
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:102
 msgid "1/2 width terms"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:105
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:103
 msgid "3/4 width terms"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:114
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:112
 msgid "Collapse panel"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:115
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:113
 msgid "A panel readers can expand or collapse."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:125
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:123
 msgid "Notice card"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:126
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:124
 msgid "A highlighted notice with a level and a title."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:133
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:131
 msgid "Level"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:135
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:133
 msgid "Default"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:136
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:134
 msgid "Warning"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:137
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:135
 msgid "Info"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:138
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:136
 msgid "Success"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:139
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:137
 msgid "Error"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:149
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:147
 msgid "Button link"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:150
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:148
 msgid "A styled link button."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:157
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:155
 msgid "Opens"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:159
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:157
 msgid "Same tab"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:160
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:158
 msgid "New tab"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:167
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:165
 msgid "Style"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:169
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:167
 msgid "Primary"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:170
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:168
 msgid "Outline"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:174
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:172
 msgid "Button label"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:180
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:178
 msgid "Quick copy"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:181
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:179
 msgid "A text snippet the reader copies with one click."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:190
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:188
 msgid "Reference"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:191
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:189
 msgid "Emits one semantic reference marker for the front end to resolve into a link. Fill exactly one of the fields below; when several are filled the first (post, user, term, search, comment, thread) wins."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:194
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:192
 msgid "Post ID"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:196
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:194
 msgid "Term ID"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:197
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:195
 msgid "Search keywords"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:198
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:196
 msgid "Comment ID"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:199
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:197
 msgid "Thread ID"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:71
-#: src/Domain/Telegram/TelegramModule.php:72
+#: src/Domain/Telegram/TelegramModule.php:84
+#: src/Domain/Telegram/TelegramModule.php:85
 msgid "Telegram Bot"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:81
+#: src/Domain/Telegram/TelegramModule.php:94
 msgid "Bot connection"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:87
+#: src/Domain/Telegram/TelegramModule.php:100
 msgid "Bot token"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:88
+#: src/Domain/Telegram/TelegramModule.php:101
 msgid "From @BotFather. Stored server-side and never exposed."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:94
+#: src/Domain/Telegram/TelegramModule.php:107
 msgid "Publish push"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:101
+#: src/Domain/Telegram/TelegramModule.php:114
 msgid "Push published posts and resources to the target chat, editing the sent message in place on update"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:107
+#: src/Domain/Telegram/TelegramModule.php:120
 msgid "Push target"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:108
+#: src/Domain/Telegram/TelegramModule.php:121
 msgid "Numeric chat id or @channelusername the publish/update notices go to."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:114
+#: src/Domain/Telegram/TelegramModule.php:127
 msgid "Message template"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:115
+#: src/Domain/Telegram/TelegramModule.php:128
 msgid "The push message body in Telegram HTML. Placeholders: {front} the front-end origin, {type} and {slug} the post's public type and slug, {id}, {title}, {excerpt}, {tags} and {categories} display names with a # prefix, {date}, {author}. Links are yours to compose from {front}, {type} and {slug}; the backend keeps no front-end route shapes. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:121
+#: src/Domain/Telegram/TelegramModule.php:134
 msgid "Channel mirror"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:128
+#: src/Domain/Telegram/TelegramModule.php:141
 msgid "Ingest the source channels' posts into the mirror feed (images transfer into the image pool; videos and files surface as t.me links)"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:134
+#: src/Domain/Telegram/TelegramModule.php:147
 msgid "Source channels"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:135
+#: src/Domain/Telegram/TelegramModule.php:148
 msgid "The channels mirrored into the web feed, one row each: an optional display title (the feed prefers it over the channel's own name), the channel's numeric id or @username, and the NSFW mark the row carries into the feed. Posts from any other chat are dropped. A private channel's t.me links only open for its members."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:141
+#: src/Domain/Telegram/TelegramModule.php:154
 msgid "Display title"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:147
+#: src/Domain/Telegram/TelegramModule.php:160
 msgid "Channel id or @username"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:154
+#: src/Domain/Telegram/TelegramModule.php:167
 msgid "NSFW"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:162
+#: src/Domain/Telegram/TelegramModule.php:175
 msgid "Clear the local mirror"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:163
+#: src/Domain/Telegram/TelegramModule.php:176
 msgid "Delete every mirrored row and its transferred images on this save"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:164
+#: src/Domain/Telegram/TelegramModule.php:177
 msgid "The mirror is one-way: the channel is the source of truth and this table only holds the local copy. Cleared rows never come back — the platform cannot replay channel history, so the feed refills from new channel posts only. The support relay's messages live in their own table and stay."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:171
+#: src/Domain/Telegram/TelegramModule.php:184
 msgid "Support relay"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:178
+#: src/Domain/Telegram/TelegramModule.php:191
 msgid "Relay the web support chat into your private chat with the bot, and your replies back to the web"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:184
+#: src/Domain/Telegram/TelegramModule.php:197
 msgid "Owner chat id"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:185
+#: src/Domain/Telegram/TelegramModule.php:198
 msgid "Your private chat with the bot. Send /status there and the bot replies with the id; only replies to relayed visitor messages flow back to the web."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:191
+#: src/Domain/Telegram/TelegramModule.php:204
 msgid "Clear the relay history"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:192
+#: src/Domain/Telegram/TelegramModule.php:205
 msgid "Delete every relayed conversation on this save"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:193
+#: src/Domain/Telegram/TelegramModule.php:206
 msgid "The web thread is the source of truth for the support chat: this erases the visitors' messages, your replies and the Telegram bindings in one go, and old bot copies in your chat stop routing replies back. The mirror feed's table is a different one and stays."
 msgstr ""
 
@@ -4741,7 +4741,7 @@ msgstr ""
 
 #: src/Domain/Typography/TypographyModule.php:70
 #: src/Domain/Typography/TypographyModule.php:71
-msgid "Clean up legacy HTML (div/center/span, overlapping tags)"
+msgid "Clean up HTML (div/center/span, overlapping tags)"
 msgstr ""
 
 #: src/Domain/Typography/TypographyModule.php:77
@@ -4942,87 +4942,87 @@ msgstr ""
 msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA CMS Core > Optimization."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:82
+#: src/Infrastructure/Security/SecurityModule.php:81
 msgid "Login restrictions"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:88
+#: src/Infrastructure/Security/SecurityModule.php:87
 msgid "Email-address logins"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:89
+#: src/Infrastructure/Security/SecurityModule.php:88
 msgid "Only accept email addresses as the login field"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:95
+#: src/Infrastructure/Security/SecurityModule.php:94
 msgid "Login page countdown gate"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:96
+#: src/Infrastructure/Security/SecurityModule.php:95
 msgid "Show a countdown before the wp-login.php form becomes usable"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:97
+#: src/Infrastructure/Security/SecurityModule.php:96
 msgid "The login form loads by itself after a short countdown; nothing to configure. Credential-stuffing requests that never wait out the countdown reach a page without a form, and the unlock parameter rotates by itself every 30 minutes."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:103
+#: src/Infrastructure/Security/SecurityModule.php:102
 msgid "Admin protection"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:109
+#: src/Infrastructure/Security/SecurityModule.php:108
 msgid "Admin back end minimum role"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:110
+#: src/Infrastructure/Security/SecurityModule.php:109
 msgid "Users below the selected role are redirected to the front-end site. The same level unlocks the native /wp/v2 API for their sessions (see Disabled features). Off by default."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:114
+#: src/Infrastructure/Security/SecurityModule.php:113
 msgid "Subscriber and above"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:115
+#: src/Infrastructure/Security/SecurityModule.php:114
 msgid "Contributor and above"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:124
+#: src/Infrastructure/Security/SecurityModule.php:123
 msgid "Request URI guard"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:125
+#: src/Infrastructure/Security/SecurityModule.php:124
 msgid "Reject logged-out requests with oversized or probe-shaped URIs (414, REST routes excepted)"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:131
+#: src/Infrastructure/Security/SecurityModule.php:130
 msgid "REST route control"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:137
+#: src/Infrastructure/Security/SecurityModule.php:136
 msgid "REST cross-origin origins"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:138
+#: src/Infrastructure/Security/SecurityModule.php:137
 msgid "Full front-end origins (scheme://host[:port]) allowed to call this API from the browser, comma-separated. Empty keeps every CORS header off — same-origin deployments need nothing here."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:157
+#: src/Infrastructure/Security/SecurityModule.php:156
 msgid "Please log in with your email address."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:322
+#: src/Infrastructure/Security/SecurityModule.php:321
 msgid "Sign in"
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:337
+#: src/Infrastructure/Security/SecurityModule.php:336
 msgid "This sign-in page opens automatically."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:339
+#: src/Infrastructure/Security/SecurityModule.php:338
 msgid "Please wait a moment — the sign-in form loads by itself."
 msgstr ""
 
-#: src/Infrastructure/Security/SecurityModule.php:340
+#: src/Infrastructure/Security/SecurityModule.php:339
 msgid "Continue to the sign-in form"
 msgstr ""
 
@@ -5060,167 +5060,167 @@ msgstr ""
 msgid "From the GoFile profile page. The account lists, folders and search endpoints work for any tier, but reading a folder needs Premium — without it every GoFile list reports that it needs Premium."
 msgstr ""
 
-#: src/Modules/MediaModule.php:75
+#: src/Modules/MediaModule.php:73
 msgid "Every five minutes"
 msgstr ""
 
-#: src/Modules/MediaModule.php:187
+#: src/Modules/MediaModule.php:185
 msgid "Image processor"
 msgstr ""
 
-#: src/Modules/MediaModule.php:188
+#: src/Modules/MediaModule.php:186
 msgid "Image & watermark"
 msgstr ""
 
-#: src/Modules/MediaModule.php:199
+#: src/Modules/MediaModule.php:197
 msgid "Image processing"
 msgstr ""
 
-#: src/Modules/MediaModule.php:205
+#: src/Modules/MediaModule.php:203
 msgid "Media library takeover"
 msgstr ""
 
-#: src/Modules/MediaModule.php:206
+#: src/Modules/MediaModule.php:204
 msgid "Run uploads through the image processor: scale, watermark, format conversion"
 msgstr ""
 
-#: src/Modules/MediaModule.php:207
+#: src/Modules/MediaModule.php:205
 msgid "WebP/AVIF saving requires the libwebp/libavif PHP libraries; unsupported targets fall back to the source format."
 msgstr ""
 
-#: src/Modules/MediaModule.php:213
+#: src/Modules/MediaModule.php:211
 msgid "Save format"
 msgstr ""
 
-#: src/Modules/MediaModule.php:216
+#: src/Modules/MediaModule.php:214
 msgid "Keep source format"
 msgstr ""
 
-#: src/Modules/MediaModule.php:217
+#: src/Modules/MediaModule.php:215
 msgid "JPG"
 msgstr ""
 
-#: src/Modules/MediaModule.php:218
+#: src/Modules/MediaModule.php:216
 msgid "WebP"
 msgstr ""
 
-#: src/Modules/MediaModule.php:219
+#: src/Modules/MediaModule.php:217
 msgid "AVIF"
 msgstr ""
 
-#: src/Modules/MediaModule.php:225
+#: src/Modules/MediaModule.php:223
 msgid "Max image width"
 msgstr ""
 
-#: src/Modules/MediaModule.php:226
+#: src/Modules/MediaModule.php:224
 msgid "Uploads wider than this are scaled down; 0 disables the limit."
 msgstr ""
 
-#: src/Modules/MediaModule.php:234
+#: src/Modules/MediaModule.php:232
 msgid "Image quality"
 msgstr ""
 
-#: src/Modules/MediaModule.php:235
+#: src/Modules/MediaModule.php:233
 msgid "Save quality from 0 to 100; PNG maps it to the compression level."
 msgstr ""
 
-#: src/Modules/MediaModule.php:244
+#: src/Modules/MediaModule.php:242
 msgid "Font file"
 msgstr ""
 
-#: src/Modules/MediaModule.php:245
+#: src/Modules/MediaModule.php:243
 msgid "Content URL, content-relative path or absolute path for cover titles and text watermarks. Leave empty to use the bundled font."
 msgstr ""
 
-#: src/Modules/MediaModule.php:251
+#: src/Modules/MediaModule.php:249
 msgid "Watermark"
 msgstr ""
 
-#: src/Modules/MediaModule.php:257
+#: src/Modules/MediaModule.php:255
 msgid "Watermark mode"
 msgstr ""
 
-#: src/Modules/MediaModule.php:260
+#: src/Modules/MediaModule.php:258
 msgid "Disabled"
 msgstr ""
 
-#: src/Modules/MediaModule.php:261
+#: src/Modules/MediaModule.php:259
 msgid "Image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:268
+#: src/Modules/MediaModule.php:266
 msgid "Watermark position"
 msgstr ""
 
-#: src/Modules/MediaModule.php:271
+#: src/Modules/MediaModule.php:269
 msgid "Center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:272
+#: src/Modules/MediaModule.php:270
 msgid "Center left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:273
+#: src/Modules/MediaModule.php:271
 msgid "Center right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:274
+#: src/Modules/MediaModule.php:272
 msgid "Center top"
 msgstr ""
 
-#: src/Modules/MediaModule.php:275
+#: src/Modules/MediaModule.php:273
 msgid "Center bottom"
 msgstr ""
 
-#: src/Modules/MediaModule.php:276
+#: src/Modules/MediaModule.php:274
 msgid "Top right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:277
+#: src/Modules/MediaModule.php:275
 msgid "Top left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:278
+#: src/Modules/MediaModule.php:276
 msgid "Top center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:279
+#: src/Modules/MediaModule.php:277
 msgid "Bottom right"
 msgstr ""
 
-#: src/Modules/MediaModule.php:280
+#: src/Modules/MediaModule.php:278
 msgid "Bottom left"
 msgstr ""
 
-#: src/Modules/MediaModule.php:281
+#: src/Modules/MediaModule.php:279
 msgid "Bottom center"
 msgstr ""
 
-#: src/Modules/MediaModule.php:287
+#: src/Modules/MediaModule.php:285
 msgid "Watermark image"
 msgstr ""
 
-#: src/Modules/MediaModule.php:288
+#: src/Modules/MediaModule.php:286
 msgid "Media library attachment used in image mode; its own alpha is kept as-is."
 msgstr ""
 
-#: src/Modules/MediaModule.php:294
+#: src/Modules/MediaModule.php:292
 msgid "Watermark text"
 msgstr ""
 
-#: src/Modules/MediaModule.php:300
+#: src/Modules/MediaModule.php:298
 msgid "Watermark font size"
 msgstr ""
 
-#: src/Modules/MediaModule.php:308
+#: src/Modules/MediaModule.php:306
 msgid "Watermark opacity (text)"
 msgstr ""
 
-#: src/Modules/MediaModule.php:309
+#: src/Modules/MediaModule.php:307
 msgid "0 = fully transparent, 100 = fully opaque; applies to the text watermark only."
 msgstr ""
 
-#: src/Modules/MediaModule.php:409
+#: src/Modules/MediaModule.php:407
 msgid "Image processing failed; the upload was cancelled."
 msgstr ""
 

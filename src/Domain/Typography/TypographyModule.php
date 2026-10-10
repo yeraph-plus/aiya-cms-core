@@ -67,8 +67,8 @@ final class TypographyModule implements Module
                 [
                     'id' => 'cleanup_html',
                     'type' => 'action_checkbox',
-                    'label' => __('Clean up legacy HTML (div/center/span, overlapping tags)', 'aiya-core'),
-                    'checkbox_label' => __('Clean up legacy HTML (div/center/span, overlapping tags)', 'aiya-core'),
+                    'label' => __('Clean up HTML (div/center/span, overlapping tags)', 'aiya-core'),
+                    'checkbox_label' => __('Clean up HTML (div/center/span, overlapping tags)', 'aiya-core'),
                     'action' => 'aiya_core_typography_cleanup_html',
                 ],
                 [
