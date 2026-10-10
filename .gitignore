@@ -1,5 +1,9 @@
 # Dependencies
 vendor/
+# assets/vendor/ is the vendored runtime payload that ships inside the plugin
+# package (Chart.js and its license). The bare `vendor/` rule above is
+# unanchored, so it swallows that directory as well — let it back in.
+!/assets/vendor/
 node_modules/
 
 # Build artifacts

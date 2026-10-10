@@ -9,7 +9,7 @@ namespace Aiya\Core\Domain\Shared;
  * copy. One authority so no call site re-derives the site format pair —
  * and every consumer renders through wp_date(), which accepts a true
  * Unix timestamp (date_i18n() does not: a numeric argument there is the
- * legacy epoch-plus-offset sum and prints UTC wall-clock time).
+ * epoch-plus-offset sum and prints UTC wall-clock time).
  */
 final class DateLabels
 {

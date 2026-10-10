@@ -20,8 +20,7 @@ use Imagine\Image\ImagineInterface;
  * API layer's policy, not this service's.
  *
  * The cache key includes the quality setting, so a saved quality change
- * regenerates derivatives instead of serving stale files (a defect of the
- * legacy cache key).
+ * regenerates derivatives instead of serving stale files.
  */
 final class ThumbnailService
 {

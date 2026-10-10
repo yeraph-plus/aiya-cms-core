@@ -19,12 +19,12 @@ use RuntimeException;
 use SplFileInfo;
 
 /**
- * Pic-bed screen (legacy internal-pic-bed): uploads images
+ * Pic-bed screen: uploads images
  * straight into wp-content/aiya_upload_pics/YYYY/MM/ without touching the media
  * library — no attachment IDs, no WP thumbnail generation, nothing lands in
  * wp-content/uploads. Files are addressed by path; the headless front end
- * consumes the content-relative path, the legacy shortcode/HTML outputs are
- * retired.
+ * consumes the content-relative path; there are no shortcode or HTML
+ * outputs.
  *
  * Each upload is compressed exactly once through the image-processor
  * pipeline (scale/watermark/format), injected as a closure by the media

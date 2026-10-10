@@ -18,7 +18,7 @@ final class Profile
         public readonly int $id,
         public readonly string $slug,
         public readonly string $name,
-        /** Legacy front-end role vocabulary (administrator/author/sponsor/subscriber). */
+        /** Role vocabulary (administrator/author/sponsor/subscriber). */
         public readonly string $role,
         public readonly ?Image $avatar,
         public readonly string $bio,

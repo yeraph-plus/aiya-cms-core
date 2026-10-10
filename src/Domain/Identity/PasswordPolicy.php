@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Identity;
 
 /**
- * Shared password rules for registration, reset and change flows, matching
- * the legacy front-end contract: at least 8 characters with both letters
- * and digits.
+ * Shared password rules for registration, reset and change flows: at least
+ * 8 characters with both letters and digits.
  */
 final class PasswordPolicy
 {

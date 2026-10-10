@@ -7,9 +7,8 @@ namespace Aiya\Core\Domain\Shortcodes;
 use Closure;
 
 /**
- * One template part (模板零件): the editor-side successor of the legacy
- * shortcode inserter. A part is a declaration — tag, label, help text,
- * an attribute template, a field schema and an optional renderer.
+ * One template part (模板零件): a declaration — tag, label, help text, an
+ * attribute template, a field schema and an optional renderer.
  *
  * 2026-09-11 semantics: the BACK END renders registered parts into
  * custom HTML tags through the renderer (registered as a shortcode), and

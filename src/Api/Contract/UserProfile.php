@@ -11,9 +11,9 @@ namespace Aiya\Core\Api\Contract;
  * as a login credential by the front end — the email address is the
  * login identity.
  *
- * `role` carries the legacy front-end level semantics
+ * `role` carries the level semantics
  * (administrator / author / sponsor / subscriber), where sponsor validity
- * is derived from the membership entitlement queue (0.50.0 tier model).
+ * is derived from the membership entitlement queue (the tier model).
  * `banned` is the account-level disable switch (0.86.0) — it rides beside
  * the role rather than replacing a level, because a disabled editor is
  * still staff while a disabled sponsor is no longer a sponsor.

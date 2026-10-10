@@ -18,14 +18,14 @@ use RuntimeException;
  * site-wide default avatar picked from the media library.
  *
  * The user meta key `basic_user_avatar` is a persistent data protocol
- * carried over from the legacy theme (workspace AGENTS.md). One shape is
+ * (workspace AGENTS.md). One shape is
  * readable — the file avatar: `['full' => 'aiya_thumbnail/avatars/{user}/128.jpg',
  * 'v' => int]` with pre-generated 128px and 64px square crops under
  * wp-content/aiya_thumbnail/avatars/{user_id}/ — outside the media library and
  * uploads, assembled to static URLs with no PHP hit per render. The
- * media-library and legacy-URL shapes are dead data since the 2026-09-11
- * decision and no longer read; users carrying one fall through to the
- * Gravatar mirror like any user without a local avatar.
+ * media-library and URL shapes are dead data and no longer read; users
+ * carrying one fall through to the Gravatar mirror like any user without a
+ * local avatar.
  *
  * Uploads are processed straight from the PHP temp file through the
  * image-processor package (center crop + scale) so the original image is

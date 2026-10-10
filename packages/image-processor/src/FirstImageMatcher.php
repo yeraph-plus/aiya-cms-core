@@ -6,9 +6,8 @@ namespace Aiya\Infra\ImageProcessor;
 
 /**
  * Extracts the first image URL from HTML content with a plain regular
- * expression — the same matching semantics the legacy theme used for
- * "first image as thumbnail" fallbacks, now a pure utility the read layer
- * can reuse without pulling in the generators.
+ * expression — a pure utility the read layer can reuse for "first image as
+ * thumbnail" fallbacks without pulling in the generators.
  */
 final class FirstImageMatcher
 {

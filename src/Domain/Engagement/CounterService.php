@@ -9,9 +9,8 @@ use WP_Error;
 /**
  * Like, view and rating counters for content, carried on the persistent
  * protocol postmeta keys `like_count` / `view_count` / `rating_score` /
- * `rating_count` (workspace AGENTS.md) — read-write compatible with the
- * legacy values (the rating keys are new protocol: nothing in the legacy
- * theme wrote them).
+ * `rating_count` (workspace AGENTS.md) — plain stored numbers, read and
+ * written as-is.
  *
  * Each protocol has its own post-type surface (the feature matrix): posts
  * and pages carry likes and views, resources carry views and ratings —
@@ -23,9 +22,8 @@ use WP_Error;
  * point (8.33 -> 8, PHP round half up), `rating_count` holds the number of
  * votes; the count increments through a single atomic SQL statement.
  *
- * Unlike the legacy implementation, which read and wrote these through lazy
- * properties hanging off the global post wrapper, counting lives in this
- * service: increments run as single atomic SQL statements (no read-modify-
+ * Counting lives in this service rather than hanging off the global post
+ * wrapper: increments run as single atomic SQL statements (no read-modify-
  * write races) with the meta cache invalidated afterwards, and per-visitor
  * throttling keeps view bumps and like spam from writing on every hit.
  *

@@ -31,10 +31,8 @@ use RuntimeException;
  * for up to the TTL. Without an object cache drop-in the mirror lives
  * for the request only and every resolve still hits the table.
  *
- * This replaces the legacy usermeta array store (2026-09-09 plan): the
- * array shape lost tokens under concurrent logins (unsynchronized
- * read-append-write) and rewrote the meta row on every login. Tokens
- * issued before 0.28.0 are not migrated — holders simply sign in again.
+ * Tokens live only in this table — an older token is not accepted, so its
+ * holder simply signs in again.
  *
  * TTLs mirror the classic WordPress cookie lifetimes: 14 days when the
  * client asks to be remembered, 2 days otherwise.

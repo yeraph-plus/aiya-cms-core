@@ -6,7 +6,8 @@ namespace Aiya\Core\Api\Contract;
 
 /**
  * One approved comment as the front end receives it. `body` stays the
- * stored source form (kses'd restricted HTML, legacy rows plain text);
+ * stored source form (kses'd restricted HTML, or plain text where a row
+ * carries no markup);
  * `bodyHtml` re-runs the whitelist and carries the renderer's whitelisted
  * smilies imgs — the client must render it through its own sanitizer,
  * never raw. `parentId` is null for top-level comments.

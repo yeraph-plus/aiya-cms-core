@@ -20,7 +20,7 @@ use WP_Error;
  * user fields) through the shared FieldRenderer and ValueNormalizer. This is
  * the admin half of the ACF-like code capability; there is no builder UI.
  *
- * Storage shapes follow the legacy protocol: post boxes keep the aiya_core_{id}
+ * Storage shapes: post boxes keep the aiya_core_{id}
  * single-key group, term and user values live under per-field meta keys.
  * Normalized empties (blank string, null, empty list, unticked switch) never
  * persist — a kicked field falls back to its default on read, and a group

@@ -15,10 +15,9 @@ namespace Aiya\Infra\SlugToolkit;
  * 3.根据数字替换字符串替换数字，得到数字加密字符串。
  * 标记长度字符 + 补位字符串 + 数字加密字符串 = 加密串
  *
- * FROZEN ALGORITHM: this file is copied byte-for-byte from the legacy theme
- * (inc/lib/XDeode.php, minus the ABSPATH guard and class_exists guard, plus
- * a namespace) so generated slugs stay identical to the old site's. Do not
- * modernize, retype, or refactor it — extend IdSlugEncoder instead.
+ * FROZEN ALGORITHM: the body below is byte-for-byte the algorithm every
+ * generated slug was produced with. Do not modernize, retype, or refactor
+ * it — extend IdSlugEncoder instead.
  *
  * Usage:
  *   $obj = new XDE_code(9);

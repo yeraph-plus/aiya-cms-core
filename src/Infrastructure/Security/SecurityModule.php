@@ -9,8 +9,7 @@ use Aiya\Core\Domain\Shared\FrontendDomain;
 use Aiya\Core\Settings\Registry;
 
 /**
- * Security hardening for the headless backend, ported from the still-valid
- * surface of the legacy basic-security component.
+ * Security hardening for the headless backend.
  *
  * Scope (batch 1 of docs/optimize-migration-assessment.md; the native /wp/v2
  * surface lock and the sitemap toggles moved to HeadlessModule in that
@@ -28,8 +27,8 @@ use Aiya\Core\Settings\Registry;
  *  - cheap request-URI sanity guard against probe traffic;
  *  - CORS origin allowlist for the contract API (rest_allowed_origins).
  *
- * Username blocklisting (the legacy logged_sanitize_user_* group) was
- * dropped on purpose: the owner decided against it. Every toggle is
+ * Username blocklisting was dropped on purpose: the owner decided
+ * against it. Every toggle is
  * evaluated lazily at callback time so the settings page stays the single
  * source of truth; no master switch — each hardening measure stands alone.
  */
@@ -385,10 +384,9 @@ final class SecurityModule implements Module
     /**
      * The guard's decision, pure so it is testable without the exit.
      *
-     * REST requests are exempt. The rule was born in the legacy theme's
-     * basic-optimize as a front-end path filter — probe shapes like
-     * `eval(` or `/**` name files that get executed — while a REST request
-     * is parsed as data by the REST layer. The ceiling is what broke:
+     * REST requests are exempt: probe shapes like `eval(` or `/**` name
+     * files that get executed, while a REST request is parsed as data by
+     * the REST layer. The ceiling is what broke:
      * the Epay gateway push is an anonymous GET whose signed query alone
      * runs ~300 bytes, so covering /wp-json rejected payments (414) rather
      * than probes. Everything else, including every front-end path, keeps

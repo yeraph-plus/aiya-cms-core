@@ -18,8 +18,8 @@ use Aiya\Core\Metadata\Registry as MetadataRegistry;
  * the three public types carry cover + icon, the tag-style taxonomies
  * carry the icon only.
  *
- * The legacy SEO-keywords field was retired with the appearance rework:
- * its term meta rows are dead data and nothing reads them.
+ * There is no SEO-keywords field: term meta rows under that name are dead
+ * data and nothing reads them.
  */
 final class TermExtrasModule implements Module
 {

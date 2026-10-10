@@ -68,10 +68,8 @@ final class TelegramModule implements Module
     /**
      * The chain's single post-1.0 installer: the channel-feed mirror and
      * the support chat's messages, both pure CREATEs at one version. The
-     * 1.3.0 / 1.4.0 column reconciliations retired with the 0.130.x
-     * flattening — the feed's CREATE has declared its final three columns
-     * (chat_title / chat_username / entities) since it landed, so those
-     * two guarded ALTER entries never had work to do.
+     * feed's CREATE declares its final three columns (chat_title /
+     * chat_username / entities), so no column reconciliation is needed.
      */
     public static function installTables(): void
     {

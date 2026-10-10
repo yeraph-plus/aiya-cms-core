@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Infra\ImageProcessor;
 
 /**
- * Format + quality to Imagine save-options mapping. The legacy component
- * repeated this table in three places; it lives here once now.
+ * Format + quality to Imagine save-options mapping — one table, one place.
  */
 final class SaveOptions
 {

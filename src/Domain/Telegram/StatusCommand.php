@@ -14,8 +14,7 @@ use Aiya\Infra\Telegram\Error;
  * administrator rights in — discovered from traffic and verified through
  * getChatMember, the closest the platform allows to a chat directory.
  * Everything answers in the asking chat itself; the config summary only
- * ever lands in private chats, never groups. (The original `/id` alias
- * is retired — `/status` covers it.)
+ * ever lands in private chats, never groups. There is no `/id` alias.
  *
  * Not final on purpose: the update-funnel tests ride a recording
  * subclass.

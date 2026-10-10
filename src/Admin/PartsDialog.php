@@ -8,8 +8,8 @@ use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Shortcodes\ShortcodeRegistry;
 
 /**
- * The editor-side inserter UI for template parts, replacing the legacy
- * Thickbox inserter: a `media_buttons` action prints the toolbar button
+ * The editor-side inserter UI for template parts: a `media_buttons`
+ * action prints the toolbar button
  * (kept in the classic position), an admin-footer block carries the
  * dialog markup, and `wpdialogs` — the same jQuery UI Dialog wrapper the
  * core link dialog uses — opens it. Insertion goes through
@@ -31,7 +31,7 @@ final class PartsDialog implements Module
         add_action('admin_enqueue_scripts', [$this, 'assets']);
     }
 
-    /** The classic "Add media" toolbar position, as the legacy inserter kept. */
+    /** The classic "Add media" toolbar position. */
     public function toolbarButton(string $editorId = 'content'): void
     {
         $screen = function_exists('get_current_screen') ? get_current_screen() : null;

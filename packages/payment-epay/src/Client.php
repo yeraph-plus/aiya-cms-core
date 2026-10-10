@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Infra\PaymentEpay;
 
 /**
- * Epay (彩虹易支付) signature and submit-parameter builder, algorithm kept
- * byte-for-byte from the legacy SDK: md5 over ksort-ed `k=v&` pairs (skipping
+ * Epay (彩虹易支付) signature and submit-parameter builder: md5 over
+ * ksort-ed `k=v&` pairs (skipping
  * sign/sign_type, empty values and the literal '0') with the merchant key
  * appended. The '0' skip is part of the verified wire behavior, so it is
  * preserved even though it looks odd. WordPress-free.

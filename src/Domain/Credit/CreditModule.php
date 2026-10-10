@@ -19,8 +19,8 @@ use Aiya\Core\Settings\Registry;
  * bookkeeping only: check-in, admin grants, redemption codes and future
  * membership grants add buckets through grant(); downstream features
  * (paid downloads from the next resource batch on) spend through spend()
- * passing their own price. It runs unconditionally — unlike the parked
- * membership domain it has no legacy coupling.
+ * passing their own price. It runs unconditionally, with no coupling to the
+ * membership domain's gates.
  */
 final class CreditModule implements Module
 {

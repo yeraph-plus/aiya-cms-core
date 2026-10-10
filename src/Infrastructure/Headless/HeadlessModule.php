@@ -20,10 +20,10 @@ use Aiya\Core\Settings\Registry;
  * Comment storage and moderation stay in WordPress (the classic
  * moderation screen remains the admin tool); the Astro front end talks
  * to aiya/core/v1/content/{id}/comments, so the native /wp/v2/comments
- * route is retired unconditionally — for every user and every toggle
+ * route is unregistered unconditionally — for every user and every toggle
  * state. Comment REST belongs to the versioned contract. Pingbacks and
  * trackbacks are protocol-level spam vectors and stay disabled by
- * default regardless. Post-by-email is retired unconditionally too
+ * default regardless. Post-by-email is disabled unconditionally too
  * (nothing posts by mail to a headless backend).
  *
  * Everything here works from a normal active plugin: core loads plugins
@@ -34,7 +34,7 @@ use Aiya\Core\Settings\Registry;
  * The toggles live in the aiya_core_optimization option and default to
  * "strip" so a fresh activation is headless by design; turning an
  * individual toggle off restores that one surface without code changes
- * (except the retired comment REST route, which never comes back).
+ * (except the comment REST route, which never comes back).
  */
 final class HeadlessModule implements Module
 {
@@ -559,7 +559,7 @@ final class HeadlessModule implements Module
     }
 
     /**
-     * Unregisters REST routes retired for a headless site. /wp/v2/comments
+     * Unregisters the REST routes a headless site does not serve. /wp/v2/comments
      * goes unconditionally: comment reads and writes belong to the
      * versioned contract route (aiya/core/v1/content/{id}/comments), and
      * the toggles never re-enable the native one. The rest follows the

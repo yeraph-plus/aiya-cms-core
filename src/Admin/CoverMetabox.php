@@ -10,14 +10,14 @@ use Aiya\Core\Domain\Media\MediaPaths;
 use WP_Post;
 
 /**
- * Manual cover generation metabox (legacy image-manager parity): a rich
+ * Manual cover generation metabox: a rich
  * control (mode, title, colors, preview, async generation) that does not
  * fit the schema-driven metadata field groups, so it keeps its own bespoke
  * screen in the Admin layer. Generation itself lives in CoverService.
  *
  * The generated file is persisted under wp-content/aiya_thumbnail/cover/ and the
- * `_thumb` protocol key is written by the service — replacing the
- * legacy frontend-time writes with an explicit editor action.
+ * `_thumb` protocol key is written by the service, so the write happens
+ * on an explicit editor action rather than at front-end render time.
  */
 final class CoverMetabox implements Module
 {
@@ -162,7 +162,7 @@ final class CoverMetabox implements Module
         return $this->paths->keyToUrl($value);
     }
 
-    /** Legacy presentation cleanup: drop bracket groups and punctuation. */
+    /** Presentation cleanup: drop bracket groups and punctuation. */
     private function cleanTitle(string $title): string
     {
         if ($title === '') {

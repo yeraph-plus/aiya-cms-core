@@ -8,9 +8,8 @@ use Aiya\Core\Settings\Schema\Field;
 use InvalidArgumentException;
 
 /**
- * A field group rendered on term add/edit forms — the code-only equivalent
- * of the legacy AYF::new_tex(). Unlike post boxes, term values are stored
- * under per-field term meta keys, matching the legacy protocol shape.
+ * A field group rendered on term add/edit forms. Unlike post boxes, term
+ * values are stored under per-field term meta keys.
  */
 final class TermBox
 {

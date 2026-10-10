@@ -15,8 +15,8 @@ use WP_Error;
  * this service. The former three-value `type` column became customizable
  * boards (0.45.0): a thread belongs to exactly one board, and the last
  * remaining board cannot be deleted — its threads would have nowhere to
- * go. Authorization follows the legacy issue semantics — the thread/reply
- * author or an `edit_pages` administrator — and the reply counters on the
+ * go. Authorization is the thread/reply author or an `edit_pages`
+ * administrator — and the reply counters on the
  * thread are denormalized columns kept fresh by syncReplyStats().
  *
  * Content is kses-filtered at the single write path, so everything stored
@@ -731,8 +731,7 @@ final class DiscussionService
     }
 
     /**
-     * Refreshes the denormalized reply counters on the thread — the same
-     * job the legacy sync helper did for issues.
+     * Refreshes the denormalized reply counters on the thread.
      */
     public function syncReplyStats(int $threadId): void
     {

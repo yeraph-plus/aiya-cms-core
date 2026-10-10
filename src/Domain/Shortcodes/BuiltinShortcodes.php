@@ -8,19 +8,17 @@ use Aiya\Core\Contracts\Module;
 use Closure;
 
 /**
- * The core template-part vocabulary (0.70.0 batch): the legacy inserter's
- * list/col_list/collapse/alert/clip_board shortcodes rebuilt on the part
- * contract, plus the new button link and, since 0.87.0, the related-post
- * card (`[post_id id="7"]`).
+ * The core template-part vocabulary: list/col_list/collapse/alert/
+ * clip_board parts on the part contract, plus the button link and the
+ * related-post card (`[post_id id="7"]`).
  *
  * Rendering is HTML-first: the auxiliary format parts emit plain native
  * markup the front end styles directly (`ul`/`ol`+`li`, `dl`+`dt`/`dd`
  * with a `data-ratio`, native `details`/`summary` for collapse), the
- * clipboard part keeps the legacy `span[data-clipboard-slot]` marker, the
+ * clipboard part keeps the `span[data-clipboard-slot]` marker, the
  * one component without an HTML-native shape emits a purpose-named marker
  * tag the front end binds (`<alert>`), and the button is a plain anchor
- * carrying its variant as a class. Legacy tailwind classes do not carry
- * over.
+ * carrying its variant as a class. Tailwind classes do not carry over.
  *
  * The card is the one part that must READ something (a post, through the
  * content domain's query + the Api-layer summary projection), so its
@@ -30,11 +28,11 @@ use Closure;
  * renderer the part stays a declaration (no shortcode registered), which is
  * the part contract's own "editor-only" state.
  *
- * The legacy `sponsor_ship` (supporters-gated body) was dropped without a
- * port: contentHtml is a public, shared-cached payload, so a gated body
- * cannot ride inside it, and the placeholder-only card that survives that
- * constraint carries no value on its own (2026-09-15 decision). A viewer-
- * gated equivalent returns with the gated-content API batch or not at all.
+ * There is no supporters-gated body part: contentHtml is a public,
+ * shared-cached payload, so a gated body cannot ride inside it, and the
+ * placeholder-only card that survives that constraint carries no value on
+ * its own. A viewer-gated equivalent returns with the gated-content API
+ * batch or not at all.
  */
 final class BuiltinShortcodes implements Module
 {
@@ -227,8 +225,8 @@ final class BuiltinShortcodes implements Module
     /** @param array<string, string> $attrs */
     private function renderList(array $attrs, string $content): string
     {
-        // The legacy inserter had this mapping reversed (checked "ordered"
-        // produced ul); the rebuild binds the checkbox to the honest tag.
+        // The checkbox binds to the honest tag: checked "ordered" produces
+        // `ol`.
         $ordered = filter_var($attrs['order'] ?? 'false', FILTER_VALIDATE_BOOLEAN);
         $tag = $ordered ? 'ol' : 'ul';
         $out = "<$tag>\n";
@@ -291,8 +289,8 @@ final class BuiltinShortcodes implements Module
     }
 
     /**
-     * The legacy marker contract survives verbatim: plain text inside
-     * `span[data-clipboard-slot]` for the front end's copy button to bind.
+     * The marker contract: plain text inside `span[data-clipboard-slot]`
+     * for the front end's copy button to bind.
      *
      * @param array<string, string> $attrs
      */

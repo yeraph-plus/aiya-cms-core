@@ -11,8 +11,8 @@ use WP_Error;
 
 /**
  * Redemption codes on the plugin-owned `{prefix}aiya_redeem_codes` table
- * (0.54.0 clean rewrite — the legacy `aya_convert_codes` table is not
- * inherited; the site never launched). A code carries a tier key and a
+ * (a fresh table: `aya_convert_codes` is not inherited). A code carries
+ * a tier key and a
  * cycle count; redeeming is atomic (a single conditional UPDATE wins the
  * race) and queues the tier entitlement exactly like a paid order —
  * credits then arrive through the regular cycle grants, never up front.

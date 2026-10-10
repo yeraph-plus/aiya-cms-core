@@ -21,8 +21,7 @@ use WP_Post;
  * `contentHtml`, a public, shared-cacheable payload, so it renders only
  * for `publish` rows — a private target renders nothing even for its
  * author, because a card that appeared and vanished with the viewer would
- * poison the cache (the same constraint that retired the legacy
- * `sponsor_ship` part). Password-protected targets stay publish, so they
+ * poison the cache. Password-protected targets stay publish, so they
  * render like any other post; the gate level rides as the configured
  * badge value, exactly as `PostSummary.badges` carries it — the front end
  * marks it, and `data-badges` never changes the body. Beyond that: no

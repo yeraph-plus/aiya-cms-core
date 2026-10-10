@@ -8,10 +8,9 @@ use Aiya\Core\Settings\Schema\Field;
 use InvalidArgumentException;
 
 /**
- * A field group rendered on post edit screens — the code-only equivalent of
- * the legacy AYF::new_box(). Field definitions reuse the settings Field
- * schema; values are stored under the aiya_core_{id} group key, matching the
- * legacy protocol shape.
+ * A field group rendered on post edit screens. Field definitions reuse
+ * the settings Field schema; values are stored under the aiya_core_{id}
+ * group key.
  */
 final class PostBox
 {
@@ -89,7 +88,7 @@ final class PostBox
     /** @return list<Field> */
     public function fields(): array { return $this->fields; }
 
-    /** The persistent group meta key (legacy protocol: aiya_core_{id}). */
+    /** The persistent group meta key (aiya_core_{id}). */
     public function metaKey(): string
     {
         return 'aiya_core_' . $this->id;

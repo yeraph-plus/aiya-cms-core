@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Payment;
 
 /**
- * Raw webhook payload logger, preserving the legacy debugging behavior:
+ * Raw webhook payload logger:
  * when enabled it appends gateway callbacks under wp-content/aiya_logs/
  * as dated files. Logging is OFF unless the debug constant
  * WP_DEBUG is defined truthy (define it in wp-config.php

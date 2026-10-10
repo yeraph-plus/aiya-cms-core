@@ -8,17 +8,15 @@ use Aiya\Infra\SlugToolkit\IdSlugEncoder;
 use WP_Error;
 
 /**
- * The payment log on the `wp_aiya_payment_orders` table — since the
- * 0.50.0 tier rewrite this table records money facts only (one row per
- * gateway payment, columns add-only per the workspace doctrine); the
- * service entitlement lives in EntitlementService's queue, which
- * references the same order_id. The old stacking-expiration fold and the
- * `sponsor_expiration` meta writer are retired with the tier model.
+ * The payment log on the `wp_aiya_payment_orders` table: it records money
+ * facts only (one row per gateway payment, columns add-only per the
+ * workspace doctrine); the service entitlement lives in
+ * EntitlementService's queue, which references the same order_id. There is
+ * no stacking-expiration fold and no `sponsor_expiration` meta writer.
  *
- * 0.56.0 renames the table from the legacy `aya_sponsor_orders` name to
- * the plugin-owned prefix; the site never launched, so there is no
- * rename migration — existing dev databases drop the empty legacy table
- * by hand and the fresh-install DDL carries the new name.
+ * The table carries the plugin-owned prefix (0.56.0) and the fresh-install
+ * DDL creates it under that name — there is no rename migration; a database
+ * still carrying `aya_sponsor_orders` drops it by hand.
  *
  * 0.88.0 gives the row a lifecycle: the checkout writes a `pending` row
  * (user, tier, cycles and amount frozen at that moment) and the gateway

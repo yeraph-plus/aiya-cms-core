@@ -7,8 +7,7 @@ namespace Aiya\Core\Admin;
 use Aiya\Core\Contracts\Module;
 
 /**
- * Classic-editor TinyMCE extensions (0.70.0 batch, legacy
- * classic-editor-modify rebuild): four upstream 4.x plugins the core
+ * Classic-editor TinyMCE extensions: four upstream 4.x plugins the core
  * bundle does not ship — table, codesample, toc, advlist — carried in
  * assets/js/mce/ and registered through mce_external_plugins. The core
  * runs TinyMCE 4.9.11, the same major line these builds target.
@@ -16,14 +15,14 @@ use Aiya\Core\Contracts\Module;
  * Buttons: `toc` joins the first row after wp_more, `underline` and
  * `strikethrough` join row one after italic, and the second row gains
  * `fontsizeselect` / `fontselect` beside the core forecolor plus
- * `table` / `codesample` at the end — the legacy layout's additions
- * (0.100.0), idempotent on every filter pass. advlist ships no button —
+ * `table` / `codesample` at the end, idempotent on every filter pass.
+ * advlist ships no button —
  * it augments the bundled bullist/numlist buttons once loaded.
  * `textpattern` is deliberately NOT carried: the core ships the
  * overlapping wptextpattern and both together double-transform input;
  * `image`/`media` are core-bundled already.
  *
- * Two editor-side conveniences from the same legacy build: the post
+ * Two editor-side conveniences: the post
  * author dropdown lists content authors only (who=authors — subscribers
  * are not authors), and the "most used tags" cloud drops core's 45-term
  * cap so the picker shows every tag (scoped to that one AJAX request).

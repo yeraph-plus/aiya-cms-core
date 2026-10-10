@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\FileServe;
 
 /**
- * File-name to icon-category mapping (the legacy panel's extension buckets),
+ * File-name to icon-category mapping (extension buckets),
  * applied to every adapter's rows so a row's category does not depend on
  * where it came from. Icons themselves are front-end concerns; the contract
  * carries the category string only.

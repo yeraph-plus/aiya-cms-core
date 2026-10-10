@@ -17,22 +17,19 @@ use Aiya\Infra\SlugToolkit\PinyinConverter;
  * owns the WordPress policy: which hooks fire, which post types are
  * affected, and how candidates are sanitized and deduplicated.
  *
- * Slugs inherit the legacy site's output: pinyin slugs come from
- * overtrue/pinyin (same library), ID slugs from the inherited XDE_code
- * algorithm. 0.98.0, site-owner call: the ID candidate no longer runs
- * through sanitize_title, so the XDE output's native mixed case ships as
- * generated (the 62-char alphabet is the algorithm's strength) — legacy
- * byte-identity is abandoned, and the case-insensitive post_name
- * collation keeps old lowercase URLs resolving. Pinyin candidates stay
- * lowercased exactly as before.
+ * Slug policy: pinyin slugs come from overtrue/pinyin, ID slugs from the
+ * XDE_code algorithm. The ID candidate does not run through
+ * sanitize_title, so the XDE output's native mixed case ships as
+ * generated (the 62-char alphabet is the algorithm's strength); the
+ * case-insensitive post_name collation keeps lowercase URLs resolving.
+ * Pinyin candidates stay lowercased.
  *
  * ID slugs apply on updates through wp_unique_post_slug; on first insert
  * the post ID does not exist yet, so wp_insert_post writes the generated
  * slug afterwards (guarded against recursion).
  *
- * The content reformatting half of the legacy component (Chinese typesetting,
- * HTML cleanup, auto tags) waits for the M2 action_checkbox field and is not
- * implemented here.
+ * The content-reformatting half (Chinese typesetting, HTML cleanup, auto
+ * tags) waits for the M2 action_checkbox field and is not implemented here.
  */
 final class SlugModule implements Module
 {
@@ -257,9 +254,9 @@ final class SlugModule implements Module
         // Case-preserving whitelist, not sanitize_title: the XDE output is
         // natively mixed-case (the frozen 62-char alphabet) and the case IS
         // the algorithm's strength — lowercasing collapses the table to 36
-        // symbols and breaks reversibility (site-owner call, 0.98.0; legacy
-        // byte-identity is abandoned, while the case-insensitive post_name
-        // collation keeps old lowercase URLs resolving). The candidate is
+        // symbols and breaks reversibility (site-owner call: the
+        // case-insensitive post_name collation still resolves lowercase
+        // URLs). The candidate is
         // pure algorithm output — prefix plus encoding, no prose — so the
         // URL-safe unreserved set is the whole job, and uniqueness still
         // runs through wp_unique_post_slug.
@@ -272,8 +269,8 @@ final class SlugModule implements Module
     {
         $slug = $this->pinyin()->permalink($title);
 
-        // Legacy aya_trim_slug semantics: cap at 60 chars, cut back to the
-        // last divider so no half syllable remains.
+        // Slug trimming: cap at 60 chars, cut back to the last divider so no
+        // half syllable remains.
         if (strlen($slug) > self::MAX_PINYIN_LENGTH) {
             $slug = substr($slug, 0, self::MAX_PINYIN_LENGTH);
             $cut = strrpos($slug, '-');

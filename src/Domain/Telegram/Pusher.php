@@ -195,8 +195,7 @@ final class Pusher
     /**
      * The post-object placeholder map, every value already escaped for
      * the wire. Links are the operator's composition from {front},
-     * {type} and {slug} — the backend keeps no front-end route shapes
-     * ({link} is retired).
+     * {type} and {slug} — the backend keeps no front-end route shapes.
      *
      * @return array<string, string>
      */

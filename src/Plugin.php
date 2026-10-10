@@ -240,7 +240,7 @@ final class Plugin
 
         // WP 7.1's load_plugin_textdomain no longer falls back to the
         // plugin-local languages dir, so the own .mo is loaded directly
-        // and the core call stays as a compatibility net. Registering
+        // and the core call stays as a fallback net for the rest. Registering
         // translations here (before init 0) keeps the aiya_core_register
         // lookups free of just-in-time loading.
         add_action('plugins_loaded', function (): void {

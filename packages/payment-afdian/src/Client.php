@@ -8,10 +8,10 @@ use Aiya\Infra\SlugToolkit\IdSlugEncoder;
 
 /**
  * Afdian open-API client. Outbound requests sign md5 of
- * `token + "params" + params + "ts" + ts + "user_id" + user_id` (legacy
- * byte-for-byte). Inbound webhook pushes are deliberately NOT verified
- * here: the RSA scheme over platform-published keys was retired with the
- * push-trust model (2026-09-21) — a push is only a hint to look, the site
+ * `token + "params" + params + "ts" + ts + "user_id" + user_id`, byte
+ * for byte as the platform requires. Inbound webhook pushes are
+ * deliberately NOT verified here: a push is only a hint to look, the
+ * site
  * re-reads the whole order through this authenticated API and settles
  * from the query's facts. Transport is injected (returns the raw body or
  * null) so this class never touches WordPress. Surface mirrors the

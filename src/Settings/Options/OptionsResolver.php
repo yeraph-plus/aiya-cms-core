@@ -7,13 +7,11 @@ namespace Aiya\Core\Settings\Options;
 use Aiya\Core\Settings\Schema\Field;
 
 /**
- * Resolves lazy option sources for select/radio fields at render time —
- * the code-only equivalent of the legacy entry_select() sub_mode helper
+ * Resolves lazy option sources for select/radio fields at render time
  * (sub_mode 'page'/'category' map to the posts/terms sources here).
  *
  * Nothing queries until a field with an options_source is actually
- * rendered. Sidebar sources are not offered: sidebars belong to the
- * retired front end.
+ * rendered. Sidebar sources are not offered.
  */
 final class OptionsResolver
 {

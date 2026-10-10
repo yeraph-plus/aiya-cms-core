@@ -8,12 +8,12 @@ use Aiya\Core\Domain\Identity\UserBan;
 
 /**
  * Membership reads on the entitlement queue (`{prefix}aiya_memberships`,
- * the 0.50.0 tier model). The legacy `sponsor_expiration` /
- * `aya_force_cancel_sponsor` / `aya_trigger_count_sponsor` protocol meta
- * are retired: validity derives from the holder's active queue rows alone.
+ * the 0.50.0 tier model). Validity derives from the holder's active queue
+ * rows alone — the `sponsor_expiration` / `aya_force_cancel_sponsor` /
+ * `aya_trigger_count_sponsor` protocol meta are not read.
  *
- * The forced-cancel path is gone with them (0.86.0) — a purchase cannot be
- * cut short server-side. The one lever that withholds membership is the
+ * There is no forced-cancel path: a purchase cannot be cut short
+ * server-side. The one lever that withholds membership is the
  * account-level disable switch (`Domain\Identity\UserBan`), applied here
  * at the gates so every consumer inherits it: `isSponsor()` (the content
  * gate), `isActive()` (the wire state) and `expiresAt()` (the derived
@@ -21,9 +21,8 @@ use Aiya\Core\Domain\Identity\UserBan;
  * sees a disabled holder's tier — but entitlement authorization must ask
  * the gates, never this.
  *
- * `isSponsor()` keeps the editorial bypass of the legacy
- * `aya_is_sponsor()`: editors and above always qualify — unless the
- * account is disabled, which outranks the bypass.
+ * `isSponsor()` keeps the editorial bypass: editors and above always
+ * qualify — unless the account is disabled, which outranks the bypass.
  */
 final class MembershipService
 {
@@ -57,8 +56,8 @@ final class MembershipService
     }
 
     /**
-     * Legacy `aya_is_sponsor()`: editors and above always qualify. A
-     * disabled account never does — the ban outranks the staff bypass.
+     * Editorial bypass: editors and above always qualify. A disabled
+     * account never does — the ban outranks the staff bypass.
      */
     public function isSponsor(int $userId): bool
     {

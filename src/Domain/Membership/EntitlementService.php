@@ -24,10 +24,9 @@ use WP_Error;
  * activation, the (source, ref, user) ledger key plus the
  * compare-and-swap counter block double grants.
  *
- * The legacy `sponsor_expiration` / `aya_force_cancel_sponsor` protocol
- * meta are retired here: validity derives from the queue. The `status`
- * column is kept (rows are written `active`) but nothing flips it any
- * more — the forced-cancel writer went with 0.86.0.
+ * Validity derives from the queue, not from the `sponsor_expiration` /
+ * `aya_force_cancel_sponsor` protocol meta. The `status` column is kept
+ * (rows are written `active`) but nothing flips it any more.
  */
 final class EntitlementService
 {

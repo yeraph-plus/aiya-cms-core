@@ -189,17 +189,15 @@ final class GatewayController
     }
 
     /**
-     * Afdian webhook push (POST, JSON body): unverified by design — the
-     * RSA signature check is retired with the push-trust model
-     * (2026-09-21 decision; the platform key was becoming unmaintainable
-     * dead weight). The activator re-reads the whole purchase through the
-     * open API — the same ping→query→settle chain as the buyer-typed
-     * order-number path — and settles from the query's facts. A normal
-     * receipt always answers the {ec,em} envelope with 200, whatever the
-     * settlement outcome, so the platform stops retrying; only a body
-     * that is not JSON at all answers 400. The log carries the meaningful
-     * nodes (order number, query verdict, activation result), never a
-     * raw dump.
+     * Afdian webhook push (POST, JSON body): unverified by design — no
+     * RSA signature check is performed. The activator re-reads the whole
+     * purchase through the open API — the same ping→query→settle chain as
+     * the buyer-typed order-number path — and settles from the query's
+     * facts. A normal receipt always answers the {ec,em} envelope with
+     * 200, whatever the settlement outcome, so the platform stops
+     * retrying; only a body that is not JSON at all answers 400. The log
+     * carries the meaningful nodes (order number, query verdict,
+     * activation result), never a raw dump.
      */
     private function afdianCallback(WP_REST_Request $request): WP_REST_Response
     {

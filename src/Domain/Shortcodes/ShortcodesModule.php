@@ -13,10 +13,9 @@ use Aiya\Core\Contracts\Module;
  * end parses those tags into islands. The editor-side inserter UI is the
  * Admin layer's PartsDialog; this module owns rendering only.
  *
- * The domain also owns the shortcode namespace's retirement of core
- * defaults: the caption/gallery/media shortcodes have no headless
- * consumer (legacy content carries none after the migration audit), and
- * `[embed]` cannot be removed with remove_shortcode() — WP_Embed
+ * The domain also owns the shortcode namespace: the caption/gallery/media
+ * shortcodes have no headless consumer, and `[embed]` cannot be removed
+ * with remove_shortcode() — WP_Embed
  * re-registers it on every the_content pass — so BOTH of its content
  * channels are unhooked instead: run_shortcode (explicit `[embed]`
  * markup) and autoembed (bare URL lines, which would fire server-side

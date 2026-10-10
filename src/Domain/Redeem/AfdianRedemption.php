@@ -16,12 +16,12 @@ use WP_Error;
  * the webhook whose push is only a hint carrying the trade number. Every
  * purchase fact (paid?, amount, cycles) is read from the platform's own
  * API answer; a push body is never trusted beyond its trade number, and
- * the RSA signature check is retired with that push-trust model.
+ * no RSA signature check is performed.
  *
  * The plan is not part of the settlement: every order the platform
  * carries settles into the single tier bound on the payments page
- * (AfdianGateway::boundTier) — the multi-plan binding table and the
- * fallback tier are retired with this rewrite. The site writes no
+ * (AfdianGateway::boundTier); there is no multi-plan binding table and no
+ * fallback tier. The site writes no
  * checkout row for Afdian purchases: a purchase the query vouches for
  * books straight into the paid log under the platform's own order id
  * (`afd_` prefix). The order-id unique keys in the payment log and the

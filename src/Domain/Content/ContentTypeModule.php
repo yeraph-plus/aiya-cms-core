@@ -8,7 +8,7 @@ use Aiya\Core\Contracts\Module;
 
 /**
  * Registers the declared post types and taxonomies into WordPress on init.
- * Keeps the legacy sticky-in-archive behaviors out: front-end listing
+ * Sticky-in-archive behaviors are not declared here: front-end listing
  * concerns belong to the Astro front end.
  *
  * Ships one built-in declaration: pages get their own hierarchical,

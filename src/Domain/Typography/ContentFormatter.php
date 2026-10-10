@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Typography;
 
 /**
- * Legacy content-formatting transformations ported from the old
- * basic-optimize "数据更新" actions (0.37.0). Pure string functions:
+ * Content-formatting transformations for the "数据更新" actions. Pure
+ * string functions:
  * WordPress IO (reading the post, writing it back, tag assignment)
  * belongs to the calling TypographyModule.
  */

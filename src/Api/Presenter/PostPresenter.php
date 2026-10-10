@@ -32,9 +32,9 @@ use WP_Term;
  * domain touches WP_Post/WP_Term; `the_content` runs here because the
  * filtered HTML is contract data, and the smilies renderer converts
  * `::code::` tokens on that filtered HTML read-time (storage keeps the
- * literal token). Legacy protocol keys (`view_count`,
- * `like_count`) are read only inside this compatibility layer and never
- * leak as names; the card thumbnail (`_thumb`) resolves through the media
+ * literal token). The protocol keys (`view_count`,
+ * `like_count`) are read only inside this presenter and never leak as
+ * names; the card thumbnail (`_thumb`) resolves through the media
  * domain's card pipeline.
  */
 final class PostPresenter
@@ -136,7 +136,7 @@ final class PostPresenter
             : $this->rendered($post);
         // The meta description rides WP's own excerpt field (manual excerpt
         // when the editor wrote one, auto-generated summary otherwise) —
-        // the per-post SEO box was retired in 0.72.0. noindex stays a
+        // there is no per-post SEO box. noindex stays a
         // front-end/archive concern; posts are indexable by default.
         // The internal gate level uses '' for public; the wire contract
         // names the value 'public' (front-end enum).
@@ -325,7 +325,7 @@ final class PostPresenter
         // holders of a valid postpass cookie — a request-state (visitor)
         // input, so the value is NOT visitor-independent and must never
         // enter a shared cache. The 0.73.0 unlock flow keeps the API
-        // cookie-less, but legacy browser cookies are still valid under
+        // cookie-less, but a postpass cookie from the browser is valid under
         // the same password, so the guard is code, not a deployment note.
         $cacheable = (string) $post->post_password === '';
         $postId = (int) $post->ID;

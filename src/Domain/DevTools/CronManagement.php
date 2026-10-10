@@ -66,7 +66,7 @@ final class CronManagement
     }
 
     /**
-     * The stored cron option, with the legacy "version" key stripped.
+     * The stored cron option, with the "version" key stripped.
      *
      * @return array<int|string, mixed>
      */

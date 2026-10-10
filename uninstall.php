@@ -21,9 +21,9 @@
  *
  * When purging, also removed: the plugin's own relation tables (favorites,
  * follows, auth tokens, notifications, discussions), aiya_core_* user-meta
- * residue, the retired membership protocol meta (the sponsor_expiration
- * family — no aiya_core_ prefix, so the LIKE sweep below never matched it)
- * and aiya_core_* transients/cron events.
+ * residue, the sponsor_expiration meta family (no aiya_core_ prefix, so the
+ * LIKE sweep below never matched it) and aiya_core_* transients/cron
+ * events.
  *
  * Either answer also stages the heavyweight dependency directories (vendor,
  * node_modules, .git) out of the plugin directory with an instant
@@ -34,13 +34,11 @@
  *
  * Deliberately KEPT either way: user content (media library, the avatar
  * files under wp-content/aiya_thumbnail/ tree (generated covers and
- * avatars), the pic-bed pool). The payment log moved to the plugin-owned
- * aiya_payment_orders table (0.56.0) and is dropped with the rest; the
- * codes table moved to aiya_redeem_codes in 0.54.0 — its superseded
- * predecessor wp_aya_convert_codes has no DROP here because no install
- * this file can run against still carries it: the 0.80.0 clean-release
- * rewrite ships CREATE-only migrations, so there is no never-migrated
- * state to fall back for.
+ * avatars), the pic-bed pool). The payment log lives in the plugin-owned
+ * aiya_payment_orders table and the redeem codes in aiya_redeem_codes;
+ * both are dropped with the rest. The superseded predecessor table
+ * wp_aya_convert_codes has no DROP here: migrations ship CREATE-only, so
+ * no install this file can run against still carries it.
  *
  * @package AIYA_Core
  */
@@ -238,9 +236,9 @@ if (aiya_core_uninstall_is_screen_delete()) {
 } else {
     // No UI to ask (WP-CLI, scripted uninstall_plugin() calls): the
     // standing answers decide, both defaulting to keeping the data. The
-    // switch lives on the Uninstall settings page (0.112.0 moved it here
-    // from the retired Security hardening page; stored values under the
-    // old page were not carried over — re-enter the answer there once).
+    // switch lives on the Uninstall settings page; stored values under the
+    // former Security hardening page were not carried over — re-enter the
+    // answer once).
     $settings = get_option('aiya_core_uninstall', []);
     $eraseData = is_array($settings) && !empty($settings['uninstall_purge']);
     if (defined('AIYA_CORE_UNINSTALL_PURGE')) {
@@ -302,11 +300,11 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
         $run($wpdb->prepare('DROP TABLE IF EXISTS %i', $table));
     }
 
-    // Plugin-era user meta with no other cleanup path: the expiry-scan
-    // dedupe marker, plus the three membership protocol keys the 0.86.0
-    // tier model retired. Those carry no aiya_core_ prefix, so the LIKE
-    // sweep below never matched them and a purge would leave the residue
-    // behind for whatever the site does next.
+    // User meta the plugin wrote with no other cleanup path: the
+    // expiry-scan dedupe marker, plus the three membership protocol keys.
+    // Those carry no aiya_core_ prefix, so the LIKE sweep below never
+    // matched them and a purge would leave the residue behind for whatever
+    // the site does next.
     foreach ([
         'aiya_core_sponsor_state_noticed',
         'sponsor_expiration',
@@ -320,11 +318,11 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
     // token hash store). Protocol keys such as basic_user_avatar survive.
     $run($wpdb->prepare('DELETE FROM %i WHERE meta_key LIKE %s', $wpdb->usermeta, $optionLike));
 
-    // Post-meta group keys written by the metabox framework (oplist client,
-    // typography, pan links, the retired post-SEO group). Protocol keys like
+    // Post-meta group keys written by the metabox framework (oplist
+    // client, typography, pan links, the post-SEO group). Protocol keys like
     // like_count/_thumb/rating_* survive as documented; term meta the plugin
-    // wrote (thumbnail_id/icon, plus the 0.57.0-retired seo_keywords) on the
-    // contract taxonomies is plugin-era residue and dies here too.
+    // wrote (thumbnail_id/icon, plus seo_keywords) on the contract
+    // taxonomies is residue and dies here too.
     $run($wpdb->prepare('DELETE FROM %i WHERE meta_key LIKE %s', $wpdb->postmeta, $optionLike));
     // The thumbnail cron's failure flag is transient bookkeeping, not a
     // protocol key — residue would permanently exclude those posts from a

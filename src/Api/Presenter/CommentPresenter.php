@@ -14,7 +14,7 @@ use WP_Comment;
  * Projects WP_Comment rows into the comment wire shape. The kses
  * whitelist here is the comment body's contract: it runs at write (the
  * controller sanitizes the incoming body through it) and again on read
- * (idempotent, and it keeps legacy plain-text rows on the same path);
+ * (idempotent, so stored plain-text rows ride the same path);
  * the front end runs its own sanitizer on top as defense in depth.
  */
 final class CommentPresenter
@@ -75,8 +75,8 @@ final class CommentPresenter
                 is_string($avatar) && $avatar !== '' ? $avatar : null
             ),
             (string) $comment->comment_content,
-            // Storage carries kses'd restricted HTML (legacy rows are the
-            // plain text they always were); the read re-runs the whitelist
+            // Storage carries kses'd restricted HTML (rows without markup
+            // stay plain text); the read re-runs the whitelist
             // and lets the renderer inject exactly its whitelisted smilies
             // imgs — the state machine only touches text nodes. `body`
             // stays the source form.

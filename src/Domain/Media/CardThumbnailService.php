@@ -20,10 +20,10 @@ use Imagine\Image\ImagineInterface;
  * MediaModule), so listing requests serve the live source URL until the
  * composite exists instead of generating inline.
  *
- * The composite reuses the package's thumbnail generator — the legacy
- * recipe: plain cover-crop for near-ratio sources, and for far-ratio ones
- * a blurred cover-crop background with a white wash plus the contain-fit
- * foreground centered on top.
+ * The composite reuses the package's thumbnail generator: plain cover-crop
+ * for near-ratio sources, and for far-ratio ones a blurred cover-crop
+ * background with a white wash plus the contain-fit foreground centered on
+ * top.
  *
  * Reads return plain url/alt/size shapes — the API layer's presenters
  * assemble contract DTOs from them; this domain never touches the
@@ -291,7 +291,7 @@ final class CardThumbnailService
 
     /**
      * Deletes the superseded derived files of one attachment in one size
-     * directory (legacy `{id}-{w}x{h}` names and files from earlier keys)
+     * directory (`{id}-{w}x{h}` names and files from earlier keys)
      * — runs only on fresh generation, so steady-state reads pay nothing.
      */
     private function sweepSuperseded(string $dir, int $attachmentId, string $keep): void

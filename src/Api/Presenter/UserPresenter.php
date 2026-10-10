@@ -19,9 +19,9 @@ use WP_User;
  * Maps WP_User rows to the user contract. This is the only place the user
  * domain touches WP internals; everything downstream consumes DTOs.
  *
- * The role field keeps the legacy front-end levels (administrator /
+ * The role field keeps the level vocabulary (administrator /
  * author / sponsor / subscriber); sponsor validity reads the persistent
- * membership entitlement queue (0.50.0 tier model) and therefore answers
+ * membership entitlement queue (the tier model) and therefore answers
  * "no" for a disabled account, while the separate `banned` flag reports
  * the disable switch itself.
  */

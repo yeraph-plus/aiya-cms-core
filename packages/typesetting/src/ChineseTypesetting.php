@@ -4,8 +4,8 @@ namespace Aiya\Infra\Typesetting;
 
 /**
  * Chinese typesetting correctors, ported verbatim from
- * jxlwqq/chinese-typesetting (MIT) so the legacy typography actions
- * keep their exact behaviour without a vendor dependency.
+ * jxlwqq/chinese-typesetting (MIT) so the typography actions keep their
+ * exact behaviour without a vendor dependency.
  * Class ChineseTypesetting.
  */
 class ChineseTypesetting

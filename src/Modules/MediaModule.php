@@ -20,24 +20,22 @@ use Closure;
 use Imagine\Image\ImagineInterface;
 
 /**
- * Adapter for the aiya/image-processor package (legacy image-manager): owns
+ * Adapter for the aiya/image-processor package: owns
  * every WordPress touchpoint — the image processor settings page, the media
  * library takeover filter, and the lazy composition of the domain services.
  * The package itself never sees WordPress.
  *
- * The legacy fake-plugin settings structure (one shared page with per-plugin
- * sections) is deliberately not inherited: each feature owns a dedicated
- * page, so this page is the image processor and nothing else.
+ * There is no shared fake-plugin settings page: each feature owns a
+ * dedicated page, so this page is the image processor and nothing else.
  *
- * Semantics preserved from the legacy component and fixed where the review
- * found defects:
- * - the editor-support check for the target format now applies to ALL
- *   uploads (the legacy code only checked the pic-bed path, so media
- *   library uploads could be converted into a format core cannot read);
+ * Semantics, with the defects the review found fixed:
+ * - the editor-support check for the target format applies to ALL
+ *   uploads (a pic-bed-only check let media library uploads be converted
+ *   into a format core cannot read);
  * - the watermark opacity setting uses the Imagine convention directly
- *   (0 = transparent, 100 = opaque), removing the legacy inverted mapping;
+ *   (0 = transparent, 100 = opaque), not an inverted mapping;
  * - a configured font that does not exist falls back to the bundled one
- *   (the legacy check was inverted and ignored valid uploads).
+ *   (an inverted check ignored valid uploads).
  */
 final class MediaModule implements Module
 {
@@ -474,8 +472,7 @@ final class MediaModule implements Module
 
     /**
      * Resolves the configured font: content URL, content-relative path or
-     * absolute path. Falls back to the bundled font when missing — the
-     * opposite of the legacy check, which ignored valid uploads.
+     * absolute path. Falls back to the bundled font when missing.
      */
     private function fontFile(): string
     {
