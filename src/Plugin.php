@@ -92,6 +92,7 @@ use Aiya\Core\Modules\OpenListModule;
 use Aiya\Core\Domain\Telegram\FeedIngestor;
 use Aiya\Core\Domain\Telegram\TelegramImageStore;
 use Aiya\Core\Domain\Telegram\UpdateProcessor;
+use Aiya\Core\Runtime\SchemaResidueCleanup;
 use Aiya\Core\Runtime\SchemaVersionRunner;
 use Aiya\Core\Settings\Registry;
 
@@ -234,6 +235,11 @@ final class Plugin
         $this->addModule(new GofileModule($this->settings, $adapters));
         $this->addModule(new FileServeDialog($adapters, $fileServe->files(), new FilePresenter()));
 
+        // The 0.128.0 residue cleanup rides the chain ahead of the
+        // installers and retires itself once the stored version passes it
+        // (see the class). Both the module and the class go in the release
+        // after 0.128.0, once every install has run through them.
+        $this->addModule(new SchemaResidueCleanup());
         $this->addModule(new SchemaVersionRunner());
         $this->addModule(new VisibilityMetabox($visibility));
         $this->addModule(new RestController($avatar, $fileServe->files(), $fileServe->downloads(), $media->cards(), $media->store(), $media->paths(), $visibility, $this->telegramIntake));

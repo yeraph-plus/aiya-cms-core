@@ -71,6 +71,10 @@ final class StatsRecorder
      * silently on transient DB hiccups, so the tables are verified
      * afterwards and the runner holds the schema version back on failure.
      *
+     * Retired columns and the orphan rate option are not reconciled here:
+     * that upgrade residue moved to Runtime\SchemaResidueCleanup with the
+     * 0.128.0 cleanup, so this callback is a pure CREATE again.
+     *
      * The watermark is seeded once and never rewritten: statistics start
      * at install time, and already-expired buckets are deliberately left
      * out (the report has no earlier month to attribute them to). No
@@ -106,38 +110,6 @@ final class StatsRecorder
                 PRIMARY KEY  (month, user_id)
             )"
         );
-
-        // The per-holder first-seen stamp was written and never read (the
-        // MAU count is a row total) — retired with the 0.102.0 cleanup.
-        // Upgrade databases drop it here; fresh installs never create it.
-        if ($wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $active, 'first_seen')) !== null) {
-            $drop = $wpdb->prepare('ALTER TABLE %i DROP COLUMN first_seen', $active);
-            if (is_string($drop)) {
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
-                $wpdb->query($drop);
-            }
-        }
-
-        // The per-download rate and its freeze flag fed only the retired
-        // cost display — the report no longer prices traffic, so the two
-        // columns retire through the same upgrade cleanup. Fresh installs
-        // never create them; upgrade databases drop them here.
-        foreach (['unit_cost', 'frozen'] as $retired) {
-            if ($wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $monthly, $retired)) === null) {
-                continue;
-            }
-            $drop = $wpdb->prepare('ALTER TABLE %i DROP COLUMN %i', $monthly, $retired);
-            if (is_string($drop)) {
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
-                $wpdb->query($drop);
-            }
-        }
-
-        // The report's rate option (the retired StatsSettings::OPTION_NAME)
-        // outlived its only reader — nothing loads the key any more, so the
-        // row goes with the columns it fed. The expiry watermark is sweep
-        // state, not a setting, and stays.
-        delete_option('aiya_core_operations');
 
         foreach ([$monthly, $active] as $table) {
             $found = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table)));

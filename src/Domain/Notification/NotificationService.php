@@ -369,34 +369,6 @@ final class NotificationService
             ) $charset;"
         );
 
-        // dbDelta adds indexes but never retires one. Two dead indexes from
-        // the 0.46.0 actor columns: no query filters on actor_id or the
-        // object pair (they are SELECT-list output only), so upgrade
-        // databases drop both here; fresh installs never create them.
-        foreach (['actor_id', 'object_ref'] as $deadIndex) {
-            if ($wpdb->get_var($wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $table, $deadIndex)) !== null) {
-                $drop = $wpdb->prepare('DROP INDEX %i ON %i', $deadIndex, $table);
-                if (is_string($drop)) {
-                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
-                    $wpdb->query($drop);
-                }
-            }
-        }
-
-        // dbDelta adds indexes but never retires one: the single-column
-        // user_id key is fully covered by user_created — drop it once the
-        // composite exists (idempotent; installs after 0.100.0 never have
-        // it).
-        if ($wpdb->get_var($wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $table, 'user_created')) !== null
-            && $wpdb->get_var($wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $table, 'user_id')) !== null
-        ) {
-            $drop = $wpdb->prepare('DROP INDEX user_id ON %i', $table);
-            if (is_string($drop)) {
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
-                $wpdb->query($drop);
-            }
-        }
-
         if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) !== $table) {
             throw new \RuntimeException(sprintf('Table %s was not created.', $table));
         }

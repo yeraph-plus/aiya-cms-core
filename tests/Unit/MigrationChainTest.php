@@ -17,6 +17,7 @@ use Aiya\Core\Domain\Telegram\TelegramModule;
 use Aiya\Core\Domain\Payment\PaymentModule;
 use Aiya\Core\Domain\Redeem\RedeemModule;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
+use Aiya\Core\Runtime\SchemaResidueCleanup;
 use Aiya\Core\Settings\Registry;
 use PHPUnit\Framework\TestCase;
 
@@ -34,6 +35,12 @@ use PHPUnit\Framework\TestCase;
  * Telegram channel feed's table, 1.2.0 the support chat's messages,
  * 1.3.0 the feed's entities column, 1.4.0 the feed's channel identity — and every one of them updates
  * this test, never an accident of copying an old constant.
+ *
+ * The 0.128.0 residue cleanup is the one entry that installs nothing and
+ * sits at no 1.x milestone: it carries the plugin's own version on
+ * purpose, so the runner's `stored < version` gate retires it by itself
+ * once an install has passed through it. Entry and class are meant to be
+ * deleted in the release after 0.128.0.
  */
 final class MigrationChainTest extends TestCase
 {
@@ -46,6 +53,7 @@ final class MigrationChainTest extends TestCase
     {
         $settings = new Registry();
         $modules = [
+            new SchemaResidueCleanup(),
             new DiscussionModule(),
             new IdentityModule(new MetadataRegistry()),
             new NotificationModule(),
@@ -65,11 +73,15 @@ final class MigrationChainTest extends TestCase
 
         $migrations = apply_filters('aiya_core_schema_migrations', []);
 
-        self::assertCount(12, $migrations, 'eight 1.0.0 installers plus the four Telegram entries');
+        self::assertCount(13, $migrations, 'eight 1.0.0 installers, the four Telegram entries and the 0.128.0 cleanup');
         $flat = array_filter($migrations, static fn (array $migration): bool => $migration['version'] === '1.0.0');
         self::assertCount(8, $flat, 'the 1.0.0 base chain stays at eight (the data carriers retired with the clean model)');
         $post = array_values(array_filter($migrations, static fn (array $migration): bool => $migration['version'] !== '1.0.0'));
-        self::assertSame(['1.1.0', '1.2.0', '1.3.0', '1.4.0'], array_column($post, 'version'), 'the conscious post-1.0 chain, in order');
+        self::assertSame(
+            ['0.128.0', '1.1.0', '1.2.0', '1.3.0', '1.4.0'],
+            array_column($post, 'version'),
+            'the plugin-track cleanup entry, then the conscious post-1.0 chain, in order'
+        );
         foreach ($post as $migration) {
             self::assertIsCallable($migration['callback']);
         }

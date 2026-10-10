@@ -8,9 +8,12 @@ use Aiya\Core\Runtime\TableInstaller;
 
 /**
  * The discussion domain's table chain, split out of DiscussionService: the
- * clean-release migration callback plus the index and column retirements
- * only an upgrade database still needs. Kept apart from the service so the
+ * clean-release migration callback. Kept apart from the service so the
  * store's read/write surface is not read past a hundred lines of DDL.
+ *
+ * The index and column retirements an upgrade database still needs are not
+ * here: they moved to Runtime\SchemaResidueCleanup with the 0.128.0
+ * cleanup, so this callback is a pure CREATE again.
  */
 final class DiscussionTables
 {
@@ -75,41 +78,6 @@ final class DiscussionTables
             )"
         );
 
-        // dbDelta adds indexes but never retires one: the bare status key is
-        // a left prefix of both status_created and activity — drop it once
-        // the composite exists (idempotent; installs after 0.102.0 never
-        // have it).
-        if ($wpdb->get_var($wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $threads, 'status_created')) !== null
-            && $wpdb->get_var($wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $threads, 'status')) !== null
-        ) {
-            $drop = $wpdb->prepare('DROP INDEX status ON %i', $threads);
-            if (is_string($drop)) {
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
-                $wpdb->query($drop);
-            }
-        }
-
-        // dbDelta never retires an index either: an earlier shape indexed
-        // last_reply_at, but no read path filters or sorts on it — the
-        // list orders by created_at or bumped_at, both served by the
-        // composite keys above. Retire it once, on the databases that
-        // still carry it (idempotent; installs after 0.102.0 never
-        // have it).
-        if ($wpdb->get_var($wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $threads, 'last_reply_at')) !== null) {
-            $drop = $wpdb->prepare('DROP INDEX last_reply_at ON %i', $threads);
-            if (is_string($drop)) {
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
-                $wpdb->query($drop);
-            }
-        }
-
-        // Legacy rows predate bumped_at: activity = the last reply, else
-        // creation. The WHERE keeps the statement a no-op once filled.
-        $wpdb->query(
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed table name, no inputs (same shape as the CREATE above)
-            "UPDATE {$threads} SET bumped_at = COALESCE(last_reply_at, created_at) WHERE bumped_at < '2000-01-01 00:00:01'"
-        );
-
         $replies = TableInstaller::table('aiya_discussion_replies');
         TableInstaller::install(
             "CREATE TABLE $replies (
@@ -123,18 +91,6 @@ final class DiscussionTables
                 KEY user_id (user_id)
             )"
         );
-
-        // The reply mtime was written and never read (the thread's
-        // bumped_at carries the activity stamp) — retired with the
-        // 0.102.0 likes batch. Upgrade databases drop it here; fresh
-        // installs never create it (dbDelta only adds).
-        if ($wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $replies, 'updated_at')) !== null) {
-            $drop = $wpdb->prepare('ALTER TABLE %i DROP COLUMN updated_at', $replies);
-            if (is_string($drop)) {
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared one line above
-                $wpdb->query($drop);
-            }
-        }
 
         $likes = TableInstaller::table('aiya_discussion_likes');
         TableInstaller::install(

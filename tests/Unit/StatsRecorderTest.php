@@ -107,7 +107,11 @@ namespace Aiya\Core\Tests\Unit {
             $watermark = get_option(StatsRecorder::OPTION_EXPIRY_WATERMARK);
             self::assertIsInt($watermark);
             self::assertGreaterThan(strtotime('2026-01-01 00:00:00 UTC'), $watermark, 'statistics start at install time');
-            self::assertNotContains('DROP COLUMN', $this->db->written, 'a fresh install has no retired column to drop');
+            self::assertNotContains(
+                'DROP COLUMN',
+                $this->db->written,
+                'the installer is a pure CREATE again: retired shapes belong to the 0.128.0 cleanup entry'
+            );
         }
 
         public function testInstallTablesNeverRewritesAnExistingWatermark(): void
@@ -119,51 +123,16 @@ namespace Aiya\Core\Tests\Unit {
             self::assertSame(12345, get_option(StatsRecorder::OPTION_EXPIRY_WATERMARK), 'the cursor is seeded once');
         }
 
-        public function testInstallTablesDropsTheRetiredFirstSeenColumn(): void
-        {
-            $this->db->activeHasFirstSeen = true;
-
-            (new StatsRecorder())->installTables();
-
-            $alters = array_values(array_filter(
-                $this->db->written,
-                static fn (string $sql): bool => str_contains($sql, 'DROP COLUMN')
-            ));
-            self::assertCount(1, $alters, 'the upgrade cleanup drops the retired column exactly once');
-            self::assertStringContainsString('DROP COLUMN first_seen', $alters[0]);
-        }
-
-        public function testInstallTablesDropsTheRetiredCostColumns(): void
-        {
-            $this->db->monthlyRetiredColumns = ['unit_cost', 'frozen'];
-
-            (new StatsRecorder())->installTables();
-
-            $alters = array_values(array_filter(
-                $this->db->written,
-                static fn (string $sql): bool => str_contains($sql, 'DROP COLUMN')
-            ));
-            self::assertCount(2, $alters, 'each retired cost column is dropped exactly once');
-            self::assertStringContainsString('DROP COLUMN unit_cost', $alters[0]);
-            self::assertStringContainsString('DROP COLUMN frozen', $alters[1]);
-        }
-
-        public function testInstallTablesRetiresTheOrphanRateOption(): void
+        public function testInstallTablesLeavesOptionRowsAlone(): void
         {
             $GLOBALS['__aiya_test_options']['aiya_core_operations'] = ['ops_unit_cost' => 0.5];
-            update_option(StatsRecorder::OPTION_EXPIRY_WATERMARK, 12345, false);
 
             (new StatsRecorder())->installTables();
 
-            self::assertArrayNotHasKey(
+            self::assertArrayHasKey(
                 'aiya_core_operations',
                 $GLOBALS['__aiya_test_options'],
-                'the retired rate option is dropped with the columns it fed'
-            );
-            self::assertSame(
-                12345,
-                get_option(StatsRecorder::OPTION_EXPIRY_WATERMARK),
-                'the expiry watermark is sweep state, not a setting — it must survive'
+                'retiring residue is the 0.128.0 cleanup entry\'s job, never the installer\'s'
             );
         }
 

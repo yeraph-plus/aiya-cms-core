@@ -35,9 +35,12 @@ namespace Aiya\Core\Tests\Unit {
      * probe, the expiry sweep's GROUP BY aggregation,
      * the entitlement queue's LEFT JOIN, the payment log's COALESCE read,
      * the outstanding-liability SUM, the advisory lock and the SHOW
-     * TABLES/COLUMNS verification installTables() relies on. Anything else
-     * is a counted no-op. Rows keep their stored order — no ORDER BY is
-     * simulated — so out-of-order seeds prove assertions never lean on it.
+     * TABLES/COLUMNS/INDEX verification the installers and the 0.128.0
+     * residue cleanup rely on. Anything else is a counted no-op. Rows keep
+     * their stored order — no ORDER BY is simulated — so out-of-order
+     * seeds prove assertions never lean on it. The DDL a cleanup pass
+     * issues is applied to the staged shapes, so a second pass is a
+     * genuine no-op rather than a replay of the first.
      */
     final class OperationsTestWpdb
     {
@@ -50,11 +53,14 @@ namespace Aiya\Core\Tests\Unit {
         /** Whether the expiry sweep's advisory lock answers granted. */
         public bool $expiryLockGranted = true;
 
-        /** Whether the MAU table still carries the retired first_seen column. */
-        public bool $activeHasFirstSeen = false;
+        /** @var list<string> plugin tables that already exist (the upgrade-database shape). */
+        public array $existingTables = [];
 
-        /** @var list<string> retired columns the monthly table still carries. */
-        public array $monthlyRetiredColumns = [];
+        /** @var array<string, list<string>> columns one existing table still carries, per table name. */
+        public array $existingColumns = [];
+
+        /** @var array<string, list<string>> indexes one existing table still carries, per table name. */
+        public array $existingIndexes = [];
 
         /** When true, dbDelta creates nothing (the transient DB hiccup shape). */
         public bool $schemaFails = false;
@@ -216,21 +222,21 @@ namespace Aiya\Core\Tests\Unit {
             }
             if (str_contains($sql, 'SHOW TABLES')) {
                 if (preg_match("/SHOW TABLES LIKE '([^']+)'/", $sql, $table) === 1) {
-                    return in_array($table[1], $this->createdTables, true) ? $table[1] : null;
+                    return $this->tableExists($table[1]) ? $table[1] : null;
                 }
 
                 return null;
             }
             if (str_contains($sql, 'SHOW COLUMNS')) {
                 if (preg_match("/SHOW COLUMNS FROM (\S+) LIKE '([^']+)'/", $sql, $column) === 1) {
-                    if ($column[1] === $this->activeTable) {
-                        return $this->activeHasFirstSeen && $column[2] === 'first_seen' ? $column[2] : null;
-                    }
-                    if ($column[1] === $this->monthlyTable) {
-                        return in_array($column[2], $this->monthlyRetiredColumns, true) ? $column[2] : null;
-                    }
+                    return in_array($column[2], $this->existingColumns[$column[1]] ?? [], true) ? $column[2] : null;
+                }
 
-                    return null;
+                return null;
+            }
+            if (str_contains($sql, 'SHOW INDEX')) {
+                if (preg_match("/SHOW INDEX FROM (\S+) WHERE Key_name = '([^']+)'/", $sql, $index) === 1) {
+                    return in_array($index[2], $this->existingIndexes[$index[1]] ?? [], true) ? $index[2] : null;
                 }
 
                 return null;
@@ -254,6 +260,12 @@ namespace Aiya\Core\Tests\Unit {
             }
 
             return null;
+        }
+
+        /** Whether a table is part of the simulated database. */
+        public function tableExists(string $table): bool
+        {
+            return in_array($table, array_merge($this->createdTables, $this->existingTables), true);
         }
 
         public function get_results(string $sql, mixed $output = null): array
@@ -287,7 +299,19 @@ namespace Aiya\Core\Tests\Unit {
                 return 1;
             }
             if (preg_match('/^ALTER TABLE (\S+) DROP COLUMN (\S+)$/', $sql, $drop) === 1) {
-                return 1; // recorded in $written for the install assertions
+                // Applied, not just recorded: the second cleanup pass has to
+                // meet a table that really no longer carries the column.
+                $this->existingColumns[$drop[1]] = array_values(array_diff($this->existingColumns[$drop[1]] ?? [], [$drop[2]]));
+
+                return 1;
+            }
+            if (preg_match('/^DROP INDEX (\S+) ON (\S+)$/', $sql, $drop) === 1) {
+                $this->existingIndexes[$drop[2]] = array_values(array_diff($this->existingIndexes[$drop[2]] ?? [], [$drop[1]]));
+
+                return 1;
+            }
+            if (preg_match('/^UPDATE (\S+) SET bumped_at = COALESCE\(last_reply_at, created_at\) WHERE bumped_at < \'([^\']+)\'$/', $sql, $update) === 1) {
+                return $this->backfillActivity($update[1], $update[2]);
             }
             if (preg_match('/^INSERT (IGNORE )?INTO (\S+) \(([^)]+)\) VALUES \(([^)]+)\)(?:\s+ON DUPLICATE KEY UPDATE (.+))?$/s', $sql, $insert) === 1) {
                 return $this->insert($insert);
@@ -404,6 +428,25 @@ namespace Aiya\Core\Tests\Unit {
             }
 
             return (float) $raw;
+        }
+
+        /**
+         * Applies the activity backfill the way MySQL would: only rows still
+         * below the epoch move, and they take the last reply (else creation).
+         * The epoch guard is what makes a second pass a row-level no-op.
+         */
+        private function backfillActivity(string $table, string $epoch): int
+        {
+            $touched = 0;
+            foreach ($this->rows[$table] ?? [] as $index => $row) {
+                if ((string) ($row['bumped_at'] ?? '') >= $epoch) {
+                    continue;
+                }
+                $this->rows[$table][$index]['bumped_at'] = $row['last_reply_at'] ?? $row['created_at'];
+                $touched++;
+            }
+
+            return $touched;
         }
 
         /**
