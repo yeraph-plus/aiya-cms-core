@@ -9,7 +9,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"PO-Revision-Date: 2026-10-10 12:55+0800\n"
+"PO-Revision-Date: 2026-10-10 13:10+0800\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
 
@@ -3543,6 +3543,14 @@ msgstr "代理（/p/）"
 
 msgid "Plain path"
 msgstr "纯路径"
+
+#: src/Runtime/SchemaVersionRunner.php:56
+msgid "AIYA Core could not apply a schema update."
+msgstr "AIYA Core 无法完成数据库结构更新。"
+
+#: src/Runtime/SchemaVersionRunner.php:58
+msgid "The site keeps running on the previous schema and retries on the next request."
+msgstr "站点继续按原结构运行，并在下次请求时自动重试。"
 
 msgid "A value is required."
 msgstr "此项必填。"

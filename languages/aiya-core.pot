@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-10T04:51:27+00:00\n"
+"POT-Creation-Date: 2026-10-10T05:08:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -5282,6 +5282,14 @@ msgstr ""
 
 #: src/Modules/OpenListModule.php:166
 msgid "Plain path"
+msgstr ""
+
+#: src/Runtime/SchemaVersionRunner.php:56
+msgid "AIYA Core could not apply a schema update."
+msgstr ""
+
+#: src/Runtime/SchemaVersionRunner.php:58
+msgid "The site keeps running on the previous schema and retries on the next request."
 msgstr ""
 
 #: src/Settings/ValueNormalizer.php:45

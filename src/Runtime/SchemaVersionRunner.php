@@ -12,7 +12,9 @@ use Aiya\Core\Contracts\Module;
  * aiya_core_schema_migrations filter as
  * ['version' => '0.9.0', 'callback' => callable] entries, sorted and applied
  * in ascending order; failures abort the run without advancing the stored
- * version so the next request retries.
+ * version so the next request retries, and surface twice: an aiya-core
+ * prefixed error_log line for operators and an admin notice for the
+ * administrator, both cleared by the next clean run.
  *
  * The stored marker lives in the aiya_core_schema_version option, written by
  * Plugin::activate() on fresh installs.
@@ -24,9 +26,37 @@ final class SchemaVersionRunner implements Module
     /** Advisory lock serialising concurrent migration runs across requests. */
     private const LOCK_NAME = 'aiya_core_schema_migration';
 
+    /** The last failure, written on abort and cleared by the next clean run. */
+    private const ERROR_OPTION = 'aiya_core_last_migration_error';
+
     public function register(): void
     {
         add_action('init', [$this, 'maybeRun'], 1);
+        add_action('admin_notices', [$this, 'noticeFailure']);
+    }
+
+    /**
+     * Shows the recorded failure to an administrator. A failed run leaves the
+     * site on its previous schema and retries on the next request, so this
+     * notice is where the failure becomes visible outside the operator log;
+     * the next clean run clears the marker and the notice with it.
+     */
+    public function noticeFailure(): void
+    {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        $failure = get_option(self::ERROR_OPTION);
+        if (!is_string($failure) || $failure === '') {
+            return;
+        }
+
+        echo '<div class="notice notice-error is-dismissible"><p>';
+        echo esc_html__('AIYA Core could not apply a schema update.', 'aiya-core');
+        echo ' <code>' . esc_html($failure) . '</code> ';
+        echo esc_html__('The site keeps running on the previous schema and retries on the next request.', 'aiya-core');
+        echo '</p></div>';
     }
 
     /**
@@ -70,18 +100,18 @@ final class SchemaVersionRunner implements Module
                 try {
                     call_user_func($migration['callback']);
                 } catch (\Throwable $error) {
-                    update_option(
-                        'aiya_core_last_migration_error',
-                        sprintf('[%s] %s', (string) $migration['version'], $error->getMessage()),
-                        false
-                    );
+                    $failure = sprintf('[%s] %s', (string) $migration['version'], $error->getMessage());
+                    update_option(self::ERROR_OPTION, $failure, false);
+
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+                    error_log('[aiya-core] Schema update failed ' . $failure);
 
                     return; // abort without advancing the stored version
                 }
             }
 
             update_option(self::OPTION_NAME, AIYA_CORE_VERSION, false);
-            delete_option('aiya_core_last_migration_error');
+            delete_option(self::ERROR_OPTION);
         } finally {
             $release = $wpdb->prepare('SELECT RELEASE_LOCK(%s)', self::LOCK_NAME);
             if (is_string($release)) {
