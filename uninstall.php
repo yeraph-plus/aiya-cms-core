@@ -21,7 +21,9 @@
  *
  * When purging, also removed: the plugin's own relation tables (favorites,
  * follows, auth tokens, notifications, discussions), aiya_core_* user-meta
- * residue and aiya_core_* transients/cron events.
+ * residue, the retired membership protocol meta (the sponsor_expiration
+ * family — no aiya_core_ prefix, so the LIKE sweep below never matched it)
+ * and aiya_core_* transients/cron events.
  *
  * Either answer also stages the heavyweight dependency directories (vendor,
  * node_modules, .git) out of the plugin directory with an instant
@@ -300,9 +302,17 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
         $run($wpdb->prepare('DROP TABLE IF EXISTS %i', $table));
     }
 
-    // The expiry-scan dedupe marker is plugin-era user meta with no
-    // other cleanup path; uninstall removes the residue.
-    foreach (['aiya_core_sponsor_state_noticed'] as $metaKey) {
+    // Plugin-era user meta with no other cleanup path: the expiry-scan
+    // dedupe marker, plus the three membership protocol keys the 0.86.0
+    // tier model retired. Those carry no aiya_core_ prefix, so the LIKE
+    // sweep below never matched them and a purge would leave the residue
+    // behind for whatever the site does next.
+    foreach ([
+        'aiya_core_sponsor_state_noticed',
+        'sponsor_expiration',
+        'aya_force_cancel_sponsor',
+        'aya_trigger_count_sponsor',
+    ] as $metaKey) {
         $run($wpdb->prepare('DELETE FROM %i WHERE meta_key = %s', $wpdb->usermeta, $metaKey));
     }
 
