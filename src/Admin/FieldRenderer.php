@@ -253,6 +253,19 @@ final class FieldRenderer
                 // save round-trip persists it — no server endpoint involved.
                 echo ' <button type="button" class="button aiya-core-key-generate" data-target="' . esc_attr($id) . '">' . esc_html__('Generate a random key', 'aiya-core') . '</button>';
             }
+            $toggleAction = (string) $field->setting('toggle_action', '');
+            if ($toggleAction !== '') {
+                // The row's own server action. Nothing is read from the
+                // platform at render time — the page never waits on an
+                // outbound call — so the button answers with its verdict
+                // and the fresh state on the click.
+                echo ' <button type="button" class="button aiya-core-toggle-action"'
+                    . ' data-action="' . esc_attr($toggleAction) . '"'
+                    . ' data-nonce="' . esc_attr(wp_create_nonce($toggleAction)) . '">'
+                    . esc_html((string) $field->setting('toggle_label', __('Test and toggle', 'aiya-core')))
+                    . '</button>';
+                echo '<span class="aiya-core-toggle-status" role="status"></span>';
+            }
             if ($hasValue) {
                 echo '<label class="aiya-core-secret-clear"><input type="checkbox" name="clear_secrets[' . esc_attr($field->id()) . ']" value="1"> ' . esc_html__('Clear the stored value', 'aiya-core') . '</label>';
             }

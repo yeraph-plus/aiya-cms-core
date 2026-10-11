@@ -21,6 +21,14 @@ final class TelegramSettings
      */
     public const SECRET_OPTION = 'aiya_core_tg_webhook_secret';
 
+    /**
+     * The admin-ajax action the settings page's token-row button posts to
+     * (the endpoint lives in Modules\TelegramWebhookModule). It sits here,
+     * beside the page slug, so the domain can name the button's action
+     * without reaching into the transport layer.
+     */
+    public const WEBHOOK_ACTION = 'aiya_core_tg_webhook';
+
     public static function botToken(): string
     {
         return trim((string) aiya_core_opt(self::PAGE_SLUG, 'tg_bot_token', ''));

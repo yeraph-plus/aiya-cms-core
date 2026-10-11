@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
+use Aiya\Core\Domain\Telegram\TelegramBot;
 use Aiya\Core\Domain\Telegram\TelegramSettings;
 use Aiya\Core\Domain\Telegram\UpdateProcessor;
+use Aiya\Infra\Telegram\Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -18,6 +20,11 @@ use WP_REST_Response;
  * byte-for-byte; no IP trust is involved, so the deployment's proxy
  * posture never decides this endpoint's verdict.
  *
+ * A push whose secret token is missing or stale is the one answer that is
+ * not a 200: it is rejected 403 and reported through
+ * aiya_core_telegram_error, so a webhook the site stopped accepting is
+ * visible instead of looking like a bot that went quiet.
+ *
  * The body processes inline (route volume is a private site's trickle) and
  * answers 200 whatever the payload turns out to be — the storage-side
  * unique keys of the routes keep a platform replay idempotent, and a 4xx
@@ -26,6 +33,15 @@ use WP_REST_Response;
 final class TelegramWebhookController
 {
     public const API_NAMESPACE = 'aiya/telegram/v1';
+
+    /**
+     * The canonical URL this route is reached at: the one string the
+     * platform's registration and every health check compare against.
+     */
+    public static function url(): string
+    {
+        return rest_url(self::API_NAMESPACE . '/webhook');
+    }
 
     private UpdateProcessor $processor;
 
@@ -57,6 +73,14 @@ final class TelegramWebhookController
         $secret = TelegramSettings::webhookSecret();
         $given = (string) $request->get_header('X-Telegram-Bot-Api-Secret-Token');
         if ($secret === '' || !hash_equals($secret, $given)) {
+            TelegramBot::report('webhook', new Error(
+                Error::REJECTED,
+                $secret === ''
+                    ? 'No webhook secret is stored - register the webhook with `wp aiya telegram set-webhook`.'
+                    : 'The push carried a secret token that does not match the stored one.',
+                403
+            ));
+
             return new WP_REST_Response(['ok' => false], 403);
         }
 

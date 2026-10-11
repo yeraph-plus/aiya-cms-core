@@ -430,6 +430,35 @@
                     input.select();
                 });
             });
+            $scope.find('.aiya-core-toggle-action').not('[data-aiya-ready]').each(function () {
+                $(this).attr('data-aiya-ready', '1').on('click', function () {
+                    const $button = $(this);
+                    const $status = $button.next('.aiya-core-toggle-status');
+                    $button.prop('disabled', true);
+                    $status.text('...');
+                    $.post(window.ajaxurl, {
+                        action: $button.attr('data-action'),
+                        nonce: $button.attr('data-nonce')
+                    }, null, 'json').done(function (res) {
+                        if (!res || !res.success) {
+                            $status.text((res && res.data && res.data.message) || 'The request failed.');
+                            return;
+                        }
+                        const parts = [res.data.message];
+                        if (res.data.pending !== null && res.data.pending !== undefined) {
+                            parts.push('Pending updates: ' + res.data.pending);
+                        }
+                        if (res.data.last_error) {
+                            parts.push('Last delivery error: ' + res.data.last_error);
+                        }
+                        $status.text(parts.join(' | '));
+                    }).fail(function () {
+                        $status.text('The request failed.');
+                    }).always(function () {
+                        $button.prop('disabled', false);
+                    });
+                });
+            });
             if (wp.codeEditor && window.aiyaCoreAdmin?.codeEditors) {
                 $scope.find('.aiya-core-code').not('[data-aiya-ready]').each(function () {
                     const mime = $(this).data('code-mime') || 'text/css';

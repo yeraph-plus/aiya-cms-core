@@ -8,6 +8,7 @@ use Aiya\Core\Api\Rest\TelegramWebhookController;
 use Aiya\Core\Domain\Telegram\TelegramBot;
 use Aiya\Core\Domain\Telegram\TelegramSettings;
 use Aiya\Core\Domain\Telegram\UpdateProcessor;
+use Aiya\Core\Domain\Telegram\WebhookRegistrar;
 use Aiya\Infra\Telegram\Client;
 use Aiya\Infra\Telegram\Error;
 
@@ -31,6 +32,7 @@ final class TelegramCommand
         \WP_CLI::add_command('aiya telegram poll', [self::class, 'poll']);
         \WP_CLI::add_command('aiya telegram set-webhook', [self::class, 'set_webhook']);
         \WP_CLI::add_command('aiya telegram delete-webhook', [self::class, 'delete_webhook']);
+        \WP_CLI::add_command('aiya telegram status', [self::class, 'status']);
         \WP_CLI::add_command('aiya telegram send-test', [self::class, 'send_test']);
     }
 
@@ -64,7 +66,7 @@ final class TelegramCommand
             $updates = $client->getUpdates([
                 'offset' => $offset,
                 'timeout' => 25,
-                'allowed_updates' => ['message', 'channel_post', 'edited_channel_post', 'my_chat_member'],
+                'allowed_updates' => WebhookRegistrar::ALLOWED_UPDATES,
             ]);
             if ($updates instanceof Error) {
                 TelegramBot::report('poll', $updates);
@@ -112,26 +114,17 @@ final class TelegramCommand
     // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WP-CLI hands every callback ($args, $assocArgs); this command reads neither.
     public static function set_webhook(array $args, array $assocArgs): void
     {
-        $secret = TelegramSettings::webhookSecret();
-        if ($secret === '') {
-            $secret = bin2hex(random_bytes(16));
-            TelegramSettings::storeSecret($secret);
-            \WP_CLI::log('Generated a new webhook secret token.');
-        }
-
         $client = self::requireClient();
-        $url = rest_url(TelegramWebhookController::API_NAMESPACE . '/webhook');
-        $result = $client->setWebhook([
-            'url' => $url,
-            'secret_token' => $secret,
-            'allowed_updates' => ['message', 'channel_post', 'edited_channel_post', 'my_chat_member'],
-            'drop_pending_updates' => true,
-        ]);
-        if ($result instanceof Error) {
-            TelegramBot::report('set-webhook', $result);
-            \WP_CLI::error('setWebhook failed: ' . $result->message);
+        $minted = TelegramSettings::webhookSecret() === '';
+        $url = TelegramWebhookController::url();
+        $error = (new WebhookRegistrar($client))->register($url, true);
+        if ($error !== null) {
+            \WP_CLI::error('setWebhook failed: ' . $error->message);
 
             return;
+        }
+        if ($minted) {
+            \WP_CLI::log('Generated a new webhook secret token.');
         }
 
         \WP_CLI::success('Webhook registered: ' . $url);
@@ -149,15 +142,73 @@ final class TelegramCommand
     public static function delete_webhook(array $args, array $assocArgs): void
     {
         $client = self::requireClient();
-        $result = $client->deleteWebhook(['drop_pending_updates' => true]);
-        if ($result instanceof Error) {
-            TelegramBot::report('delete-webhook', $result);
-            \WP_CLI::error('deleteWebhook failed: ' . $result->message);
+        $error = (new WebhookRegistrar($client))->unregister(true);
+        if ($error !== null) {
+            \WP_CLI::error('deleteWebhook failed: ' . $error->message);
 
             return;
         }
 
         \WP_CLI::success('Webhook removed; pending updates dropped.');
+    }
+
+    /**
+     * The pull chain's health check: the platform's own webhook record
+     * read back next to what this site expects to have registered. A bot
+     * that stopped receiving while its pushes still work is almost
+     * always this call's answer - no url at all (never registered, or
+     * dropped by a setWebhook run somewhere else), a url that is not
+     * this site's REST route, or a last_error_message from the
+     * platform's delivery attempts.
+     *
+     * @param list<string>          $args
+     * @param array<string, string> $assocArgs
+     */
+    // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WP-CLI hands every callback ($args, $assocArgs); this command reads neither.
+    public static function status(array $args, array $assocArgs): void
+    {
+        $client = self::requireClient();
+        $info = (new WebhookRegistrar($client))->info();
+        if (!is_array($info)) {
+            \WP_CLI::error($info instanceof Error
+                ? 'getWebhookInfo failed (' . $info->code . '): ' . $info->message
+                : 'getWebhookInfo returned nothing.');
+
+            return;
+        }
+
+        $expected = TelegramWebhookController::url();
+        $url = is_string($info['url'] ?? null) ? $info['url'] : '';
+        $pending = $info['pending_update_count'] ?? null;
+        $allowed = array_values(array_filter(
+            is_array($info['allowed_updates'] ?? null) ? $info['allowed_updates'] : [],
+            'is_string'
+        ));
+
+        \WP_CLI::log('Expected URL   : ' . $expected);
+        \WP_CLI::log('Registered URL : ' . ($url === '' ? '(none)' : $url));
+        \WP_CLI::log('Secret stored  : ' . (TelegramSettings::webhookSecret() === '' ? 'no' : 'yes'));
+        \WP_CLI::log('Pending updates: ' . (is_int($pending) ? (string) $pending : '?'));
+        \WP_CLI::log('Allowed updates: ' . ($allowed === [] ? '(platform default)' : implode(', ', $allowed)));
+
+        if (is_int($info['last_error_date'] ?? null)) {
+            $message = is_string($info['last_error_message'] ?? null) ? $info['last_error_message'] : '';
+            \WP_CLI::warning(sprintf(
+                'Last delivery error at %s UTC: %s',
+                gmdate('Y-m-d H:i:s', (int) $info['last_error_date']),
+                $message
+            ));
+        }
+
+        if ($url === '') {
+            \WP_CLI::warning('No webhook is registered - nothing is pushing updates to this site. Run `wp aiya telegram set-webhook`.');
+
+            return;
+        }
+
+        if (rtrim($url, '/') !== rtrim($expected, '/')) {
+            \WP_CLI::warning('The registered URL is not this site\'s REST route - re-register it, or check the host the platform actually reaches.');
+        }
     }
 
     /**

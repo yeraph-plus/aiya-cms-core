@@ -56,6 +56,7 @@ use Aiya\Core\Domain\Credit\LedgerService;
 use Aiya\Core\Domain\Engagement\CounterService;
 use Aiya\Core\Domain\Identity\AvatarModule;
 use Aiya\Core\Modules\AvatarAjaxModule;
+use Aiya\Core\Modules\TelegramWebhookModule;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\IdentityModule;
 use Aiya\Core\Domain\Integrations\IntegrationsModule;
@@ -208,6 +209,7 @@ final class Plugin
             new FeedIngestor(new TelegramImageStore($media->paths(), $media->store()))
         );
         $this->addModule(new TelegramModule($this->settings));
+        $this->addModule(new TelegramWebhookModule());
 
         // The card part reads a post through the Api-layer projection, so
         // the composition root injects that renderer; it needs the media

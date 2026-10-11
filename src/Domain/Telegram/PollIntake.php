@@ -49,7 +49,7 @@ class PollIntake
             // webhook, the CLI poll), the platform reuses that list for
             // param-less polls — and the discovery registry needs
             // my_chat_member, which the route whitelists never consume.
-            'allowed_updates' => ['message', 'channel_post', 'edited_channel_post', 'my_chat_member'],
+            'allowed_updates' => WebhookRegistrar::ALLOWED_UPDATES,
         ]);
         if ($updates instanceof Error) {
             // A 409 here means another intake (a webhook registration or

@@ -122,6 +122,20 @@ final class Client
     }
 
     /**
+     * The platform's own record of this bot's webhook: url, the pending
+     * update count, last_error_date/last_error_message and the allowed
+     * update list. The one call that answers "is anything actually
+     * pushing to this site, and if not, why not" - setWebhook answers
+     * nothing about whether the registration survived.
+     *
+     * @return array<int|string, mixed>|Error The WebhookInfo object on success.
+     */
+    public function getWebhookInfo(): array|Error
+    {
+        return $this->call('getWebhookInfo', []);
+    }
+
+    /**
      * The pull intake, mutually exclusive with an active webhook platform-
      * side. The params carry the long-poll hold window as `timeout`; the
      * wire timeout lifts past it automatically.

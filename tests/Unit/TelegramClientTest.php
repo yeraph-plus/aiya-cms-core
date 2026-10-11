@@ -151,6 +151,25 @@ final class TelegramClientTest extends TestCase
         self::assertStringEndsWith('/bot123:abc/deleteWebhook', $urls[2]);
     }
 
+    public function testTheWebhookInfoCallReadsThePlatformsOwnRecord(): void
+    {
+        $url = null;
+        $client = $this->client(function (string $u, string $body, int $timeout) use (&$url): ?array {
+            $url = $u;
+
+            return ['status' => 200, 'body' => '{"ok":true,"result":{"url":"","pending_update_count":30,"allowed_updates":["message"]}}'];
+        });
+
+        $info = $client->getWebhookInfo();
+
+        self::assertStringEndsWith('/bot123:abc/getWebhookInfo', (string) $url);
+        self::assertSame(
+            ['url' => '', 'pending_update_count' => 30, 'allowed_updates' => ['message']],
+            $info,
+            'the health check reads the platform record straight through'
+        );
+    }
+
     public function testTheFileUrlBuildsTheTokenizedDownloadPath(): void
     {
         $client = new Client('123:abc', fn (): ?array => null);
