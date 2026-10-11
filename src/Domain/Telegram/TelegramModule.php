@@ -101,9 +101,10 @@ final class TelegramModule implements Module
                     'description' => __('From @BotFather. Stored server-side and never exposed.', 'aiya-core'),
                     'default' => '',
                     // The row's own server action: one click probes the bot
-                    // and flips the platform-side webhook registration.
+                    // and flips the platform-side webhook registration;
+                    // the verdict comes back as a page notice.
                     'toggle_action' => TelegramSettings::WEBHOOK_ACTION,
-                    'toggle_label' => __('Test and toggle the webhook', 'aiya-core'),
+                    'toggle_label' => __('Connect bot', 'aiya-core'),
                 ],
                 [
                     'id' => 'tg_heading_push',

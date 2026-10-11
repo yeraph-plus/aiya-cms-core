@@ -433,27 +433,17 @@
             $scope.find('.aiya-core-toggle-action').not('[data-aiya-ready]').each(function () {
                 $(this).attr('data-aiya-ready', '1').on('click', function () {
                     const $button = $(this);
-                    const $status = $button.next('.aiya-core-toggle-status');
                     $button.prop('disabled', true);
-                    $status.text('...');
                     $.post(window.ajaxurl, {
                         action: $button.attr('data-action'),
                         nonce: $button.attr('data-nonce')
                     }, null, 'json').done(function (res) {
-                        if (!res || !res.success) {
-                            $status.text((res && res.data && res.data.message) || 'The request failed.');
-                            return;
-                        }
-                        const parts = [res.data.message];
-                        if (res.data.pending !== null && res.data.pending !== undefined) {
-                            parts.push('Pending updates: ' + res.data.pending);
-                        }
-                        if (res.data.last_error) {
-                            parts.push('Last delivery error: ' + res.data.last_error);
-                        }
-                        $status.text(parts.join(' | '));
-                    }).fail(function () {
-                        $status.text('The request failed.');
+                        placeEndpointNotice(res && res.data ? res.data.notice : '');
+                    }).fail(function (xhr) {
+                        // A refused request (no capability) still answers
+                        // with the same envelope, under a 4xx status.
+                        const data = xhr && xhr.responseJSON ? xhr.responseJSON.data : null;
+                        placeEndpointNotice(data && data.notice ? data.notice : '');
                     }).always(function () {
                         $button.prop('disabled', false);
                     });
@@ -494,6 +484,32 @@
             }
         }
     }, true);
+
+    // Endpoint notices: a row action's endpoint renders its verdict
+    // through the kit's own banner, and the script drops it where the page
+    // prints its save feedback — right under the page heading — replacing
+    // whatever the previous click left there.
+    function placeEndpointNotice(html) {
+        const $page = $('.aiya-core-settings').first();
+        if (!$page.length) {
+            return;
+        }
+        $page.find('[data-aiya-endpoint-notice]').remove();
+        if (!html) {
+            return;
+        }
+        const $notice = $('<div>').attr('data-aiya-endpoint-notice', '1').html(html);
+        const $heading = $page.children('h1').first();
+        if ($heading.length) {
+            $heading.after($notice);
+        } else {
+            $page.prepend($notice);
+        }
+        const text = $notice.text();
+        if (text && wp.a11y && wp.a11y.speak) {
+            wp.a11y.speak(text);
+        }
+    }
 
     // Danger confirmation (Ui::confirmModal): destructive forms carry
     // data-aiya-confirm pointing at their modal shell. The submit is held,

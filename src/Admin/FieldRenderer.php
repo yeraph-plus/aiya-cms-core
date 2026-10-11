@@ -257,14 +257,13 @@ final class FieldRenderer
             if ($toggleAction !== '') {
                 // The row's own server action. Nothing is read from the
                 // platform at render time — the page never waits on an
-                // outbound call — so the button answers with its verdict
-                // and the fresh state on the click.
+                // outbound call — so the click comes back as a page
+                // notice the behavior layer drops under the heading.
                 echo ' <button type="button" class="button aiya-core-toggle-action"'
                     . ' data-action="' . esc_attr($toggleAction) . '"'
                     . ' data-nonce="' . esc_attr(wp_create_nonce($toggleAction)) . '">'
-                    . esc_html((string) $field->setting('toggle_label', __('Test and toggle', 'aiya-core')))
+                    . esc_html((string) $field->setting('toggle_label', __('Connect', 'aiya-core')))
                     . '</button>';
-                echo '<span class="aiya-core-toggle-status" role="status"></span>';
             }
             if ($hasValue) {
                 echo '<label class="aiya-core-secret-clear"><input type="checkbox" name="clear_secrets[' . esc_attr($field->id()) . ']" value="1"> ' . esc_html__('Clear the stored value', 'aiya-core') . '</label>';

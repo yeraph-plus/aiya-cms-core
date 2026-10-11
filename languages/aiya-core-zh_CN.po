@@ -543,6 +543,9 @@ msgstr "已存有值；留空即保持不变"
 msgid "Generate a random key"
 msgstr "生成随机密钥"
 
+msgid "Connect"
+msgstr "连接"
+
 msgid "Clear the stored value"
 msgstr "清除已存值"
 
@@ -705,14 +708,50 @@ msgstr "运营看板"
 msgid "You are not allowed to view the operations dashboard."
 msgstr "您无权查看运营看板"
 
-msgid "Enter a valid number."
-msgstr "请输入有效数字。"
+msgid "One month's credit flow, membership and traffic, with the trailing year behind it."
+msgstr "单月积分流水、会员与流量，背后附近一年趋势。"
 
 msgid "Month"
 msgstr "月份"
 
 msgid "Indicators — %s"
 msgstr "指标 — %s"
+
+msgid "Consumption rate"
+msgstr "积分消耗率"
+
+msgid "Consumed against granted this month."
+msgstr "本月消耗占发放的比例。"
+
+msgid "Cash collected"
+msgstr "实收"
+
+msgid "Payments received in the month."
+msgstr "本月实际收到的付款。"
+
+msgid "Paying users"
+msgstr "付费用户"
+
+msgid "Covered holders whose order was actually paid."
+msgstr "有效期内且订单已实付的用户。"
+
+msgid "Downloads"
+msgstr "下载次数"
+
+msgid "Files delivered, charged or free."
+msgstr "已交付的文件数，扣费与免费均算。"
+
+msgid "Outstanding credits"
+msgstr "未消耗积分"
+
+msgid "What every holder could still spend right now."
+msgstr "所有持有者当前仍可消耗的积分。"
+
+msgid "Detail tables"
+msgstr "明细表"
+
+msgid "Volume"
+msgstr "用量"
 
 msgid "Credits granted"
 msgstr "发放积分"
@@ -726,8 +765,8 @@ msgstr "消耗积分"
 msgid "Credits expired"
 msgstr "过期积分"
 
-msgid "Downloads"
-msgstr "下载次数"
+msgid "Users"
+msgstr "用户"
 
 msgid "Active users"
 msgstr "活跃用户"
@@ -738,14 +777,8 @@ msgstr "会员"
 msgid "Holders whose membership covers this month, codes included."
 msgstr "该月处于会员有效期内的用户，含兑换码持有者。"
 
-msgid "Paying users"
-msgstr "付费用户"
-
-msgid "Covered holders whose order was actually paid."
-msgstr "有效期内且订单已实付的用户。"
-
-msgid "Cash collected"
-msgstr "实收"
+msgid "Revenue"
+msgstr "收入"
 
 msgid "Recognized revenue"
 msgstr "确认收入"
@@ -753,14 +786,8 @@ msgstr "确认收入"
 msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once and its months sum back to the order total. Booked revenue for the month — not a forward-looking MRR run rate."
 msgstr "订单金额按服务周期摊分，多周期购买不会一次性入账，各月之和回到订单总额。这是当月确认收入，而非前瞻性的 MRR 运行率。"
 
-msgid "Outstanding credits"
-msgstr "未消耗积分"
-
-msgid "What every holder could still spend right now — the report's liability figure."
-msgstr "当前所有用户仍可消费的积分总额，即报告的积分负债。"
-
-msgid "Consumption rate"
-msgstr "积分消耗率"
+msgid "Efficiency"
+msgstr "效率"
 
 msgid "Expiry rate"
 msgstr "过期率"
@@ -774,8 +801,17 @@ msgstr "付费用户平均下载量"
 msgid "Revenue per paying user"
 msgstr "每个付费用户带来的收入"
 
+msgid "Liability"
+msgstr "负债"
+
+msgid "What every holder could still spend right now — the report's liability figure."
+msgstr "当前所有用户仍可消费的积分总额，即报告的积分负债。"
+
 msgid "Trailing 12 months"
 msgstr "近 12 个月趋势"
+
+msgid "Grants by source"
+msgstr "发放来源"
 
 msgid "Granted"
 msgstr "发放"
@@ -789,8 +825,11 @@ msgstr "实收"
 msgid "Recognized"
 msgstr "确认收入"
 
-msgid "Grants by source"
-msgstr "发放来源"
+msgid "Revenue basis"
+msgstr "收入口径"
+
+msgid "User funnel"
+msgstr "用户漏斗"
 
 msgid "Codes"
 msgstr "兑换码"
@@ -800,6 +839,10 @@ msgstr "手动"
 
 msgid "Total"
 msgstr "合计"
+
+msgctxt "month label"
+msgid "F Y"
+msgstr "Y年n月"
 
 msgid "Template parts"
 msgstr "模板零件"
@@ -3061,6 +3104,9 @@ msgstr "Bot token"
 msgid "From @BotFather. Stored server-side and never exposed."
 msgstr "来自 @BotFather，仅存服务端、永不外显"
 
+msgid "Connect bot"
+msgstr "连接 Bot"
+
 msgid "Publish push"
 msgstr "发布推送"
 
@@ -3544,16 +3590,38 @@ msgstr "代理（/p/）"
 msgid "Plain path"
 msgstr "纯路径"
 
-#: src/Runtime/SchemaVersionRunner.php:56
+msgid "You are not allowed to manage the Telegram webhook."
+msgstr "您无权管理 Telegram webhook。"
+
+msgid "Bot check failed: %s"
+msgstr "Bot 检查失败：%s"
+
+msgid "No bot token is configured."
+msgstr "尚未配置 Bot token"
+
+msgid "Bot connected."
+msgstr "Bot 已连接"
+
+msgid "Connect failed: %s"
+msgstr "连接失败：%s"
+
+msgid "Bot disconnected."
+msgstr "Bot 已断开"
+
+msgid "Disconnect failed: %s"
+msgstr "断开失败：%s"
+
 msgid "AIYA Core could not apply a schema update."
 msgstr "AIYA Core 无法完成数据库结构更新。"
 
-#: src/Runtime/SchemaVersionRunner.php:58
 msgid "The site keeps running on the previous schema and retries on the next request."
 msgstr "站点继续按原结构运行，并在下次请求时自动重试。"
 
 msgid "A value is required."
 msgstr "此项必填。"
+
+msgid "Enter a valid number."
+msgstr "请输入有效数字。"
 
 msgid "The minimum value is %s."
 msgstr "最小值为 %s。"
@@ -3609,45 +3677,3 @@ msgstr "vendor/ 等大型依赖目录会被瞬时移出、避免删除过程长�
 msgid "Cancel, back to the plugin list"
 msgstr "取消，返回插件列表"
 
-msgid "One month's credit flow, membership and traffic, with the trailing year behind it."
-msgstr "单月积分流水、会员与流量，背后附近一年趋势。"
-
-msgid "Consumed against granted this month."
-msgstr "本月消耗占发放的比例。"
-
-msgid "Payments received in the month."
-msgstr "本月实际收到的付款。"
-
-msgid "Files delivered, charged or free."
-msgstr "已交付的文件数，扣费与免费均算。"
-
-msgid "What every holder could still spend right now."
-msgstr "所有持有者当前仍可消耗的积分。"
-
-msgid "Detail tables"
-msgstr "明细表"
-
-msgid "Volume"
-msgstr "用量"
-
-msgid "Users"
-msgstr "用户"
-
-msgid "Revenue"
-msgstr "收入"
-
-msgid "Efficiency"
-msgstr "效率"
-
-msgid "Liability"
-msgstr "负债"
-
-msgid "Revenue basis"
-msgstr "收入口径"
-
-msgid "User funnel"
-msgstr "用户漏斗"
-
-msgctxt "month label"
-msgid "F Y"
-msgstr "Y年n月"
