@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.131.0\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.132.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-10T05:08:54+00:00\n"
+"POT-Creation-Date: 2026-10-11T07:23:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -869,7 +869,7 @@ msgid "Select media"
 msgstr ""
 
 #: src/Admin/FieldRenderer.php:216
-#: src/Admin/FieldRenderer.php:326
+#: src/Admin/FieldRenderer.php:339
 msgid "Remove"
 msgstr ""
 
@@ -885,19 +885,23 @@ msgstr ""
 msgid "Generate a random key"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:257
+#: src/Admin/FieldRenderer.php:265
+msgid "Test and toggle"
+msgstr ""
+
+#: src/Admin/FieldRenderer.php:270
 msgid "Clear the stored value"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:281
+#: src/Admin/FieldRenderer.php:294
 msgid "Add item"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:303
+#: src/Admin/FieldRenderer.php:316
 msgid "(no title)"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:328
+#: src/Admin/FieldRenderer.php:341
 msgid "Confirm delete?"
 msgstr ""
 
@@ -1843,9 +1847,9 @@ msgstr ""
 
 #: src/Admin/SamplePage.php:259
 #: src/Domain/Membership/MembershipModule.php:106
-#: src/Domain/Telegram/TelegramModule.php:113
-#: src/Domain/Telegram/TelegramModule.php:140
-#: src/Domain/Telegram/TelegramModule.php:190
+#: src/Domain/Telegram/TelegramModule.php:117
+#: src/Domain/Telegram/TelegramModule.php:144
+#: src/Domain/Telegram/TelegramModule.php:194
 msgid "Enabled"
 msgstr ""
 
@@ -4633,95 +4637,99 @@ msgstr ""
 msgid "From @BotFather. Stored server-side and never exposed."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:107
+#: src/Domain/Telegram/TelegramModule.php:106
+msgid "Test and toggle the webhook"
+msgstr ""
+
+#: src/Domain/Telegram/TelegramModule.php:111
 msgid "Publish push"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:114
+#: src/Domain/Telegram/TelegramModule.php:118
 msgid "Push published posts and resources to the target chat, editing the sent message in place on update"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:120
+#: src/Domain/Telegram/TelegramModule.php:124
 msgid "Push target"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:121
+#: src/Domain/Telegram/TelegramModule.php:125
 msgid "Numeric chat id or @channelusername the publish/update notices go to."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:127
+#: src/Domain/Telegram/TelegramModule.php:131
 msgid "Message template"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:128
+#: src/Domain/Telegram/TelegramModule.php:132
 msgid "The push message body in Telegram HTML. Placeholders: {front} the front-end origin, {type} and {slug} the post's public type and slug, {id}, {title}, {excerpt}, {tags} and {categories} display names with a # prefix, {date}, {author}. Links are yours to compose from {front}, {type} and {slug}; the backend keeps no front-end route shapes. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:134
+#: src/Domain/Telegram/TelegramModule.php:138
 msgid "Channel mirror"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:141
+#: src/Domain/Telegram/TelegramModule.php:145
 msgid "Ingest the source channels' posts into the mirror feed (images transfer into the image pool; videos and files surface as t.me links)"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:147
+#: src/Domain/Telegram/TelegramModule.php:151
 msgid "Source channels"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:148
+#: src/Domain/Telegram/TelegramModule.php:152
 msgid "The channels mirrored into the web feed, one row each: an optional display title (the feed prefers it over the channel's own name), the channel's numeric id or @username, and the NSFW mark the row carries into the feed. Posts from any other chat are dropped. A private channel's t.me links only open for its members."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:154
+#: src/Domain/Telegram/TelegramModule.php:158
 msgid "Display title"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:160
+#: src/Domain/Telegram/TelegramModule.php:164
 msgid "Channel id or @username"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:167
+#: src/Domain/Telegram/TelegramModule.php:171
 msgid "NSFW"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:175
+#: src/Domain/Telegram/TelegramModule.php:179
 msgid "Clear the local mirror"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:176
+#: src/Domain/Telegram/TelegramModule.php:180
 msgid "Delete every mirrored row and its transferred images on this save"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:177
+#: src/Domain/Telegram/TelegramModule.php:181
 msgid "The mirror is one-way: the channel is the source of truth and this table only holds the local copy. Cleared rows never come back — the platform cannot replay channel history, so the feed refills from new channel posts only. The support relay's messages live in their own table and stay."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:184
+#: src/Domain/Telegram/TelegramModule.php:188
 msgid "Support relay"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:191
+#: src/Domain/Telegram/TelegramModule.php:195
 msgid "Relay the web support chat into your private chat with the bot, and your replies back to the web"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:197
+#: src/Domain/Telegram/TelegramModule.php:201
 msgid "Owner chat id"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:198
+#: src/Domain/Telegram/TelegramModule.php:202
 msgid "Your private chat with the bot. Send /status there and the bot replies with the id; only replies to relayed visitor messages flow back to the web."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:204
+#: src/Domain/Telegram/TelegramModule.php:208
 msgid "Clear the relay history"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:205
+#: src/Domain/Telegram/TelegramModule.php:209
 msgid "Delete every relayed conversation on this save"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:206
+#: src/Domain/Telegram/TelegramModule.php:210
 msgid "The web thread is the source of truth for the support chat: this erases the visitors' messages, your replies and the Telegram bindings in one go, and old bot copies in your chat stop routing replies back. The mirror feed's table is a different one and stays."
 msgstr ""
 
@@ -5282,6 +5290,44 @@ msgstr ""
 
 #: src/Modules/OpenListModule.php:166
 msgid "Plain path"
+msgstr ""
+
+#: src/Modules/TelegramWebhookModule.php:35
+msgid "You are not allowed to manage the Telegram webhook."
+msgstr ""
+
+#. translators: 1: package error code, 2: the platform's message.
+#: src/Modules/TelegramWebhookModule.php:46
+#, php-format
+msgid "getWebhookInfo failed (%1$s): %2$s"
+msgstr ""
+
+#: src/Modules/TelegramWebhookModule.php:50
+msgid "No bot token is configured."
+msgstr ""
+
+#. translators: %s: the webhook URL now registered.
+#: src/Modules/TelegramWebhookModule.php:63
+#, php-format
+msgid "Webhook registered: %s"
+msgstr ""
+
+#. translators: %s: the platform's error message.
+#: src/Modules/TelegramWebhookModule.php:68
+#, php-format
+msgid "setWebhook failed: %s"
+msgstr ""
+
+#. translators: %s: the webhook URL that was removed.
+#: src/Modules/TelegramWebhookModule.php:77
+#, php-format
+msgid "Webhook removed (was %s). The pending updates stay on the platform until an intake reads them."
+msgstr ""
+
+#. translators: %s: the platform's error message.
+#: src/Modules/TelegramWebhookModule.php:82
+#, php-format
+msgid "deleteWebhook failed: %s"
 msgstr ""
 
 #: src/Runtime/SchemaVersionRunner.php:56
