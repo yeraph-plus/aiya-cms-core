@@ -181,11 +181,14 @@ final class OperationsPage implements Module
         $quick = $this->monthChoices($current, self::QUICK_MONTHS, $month);
         $year = substr($month, 0, 4);
         $part = (string) (int) substr($month, 5, 2);
-        $years = $this->yearChoices($current, $year);
+        $years = [];
+        foreach ($this->yearChoices($current, $year) as $candidate) {
+            $years[$candidate] = $this->yearLabel((string) $candidate);
+        }
 
         $months = [];
         foreach (range(1, 12) as $number) {
-            $months[(string) $number] = $this->monthLabel(sprintf('%04d-%02d', (int) $year, $number));
+            $months[(string) $number] = $this->monthOptionLabel((int) $year, $number);
         }
 
         $base = admin_url('admin.php?page=' . self::MENU_SLUG);
@@ -198,7 +201,7 @@ final class OperationsPage implements Module
                     href="<?php echo esc_url(add_query_arg('month', $option, $base)); ?>"><?php echo esc_html($this->monthLabel($option)); ?></a>
             <?php endforeach; ?>
             <?php
-            Ui::select('year', $years, $year, ['label' => __('Month', 'aiya-core')]);
+            Ui::select('year', $years, $year, ['label' => __('Year', 'aiya-core')]);
             Ui::select('month', $months, $part, ['label' => __('Month', 'aiya-core')]);
         }, ['page' => self::MENU_SLUG]);
     }
@@ -604,6 +607,37 @@ final class OperationsPage implements Module
         return (string) wp_date(
             /* translators: month label format, e.g. September 2026 */
             _x('F Y', 'month label', 'aiya-core'),
+            $anchor->getTimestamp()
+        );
+    }
+
+    /**
+     * A year key as a picker option label. Only the format is
+     * translated: English reads the bare number, zh_CN appends 年.
+     */
+    private function yearLabel(string $year): string
+    {
+        $anchor = new \DateTimeImmutable($year . '-01-01 00:00:00', wp_timezone());
+
+        return (string) wp_date(
+            /* translators: year option format, e.g. 2025年 */
+            _x('Y', 'year option', 'aiya-core'),
+            $anchor->getTimestamp()
+        );
+    }
+
+    /**
+     * A month of the year in view as a picker option label. The year is
+     * left out on purpose: the picker's own year field carries it, so the
+     * option reads as the month alone (e.g. 10月).
+     */
+    private function monthOptionLabel(int $year, int $number): string
+    {
+        $anchor = new \DateTimeImmutable(sprintf('%04d-%02d-01 00:00:00', $year, $number), wp_timezone());
+
+        return (string) wp_date(
+            /* translators: month option format, e.g. 10月 */
+            _x('F', 'month option', 'aiya-core'),
             $anchor->getTimestamp()
         );
     }

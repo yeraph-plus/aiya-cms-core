@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-11T08:39:28+00:00\n"
+"POT-Creation-Date: 2026-10-11T09:41:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -390,7 +390,7 @@ msgstr ""
 
 #: src/Admin/CreditsPage.php:218
 #: src/Admin/CronsPage.php:172
-#: src/Admin/OperationsPage.php:192
+#: src/Admin/OperationsPage.php:195
 #: src/Admin/PaymentsAuditPage.php:118
 #: src/Admin/PicBedPage.php:224
 #: src/Admin/RewritesPage.php:86
@@ -425,8 +425,8 @@ msgid "Expires"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:281
-#: src/Admin/OperationsPage.php:403
-#: src/Admin/OperationsPage.php:425
+#: src/Admin/OperationsPage.php:406
+#: src/Admin/OperationsPage.php:428
 #: src/Admin/UiSamplePage.php:246
 msgid "Expired"
 msgstr ""
@@ -459,8 +459,8 @@ msgid "Credits"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:437
-#: src/Admin/OperationsPage.php:549
-#: src/Admin/OperationsPage.php:575
+#: src/Admin/OperationsPage.php:552
+#: src/Admin/OperationsPage.php:578
 #: src/Admin/UiSamplePage.php:260
 #: src/Domain/Credit/CreditModule.php:81
 msgid "Check-in"
@@ -471,8 +471,8 @@ msgid "Redeem code"
 msgstr ""
 
 #: src/Admin/CreditsPage.php:439
-#: src/Admin/OperationsPage.php:550
-#: src/Admin/OperationsPage.php:576
+#: src/Admin/OperationsPage.php:553
+#: src/Admin/OperationsPage.php:579
 #: src/Admin/PaymentsAuditPage.php:185
 #: src/Admin/UiSamplePage.php:261
 msgid "Membership"
@@ -1132,216 +1132,231 @@ msgstr ""
 msgid "One month's credit flow, membership and traffic, with the trailing year behind it."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:194
-#: src/Admin/OperationsPage.php:201
-#: src/Admin/OperationsPage.php:202
-#: src/Admin/OperationsPage.php:422
-#: src/Admin/OperationsPage.php:574
+#: src/Admin/OperationsPage.php:197
+#: src/Admin/OperationsPage.php:205
+#: src/Admin/OperationsPage.php:425
+#: src/Admin/OperationsPage.php:577
 msgid "Month"
 msgstr ""
 
+#: src/Admin/OperationsPage.php:204
+msgid "Year"
+msgstr ""
+
 #. translators: %s: month label, e.g. September 2026
-#: src/Admin/OperationsPage.php:219
+#: src/Admin/OperationsPage.php:222
 #, php-format
 msgid "Indicators — %s"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:225
-#: src/Admin/OperationsPage.php:322
+#: src/Admin/OperationsPage.php:228
+#: src/Admin/OperationsPage.php:325
 msgid "Consumption rate"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:229
+#: src/Admin/OperationsPage.php:232
 msgid "Consumed against granted this month."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:232
-#: src/Admin/OperationsPage.php:311
-#: src/Admin/OperationsPage.php:479
+#: src/Admin/OperationsPage.php:235
+#: src/Admin/OperationsPage.php:314
+#: src/Admin/OperationsPage.php:482
 msgid "Cash collected"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:234
+#: src/Admin/OperationsPage.php:237
 msgid "Payments received in the month."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:237
-#: src/Admin/OperationsPage.php:302
-#: src/Admin/OperationsPage.php:429
-#: src/Admin/OperationsPage.php:511
+#: src/Admin/OperationsPage.php:240
+#: src/Admin/OperationsPage.php:305
+#: src/Admin/OperationsPage.php:432
+#: src/Admin/OperationsPage.php:514
 msgid "Paying users"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:239
-#: src/Admin/OperationsPage.php:304
+#: src/Admin/OperationsPage.php:242
+#: src/Admin/OperationsPage.php:307
 msgid "Covered holders whose order was actually paid."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:242
-#: src/Admin/OperationsPage.php:289
-#: src/Admin/OperationsPage.php:426
+#: src/Admin/OperationsPage.php:245
+#: src/Admin/OperationsPage.php:292
+#: src/Admin/OperationsPage.php:429
 msgid "Downloads"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:244
+#: src/Admin/OperationsPage.php:247
 msgid "Files delivered, charged or free."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:247
-#: src/Admin/OperationsPage.php:333
+#: src/Admin/OperationsPage.php:250
+#: src/Admin/OperationsPage.php:336
 msgid "Outstanding credits"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:249
+#: src/Admin/OperationsPage.php:252
 msgid "What every holder could still spend right now."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:269
+#: src/Admin/OperationsPage.php:272
 msgid "Detail tables"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:273
+#: src/Admin/OperationsPage.php:276
 msgid "Volume"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:276
+#: src/Admin/OperationsPage.php:279
 msgid "Credits granted"
 msgstr ""
 
 #. translators: 1: check-in credits, 2: membership credits, 3: code credits, 4: manual credits
-#: src/Admin/OperationsPage.php:280
+#: src/Admin/OperationsPage.php:283
 #, php-format
 msgid "Check-in %1$s · Membership %2$s · Codes %3$s · Manual %4$s"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:287
+#: src/Admin/OperationsPage.php:290
 msgid "Credits consumed"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:288
+#: src/Admin/OperationsPage.php:291
 msgid "Credits expired"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:293
-#: src/Admin/OperationsPage.php:514
+#: src/Admin/OperationsPage.php:296
+#: src/Admin/OperationsPage.php:517
 msgid "Users"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:295
-#: src/Admin/OperationsPage.php:427
-#: src/Admin/OperationsPage.php:509
+#: src/Admin/OperationsPage.php:298
+#: src/Admin/OperationsPage.php:430
+#: src/Admin/OperationsPage.php:512
 msgid "Active users"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:297
-#: src/Admin/OperationsPage.php:428
-#: src/Admin/OperationsPage.php:510
+#: src/Admin/OperationsPage.php:300
+#: src/Admin/OperationsPage.php:431
+#: src/Admin/OperationsPage.php:513
 msgid "Members"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:299
+#: src/Admin/OperationsPage.php:302
 msgid "Holders whose membership covers this month, codes included."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:309
+#: src/Admin/OperationsPage.php:312
 msgid "Revenue"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:313
-#: src/Admin/OperationsPage.php:480
+#: src/Admin/OperationsPage.php:316
+#: src/Admin/OperationsPage.php:483
 msgid "Recognized revenue"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:315
+#: src/Admin/OperationsPage.php:318
 msgid "Order amounts spread over their service periods, so a multi-cycle purchase is not booked at once and its months sum back to the order total. Booked revenue for the month — not a forward-looking MRR run rate."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:320
+#: src/Admin/OperationsPage.php:323
 msgid "Efficiency"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:323
+#: src/Admin/OperationsPage.php:326
 msgid "Expiry rate"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:324
+#: src/Admin/OperationsPage.php:327
 msgid "Downloads per active user"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:325
+#: src/Admin/OperationsPage.php:328
 msgid "Downloads per paying user"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:326
+#: src/Admin/OperationsPage.php:329
 msgid "Revenue per paying user"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:330
+#: src/Admin/OperationsPage.php:333
 msgid "Liability"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:335
+#: src/Admin/OperationsPage.php:338
 msgid "What every holder could still spend right now — the report's liability figure."
 msgstr ""
 
-#: src/Admin/OperationsPage.php:344
-#: src/Admin/OperationsPage.php:388
+#: src/Admin/OperationsPage.php:347
+#: src/Admin/OperationsPage.php:391
 msgid "Trailing 12 months"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:348
-#: src/Admin/OperationsPage.php:536
+#: src/Admin/OperationsPage.php:351
+#: src/Admin/OperationsPage.php:539
 msgid "Grants by source"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:401
-#: src/Admin/OperationsPage.php:423
+#: src/Admin/OperationsPage.php:404
+#: src/Admin/OperationsPage.php:426
 #: src/Admin/UiSamplePage.php:244
 msgid "Granted"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:402
-#: src/Admin/OperationsPage.php:424
+#: src/Admin/OperationsPage.php:405
+#: src/Admin/OperationsPage.php:427
 #: src/Admin/UiSamplePage.php:245
 msgid "Consumed"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:430
+#: src/Admin/OperationsPage.php:433
 msgid "Cash"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:431
+#: src/Admin/OperationsPage.php:434
 msgid "Recognized"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:466
+#: src/Admin/OperationsPage.php:469
 msgid "Revenue basis"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:497
+#: src/Admin/OperationsPage.php:500
 msgid "User funnel"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:551
-#: src/Admin/OperationsPage.php:577
+#: src/Admin/OperationsPage.php:554
+#: src/Admin/OperationsPage.php:580
 #: src/Admin/UiSamplePage.php:262
 msgid "Codes"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:552
-#: src/Admin/OperationsPage.php:578
+#: src/Admin/OperationsPage.php:555
+#: src/Admin/OperationsPage.php:581
 #: src/Admin/UiSamplePage.php:263
 msgid "Manual"
 msgstr ""
 
-#: src/Admin/OperationsPage.php:579
+#: src/Admin/OperationsPage.php:582
 msgid "Total"
 msgstr ""
 
 #. translators: month label format, e.g. September 2026
-#: src/Admin/OperationsPage.php:606
+#: src/Admin/OperationsPage.php:609
 msgctxt "month label"
 msgid "F Y"
+msgstr ""
+
+#. translators: year option format, e.g. 2025年
+#: src/Admin/OperationsPage.php:624
+msgctxt "year option"
+msgid "Y"
+msgstr ""
+
+#. translators: month option format, e.g. 10月
+#: src/Admin/OperationsPage.php:640
+msgctxt "month option"
+msgid "F"
 msgstr ""
 
 #: src/Admin/PartsDialog.php:48

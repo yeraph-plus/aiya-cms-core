@@ -302,7 +302,7 @@ namespace Aiya\Core\Tests\Unit {
                 array_column($months, 'value'),
                 'the month field submits the bare number the report recombines'
             );
-            self::assertSame('October 2026', $months[9]['label'], 'a month reads with the year in view');
+            self::assertSame('October', $months[9]['label'], 'a month option reads as the month alone');
             self::assertSame('10', $this->selectedOption($months), 'the month in view stays preselected');
 
             // Both fields ride the shared filter bar, which carries the page
@@ -342,7 +342,7 @@ namespace Aiya\Core\Tests\Unit {
 
             $months = $this->selectOptions($html, 'month');
             self::assertCount(12, $months);
-            self::assertSame('March 2020', $months[2]['label'], 'the month labels follow the year in view');
+            self::assertSame('March', $months[2]['label'], 'the month field lists the months of the year in view');
             self::assertSame('3', $this->selectedOption($months));
 
             // A month from before the three-year reach still lands on both
@@ -350,7 +350,7 @@ namespace Aiya\Core\Tests\Unit {
             $ancient = $this->render('2005-01');
             self::assertSame(['2026', '2025', '2024', '2005'], array_column($this->selectOptions($ancient, 'year'), 'value'));
             self::assertSame('1', $this->selectedOption($this->selectOptions($ancient, 'month')));
-            self::assertSame('January 2005', $this->selectOptions($ancient, 'month')[0]['label']);
+            self::assertSame('January', $this->selectOptions($ancient, 'month')[0]['label']);
         }
 
         private function seed(): void

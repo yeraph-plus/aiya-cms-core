@@ -717,6 +717,9 @@ msgstr "单月积分流水、会员与流量，背后附近一年趋势。"
 msgid "Month"
 msgstr "月份"
 
+msgid "Year"
+msgstr "年份"
+
 msgid "Indicators — %s"
 msgstr "指标 — %s"
 
@@ -846,6 +849,14 @@ msgstr "合计"
 msgctxt "month label"
 msgid "F Y"
 msgstr "Y年n月"
+
+msgctxt "year option"
+msgid "Y"
+msgstr "Y年"
+
+msgctxt "month option"
+msgid "F"
+msgstr "n月"
 
 msgid "Template parts"
 msgstr "模板零件"
