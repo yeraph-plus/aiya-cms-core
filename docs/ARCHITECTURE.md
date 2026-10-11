@@ -1,6 +1,6 @@
-# AIYA CMS Core architecture
+# AIYA CMS architecture
 
-AIYA CMS Core is a conventional WordPress plugin. It does not depend on an active theme and does not provide front-end templates.
+AIYA CMS is a conventional WordPress plugin. It does not depend on an active theme and does not provide front-end templates.
 
 ## Companion shell theme
 

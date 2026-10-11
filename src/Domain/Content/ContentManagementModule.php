@@ -10,7 +10,7 @@ use Aiya\Core\Domain\Shared\PublicTypes;
 use Aiya\Core\Settings\Registry;
 
 /**
- * The Backend settings page (AIYA CMS Core submenu): the operational knobs
+ * The Backend settings page (AIYA Settings submenu): the operational knobs
  * for the behavior core itself adds to WordPress — the retention periods
  * (notifications, credit ledger), the NSFW vocabularies, the automatic
  * slug generation (contributed by SlugModule through addFields) and the

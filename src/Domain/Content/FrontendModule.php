@@ -88,14 +88,14 @@ final class FrontendModule implements Module
 
     public function settings(): void
     {
-        // No parent: this page owns the plugin's top-level menu ("AIYA CMS Core")
+        // No parent: this page owns the plugin's top-level menu ("AIYA Settings")
         // and sits first in the submenu list — the shell settings are the
         // most-used surface. The mirror entry names the page itself so the
         // rail reads Frontend / Optimization / Backend / …
         $this->settings->addPage([
             'slug' => 'frontend',
             'title' => __('Frontend', 'aiya-core'),
-            'menu_title' => __('AIYA CMS Core', 'aiya-core'),
+            'menu_title' => __('AIYA Settings', 'aiya-core'),
             'mirror_title' => __('Frontend', 'aiya-core'),
             'icon' => 'dashicons-admin-generic',
             'position' => 81,

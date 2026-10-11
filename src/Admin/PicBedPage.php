@@ -61,7 +61,7 @@ final class PicBedPage implements Module
         $registry->addPage([
             'slug' => 'pic-bed',
             'title' => __('Pic bed', 'aiya-core'),
-            'menu_title' => __('Pic bed', 'aiya-core'),
+            'menu_title' => __('AIYA Pic bed', 'aiya-core'),
             'capability' => 'upload_files',
             'icon' => 'dashicons-format-image',
             'position' => 82,

@@ -58,7 +58,7 @@ final class DiscussionModerationPage implements Module
         $registry->addPage([
             'slug' => 'discussions',
             'title' => __('Light Community', 'aiya-core'),
-            'menu_title' => __('Light Community', 'aiya-core'),
+            'menu_title' => __('AIYA Light Community', 'aiya-core'),
             'capability' => self::CAPABILITY,
             'icon' => 'dashicons-format-chat',
             'position' => 26,

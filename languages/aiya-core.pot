@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-11T08:01:07+00:00\n"
+"POT-Creation-Date: 2026-10-11T08:39:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -475,7 +475,6 @@ msgstr ""
 #: src/Admin/OperationsPage.php:576
 #: src/Admin/PaymentsAuditPage.php:185
 #: src/Admin/UiSamplePage.php:261
-#: src/Domain/Membership/MembershipModule.php:80
 msgid "Membership"
 msgstr ""
 
@@ -621,9 +620,12 @@ msgid "No scheduled events match."
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:60
-#: src/Admin/DiscussionModerationPage.php:61
 #: src/Admin/DiscussionModerationPage.php:106
 msgid "Light Community"
+msgstr ""
+
+#: src/Admin/DiscussionModerationPage.php:61
+msgid "AIYA Light Community"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:82
@@ -1404,9 +1406,12 @@ msgid "Awaiting payment"
 msgstr ""
 
 #: src/Admin/PicBedPage.php:63
-#: src/Admin/PicBedPage.php:64
 #: src/Admin/PicBedPage.php:80
 msgid "Pic bed"
+msgstr ""
+
+#: src/Admin/PicBedPage.php:64
+msgid "AIYA Pic bed"
 msgstr ""
 
 #: src/Admin/PicBedPage.php:76
@@ -3032,7 +3037,7 @@ msgid "Frontend"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:98
-msgid "AIYA CMS Core"
+msgid "AIYA Settings"
 msgstr ""
 
 #: src/Domain/Content/FrontendModule.php:108
@@ -3367,7 +3372,7 @@ msgid "This spend was already recorded."
 msgstr ""
 
 #: src/Domain/DevTools/DevToolsModule.php:105
-msgid "Dev Tools"
+msgid "AIYA Dev Tools"
 msgstr ""
 
 #: src/Domain/Discussion/DiscussionLikeService.php:151
@@ -4098,6 +4103,10 @@ msgstr ""
 #: src/Domain/Membership/MembershipModule.php:79
 #: src/Domain/Membership/MembershipModule.php:84
 msgid "Membership settings"
+msgstr ""
+
+#: src/Domain/Membership/MembershipModule.php:80
+msgid "AIYA Credits & Membership"
 msgstr ""
 
 #: src/Domain/Membership/MembershipModule.php:93
@@ -4947,7 +4956,7 @@ msgid "Answer 404 for every RSS/RDF/Atom feed URL"
 msgstr ""
 
 #: src/Infrastructure/Headless/HeadlessModule.php:554
-msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA CMS Core > Optimization."
+msgid "This screen is disabled because the site runs headless."
 msgstr ""
 
 #: src/Infrastructure/Security/SecurityModule.php:81
@@ -5371,7 +5380,7 @@ msgid "Select a valid option."
 msgstr ""
 
 #: uninstall.php:98
-msgid "Delete AIYA CMS Core"
+msgid "Delete AIYA CMS"
 msgstr ""
 
 #: uninstall.php:100

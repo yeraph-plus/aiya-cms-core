@@ -77,7 +77,7 @@ final class MembershipModule implements Module
         $this->settings->addPage([
             'slug' => self::PAGE_SLUG,
             'title' => __('Membership settings', 'aiya-core'),
-            'menu_title' => __('Membership', 'aiya-core'),
+            'menu_title' => __('AIYA Credits & Membership', 'aiya-core'),
             // The outermost entry carries the group name (会员) while the
             // operations dashboard leads the group; the mirror keeps the
             // full settings label so the two stay distinguishable.

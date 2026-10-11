@@ -1,6 +1,6 @@
 <?php
 /**
- * AIYA CMS Core uninstall routine.
+ * AIYA CMS uninstall routine.
  *
  * Destructive cleanup is NEVER silent on the Plugins screen: the delete
  * request stops here first and asks whether to erase the data. "Keep"
@@ -95,7 +95,7 @@ function aiya_core_uninstall_confirm(): void
     require_once ABSPATH . 'wp-admin/admin-header.php';
     ?>
     <div class="wrap">
-        <h1><?php echo esc_html__('Delete AIYA CMS Core', 'aiya-core'); ?></h1>
+        <h1><?php echo esc_html__('Delete AIYA CMS', 'aiya-core'); ?></h1>
 
         <p><?php echo esc_html__('WordPress is about to delete the plugin files. Before that happens, choose what to do with the data the plugin wrote.', 'aiya-core'); ?></p>
 

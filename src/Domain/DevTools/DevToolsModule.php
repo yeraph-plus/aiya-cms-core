@@ -102,7 +102,7 @@ final class DevToolsModule implements Module
             $registry->addPage([
                 'slug' => 'devtools',
                 'title' => __('Server Status', 'aiya-core'),
-                'menu_title' => __('Dev Tools', 'aiya-core'),
+                'menu_title' => __('AIYA Dev Tools', 'aiya-core'),
                 'mirror_title' => __('Server Status', 'aiya-core'),
                 'icon' => 'dashicons-admin-tools',
                 'position' => self::POSITION,

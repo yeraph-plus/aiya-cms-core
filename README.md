@@ -1,4 +1,4 @@
-# AIYA CMS Core
+# AIYA CMS
 
 Headless-first WordPress plugin for AIYA CMS (WP 6.4+, developed and
 running against WP 7.1, runtime PHP 8.5, `Requires PHP: 8.5`): the

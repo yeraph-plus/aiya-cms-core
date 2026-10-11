@@ -551,7 +551,7 @@ final class HeadlessModule implements Module
 
         if (in_array($pagenow, $denied, true)) {
             wp_die(
-                esc_html__('This screen is disabled because the site runs headless. Manage the setting under AIYA CMS Core > Optimization.', 'aiya-core'),
+                esc_html__('This screen is disabled because the site runs headless.', 'aiya-core'),
                 '',
                 ['response' => 403]
             );

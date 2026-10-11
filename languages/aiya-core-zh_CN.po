@@ -381,6 +381,9 @@ msgstr "没有匹配的定时作业。"
 msgid "Light Community"
 msgstr "轻社区"
 
+msgid "AIYA Light Community"
+msgstr "AIYA 轻社区"
+
 msgid "You are not allowed to moderate the community."
 msgstr "您无权管理社区。"
 
@@ -888,6 +891,9 @@ msgstr "待支付"
 
 msgid "Pic bed"
 msgstr "图床"
+
+msgid "AIYA Pic bed"
+msgstr "AIYA 图床"
 
 msgid "You are not allowed to manage the pic bed."
 msgstr "您无权管理图床。"
@@ -1995,8 +2001,8 @@ msgstr "其他"
 msgid "Frontend"
 msgstr "前台页面"
 
-msgid "AIYA CMS Core"
-msgstr "AIYA CMS Core"
+msgid "AIYA Settings"
+msgstr "AIYA 设置"
 
 msgid "Basic settings"
 msgstr "基础设置"
@@ -2238,8 +2244,8 @@ msgstr "积分消费未能写入。"
 msgid "This spend was already recorded."
 msgstr "该笔消费已记录过。"
 
-msgid "Dev Tools"
-msgstr "开发工具"
+msgid "AIYA Dev Tools"
+msgstr "AIYA 开发工具"
 
 msgid "This thread is closed; likes are no longer accepted."
 msgstr "该帖已关闭，不再接受点赞。"
@@ -2743,6 +2749,9 @@ msgstr "会员记录未能写入。"
 
 msgid "Membership settings"
 msgstr "会员设置"
+
+msgid "AIYA Credits & Membership"
+msgstr "AIYA 积分与会员"
 
 msgid "Tiers"
 msgstr "档位"
@@ -3332,8 +3341,8 @@ msgstr "Feed 订阅"
 msgid "Answer 404 for every RSS/RDF/Atom feed URL"
 msgstr "所有 RSS/RDF/Atom 订阅地址一律返回 404"
 
-msgid "This screen is disabled because the site runs headless. Manage the setting under AIYA CMS Core > Optimization."
-msgstr "该屏幕因站点以无头模式运行而禁用。请前往 AIYA CMS Core > Optimization 管理。"
+msgid "This screen is disabled because the site runs headless."
+msgstr "该屏幕因站点以无头模式运行而禁用。"
 
 msgid "Login restrictions"
 msgstr "登录限制"
@@ -3641,8 +3650,8 @@ msgstr "请选择有效的媒体附件。"
 msgid "Select a valid option."
 msgstr "请选择有效选项。"
 
-msgid "Delete AIYA CMS Core"
-msgstr "删除 AIYA CMS Core"
+msgid "Delete AIYA CMS"
+msgstr "删除 AIYA CMS"
 
 msgid "WordPress is about to delete the plugin files. Before that happens, choose what to do with the data the plugin wrote."
 msgstr "WordPress 即将删除插件文件。在此之前，请先确认插件写入的数据如何处理。"
