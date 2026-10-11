@@ -100,11 +100,12 @@ final class EditorPluginsTest extends TestCase
         $editor = new EditorPlugins();
 
         $args = $editor->limitAuthorDropdown(['show_option_all' => ''], ['name' => 'post_author']);
-        self::assertSame('authors', $args['who']);
+        self::assertSame('edit_posts', $args['capability']);
+        self::assertArrayNotHasKey('who', $args, 'the deprecated who parameter stays out');
 
         // Any other users dropdown keeps its own semantics.
         $untouched = $editor->limitAuthorDropdown(['name' => 'reassign_user'], ['name' => 'reassign_user']);
-        self::assertArrayNotHasKey('who', $untouched);
+        self::assertArrayNotHasKey('capability', $untouched);
     }
 
     public function testTheTagcloudCapLiftsOnlyForThe45TermRequest(): void

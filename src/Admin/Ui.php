@@ -779,7 +779,8 @@ final class Ui
         if (!(defined('WP_DEBUG') && WP_DEBUG)) {
             return AIYA_CORE_VERSION;
         }
-        $mtime = filemtime(AIYA_CORE_PATH . $relativePath);
+        $path = AIYA_CORE_PATH . $relativePath;
+        $mtime = is_file($path) ? filemtime($path) : false;
 
         return AIYA_CORE_VERSION . ($mtime ? '.' . $mtime : '');
     }

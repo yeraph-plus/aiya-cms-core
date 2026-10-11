@@ -23,7 +23,7 @@ use Aiya\Core\Contracts\Module;
  * `image`/`media` are core-bundled already.
  *
  * Two editor-side conveniences: the post
- * author dropdown lists content authors only (who=authors — subscribers
+ * author dropdown lists content authors only (capability=edit_posts — subscribers
  * are not authors), and the "most used tags" cloud drops core's 45-term
  * cap so the picker shows every tag (scoped to that one AJAX request).
  */
@@ -125,7 +125,7 @@ final class EditorPlugins implements Module
     public function limitAuthorDropdown(array $queryArgs, array $parsedArgs): array
     {
         if (($parsedArgs['name'] ?? '') === 'post_author') {
-            $queryArgs['who'] = 'authors';
+            $queryArgs['capability'] = 'edit_posts';
         }
 
         return $queryArgs;
