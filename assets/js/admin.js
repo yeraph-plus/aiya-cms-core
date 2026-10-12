@@ -436,9 +436,12 @@
                     $button.prop('disabled', true);
                     $.post(window.ajaxurl, {
                         action: $button.attr('data-action'),
-                        nonce: $button.attr('data-nonce')
+                        nonce: $button.attr('data-nonce'),
+                        intent: $button.attr('data-intent')
                     }, null, 'json').done(function (res) {
-                        placeEndpointNotice(res && res.data ? res.data.notice : '');
+                        const data = res && res.data ? res.data : null;
+                        applyToggleState($button, data);
+                        placeEndpointNotice(data ? data.notice : '');
                     }).fail(function (xhr) {
                         // A refused request (no capability) still answers
                         // with the same envelope, under a 4xx status.
@@ -449,6 +452,19 @@
                     });
                 });
             });
+            // The label states what the click will do, so it has to be
+            // true before the first click: ask the endpoint once here.
+            $scope.find('.aiya-core-toggle-action[data-intent]').each(function () {
+                const $button = $(this);
+                $.post(window.ajaxurl, {
+                    action: $button.attr('data-action'),
+                    nonce: $button.attr('data-nonce'),
+                    intent: 'probe'
+                }, null, 'json').done(function (res) {
+                    applyToggleState($button, res && res.data ? res.data : null);
+                });
+            });
+
             if (wp.codeEditor && window.aiyaCoreAdmin?.codeEditors) {
                 $scope.find('.aiya-core-code').not('[data-aiya-ready]').each(function () {
                     const mime = $(this).data('code-mime') || 'text/css';
@@ -489,6 +505,22 @@
     // through the kit's own banner, and the script drops it where the page
     // prints its save feedback — right under the page heading — replacing
     // whatever the previous click left there.
+    // The two-label connection button: `bound` picks the label, and the
+    // label's own intent is what the next click sends, so the operator
+    // always clicks the action they can read.
+    function applyToggleState($button, data) {
+        if (!data || typeof data.bound !== 'boolean') {
+            return;
+        }
+        const label = data.bound
+            ? $button.attr('data-label-disconnect')
+            : $button.attr('data-label-connect');
+        $button.attr('data-intent', data.bound ? 'disconnect' : 'connect');
+        if (label) {
+            $button.text(label);
+        }
+    }
+
     function placeEndpointNotice(html) {
         const $page = $('.aiya-core-settings').first();
         if (!$page.length) {

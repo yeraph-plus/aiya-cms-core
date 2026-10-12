@@ -29,6 +29,15 @@ final class TelegramSettings
      */
     public const WEBHOOK_ACTION = 'aiya_core_tg_webhook';
 
+    /**
+     * The webhook URL last seen registered on the platform: machine
+     * state, not a setting, so it lives in its own option beside the
+     * secret. The settings page labels the connection button from it
+     * (no outbound call at render time) and every registration or
+     * teardown writes it back.
+     */
+    public const WEBHOOK_URL_OPTION = 'aiya_core_tg_webhook_url';
+
     public static function botToken(): string
     {
         return trim((string) aiya_core_opt(self::PAGE_SLUG, 'tg_bot_token', ''));
@@ -37,6 +46,18 @@ final class TelegramSettings
     public static function webhookSecret(): string
     {
         return trim((string) get_option(self::SECRET_OPTION, ''));
+    }
+
+    /** The URL the platform last held for this bot, '' when unbound. */
+    public static function webhookUrl(): string
+    {
+        return trim((string) get_option(self::WEBHOOK_URL_OPTION, ''));
+    }
+
+    /** Records the platform-side registration the site just observed. */
+    public static function storeWebhookUrl(string $url): void
+    {
+        update_option(self::WEBHOOK_URL_OPTION, $url, false);
     }
 
     public static function pushEnabled(): bool

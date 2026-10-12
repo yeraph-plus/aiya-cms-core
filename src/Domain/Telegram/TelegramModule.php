@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Telegram;
 
+use Aiya\Core\Api\Rest\TelegramWebhookController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Registry;
 
@@ -79,6 +80,11 @@ final class TelegramModule implements Module
 
     public function settings(): void
     {
+        // The button's label states what the click will do, read from the
+        // cached registration URL - never a live platform call at render
+        // time. Both actions are idempotent, so a stale label is harmless.
+        $bound = TelegramSettings::webhookUrl() === TelegramWebhookController::url();
+
         $this->settings->addPage([
             'slug' => TelegramSettings::PAGE_SLUG,
             'title' => __('Telegram Bot', 'aiya-core'),
@@ -104,7 +110,10 @@ final class TelegramModule implements Module
                     // and flips the platform-side webhook registration;
                     // the verdict comes back as a page notice.
                     'toggle_action' => TelegramSettings::WEBHOOK_ACTION,
-                    'toggle_label' => __('Connect bot', 'aiya-core'),
+                    'toggle_label' => $bound ? __('Unbind bot', 'aiya-core') : __('Connect bot', 'aiya-core'),
+                    'toggle_intent' => $bound ? 'disconnect' : 'connect',
+                    'toggle_label_connect' => __('Connect bot', 'aiya-core'),
+                    'toggle_label_disconnect' => __('Unbind bot', 'aiya-core'),
                 ],
                 [
                     'id' => 'tg_heading_push',

@@ -3125,7 +3125,7 @@ msgid "From @BotFather. Stored server-side and never exposed."
 msgstr "来自 @BotFather，仅存服务端、永不外显"
 
 msgid "Connect bot"
-msgstr "连接 Bot"
+msgstr "连接Bot"
 
 msgid "Publish push"
 msgstr "发布推送"
@@ -3697,3 +3697,7 @@ msgstr "vendor/ 等大型依赖目录会被瞬时移出、避免删除过程长�
 msgid "Cancel, back to the plugin list"
 msgstr "取消，返回插件列表"
 
+#: src/Domain/Telegram/TelegramModule.php:113
+#: src/Domain/Telegram/TelegramModule.php:116
+msgid "Unbind bot"
+msgstr "取消绑定Bot"

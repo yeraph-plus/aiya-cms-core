@@ -261,7 +261,10 @@ final class FieldRenderer
                 // notice the behavior layer drops under the heading.
                 echo ' <button type="button" class="button aiya-core-toggle-action"'
                     . ' data-action="' . esc_attr($toggleAction) . '"'
-                    . ' data-nonce="' . esc_attr(wp_create_nonce($toggleAction)) . '">'
+                    . ' data-nonce="' . esc_attr(wp_create_nonce($toggleAction)) . '"'
+                    . ' data-intent="' . esc_attr((string) $field->setting('toggle_intent', '')) . '"'
+                    . ' data-label-connect="' . esc_attr((string) $field->setting('toggle_label_connect', '')) . '"'
+                    . ' data-label-disconnect="' . esc_attr((string) $field->setting('toggle_label_disconnect', '')) . '">'
                     . esc_html((string) $field->setting('toggle_label', __('Connect', 'aiya-core')))
                     . '</button>';
             }

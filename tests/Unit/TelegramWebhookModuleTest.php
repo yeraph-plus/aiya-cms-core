@@ -121,7 +121,7 @@ namespace Aiya\Core\Tests\Unit {
             self::assertStringEndsWith('/bot123:abc/deleteWebhook', $this->calls[1]['url']);
         }
 
-        public function testTheAnswerCarriesTheVerdictAndNoRegistrationDetail(): void
+        public function testTheAnswerCarriesTheVerdictAndTheState(): void
         {
             $_POST['nonce'] = 'aiya-test-nonce';
 
@@ -130,7 +130,7 @@ namespace Aiya\Core\Tests\Unit {
             ]));
 
             $notice = (string) $response->data['notice'];
-            self::assertSame(['ok', 'notice'], array_keys((array) $response->data), 'nothing but the verdict travels back');
+            self::assertSame(['ok', 'notice', 'bound'], array_keys((array) $response->data), 'the verdict and the state travel back, nothing else');
             self::assertStringNotContainsString('old.test', $notice, 'the row never echoes the registration URL');
             self::assertStringNotContainsString('Wrong response', $notice, 'the platform error tail stays out of the page');
             self::assertStringNotContainsString('30', $notice, 'nor the backlog count');
