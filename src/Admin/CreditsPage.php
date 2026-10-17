@@ -326,8 +326,19 @@ final class CreditsPage implements Module
         // from (source, ref), so the same note for the same holder is
         // rejected as a double-grant instead of silently duplicated.
         $ref = $note !== '' ? mb_substr($note, 0, 32) : 'admin';
+        // A blank note has no identity to dedupe on, so it gets a random
+        // one-shot key instead: repeated blank-note grants are separate
+        // grants, not a double-post of the same `admin:admin` key.
+        $dedupe = $note !== '' ? null : 'admin:' . wp_generate_uuid4();
 
-        $granted = $this->ledger->grant($userId, $amount, LedgerService::SOURCE_ADMIN, $ref, time() + $days * DAY_IN_SECONDS);
+        $granted = $this->ledger->grant(
+            $userId,
+            $amount,
+            LedgerService::SOURCE_ADMIN,
+            $ref,
+            time() + $days * DAY_IN_SECONDS,
+            $dedupe
+        );
         if (is_wp_error($granted)) {
             $message = $granted->get_error_code() === 'aiya_credit_duplicate'
                 ? (string) __('An admin grant with this exact note already exists for this user.', 'aiya-core')

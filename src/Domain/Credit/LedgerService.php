@@ -97,9 +97,10 @@ final class LedgerService
      * human-readable source marker.
      *
      * @param int|null $expiresAt Unix timestamp; null never expires (reserved for admin adjustments)
+     * @param string|null $dedupe Optional explicit idempotency key; null or '' derives `source:ref`
      * @return true|WP_Error
      */
-    public function grant(int $userId, int $amount, string $source, string $ref, ?int $expiresAt): bool|WP_Error
+    public function grant(int $userId, int $amount, string $source, string $ref, ?int $expiresAt, ?string $dedupe = null): bool|WP_Error
     {
         if ($userId <= 0) {
             return new WP_Error('aiya_invalid_user', __('The credit holder does not exist.', 'aiya-core'), ['status' => 400]);
@@ -113,6 +114,9 @@ final class LedgerService
 
         global $wpdb;
         /** @var \wpdb $wpdb */
+        // The admin form can hand in an explicit key so a blank note still
+        // gets a unique one; every other caller keeps the derived source:ref.
+        $dedupeKey = $dedupe !== null && $dedupe !== '' ? $dedupe : $source . ':' . $ref;
         // The unique (dedupe, user) key is the duplicate signal here: an
         // expected duplicate must answer the caller as a WP_Error, never
         // leak as wpdb's debug HTML in front of the JSON envelope (which
@@ -128,7 +132,7 @@ final class LedgerService
                 'remaining' => $amount,
                 'source' => $source,
                 'ref' => substr($ref, 0, 64),
-                'dedupe' => substr($source . ':' . $ref, 0, 80),
+                'dedupe' => substr($dedupeKey, 0, 80),
                 'created_at' => $this->now(),
                 'expires_at' => $expiresAt !== null ? gmdate('Y-m-d H:i:s', $expiresAt) : null,
             ],
