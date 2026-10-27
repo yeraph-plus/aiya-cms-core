@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Domain\Payment;
 
 use Aiya\Core\Contracts\Module;
-use Aiya\Core\Domain\Membership\MembershipModule;
+use Aiya\Core\Domain\Membership\MembershipSettings;
 use Aiya\Core\Runtime\TableInstaller;
 use Aiya\Core\Settings\Registry;
 use WP_Error;
@@ -15,12 +15,17 @@ use WP_Error;
  * payment-log table (`wp_aiya_payment_orders`) through the schema
  * migration runner, the gateway credentials page under the membership
  * menu (the option key is unchanged), the daily checkout sweep as its own
- * cron event, and the two save-time guards the Epay wire imposes on the
- * membership page's tier list — backslash-free tier names (the signature
- * round-trip) and the live-checkout deletion veto (the callback
- * whitelist). Settlement runs through the gateway adapters and
- * OrderService; the entitlement queue they feed stays in the membership
- * domain (Payment → Membership, one-way).
+ * cron event, and the save-time guards the payment surfaces impose on the
+ * settings pages — the Epay wire's tier rules on the membership page, and
+ * the Afdian plan table's own identity rules on this page.
+ *
+ * Afdian holds its own plan table (`afdian_tiers`, read through
+ * AfdianTiers): each row is one platform plan mapped to the entitlement
+ * snapshot its orders activate. It is not a pointer into the membership
+ * tier list — the two are separate product lines, and only the cashier's
+ * tiers are priced by this site. Settlement runs through the gateway
+ * adapters and OrderService; the entitlement queue they feed stays in the
+ * membership domain (Payment → Membership, one-way).
  */
 final class PaymentModule implements Module
 {
@@ -49,6 +54,10 @@ final class PaymentModule implements Module
         // Same gate, different concern: the tier name must survive the
         // Epay signature round-trip (see the method for the byte-level why).
         add_filter('aiya_core_settings_validate', [$this, 'sanitizeTierNames'], 10, 2);
+
+        // And one gate of this page's own: the Afdian plan table's identity
+        // rules (key/plan_id format, uniqueness across both product lines).
+        add_filter('aiya_core_settings_validate', [$this, 'guardAfdianTiers'], 10, 2);
 
         add_filter('aiya_core_schema_migrations', function (array $migrations): array {
             $migrations[] = ['version' => self::MIGRATION_VERSION, 'callback' => [self::class, 'installTables']];
@@ -162,28 +171,84 @@ final class PaymentModule implements Module
                     'id' => 'afdian_enable',
                     'type' => 'switch',
                     'label' => __('Afdian integration', 'aiya-core'),
-                    'description' => __('Activates memberships from Afdian: webhook pushes and the order-number self-service check. Every order settles into the single tier bound below — pushes are settled by re-querying the platform, never by trusting the push body.', 'aiya-core'),
+                    'description' => __('Activates memberships from Afdian: webhook pushes and the order-number self-service check. Each order settles by the plan it was paid under, into the matching row of the plan table below — pushes are settled by re-querying the platform, never by trusting the push body.', 'aiya-core'),
                     'default' => false,
                 ],
                 [
-                    'id' => 'afdian_plan_id',
-                    'type' => 'text',
-                    'label' => __('Afdian plan ID', 'aiya-core'),
-                    'description' => __('The plan_id segment of the Afdian plan page URL — it aims the buyer\'s deep link. Leave empty to keep the channel unoffered.', 'aiya-core'),
-                    'default' => '',
-                ],
-                [
-                    'id' => 'afdian_tier',
-                    'type' => 'select',
-                    'label' => __('Membership tier', 'aiya-core'),
-                    'description' => __('The one tier (from the membership settings page) that every Afdian order activates, whatever plan it was paid under.', 'aiya-core'),
-                    'default' => '',
-                    'options_source' => [
-                        'source' => 'option_list',
-                        'option' => MembershipModule::OPTION_NAME,
-                        'list' => 'tiers',
-                        'value_field' => 'key',
-                        'label_field' => 'name',
+                    'id' => 'afdian_tiers',
+                    'type' => 'repeater',
+                    'label' => __('Afdian plan table', 'aiya-core'),
+                    'description' => __('One row per Afdian plan you sell: the platform plan id, the key its orders are recorded under, and the entitlement that key grants. Plans are not priced here — the amount lives on the Afdian page and is only booked, never compared. A paid order for a plan that is not listed here is still booked (money is never swallowed) but grants nothing until you add the row and the order is re-submitted.', 'aiya-core'),
+                    'default' => [],
+                    'children' => [
+                        [
+                            'id' => 'enabled',
+                            'type' => 'switch',
+                            'label' => __('Enabled', 'aiya-core'),
+                            'description' => __('Disabled plans leave the purchase list and refuse new deep links; orders already paid for still settle.', 'aiya-core'),
+                            'default' => true,
+                        ],
+                        [
+                            'id' => 'plan_id',
+                            'type' => 'text',
+                            'label' => __('Afdian plan id', 'aiya-core'),
+                            'description' => __('The plan_id segment of the Afdian plan page URL. Orders carrying this id settle into this row.', 'aiya-core'),
+                            'required' => true,
+                            'pattern' => '[A-Za-z0-9_-]{1,64}',
+                        ],
+                        [
+                            'id' => 'key',
+                            'type' => 'text',
+                            'label' => __('Key', 'aiya-core'),
+                            'description' => __('Stable identifier the orders and the entitlement queue record this plan under — lowercase letters, digits, dashes or underscores, fixed once purchases reference it, and never the same as a cashier tier key.', 'aiya-core'),
+                            'required' => true,
+                            'pattern' => '[a-z0-9_-]{1,32}',
+                        ],
+                        [
+                            'id' => 'name',
+                            'type' => 'text',
+                            'label' => __('Name', 'aiya-core'),
+                            'description' => __('The plan-card title buyers see.', 'aiya-core'),
+                            'required' => true,
+                            'maxlength' => 64,
+                        ],
+                        [
+                            'id' => 'description',
+                            'type' => 'textarea',
+                            'label' => __('Description', 'aiya-core'),
+                            'description' => __('One-liner shown on the plan card (what the plan includes).', 'aiya-core'),
+                            'default' => '',
+                        ],
+                        [
+                            'id' => 'cycle_days',
+                            'type' => 'number',
+                            'label' => __('Cycle length (days)', 'aiya-core'),
+                            'description' => __('30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch.', 'aiya-core'),
+                            'default' => 30,
+                            'min' => 1,
+                            'max' => 3650,
+                            'step' => 1,
+                            'required' => true,
+                        ],
+                        [
+                            'id' => 'credits_per_cycle',
+                            'type' => 'number',
+                            'label' => __('Credits per cycle', 'aiya-core'),
+                            'description' => __('Credit bucket granted at each cycle start.', 'aiya-core'),
+                            'default' => 0,
+                            'min' => 0,
+                            'step' => 1,
+                        ],
+                        [
+                            'id' => 'max_cycles',
+                            'type' => 'number',
+                            'label' => __('Max cycles per order', 'aiya-core'),
+                            'description' => __('Ceiling on the months one purchase may queue — a garbage order row cannot buy years of membership.', 'aiya-core'),
+                            'default' => 12,
+                            'min' => 1,
+                            'max' => 60,
+                            'step' => 1,
+                        ],
                     ],
                 ],
                 [
@@ -317,5 +382,89 @@ final class PaymentModule implements Module
         }
 
         return $values;
+    }
+
+    /**
+     * Save-time guard for the Afdian plan table. Three ways a row can be
+     * unusable, all refused loudly (a silently dropped row would surface much
+     * later, as an order that books money and grants nothing):
+     *
+     * - the identities must be well-formed — `plan_id` is matched byte for
+     *   byte against the platform's order field, and `key` becomes the
+     *   entitlement's `tier_key`, so neither may smuggle spaces or case that
+     *   the read edge would sanitize away;
+     * - `key` shares ONE namespace with the cashier's tier list: two products
+     *   under one key would collide in the plan list (one card would lose its
+     *   React key) and blur the entitlement queue. Reading the membership
+     *   tiers here is a save-time cross-check only — settlement never looks at
+     *   that list;
+     * - `plan_id` and `key` are each unique inside the table, because a
+     *   settlement resolves exactly one row per plan.
+     *
+     * @param mixed $values normalized settings payload for the page
+     * @param mixed $slug   settings page slug being saved
+     */
+    public function guardAfdianTiers(mixed $values, mixed $slug): mixed
+    {
+        if ($slug !== self::PAGE_SLUG || !is_array($values)) {
+            return $values;
+        }
+
+        $cashierKeys = [];
+        foreach (MembershipSettings::read()['tiers'] as $tier) {
+            $cashierKeys[$tier['key']] = true;
+        }
+
+        $seenKeys = [];
+        $seenPlans = [];
+        foreach (array_values((array) ($values['afdian_tiers'] ?? [])) as $index => $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            // translators: %d: row number on the plan table.
+            $rowLabel = sprintf(__('Afdian plan row %d', 'aiya-core'), $index + 1);
+            $key = (string) ($row['key'] ?? '');
+            $planId = trim((string) ($row['plan_id'] ?? ''));
+
+            if (preg_match('/^[a-z0-9_-]{1,32}$/', $key) !== 1) {
+                return self::invalid(
+                    /* translators: 1: row label, 2: the offending value. */
+                    sprintf(__('%1$s: "%2$s" is not a valid key — lowercase letters, digits, dashes or underscores, up to 32.', 'aiya-core'), $rowLabel, $key)
+                );
+            }
+            if (AfdianTiers::planId($planId) === '') {
+                return self::invalid(
+                    /* translators: 1: row label, 2: the offending value. */
+                    sprintf(__('%1$s: "%2$s" is not a valid Afdian plan id — letters, digits, dashes or underscores, up to 64.', 'aiya-core'), $rowLabel, $planId)
+                );
+            }
+            if (isset($cashierKeys[$key])) {
+                return self::invalid(
+                    /* translators: 1: row label, 2: the tier key. */
+                    sprintf(__('%1$s: the key "%2$s" is already used by a cashier tier — one key per product.', 'aiya-core'), $rowLabel, $key)
+                );
+            }
+            if (isset($seenKeys[$key])) {
+                return self::invalid(
+                    /* translators: 1: row label, 2: the tier key. */
+                    sprintf(__('%1$s: the key "%2$s" is used by another Afdian plan.', 'aiya-core'), $rowLabel, $key)
+                );
+            }
+            if (isset($seenPlans[$planId])) {
+                return self::invalid(
+                    /* translators: 1: row label, 2: the platform plan id. */
+                    sprintf(__('%1$s: the plan id "%2$s" is already listed — one row per plan.', 'aiya-core'), $rowLabel, $planId)
+                );
+            }
+            $seenKeys[$key] = true;
+            $seenPlans[$planId] = true;
+        }
+
+        return $values;
+    }
+
+    private static function invalid(string $message): WP_Error
+    {
+        return new WP_Error('aiya_afdian_plan_invalid', $message, ['status' => 400]);
     }
 }

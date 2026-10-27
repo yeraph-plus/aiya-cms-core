@@ -153,7 +153,14 @@ final class PaymentsAuditPage implements Module
                         echo '<code>' . esc_html((string) $row['order_id']) . '</code>';
                         break;
                     case 'tier':
-                        echo esc_html((string) $row['tier_key']);
+                        // An empty tier key is not a gap in the data: an
+                        // Afdian order for a plan the site has not registered
+                        // is booked (the money is real) and grants nothing
+                        // until an operator adds the row and the order is
+                        // re-submitted. Name the state so it reads as a todo.
+                        echo $row['tier_key'] === ''
+                            ? '<span class="description">' . esc_html__('unregistered plan', 'aiya-core') . '</span>'
+                            : esc_html((string) $row['tier_key']);
                         break;
                     case 'amount':
                         echo esc_html((string) $row['amount']);

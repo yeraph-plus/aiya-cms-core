@@ -5,18 +5,21 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Contract;
 
 /**
- * The payment channels the purchase UI may offer: one availability bit
- * per gateway (each gateway's own answer is authoritative — it knows
- * both the admin switch and whether credentials exist) plus the active
- * gateway's channel list. The Afdian channel rides exactly one tier —
- * the single tier bound on the payments page — and afdianTierKey names
- * it ('' while unbound), so the purchase UI offers the channel on that
- * tier's card alone.
+ * The payment channels the purchase surface may offer: one availability bit
+ * per gateway (each gateway's own answer is authoritative — it knows both
+ * the admin switch and whether credentials exist) plus the active cashier's
+ * channel list. Which channel sells which plan is a property of the plan
+ * row itself (Tier::channels), not of this block.
  */
 final class PlanChannels
 {
     /**
      * @param list<string> $methods
+     * @param string $afdianTierKey Frozen wire field: no plan is "the Afdian
+     *                              one" since the 2026-10-27 decoupling, so
+     *                              it is always ''. It stays only for the
+     *                              additive v1 contract lock and goes away in
+     *                              the next major — do not read it.
      */
     public function __construct(
         public readonly bool $epay,

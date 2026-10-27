@@ -20,14 +20,19 @@ use Aiya\Core\Api\Contract\TiersPayload;
 final class MembershipPresenter
 {
     /**
-     * @param list<array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,enabled:bool}> $tierRows
+     * The plan list the purchase surface renders: one card per product row,
+     * both product lines (cashier tiers and Afdian plans) in one list. Each
+     * row already carries the channels that can sell it, so the presenter
+     * layer does no joining — it only shapes the DTO.
+     *
+     * @param list<array{key:string,name:string,description:string,price:float,cycleDays:int,creditsPerCycle:int,enabled:bool,channels:list<string>}> $planRows
      * @param list<string> $methods
      * @return array<string, mixed>
      */
-    public function plans(bool $epay, bool $afdian, string $afdianTierKey, array $methods, array $tierRows): array
+    public function plans(bool $epay, bool $afdian, array $methods, array $planRows): array
     {
         $tiers = [];
-        foreach ($tierRows as $row) {
+        foreach ($planRows as $row) {
             $tiers[] = new Tier(
                 (string) $row['key'],
                 (string) $row['name'],
@@ -35,11 +40,14 @@ final class MembershipPresenter
                 (int) $row['cycleDays'],
                 (int) $row['creditsPerCycle'],
                 (bool) ($row['enabled'] ?? true),
-                (string) ($row['description'] ?? '')
+                (string) ($row['description'] ?? ''),
+                array_values(array_map('strval', (array) ($row['channels'] ?? []))),
             );
         }
 
-        return (new TiersPayload(new PlanChannels($epay, $afdian, $afdianTierKey, $methods), $tiers))->toArray();
+        // afdianTierKey is a frozen wire field (the v1 additive lock): no
+        // product is "the Afdian one" any more, so it stays empty.
+        return (new TiersPayload(new PlanChannels($epay, $afdian, '', $methods), $tiers))->toArray();
     }
 
     /**

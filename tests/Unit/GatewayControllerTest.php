@@ -245,12 +245,35 @@ namespace Aiya\Core\Tests\Unit {
 
         private function stageAfdian(): void
         {
+            // The site's own Afdian plan table (2026-10-27 decoupling): the
+            // cashier tiers below are a different product line and play no
+            // part in any Afdian settlement.
             update_option('aiya_core_membership_payments', [
                 'afdian_enable' => true,
                 'afdian_user_id' => 'user-1',
                 'afdian_token' => 't',
-                'afdian_plan_id' => 'plan-gold',
-                'afdian_tier' => 'gold',
+                'afdian_tiers' => [
+                    [
+                        'enabled' => true,
+                        'plan_id' => 'plan-gold',
+                        'key' => 'gold',
+                        'name' => 'Gold',
+                        'description' => '',
+                        'cycle_days' => 30,
+                        'credits_per_cycle' => 100,
+                        'max_cycles' => 12,
+                    ],
+                    [
+                        'enabled' => true,
+                        'plan_id' => 'plan-silver',
+                        'key' => 'silver',
+                        'name' => 'Silver',
+                        'description' => '',
+                        'cycle_days' => 30,
+                        'credits_per_cycle' => 20,
+                        'max_cycles' => 12,
+                    ],
+                ],
             ]);
             update_option('aiya_core_membership', [
                 'tiers' => [

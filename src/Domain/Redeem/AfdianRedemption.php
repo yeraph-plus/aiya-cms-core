@@ -6,6 +6,7 @@ namespace Aiya\Core\Domain\Redeem;
 
 use Aiya\Core\Domain\Membership\EntitlementService;
 use Aiya\Core\Domain\Payment\AfdianGateway;
+use Aiya\Core\Domain\Payment\AfdianTiers;
 use Aiya\Core\Domain\Payment\OrderService;
 use WP_Error;
 
@@ -14,28 +15,27 @@ use WP_Error;
  * ruling): one ping→query-order→verify→settle sequence shared by both
  * triggers — the buyer typing the order number into the redeem box, and
  * the webhook whose push is only a hint carrying the trade number. Every
- * purchase fact (paid?, amount, cycles) is read from the platform's own
- * API answer; a push body is never trusted beyond its trade number, and
+ * purchase fact (paid?, amount, cycles, plan) is read from the platform's
+ * own API answer; a push body is never trusted beyond its trade number, and
  * no RSA signature check is performed.
  *
- * The plan is not part of the settlement: every order the platform
- * carries settles into the single tier bound on the payments page
- * (AfdianGateway::boundTier); there is no multi-plan binding table and no
- * fallback tier. The site writes no
- * checkout row for Afdian purchases: a purchase the query vouches for
- * books straight into the paid log under the platform's own order id
- * (`afd_` prefix). The order-id unique keys in the payment log and the
- * entitlement queue make replays from either trigger idempotent — a
- * re-pushed or re-submitted number is a clean no-op, never a double
- * grant.
+ * The plan IS part of the settlement (2026-10-27 decoupling): the order's
+ * `plan_id` selects the row of the site's own Afdian plan table, and that
+ * row supplies the entitlement snapshot. A plan the site has not registered
+ * settles into nothing: the money is BOOKED under the platform's own order
+ * id with an empty tier key — never swallowed, never granted — and a later
+ * replay of the same order number activates it once the row exists. Adding
+ * a plan is therefore a configuration change, not a migration, and every
+ * paid order keeps a visible trace either way.
+ *
+ * The site writes no checkout row for Afdian purchases: a purchase the
+ * query vouches for books straight into the paid log under the platform's
+ * own order id (`afd_` prefix). The order-id unique keys in the payment log
+ * and the entitlement queue make replays from either trigger idempotent — a
+ * re-pushed or re-submitted number is a clean no-op, never a double grant.
  */
 final class AfdianRedemption
 {
-    // Aligned with the tier settings' cycles ceiling (the repeater field's
-    // max): a queried order that really bought more months must not lose
-    // cycles the tier promises. The clamp only bounds a garbage query row.
-    private const MAX_CYCLES = 60;
-
     public function __construct(
         private AfdianGateway $gateway,
         private OrderService $orders,
@@ -73,18 +73,27 @@ final class AfdianRedemption
 
         $activated = $this->bookAndActivate($resolved);
         if (is_wp_error($activated)) {
-            $code = $activated->get_error_code() === 'aiya_duplicate_order'
-                ? 'aiya_order_used'
-                : 'aiya_activation_failed';
+            $code = $activated->get_error_code();
+            if ($code === 'aiya_duplicate_order') {
+                return new WP_Error(
+                    'aiya_order_used',
+                    __('This order has already been activated.', 'aiya-core'),
+                    ['status' => 409]
+                );
+            }
+            // "Booked but unregistered" is not an activation failure: the
+            // caller must hear precisely that, or they will re-type the
+            // number forever against a site that already has their money.
+            if ($code === 'aiya_plan_unregistered') {
+                return $activated;
+            }
 
-            return new WP_Error($code, $code === 'aiya_order_used'
-                ? __('This order has already been activated.', 'aiya-core')
-                : __('The membership activation failed — try again.', 'aiya-core'), ['status' => $code === 'aiya_order_used' ? 409 : 502]);
+            return new WP_Error('aiya_activation_failed', __('The membership activation failed — try again.', 'aiya-core'), ['status' => 502]);
         }
 
         return [
-            'tierKey' => $resolved['tier']['key'],
-            'tierName' => $resolved['tier']['name'],
+            'tierKey' => $activated['key'],
+            'tierName' => $activated['name'],
             'cycles' => $resolved['cycles'],
         ];
     }
@@ -112,15 +121,22 @@ final class AfdianRedemption
 
         $activated = $this->bookAndActivate($resolved);
         if (is_wp_error($activated)) {
-            return $activated->get_error_code() === 'aiya_duplicate_order'
-                ? "already activated: order {$orderNo} (idempotent replay)."
-                : 'failed: ' . $activated->get_error_code() . " (order {$orderNo}).";
+            return match ($activated->get_error_code()) {
+                'aiya_duplicate_order' => "already activated: order {$orderNo} (idempotent replay).",
+                'aiya_plan_unregistered' => sprintf(
+                    'booked, plan unregistered: order %1$s (plan "%2$s") for user #%3$d — money recorded, nothing granted until the plan is listed.',
+                    $orderNo,
+                    $resolved['planId'],
+                    $resolved['userId']
+                ),
+                default => 'failed: ' . $activated->get_error_code() . " (order {$orderNo}).",
+            };
         }
 
         return sprintf(
             'activated order %1$s: tier %2$s ×%3$d for user #%4$d (amount %5$.2f).',
             $orderNo,
-            $resolved['tier']['key'],
+            $activated['key'],
             $resolved['cycles'],
             $resolved['userId'],
             $resolved['amount']
@@ -134,7 +150,11 @@ final class AfdianRedemption
      * path claims a bound order for its owner and an unbound one only for
      * the buyer whose Afdian user id it can verify.
      *
-     * @return array{orderNo:string, orderId:string, userId:int, tier:array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}, cycles:int, amount:float}|WP_Error
+     * `tier` is null when the order's plan is not listed on the site — that
+     * is a settlement state, not a verification failure, so the caller still
+     * books the money.
+     *
+     * @return array{orderNo:string, orderId:string, planId:string, userId:int, tier:array{key:string,name:string,description:string,enabled:bool,cycleDays:int,creditsPerCycle:int,maxCycles:int}|null, cycles:int, amount:float}|WP_Error
      */
     private function resolvePurchase(string $orderNo, ?int $claimant, string $buyerId = ''): array|WP_Error
     {
@@ -173,12 +193,11 @@ final class AfdianRedemption
             return new WP_Error('aiya_order_not_paid', __('This order is not a paid trade.', 'aiya-core'), ['status' => 422]);
         }
 
-        // The single bound tier takes every order in — the platform plan
-        // carries no settlement weight (2026-10-06 ruling).
-        $tier = $this->gateway->boundTier();
-        if ($tier === null) {
-            return new WP_Error('aiya_plan_unbound', __('The Afdian tier is not configured on the payments settings page.', 'aiya-core'), ['status' => 422]);
-        }
+        // The plan the buyer actually paid for selects the tier. No amount
+        // comparison happens anywhere: `plan_id` is an identity, not a price
+        // — and `total_amount` is booked as reported, never checked.
+        $planId = trim((string) ($order['plan_id'] ?? ''));
+        $tier = $this->gateway->tierForPlan($planId);
 
         // Attribution: an order placed through the personalized deep link
         // carries the account binding in custom_order_id. A storefront
@@ -220,12 +239,23 @@ final class AfdianRedemption
             $userId = $boundUser;
         }
 
+        // The queried month is platform truth; the order's own plan sets how
+        // many cycles one purchase may queue, and the settings-wide ceiling
+        // bounds a garbage row. An unregistered plan has no row to ask, so
+        // the global ceiling applies (the booking records what was bought).
+        $cycles = max(1, min(
+            AfdianTiers::MAX_CYCLES,
+            $tier['maxCycles'] ?? AfdianTiers::MAX_CYCLES,
+            (int) ($order['month'] ?? 1)
+        ));
+
         return [
             'orderNo' => $orderNo,
             'orderId' => $this->gateway->orderId($orderNo),
+            'planId' => $planId,
             'userId' => $userId,
             'tier' => $tier,
-            'cycles' => max(1, min(self::MAX_CYCLES, (int) ($order['month'] ?? 1))),
+            'cycles' => $cycles,
             'amount' => (float) ($order['total_amount'] ?? 0),
         ];
     }
@@ -237,12 +267,19 @@ final class AfdianRedemption
      * order-id unique keys absorb replays from either trigger into one
      * booked row and one activation.
      *
-     * @param array{orderId:string, userId:int, tier:array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}, cycles:int, amount:float} $resolved
-     * @return true|WP_Error aiya_duplicate_order = already activated
+     * An unregistered plan books with an empty tier key and stops there
+     * (D1: 落账不激活). The booking is what makes a later replay work: the
+     * duplicate answer is tolerated, and once the plan is listed the same
+     * order number walks on to the activation — the row that already
+     * exists is exactly what the entitlement's unique key needs.
+     *
+     * @param array{orderId:string, planId:string, userId:int, tier:array{key:string, name:string, description:string, enabled:bool, cycleDays:int, creditsPerCycle:int, maxCycles:int}|null, cycles:int, amount:float} $resolved
+     * @return array{key:string, name:string, description:string, enabled:bool, cycleDays:int, creditsPerCycle:int, maxCycles:int}|WP_Error true-equivalent = the tier it activated; aiya_duplicate_order = already activated; aiya_plan_unregistered = booked, nothing granted
      */
-    private function bookAndActivate(array $resolved): bool|WP_Error
+    private function bookAndActivate(array $resolved): array|WP_Error
     {
-        $recorded = $this->orders->addPayment($resolved['userId'], $resolved['orderId'], $resolved['tier']['key'], $resolved['amount'], 'afdian', $resolved['cycles']);
+        $tierKey = $resolved['tier']['key'] ?? '';
+        $recorded = $this->orders->addPayment($resolved['userId'], $resolved['orderId'], $tierKey, $resolved['amount'], 'afdian', $resolved['cycles']);
         if (is_wp_error($recorded) && $recorded->get_error_code() !== 'aiya_duplicate_order') {
             return new WP_Error('aiya_activation_failed', __('The membership activation failed — try again.', 'aiya-core'), ['status' => 502]);
         }
@@ -258,6 +295,27 @@ final class AfdianRedemption
             return new WP_Error('aiya_activation_failed', __('The membership activation failed — try again.', 'aiya-core'), ['status' => 502]);
         }
 
-        return $this->entitlements->activateFromPayment((int) $booked['user_id'], $resolved['orderId'], $resolved['tier'], $resolved['cycles']);
+        if ($resolved['tier'] === null) {
+            return new WP_Error(
+                'aiya_plan_unregistered',
+                __('This order was paid for a plan the site has not registered yet — the payment is recorded; contact the site owner to have it settled.', 'aiya-core'),
+                ['status' => 422]
+            );
+        }
+
+        // Late registration: the row was booked before its plan was listed.
+        // Naming the tier now keeps the ledger readable (the audit page shows
+        // the todo as an empty tier key). Only a blank key is filled — a
+        // settled row's tier is history and never rewritten.
+        if ((string) $booked['tier_key'] === '') {
+            $this->orders->annotateTier($resolved['orderId'], $tierKey);
+        }
+
+        $activated = $this->entitlements->activateFromPayment((int) $booked['user_id'], $resolved['orderId'], $resolved['tier'], $resolved['cycles']);
+        if (is_wp_error($activated)) {
+            return $activated;
+        }
+
+        return $resolved['tier'];
     }
 }

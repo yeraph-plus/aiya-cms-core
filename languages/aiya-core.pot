@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.132.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-pot\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.134.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-12T16:49:55+00:00\n"
+"POT-Creation-Date: 2026-10-27T03:07:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -336,7 +336,7 @@ msgstr ""
 
 #: src/Admin/CreditsPage.php:117
 #: src/Admin/CreditsPage.php:304
-#: src/Admin/CreditsPage.php:345
+#: src/Admin/CreditsPage.php:356
 msgid "You are not allowed to manage credits."
 msgstr ""
 
@@ -441,8 +441,8 @@ msgstr ""
 
 #: src/Admin/CreditsPage.php:310
 #: src/Api/Rest/IntegrationsController.php:151
-#: src/Domain/Credit/LedgerService.php:105
-#: src/Domain/Credit/LedgerService.php:186
+#: src/Domain/Credit/LedgerService.php:106
+#: src/Domain/Credit/LedgerService.php:190
 msgid "The credit holder does not exist."
 msgstr ""
 
@@ -450,15 +450,15 @@ msgstr ""
 msgid "Amount and validity are required."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:333
+#: src/Admin/CreditsPage.php:344
 msgid "An admin grant with this exact note already exists for this user."
 msgstr ""
 
-#: src/Admin/CreditsPage.php:391
+#: src/Admin/CreditsPage.php:402
 msgid "Credits"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:437
+#: src/Admin/CreditsPage.php:448
 #: src/Admin/OperationsPage.php:552
 #: src/Admin/OperationsPage.php:578
 #: src/Admin/UiSamplePage.php:260
@@ -466,23 +466,23 @@ msgstr ""
 msgid "Check-in"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:438
+#: src/Admin/CreditsPage.php:449
 msgid "Redeem code"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:439
+#: src/Admin/CreditsPage.php:450
 #: src/Admin/OperationsPage.php:553
 #: src/Admin/OperationsPage.php:579
-#: src/Admin/PaymentsAuditPage.php:185
+#: src/Admin/PaymentsAuditPage.php:192
 #: src/Admin/UiSamplePage.php:261
 msgid "Membership"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:440
+#: src/Admin/CreditsPage.php:451
 msgid "Admin grant"
 msgstr ""
 
-#: src/Admin/CreditsPage.php:441
+#: src/Admin/CreditsPage.php:452
 msgid "Download"
 msgstr ""
 
@@ -810,12 +810,14 @@ msgstr ""
 #: src/Admin/DiscussionModerationPage.php:701
 #: src/Admin/FileServeDialog.php:252
 #: src/Domain/Membership/MembershipModule.php:121
+#: src/Domain/Payment/PaymentModule.php:210
 msgid "Name"
 msgstr ""
 
 #: src/Admin/DiscussionModerationPage.php:682
 #: src/Admin/DiscussionModerationPage.php:703
 #: src/Domain/Membership/MembershipModule.php:129
+#: src/Domain/Payment/PaymentModule.php:218
 msgid "Description"
 msgstr ""
 
@@ -1399,24 +1401,28 @@ msgstr ""
 msgid "Order"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:172
+#: src/Admin/PaymentsAuditPage.php:162
+msgid "unregistered plan"
+msgstr ""
+
+#: src/Admin/PaymentsAuditPage.php:179
 msgid "No payments recorded yet."
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:244
+#: src/Admin/PaymentsAuditPage.php:251
 msgid "Epay"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:245
-#: src/Domain/Payment/PaymentModule.php:147
+#: src/Admin/PaymentsAuditPage.php:252
+#: src/Domain/Payment/PaymentModule.php:156
 msgid "Afdian"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:285
+#: src/Admin/PaymentsAuditPage.php:292
 msgid "Paid"
 msgstr ""
 
-#: src/Admin/PaymentsAuditPage.php:286
+#: src/Admin/PaymentsAuditPage.php:293
 msgid "Awaiting payment"
 msgstr ""
 
@@ -1867,6 +1873,7 @@ msgstr ""
 
 #: src/Admin/SamplePage.php:259
 #: src/Domain/Membership/MembershipModule.php:106
+#: src/Domain/Payment/PaymentModule.php:187
 #: src/Domain/Telegram/TelegramModule.php:127
 #: src/Domain/Telegram/TelegramModule.php:154
 #: src/Domain/Telegram/TelegramModule.php:204
@@ -2652,56 +2659,64 @@ msgstr ""
 msgid "Only active sponsors (and editors) get past the gate."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:53
+#: src/Api/Rest/AuthController.php:54
 msgid "You are already logged in."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:126
+#: src/Api/Rest/AuthController.php:127
 msgid "Registration is currently disabled."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:137
+#: src/Api/Rest/AuthController.php:138
 #: src/Api/Rest/UserController.php:277
 msgid "The nickname must be 1-50 characters."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:140
-#: src/Api/Rest/AuthController.php:215
+#: src/Api/Rest/AuthController.php:141
+#: src/Api/Rest/AuthController.php:223
 #: src/Api/Rest/UserController.php:300
 msgid "The email address is not valid."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:150
+#: src/Api/Rest/AuthController.php:151
 #: src/Api/Rest/UserController.php:317
 msgid "The locale is not supported."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:179
+#: src/Api/Rest/AuthController.php:180
 msgid "Please provide the email address and the password."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:187
+#: src/Api/Rest/AuthController.php:188
 msgid "The email address or the password is incorrect."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:256
+#: src/Api/Rest/AuthController.php:197
+#: src/Api/Rest/BanGate.php:72
+#: src/Api/Rest/CreditController.php:107
+#: src/Domain/Credit/CheckinService.php:34
+#: src/Domain/Credit/LedgerService.php:187
+msgid "This account is disabled."
+msgstr ""
+
+#: src/Api/Rest/AuthController.php:264
 #: src/Domain/Identity/AccountService.php:73
 msgid "Existing sessions could not be invalidated; the password was left unchanged."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:274
+#: src/Api/Rest/AuthController.php:282
 msgid "The reset link is missing required parameters."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:288
+#: src/Api/Rest/AuthController.php:296
 msgid "This password reset link is invalid or has expired."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:300
+#: src/Api/Rest/AuthController.php:308
 msgid "The account could not be loaded."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:308
+#: src/Api/Rest/AuthController.php:316
 msgid "The session could not be started."
 msgstr ""
 
@@ -2761,14 +2776,8 @@ msgstr ""
 msgid "Profile not found."
 msgstr ""
 
-#: src/Api/Rest/CreditController.php:103
-#: src/Domain/Credit/CheckinService.php:34
-#: src/Domain/Credit/LedgerService.php:183
-msgid "This account is disabled."
-msgstr ""
-
-#: src/Api/Rest/CreditController.php:141
-#: src/Api/Rest/MembershipController.php:124
+#: src/Api/Rest/CreditController.php:145
+#: src/Api/Rest/MembershipController.php:159
 msgid "The Afdian channel is not available."
 msgstr ""
 
@@ -2796,34 +2805,40 @@ msgstr ""
 msgid "Thread not found."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:137
-#: src/Api/Rest/MembershipController.php:196
-msgid "Unknown membership tier."
+#: src/Api/Rest/MembershipController.php:167
+msgid "Unknown Afdian plan."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:143
-#: src/Api/Rest/MembershipController.php:210
-msgid "This membership tier is not available."
+#: src/Api/Rest/MembershipController.php:173
+msgid "This Afdian plan is not available."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:149
-msgid "The Afdian plan/tier pairing is not configured."
+#: src/Api/Rest/MembershipController.php:178
+msgid "This Afdian plan carries no plan id yet."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:186
+#: src/Api/Rest/MembershipController.php:215
 msgid "No payment gateway is available."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:189
+#: src/Api/Rest/MembershipController.php:218
 #: src/Domain/Payment/EpayGateway.php:87
 msgid "The requested payment channel is not available."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:205
+#: src/Api/Rest/MembershipController.php:225
+msgid "Unknown membership tier."
+msgstr ""
+
+#: src/Api/Rest/MembershipController.php:234
 msgid "Cycles must be a whole number between 1 and 12."
 msgstr ""
 
-#: src/Api/Rest/MembershipController.php:231
+#: src/Api/Rest/MembershipController.php:239
+msgid "This membership tier is not available."
+msgstr ""
+
+#: src/Api/Rest/MembershipController.php:260
 msgid "The return URL is not a valid absolute http(s) address."
 msgstr ""
 
@@ -3355,34 +3370,34 @@ msgstr ""
 msgid "Administrator only"
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:108
-#: src/Domain/Credit/LedgerService.php:189
+#: src/Domain/Credit/LedgerService.php:109
+#: src/Domain/Credit/LedgerService.php:193
 msgid "The credit amount must be positive."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:111
+#: src/Domain/Credit/LedgerService.php:112
 msgid "The credit source is required."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:141
+#: src/Domain/Credit/LedgerService.php:145
 msgid "This credit grant was already recorded."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:144
+#: src/Domain/Credit/LedgerService.php:148
 msgid "The credit grant could not be stored."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:222
+#: src/Domain/Credit/LedgerService.php:226
 msgid "Not enough credits."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:238
-#: src/Domain/Credit/LedgerService.php:245
-#: src/Domain/Credit/LedgerService.php:287
+#: src/Domain/Credit/LedgerService.php:242
+#: src/Domain/Credit/LedgerService.php:249
+#: src/Domain/Credit/LedgerService.php:291
 msgid "The spend could not be recorded."
 msgstr ""
 
-#: src/Domain/Credit/LedgerService.php:284
+#: src/Domain/Credit/LedgerService.php:288
 msgid "This spend was already recorded."
 msgstr ""
 
@@ -4098,8 +4113,8 @@ msgid "The membership holder does not exist."
 msgstr ""
 
 #: src/Domain/Membership/EntitlementService.php:79
-#: src/Domain/Payment/OrderService.php:84
-#: src/Domain/Payment/OrderService.php:136
+#: src/Domain/Payment/OrderService.php:86
+#: src/Domain/Payment/OrderService.php:138
 msgid "The order id is required."
 msgstr ""
 
@@ -4141,6 +4156,7 @@ msgid "Disabled tiers stay out of the purchase list; existing holders keep their
 msgstr ""
 
 #: src/Domain/Membership/MembershipModule.php:113
+#: src/Domain/Payment/PaymentModule.php:202
 msgid "Key"
 msgstr ""
 
@@ -4149,6 +4165,7 @@ msgid "Stable identifier the gateways and codes resolve purchases by — lowerca
 msgstr ""
 
 #: src/Domain/Membership/MembershipModule.php:122
+#: src/Domain/Payment/PaymentModule.php:211
 msgid "The plan-card title buyers see."
 msgstr ""
 
@@ -4165,24 +4182,28 @@ msgid "Up to 500, two decimals."
 msgstr ""
 
 #: src/Domain/Membership/MembershipModule.php:146
+#: src/Domain/Payment/PaymentModule.php:225
 msgid "Cycle length (days)"
 msgstr ""
 
 #: src/Domain/Membership/MembershipModule.php:147
+#: src/Domain/Payment/PaymentModule.php:226
 msgid "30 = monthly by convention; one long cycle (e.g. 300) makes a single purchase pay out in one batch."
 msgstr ""
 
 #: src/Domain/Membership/MembershipModule.php:156
+#: src/Domain/Payment/PaymentModule.php:236
 msgid "Credits per cycle"
 msgstr ""
 
 #: src/Domain/Membership/MembershipModule.php:157
+#: src/Domain/Payment/PaymentModule.php:237
 msgid "Credit bucket granted at each cycle start."
 msgstr ""
 
 #. translators: %s: tier keys that still have live checkouts or covering members.
 #: src/Domain/Membership/MembershipModule.php:239
-#: src/Domain/Payment/PaymentModule.php:291
+#: src/Domain/Payment/PaymentModule.php:356
 #, php-format
 msgid "These tiers still have active members or live checkouts and cannot be deleted: %s."
 msgstr ""
@@ -4314,9 +4335,13 @@ msgid "The notification could not be stored."
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Domain/Payment/AfdianGateway.php:75
+#: src/Domain/Payment/AfdianGateway.php:74
 #, php-format
 msgid "A membership order from %s"
+msgstr ""
+
+#: src/Domain/Payment/AfdianGateway.php:118
+msgid "Afdian purchases are placed on the platform, not through the site cashier."
 msgstr ""
 
 #: src/Domain/Payment/EpayGateway.php:84
@@ -4324,147 +4349,212 @@ msgstr ""
 msgid "The Epay channel is not available."
 msgstr ""
 
-#: src/Domain/Payment/OrderService.php:81
-#: src/Domain/Payment/OrderService.php:133
+#: src/Domain/Payment/OrderService.php:83
+#: src/Domain/Payment/OrderService.php:135
 msgid "The order user does not exist."
 msgstr ""
 
-#: src/Domain/Payment/OrderService.php:112
-#: src/Domain/Payment/OrderService.php:160
+#: src/Domain/Payment/OrderService.php:114
+#: src/Domain/Payment/OrderService.php:162
 msgid "This order was already recorded."
 msgstr ""
 
-#: src/Domain/Payment/OrderService.php:115
-#: src/Domain/Payment/OrderService.php:163
+#: src/Domain/Payment/OrderService.php:117
+#: src/Domain/Payment/OrderService.php:165
 msgid "The order could not be stored."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:91
-#: src/Domain/Payment/PaymentModule.php:92
+#: src/Domain/Payment/PaymentModule.php:100
+#: src/Domain/Payment/PaymentModule.php:101
 msgid "Payment settings"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:100
+#: src/Domain/Payment/PaymentModule.php:109
 msgid "Epay gateway"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:106
+#: src/Domain/Payment/PaymentModule.php:115
 msgid "The Epay gateway is SDK-compatible; it signs with the V2 scheme."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:111
+#: src/Domain/Payment/PaymentModule.php:120
 msgid "Epay integration"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:117
+#: src/Domain/Payment/PaymentModule.php:126
 msgid "Merchant id (pid)"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:123
+#: src/Domain/Payment/PaymentModule.php:132
 msgid "Merchant key"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:129
+#: src/Domain/Payment/PaymentModule.php:138
 msgid "Gateway submit URL"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:135
+#: src/Domain/Payment/PaymentModule.php:144
 msgid "Payment channels"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:136
+#: src/Domain/Payment/PaymentModule.php:145
 msgid "Channels offered on the cashier; unchecked ones are refused at order creation."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:139
+#: src/Domain/Payment/PaymentModule.php:148
 msgid "Alipay"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:140
+#: src/Domain/Payment/PaymentModule.php:149
 msgid "WeChat Pay"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:141
+#: src/Domain/Payment/PaymentModule.php:150
 msgid "USDT (TRC20)"
 msgstr ""
 
 #. translators: the platform link.
-#: src/Domain/Payment/PaymentModule.php:154
+#: src/Domain/Payment/PaymentModule.php:163
 msgid "Support creators on <a href=\"https://afdian.com/\">Afdian</a>."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:164
+#: src/Domain/Payment/PaymentModule.php:173
 msgid "Afdian integration"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:165
-msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Every order settles into the single tier bound below — pushes are settled by re-querying the platform, never by trusting the push body."
+#: src/Domain/Payment/PaymentModule.php:174
+msgid "Activates memberships from Afdian: webhook pushes and the order-number self-service check. Each order settles by the plan it was paid under, into the matching row of the plan table below — pushes are settled by re-querying the platform, never by trusting the push body."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:171
-msgid "Afdian plan ID"
+#: src/Domain/Payment/PaymentModule.php:180
+msgid "Afdian plan table"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:172
-msgid "The plan_id segment of the Afdian plan page URL — it aims the buyer's deep link. Leave empty to keep the channel unoffered."
+#: src/Domain/Payment/PaymentModule.php:181
+msgid "One row per Afdian plan you sell: the platform plan id, the key its orders are recorded under, and the entitlement that key grants. Plans are not priced here — the amount lives on the Afdian page and is only booked, never compared. A paid order for a plan that is not listed here is still booked (money is never swallowed) but grants nothing until you add the row and the order is re-submitted."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:178
-msgid "Membership tier"
+#: src/Domain/Payment/PaymentModule.php:188
+msgid "Disabled plans leave the purchase list and refuse new deep links; orders already paid for still settle."
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:179
-msgid "The one tier (from the membership settings page) that every Afdian order activates, whatever plan it was paid under."
+#: src/Domain/Payment/PaymentModule.php:194
+msgid "Afdian plan id"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:192
+#: src/Domain/Payment/PaymentModule.php:195
+msgid "The plan_id segment of the Afdian plan page URL. Orders carrying this id settle into this row."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:203
+msgid "Stable identifier the orders and the entitlement queue record this plan under — lowercase letters, digits, dashes or underscores, fixed once purchases reference it, and never the same as a cashier tier key."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:219
+msgid "One-liner shown on the plan card (what the plan includes)."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:245
+msgid "Max cycles per order"
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:246
+msgid "Ceiling on the months one purchase may queue — a garbage order row cannot buy years of membership."
+msgstr ""
+
+#: src/Domain/Payment/PaymentModule.php:257
 msgid "Afdian user id"
 msgstr ""
 
-#: src/Domain/Payment/PaymentModule.php:198
+#: src/Domain/Payment/PaymentModule.php:263
 msgid "Afdian API token"
 msgstr ""
 
-#: src/Domain/Redeem/AfdianRedemption.php:76
+#. translators: %d: row number on the plan table.
+#: src/Domain/Payment/PaymentModule.php:425
+#, php-format
+msgid "Afdian plan row %d"
+msgstr ""
+
+#. translators: 1: row label, 2: the offending value.
+#: src/Domain/Payment/PaymentModule.php:432
+#, php-format
+msgid "%1$s: \"%2$s\" is not a valid key — lowercase letters, digits, dashes or underscores, up to 32."
+msgstr ""
+
+#. translators: 1: row label, 2: the offending value.
+#: src/Domain/Payment/PaymentModule.php:438
+#, php-format
+msgid "%1$s: \"%2$s\" is not a valid Afdian plan id — letters, digits, dashes or underscores, up to 64."
+msgstr ""
+
+#. translators: 1: row label, 2: the tier key.
+#: src/Domain/Payment/PaymentModule.php:444
+#, php-format
+msgid "%1$s: the key \"%2$s\" is already used by a cashier tier — one key per product."
+msgstr ""
+
+#. translators: 1: row label, 2: the tier key.
+#: src/Domain/Payment/PaymentModule.php:450
+#, php-format
+msgid "%1$s: the key \"%2$s\" is used by another Afdian plan."
+msgstr ""
+
+#. translators: 1: row label, 2: the platform plan id.
+#: src/Domain/Payment/PaymentModule.php:456
+#, php-format
+msgid "%1$s: the plan id \"%2$s\" is already listed — one row per plan."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:80
 msgid "This order has already been activated."
 msgstr ""
 
-#: src/Domain/Redeem/AfdianRedemption.php:77
-#: src/Domain/Redeem/AfdianRedemption.php:217
+#: src/Domain/Redeem/AfdianRedemption.php:91
+#: src/Domain/Redeem/AfdianRedemption.php:284
+#: src/Domain/Redeem/AfdianRedemption.php:295
 msgid "The membership activation failed — try again."
 msgstr ""
 
-#: src/Domain/Redeem/AfdianRedemption.php:140
-#: src/Domain/Redeem/AfdianRedemption.php:159
+#: src/Domain/Redeem/AfdianRedemption.php:165
+#: src/Domain/Redeem/AfdianRedemption.php:184
 msgid "The Afdian API is unreachable — try again later."
 msgstr ""
 
-#: src/Domain/Redeem/AfdianRedemption.php:144
+#: src/Domain/Redeem/AfdianRedemption.php:169
 msgid "Afdian rejected the request (expired timestamp) — check this server's clock."
 msgstr ""
 
-#: src/Domain/Redeem/AfdianRedemption.php:145
+#: src/Domain/Redeem/AfdianRedemption.php:170
 msgid "Afdian rejected the request — check the Afdian user id and API token on the payments settings page."
 msgstr ""
 
-#: src/Domain/Redeem/AfdianRedemption.php:162
+#: src/Domain/Redeem/AfdianRedemption.php:187
 msgid "No matching Afdian order — check the order number."
 msgstr ""
 
-#: src/Domain/Redeem/AfdianRedemption.php:168
+#: src/Domain/Redeem/AfdianRedemption.php:193
 msgid "This order is not a paid trade."
 msgstr ""
 
-#: src/Domain/Redeem/AfdianRedemption.php:175
-msgid "The Afdian tier is not configured on the payments settings page."
-msgstr ""
-
-#: src/Domain/Redeem/AfdianRedemption.php:183
+#: src/Domain/Redeem/AfdianRedemption.php:214
 msgid "This order is bound to another account."
 msgstr ""
 
-#: src/Domain/Redeem/AfdianRedemption.php:188
+#: src/Domain/Redeem/AfdianRedemption.php:222
+msgid "This order carries no site link, so the order number alone cannot identify its buyer — enter your Afdian user id (the /u/… part of your Afdian profile URL) to claim it."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:229
+msgid "That order belongs to a different Afdian account."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:237
 msgid "The order carries no account binding — activate it from the account page with the order number."
+msgstr ""
+
+#: src/Domain/Redeem/AfdianRedemption.php:301
+msgid "This order was paid for a plan the site has not registered yet — the payment is recorded; contact the site owner to have it settled."
 msgstr ""
 
 #: src/Domain/Redeem/RedeemCodeService.php:43

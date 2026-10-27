@@ -12,13 +12,14 @@ namespace Aiya\Infra\PaymentAfdian;
  * open API — or through the buyer typing the order number into the site's
  * redeem box, which queries the same API. The "payment URL" is the
  * platform's order-create deep link carrying the site user binding in
- * custom_order_id — the tier is resolved from plan_id on the way back,
- * never from the amount.
+ * custom_order_id; the plan it aims at is the caller's pick per link,
+ * because one site sells several platform plans.
  *
- * Everything environment-shaped arrives from the caller: the single bound
- * plan id, the tier key that plan activates (null = no plan bound, so the
- * deep link stays empty), and the human-readable remark the platform shows
- * the buyer (the caller owns the copy, this package carries no text).
+ * Everything environment-shaped arrives from the caller: the plan id each
+ * link aims at, and the human-readable remark the platform shows the buyer
+ * (the caller owns the copy, this package carries no text). There is no
+ * site-wide "the plan" and no tier concept here at all — this layer only
+ * speaks the platform's wire.
  */
 final class Gateway
 {
@@ -27,45 +28,23 @@ final class Gateway
 
     private const ORDER_CREATE_URL = 'https://afdian.com/order/create';
 
-    /**
-     * @param string|null $boundTierKey tier the bound plan activates; null leaves the gateway unbound
-     */
     public function __construct(
         private readonly Client $client,
-        private readonly string $planId,
-        private readonly ?string $boundTierKey,
         private readonly string $remark = '',
     ) {
     }
 
     /**
-     * The order-create deep link for the single bound plan on behalf of one
-     * user. The binding's first segment (the encoded user id) becomes
-     * custom_order_id and rides the checkout back into the webhook.
-     *
-     * @param array{orderId:string, title:string, amount:float, channel:string, binding:string} $payment
+     * The personalized order-create deep link for one platform plan on
+     * behalf of one user. Params follow the official order-create URL doc:
+     * plan_id + product_type=0 identify the plan, custom_order_id carries
+     * the user binding, an optional month pre-selects the cycle count (the
+     * buyer can still change it there). Empty when the caller has no plan id
+     * to aim at, so callers can hide the jump.
      */
-    public function createPayment(array $payment): string
+    public function orderUrl(int $userId, string $planId, int $month = 0): string
     {
-        $segments = explode('|', (string) $payment['binding']);
-
-        return $this->orderUrl(
-            $this->client->resolveUser($segments[0] ?? ''),
-            (int) ($segments[2] ?? 0)
-        );
-    }
-
-    /**
-     * The personalized order-create deep link; empty when the plan binding
-     * is unconfigured so callers can hide the jump. Params follow the
-     * official order-create URL doc: plan_id + product_type=0 identify the
-     * plan, custom_order_id carries the user binding, an optional month
-     * pre-selects the cycle count (the buyer can still change it there).
-     */
-    public function orderUrl(int $userId, int $month = 0, ?string $planId = null): string
-    {
-        $planId ??= $this->planId;
-        if ($planId === '' || $this->boundTierKey === null) {
+        if ($planId === '') {
             return '';
         }
 

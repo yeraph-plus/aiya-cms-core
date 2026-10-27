@@ -618,6 +618,13 @@ if (!function_exists('home_url')) {
     }
 }
 
+if (!function_exists('site_url')) {
+    function site_url(string $path = ''): string
+    {
+        return 'https://aiya.test' . $path;
+    }
+}
+
 if (!function_exists('wp_get_attachment_image_src')) {
     function wp_get_attachment_image_src(int $attachment_id, string $size = 'medium'): array|false
     {

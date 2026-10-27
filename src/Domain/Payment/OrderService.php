@@ -357,6 +357,36 @@ final class OrderService
     }
 
     /**
+     * Fills in the tier of an already-booked row that was recorded without
+     * one: an Afdian order paid for a plan the site had not registered yet
+     * books with an empty tier key (money kept, nothing granted), and the
+     * replay after the plan is added can finally name it. Only a blank key
+     * is written — a settled row's tier is history — so this can never
+     * rewrite what a purchase was.
+     *
+     * @return int rows updated (0 when the row already names a tier)
+     */
+    public function annotateTier(string $orderId, string $tierKey): int
+    {
+        $tierKey = substr(sanitize_key($tierKey), 0, 32);
+        if ($orderId === '' || $tierKey === '') {
+            return 0;
+        }
+
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $updated = $wpdb->update(
+            $this->table(),
+            ['tier_key' => $tierKey],
+            ['order_id' => $orderId, 'tier_key' => ''],
+            ['%s'],
+            ['%s', '%s']
+        );
+
+        return is_int($updated) ? $updated : 0;
+    }
+
+    /**
      * One order row by id whatever its status: the settle path needs to
      * tell "never seen" from "already paid" (a gateway retry after a failed
      * activation must be able to finish the job).

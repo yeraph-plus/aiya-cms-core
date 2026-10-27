@@ -22,9 +22,10 @@ use WP_REST_Server;
 
 /**
  * Membership self-service routes of the versioned API under the 0.50.0
- * tier model: the tier list (public, from the domain settings), the
- * viewer's queue state with the derived credit balance, the Epay cashier
- * order builder (price × cycles bound inside the signed params, so
+ * tier model: the plan list (public — the cashier's tiers and the Afdian
+ * plans merged into one list, each row naming the channels that sell it),
+ * the viewer's queue state with the derived credit balance, the Epay
+ * cashier order builder (price × cycles bound inside the signed params, so
  * gateway callbacks never resolve amounts into rights) and the Afdian
  * order deep link carrying the user binding for webhook self-attribution.
  * Code redemption lives in CreditController.
@@ -60,8 +61,8 @@ final class MembershipController
             'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->afdianOrderUrl($request),
             'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
             'args' => [
-                // The tier resolves the cycle count; the plan binding still
-                // decides activation at webhook time.
+                // The key of one of the site's Afdian plans; its row owns the
+                // platform plan id the link aims at.
                 'tierKey' => ['type' => 'string', 'required' => true, 'maxLength' => 32],
             ],
         ]);
@@ -84,26 +85,60 @@ final class MembershipController
     {
         $gateway = $this->gateway();
         $afdian = AfdianGateway::fromSettings();
-        $afdianTier = $afdian?->boundTier();
 
-        // Each gateway's own answer is authoritative: it knows both the
-        // admin switch and whether credentials exist. The Afdian purchase
-        // channel rides exactly one tier — the single tier bound on the
-        // payments page — and the payload names it so the purchase UI
-        // offers the channel on that tier's card alone.
+        // One list, two product lines: the cashier's tiers (priced here) and
+        // the Afdian plans (priced on the platform, so their price is 0 and
+        // never rendered). Each row names the channels that can sell it —
+        // the card's actions are drawn from that, not from "which tier is the
+        // Afdian one". Each gateway's own answer is still authoritative for
+        // availability: it knows both the admin switch and whether the
+        // credentials exist.
+        $items = [];
+        $cashierKeys = [];
+        foreach (MembershipSettings::read()['tiers'] as $tier) {
+            $cashierKeys[$tier['key']] = true;
+            $items[] = $tier + ['channels' => ['epay']];
+        }
+
+        if ($afdian !== null) {
+            foreach ($afdian->tiers() as $tier) {
+                // A key shared with a cashier tier would collide in the plan
+                // list (one React key per card) — the save-time guard refuses
+                // that, so this backstop only fires on a hand-edited option.
+                if (isset($cashierKeys[$tier['key']])) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- operator diagnostics, see ARCHITECTURE error-handling conventions
+                    error_log('[aiya-core] Afdian plan "' . $tier['key'] . '" collides with a cashier tier key and is not offered.');
+                    continue;
+                }
+                $items[] = [
+                    'key' => $tier['key'],
+                    'name' => $tier['name'],
+                    'description' => $tier['description'],
+                    'enabled' => $tier['enabled'],
+                    // Afdian has no site-side price: the amount lives on the
+                    // platform page and only ever reaches the ledger as the
+                    // queried total_amount.
+                    'price' => 0.0,
+                    'cycleDays' => $tier['cycleDays'],
+                    'creditsPerCycle' => $tier['creditsPerCycle'],
+                    'channels' => ['afdian'],
+                ];
+            }
+        }
+
         return new WP_REST_Response($this->presenter->plans(
             $gateway !== null && $gateway->enabled(),
-            $afdian !== null && $afdianTier !== null,
-            $afdianTier !== null ? (string) $afdianTier['key'] : '',
+            $afdian !== null && $afdian->tiers() !== [],
             $gateway?->channels() ?? [],
-            MembershipSettings::read()['tiers']
+            $items
         ));
     }
 
     /**
-     * The viewer's personalized Afdian order-create deep link for one
-     * tier: the custom_order_id segment carries the user binding back
-     * into the webhook, so the purchase self-attributes on arrival.
+     * The viewer's personalized Afdian order-create deep link for one of the
+     * site's Afdian plans: the custom_order_id segment carries the user
+     * binding back into the webhook, so the purchase self-attributes on
+     * arrival.
      *
      * Minting the link writes nothing local (0.104.0 dropped the
      * placeholder rows): the books open only when a webhook delivers a
@@ -124,29 +159,23 @@ final class MembershipController
             return new WP_Error('aiya_afdian_unavailable', __('The Afdian channel is not available.', 'aiya-core'), ['status' => 502]);
         }
 
-        // The single bound tier owns the Afdian channel: the requested
-        // tier must be it. The deep link pre-selects one cycle — the
-        // front end carries its own picker and the purchase's real
-        // cycles validate at order time (the webhook's queried order
-        // settles the reality: id, cycles, amount).
-        $tier = MembershipSettings::tierByKey(
-            MembershipSettings::read()['tiers'],
-            sanitize_key((string) $request->get_param('tierKey'))
-        );
+        // The requested key is one of the site's Afdian plans — the deep link
+        // aims at that plan only. The pre-selected cycle count is a platform
+        // side courtesy; the settlement uses the queried order's own month.
+        $tier = $gateway->tierByKey(sanitize_key((string) $request->get_param('tierKey')));
         if ($tier === null) {
-            return new WP_Error('aiya_not_found', __('Unknown membership tier.', 'aiya-core'), ['status' => 404]);
+            return new WP_Error('aiya_not_found', __('Unknown Afdian plan.', 'aiya-core'), ['status' => 404]);
         }
-        // The deep link obeys the same server-side gate as the checkout
-        // POST: a hand-crafted order-url request must not pre-select a
-        // tier the site pulled from sale.
-        if (!(bool) ($tier['enabled'] ?? true)) {
-            return new WP_Error('aiya_tier_disabled', __('This membership tier is not available.', 'aiya-core'), ['status' => 410]);
+        // The deep link obeys the same gate as the purchase list: a
+        // hand-crafted order-url request must not pre-select a plan the site
+        // pulled from sale.
+        if (!$tier['enabled']) {
+            return new WP_Error('aiya_tier_disabled', __('This Afdian plan is not available.', 'aiya-core'), ['status' => 410]);
         }
 
-        $userId = (int) get_current_user_id();
-        $url = $gateway->orderUrl($userId);
+        $url = $gateway->orderUrl((int) get_current_user_id(), $tier['key']);
         if ($url === '') {
-            return new WP_Error('aiya_plan_unbound', __('The Afdian plan/tier pairing is not configured.', 'aiya-core'), ['status' => 422]);
+            return new WP_Error('aiya_plan_unbound', __('This Afdian plan carries no plan id yet.', 'aiya-core'), ['status' => 422]);
         }
 
         return new WP_REST_Response(['url' => $url]);

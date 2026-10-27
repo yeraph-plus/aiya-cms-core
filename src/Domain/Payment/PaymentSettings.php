@@ -12,14 +12,18 @@ namespace Aiya\Core\Domain\Payment;
  * owning module moved. Consumers get one merged shape; gateway
  * credentials never leave the server. Epay is the cashier gateway; Afdian
  * is the platform-push gateway — its orders arrive by webhook or
- * self-service order number, never the cashier. The sellable tier list
- * the tiers resolve against stays with the membership domain's reader.
+ * self-service order number, never the cashier.
+ *
+ * The plan tables live with their own readers, one per product line:
+ * `Domain\Membership\MembershipSettings` owns the cashier tiers, and
+ * `AfdianTiers` owns the Afdian plans. Neither list is "the" tier list, so
+ * this reader stays about credentials and channels only.
  */
 final class PaymentSettings
 {
 
     /**
-     * @return array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,afdianEnable:bool,afdianUserId:string,afdianToken:string,afdianPlanId:string,afdianTier:string}
+     * @return array{epayEnable:bool,epayPid:string,epayKey:string,epayGateway:string,epayMethods:list<string>,afdianEnable:bool,afdianUserId:string,afdianToken:string}
      */
     public static function read(): array
     {
@@ -34,8 +38,6 @@ final class PaymentSettings
             'afdianEnable' => (bool) ($payments['afdian_enable'] ?? false),
             'afdianUserId' => (string) ($payments['afdian_user_id'] ?? ''),
             'afdianToken' => (string) ($payments['afdian_token'] ?? ''),
-            'afdianPlanId' => sanitize_key((string) ($payments['afdian_plan_id'] ?? '')),
-            'afdianTier' => sanitize_key((string) ($payments['afdian_tier'] ?? '')),
         ];
     }
 
