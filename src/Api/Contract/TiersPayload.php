@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Contract;
 
 /**
- * The membership purchase surface: which payment channels are live and
- * the tier list the front end renders as pricing cards.
+ * The purchase surface: which payment channels are live and the plan list
+ * the front end renders as cards — the cashier's tiers and the Afdian plans
+ * in one list, each row naming the channels that sell it.
  */
 final class TiersPayload
 {

@@ -274,7 +274,7 @@ final class AfdianRedemption
      * exists is exactly what the entitlement's unique key needs.
      *
      * @param array{orderId:string, planId:string, userId:int, tier:array{key:string, name:string, description:string, enabled:bool, cycleDays:int, creditsPerCycle:int, maxCycles:int}|null, cycles:int, amount:float} $resolved
-     * @return array{key:string, name:string, description:string, enabled:bool, cycleDays:int, creditsPerCycle:int, maxCycles:int}|WP_Error true-equivalent = the tier it activated; aiya_duplicate_order = already activated; aiya_plan_unregistered = booked, nothing granted
+     * @return array{key:string, name:string, description:string, enabled:bool, cycleDays:int, creditsPerCycle:int, maxCycles:int}|WP_Error the tier it just activated; aiya_duplicate_order = already activated; aiya_plan_unregistered = booked, nothing granted
      */
     private function bookAndActivate(array $resolved): array|WP_Error
     {
