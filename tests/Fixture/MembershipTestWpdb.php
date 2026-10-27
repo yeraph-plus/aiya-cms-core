@@ -18,6 +18,16 @@ final class MembershipTestWpdb
 
     public int $aiya_test_reads = 0;
 
+    /**
+     * Every statement that reached the row simulator, in order — the
+     * projection is otherwise invisible: the double answers full table
+     * rows, so a mapper reading a column the SELECT never named stays
+     * silently green (the 0.134.1 users-list undefined-key notice).
+     *
+     * @var list<string>
+     */
+    public array $aiya_test_sql = [];
+
     /** @var array<string, list<array<string, mixed>>> */
     public array $rows = [];
 
@@ -268,6 +278,7 @@ final class MembershipTestWpdb
     /** Evaluates the WHERE shapes the two services issue against one table. @return list<array<string, mixed>> */
     private function select(string $sql): array
     {
+        $this->aiya_test_sql[] = $sql;
         $table = null;
         if (preg_match('/FROM\s+(\S+)/', $sql, $from) === 1) {
             $table = trim($from[1], '`');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Tests\Unit;
 
+use Aiya\Core\Domain\Membership\EntitlementService;
 use Aiya\Core\Domain\Membership\MembershipService;
 use PHPUnit\Framework\TestCase;
 
@@ -85,5 +86,42 @@ final class MembershipServiceTest extends TestCase
         self::assertFalse($service->isSponsor(42), 'a closed window fails the gate');
         self::assertTrue($service->isSponsor(7), 'control: the covering window still gates in');
         self::assertLessThanOrEqual(time(), $service->expiresAt(42), 'the expired holder\'s queue end reads as a past date');
+    }
+
+    /**
+     * The batch read's contract is a pair: the row shape and the SELECT
+     * projection must name the same columns. The double answers full
+     * table rows, so a mapper reading a column the query never named
+     * stays silently green here and only speaks in production — that is
+     * exactly how `status` survived in the shape after the batch read
+     * stopped projecting it, and the users list emitted "Undefined array
+     * key status" once per row (0.134.1).
+     */
+    public function testTheBatchQueueReadMapsOnlyTheColumnsItSelects(): void
+    {
+        $this->db->seedQueueRow(42, 'gold', 'Gold', '-10 days', '+20 days');
+
+        $rows = (new EntitlementService())->activeQueueFor([42]);
+
+        self::assertArrayHasKey(42, $rows, 'the control holder must come back covered');
+        self::assertCount(1, $rows[42]);
+
+        $sql = (string) end($this->db->aiya_test_sql);
+        self::assertSame(1, preg_match('/SELECT\s+(.+?)\s+FROM/is', $sql, $match), 'the batch read must open with a column list');
+        $projected = array_map(static fn (string $column): string => trim($column), explode(',', $match[1]));
+        $mapped = array_keys($rows[42][0]);
+
+        self::assertSame(
+            [],
+            array_values(array_diff($mapped, $projected)),
+            'the row shape maps a column the query never selected — an undefined-key notice (or null) on every row'
+        );
+        // user_id is the grouping key, not a row field; every other
+        // projected column must reach the caller.
+        self::assertSame(
+            [],
+            array_values(array_diff(array_diff($projected, ['user_id']), $mapped)),
+            'the query selects a column the row shape drops on the floor'
+        );
     }
 }

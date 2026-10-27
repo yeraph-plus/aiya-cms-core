@@ -365,8 +365,14 @@ final class EntitlementService
      * per-holder twin). Rows arrive purchase order (start ASC) so the
      * covering fold sees the same sequence the single read does.
      *
+     * Active-only by construction, so the shape carries no `status`
+     * field: the WHERE pins it and the projection does not select the
+     * column. Read `queueFor()` when the raw status is wanted — mapping
+     * a column this read never selects is how the users list came to
+     * emit "Undefined array key status" once per row (0.134.1).
+     *
      * @param list<int> $userIds
-     * @return array<int, list<array{tier_key:string, tier_name:string, starts_at:string, ends_at:string, status:string}>>
+     * @return array<int, list<array{tier_key:string, tier_name:string, starts_at:string, ends_at:string}>>
      */
     public function activeQueueFor(array $userIds): array
     {
@@ -389,12 +395,14 @@ final class EntitlementService
 
         $byUser = [];
         foreach (is_array($rows) ? $rows : [] as $row) {
+            // The shape mirrors the projection above, key for key: the
+            // fold reads tier and window only, and the projection is the
+            // batch read's whole point (no cycle columns, no status).
             $byUser[(int) $row['user_id']][] = [
                 'tier_key' => (string) $row['tier_key'],
                 'tier_name' => (string) $row['tier_name'],
                 'starts_at' => (string) $row['starts_at'],
                 'ends_at' => (string) $row['ends_at'],
-                'status' => (string) $row['status'],
             ];
         }
 
