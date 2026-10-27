@@ -223,10 +223,22 @@ final class AfdianRedemptionTest extends TestCase
 
         $redemption = $this->redemption();
 
+        // A storefront order carries no binding, and the trade number is
+        // not a secret: the caller must also name the Afdian account that
+        // paid, or the first person to type the number takes the purchase.
+        $anonymous = $redemption->redeem(7, 'T500');
+        self::assertInstanceOf(WP_Error::class, $anonymous);
+        self::assertSame('aiya_order_buyer_required', $anonymous->get_error_code());
+
+        $imposter = $redemption->redeem(7, 'T500', 'someone-else');
+        self::assertInstanceOf(WP_Error::class, $imposter);
+        self::assertSame('aiya_order_buyer_mismatch', $imposter->get_error_code());
+        self::assertSame([], $this->db->rows[$this->db->paymentTable] ?? [], 'a refused claim books no money');
+
         self::assertSame(
             ['tierKey' => 'gold', 'tierName' => 'Gold', 'cycles' => 1],
-            $redemption->redeem(7, 'T500'),
-            'an unbound order belongs to the caller who typed its number'
+            $redemption->redeem(7, 'T500', 'platform-buyer-hash'),
+            'the buyer the platform reports may claim their own order'
         );
 
         $bound = $redemption->redeem(7, 'T501');
@@ -234,11 +246,32 @@ final class AfdianRedemptionTest extends TestCase
         self::assertSame('aiya_order_bound', $bound->get_error_code());
 
         // The owner can still activate it, and the already-activated
-        // answer covers the double-typed number.
+        // answer covers the double-typed number. A bound order needs no
+        // buyer id: the deep link already proved who placed it.
         self::assertSame(['tierKey' => 'gold', 'tierName' => 'Gold', 'cycles' => 1], $redemption->redeem(42, 'T501'));
         $used = $redemption->redeem(42, 'T501');
         self::assertInstanceOf(WP_Error::class, $used);
         self::assertSame('aiya_order_used', $used->get_error_code());
+    }
+
+    /**
+     * Money and rights are two writes, so there is a window where the
+     * money row exists and the activation failed. A replay from another
+     * account in that window must not close it under its own name: the
+     * booked row, not the caller, decides who the entitlement belongs to.
+     */
+    public function testAReplayAfterAFailedActivationActivatesForTheBookedHolder(): void
+    {
+        $this->paidOrder('T700', ['custom_order_id' => '']);
+        // A paid and its row got booked; the activation never landed.
+        (new OrderService())->addPayment(42, 'afd_T700', 'gold', 30.0, 'afdian', 1);
+
+        $result = $this->redemption()->redeem(7, 'T700', 'platform-buyer-hash');
+
+        self::assertSame(['tierKey' => 'gold', 'tierName' => 'Gold', 'cycles' => 1], $result);
+        $queue = $this->db->rows[$this->db->queueTable];
+        self::assertCount(1, $queue);
+        self::assertSame(42, (int) $queue[0]['user_id'], 'the entitlement follows the money row, not the caller');
     }
 
     public function testQueriedCyclesClampToTheTierSettingsCeiling(): void

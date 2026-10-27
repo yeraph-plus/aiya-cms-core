@@ -100,6 +100,28 @@ final class OrderServiceTest extends TestCase
     }
 
     /**
+     * Provenance reads off the id itself: date + padded holder + issue
+     * second + suffix. It is the only thing that separates "the sweep
+     * pruned our own checkout" from "this id belongs to another site on
+     * the same merchant account" once the row is gone.
+     */
+    public function testWasIssuedBySiteReadsTheIdComposition(): void
+    {
+        $orders = new OrderService();
+        $issuedAt = time() - 3600;
+        $reference = gmdate('Ymd', $issuedAt) . '00042' . $issuedAt . 'XY9Z01';
+
+        self::assertTrue($orders->wasIssuedBySite('epc_' . $reference, 42));
+        self::assertTrue($orders->wasIssuedBySite($reference, 42), 'the bare reference is the same id');
+        self::assertFalse($orders->wasIssuedBySite('epc_' . $reference, 7), 'the padded holder is part of the id');
+        self::assertFalse($orders->wasIssuedBySite('epc_20260915001', 42), 'a foreign shape is not ours');
+        self::assertFalse(
+            $orders->wasIssuedBySite('epc_' . gmdate('Ymd', $issuedAt + 86400) . '00042' . $issuedAt . 'XY9Z01', 42),
+            'the date prefix has to match the embedded issue second',
+        );
+    }
+
+    /**
      * The sweep's bookkeeping flip: a pending row past the TTL turns
      * `unpaid` so the log tells "never paid" apart from "waiting", while
      * a young checkout keeps waiting. The flip is bookkeeping, not a

@@ -10,6 +10,7 @@ use Aiya\Core\Api\Presenter\UserPresenter;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
 use Aiya\Core\Domain\Identity\TokenStore;
+use Aiya\Core\Domain\Identity\UserBan;
 use RuntimeException;
 use WP_Error;
 use WP_REST_Request;
@@ -187,6 +188,13 @@ final class AuthController
                 __('The email address or the password is incorrect.', 'aiya-core'),
                 ['status' => 401]
             );
+        }
+
+        // A disabled account does not get a new session. Reporting it is
+        // deliberate: the holder has to know why the sign-in fails, or
+        // they will keep retrying a password that is fine.
+        if (UserBan::isBanned((int) $user->ID)) {
+            return new WP_Error('aiya_account_banned', __('This account is disabled.', 'aiya-core'), ['status' => 403]);
         }
 
         // The boolean arg arrives as a real bool over JSON; coerce anyway.

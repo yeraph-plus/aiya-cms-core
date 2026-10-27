@@ -119,27 +119,38 @@ namespace Aiya\Core\Tests\Unit {
             preg_match_all('/LIMIT (\d+) OFFSET (\d+)/', $sql, $window, PREG_SET_ORDER);
             $viewerId = (int) ($viewer[1] ?? 0);
             $levels = $this->levels($sql);
-            $outer = $window === [] ? null : $window[count($window) - 1];
 
-            $matched = array_values(array_filter(
+            $personal = array_values(array_filter(
                 $this->notifications,
-                static function (array $row) use ($viewerId, $levels): bool {
-                    if ((int) $row['user_id'] > 0) {
-                        return (int) $row['user_id'] === $viewerId;
-                    }
-
-                    return in_array((string) $row['min_role'], $levels, true);
-                },
+                static fn (array $row): bool => (int) $row['user_id'] > 0 && (int) $row['user_id'] === $viewerId,
             ));
-            usort($matched, static fn (array $a, array $b): int =>
-                [(string) $b['created_at'], (int) $b['id']] <=> [(string) $a['created_at'], (int) $a['id']]);
+            $broadcast = array_values(array_filter(
+                $this->notifications,
+                static fn (array $row): bool => (int) $row['user_id'] === 0 && in_array((string) $row['min_role'], $levels, true),
+            ));
 
-            $slice = array_map(static fn (array $row): object => (object) $row, $matched);
-            if ($outer !== null) {
-                $slice = array_slice($slice, (int) $outer[2], (int) $outer[1]);
+            // Each arm pages itself, then the merge pages again — the shape
+            // the statement actually has. Slicing only the merged list is
+            // what made a doubled inner OFFSET pass review.
+            $slice = static function (array $rows, ?array $window): array {
+                usort($rows, static fn (array $a, array $b): int =>
+                    [(string) $b['created_at'], (int) $b['id']] <=> [(string) $a['created_at'], (int) $a['id']]);
+                if ($window === null) {
+                    return $rows;
+                }
+
+                return array_slice($rows, (int) $window[2], (int) $window[1]);
+            };
+
+            if (count($window) === 3) {
+                $personal = $slice($personal, $window[0]);
+                $broadcast = $slice($broadcast, $window[1]);
+                $merged = $slice(array_merge($personal, $broadcast), $window[2]);
+            } else {
+                $merged = $slice(array_merge($personal, $broadcast), $window[0] ?? null);
             }
 
-            return $slice;
+            return array_map(static fn (array $row): object => (object) $row, $merged);
         }
 
         public function get_var(string $sql): mixed
@@ -343,6 +354,40 @@ namespace Aiya\Core\Tests\Unit {
             self::assertSame(2, $pagination['totalPages']);
             self::assertFalse($pagination['hasNext']);
             self::assertTrue($pagination['hasPrevious']);
+        }
+
+        /**
+         * The union window must tile: three full pages of a 45-row feed
+         * cover every row exactly once. A doubled inner OFFSET shifts each
+         * arm by the outer offset as well, so page two starts at row 41 and
+         * rows 21–40 never appear anywhere.
+         */
+        public function testTheThreePagesTileTheUnionWindowWithoutGaps(): void
+        {
+            $base = strtotime('2026-01-01 00:00:00');
+            for ($id = 1; $id <= 45; $id++) {
+                $this->seed($id, 7, 'subscriber', date('Y-m-d H:i:s', $base + $id * 60));
+            }
+            $this->login(7);
+
+            $seen = [];
+            foreach ([1, 2, 3] as $page) {
+                $response = $this->feed($page, 20);
+
+                self::assertInstanceOf(WP_REST_Response::class, $response);
+                $body = $response->get_data();
+                $ids = array_column($body['data'], 'id');
+                if ($page < 3) {
+                    self::assertCount(20, $ids, "page {$page} is a full page");
+                }
+                $seen = array_merge($seen, $ids);
+            }
+
+            self::assertSame(
+                range(45, 1),
+                $seen,
+                'the three pages cover the 45 rows exactly once, newest first',
+            );
         }
 
         // --------------------------------------------------------------- budget

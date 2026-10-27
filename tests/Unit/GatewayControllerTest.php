@@ -426,6 +426,35 @@ namespace Aiya\Core\Tests\Unit {
             self::assertSame([], $this->queueRows());
         }
 
+        /**
+         * A real late payment, not a foreign id: the sweep deleted the
+         * checkout seven days in, so the row is gone while the money is
+         * not. The signed push carries its own binding and must still
+         * book — answering `success` with nothing in the log would leave
+         * the payment existing only on the platform's side.
+         */
+        public function testEpayPushForAPrunedCheckoutReBooksThePurchase(): void
+        {
+            $this->stageEpay();
+            $reference = gmdate('Ymd') . '00042' . time() . 'AB12CD';
+            $orderId = 'epc_' . $reference;
+            $this->seedPending($orderId, 'gold', 3, 90.0);
+            $this->db->rows[$this->db->paymentTable] = []; // the sweep deleted the cart
+            self::assertTrue((new OrderService())->wasIssuedBySite($orderId, 42), 'the id shape is one this site issues');
+
+            $response = $this->epay($this->signedCallback(['out_trade_no' => $reference]));
+
+            self::assertSame(200, $response->get_status());
+            self::assertSame('success', $response->get_data());
+            $rows = $this->paymentRows();
+            self::assertCount(1, $rows, 'the pruned purchase is booked, not dropped');
+            self::assertSame(42, (int) $rows[0]['user_id']);
+            self::assertSame('paid', $rows[0]['status']);
+            self::assertSame(90.0, (float) $rows[0]['amount'], 'the push is the money truth');
+            self::assertSame(3, (int) $rows[0]['cycles'], 'the signed binding carries the cycle count');
+            self::assertCount(1, $this->queueRows(), 'and the entitlement still queues');
+        }
+
         public function testEpayDeletedTierKeepsTheMoneyBooked(): void
         {
             $this->stageEpay();

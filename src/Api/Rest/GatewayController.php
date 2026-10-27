@@ -134,8 +134,11 @@ final class GatewayController
      *   ARCHITECTURE convention: a broken invariant must be hearable);
      * - a row already paid (a replay): money untouched, the queueing
      *   re-runs so a retry after a failed activation completes;
-     * - no row: the id was not issued by this site, so there is nothing
-     *   to do but answer success and let the platform stop retrying.
+     * - no row: either the id was never issued by this site, or the sweep
+     *   deleted an unsettled cart before the money arrived. The signed
+     *   binding tells those apart from our side only by the write: the
+     *   push re-books its own verified purchase, so a late payment still
+     *   lands in the books instead of existing on the platform alone.
      *
      * @param array{orderId:string, userId:int, tierKey:string, cycles:int, amount:float} $payment
      */
@@ -145,9 +148,44 @@ final class GatewayController
         $row = $this->orders->orderRow($orderId);
 
         if ($row === null) {
-            WebhookLogger::write("The order {$orderId} is not a checkout of this site; nothing to settle.", '');
+            // Absence has two meanings: the id belongs to someone else
+            // (another site on the same merchant account) or the sweep
+            // pruned our own cart seven days in. The id's own composition
+            // tells them apart, and only the second one may book.
+            if (!$this->orders->wasIssuedBySite($orderId, $payment['userId'])) {
+                WebhookLogger::write("The order {$orderId} is not a checkout of this site; nothing to settle.", '');
 
-            return new WP_REST_Response('success', 200);
+                return new WP_REST_Response('success', 200);
+            }
+
+            // Ours, pruned: a payment that arrives after the sweep would
+            // otherwise exist on the platform alone — answering `success`
+            // stops its retries with nothing in our books. The signed push
+            // books its own purchase instead; the signature is the money
+            // truth.
+            $booked = $this->orders->addPayment(
+                $payment['userId'],
+                $orderId,
+                $payment['tierKey'],
+                $payment['amount'],
+                'epay',
+                $payment['cycles'],
+            );
+
+            if (is_wp_error($booked) && $booked->get_error_code() !== 'aiya_duplicate_order') {
+                // The holder is gone or the write failed — a retry cannot
+                // fix either, so answer success and leave a trace.
+                WebhookLogger::write("The pruned order {$orderId} could not be re-booked ({$booked->get_error_code()}); the payment stays on the platform only.", '');
+
+                return new WP_REST_Response('success', 200);
+            }
+
+            $row = $this->orders->orderRow($orderId);
+            if ($row === null) {
+                WebhookLogger::write("The order {$orderId} could not be read back after re-booking — answering retry.", '');
+
+                return new WP_REST_Response('fail', 400);
+            }
         }
 
         if ($row['status'] !== OrderService::STATUS_PAID) {

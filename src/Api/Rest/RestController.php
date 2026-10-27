@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
+use Closure;
 use Aiya\Core\Api\Presenter\CommentPresenter;
 use Aiya\Core\Api\Presenter\FilePresenter;
 use Aiya\Core\Api\Presenter\NotificationLinker;
@@ -60,6 +61,14 @@ use Aiya\Infra\OpenCc\Converter;
  */
 final class RestController implements Module
 {
+    /** @var (Closure(): list<string>)|null */
+    private ?Closure $searchWords;
+
+    /**
+     * @param (Closure(): list<string>)|null $searchWords Lazy site
+     *        dictionary shared by both content read paths (the search
+     *        controller and the presenter's content query).
+     */
     public function __construct(
         private AvatarModule $avatars,
         private FileService $files,
@@ -69,12 +78,15 @@ final class RestController implements Module
         private MediaPaths $paths,
         private PostVisibility $visibility,
         private UpdateProcessor $telegramIntake,
+        ?Closure $searchWords = null,
     ) {
+        $this->searchWords = $searchWords;
     }
 
     public function register(): void
     {
         Envelope::register();
+        BanGate::register();
         (new ScriptVariant(new Converter()))->register();
         (new CorsHeaders(fn (): array => array_values(array_map('strval', (array) aiya_core_opt('optimization', 'rest_allowed_origins', [])))))->register();
         (new HttpCache())->register();
@@ -91,7 +103,7 @@ final class RestController implements Module
             $policy = new PasswordPolicy();
             $favorites = new FavoriteService();
             $mentions = new Mentions();
-            $contentQuery = new ContentQuery($this->visibility);
+            $contentQuery = new ContentQuery($this->visibility, $this->searchWords);
             $postPresenter = new PostPresenter($this->cards, $smiliesRenderer, $this->visibility, $favorites, new CounterService(), $contentQuery, $mentions);
 
             (new AuthController(
@@ -113,7 +125,7 @@ final class RestController implements Module
             (new UploadsController($this->store, $this->paths, new RateLimiter(), new UploadPresenter()))->registerRoutes();
 
             (new ContentController(
-                new ContentQuery($this->visibility),
+                new ContentQuery($this->visibility, $this->searchWords),
                 new RelatedPostsQuery($this->visibility),
                 new HotPostsQuery($this->visibility),
                 $postPresenter,

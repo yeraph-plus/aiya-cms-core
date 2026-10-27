@@ -1434,6 +1434,34 @@ if (!class_exists('wpdb')) {
                 );
             }
 
+            // The notification feed's two-arm union: each arm carries its own
+            // LIMIT/OFFSET and the merge carries a third. Simulated for real
+            // — collapsing the arms into one slice is exactly what let a
+            // doubled inner OFFSET look green while skipping whole pages.
+            if (str_contains($sql, 'UNION ALL') && preg_match_all('/LIMIT (\d+) OFFSET (\d+)/', $sql, $windows, PREG_SET_ORDER) === 3) {
+                preg_match('/user_id = (\d+)/', $sql, $viewerMatch);
+                $viewer = (int) ($viewerMatch[1] ?? 0);
+                $levels = preg_match('/min_role IN \(([^)]*)\)/', $sql, $levelMatch) === 1
+                    ? array_map(static fn (string $item): string => trim($item, "' "), explode(',', $levelMatch[1]))
+                    : [];
+                $slice = static function (array $rows, array $window): array {
+                    usort($rows, static fn (array $a, array $b): int =>
+                        [(string) ($b['created_at'] ?? ''), (int) ($b['id'] ?? 0)]
+                        <=> [(string) ($a['created_at'] ?? ''), (int) ($a['id'] ?? 0)]);
+
+                    return array_slice($rows, (int) $window[2], (int) $window[1]);
+                };
+                $all = array_values($this->aiya_test_rows[$table] ?? []);
+                $personal = $slice(array_values(array_filter($all, static fn (array $row): bool => (int) ($row['user_id'] ?? 0) === $viewer)), $windows[0]);
+                $broadcast = $slice(array_values(array_filter($all, static fn (array $row): bool => (int) ($row['user_id'] ?? 0) === 0 && in_array((string) ($row['min_role'] ?? ''), $levels, true))), $windows[1]);
+                $merged = $slice(array_merge($personal, $broadcast), $windows[2]);
+
+                return array_map(
+                    static fn (array $row): array|object => $output === ARRAY_A ? $row : (object) $row,
+                    $merged
+                );
+            }
+
             $matched = [];
             foreach ($this->aiya_test_rows[$table] ?? [] as $row) {
                 if (str_contains($sql, "direction = 'in'") && ($row['direction'] ?? '') !== 'in') {
@@ -2140,6 +2168,9 @@ if (!class_exists('WP_Query')) {
         public function __construct(array $args = [])
         {
             $this->args = $args;
+            // Wiring assertions read the last constructed query's args
+            // (the search split's `s`, for instance) without a SQL layer.
+            $GLOBALS['__aiya_test_last_query_args'] = $args;
             $types = (array) ($args['post_type'] ?? 'any');
             $wanted = [];
             foreach ($types as $type) {

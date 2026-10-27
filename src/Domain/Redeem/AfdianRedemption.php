@@ -57,11 +57,16 @@ final class AfdianRedemption
     /**
      * Verifies one Afdian order number and activates it for the caller.
      *
+     * @param string $buyerId The caller's Afdian user id, required only when
+     *                        the order carries no deep-link binding: without
+     *                        it the order number alone would let the first
+     *                        person to type it claim somebody else's purchase.
+     *
      * @return array{tierKey:string, tierName:string, cycles:int}|WP_Error
      */
-    public function redeem(int $userId, string $orderNo): array|WP_Error
+    public function redeem(int $userId, string $orderNo, string $buyerId = ''): array|WP_Error
     {
-        $resolved = $this->resolvePurchase($orderNo, $userId);
+        $resolved = $this->resolvePurchase($orderNo, $userId, $buyerId);
         if (is_wp_error($resolved)) {
             return $resolved;
         }
@@ -126,12 +131,12 @@ final class AfdianRedemption
      * The shared ping→query→verify chain. Returns the purchase the API
      * vouches for, with the holder resolved per trigger: the webhook
      * ($claimant null) trusts only the deep-link binding, the manual
-     * path claims the order for its caller unless another account owns
-     * the binding.
+     * path claims a bound order for its owner and an unbound one only for
+     * the buyer whose Afdian user id it can verify.
      *
      * @return array{orderNo:string, orderId:string, userId:int, tier:array{key:string,name:string,price:float,cycleDays:int,creditsPerCycle:int}, cycles:int, amount:float}|WP_Error
      */
-    private function resolvePurchase(string $orderNo, ?int $claimant): array|WP_Error
+    private function resolvePurchase(string $orderNo, ?int $claimant, string $buyerId = ''): array|WP_Error
     {
         // Official open-API ec table: 200 ok, 0 = no answer (this side),
         // 400002 = ts expired (clock skew), 400004/400005 = bad credentials.
@@ -176,15 +181,40 @@ final class AfdianRedemption
         }
 
         // Attribution: an order placed through the personalized deep link
-        // carries the account binding in custom_order_id.
+        // carries the account binding in custom_order_id. A storefront
+        // order carries none, and the trade number is not a secret — it
+        // appears in screenshots, support tickets and group chats — so the
+        // manual path additionally requires the caller's own Afdian user
+        // id to match the buyer the platform reports. First-come claiming
+        // would otherwise let any holder of a number lock the real buyer
+        // out for good.
         $boundUser = $this->gateway->client()->resolveUser((string) ($order['custom_order_id'] ?? ''));
         if ($claimant !== null) {
-            if ($boundUser > 0 && $boundUser !== $claimant) {
-                return new WP_Error('aiya_order_bound', __('This order is bound to another account.', 'aiya-core'), ['status' => 409]);
+            if ($boundUser > 0) {
+                if ($boundUser !== $claimant) {
+                    return new WP_Error('aiya_order_bound', __('This order is bound to another account.', 'aiya-core'), ['status' => 409]);
+                }
+                $userId = $claimant;
+            } else {
+                $buyer = trim($buyerId);
+                if ($buyer === '') {
+                    return new WP_Error(
+                        'aiya_order_buyer_required',
+                        __('This order carries no site link, so the order number alone cannot identify its buyer — enter your Afdian user id (the /u/… part of your Afdian profile URL) to claim it.', 'aiya-core'),
+                        ['status' => 422],
+                    );
+                }
+
+                $owner = trim((string) ($order['user_id'] ?? ''));
+                if ($owner === '' || !hash_equals($owner, $buyer)) {
+                    return new WP_Error('aiya_order_buyer_mismatch', __('That order belongs to a different Afdian account.', 'aiya-core'), ['status' => 403]);
+                }
+                $userId = $claimant;
             }
-            $userId = $claimant;
         } elseif ($boundUser <= 0) {
-            // Placed on the platform directly: no local account to credit.
+            // Placed on the platform directly: the webhook has no caller to
+            // ask for the buyer id, so it leaves attribution to the account
+            // page.
             return new WP_Error('aiya_order_unattributed', __('The order carries no account binding — activate it from the account page with the order number.', 'aiya-core'), ['status' => 422]);
         } else {
             $userId = $boundUser;
@@ -217,6 +247,17 @@ final class AfdianRedemption
             return new WP_Error('aiya_activation_failed', __('The membership activation failed — try again.', 'aiya-core'), ['status' => 502]);
         }
 
-        return $this->entitlements->activateFromPayment($resolved['userId'], $resolved['orderId'], $resolved['tier'], $resolved['cycles']);
+        // The booked row — not the caller in hand — names who paid. Two
+        // separate writes (money, then rights) leave a window where the
+        // money is booked and the activation failed; a replay from another
+        // account must not close that window under its own name, so read
+        // the holder back and activate for them. Same account in the
+        // normal case, so this costs one read and changes nothing.
+        $booked = $this->orders->orderRow($resolved['orderId']);
+        if ($booked === null) {
+            return new WP_Error('aiya_activation_failed', __('The membership activation failed — try again.', 'aiya-core'), ['status' => 502]);
+        }
+
+        return $this->entitlements->activateFromPayment((int) $booked['user_id'], $resolved['orderId'], $resolved['tier'], $resolved['cycles']);
     }
 }

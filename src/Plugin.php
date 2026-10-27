@@ -32,6 +32,7 @@ use Aiya\Core\Api\Rest\RestController;
 use Aiya\Core\Api\Rest\TelegramWebhookController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Domain\Content\ContentQuery;
+use Aiya\Core\Domain\Content\SearchDictionary;
 use Aiya\Core\Domain\Content\ContentManagementModule;
 use Aiya\Core\Domain\Content\ContentEventsModule;
 use Aiya\Core\Domain\Content\ContentTypeModule;
@@ -211,10 +212,18 @@ final class Plugin
         $this->addModule(new TelegramModule($this->settings));
         $this->addModule(new TelegramWebhookModule());
 
+        // The search dictionary is built once and read lazily: the
+        // segmenter only asks for it on the first phrase-carrying search,
+        // after every public taxonomy and term is available. Term edits
+        // flush the transient through the module's own hooks.
+        $searchDictionary = new SearchDictionary();
+        $this->addModule($searchDictionary);
+        $searchWords = static fn (): array => $searchDictionary->words();
+
         // The card part reads a post through the Api-layer projection, so
         // the composition root injects that renderer; it needs the media
         // stack above, hence the late registration.
-        $contentQuery = new ContentQuery($visibility);
+        $contentQuery = new ContentQuery($visibility, $searchWords);
         $postCards = new PostCardPresenter(
             $contentQuery,
             new PostPresenter($media->cards(), new SmiliesRenderer(SmiliesRegistry::shared()), $visibility, new FavoriteService(), new CounterService(), $contentQuery, new Mentions())
@@ -238,7 +247,7 @@ final class Plugin
 
         $this->addModule(new SchemaVersionRunner());
         $this->addModule(new VisibilityMetabox($visibility));
-        $this->addModule(new RestController($avatar, $fileServe->files(), $fileServe->downloads(), $media->cards(), $media->store(), $media->paths(), $visibility, $this->telegramIntake));
+        $this->addModule(new RestController($avatar, $fileServe->files(), $fileServe->downloads(), $media->cards(), $media->store(), $media->paths(), $visibility, $this->telegramIntake, $searchWords));
 
         // WP 7.1's load_plugin_textdomain no longer falls back to the
         // plugin-local languages dir, so the own .mo is loaded directly

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Content;
 
+use Closure;
 use Aiya\Core\Domain\Shared\PublicType;
 use Aiya\Core\Domain\Shared\PublicTypes;
 use WP_Post;
@@ -43,9 +44,23 @@ final class ContentQuery
     /** Query var marking the rows of a query that carries the exclusion. */
     private const EXCLUDE_VAR = 'aiya_exclude_ttids';
 
+    /** @var (Closure(): list<string>)|null */
+    private ?Closure $searchWords;
+
+    private ?SearchSegmenter $segmenter = null;
+
+    /**
+     * @param (Closure(): list<string>)|null $searchWords Lazy site
+     *        dictionary for the query segmenter (0.133.0). Null keeps the
+     *        dictionary-free bigram split. The closure runs on the first
+     *        search, never at construction, so taxonomy reads stay out of
+     *        the boot path and the dictionary is read after init.
+     */
     public function __construct(
         private PostVisibility $visibility,
+        ?Closure $searchWords = null,
     ) {
+        $this->searchWords = $searchWords;
     }
 
     /** Whether the current viewer may read private posts of this type at all. */
@@ -63,7 +78,10 @@ final class ContentQuery
     /**
      * Paginated list of one type. Query parameters arrive already
      * validated by the REST layer; unknown category slugs simply match
-     * nothing (an empty list, not an error). `$excludeTermTaxonomyIds`
+     * nothing (an empty list, not an error). `$category` and `$tag` are
+     * comma-separated multi-selects; the tag leg matches with `IN`, so
+     * the chosen tags answer their union while the category leg keeps
+     * narrowing it (default AND across legs). `$excludeTermTaxonomyIds`
      * is the opaque term exclusion (NSFW): rows carrying any of those
      * term taxonomy ids drop out of the result and the totals.
      *
@@ -109,7 +127,7 @@ final class ContentQuery
         }
 
         if ($q !== '') {
-            $args['s'] = self::searchTerms($q);
+            $args['s'] = $this->searchSegmenter()->terms($q);
         }
         if ($author !== '') {
             // author_name keys on user_nicename — the public profile slug.
@@ -133,8 +151,9 @@ final class ContentQuery
             $tagSlugs = $this->slugList($tag);
             // A type may carry several tag vocabularies (resource maps five
             // onto the contract's tag role): any chosen tag in any vocabulary
-            // counts, while the category leg above keeps narrowing with the
-            // default AND.
+            // counts (IN — the union of the chosen tags' rows, never a
+            // tag × tag AND), while the category leg above keeps narrowing
+            // with the default AND.
             $tagLegs = [];
             foreach ($type->wpTagTaxonomies() as $tagTaxonomy) {
                 $tagLegs[] = [
@@ -151,7 +170,10 @@ final class ContentQuery
             }
         }
         if ($taxQuery !== []) {
-            // Multiple legs (category + tag) narrow with the default AND relation.
+            // Cross-leg relation stays the default AND: category narrows the
+            // tag set and vice versa. Within the tag leg the operator is IN,
+            // so two chosen tags union their rows; only category × tag (and
+            // keyword × tag) intersect.
             $args['tax_query'] = $taxQuery;
         }
 
@@ -566,49 +588,38 @@ final class ContentQuery
     }
 
     /**
-     * The search box's terms, prepared for WP's AND-split LIKE search
-     * (0.100.0). Latin/digit runs stay whole; a run of CJK characters
-     * becomes overlapping bigrams — `壁纸资源` searches `壁纸 纸资 资源` —
-     * because one unsplit CJK phrase otherwise only matches rows carrying
-     * it as a contiguous substring. Every bigram present still bounds the
-     * match far tighter than an OR, and a single CJK character stays
-     * itself. Terms cap at eight so a paste attack cannot inflate the LIKE
-     * set; punctuation never forms a term (WP's own search drops it too).
-     * A query with no CJK runs passes through normalized to
-     * whitespace-separated runs.
+     * The segmenter, built on the first search: the dictionary arrives only
+     * when the query actually carries a phrase, which also keeps the
+     * taxonomy read out of every list-only request.
+     */
+    private function searchSegmenter(): SearchSegmenter
+    {
+        if ($this->segmenter === null) {
+            $words = $this->searchWords === null ? [] : ($this->searchWords)();
+            $this->segmenter = new SearchSegmenter($words);
+        }
+
+        return $this->segmenter;
+    }
+
+    /**
+     * The dictionary-free fallback, kept for callers that want the raw
+     * bigram expansion (and for the unit suite): Latin/digit runs stay
+     * whole; a CJK run becomes overlapping bigrams — `壁纸资源` searches
+     * `壁纸 纸资 资源` — because one unsplit CJK phrase otherwise only
+     * matches rows carrying it as a contiguous substring. Every bigram
+     * present still bounds the match far tighter than an OR, and a single
+     * CJK character stays itself. Terms cap at eight so a paste attack
+     * cannot inflate the LIKE set; punctuation never forms a term (WP's own
+     * search drops it too). A query with no CJK runs passes through
+     * normalized to whitespace-separated runs.
+     *
+     * The live read path goes through SearchSegmenter with the site
+     * dictionary (0.133.0); this method pins the exact pre-dictionary
+     * behavior.
      */
     public static function searchTerms(string $query): string
     {
-        preg_match_all('/([A-Za-z0-9]+)|([\x{4E00}-\x{9FFF}]+)/u', $query, $runs, PREG_SET_ORDER);
-
-        $terms = [];
-        $cjkSeen = false;
-        foreach ($runs as $run) {
-            $latin = $run[1] ?? '';
-            $cjk = $run[2] ?? '';
-            if ($latin !== '') {
-                $terms[] = $latin;
-                continue;
-            }
-            $cjkSeen = true;
-            $length = mb_strlen($cjk);
-            if ($length === 1) {
-                $terms[] = $cjk;
-                continue;
-            }
-            for ($start = 0; $start + 2 <= $length; $start++) {
-                $terms[] = mb_substr($cjk, $start, 2);
-            }
-        }
-
-        if ($terms === []) {
-            return trim($query);
-        }
-
-        if (!$cjkSeen) {
-            return implode(' ', $terms);
-        }
-
-        return implode(' ', array_slice($terms, 0, 8));
+        return (new SearchSegmenter())->terms($query);
     }
 }

@@ -160,7 +160,10 @@ final class NotificationService
             // index in its own order and merged outside — an OR over both
             // arms would lose the index order and filesort every page.
             // Each arm fetches offset + limit so the outer slice has the
-            // full window from both sides.
+            // full window from both sides — and therefore starts at its
+            // first row: the inner OFFSET must stay 0, otherwise the window
+            // is shifted twice and everything between page 1 and page N
+            // never appears on any page.
             $fetch = $limit + max(0, $offset);
             // phpcs:disable WordPress.DB.PreparedSQL -- the IN fragment is a whitelist
             // literal (IN_CLAUSES_BY_RANK): it cannot travel through prepare, and
@@ -185,10 +188,10 @@ final class NotificationService
                 $table,
                 $viewerId,
                 $fetch,
-                max(0, $offset),
+                0,
                 $table,
                 $fetch,
-                max(0, $offset),
+                0,
                 $limit,
                 max(0, $offset)
             ));

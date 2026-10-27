@@ -25,7 +25,12 @@ namespace Aiya\Core\Domain\Identity;
  *   endpoints included) inherits it without knowing about the ban;
  * - membership: `MembershipService`'s gates (isSponsor / isActive /
  *   expiresAt) answer "not a member", which covers the content gate, the
- *   wire state and every derived reader such as the public profile block.
+ *   wire state and every derived reader such as the public profile block;
+ * - sign-in: `AuthController::login` refuses a new session;
+ * - every write route in the namespace: `Api\Rest\BanGate` answers 403
+ *   before dispatch, so "can this account speak?" has one answer for all
+ *   community domains and for any write route added later (reads and
+ *   sign-out stay reachable).
  *
  * The ledger and the entitlement queue are deliberately NOT touched: a
  * disabled holder keeps what was granted and keeps receiving what was

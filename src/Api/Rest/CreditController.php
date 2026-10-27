@@ -72,6 +72,10 @@ final class CreditController
                 // value as an Afdian order number and verifies it against
                 // the open API before activating the bound tier.
                 'channel' => ['type' => 'string', 'enum' => ['redeem', 'afdian'], 'default' => 'redeem'],
+                // The caller's own Afdian user id, required for a storefront
+                // order (one without a deep-link binding): the order number
+                // alone is not proof of purchase.
+                'buyer' => ['type' => 'string', 'maxLength' => 64, 'default' => ''],
             ],
         ]);
     }
@@ -141,7 +145,7 @@ final class CreditController
                 return new WP_Error('aiya_afdian_unavailable', __('The Afdian channel is not available.', 'aiya-core'), ['status' => 502]);
             }
 
-            $result = $redemption->redeem($userId, $code);
+            $result = $redemption->redeem($userId, $code, trim((string) $request->get_param('buyer')));
         } else {
             $result = $this->codes->redeem($code, $userId);
         }

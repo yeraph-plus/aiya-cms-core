@@ -24,9 +24,11 @@ use WP_Error;
  * for WHAT was bought — a callback only reports that money arrived — and
  * untouched pendings age to `unpaid` on the daily sweep, which stays
  * settleable: a signature-verified Epay push settles a matching row at
- * any age. The Afdian chain writes no checkout row at all (0.104.0
- * dropped the deep-link placeholders) — its verified purchase books
- * directly; both writes are idempotent on the order-id unique key.
+ * any age, and one that arrives after the row was pruned re-books its own
+ * verified purchase — pruning carts must never lose money. The Afdian
+ * chain writes no checkout row at all (0.104.0 dropped the deep-link
+ * placeholders) — its verified purchase books directly; both writes are
+ * idempotent on the order-id unique key.
  */
 final class OrderService
 {
@@ -298,8 +300,11 @@ final class OrderService
      * financial archive and never leave; the unsettled states — abandoned
      * checkouts the sweep aged to `unpaid`, and any `pending` row that
      * somehow outlived the retention window — are deleted once they are
-     * older than UNPAID_RETENTION_DAYS. Deletion removes settleability
-     * (orderRow() stops finding the row).
+     * older than UNPAID_RETENTION_DAYS. What deletion removes is the cart
+     * row, never the purchase: a signature-verified push that arrives
+     * afterwards re-books its own amount, binding and cycles
+     * (GatewayController::settle), so the money is still booked and the
+     * entitlement still queued.
      *
      * @return int rows deleted
      */
@@ -322,6 +327,33 @@ final class OrderService
         $deleted = $wpdb->query($sql);
 
         return is_int($deleted) ? $deleted : 0;
+    }
+
+    /**
+     * Whether an order id is one this site issued — date + padded holder +
+     * issue second + six-character suffix, optionally behind a gateway
+     * prefix (`epc_`). Used only when a signed push arrives for an id with
+     * no row left: the sweep deletes carts, so absence alone cannot tell
+     * "we pruned our own checkout" from "this id belongs to somebody
+     * else" (another site on the same merchant account). The embedded
+     * holder and issue second make that distinction without a lookup.
+     */
+    public function wasIssuedBySite(string $orderId, int $userId): bool
+    {
+        if (preg_match('/^(?:[a-z]{2,8}_)?(\d{8})(\d{5})(\d{10})([A-Za-z0-9]{6})$/', $orderId, $parts) !== 1) {
+            return false;
+        }
+
+        if ((int) $parts[2] !== $userId) {
+            return false;
+        }
+
+        $issuedAt = (int) $parts[3];
+        if ($issuedAt < 1 || $issuedAt > time() + 300) {
+            return false;
+        }
+
+        return gmdate('Ymd', $issuedAt) === $parts[1];
     }
 
     /**

@@ -62,6 +62,136 @@ final class ContentQueryListTest extends TestCase
         }
     }
 
+    // --------------------------------------------------- search split wiring
+
+    public function testTheInjectedDictionarySegmentsTheSearchArgument(): void
+    {
+        $this->fivePosts();
+        $query = new ContentQuery(
+            new PostVisibility(static fn (int $userId): bool => false),
+            static fn (): array => ['壁纸', '资源']
+        );
+
+        $query->list(PublicTypes::get('post') ?? throw new \RuntimeException(), 1, 2, '壁纸资源', '', 'newest');
+
+        self::assertSame('壁纸 资源', $GLOBALS['__aiya_test_last_query_args']['s'] ?? null);
+    }
+
+    public function testWithoutADictionaryTheSearchArgumentIsTheLegacyBigramSplit(): void
+    {
+        $this->fivePosts();
+
+        $this->query()->list(PublicTypes::get('post') ?? throw new \RuntimeException(), 1, 2, '壁纸资源', '', 'newest');
+
+        self::assertSame('壁纸 纸资 资源', $GLOBALS['__aiya_test_last_query_args']['s'] ?? null);
+    }
+
+    // --------------------------------------------------- tag filter (union)
+
+    public function testTwoTagsRideOneInLeg(): void
+    {
+        $this->fivePosts();
+
+        $this->query()->list(
+            PublicTypes::get('post') ?? throw new \RuntimeException(),
+            1,
+            10,
+            '',
+            '',
+            'newest',
+            '',
+            'zz-a,zz-b'
+        );
+
+        $tax = $GLOBALS['__aiya_test_last_query_args']['tax_query'] ?? null;
+        self::assertIsArray($tax);
+        self::assertCount(1, $tax, 'one tag vocabulary = one leg');
+        self::assertSame('post_tag', $tax[0]['taxonomy']);
+        self::assertSame('slug', $tax[0]['field']);
+        self::assertSame(['zz-a', 'zz-b'], $tax[0]['terms']);
+        self::assertSame('IN', $tax[0]['operator'], 'two chosen tags must answer their union, not their intersection');
+    }
+
+    public function testResourceTagVocabulariesNestUnderOneOr(): void
+    {
+        $this->fivePosts();
+        $type = PublicTypes::get('resource') ?? throw new \RuntimeException();
+
+        $this->query()->list($type, 1, 10, '', '', 'newest', '', 'zz-a,zz-b');
+
+        $tax = $GLOBALS['__aiya_test_last_query_args']['tax_query'] ?? null;
+        self::assertIsArray($tax);
+        self::assertCount(1, $tax, 'the tag vocabularies stay one top-level leg');
+        self::assertSame('OR', $tax[0]['relation']);
+        $legs = array_values(array_filter($tax[0], static fn ($leg): bool => is_array($leg)));
+        $taxonomies = $type->wpTagTaxonomies();
+        self::assertSame($taxonomies, array_map(static fn ($leg): string => (string) $leg['taxonomy'], $legs));
+        foreach ($legs as $leg) {
+            self::assertSame(['zz-a', 'zz-b'], $leg['terms']);
+            self::assertSame('IN', $leg['operator']);
+        }
+    }
+
+    public function testCategoryAndTagKeepSeparateLegs(): void
+    {
+        $this->fivePosts();
+
+        $this->query()->list(
+            PublicTypes::get('post') ?? throw new \RuntimeException(),
+            1,
+            10,
+            '',
+            'news',
+            'newest',
+            '',
+            'zz-a,zz-b'
+        );
+
+        $tax = $GLOBALS['__aiya_test_last_query_args']['tax_query'] ?? null;
+        self::assertIsArray($tax);
+        self::assertCount(2, $tax);
+        // No top-level relation: separate legs intersect (category × tag).
+        self::assertArrayNotHasKey('relation', $tax);
+        self::assertSame('category', $tax[0]['taxonomy']);
+        self::assertSame('IN', $tax[0]['operator']);
+        self::assertSame('post_tag', $tax[1]['taxonomy']);
+        self::assertSame('IN', $tax[1]['operator'], 'the tag leg stays a union even when a category narrows it');
+        self::assertSame(['zz-a', 'zz-b'], $tax[1]['terms']);
+    }
+
+    public function testEachCommaSegmentIsSanitizedOnItsOwn(): void
+    {
+        $this->fivePosts();
+
+        $this->query()->list(
+            PublicTypes::get('post') ?? throw new \RuntimeException(),
+            1,
+            10,
+            '',
+            '',
+            'newest',
+            '',
+            ' Tag A , tag-b '
+        );
+
+        $tax = $GLOBALS['__aiya_test_last_query_args']['tax_query'] ?? null;
+        self::assertIsArray($tax);
+        self::assertSame(
+            ['tag-a', 'tag-b'],
+            $tax[0]['terms'],
+            'a whole-string sanitize_title would fuse the list into one slug'
+        );
+    }
+
+    public function testAnEmptyTagSelectionAddsNoLeg(): void
+    {
+        $this->fivePosts();
+
+        $this->query()->list(PublicTypes::get('post') ?? throw new \RuntimeException(), 1, 10, '', '', 'newest', '', ' , ');
+
+        self::assertArrayNotHasKey('tax_query', $GLOBALS['__aiya_test_last_query_args']);
+    }
+
     // ------------------------------------------------------- exclusion clause
 
     public function testExclusionClauseSubqueriesTheRelationshipTable(): void
