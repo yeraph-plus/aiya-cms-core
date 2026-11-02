@@ -26,7 +26,7 @@ final class BuiltinShortcodesTest extends TestCase
     public function testRegistersTheCoreVocabulary(): void
     {
         self::assertSame(
-            ['list', 'col_list', 'collapse', 'alert', 'button', 'clip_board', 'ref'],
+            ['list', 'col_list', 'collapse', 'alert', 'button', 'clip_board', 'internal', 'ref'],
             array_keys($this->parts)
         );
         self::assertTrue((new BuiltinShortcodes())->registerParts(['x' => 'keep-me'])['x'] === 'keep-me', 'foreign entries pass through untouched');
@@ -112,5 +112,27 @@ b[/list]', $list->build(['content' => "a\nb", 'order' => true]));
             ($clip->render)([], "  <em>magnet:?xt=urn:btih:xyz</em>\n")
         );
         self::assertSame('', ($clip->render)([], '  <p></p> '), 'a textless body renders nothing');
+    }
+
+    /**
+     * The internal part is the one whose rendered output is empty by
+     * design, and it must OWN a renderer rather than fall back to the
+     * part contract's declaration-only state: do_shortcode leaves an
+     * unregistered tag and its text verbatim, which would publish the
+     * note as body copy.
+     */
+    public function testInternalConsumesItsBlockAndEmitsNothing(): void
+    {
+        $internal = $this->parts[BuiltinShortcodes::INTERNAL_TAG];
+
+        self::assertNotNull($internal->render, 'without a renderer the note is printed as text');
+        self::assertTrue($internal->hasContent(), 'the block is the payload; an attribute-only template would drop it or self-close');
+        self::assertSame('', ($internal->render)([], "来源：https://example.com\n原文摘抄"), 'the whole block goes, text and links alike');
+        self::assertSame('', ($internal->render)(['unexpected' => 'value'], 'note'), 'it takes no attributes and never lets one through');
+        self::assertSame(
+            '[internal]来源：https://example.com[/internal]',
+            $internal->build(['content' => '来源：https://example.com']),
+            'the stored markup carries no attributes'
+        );
     }
 }

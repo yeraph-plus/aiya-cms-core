@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2026-10-27T03:08:09+00:00\n"
-"PO-Revision-Date: 2026-10-27T03:08:09+00:00\n"
+"PO-Revision-Date: 2026-11-02T20:35:31+00:00\n"
 "Language: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: WP-CLI 2.12.0\n"
@@ -284,8 +284,8 @@ msgstr "花纹"
 #: src/Admin/UiSamplePage.php:285
 #: src/Admin/UiSamplePage.php:297
 #: src/Domain/Blocks/BlocksModule.php:192
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:116
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:127
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:126
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:137
 msgid "Title"
 msgstr "标题"
 
@@ -1466,7 +1466,7 @@ msgstr "相对路径"
 #: src/Admin/PicBedPage.php:260
 #: src/Admin/SamplePage.php:245
 #: src/Domain/Blocks/BlocksModule.php:119
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:151
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:161
 msgid "URL"
 msgstr "URL"
 
@@ -1499,7 +1499,7 @@ msgid "No file was uploaded."
 msgstr "未接收到文件。"
 
 #: src/Admin/PicBedPage.php:226
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:193
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:213
 msgid "User ID"
 msgstr "用户 ID"
 
@@ -4566,159 +4566,168 @@ msgstr "该兑换码已被使用。"
 msgid "The membership activation failed — the code was not consumed, try again."
 msgstr "会员激活失败——兑换码未被消耗，请重试。"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:80
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:90
 msgid "Quick list"
 msgstr "快捷列表"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:81
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:91
 msgid "Turns lines of text into a list, one item per line."
 msgstr "将文本按行转换为列表，每行一项。"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:84
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:95
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:117
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:141
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:182
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:94
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:105
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:127
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:151
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:192
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:202
 msgid "Content"
 msgstr "内容"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:85
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:95
 msgid "Ordered list"
 msgstr "编号列表"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:91
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:101
 msgid "Quick list (columns)"
 msgstr "快捷列表（分栏）"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:92
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:102
 msgid "Alternates lines into a description list: first line the term, second the description, and so on."
 msgstr "将文本按行交替转换为描述列表：奇数行为词条，偶数行为描述。"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:99
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:109
 msgid "Term width"
 msgstr "词条宽度"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:101
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:111
 msgid "1/4 width terms"
 msgstr "词条占 1/4 宽"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:102
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:112
 msgid "1/2 width terms"
 msgstr "词条占 1/2 宽"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:103
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:113
 msgid "3/4 width terms"
 msgstr "词条占 3/4 宽"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:112
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:122
 msgid "Collapse panel"
 msgstr "折叠面板"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:113
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:123
 msgid "A panel readers can expand or collapse."
 msgstr "创建一个可展开或收起的内容面板。"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:123
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:133
 msgid "Notice card"
 msgstr "提示卡片"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:124
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:134
 msgid "A highlighted notice with a level and a title."
 msgstr "创建一条带级别与标题的醒目提示。"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:131
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:141
 msgid "Level"
 msgstr "级别"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:133
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:143
 msgid "Default"
 msgstr "默认"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:134
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:144
 msgid "Warning"
 msgstr "警告"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:135
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:145
 msgid "Info"
 msgstr "信息"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:136
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:146
 msgid "Success"
 msgstr "成功"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:137
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:147
 msgid "Error"
 msgstr "错误"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:147
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:157
 msgid "Button link"
 msgstr "按钮链接"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:148
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:158
 msgid "A styled link button."
 msgstr "创建一个带样式的链接按钮。"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:155
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:165
 msgid "Opens"
 msgstr "打开方式"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:157
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:167
 msgid "Same tab"
 msgstr "当前标签页"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:158
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:168
 msgid "New tab"
 msgstr "新标签页"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:165
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:175
 msgid "Style"
 msgstr "样式"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:167
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:177
 msgid "Primary"
 msgstr "主要"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:168
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:178
 msgid "Outline"
 msgstr "描边"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:172
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:182
 msgid "Button label"
 msgstr "按钮文字"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:178
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:188
 msgid "Quick copy"
 msgstr "一键复制"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:179
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:189
 msgid "A text snippet the reader copies with one click."
 msgstr "供读者一键复制的文本片段。"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:188
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:198
+msgid "Internal note"
+msgstr "内部备注"
+
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:199
+msgid "Editor-only block: everything inside stays in the post for whoever edits it, and is stripped from every rendered output — page, feed, excerpt and API. Use it for source links, quoted originals and any working note readers must never see."
+msgstr "只给编辑看的区块：里面的内容留在文章中供之后编辑的人查看，但会从所有渲染输出中剔除——页面、订阅源、摘要与接口。用来放来源链接、原文摘抄，以及任何读者不该看到的备注。"
+
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:208
 msgid "Reference"
 msgstr "关联号"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:189
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:209
 msgid "Emits one semantic reference marker for the front end to resolve into a link. Fill exactly one of the fields below; when several are filled the first (post, user, term, search, comment, thread) wins."
 msgstr "输出一个语义引用标记，由前台解析为链接。以下字段只填一个；若填写多个，按（文章、用户、分类法、搜索、评论、社区帖）顺序取第一个生效。"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:192
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:212
 msgid "Post ID"
 msgstr "文章 ID"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:194
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:214
 msgid "Term ID"
 msgstr "分类法术语 ID"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:195
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:215
 msgid "Search keywords"
 msgstr "搜索关键词"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:196
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:216
 msgid "Comment ID"
 msgstr "评论 ID"
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:197
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:217
 msgid "Thread ID"
 msgstr "社区帖 ID"
 

@@ -9,8 +9,8 @@ use Closure;
 
 /**
  * The core template-part vocabulary: list/col_list/collapse/alert/
- * clip_board parts on the part contract, plus the button link and the
- * related-post card (`[post_id id="7"]`).
+ * clip_board/internal parts on the part contract, plus the button link and
+ * the related-post card (`[post_id id="7"]`).
  *
  * Rendering is HTML-first: the auxiliary format parts emit plain native
  * markup the front end styles directly (`ul`/`ol`+`li`, `dl`+`dt`/`dd`
@@ -19,6 +19,9 @@ use Closure;
  * one component without an HTML-native shape emits a purpose-named marker
  * tag the front end binds (`<alert>`), and the button is a plain anchor
  * carrying its variant as a class. Tailwind classes do not carry over.
+ * The internal part is the one whose output is nothing at all: it consumes
+ * its block so a working note can live in the post without reaching a
+ * reader.
  *
  * The card is the one part that must READ something (a post, through the
  * content domain's query + the Api-layer summary projection), so its
@@ -41,6 +44,13 @@ final class BuiltinShortcodes implements Module
 
     /** The reference shortcode's contract (one kind per tag, see render). */
     public const REF_TAG = 'ref';
+
+    /**
+     * The editor-only block's tag: content wrapped in it is consumed at
+     * render time, so the markup is the storage format for anything that
+     * must survive in `post_content` without being published.
+     */
+    public const INTERNAL_TAG = 'internal';
 
     /**
      * @param Closure(array<string, string>): string|null $ref reference attributes → marker
@@ -184,6 +194,16 @@ final class BuiltinShortcodes implements Module
                 fn (array $attrs, string $content): string => $this->renderClipBoard($attrs, $content),
             ),
             new ShortcodeType(
+                self::INTERNAL_TAG,
+                __('Internal note', 'aiya-core'),
+                __('Editor-only block: everything inside stays in the post for whoever edits it, and is stripped from every rendered output — page, feed, excerpt and API. Use it for source links, quoted originals and any working note readers must never see.', 'aiya-core'),
+                '[' . self::INTERNAL_TAG . '{{attributes}}]{{content}}[/' . self::INTERNAL_TAG . ']',
+                [
+                    ['id' => 'content', 'type' => 'textarea', 'label' => __('Content', 'aiya-core'), 'default' => ''],
+                ],
+                fn (array $attrs, string $content): string => $this->renderInternal($attrs, $content),
+            ),
+            new ShortcodeType(
                 self::REF_TAG,
                 __('Reference', 'aiya-core'),
                 __('Emits one semantic reference marker for the front end to resolve into a link. Fill exactly one of the fields below; when several are filled the first (post, user, term, search, comment, thread) wins.', 'aiya-core'),
@@ -302,6 +322,33 @@ final class BuiltinShortcodes implements Module
         }
 
         return '<span data-clipboard-slot>' . esc_html($text) . "</span>\n";
+    }
+
+    /**
+     * Emits nothing: the block is consumed whole, and that is the entire
+     * part.
+     *
+     * A working note — a source URL, the quoted original, an editor TODO —
+     * has to live in `post_content` or the next editor never sees it, but
+     * it must not reach a reader. This renderer is what makes those two
+     * compatible, and it has to be a real renderer rather than the part
+     * contract's "declaration only" state: `do_shortcode` leaves an
+     * unregistered tag and its text verbatim in the output, so the note
+     * would be published as body text.
+     *
+     * Nothing is left behind either. The classic editor stores the block
+     * inside a `<p>` and `wpautop` runs before `do_shortcode`, but core's
+     * `shortcode_unautop` unwraps the paragraph of a *registered* tag
+     * first — checked on a live install for the single-paragraph and
+     * multi-paragraph shapes: the render comes back empty rather than as a
+     * stray `<p></p>`.
+     *
+     * @param array<string, string> $attrs   part of the shortcode contract, unused — the block takes no attributes
+     * @param string                $content part of the shortcode contract, unused — the block is dropped by design
+     */
+    private function renderInternal(array $attrs, string $content): string
+    {
+        return '';
     }
 
     /**
