@@ -88,6 +88,58 @@ b[/list]', $list->build(['content' => "a\nb", 'order' => true]));
         self::assertStringContainsString('<alert level="default" title="">', ($alert->render)(['type' => 'evil'], 'body'));
     }
 
+    /**
+     * wpautop runs ahead of the shortcode pass, so a block part that spans
+     * paragraphs arrives as `</p><p>…</p><p>`: shortcode_unautop took apart
+     * the paragraph holding the opening tag and the one holding the closing
+     * tag, and left one half of each at the edges. Emitted verbatim they
+     * close a paragraph nobody opened and open an empty one — a blank band
+     * inside every warning card. The halves go, the real body stays.
+     */
+    public function testBlockPartsDropTheUnwrappedParagraphHalves(): void
+    {
+        $alert = $this->parts['alert'];
+        $collapse = $this->parts['collapse'];
+
+        self::assertSame(
+            "<alert level=\"warning\" title=\"Care\"><p>first</p>\n<ul>\n<li>a</li>\n</ul></alert>\n",
+            ($alert->render)(['type' => 'warning', 'name' => 'Care'], "</p>\n<p>first</p>\n<ul>\n<li>a</li>\n</ul>\n<p>")
+        );
+        self::assertSame(
+            "<details>\n<summary>More</summary>\n<p>first</p>\n</details>\n",
+            ($collapse->render)(['title' => 'More'], "</p>\n<p>first</p>\n<p>")
+        );
+    }
+
+    /**
+     * The same unwrapping eats the halves instead of leaving them, because
+     * WP stores no `<p>`: `wpautop` builds the paragraphs and
+     * `shortcode_unautop` takes the opening tag of the first one and the
+     * closing tag of the last one away with the shortcode's own wrapper.
+     * Plain-text content is the normal shape, so a renderer that only trims
+     * leftovers would emit a card starting mid-paragraph — the browser then
+     * nests the whole card inside the paragraph before it.
+     */
+    public function testBlockPartsRestoreTheParagraphHalvesPlainTextLost(): void
+    {
+        $alert = $this->parts['alert'];
+        $collapse = $this->parts['collapse'];
+
+        self::assertSame(
+            "<alert level=\"warning\" title=\"Care\"><p>first</p>\n<p>second</p>\n<ul>\n<li>a</li>\n</ul></alert>\n",
+            ($alert->render)(['type' => 'warning', 'name' => 'Care'], "first</p>\n<p>second</p>\n<ul>\n<li>a</li>\n</ul>")
+        );
+        self::assertSame(
+            "<details>\n<summary>More</summary>\n<p>first</p>\n<p>second</p>\n</details>\n",
+            ($collapse->render)(['title' => 'More'], "first</p>\n<p>second")
+        );
+        // A block that opens on a list is not a paragraph: no wrapper added.
+        self::assertSame(
+            "<details>\n<summary>More</summary>\n<ul>\n<li>a</li>\n</ul>\n</details>\n",
+            ($collapse->render)(['title' => 'More'], "<ul>\n<li>a</li>\n</ul>")
+        );
+    }
+
     public function testButtonShapesTheLink(): void
     {
         $button = $this->parts['button'];

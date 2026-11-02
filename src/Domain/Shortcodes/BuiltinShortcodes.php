@@ -282,7 +282,7 @@ final class BuiltinShortcodes implements Module
     private function renderCollapse(array $attrs, string $content): string
     {
         return "<details>\n<summary>" . $this->storedText($attrs['title'] ?? '') . '</summary>'
-            . "\n" . do_shortcode($content)
+            . "\n" . $this->blockContent($content)
             . "\n</details>\n";
     }
 
@@ -292,7 +292,7 @@ final class BuiltinShortcodes implements Module
         $level = in_array($attrs['type'] ?? 'default', self::ALERT_LEVELS, true) ? $attrs['type'] : 'default';
 
         return '<alert level="' . $level . '" title="' . $this->storedAttr($attrs['name'] ?? '') . '">'
-            . do_shortcode($content)
+            . $this->blockContent($content)
             . "</alert>\n";
     }
 
@@ -356,6 +356,69 @@ final class BuiltinShortcodes implements Module
     private function renderInternal(array $attrs, string $content): string
     {
         return '';
+    }
+
+    /**
+     * The content of a block part, with `wpautop`'s edge halves put back
+     * together.
+     *
+     * `wpautop` runs before the shortcode pass, so a block part whose
+     * content spans paragraphs reaches the renderer with the paragraph
+     * that held the opening tag and the paragraph that held the closing
+     * tag already taken apart by `shortcode_unautop`. Which half survives
+     * depends on how the author wrote the block:
+     *
+     * - hand-written `<p>` markup leaves the two halves behind
+     *   (`</p>` first, `<p>` last), and emitted verbatim they close a
+     *   paragraph nobody opened and open an empty one — a blank band at the
+     *   top of every card;
+     * - plain-text content (the normal shape: WP stores no `<p>`, `wpautop`
+     *   makes them) loses the two halves instead, so the first and last
+     *   paragraphs are left without a tag at all and the browser nests the
+     *   whole card inside whatever paragraph precedes it.
+     *
+     * Both are repaired here, and only at the edges: the paragraphs, lists
+     * and images inside the block are passed through untouched.
+     *
+     * @param string $content part of the shortcode contract
+     */
+    private function blockContent(string $content): string
+    {
+        $body = trim($content);
+
+        // Hand-written markup: drop the leftover halves of the outer <p>.
+        $body = preg_replace('/^<\/p>\s*/i', '', $body) ?? $body;
+        $body = preg_replace('/\s*<p>$/i', '', $body) ?? $body;
+
+        // Plain text: the same unwrapping left the first and last paragraph
+        // without their tags. A block that already opens (or closes) on a
+        // block-level tag is not a paragraph and must not be wrapped.
+        $opensBlock = static fn (string $text): bool => (bool) preg_match(
+            '/^<(p|ul|ol|dl|blockquote|h[1-6]|hr|img|figure|table|div|details|pre|section|alert)\b/i',
+            $text
+        );
+        $closesBlock = static fn (string $text): bool => (bool) preg_match(
+            '/<\/(p|ul|ol|dl|blockquote|h[1-6]|figure|table|div|details|pre|section|alert)>$/i',
+            $text
+        );
+
+        if ($body !== '' && preg_match('/<\/p>/i', $body) && !$opensBlock($body)) {
+            $firstOpen = stripos($body, '<p');
+            $firstClose = stripos($body, '</p>');
+            if ($firstOpen === false || $firstOpen > $firstClose) {
+                $body = '<p>' . $body;
+            }
+        }
+
+        if ($body !== '' && preg_match('/<p[\s>]/i', $body) && !$closesBlock($body)) {
+            $lastOpen = strripos($body, '<p');
+            $lastClose = strripos($body, '</p>');
+            if ($lastOpen !== false && ($lastClose === false || $lastClose < $lastOpen)) {
+                $body .= '</p>';
+            }
+        }
+
+        return do_shortcode($body);
     }
 
     /**
