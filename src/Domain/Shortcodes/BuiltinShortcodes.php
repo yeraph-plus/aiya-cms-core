@@ -49,6 +49,13 @@ final class BuiltinShortcodes implements Module
      * The editor-only block's tag: content wrapped in it is consumed at
      * render time, so the markup is the storage format for anything that
      * must survive in `post_content` without being published.
+     *
+     * Known limit, accepted: the block is removed at render time only. The
+     * cover and card-thumbnail pipelines match `<img>` against stored
+     * markup (`CoverService::resolveBackground()`,
+     * `CardThumbnailService::sourceUrl()`), so an image put inside a note
+     * still counts as the post's first content image. Keep images out of
+     * notes; nothing strips them there.
      */
     public const INTERNAL_TAG = 'internal';
 
