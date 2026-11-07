@@ -44,12 +44,73 @@ final class OptionsResolver
         // A single taxonomy keeps bare term names; a list merges several
         // vocabularies into one option set and prefixes each label with
         // the taxonomy's singular name so same-named terms stay apart.
-        $taxonomies = (array) ($source['taxonomy'] ?? '');
-        $taxonomies = array_values(array_filter(array_map('strval', $taxonomies), static fn (string $tax): bool => $tax !== '' && taxonomy_exists($tax)));
-        if ($taxonomies === []) {
+        [$taxonomies, $terms] = $this->sourceTerms($source);
+        if ($taxonomies === [] || $terms === []) {
             return [];
         }
         $prefix = count($taxonomies) > 1;
+        $bySlug = ($source['value_field'] ?? 'id') === 'slug';
+
+        $options = [];
+        foreach ($terms as $term) {
+            $label = $term->name;
+            if ($prefix) {
+                $singular = $this->singularName((string) $term->taxonomy);
+                $label = ($singular !== '' ? $singular . ' / ' : '') . $label;
+            }
+            $options[$bySlug ? $term->slug : (int) $term->term_id] = $label;
+        }
+
+        return $options;
+    }
+
+    /**
+     * Term options as flat rows carrying their taxonomy — for consumers
+     * that must tell vocabularies apart at render time (the repeater's
+     * per-type category filter). Labels stay bare: the rows are shown one
+     * vocabulary at a time, and same-slug terms of different taxonomies
+     * survive as separate rows instead of collapsing on a shared key.
+     *
+     * @return list<array{value: string, label: string, taxonomy: string}>
+     */
+    public function termRows(Field $field): array
+    {
+        $source = $field->optionsSource();
+        if (($source['source'] ?? '') !== 'terms') {
+            return [];
+        }
+        [, $terms] = $this->sourceTerms($source);
+        if ($terms === []) {
+            return [];
+        }
+        $bySlug = ($source['value_field'] ?? 'id') === 'slug';
+
+        $rows = [];
+        foreach ($terms as $term) {
+            $rows[] = [
+                'value' => $bySlug ? (string) $term->slug : (string) (int) $term->term_id,
+                'label' => (string) $term->name,
+                'taxonomy' => (string) $term->taxonomy,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Shared term query: the source's existing taxonomies in listed order
+     * and their terms merged (empty when nothing resolves).
+     *
+     * @param array<string, mixed> $source
+     * @return array{0: list<string>, 1: list<\WP_Term>}
+     */
+    private function sourceTerms(array $source): array
+    {
+        $taxonomies = (array) ($source['taxonomy'] ?? '');
+        $taxonomies = array_values(array_filter(array_map('strval', $taxonomies), static fn (string $tax): bool => $tax !== '' && taxonomy_exists($tax)));
+        if ($taxonomies === []) {
+            return [[], []];
+        }
 
         $terms = get_terms([
             'taxonomy' => $taxonomies,
@@ -57,24 +118,20 @@ final class OptionsResolver
             'number' => self::MAX_TERMS,
         ]);
         if (is_wp_error($terms) || $terms === []) {
-            return [];
+            return [$taxonomies, []];
         }
 
-        $bySlug = ($source['value_field'] ?? 'id') === 'slug';
-        $options = [];
-        foreach ($terms as $term) {
-            $label = $term->name;
-            if ($prefix) {
-                $tax = get_taxonomy((string) $term->taxonomy);
-                $singular = is_object($tax) && isset($tax->labels->singular_name)
-                    ? (string) $tax->labels->singular_name
-                    : '';
-                $label = ($singular !== '' ? $singular . ' / ' : '') . $label;
-            }
-            $options[$bySlug ? $term->slug : (int) $term->term_id] = $label;
-        }
+        return [$taxonomies, array_values($terms)];
+    }
 
-        return $options;
+    private function singularName(string $taxonomy): string
+    {
+        $tax = get_taxonomy($taxonomy);
+        $singular = is_object($tax) && isset($tax->labels->singular_name)
+            ? (string) $tax->labels->singular_name
+            : '';
+
+        return $singular;
     }
 
     /**

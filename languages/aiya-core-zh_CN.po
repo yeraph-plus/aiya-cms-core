@@ -5536,3 +5536,7 @@ msgstr "vendor/ 等大型依赖目录会被瞬时移出、避免删除过程长�
 #: uninstall.php:132
 msgid "Cancel, back to the plugin list"
 msgstr "取消，返回插件列表"
+
+#: src/Domain/Blocks/BlocksModule.php:216
+msgid "Nothing checked shows every category of the type; the list follows the content type picked above."
+msgstr "全部不勾选即展示该类型的所有分类；分类列表跟随上方所选的内容类型。"

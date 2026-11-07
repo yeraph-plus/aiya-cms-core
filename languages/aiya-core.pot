@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.135.0\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.135.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-02T20:35:13+00:00\n"
+"POT-Creation-Date: 2026-11-07T18:52:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -285,9 +285,9 @@ msgstr ""
 #: src/Admin/UiSamplePage.php:160
 #: src/Admin/UiSamplePage.php:285
 #: src/Admin/UiSamplePage.php:297
-#: src/Domain/Blocks/BlocksModule.php:192
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:126
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:137
+#: src/Domain/Blocks/BlocksModule.php:193
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:133
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:144
 msgid "Title"
 msgstr ""
 
@@ -873,39 +873,39 @@ msgid "Select media"
 msgstr ""
 
 #: src/Admin/FieldRenderer.php:216
-#: src/Admin/FieldRenderer.php:341
+#: src/Admin/FieldRenderer.php:357
 msgid "Remove"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:239
+#: src/Admin/FieldRenderer.php:255
 msgid "cache_ttl: 3600"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:249
+#: src/Admin/FieldRenderer.php:265
 msgid "A value is stored; leave blank to keep it"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:254
+#: src/Admin/FieldRenderer.php:270
 msgid "Generate a random key"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:268
+#: src/Admin/FieldRenderer.php:284
 msgid "Connect"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:272
+#: src/Admin/FieldRenderer.php:288
 msgid "Clear the stored value"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:296
+#: src/Admin/FieldRenderer.php:312
 msgid "Add item"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:318
+#: src/Admin/FieldRenderer.php:334
 msgid "(no title)"
 msgstr ""
 
-#: src/Admin/FieldRenderer.php:343
+#: src/Admin/FieldRenderer.php:359
 msgid "Confirm delete?"
 msgstr ""
 
@@ -1471,7 +1471,7 @@ msgstr ""
 #: src/Admin/PicBedPage.php:260
 #: src/Admin/SamplePage.php:245
 #: src/Domain/Blocks/BlocksModule.php:119
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:161
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:168
 msgid "URL"
 msgstr ""
 
@@ -1504,7 +1504,7 @@ msgid "No file was uploaded."
 msgstr ""
 
 #: src/Admin/PicBedPage.php:226
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:213
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:220
 msgid "User ID"
 msgstr ""
 
@@ -1548,7 +1548,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:101
-#: src/Domain/Blocks/BlocksModule.php:207
+#: src/Domain/Blocks/BlocksModule.php:208
 #: src/Domain/Content/ContentManagementModule.php:111
 msgid "Posts"
 msgstr ""
@@ -1559,7 +1559,7 @@ msgid "Pages"
 msgstr ""
 
 #: src/Admin/PostTypeSwitchBulkAction.php:103
-#: src/Domain/Blocks/BlocksModule.php:208
+#: src/Domain/Blocks/BlocksModule.php:209
 #: src/Domain/Content/ContentManagementModule.php:113
 msgid "Resources"
 msgstr ""
@@ -2919,7 +2919,7 @@ msgid "Front-end path (/posts/) or external URL; empty falls back to the home pa
 msgstr ""
 
 #: src/Domain/Blocks/BlocksModule.php:127
-#: src/Domain/Blocks/BlocksModule.php:198
+#: src/Domain/Blocks/BlocksModule.php:199
 #: src/Domain/Content/FrontendModule.php:254
 #: src/Domain/Content/TermExtrasModule.php:59
 msgid "Icon"
@@ -2966,35 +2966,35 @@ msgstr ""
 msgid "The banner artwork from the media library."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:199
+#: src/Domain/Blocks/BlocksModule.php:200
 msgid "Optional Lucide icon name beside the title (e.g. \"newspaper\", \"flame\", \"star\")."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:204
+#: src/Domain/Blocks/BlocksModule.php:205
 msgid "Content type"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:214
+#: src/Domain/Blocks/BlocksModule.php:215
 msgid "Categories"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:215
-msgid "Nothing checked shows every category of the type; the listed vocabularies cover posts and resources alike."
+#: src/Domain/Blocks/BlocksModule.php:216
+msgid "Nothing checked shows every category of the type; the list follows the content type picked above."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:226
+#: src/Domain/Blocks/BlocksModule.php:238
 msgid "Post count"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:227
+#: src/Domain/Blocks/BlocksModule.php:239
 msgid "How many posts the section lists (1-100)."
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:236
+#: src/Domain/Blocks/BlocksModule.php:248
 msgid "\"More\" link"
 msgstr ""
 
-#: src/Domain/Blocks/BlocksModule.php:237
+#: src/Domain/Blocks/BlocksModule.php:249
 msgid "Optional override for the heading row's link; empty derives the type's own archive path (with the chosen categories)."
 msgstr ""
 
@@ -4578,168 +4578,168 @@ msgstr ""
 msgid "The membership activation failed — the code was not consumed, try again."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:90
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:97
 msgid "Quick list"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:91
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:98
 msgid "Turns lines of text into a list, one item per line."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:94
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:105
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:127
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:151
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:192
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:202
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:101
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:112
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:134
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:158
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:199
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:209
 msgid "Content"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:95
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:102
 msgid "Ordered list"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:101
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:108
 msgid "Quick list (columns)"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:102
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:109
 msgid "Alternates lines into a description list: first line the term, second the description, and so on."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:109
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:116
 msgid "Term width"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:111
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:118
 msgid "1/4 width terms"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:112
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:119
 msgid "1/2 width terms"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:113
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:120
 msgid "3/4 width terms"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:122
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:129
 msgid "Collapse panel"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:123
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:130
 msgid "A panel readers can expand or collapse."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:133
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:140
 msgid "Notice card"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:134
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:141
 msgid "A highlighted notice with a level and a title."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:141
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:148
 msgid "Level"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:143
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:150
 msgid "Default"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:144
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:151
 msgid "Warning"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:145
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:152
 msgid "Info"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:146
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:153
 msgid "Success"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:147
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:154
 msgid "Error"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:157
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:164
 msgid "Button link"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:158
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:165
 msgid "A styled link button."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:165
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:172
 msgid "Opens"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:167
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:174
 msgid "Same tab"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:168
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:175
 msgid "New tab"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:175
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:182
 msgid "Style"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:177
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:184
 msgid "Primary"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:178
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:185
 msgid "Outline"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:182
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:189
 msgid "Button label"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:188
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:195
 msgid "Quick copy"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:189
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:196
 msgid "A text snippet the reader copies with one click."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:198
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:205
 msgid "Internal note"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:199
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:206
 msgid "Editor-only block: everything inside stays in the post for whoever edits it, and is stripped from every rendered output — page, feed, excerpt and API. Use it for source links, quoted originals and any working note readers must never see."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:208
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:215
 msgid "Reference"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:209
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:216
 msgid "Emits one semantic reference marker for the front end to resolve into a link. Fill exactly one of the fields below; when several are filled the first (post, user, term, search, comment, thread) wins."
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:212
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:219
 msgid "Post ID"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:214
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:221
 msgid "Term ID"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:215
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:222
 msgid "Search keywords"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:216
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:223
 msgid "Comment ID"
 msgstr ""
 
-#: src/Domain/Shortcodes/BuiltinShortcodes.php:217
+#: src/Domain/Shortcodes/BuiltinShortcodes.php:224
 msgid "Thread ID"
 msgstr ""
 

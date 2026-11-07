@@ -193,6 +193,72 @@ final class FieldTest extends TestCase
         self::assertStringContainsString('name="values[a]"', $none);
     }
 
+    public function testMulticheckWithTypeFilterRendersPerTaxonomyOptions(): void
+    {
+        $GLOBALS['__aiya_test_terms']['category'] = [
+            (object) ['term_id' => 1, 'name' => 'News', 'slug' => 'news', 'taxonomy' => 'category'],
+        ];
+        $GLOBALS['__aiya_test_terms']['resource_category'] = [
+            (object) ['term_id' => 2, 'name' => 'Guides', 'slug' => 'guides', 'taxonomy' => 'resource_category'],
+        ];
+        $field = Field::fromArray([
+            'id' => 'categories',
+            'type' => 'multicheck',
+            'label' => 'Categories',
+            'default' => [],
+            'options_source' => ['source' => 'terms', 'taxonomy' => ['category', 'resource_category'], 'value_field' => 'slug'],
+            'terms_by_type' => ['control' => 'type', 'map' => ['post' => 'category', 'resource' => 'resource_category']],
+        ]);
+
+        $out = self::renderField($field, ['news']);
+
+        self::assertStringContainsString('data-aiya-type-filter-control="type"', $out);
+        preg_match('/data-aiya-type-filter-map="([^"]+)"/', $out, $match);
+        self::assertSame(
+            ['post' => 'category', 'resource' => 'resource_category'],
+            json_decode(html_entity_decode((string) ($match[1] ?? '')), true),
+            'the container names the sibling control and its value-to-taxonomy map'
+        );
+        self::assertStringContainsString('data-aiya-taxonomy="category"', $out);
+        self::assertStringContainsString('data-aiya-taxonomy="resource_category"', $out);
+        self::assertMatchesRegularExpression('/value="news"\s+checked=\'checked\'/', $out, 'a stored slug ticks its item');
+        self::assertStringContainsString('> News</label>', $out, 'labels stay bare — one vocabulary shows at a time');
+        self::assertStringContainsString('value="guides"', $out, 'both vocabularies render; the behavior layer hides per type');
+
+        unset($GLOBALS['__aiya_test_terms']['category'], $GLOBALS['__aiya_test_terms']['resource_category']);
+    }
+
+    public function testMalformedTypeFilterFallsBackToPlainMulticheck(): void
+    {
+        $GLOBALS['__aiya_test_terms']['category'] = [
+            (object) ['term_id' => 1, 'name' => 'News', 'slug' => 'news', 'taxonomy' => 'category'],
+        ];
+        $field = Field::fromArray([
+            'id' => 'cats',
+            'type' => 'multicheck',
+            'label' => 'Cats',
+            'default' => [],
+            'options_source' => ['source' => 'terms', 'taxonomy' => 'category', 'value_field' => 'slug'],
+            'terms_by_type' => ['control' => '', 'map' => []],
+        ]);
+
+        $out = self::renderField($field, []);
+
+        self::assertStringNotContainsString('data-aiya-type-filter', $out, 'a broken definition never emits the contract');
+        self::assertStringContainsString('class="aiya-core-multicheck">', $out, 'the plain rendering path');
+        self::assertStringContainsString('value="news"', $out);
+
+        unset($GLOBALS['__aiya_test_terms']['category']);
+    }
+
+    private static function renderField(Field $field, mixed $value): string
+    {
+        ob_start();
+        (new FieldRenderer())->control($field, $value, 'values[' . $field->id() . ']', 'aiya-core-' . $field->id());
+
+        return (string) ob_get_clean();
+    }
+
     private static function captureOut(callable $render): string
     {
         ob_start();

@@ -219,6 +219,22 @@ final class FieldRenderer
         }
         if ($type === 'multicheck') {
             $selected = is_array($value) ? array_map('strval', $value) : [];
+            $typeFilter = $this->typeFilter($field);
+            if ($typeFilter !== null) {
+                // The per-type option filter renders its own data-* contract:
+                // the container names the sibling control and its value→taxonomy
+                // map, every item carries the taxonomy it belongs to — the
+                // behavior layer (admin.js) shows only the items matching the
+                // control's current value.
+                echo '<div class="aiya-core-multicheck"'
+                    . ' data-aiya-type-filter-control="' . esc_attr($typeFilter['control']) . '"'
+                    . ' data-aiya-type-filter-map="' . esc_attr((string) wp_json_encode($typeFilter['map'])) . '">';
+                foreach ((new OptionsResolver())->termRows($field) as $row) {
+                    echo '<label class="aiya-core-multicheck-item" data-aiya-taxonomy="' . esc_attr($row['taxonomy']) . '"><input type="checkbox" name="' . esc_attr($name) . '[]" value="' . esc_attr($row['value']) . '" ' . checked(in_array($row['value'], $selected, true), true, false) . '> ' . esc_html($row['label']) . '</label>';
+                }
+                echo '</div>';
+                return;
+            }
             echo '<div class="aiya-core-multicheck">';
             foreach ($this->resolveOptions($field) as $optionValue => $label) {
                 echo '<label class="aiya-core-multicheck-item"><input type="checkbox" name="' . esc_attr($name) . '[]" value="' . esc_attr((string) $optionValue) . '" ' . checked(in_array((string) $optionValue, $selected, true), true, false) . '> ' . esc_html((string) $label) . '</label>';
@@ -373,6 +389,32 @@ final class FieldRenderer
         }
 
         return (new OptionsResolver())->resolve($field);
+    }
+
+    /**
+     * The per-type option filter (the field's `terms_by_type` setting):
+     * `control` names a sibling radio field of the same repeater row, the
+     * map points each of its values at the taxonomy whose terms apply.
+     * Malformed definitions fall back to the plain rendering.
+     *
+     * @return array{control: string, map: array<string, string>}|null
+     */
+    private function typeFilter(Field $field): ?array
+    {
+        $filter = $field->setting('terms_by_type');
+        if (!is_array($filter)) {
+            return null;
+        }
+        $control = (string) ($filter['control'] ?? '');
+        $map = array_filter(
+            array_map('strval', is_array($filter['map'] ?? null) ? $filter['map'] : []),
+            static fn (string $taxonomy): bool => $taxonomy !== ''
+        );
+        if ($control === '' || $map === []) {
+            return null;
+        }
+
+        return ['control' => $control, 'map' => $map];
     }
 
     /** Renders presentation-only fields: notices (note) and section titles (heading). */

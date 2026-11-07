@@ -3,7 +3,8 @@
  * their own data-* contracts; this file only reacts to those attributes.
  * Organization:
  *   1. Control views (Backbone) — one per kit part: media, repeater,
- *      user typeahead, tabs, bulk selection, modal, copy button, chart.
+ *      per-type option filter, user typeahead, tabs, bulk selection,
+ *      modal, copy button, chart.
  *   2. SettingsView — the host dispatcher: binds every control view
  *      inside settings screens, the profile form, metabox field groups
  *      and Ui-hosted screens (data-aiya-ui), re-running on the
@@ -148,6 +149,43 @@
                     });
                     $list.append($item);
                 });
+            });
+        }
+    });
+
+    // Per-type option filter (FieldRenderer's terms_by_type): a multicheck
+    // whose options span several vocabularies shows only the terms of the
+    // taxonomy matching a sibling radio — the home-section rows pick the
+    // categories of the content type chosen in the same row. A radio change
+    // hides the now-inapplicable options and unticks them, so what the admin
+    // sees is exactly what a save stores; the initial pass only filters and
+    // leaves stored selections untouched.
+    const TypeFilterView = Backbone.View.extend({
+        initialize() {
+            this.control = String(this.$el.attr('data-aiya-type-filter-control') || '');
+            try {
+                this.map = JSON.parse(this.$el.attr('data-aiya-type-filter-map') || '{}');
+            } catch (e) {
+                this.map = {};
+            }
+            const item = this.$el.closest('.aiya-core-repeater-item');
+            const scope = item.length ? item : this.$el.closest('form');
+            this.$radios = (this.control && scope.length)
+                ? scope.find('input[type="radio"][name$="[' + this.control + ']"]')
+                : $();
+            this.$radios.on('change', () => this.apply(true));
+            this.apply(false);
+        },
+        apply(untick) {
+            const value = String(this.$radios.filter(':checked').first().val() || '');
+            const taxonomy = String(this.map[value] || '');
+            this.$('.aiya-core-multicheck-item').each((_i, item) => {
+                const $item = $(item);
+                const visible = taxonomy === '' || $item.attr('data-aiya-taxonomy') === taxonomy;
+                $item.toggle(visible);
+                if (untick && !visible) {
+                    $item.find('input[type="checkbox"]').prop('checked', false);
+                }
             });
         }
     });
@@ -387,6 +425,10 @@
             $scope.find('.aiya-core-repeater').not('[data-aiya-ready]').each(function () {
                 $(this).attr('data-aiya-ready', '1');
                 new RepeaterView({ el: this });
+            });
+            $scope.find('.aiya-core-multicheck[data-aiya-type-filter-control]').not('[data-aiya-ready]').each(function () {
+                $(this).attr('data-aiya-ready', '1');
+                new TypeFilterView({ el: this });
             });
             $scope.find('input[data-aiya-typeahead]').not('[data-aiya-ready]').each(function () {
                 $(this).attr('data-aiya-ready', '1');

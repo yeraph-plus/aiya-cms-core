@@ -177,9 +177,10 @@ final class BlocksModule implements Module
 
     /**
      * Row fields for one homepage section: the heading (icon + title),
-     * the query template (post type + category multi-select, nothing
-     * checked = all), the list size and an optional explicit "more"
-     * target — empty lets the front end derive the type's archive path.
+     * the query template (post type + the category multi-select that
+     * follows it — nothing checked = all), the list size and an optional
+     * explicit "more" target — empty lets the front end derive the type's
+     * archive path.
      *
      * @return list<array<string, mixed>>
      */
@@ -212,12 +213,23 @@ final class BlocksModule implements Module
                 'id' => 'categories',
                 'type' => 'multicheck',
                 'label' => __('Categories', 'aiya-core'),
-                'description' => __('Nothing checked shows every category of the type; the listed vocabularies cover posts and resources alike.', 'aiya-core'),
+                'description' => __('Nothing checked shows every category of the type; the list follows the content type picked above.', 'aiya-core'),
                 'default' => [],
                 'options_source' => [
+                    // The stored shape is the union vocabulary (slugs of
+                    // either taxonomy; the save intersects against it) —
+                    // terms_by_type is the display rule on top, not the
+                    // storage contract.
                     'source' => 'terms',
                     'taxonomy' => ['category', 'resource_category'],
                     'value_field' => 'slug',
+                ],
+                'terms_by_type' => [
+                    'control' => 'type',
+                    'map' => [
+                        'post' => 'category',
+                        'resource' => 'resource_category',
+                    ],
                 ],
             ],
             [
