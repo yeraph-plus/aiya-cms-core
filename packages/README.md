@@ -14,7 +14,7 @@
 
 ## 迁移批次（对照旧主题 plugins/，随落地更新）
 
-1. **第一批**（近零耦合，直接迁移）：`opencc-convert`（首个 tracer 包，已建；**零消费**——简繁重建待站长拍板，2026-09-19，非待办工作项）、`multi-domain`；`internal-pic-bed` **不做包**——已按功能直接做成 core 内页面（0.9.0 `src/Admin/PicBedPage.php`，0.9.1 起为主菜单项；图片处理管线以闭包注入，不引包依赖）
+1. **第一批**（近零耦合，直接迁移）：`opencc-convert`（首个 tracer 包，已建；后端接线已落地——见「当前包」表）、`multi-domain`；`internal-pic-bed` **不做包**——已按功能直接做成 core 内页面（0.9.0 `src/Admin/PicBedPage.php`，0.9.1 起为主菜单项；图片处理管线以闭包注入，不引包依赖）
 2. **第二批**（需替换设置读取层 `aya_plugin_opt`）：`image-manager` ✅ 0.9.0 → `aiya/image-processor`（imagine/imagine 随包，字体与花纹素材随包自带）；`classic-editor-modify`
 3. **basic-optimize** 的组件不改造成包，直接变成 core 的 Domain/Infrastructure 模块（安全、SMTP、SEO、头像等各归其位）
 4. **最后**：`sponsor-order-compat`、`patch-flow-hub-post`（深度耦合主题支付/模板体系，重写而非迁移）；`gdluxx-dl` 为空目录，弃
@@ -23,7 +23,8 @@
 
 | 包 | 状态 |
 |---|---|
-| `opencc-convert` | 包体就绪（Converter + locale 策略映射），**零消费**——简繁重建待站长拍板（2026-09-19），非待办工作项；若拍板接线，在根 `composer.json` 补 `overtrue/php-opencc`（当前刻意不 require） |
+| `opencc-convert` | ✅ 已接线（三方依赖 `overtrue/php-opencc` 在根 require）：`Converter` + locale 策略映射；消费方为 `Api/Rest/ScriptVariant`——按访客解析出的语区把 `aiya/core/v1` 响应里的字符串叶做简繁转换（站点只存一份简体原文） |
+| `telegram-api` | ✅ 0.116.0 已接线（零三方依赖，不引第三方 SDK）：Bot Protocol 出口——`Client`（getMe/sendMessage/editMessageText/getFile/setWebhook/deleteWebhook/getUpdates 七方法，长轮询超时自动抬升，transport 闘包注入）+ `Error`（unreachable/rejected/not_modified 三类值错误）；消费方为 `Domain/Telegram`（`TelegramBot` 客户端工厂经 `Modules/TelegramModule` 适配，推送/镜像/客服三路线共用） |
 | `slug-toolkit` | ✅ 0.6.0 已接线（三方依赖 `overtrue/pinyin` 在根 require）：`PinyinConverter`（overtrue/pinyin 基础调用，无策略）+ `IdSlugEncoder`（继承冻结算法 `XDE_code`，输出与旧站逐字节一致）；消费方为 `Domain/Content/SlugModule` |
 | `gofile-api` | ✅ 0.91.0 已接线（零三方依赖）：GoFile **只读请求出口** —— `Client`（GET-only、`{status, data}` 信封、平台状态串分级成包内 `Error`，含 `error-notPremium`/`error-wrongToken` 两个实测确认的状态）+ `Gateway`（`account()` 查令牌归属与档位、`accountDetails()`、`contents()` 读文件夹、`search()` 递归搜索 → 纯数组行）；管理端点（创建/更新/删除/移动/复制/直链/重置令牌）与上传**刻意不移植**；消费方为 `Modules/GofileModule`（薄适配器：设置读取 / wp_remote transport）+ `Domain/FileServe/Adapters/GofileAdapter` |
 | `image-processor` | ✅ 0.9.0 已接线（三方依赖 `imagine/imagine` 在根 require）：`WatermarkSpec`/`CoverSpec`/`ThumbnailGenerator`/`CoverGenerator`/`UploadApplier`/`CropGenerator`（Imagine 能力经 `ImagineAware` 闭包惰性注入）+ `FirstImageMatcher`/`SaveOptions`/`Colors` 纯工具 + `Assets` 自带字体与花纹素材；消费方为 `Modules/MediaModule` 与 `Domain/Identity/AvatarModule`（详见包内 README 的语义约定） |

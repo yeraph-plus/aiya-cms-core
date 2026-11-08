@@ -24,10 +24,12 @@ React in the admin; native admin styles only.
 - `src/` — plugin code (runtime, Settings framework, Admin surfaces,
   Domain modules, Api contract/presenter/rest layers); autoload
   `Aiya\Core\` plus `Aiya\Infra\` from `packages/`
-- `packages/` — WordPress-free infrastructure packages, eight of them:
+- `packages/` — WordPress-free infrastructure packages, nine of them:
   `aiya/image-processor`, `aiya/slug-toolkit`, `aiya/typesetting`,
-  `aiya/opencc-convert` (unwired by decision), `aiya/openlist`,
-  `aiya/gofile-api`, `aiya/payment-epay`, `aiya/payment-afdian` —
+  `aiya/opencc-convert` (script-variant conversion at the contract
+  exit, consumed by `Api/Rest/ScriptVariant`), `aiya/openlist`,
+  `aiya/gofile-api`, `aiya/payment-epay`, `aiya/payment-afdian`,
+  `aiya/telegram-api` —
   `packages/README.md` is the authoritative table. They are shipped
   in-tree and NOT composer-installed: the plugin
   autoloader reads each package's own composer.json for its PSR-4
@@ -51,8 +53,9 @@ composer php:stan           # PHPStan (level 8, WP stubs)
 i18n                        # see .agents/skills/aiya-i18n-zh-cn (host python)
 ```
 
-After activation the plugin runs its five clean-install migrations
-(0.80.0 pure CREATE TABLE statements — no upgrade steps, no data
+After activation the plugin runs its nine installer entries (the
+eight `1.0.0` baseline installers plus one `1.1.0` entry — 16 tables,
+pure idempotent CREATE statements: no upgrade steps, no data
 conversions), defaults permalinks to `/%postname%/` when empty and
 schedules its crons. See `docs/ARCHITECTURE.md` for module wiring and
 `docs/ROADMAP.md` for the milestone-by-milestone iteration log.
@@ -113,7 +116,7 @@ docker compose run --rm wpcli plugin activate aiya-core
 
 - `wp-content/` is bind-mounted; deploy by syncing the plugin folder
   (and `themes/aiya-headless/`) into it — no image rebuild needed.
-- Schema: five `0.80.0` CREATE migrations run once through the schema
+- Schema: nine installer entries run once through the schema
   version runner; a failed migration holds the stored version back and
   retries on the next request. There are no upgrade paths to maintain.
 - Production checklist:
@@ -175,6 +178,6 @@ only by owner decision, recorded in the ROADMAP.
 ### 4. Shell theme sync
 
 Edit either copy of `aiya-headless` (repo `themes/` or runtime
-`wp-content/themes/`) and mirror to the other — the three runtime files
-(`style.css` / `functions.php` / `index.php`) must stay byte-identical
-(the README exists only in the repo copy).
+`wp-content/themes/`) and mirror to the other — the whole directory
+(seven PHP templates, `style.css`, the screenshot and the README) must
+stay byte-identical between the two copies.
