@@ -54,6 +54,16 @@ final class TelegramSettings
         return trim((string) get_option(self::WEBHOOK_URL_OPTION, ''));
     }
 
+    /** The canonical webhook endpoint this install answers on. Constructed
+     * here (domain) so the operator-facing comparison paths never reach
+     * into the Api layer; `TelegramWebhookController::url()` delegates to
+     * it — the namespace string is the controller's declared firstparty
+     * route, keep the two in step. */
+    public static function webhookEndpoint(): string
+    {
+        return rest_url('aiya/telegram/v1/webhook');
+    }
+
     /** Records the platform-side registration the site just observed. */
     public static function storeWebhookUrl(string $url): void
     {

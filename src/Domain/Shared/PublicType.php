@@ -6,10 +6,11 @@ namespace Aiya\Core\Domain\Shared;
 
 /**
  * Configuration of one public content type: the WP post types it reads,
- * the front-end URL shape it answers with, and how its WP taxonomies map
- * onto the two contract vocabularies (category/tag). The registry is the
- * single place that knows resource_category means "category" to the
- * front end.
+ * and how its WP taxonomies map onto the two contract vocabularies
+ * (category/tag). The registry is the single place that knows
+ * resource_category means "category" to the front end. Route templates
+ * live in the front end alone (zero-routing) — this type carries no URL
+ * shape.
  */
 final class PublicType
 {
@@ -20,15 +21,9 @@ final class PublicType
     public function __construct(
         public readonly string $name,
         public readonly array $postTypes,
-        public readonly string $urlPattern,
         public readonly array $taxonomies,
         public readonly string $categoryTaxonomy,
     ) {
-    }
-
-    public function url(string $slug): string
-    {
-        return sprintf($this->urlPattern, $slug);
     }
 
     /** The WP taxonomy carrying the contract's "category" role, or null. */

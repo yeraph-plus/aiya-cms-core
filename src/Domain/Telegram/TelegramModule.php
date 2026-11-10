@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Telegram;
 
-use Aiya\Core\Api\Rest\TelegramWebhookController;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Settings\Registry;
 
@@ -83,7 +82,7 @@ final class TelegramModule implements Module
         // The button's label states what the click will do, read from the
         // cached registration URL - never a live platform call at render
         // time. Both actions are idempotent, so a stale label is harmless.
-        $bound = TelegramSettings::webhookUrl() === TelegramWebhookController::url();
+        $bound = TelegramSettings::webhookUrl() === TelegramSettings::webhookEndpoint();
 
         $this->settings->addPage([
             'slug' => TelegramSettings::PAGE_SLUG,

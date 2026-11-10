@@ -49,21 +49,18 @@ final class PublicTypes
             'post' => new PublicType(
                 'post',
                 ['post'],
-                '/posts/%s/',
                 [['category', 'category'], ['post_tag', 'tag']],
                 'category'
             ),
             'page' => new PublicType(
                 'page',
                 ['page'],
-                '/pages/%s/',
                 [['page_category', 'category']],
                 'page_category'
             ),
             'resource' => new PublicType(
                 'resource',
                 ['resource'],
-                '/resources/%s/',
                 [
                     ['resource_category', 'category'],
                     ['resource_original', 'tag'],

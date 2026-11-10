@@ -40,7 +40,7 @@ final class TelegramWebhookController
      */
     public static function url(): string
     {
-        return rest_url(self::API_NAMESPACE . '/webhook');
+        return TelegramSettings::webhookEndpoint();
     }
 
     private UpdateProcessor $processor;

@@ -12,6 +12,39 @@ use WP_Post;
 require_once __DIR__ . '/../Fixture/HttpDoubles.php';
 
 /**
+ * The one statement the push route adds to the wire: the per-post advisory
+ * lock. The suite's shared wpdb double answers neither GET_LOCK nor
+ * RELEASE_LOCK, so push() would die on a null get_var — this one grants
+ * every lock and records the lock statements for the serialization
+ * assertion.
+ */
+final class TelegramPushLockWpdb extends \wpdb
+{
+    /** @var list<string> */
+    public array $locks = [];
+
+    public function get_var(string $sql): mixed
+    {
+        if (str_contains($sql, 'GET_LOCK(') || str_contains($sql, 'RELEASE_LOCK(')) {
+            $this->locks[] = $sql;
+
+            return 1;
+        }
+
+        return null;
+    }
+
+    public function query(string $sql): int
+    {
+        if (str_contains($sql, 'RELEASE_LOCK(')) {
+            $this->locks[] = $sql;
+        }
+
+        return 1;
+    }
+}
+
+/**
  * The publish-push route: one text message per resource post, updates edit
  * that message in place through the stored post→message mapping, failures
  * back off through single-event retries (a 429's retry_after honoured,
@@ -23,6 +56,8 @@ require_once __DIR__ . '/../Fixture/HttpDoubles.php';
 final class TelegramPusherTest extends TestCase
 {
     private Pusher $pusher;
+
+    private TelegramPushLockWpdb $wpdb;
 
     protected function setUp(): void
     {
@@ -36,10 +71,17 @@ final class TelegramPusherTest extends TestCase
         $GLOBALS['__aiya_test_filters'] = [];
         $GLOBALS['__aiya_test_terms'] = [];
         $GLOBALS['__aiya_test_user_meta'] = [];
+        $this->wpdb = new TelegramPushLockWpdb();
+        $GLOBALS['wpdb'] = $this->wpdb;
 
         $this->pusher = new Pusher();
         $this->seedPost();
         $this->configure();
+    }
+
+    protected function tearDown(): void
+    {
+        unset($GLOBALS['wpdb']);
     }
 
     private function configure(array $overrides = []): void
@@ -131,6 +173,18 @@ final class TelegramPusherTest extends TestCase
         self::assertSame('@channel', $mapping['chat_id']);
         self::assertSame(77, $mapping['message_id']);
         self::assertGreaterThan(0, $mapping['pushed_at']);
+    }
+
+    public function testThePushRunsUnderThePerPostAdvisoryLock(): void
+    {
+        $this->stage(['ok' => true, 'result' => ['message_id' => 77]]);
+
+        $this->pusher->onPublished($GLOBALS['__aiya_test_posts'][5]);
+
+        $locks = array_values(preg_grep('/aiya_tg_push_5/', $this->wpdb->locks) ?: []);
+        self::assertCount(2, $locks, 'one GET_LOCK and one RELEASE_LOCK name the post');
+        self::assertStringContainsString('GET_LOCK', $locks[0]);
+        self::assertStringContainsString('RELEASE_LOCK', $locks[1]);
     }
 
     public function testARegularPostIsPushedOnItsOwnRoute(): void

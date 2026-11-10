@@ -76,22 +76,30 @@ final class TokenAuthentication
      * integrations namespace is in the list for the companion-service
      * ticket flow: minting a ticket IS the bearer's one job there. A
      * presented service key never matches (no `{userId}.{secret}` shape).
-     * Matching runs against the URL PATH only: the raw REQUEST_URI
-     * includes the query string, and a stray `?x=/aiya/core/v1/` marker
-     * must not re-enable token resolution outside the namespaces.
+     * Both request shapes are matched (HeadlessModule::lockWpV2 and
+     * SecurityModule treat the pair the same way): the URL PATH, and
+     * `?rest_route=` for plain-permalink installs — that param IS the
+     * route in both permalink styles, so it joins the match. A stray
+     * query marker (`?x=/aiya/core/v1/`) still cannot re-enable token
+     * resolution: only rest_route is read, the rest of the query string
+     * stays out.
      */
     private function tokenAppliesHere(): bool
     {
-        $uri = '';
+        $candidates = [];
         if (isset($_SERVER['REQUEST_URI']) && is_string($_SERVER['REQUEST_URI'])) {
-            $uri = wp_unslash($_SERVER['REQUEST_URI']);
+            $candidates[] = (string) wp_parse_url(wp_unslash($_SERVER['REQUEST_URI']), PHP_URL_PATH);
+        }
+        if (isset($_GET['rest_route']) && is_string($_GET['rest_route'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- routing hint read at dispatch, not form processing
+            $candidates[] = wp_unslash($_GET['rest_route']); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- routing hint read at dispatch, not form processing
         }
 
-        $path = (string) wp_parse_url($uri, PHP_URL_PATH);
-
         foreach ($this->namespaces() as $namespace) {
-            if (str_contains($path, '/' . trim((string) $namespace, '/') . '/')) {
-                return true;
+            $needle = '/' . trim((string) $namespace, '/') . '/';
+            foreach ($candidates as $candidate) {
+                if (str_contains($candidate, $needle)) {
+                    return true;
+                }
             }
         }
 

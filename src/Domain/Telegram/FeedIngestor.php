@@ -110,8 +110,9 @@ class FeedIngestor
     /**
      * Ingests one channel_post (or an edited_channel_post rewrite).
      * Verdicts are strings so intake logging asserts what happened:
-     * 'stored' | 'updated' | 'skipped' (a platform replay of a stored
-     * message).
+     * 'stored' | 'updated' | 'skipped' (anything not stored — a platform
+     * replay of a stored message, a lost insert race, or a failed write;
+     * the next delivery re-ingests on its own).
      *
      * @param array<string, mixed> $post One channel_post-shaped payload.
      */
@@ -153,7 +154,14 @@ class FeedIngestor
 
         // An edit for a message the mirror never saw (the route was
         // enabled after it landed) ingests as a fresh row.
-        $wpdb->insert(
+        // The unique (source_chat_id, message_id) key is the duplicate
+        // signal: two deliveries racing past the existingId() check both
+        // insert, and the loser must answer as a replay — never leak as
+        // wpdb's debug HTML inside the webhook's always-200 body.
+        // last_error is populated regardless of suppression — only the
+        // printing stops.
+        $suppress = $wpdb->suppress_errors(true);
+        $inserted = $wpdb->insert(
             $table,
             [
                 'source_chat_id' => $chatId,
@@ -171,6 +179,13 @@ class FeedIngestor
             ],
             ['%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s']
         );
+        $wpdb->suppress_errors($suppress);
+
+        if ($inserted === false) {
+            // A lost insert race (or any other write failure): not stored,
+            // the next delivery re-ingests the message on its own.
+            return 'skipped';
+        }
 
         return 'stored';
     }

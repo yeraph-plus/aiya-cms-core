@@ -17,8 +17,8 @@ use WP_Post;
  * announcements. The post→message binding is the `aiya_core_telegram`
  * post meta (domain JSON meta per the storage protocol); it is also the
  * dedupe key — every path (first send, update, retry) funnels through
- * push(), which consults it first, so replays and racing retries
- * converge on one message.
+ * push(), which consults it first under a per-post GET_LOCK, so replays
+ * and racing retries converge on one message.
  *
  * Failures retry through a single-event backoff (`aiya_core_tg_push_retry`
  * carrying [postId, attempt], honouring a 429's retry_after); the retry
@@ -88,47 +88,66 @@ final class Pusher
             return; // No token: the settings page and the CLI are the configuration paths.
         }
 
-        $chat = TelegramSettings::pushChatId();
-        $mapping = self::mapping($postId);
-        $text = $this->message($post);
+        // Serialize send vs edit per post: the publish event and an
+        // expiry-scheduled retry can overlap, and both would read a null
+        // mapping and send two channel messages (the second meta write
+        // would win). The mapping read sits inside the lock so a waiter
+        // sees the winner's fresh binding; a pusher that cannot take the
+        // lock quietly exits — the holder is doing this push, and its own
+        // failure path schedules the retry (EntitlementService's lock
+        // shape).
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $lock = 'aiya_tg_push_' . $postId;
+        if ((int) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 10)', $lock)) !== 1) {
+            return;
+        }
 
-        if ($mapping === null) {
-            $result = $client->sendMessage($chat, $text, ['parse_mode' => 'HTML']);
+        try {
+            $chat = TelegramSettings::pushChatId();
+            $mapping = self::mapping($postId);
+            $text = $this->message($post);
+
+            if ($mapping === null) {
+                $result = $client->sendMessage($chat, $text, ['parse_mode' => 'HTML']);
+                if ($result instanceof Error) {
+                    $this->fail($result, $postId, $attempt, 'send');
+
+                    return;
+                }
+
+                update_post_meta($postId, self::META_KEY, [
+                    'chat_id' => $chat,
+                    'message_id' => (int) ($result['message_id'] ?? 0),
+                    'pushed_at' => time(),
+                ]);
+
+                return;
+            }
+
+            $result = $client->editMessageText((string) $mapping['chat_id'], (int) $mapping['message_id'], $text, ['parse_mode' => 'HTML']);
             if ($result instanceof Error) {
-                $this->fail($result, $postId, $attempt, 'send');
+                if ($result->code === Error::NOT_MODIFIED) {
+                    return; // The channel message already carries this content: done.
+                }
+                if ($result->status === 400 && str_contains($result->message, 'message to edit not found')) {
+                    // The message was deleted in the chat: the binding is dead,
+                    // drop it and let a future publish event start over.
+                    delete_post_meta($postId, self::META_KEY);
+                    TelegramBot::report('push', $result, ['post_id' => $postId, 'phase' => 'edit-gone']);
+
+                    return;
+                }
+                $this->fail($result, $postId, $attempt, 'edit');
 
                 return;
             }
 
-            update_post_meta($postId, self::META_KEY, [
-                'chat_id' => $chat,
-                'message_id' => (int) ($result['message_id'] ?? 0),
-                'pushed_at' => time(),
-            ]);
-
-            return;
+            $mapping['pushed_at'] = time();
+            update_post_meta($postId, self::META_KEY, $mapping);
+        } finally {
+            $wpdb->query((string) $wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock));
         }
-
-        $result = $client->editMessageText((string) $mapping['chat_id'], (int) $mapping['message_id'], $text, ['parse_mode' => 'HTML']);
-        if ($result instanceof Error) {
-            if ($result->code === Error::NOT_MODIFIED) {
-                return; // The channel message already carries this content: done.
-            }
-            if ($result->status === 400 && str_contains($result->message, 'message to edit not found')) {
-                // The message was deleted in the chat: the binding is dead,
-                // drop it and let a future publish event start over.
-                delete_post_meta($postId, self::META_KEY);
-                TelegramBot::report('push', $result, ['post_id' => $postId, 'phase' => 'edit-gone']);
-
-                return;
-            }
-            $this->fail($result, $postId, $attempt, 'edit');
-
-            return;
-        }
-
-        $mapping['pushed_at'] = time();
-        update_post_meta($postId, self::META_KEY, $mapping);
     }
 
     /** The post's bound channel message, null when never pushed.

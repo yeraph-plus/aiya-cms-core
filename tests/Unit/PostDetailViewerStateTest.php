@@ -82,7 +82,7 @@ final class PostDetailViewerStateTest extends TestCase
 
     private function type(): PublicType
     {
-        return new PublicType('post', ['post'], '/posts/%s/', [], 'category');
+        return new PublicType('post', ['post'], [], 'category');
     }
 
     /** @return array{previous: null, next: null} */

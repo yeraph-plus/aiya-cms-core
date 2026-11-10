@@ -96,7 +96,7 @@ final class ContentGateTest extends TestCase
 
     private function type(): PublicType
     {
-        return new PublicType('post', ['post'], '/posts/%s/', [], 'category');
+        return new PublicType('post', ['post'], [], 'category');
     }
 
     /**
