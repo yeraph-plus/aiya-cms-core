@@ -514,6 +514,7 @@ namespace Aiya\Core\Tests\Unit {
                 $this->events()[1],
             );
             self::assertSame(['notify', 55, 'user'], $this->events()[2], 'the user leg rides the native chain');
+            self::assertCount(3, $this->events(), "the welcome notification is the domain's leg — the controller must not duplicate it");
         }
 
         // ------------------------------------------------------------- login
