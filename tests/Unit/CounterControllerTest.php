@@ -46,6 +46,7 @@ namespace Aiya\Core\Tests\Unit {
     use Aiya\Core\Domain\Engagement\CounterService;
     use PHPUnit\Framework\TestCase;
     use WP_Error;
+    use WP_REST_Response;
     use WP_REST_Server;
 
     require_once __DIR__ . '/../Fixture/RestDoubles.php';
@@ -204,13 +205,25 @@ namespace Aiya\Core\Tests\Unit {
 
         // -------------------------------------------------------------- like
 
-        public function testLikeCountsTheVisitorOnceAndAnswersThePair(): void
+        public function testLikeCountsTheVisitorOnceAndAnswersTheLikeResponse(): void
         {
             $first = $this->call('like', ['id' => 5]);
             $repeat = $this->call('like', ['id' => 5]);
 
-            self::assertSame(['likes' => 1, 'already' => false], $first);
-            self::assertSame(['likes' => 1, 'already' => true], $repeat, 'the dedupe window counts a visitor once');
+            self::assertInstanceOf(WP_REST_Response::class, $first);
+            $body = $first->get_data();
+            self::assertSame(['data', 'meta'], array_keys($body), 'the envelope promise');
+            // The add-only write always leaves the viewer liked; `already`
+            // marks the idempotent re-like inside the dedupe window.
+            self::assertSame(
+                ['likes' => 1, 'viewerLiked' => true, 'already' => false],
+                $body['data'],
+            );
+            self::assertSame(
+                ['likes' => 1, 'viewerLiked' => true, 'already' => true],
+                $repeat->get_data()['data'],
+                'the dedupe window counts a visitor once',
+            );
             self::assertSame(1, (int) get_post_meta(5, 'like_count', true));
         }
 
@@ -292,7 +305,7 @@ namespace Aiya\Core\Tests\Unit {
         {
             for ($i = 0; $i < 30; $i++) {
                 $result = $this->call('like', ['id' => 5]);
-                self::assertIsArray($result, 'in-budget hits answer the count pair');
+                self::assertInstanceOf(WP_REST_Response::class, $result, 'in-budget hits answer the LikeResponse envelope');
             }
 
             $limited = $this->call('like', ['id' => 5]);

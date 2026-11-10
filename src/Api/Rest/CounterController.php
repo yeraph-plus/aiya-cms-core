@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Api\Contract\LikeResponse;
 use Aiya\Core\Domain\Engagement\CounterService;
 use WP_Error;
 use WP_REST_Request;
+use WP_REST_Response;
 use Aiya\Core\Infrastructure\Http\VisitorFingerprint;
 use WP_REST_Server;
 
@@ -29,7 +31,7 @@ final class CounterController
 
         register_rest_route(Contract::API_NAMESPACE, '/content/(?P<id>\d+)/like', [
             'methods' => WP_REST_Server::CREATABLE,
-            'callback' => fn (WP_REST_Request $request): array|WP_Error => $this->like($request),
+            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->like($request),
             'permission_callback' => '__return_true',
             'args' => $idArg,
         ]);
@@ -61,8 +63,8 @@ final class CounterController
      * stay public — visitor counting is their purpose.
      */
 
-    /** @return array<string, mixed>|WP_Error */
-    private function like(WP_REST_Request $request): array|WP_Error
+    /** @return WP_REST_Response|WP_Error */
+    private function like(WP_REST_Request $request): WP_Error|WP_REST_Response
     {
         $guest = RestGuard::guestError();
         if ($guest !== null) {
@@ -78,7 +80,15 @@ final class CounterController
             return $result;
         }
 
-        return ['likes' => $result['likes'], 'already' => $result['already']];
+        // The write is add-only (no unlike surface), so a successful like
+        // always leaves the viewer liked — `viewerLiked` answers the shared
+        // LikeResponse DTO the discussion toggle also speaks, not a bare
+        // ad-hoc array.
+        return Envelope::payload((new LikeResponse(
+            $result['likes'],
+            true,
+            $result['already'],
+        ))->toArray());
     }
 
     /** @return array<string, mixed>|WP_Error */
