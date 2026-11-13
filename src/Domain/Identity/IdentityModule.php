@@ -7,6 +7,7 @@ namespace Aiya\Core\Domain\Identity;
 use Aiya\Core\Contracts\Module;
 use Aiya\Core\Metadata\Registry as MetadataRegistry;
 use Aiya\Core\Runtime\TableInstaller;
+use WP_User;
 
 /**
  * Wires the user relation tables into the runtime (2026-09-09 plan, ten-
@@ -14,11 +15,18 @@ use Aiya\Core\Runtime\TableInstaller;
  * `favorite_posts` usermeta, and the bearer-token store moves from user
  * meta to its own table. Also schedules the daily cleanup of expired
  * auth tokens, and declares the account disable switch on the profile
- * screen (UserBan — the meta key IS the field id).
+ * screen (UserBan — the meta key IS the field id). The self-service
+ * account deletion (0.136.0) rides here too: the per-request one-time
+ * execution event's listener, the scheduled-events declaration, the
+ * daily reconcile for dropped events (late priority on the tokens
+ * cleanup), and the classic-login stamp (`wp_login` — headless sign-ins
+ * stamp inside AuthController).
  */
 final class IdentityModule implements Module
 {
     public const CRON_HOOK = 'aiya_core_auth_tokens_cleanup';
+    /** One-shot per-holder deletion event; args `[$userId, $key]`. */
+    public const ACCOUNT_DELETE_HOOK = 'aiya_core_account_delete';
     private const MIGRATION_VERSION = '1.0.0';
 
     public function __construct(private MetadataRegistry $metadata)
@@ -48,8 +56,21 @@ final class IdentityModule implements Module
             TokenStore::pruneExpired();
         });
 
+        // The deletion executor's one-time events, the dropped-event
+        // reconcile (after TokenStore::pruneExpired's default-10 pass) and
+        // the classic-login side of the last-login stamp + recovery.
+        add_action(self::ACCOUNT_DELETE_HOOK, [AccountDeletionService::class, 'execute'], 10, 2);
+
+        add_action(self::CRON_HOOK, [AccountDeletionService::class, 'reconcilePending'], 30);
+
+        add_action('wp_login', static function (string $userLogin, WP_User $user): void {
+            LastLogin::stamp((int) $user->ID);
+            AccountDeletionService::cancelIfPending((int) $user->ID);
+        }, 10, 2);
+
         add_filter('aiya_core_scheduled_events', function (array $hooks): array {
             $hooks[] = self::CRON_HOOK;
+            $hooks[] = self::ACCOUNT_DELETE_HOOK;
 
             return $hooks;
         });

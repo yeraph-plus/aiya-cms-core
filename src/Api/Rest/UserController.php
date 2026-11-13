@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Api\Rest;
 
+use Aiya\Core\Api\Contract\AccountDeletionStatus;
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Domain\Shared\FrontendLocales;
 use Aiya\Core\Api\Contract\Pagination;
 use Aiya\Core\Api\Presenter\PostPresenter;
 use Aiya\Core\Api\Presenter\UserPresenter;
+use Aiya\Core\Domain\Identity\AccountDeletionService;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
@@ -155,6 +157,27 @@ final class UserController
                 'password' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
                 'passwordConfirm' => ['type' => 'string', 'required' => true],
             ],
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/users/me/account-deletion', [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => fn (): WP_REST_Response => $this->deletionStatus(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/users/me/account-deletion', [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => fn (WP_REST_Request $request): WP_Error|WP_REST_Response => $this->requestDeletion($request),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
+            'args' => [
+                'currentPassword' => ['type' => 'string', 'required' => true, 'maxLength' => 200],
+            ],
+        ]);
+
+        register_rest_route(Contract::API_NAMESPACE, '/users/me/account-deletion', [
+            'methods' => WP_REST_Server::DELETABLE,
+            'callback' => fn (): WP_Error|WP_REST_Response => $this->cancelDeletion(),
+            'permission_callback' => fn (): bool|WP_Error => RestGuard::loggedIn(),
         ]);
     }
 
@@ -395,6 +418,43 @@ final class UserController
         }
 
         return new WP_REST_Response(['done' => true]);
+    }
+
+    /** The owner's own deletion countdown (pending false when none runs). */
+    private function deletionStatus(): WP_REST_Response
+    {
+        $marker = AccountDeletionService::marker((int) $this->currentUser()->ID);
+
+        return new WP_REST_Response(new AccountDeletionStatus(
+            $marker !== null,
+            $marker !== null ? (string) wp_date('c', $marker['requested_at']) : null,
+            $marker !== null ? (string) wp_date('c', $marker['effective_at']) : null,
+        )->toArray());
+    }
+
+    private function requestDeletion(WP_REST_Request $request): WP_Error|WP_REST_Response
+    {
+        // Same budget class as the password change: the re-auth below runs
+        // full-cost bcrypt per attempt.
+        if (!$this->rateLimiter->hitFor('account_deletion', (int) $this->currentUser()->ID, 3, 3600)) {
+            return RestGuard::rateLimited();
+        }
+        $result = AccountDeletionService::request($this->currentUser(), (string) $request->get_param('currentPassword'));
+        if (is_wp_error($result)) {
+            return $result;
+        }
+
+        return $this->deletionStatus();
+    }
+
+    private function cancelDeletion(): WP_Error|WP_REST_Response
+    {
+        $result = AccountDeletionService::cancel((int) $this->currentUser()->ID);
+        if (is_wp_error($result)) {
+            return $result;
+        }
+
+        return $this->deletionStatus();
     }
 
     private function currentUser(): WP_User

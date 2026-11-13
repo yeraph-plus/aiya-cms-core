@@ -20,6 +20,10 @@ namespace Aiya\Core\Api\Contract;
  * `showNsfw` is the "always show NSFW content" preference (0.96.0): when
  * true the read path ignores NSFW exclusions for this account, overriding
  * the front end's per-browser soft switch.
+ *
+ * `lastLoginAt` is the owner's most recent successful sign-in (0.136.0),
+ * stamped on both the headless token issue and the classic `wp_login`;
+ * empty when the account was never signed into (admin-created accounts).
  */
 final class UserProfile
 {
@@ -42,6 +46,8 @@ final class UserProfile
         public readonly bool $showNsfw,
         public readonly AvatarImage $avatar,
         public readonly ?ProfileStats $stats = null,
+        /** Most recent successful sign-in (ISO 8601); '' when never signed in. */
+        public readonly string $lastLoginAt = '',
     ) {
     }
 
@@ -63,6 +69,7 @@ final class UserProfile
             'showNsfw' => $this->showNsfw,
             'avatar' => $this->avatar->toArray(),
             'stats' => $this->stats?->toArray(),
+            'lastLoginAt' => $this->lastLoginAt,
         ];
     }
 }

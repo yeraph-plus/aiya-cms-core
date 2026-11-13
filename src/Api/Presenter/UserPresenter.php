@@ -10,6 +10,7 @@ use Aiya\Core\Api\Contract\UserProfile;
 use Aiya\Core\Api\Contract\ProfileStats;
 use Aiya\Core\Domain\Identity\FavoriteService;
 use Aiya\Core\Domain\Identity\FollowService;
+use Aiya\Core\Domain\Identity\LastLogin;
 use Aiya\Core\Domain\Identity\ShowNsfw;
 use Aiya\Core\Domain\Identity\UserBan;
 use Aiya\Core\Domain\Membership\MembershipService;
@@ -47,7 +48,8 @@ final class UserPresenter
             UserBan::isBanned((int) $user->ID),
             ShowNsfw::always((int) $user->ID),
             $this->avatar((int) $user->ID),
-            $this->stats((int) $user->ID)
+            $this->stats((int) $user->ID),
+            WireDates::fromTimestamp(LastLogin::of((int) $user->ID))
         );
     }
 

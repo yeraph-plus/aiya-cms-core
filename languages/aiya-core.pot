@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIYA CMS - Headless Core 0.135.2\n"
+"Project-Id-Version: AIYA CMS - Headless Core 0.136.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiya-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-07T18:52:52+00:00\n"
+"POT-Creation-Date: 2026-11-13T21:07:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aiya-core\n"
@@ -440,7 +440,7 @@ msgid "No ledger entries yet."
 msgstr ""
 
 #: src/Admin/CreditsPage.php:310
-#: src/Api/Rest/IntegrationsController.php:151
+#: src/Api/Rest/IntegrationsController.php:162
 #: src/Domain/Credit/LedgerService.php:106
 #: src/Domain/Credit/LedgerService.php:190
 msgid "The credit holder does not exist."
@@ -1874,9 +1874,9 @@ msgstr ""
 #: src/Admin/SamplePage.php:259
 #: src/Domain/Membership/MembershipModule.php:106
 #: src/Domain/Payment/PaymentModule.php:187
-#: src/Domain/Telegram/TelegramModule.php:127
-#: src/Domain/Telegram/TelegramModule.php:154
-#: src/Domain/Telegram/TelegramModule.php:204
+#: src/Domain/Telegram/TelegramModule.php:126
+#: src/Domain/Telegram/TelegramModule.php:153
+#: src/Domain/Telegram/TelegramModule.php:203
 msgid "Enabled"
 msgstr ""
 
@@ -2659,65 +2659,70 @@ msgstr ""
 msgid "Only active sponsors (and editors) get past the gate."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:54
+#: src/Api/Rest/AuthController.php:56
 msgid "You are already logged in."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:127
+#: src/Api/Rest/AuthController.php:129
 msgid "Registration is currently disabled."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:138
-#: src/Api/Rest/UserController.php:277
+#: src/Api/Rest/AuthController.php:140
+#: src/Api/Rest/UserController.php:300
 msgid "The nickname must be 1-50 characters."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:141
-#: src/Api/Rest/AuthController.php:223
-#: src/Api/Rest/UserController.php:300
+#: src/Api/Rest/AuthController.php:143
+#: src/Api/Rest/AuthController.php:231
+#: src/Api/Rest/UserController.php:323
 msgid "The email address is not valid."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:151
-#: src/Api/Rest/UserController.php:317
+#: src/Api/Rest/AuthController.php:153
+#: src/Api/Rest/UserController.php:340
 msgid "The locale is not supported."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:180
+#: src/Api/Rest/AuthController.php:182
 msgid "Please provide the email address and the password."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:188
+#: src/Api/Rest/AuthController.php:190
 msgid "The email address or the password is incorrect."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:197
-#: src/Api/Rest/BanGate.php:72
+#: src/Api/Rest/AuthController.php:199
+#: src/Api/Rest/BanGate.php:74
 #: src/Api/Rest/CreditController.php:107
 #: src/Domain/Credit/CheckinService.php:34
 #: src/Domain/Credit/LedgerService.php:187
 msgid "This account is disabled."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:264
+#: src/Api/Rest/AuthController.php:272
 #: src/Domain/Identity/AccountService.php:73
 msgid "Existing sessions could not be invalidated; the password was left unchanged."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:282
+#: src/Api/Rest/AuthController.php:290
 msgid "The reset link is missing required parameters."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:296
+#: src/Api/Rest/AuthController.php:304
 msgid "This password reset link is invalid or has expired."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:308
+#: src/Api/Rest/AuthController.php:316
 msgid "The account could not be loaded."
 msgstr ""
 
-#: src/Api/Rest/AuthController.php:316
+#: src/Api/Rest/AuthController.php:324
 msgid "The session could not be started."
+msgstr ""
+
+#: src/Api/Rest/BanGate.php:85
+#: src/Api/Rest/IntegrationsController.php:135
+msgid "This account has a pending deletion request."
 msgstr ""
 
 #: src/Api/Rest/CommentsController.php:153
@@ -2853,20 +2858,20 @@ msgstr ""
 msgid "Too many requests, try again later."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:200
+#: src/Api/Rest/UserController.php:223
 msgid "The favorite could not be removed."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:253
+#: src/Api/Rest/UserController.php:276
 msgid "The follow could not be removed."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:302
+#: src/Api/Rest/UserController.php:325
 #: src/Domain/Identity/AccountService.php:94
 msgid "This email address is already registered."
 msgstr ""
 
-#: src/Api/Rest/UserController.php:361
+#: src/Api/Rest/UserController.php:384
 msgid "No avatar image was uploaded."
 msgstr ""
 
@@ -3709,16 +3714,33 @@ msgstr ""
 msgid "Classify each row by extension so the front end can pick an icon."
 msgstr ""
 
+#: src/Domain/Identity/AccountDeletionService.php:97
+#: src/Domain/Identity/AccountService.php:64
+msgid "The current password is incorrect."
+msgstr ""
+
+#: src/Domain/Identity/AccountDeletionService.php:100
+msgid "A deletion request is already waiting."
+msgstr ""
+
+#: src/Domain/Identity/AccountDeletionService.php:103
+msgid "Staff accounts cannot be deleted through this form."
+msgstr ""
+
+#: src/Domain/Identity/AccountDeletionService.php:124
+msgid "The deletion could not be scheduled."
+msgstr ""
+
+#: src/Domain/Identity/AccountDeletionService.php:142
+msgid "No deletion request is waiting."
+msgstr ""
+
 #: src/Domain/Identity/AccountService.php:40
 msgid "Changing the email address requires the current password."
 msgstr ""
 
 #: src/Domain/Identity/AccountService.php:49
 msgid "The profile could not be saved."
-msgstr ""
-
-#: src/Domain/Identity/AccountService.php:64
-msgid "The current password is incorrect."
 msgstr ""
 
 #: src/Domain/Identity/AccountService.php:109
@@ -3842,19 +3864,19 @@ msgstr ""
 msgid "The follow could not be stored."
 msgstr ""
 
-#: src/Domain/Identity/IdentityModule.php:74
+#: src/Domain/Identity/IdentityModule.php:95
 msgid "Disable this account"
 msgstr ""
 
-#: src/Domain/Identity/IdentityModule.php:75
+#: src/Domain/Identity/IdentityModule.php:96
 msgid "A disabled account cannot check in, cannot spend credits and is not treated as a member anywhere. Credits and memberships are left untouched — grants keep landing, they simply cannot be used, and the balance keeps expiring on its own schedule."
 msgstr ""
 
-#: src/Domain/Identity/IdentityModule.php:85
+#: src/Domain/Identity/IdentityModule.php:106
 msgid "Always show NSFW content"
 msgstr ""
 
-#: src/Domain/Identity/IdentityModule.php:86
+#: src/Domain/Identity/IdentityModule.php:107
 msgid "NSFW terms configured on the content-management page drop out of listings on request. This switch makes the account ignore that filter everywhere, including the per-browser preference of the front end (0.96.0)."
 msgstr ""
 
@@ -3939,6 +3961,42 @@ msgstr ""
 
 #: src/Domain/Integrations/TicketService.php:91
 msgid "This sign-in ticket is not valid."
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Domain/Mail/AccountDeletionMail.php:32
+#, php-format
+msgid "We received your request to delete your account on %1$s."
+msgstr ""
+
+#: src/Domain/Mail/AccountDeletionMail.php:36
+msgid "Requested at"
+msgstr ""
+
+#: src/Domain/Mail/AccountDeletionMail.php:37
+msgid "Deletion runs at"
+msgstr ""
+
+#: src/Domain/Mail/AccountDeletionMail.php:39
+msgid "Until that moment the account is locked. Signing in once before the date above withdraws the request and restores everything as it was."
+msgstr ""
+
+#: src/Domain/Mail/AccountDeletionMail.php:40
+msgid "If you did not request this, someone else may know your password — please change it right away."
+msgstr ""
+
+#: src/Domain/Mail/AccountDeletionMail.php:41
+msgid "Manage account"
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Domain/Mail/AccountDeletionMail.php:45
+#, php-format
+msgid "[%1$s] Your account deletion request was received."
+msgstr ""
+
+#: src/Domain/Mail/AccountDeletionMail.php:48
+msgid "Signing in once before the deletion date withdraws the request."
 msgstr ""
 
 #: src/Domain/Mail/CoreMailRewrites.php:89
@@ -4743,122 +4801,122 @@ msgstr ""
 msgid "Thread ID"
 msgstr ""
 
+#: src/Domain/Telegram/TelegramModule.php:89
 #: src/Domain/Telegram/TelegramModule.php:90
-#: src/Domain/Telegram/TelegramModule.php:91
 msgid "Telegram Bot"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:100
+#: src/Domain/Telegram/TelegramModule.php:99
 msgid "Bot connection"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:106
+#: src/Domain/Telegram/TelegramModule.php:105
 msgid "Bot token"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:107
+#: src/Domain/Telegram/TelegramModule.php:106
 msgid "From @BotFather. Stored server-side and never exposed."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:113
-#: src/Domain/Telegram/TelegramModule.php:116
+#: src/Domain/Telegram/TelegramModule.php:112
+#: src/Domain/Telegram/TelegramModule.php:115
 msgid "Unbind bot"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:113
-#: src/Domain/Telegram/TelegramModule.php:115
+#: src/Domain/Telegram/TelegramModule.php:112
+#: src/Domain/Telegram/TelegramModule.php:114
 msgid "Connect bot"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:121
+#: src/Domain/Telegram/TelegramModule.php:120
 msgid "Publish push"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:128
+#: src/Domain/Telegram/TelegramModule.php:127
 msgid "Push published posts and resources to the target chat, editing the sent message in place on update"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:134
+#: src/Domain/Telegram/TelegramModule.php:133
 msgid "Push target"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:135
+#: src/Domain/Telegram/TelegramModule.php:134
 msgid "Numeric chat id or @channelusername the publish/update notices go to."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:141
+#: src/Domain/Telegram/TelegramModule.php:140
 msgid "Message template"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:142
+#: src/Domain/Telegram/TelegramModule.php:141
 msgid "The push message body in Telegram HTML. Placeholders: {front} the front-end origin, {type} and {slug} the post's public type and slug, {id}, {title}, {excerpt}, {tags} and {categories} display names with a # prefix, {date}, {author}. Links are yours to compose from {front}, {type} and {slug}; the backend keeps no front-end route shapes. Every substitution is escaped, so the markup you write here is the only markup; leaving a placeholder out drops that part. Empty restores the default. Bounds: the title caps at 250 characters, the excerpt at 400 (hand-filled excerpt first, else the stripped content), and the whole message clamps to the platform limit of 4096 characters with the excerpt yielding first."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:148
+#: src/Domain/Telegram/TelegramModule.php:147
 msgid "Channel mirror"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:155
+#: src/Domain/Telegram/TelegramModule.php:154
 msgid "Ingest the source channels' posts into the mirror feed (images transfer into the image pool; videos and files surface as t.me links)"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:161
+#: src/Domain/Telegram/TelegramModule.php:160
 msgid "Source channels"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:162
+#: src/Domain/Telegram/TelegramModule.php:161
 msgid "The channels mirrored into the web feed, one row each: an optional display title (the feed prefers it over the channel's own name), the channel's numeric id or @username, and the NSFW mark the row carries into the feed. Posts from any other chat are dropped. A private channel's t.me links only open for its members."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:168
+#: src/Domain/Telegram/TelegramModule.php:167
 msgid "Display title"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:174
+#: src/Domain/Telegram/TelegramModule.php:173
 msgid "Channel id or @username"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:181
+#: src/Domain/Telegram/TelegramModule.php:180
 msgid "NSFW"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:189
+#: src/Domain/Telegram/TelegramModule.php:188
 msgid "Clear the local mirror"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:190
+#: src/Domain/Telegram/TelegramModule.php:189
 msgid "Delete every mirrored row and its transferred images on this save"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:191
+#: src/Domain/Telegram/TelegramModule.php:190
 msgid "The mirror is one-way: the channel is the source of truth and this table only holds the local copy. Cleared rows never come back — the platform cannot replay channel history, so the feed refills from new channel posts only. The support relay's messages live in their own table and stay."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:198
+#: src/Domain/Telegram/TelegramModule.php:197
 msgid "Support relay"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:205
+#: src/Domain/Telegram/TelegramModule.php:204
 msgid "Relay the web support chat into your private chat with the bot, and your replies back to the web"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:211
+#: src/Domain/Telegram/TelegramModule.php:210
 msgid "Owner chat id"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:212
+#: src/Domain/Telegram/TelegramModule.php:211
 msgid "Your private chat with the bot. Send /status there and the bot replies with the id; only replies to relayed visitor messages flow back to the web."
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:218
+#: src/Domain/Telegram/TelegramModule.php:217
 msgid "Clear the relay history"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:219
+#: src/Domain/Telegram/TelegramModule.php:218
 msgid "Delete every relayed conversation on this save"
 msgstr ""
 
-#: src/Domain/Telegram/TelegramModule.php:220
+#: src/Domain/Telegram/TelegramModule.php:219
 msgid "The web thread is the source of truth for the support chat: this erases the visitors' messages, your replies and the Telegram bindings in one go, and old bot copies in your chat stop routing replies back. The mirror feed's table is a different one and stays."
 msgstr ""
 

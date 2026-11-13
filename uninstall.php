@@ -404,6 +404,14 @@ $delete_site_data = static function () use ($wpdb, $optionLike, $run, $delete_si
             wp_clear_scheduled_hook('aiya_core_tg_push_retry', $singleArgs);
         }
     }
+    // The per-holder deletion events carry [userId, key] args — same
+    // enumeration (IdentityModule::ACCOUNT_DELETE_HOOK).
+    foreach (_get_cron_array() as $cronHooks) {
+        foreach (($cronHooks['aiya_core_account_delete'] ?? []) as $singleEvent) {
+            $singleArgs = array_values((array) ($singleEvent['args'] ?? []));
+            wp_clear_scheduled_hook('aiya_core_account_delete', $singleArgs);
+        }
+    }
     wp_clear_scheduled_hook('aiya_core_sponsor_expiry_scan');
     wp_clear_scheduled_hook('aiya_core_remnants_cleanup');
     wp_clear_scheduled_hook('aiya_core_tg_poll_cron');

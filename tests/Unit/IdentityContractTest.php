@@ -88,6 +88,7 @@ final class IdentityContractTest extends TestCase
                 'contributions' => 9,
                 'followers' => 2,
             ],
+            'lastLoginAt' => '',
         ], $this->profile()->toArray());
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Domain\Credit\LedgerService;
+use Aiya\Core\Domain\Identity\AccountDeletionService;
 use Aiya\Core\Domain\Integrations\ServiceKey;
 use Aiya\Core\Domain\Integrations\TicketService;
 use WP_Error;
@@ -124,6 +125,16 @@ final class IntegrationsController
         // bucket would lock all of the site's users out together.
         if (!$this->limiter->hitFor('integrations_tickets', (string) $userId, self::TICKETS_PER_USER, self::TICKET_WINDOW)) {
             return RestGuard::rateLimited();
+        }
+        // The deletion countdown's lock promise covers the companion
+        // services too: a pending holder cannot mint new spend tickets
+        // while their account is locked against every other write route.
+        if (AccountDeletionService::isPending($userId)) {
+            return new WP_Error(
+                'aiya_account_pending_deletion',
+                __('This account has a pending deletion request.', 'aiya-core'),
+                ['status' => 403]
+            );
         }
 
         $ticket = $this->tickets->issue($userId);

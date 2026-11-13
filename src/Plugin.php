@@ -345,6 +345,15 @@ final class Plugin
                 wp_clear_scheduled_hook(Pusher::RETRY_HOOK, $singleArgs);
             }
         }
+        // The per-holder deletion events clear the same way; the usermeta
+        // marker survives, and the daily reconcile re-schedules what a
+        // reactivation is expected to resume (IdentityModule).
+        foreach (_get_cron_array() as $cronHooks) {
+            foreach (($cronHooks[IdentityModule::ACCOUNT_DELETE_HOOK] ?? []) as $singleEvent) {
+                $singleArgs = array_values((array) ($singleEvent['args'] ?? []));
+                wp_clear_scheduled_hook(IdentityModule::ACCOUNT_DELETE_HOOK, $singleArgs);
+            }
+        }
     }
 
     public function settings(): Registry

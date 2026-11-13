@@ -7,6 +7,8 @@ namespace Aiya\Core\Api\Rest;
 use Aiya\Core\Api\Contract\Contract;
 use Aiya\Core\Domain\Shared\FrontendLocales;
 use Aiya\Core\Api\Presenter\UserPresenter;
+use Aiya\Core\Domain\Identity\AccountDeletionService;
+use Aiya\Core\Domain\Identity\LastLogin;
 use Aiya\Core\Domain\Identity\PasswordPolicy;
 use Aiya\Core\Domain\Identity\PasswordResetService;
 use Aiya\Core\Domain\Identity\TokenStore;
@@ -161,6 +163,9 @@ final class AuthController
             return $userId;
         }
 
+        // Registration's auto-session is the account's first sign-in.
+        LastLogin::stamp((int) $userId);
+
         return $this->sessionResponse((int) $userId, true);
     }
 
@@ -193,6 +198,12 @@ final class AuthController
         if (UserBan::isBanned((int) $user->ID)) {
             return new WP_Error('aiya_account_banned', __('This account is disabled.', 'aiya-core'), ['status' => 403]);
         }
+
+        // Coming back withdraws a pending deletion (the recovery
+        // semantics) and stamps the sign-in — both before the token
+        // issues, so the fresh session lands on the restored account.
+        LastLogin::stamp((int) $user->ID);
+        AccountDeletionService::cancelIfPending((int) $user->ID);
 
         // The boolean arg arrives as a real bool over JSON; coerce anyway.
         return $this->sessionResponse((int) $user->ID, (bool) $request->get_param('remember'));

@@ -8,6 +8,7 @@ namespace {
 
 namespace Aiya\Core\Tests\Unit {
     use Aiya\Core\Api\Rest\BanGate;
+    use Aiya\Core\Domain\Identity\AccountDeletionService;
     use Aiya\Core\Domain\Identity\UserBan;
     use PHPUnit\Framework\TestCase;
     use WP_Error;
@@ -73,6 +74,47 @@ namespace Aiya\Core\Tests\Unit {
             $earlier = new WP_Error('aiya_earlier_refusal', 'no', ['status' => 400]);
 
             self::assertSame($earlier, BanGate::guard($earlier, null, new FakeRestRequest('/aiya/core/v1/discussions', 'POST')));
+        }
+
+        public function testAPendingDeletionWriteIsRefused(): void
+        {
+            update_user_meta(self::DISABLED, AccountDeletionService::MARKER_META, [
+                'requested_at' => time(),
+                'effective_at' => time() + AccountDeletionService::GRACE_DAYS * DAY_IN_SECONDS,
+                'key' => 'k1',
+            ]);
+
+            $refused = BanGate::guard(null, null, new FakeRestRequest('/aiya/core/v1/discussions', 'POST'));
+
+            self::assertInstanceOf(WP_Error::class, $refused);
+            self::assertSame('aiya_account_pending_deletion', $refused->get_error_code());
+            self::assertSame(403, $refused->get_error_data()['status']);
+        }
+
+        public function testTheWithdrawalPathStaysReachableWhilePending(): void
+        {
+            update_user_meta(self::DISABLED, AccountDeletionService::MARKER_META, [
+                'requested_at' => time(),
+                'effective_at' => time() + AccountDeletionService::GRACE_DAYS * DAY_IN_SECONDS,
+                'key' => 'k1',
+            ]);
+
+            self::assertNull(
+                BanGate::guard(null, null, new FakeRestRequest('/aiya/core/v1/users/me/account-deletion', 'DELETE')),
+                'a pending holder must still be able to withdraw the request',
+            );
+        }
+
+        public function testABannedHolderCanStillReachTheDeletionRequest(): void
+        {
+            // The registered ruling: a banned account may self-clean through
+            // the shared whitelist — staff cannot (the handler refuses),
+            // subscriber-level bans ride the normal flow.
+            UserBan::set(self::DISABLED, true);
+
+            self::assertNull(
+                BanGate::guard(null, null, new FakeRestRequest('/aiya/core/v1/users/me/account-deletion', 'POST')),
+            );
         }
     }
 }

@@ -321,7 +321,7 @@ namespace Aiya\Core\Tests\Unit {
 
         // ------------------------------------------------------------- routes
 
-        public function testRoutesRegisterThirteenSelfServiceFaces(): void
+        public function testRoutesRegisterSixteenSelfServiceFaces(): void
         {
             if (!defined('WP_REST_Server::READABLE')) {
                 self::markTestSkipped('the shared RestDoubles alias owns WP_REST_Server without method constants; route shape needs this file to load first');
@@ -329,7 +329,7 @@ namespace Aiya\Core\Tests\Unit {
             $this->controller()->registerRoutes();
 
             $routes = $this->routes();
-            self::assertCount(13, $routes);
+            self::assertCount(16, $routes);
             $methods = array_map(static fn (array $route): string => $route['args']['methods'], $routes);
             self::assertSame([
                 'GET',            // /users/me
@@ -345,6 +345,9 @@ namespace Aiya\Core\Tests\Unit {
                 'POST',           // avatar upload
                 'DELETE',         // avatar removal
                 'POST',           // password change
+                'GET',            // deletion status
+                'POST',           // deletion request
+                'DELETE',         // deletion cancel
             ], $methods);
             foreach ($routes as $route) {
                 self::assertSame('aiya/core/v1', $route['namespace']);

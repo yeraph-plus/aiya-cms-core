@@ -38,6 +38,13 @@ if (!defined('AIYA_CORE_VERSION')) {
     define('AIYA_CORE_VERSION', '0.8.0-test');
 }
 
+// The admin-include requires (wp_delete_user et al.) resolve against the
+// plugin tree; the suite's own stand-ins make the functions exist before
+// any code path reaches the require.
+if (!defined('ABSPATH')) {
+    define('ABSPATH', dirname(__DIR__) . '/');
+}
+
 if (!defined('AIYA_CORE_URL')) {
     define('AIYA_CORE_URL', 'https://aiya.test/wp-content/plugins/aiya-core/');
 }
@@ -192,6 +199,34 @@ if (!function_exists('get_comment')) {
         }
 
         return $GLOBALS['__aiya_test_comments'][(int) $comment] ?? null;
+    }
+}
+
+if (!function_exists('wp_privacy_anonymize_data')) {
+    /** The core privacy helper: a full IPv4 truncates to its /24 head, other types collapse to fixed placeholders. */
+    function wp_privacy_anonymize_data(string $type, mixed $data = ''): string
+    {
+        if ($type === 'ip' && is_string($data) && preg_match('/^\d{1,3}(\.\d{1,3}){3}\z/', $data) === 1) {
+            $head = explode('.', $data);
+
+            return $head[0] . '.' . $head[1] . '.' . $head[2] . '.0';
+        }
+
+        return match ($type) {
+            'email' => 'deleted@site.invalid',
+            'url' => '[deleted]',
+            'ip' => '0.0.0.0',
+            default => '',
+        };
+    }
+}
+
+if (!function_exists('clean_comment_cache')) {
+    function clean_comment_cache(mixed $ids): void
+    {
+        foreach ((array) $ids as $id) {
+            unset($GLOBALS['__aiya_test_object_cache']['comment'][(int) $id]);
+        }
     }
 }
 
@@ -2868,6 +2903,37 @@ if (!function_exists('wp_clear_scheduled_hook')) {
             $kept[] = $event;
         }
         $GLOBALS['__aiya_test_cron'] = $kept;
+    }
+}
+
+if (!function_exists('wp_get_scheduled_event')) {
+    /** The single-event read (5.1.0): the matching entry as an event object, false when none. */
+    function wp_get_scheduled_event(string $hook, array $args = []): object|false
+    {
+        foreach ($GLOBALS['__aiya_test_cron'] ?? [] as $event) {
+            if ($event['hook'] === $hook && $event['args'] === $args) {
+                return (object) ['hook' => $event['hook'], 'timestamp' => $event['timestamp'], 'args' => $event['args']];
+            }
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('maybe_unserialize')) {
+    /**
+     * The core read: only strings shaped like serialized data go through
+     * unserialize (so a plain meta string never trips a parse warning);
+     * everything else passes through untouched.
+     */
+    function maybe_unserialize(mixed $data): mixed
+    {
+        if (!is_string($data) || preg_match('/^([adObis]:|N;)/', trim($data)) !== 1) {
+            return $data;
+        }
+        $unserialized = unserialize(trim($data), ['allowed_classes' => false]);
+
+        return $unserialized === false && trim($data) !== 'b:0;' ? $data : $unserialized;
     }
 }
 

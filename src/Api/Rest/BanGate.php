@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aiya\Core\Api\Rest;
 
 use Aiya\Core\Api\Contract\Contract;
+use Aiya\Core\Domain\Identity\AccountDeletionService;
 use Aiya\Core\Domain\Identity\UserBan;
 use WP_Error;
 use WP_REST_Request;
@@ -28,9 +29,13 @@ final class BanGate
     /**
      * Write routes a disabled account must still reach: signing out is
      * how the owner clears the session, and refusing it would trap them
-     * in the very account that was disabled.
+     * in the very account that was disabled. The deletion path rides the
+     * same whitelist (0.136.0): a pending-deletion holder must be able to
+     * withdraw (DELETE) — the handler itself refuses a second request
+     * (POST) with its own 409, so the whitelist never widens what a
+     * pending holder can actually do.
      */
-    private const ALWAYS_REACHABLE = ['/auth/logout'];
+    private const ALWAYS_REACHABLE = ['/auth/logout', '/users/me/account-deletion'];
 
     public static function register(): void
     {
@@ -63,14 +68,25 @@ final class BanGate
         }
 
         $userId = get_current_user_id();
-        if (!UserBan::isBanned($userId)) {
-            return $result;
+        if (UserBan::isBanned($userId)) {
+            return new WP_Error(
+                'aiya_account_banned',
+                __('This account is disabled.', 'aiya-core'),
+                ['status' => 403]
+            );
         }
 
-        return new WP_Error(
-            'aiya_account_banned',
-            __('This account is disabled.', 'aiya-core'),
-            ['status' => 403]
-        );
+        // The pending-deletion lock: the holder asked to leave, so the
+        // account freezes against activity while the countdown runs.
+        // Reads and the whitelisted withdrawal path stay reachable.
+        if (AccountDeletionService::isPending($userId)) {
+            return new WP_Error(
+                'aiya_account_pending_deletion',
+                __('This account has a pending deletion request.', 'aiya-core'),
+                ['status' => 403]
+            );
+        }
+
+        return $result;
     }
 }
