@@ -733,7 +733,7 @@ final class DiscussionService
     /**
      * Refreshes the denormalized reply counters on the thread.
      */
-    public function syncReplyStats(int $threadId): void
+    public function syncReplyStats(int $threadId): bool
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
@@ -756,7 +756,7 @@ final class DiscussionService
             $bumped = current_time('mysql', true);
         }
 
-        $wpdb->update(
+        return $wpdb->update(
             $this->threadsTable(),
             [
                 'reply_count' => $count,
@@ -768,7 +768,68 @@ final class DiscussionService
             ['id' => $threadId],
             ['%d', '%d', '%s', '%s', '%s'],
             ['%d']
+        ) !== false;
+    }
+
+    /** Account-deletion cleanup; participates in the application transaction. */
+    public function deleteAccountData(int $userId, int $reassignUserId): bool
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $threads = $this->threadsTable();
+        $replies = $this->repliesTable();
+        $likes = TableInstaller::table('aiya_discussion_likes');
+
+        // Own threads change hands instead of dying — everyone else's
+        // replies under them survive, ownership lands on REASSIGN_USER_ID.
+        $reassign = $wpdb->prepare(
+            'UPDATE %i SET user_id = %d, updated_at = %s WHERE user_id = %d',
+            $threads,
+            $reassignUserId,
+            gmdate('Y-m-d H:i:s'),
+            $userId
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+        if (!is_string($reassign) || $wpdb->query($reassign) === false) {
+            return false;
+        }
+
+        // Likes the holder left, with a recount — the like service only
+        // does ±1, so the executor recomputes in place.
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
+        $liked = $wpdb->get_col($wpdb->prepare('SELECT DISTINCT thread_id FROM %i WHERE user_id = %d', $likes, $userId));
+        if (!is_array($liked) || $wpdb->delete($likes, ['user_id' => $userId], ['%d']) === false) {
+            return false;
+        }
+        foreach ($liked as $threadId) {
+            $threadId = (int) $threadId;
+            $recount = $wpdb->prepare(
+                'UPDATE %i SET like_count = (SELECT COUNT(*) FROM %i WHERE thread_id = %d) WHERE id = %d',
+                $threads,
+                $likes,
+                $threadId,
+                $threadId
+            );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+            if (!is_string($recount) || $wpdb->query($recount) === false) {
+                return false;
+            }
+        }
+
+        // Replies on surviving threads: the discussion domain's own counter
+        // routine fixes reply_count, last_reply_user_id/_at and bumped_at.
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
+        $replied = $wpdb->get_col($wpdb->prepare('SELECT DISTINCT thread_id FROM %i WHERE user_id = %d', $replies, $userId));
+        if (!is_array($replied) || $wpdb->delete($replies, ['user_id' => $userId], ['%d']) === false) {
+            return false;
+        }
+        foreach ($replied as $threadId) {
+            if (!$this->syncReplyStats((int) $threadId)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /** Validates the bound-post binding: must be an existing published post/resource (the thread renders its card). */

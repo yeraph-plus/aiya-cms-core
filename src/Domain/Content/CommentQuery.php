@@ -49,18 +49,20 @@ final class CommentQuery
 
     /**
      * One approved-comment page plus the approved total for the same
-     * post, so the caller can build honest pagination from one read.
+     * post, so the caller can build pagination from the same approved scope.
      *
      * @return array{items: list<WP_Comment>, total: int}
      */
     public function page(int $postId, int $page, int $perPage, string $order): array
     {
-        $countQuery = new WP_Comment_Query([
+        // count=true returns the integer from query(); WordPress does not
+        // expose a total_comments property on the query object.
+        $countQuery = new WP_Comment_Query();
+        $total = (int) $countQuery->query([
             'post_id' => $postId,
             'status' => 'approve',
             'count' => true,
         ]);
-        $total = (int) ($countQuery->total_comments ?? 0);
 
         $query = new WP_Comment_Query([
             'post_id' => $postId,

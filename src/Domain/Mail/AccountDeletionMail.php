@@ -20,6 +20,11 @@ use Aiya\Core\Domain\Shared\FrontendDomain;
  */
 final class AccountDeletionMail
 {
+    public static function register(): void
+    {
+        add_action('aiya_core_account_deletion_requested', [self::class, 'sendRequestNotice'], 10, 3);
+    }
+
     public static function sendRequestNotice(string $toEmail, int $requestedAt, int $effectiveAt): void
     {
         if ($toEmail === '') {

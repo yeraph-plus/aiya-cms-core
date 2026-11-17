@@ -45,6 +45,10 @@ React in the admin; native admin styles only.
 
 ## Development
 
+Real WordPress/MariaDB integration checks (including optional sibling
+frontend HTTP acceptance) are documented in
+[`tests/Integration/README.md`](tests/Integration/README.md).
+
 ```bash
 composer install            # deps + phpunit/phpcs/phpstan tooling
 composer php:unit           # PHPUnit (Unit suite)

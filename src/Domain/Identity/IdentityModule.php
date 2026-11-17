@@ -17,7 +17,7 @@ use WP_User;
  * auth tokens, and declares the account disable switch on the profile
  * screen (UserBan — the meta key IS the field id). The self-service
  * account deletion (0.136.0) rides here too: the per-request one-time
- * execution event's listener, the scheduled-events declaration, the
+ * scheduled-events declaration, the
  * daily reconcile for dropped events (late priority on the tokens
  * cleanup), and the classic-login stamp (`wp_login` — headless sign-ins
  * stamp inside AuthController).
@@ -56,11 +56,9 @@ final class IdentityModule implements Module
             TokenStore::pruneExpired();
         });
 
-        // The deletion executor's one-time events, the dropped-event
-        // reconcile (after TokenStore::pruneExpired's default-10 pass) and
+        // The dropped-event reconcile (after TokenStore::pruneExpired's
+        // default-10 pass) and
         // the classic-login side of the last-login stamp + recovery.
-        add_action(self::ACCOUNT_DELETE_HOOK, [AccountDeletionService::class, 'execute'], 10, 2);
-
         add_action(self::CRON_HOOK, [AccountDeletionService::class, 'reconcilePending'], 30);
 
         add_action('wp_login', static function (string $userLogin, WP_User $user): void {

@@ -126,9 +126,8 @@ namespace Aiya\Core\Tests\Unit {
     }
 
     /**
-     * The wpdb slice with a staged hard failure of the token sweep: the
-     * failure mode (prepare answering non-string, revokeAll() false) is
-     * not reachable through the bootstrap double's string-typed prepare().
+     * The statement builds successfully, but its execution fails like a
+     * lost connection or a denied DELETE. Preparation is not persistence.
      */
     final class RevocationFailsWpdb
     {
@@ -143,7 +142,12 @@ namespace Aiya\Core\Tests\Unit {
                 $sql
             );
 
-            return str_contains($out, 'aiya_auth_tokens') ? null : $out;
+            return $out;
+        }
+
+        public function query(string $sql): false
+        {
+            return false;
         }
     }
 

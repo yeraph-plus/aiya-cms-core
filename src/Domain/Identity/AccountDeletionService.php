@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Aiya\Core\Domain\Identity;
 
-use Aiya\Core\Domain\Discussion\DiscussionService;
-use Aiya\Core\Domain\Mail\AccountDeletionMail;
-use Aiya\Core\Domain\Telegram\ChatStore;
 use Aiya\Core\Runtime\TableInstaller;
 use WP_Error;
 use WP_User;
@@ -24,20 +21,9 @@ use WP_User;
  * re-schedules events that a deactivation or a lost cron array dropped,
  * so the countdown survives anything short of the marker going away.
  *
- * The execution sweep is the per-holder twin of uninstall.php's drop
- * inventory, with the 0.136.0 content-preservation rulings on top: WP
- * posts and community threads change hands to {@see REASSIGN_USER_ID}
- * (nothing goes authorless, other holders' replies survive), comments
- * are anonymized in the core eraser's exact shape (the row stays as a
- * guest comment), paid orders survive untouched (the money archive,
- * 0.104.0 — the table carries no PII columns, so a dangling user_id IS
- * the anonymization), redeem codes keep their redemption audit with the
- * holder id nulled, and the chat session is wiped (the web rows are the
- * source of truth, same semantics as the Telegram settings-page wipe).
- * Staff accounts never reach execution (publish_posts is the hard line:
- * author and above are out, contributors and subscribers are in), and
- * the same guard re-runs at execution time as a defense against role
- * changes inside the grace window.
+ * Execution is assembled in Runtime/AccountDeletionExecutor. Identity owns
+ * account state and its relation/session cleanup; sibling domains own
+ * their data-preservation and deletion rules.
  */
 final class AccountDeletionService
 {
@@ -124,7 +110,7 @@ final class AccountDeletionService
             return new WP_Error('aiya_server_error', __('The deletion could not be scheduled.', 'aiya-core'), ['status' => 500]);
         }
 
-        AccountDeletionMail::sendRequestNotice((string) $user->user_email, $requestedAt, $effectiveAt);
+        do_action('aiya_core_account_deletion_requested', (string) $user->user_email, $requestedAt, $effectiveAt);
 
         return true;
     }
@@ -158,93 +144,6 @@ final class AccountDeletionService
         self::cancel($userId);
 
         return true;
-    }
-
-    /**
-     * The one-time event's body. Every guard refusal withdraws the request
-     * (cancel) instead of leaving a half-done countdown behind; a lock
-     * contention skips without touching anything — the daily reconcile
-     * re-schedules the skipped round.
-     */
-    public static function execute(int $userId, string $key): void
-    {
-        $marker = self::marker($userId);
-        if ($marker === null || $marker['key'] !== $key || get_userdata($userId) === false) {
-            return;
-        }
-        // Staff and a missing reassign target both withdraw the request:
-        // the hard capability line keeps author-and-above out (contributors
-        // and subscribers are in), and content has to land somewhere.
-        if (
-            user_can($userId, 'publish_posts')
-            || LastLogin::of($userId) > $marker['requested_at']
-            || get_userdata(self::REASSIGN_USER_ID) === false
-        ) {
-            self::cancel($userId);
-
-            return;
-        }
-
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        // The lock name is per holder: two holders' events coming due in
-        // the same minute must not serialize behind one global name (the
-        // loser would idle for the daily reconcile instead of running).
-        $lock = 'aiya_core_account_delete_' . $userId;
-        if ((int) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 0)', $lock)) !== 1) {
-            return;
-        }
-
-        try {
-            // The withdrawal race closes here: cancel() and the sign-in
-            // recovery can land between the cheap pre-lock read and this
-            // point, so the stateful guards re-read under the same lock
-            // the sweep holds — a recovered holder (last_login moved past
-            // the request, or a cleared marker) never reaches the sweep.
-            $marker = self::marker($userId);
-            if (
-                $marker === null
-                || $marker['key'] !== $key
-                || LastLogin::of($userId) > $marker['requested_at']
-            ) {
-                self::cancel($userId);
-
-                return;
-            }
-
-            $wpdb->query('START TRANSACTION');
-            $swept = self::sweepHolderRows($userId);
-            $deleted = false;
-            if ($swept) {
-                // wp_delete_user lives in an admin-only include; the guard keeps
-                // a context that already has it (an admin-fired cron tick) from
-                // re-reading and lets the suite's stand-in stand in.
-                if (!function_exists('wp_delete_user')) {
-                    require_once ABSPATH . 'wp-admin/includes/user.php';
-                }
-                // Fires delete_user (AvatarModule purges the pooled files) and
-                // deleted_user; wipes every usermeta row — the marker goes with
-                // them — and the users row itself. Authored posts change hands
-                // to REASSIGN_USER_ID instead of dying (core's reassign path).
-                $deleted = wp_delete_user($userId, self::REASSIGN_USER_ID);
-            }
-            if (!$swept || !$deleted) {
-                // A failed statement or a refused deletion: nothing commits —
-                // a server-side deadlock rollback must not be autocommitted
-                // on top of. The marker survives and the daily reconcile
-                // retries the round.
-                $wpdb->query('ROLLBACK');
-
-                return;
-            }
-            $wpdb->query('COMMIT');
-        } finally {
-            $release = $wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock);
-            if (is_string($release)) {
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $release comes from prepare() directly above
-                $wpdb->query($release);
-            }
-        }
     }
 
     /**
@@ -283,91 +182,11 @@ final class AccountDeletionService
         }
     }
 
-    /**
-     * The per-holder sweep, inside the executor's transaction. Content
-     * preservation first: WP posts and community threads change hands to
-     * {@see REASSIGN_USER_ID} (other holders' replies under a departing
-     * holder's thread survive), the holder's own replies and likes are
-     * removed with the denormalized counters recomputed through the
-     * discussion domain's own maintenance routine, and comments are
-     * anonymized in the core eraser's exact shape.
-     *
-     * Every statement's verdict is checked and one failure stops the
-     * sweep dead: a deadlock (1213) or lock-wait timeout rolls the whole
-     * transaction back server-side, and anything executing after such a
-     * failure would autocommit on top of the wreckage — half a sweep with
-     * the holder already gone. The caller rolls back on false; the marker
-     * survives and the daily reconcile retries the round.
-     *
-     * @return bool false when any statement failed (nothing may commit)
-     */
-    private static function sweepHolderRows(int $userId): bool
+    /** Remove Identity-owned relations in the application transaction. */
+    public static function deleteAccountData(int $userId): bool
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
-        $threads = TableInstaller::table('aiya_discussions');
-        $replies = TableInstaller::table('aiya_discussion_replies');
-        $likes = TableInstaller::table('aiya_discussion_likes');
-
-        // Own threads change hands instead of dying — everyone else's
-        // replies under them survive, ownership lands on REASSIGN_USER_ID.
-        $reassign = $wpdb->prepare(
-            'UPDATE %i SET user_id = %d, updated_at = %s WHERE user_id = %d',
-            $threads,
-            self::REASSIGN_USER_ID,
-            gmdate('Y-m-d H:i:s'),
-            $userId
-        );
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
-        if (!is_string($reassign) || $wpdb->query($reassign) === false) {
-            return false;
-        }
-
-        // Likes the holder left, with a recount — the like service only
-        // does ±1, so the executor recomputes in place.
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
-        $liked = $wpdb->get_col($wpdb->prepare('SELECT DISTINCT thread_id FROM %i WHERE user_id = %d', $likes, $userId));
-        if (!is_array($liked) || $wpdb->delete($likes, ['user_id' => $userId], ['%d']) === false) {
-            return false;
-        }
-        foreach ($liked as $threadId) {
-            $threadId = (int) $threadId;
-            $recount = $wpdb->prepare(
-                'UPDATE %i SET like_count = (SELECT COUNT(*) FROM %i WHERE thread_id = %d) WHERE id = %d',
-                $threads,
-                $likes,
-                $threadId,
-                $threadId
-            );
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
-            if (!is_string($recount) || $wpdb->query($recount) === false) {
-                return false;
-            }
-        }
-
-        // Replies on surviving threads: the discussion domain's own counter
-        // routine fixes reply_count, last_reply_user_id/_at and bumped_at.
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
-        $replied = $wpdb->get_col($wpdb->prepare('SELECT DISTINCT thread_id FROM %i WHERE user_id = %d', $replies, $userId));
-        if (!is_array($replied) || $wpdb->delete($replies, ['user_id' => $userId], ['%d']) === false) {
-            return false;
-        }
-        $discussion = new DiscussionService();
-        foreach ($replied as $threadId) {
-            $discussion->syncReplyStats((int) $threadId);
-        }
-
-        // Comments go the core eraser's way: the row survives as a guest
-        // comment, authorship is anonymized in exactly the shape the
-        // compliance route produces (same "Anonymous" author, same IP
-        // truncation, same per-comment retention filter).
-        if (!self::anonymizeComments($userId)) {
-            return false;
-        }
-
-        // The relation and ledger surfaces, then the accounting-adjacent
-        // rows that carry the holder's id. Orders are deliberately absent:
-        // the money archive survives with a dangling user_id (0.104.0).
         $follows = $wpdb->prepare(
             'DELETE FROM %i WHERE follower_id = %d OR followed_id = %d',
             TableInstaller::table('aiya_user_follows'),
@@ -380,103 +199,6 @@ final class AccountDeletionService
         }
         if ($wpdb->delete(TableInstaller::table('aiya_user_favorites'), ['user_id' => $userId], ['%d']) === false) {
             return false;
-        }
-        $notices = $wpdb->prepare(
-            'DELETE FROM %i WHERE user_id = %d OR actor_id = %d',
-            TableInstaller::table('aiya_notifications'),
-            $userId,
-            $userId
-        );
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
-        if (!is_string($notices) || $wpdb->query($notices) === false) {
-            return false;
-        }
-        if ($wpdb->delete(TableInstaller::table('aiya_credit_entries'), ['user_id' => $userId], ['%d']) === false) {
-            return false;
-        }
-        if ($wpdb->delete(TableInstaller::table('aiya_memberships'), ['user_id' => $userId], ['%d']) === false) {
-            return false;
-        }
-        if ($wpdb->delete(TableInstaller::table('aiya_stats_active'), ['user_id' => $userId], ['%d']) === false) {
-            return false;
-        }
-        // The redemption audit row survives; the holder reference goes.
-        $unlink = $wpdb->prepare(
-            'UPDATE %i SET user_id = NULL WHERE user_id = %d',
-            TableInstaller::table('aiya_redeem_codes'),
-            $userId
-        );
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
-        if (!is_string($unlink) || $wpdb->query($unlink) === false) {
-            return false;
-        }
-        // The support session is the web rows themselves (ChatStore's wire
-        // format) — wiping it matches the settings-page wipe semantics.
-        if ($wpdb->delete(TableInstaller::table('aiya_chat_messages'), ['session_id' => ChatStore::sessionFor($userId)], ['%s']) === false) {
-            return false;
-        }
-        if (!(new TokenStore())->revokeAll($userId)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Anonymizes the holder's comments in the core eraser's exact shape:
-     * the row survives as a guest comment, authorship (name, email, URL,
-     * agent, IP, user link) goes, and the per-comment `wp_anonymize_comment`
-     * retention filter is honored like the compliance route honors it.
-     *
-     * @return bool false when the read or any update failed (the sweep rolls back)
-     */
-    private static function anonymizeComments(int $userId): bool
-    {
-        global $wpdb;
-        /** @var \wpdb $wpdb */
-        $comments = $wpdb->get_results($wpdb->prepare(
-            'SELECT comment_ID, comment_author_IP FROM %i WHERE user_id = %d',
-            $wpdb->comments,
-            $userId
-        ));
-        if (!is_array($comments)) {
-            return false;
-        }
-
-        foreach ($comments as $comment) {
-            $commentId = (int) $comment->comment_ID;
-            // The core eraser's exact field shape (comment.php:4342): the
-            // author name rides WP's own "Anonymous" string so both routes
-            // render identically, the IP truncates instead of vanishing,
-            // and the row lands as a guest comment (user_id 0).
-            $anonymized = [
-                'comment_agent' => '',
-                'comment_author' => __('Anonymous'),
-                'comment_author_email' => '',
-                'comment_author_IP' => wp_privacy_anonymize_data('ip', (string) ($comment->comment_author_IP ?? '')),
-                'comment_author_url' => '',
-                'user_id' => 0,
-            ];
-            // The core eraser's own per-comment opt-out: a site rule may
-            // force retention, and this route honors it the same way.
-            $anonMessage = apply_filters('wp_anonymize_comment', true, get_comment($commentId), $anonymized);
-            if (true !== $anonMessage) {
-                continue;
-            }
-
-            $updated = $wpdb->update(
-                $wpdb->comments,
-                $anonymized,
-                ['comment_ID' => $commentId],
-                ['%s', '%s', '%s', '%s', '%s', '%d'],
-                ['%d']
-            );
-            if ($updated === false) {
-                return false;
-            }
-            if ($updated > 0) {
-                clean_comment_cache($commentId);
-            }
         }
 
         return true;

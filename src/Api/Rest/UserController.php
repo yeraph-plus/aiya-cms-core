@@ -357,6 +357,10 @@ final class UserController
             return new WP_Error('aiya_validation_failed', implode(' ', $errors), ['status' => 400]);
         }
 
+        if ($emailChanged && !$this->rateLimiter->hitFor('email_reauth', (int) $user->ID, 10, 600)) {
+            return RestGuard::rateLimited();
+        }
+
         // The re-auth gate and the write live in the domain (any second
         // writer must walk the same gate).
         $updated = $this->accounts->updateProfile($user, $userdata, (string) $request->get_param('currentPassword'));

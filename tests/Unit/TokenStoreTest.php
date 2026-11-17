@@ -14,6 +14,20 @@ use PHPUnit\Framework\TestCase;
  * — not within the mirror TTL. Runs against the wpdb stand-in, which
  * counts table reads.
  */
+final class TokenFailureWpdb extends \wpdb
+{
+    public string $failPrefix = '';
+
+    public function query(string $sql): int|false
+    {
+        if ($this->failPrefix !== '' && str_starts_with($sql, $this->failPrefix)) {
+            return false;
+        }
+
+        return parent::query($sql);
+    }
+}
+
 final class TokenStoreTest extends TestCase
 {
     private const USER_ID = 72;
@@ -82,5 +96,34 @@ final class TokenStoreTest extends TestCase
         self::assertSame(0, $this->tokens->resolve('.secret'));
         self::assertSame(0, $this->tokens->resolve('72.'));
         self::assertSame(0, $this->db->aiya_test_reads);
+    }
+
+    public function testExecutedDeleteFailureIsReportedForBothRevocationPaths(): void
+    {
+        $GLOBALS['wpdb'] = $db = new TokenFailureWpdb();
+        $token = $this->tokens->issue(self::USER_ID)->token;
+        $this->tokens->resolve($token);
+        $db->failPrefix = 'DELETE FROM';
+
+        self::assertFalse($this->tokens->revoke($token));
+        self::assertFalse($this->tokens->revokeAll(self::USER_ID));
+        self::assertSame(self::USER_ID, $this->tokens->resolve($token));
+    }
+
+    public function testGenerationUpdateFailureIsNotSuccessfulRevocation(): void
+    {
+        $GLOBALS['wpdb'] = $db = new TokenFailureWpdb();
+        $token = $this->tokens->issue(self::USER_ID)->token;
+        $db->failPrefix = 'UPDATE';
+
+        self::assertFalse($this->tokens->revoke($token));
+        self::assertFalse($this->tokens->revokeAll(self::USER_ID));
+    }
+
+    public function testZeroDeletedRowsStillSucceedAndSeedTheGeneration(): void
+    {
+        self::assertTrue($this->tokens->revokeAll(self::USER_ID));
+        self::assertGreaterThan(0, (int) get_user_meta(self::USER_ID, 'aiya_core_auth_gen', true));
+        self::assertTrue($this->tokens->revoke(self::USER_ID . '.absent'));
     }
 }

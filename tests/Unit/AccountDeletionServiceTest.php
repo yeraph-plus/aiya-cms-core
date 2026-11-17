@@ -71,8 +71,12 @@ namespace Aiya\Core\Tests\Unit {
 
         private AccountDeletionTestWpdb $db;
 
+        private array $savedFilters;
+
         protected function setUp(): void
         {
+            $this->savedFilters = $GLOBALS['__aiya_test_filters'] ?? [];
+            \Aiya\Core\Domain\Mail\AccountDeletionMail::register();
             global $wpdb;
             $this->db = new AccountDeletionTestWpdb();
             $wpdb = $this->db;
@@ -88,6 +92,7 @@ namespace Aiya\Core\Tests\Unit {
 
         protected function tearDown(): void
         {
+            $GLOBALS['__aiya_test_filters'] = $this->savedFilters;
             unset($GLOBALS['wpdb']);
             $GLOBALS['__aiya_test_user_meta'] = [];
             $GLOBALS['__aiya_test_users'] = [];
@@ -220,7 +225,7 @@ namespace Aiya\Core\Tests\Unit {
             $this->seedCommunity();
             $marker = $this->requestPending();
 
-            AccountDeletionService::execute(self::HOLDER, $marker['key']);
+            \Aiya\Core\Plugin::accountDeletionExecutor()->execute(self::HOLDER, $marker['key']);
 
             // The holder row and every meta are gone; the other survives.
             self::assertFalse(get_userdata(self::HOLDER));
@@ -311,7 +316,7 @@ namespace Aiya\Core\Tests\Unit {
             // Staff between request and execution: the countdown withdraws.
             $marker = $this->requestPending();
             $GLOBALS['__aiya_test_caps'] = true;
-            AccountDeletionService::execute(self::HOLDER, $marker['key']);
+            \Aiya\Core\Plugin::accountDeletionExecutor()->execute(self::HOLDER, $marker['key']);
             self::assertNotFalse(get_userdata(self::HOLDER));
             self::assertFalse(AccountDeletionService::isPending(self::HOLDER));
 
@@ -319,7 +324,7 @@ namespace Aiya\Core\Tests\Unit {
             $GLOBALS['__aiya_test_caps'] = false;
             $marker = $this->requestPending();
             update_user_meta(self::HOLDER, LastLogin::META_KEY, time() + 10);
-            AccountDeletionService::execute(self::HOLDER, $marker['key']);
+            \Aiya\Core\Plugin::accountDeletionExecutor()->execute(self::HOLDER, $marker['key']);
             self::assertNotFalse(get_userdata(self::HOLDER));
             self::assertFalse(AccountDeletionService::isPending(self::HOLDER));
 
@@ -328,14 +333,14 @@ namespace Aiya\Core\Tests\Unit {
             delete_user_meta(self::HOLDER, LastLogin::META_KEY);
             $marker = $this->requestPending();
             unset($GLOBALS['__aiya_test_users'][self::REASSIGN]);
-            AccountDeletionService::execute(self::HOLDER, $marker['key']);
+            \Aiya\Core\Plugin::accountDeletionExecutor()->execute(self::HOLDER, $marker['key']);
             self::assertNotFalse(get_userdata(self::HOLDER));
             self::assertFalse(AccountDeletionService::isPending(self::HOLDER));
 
             // A foreign key (a stale event for another round): untouched.
             $this->db->query("DELETE FROM {$this->db->posts} WHERE post_author = " . self::HOLDER);
             $marker = $this->requestPending();
-            AccountDeletionService::execute(self::HOLDER, 'wrong-key');
+            \Aiya\Core\Plugin::accountDeletionExecutor()->execute(self::HOLDER, 'wrong-key');
             self::assertNotFalse(get_userdata(self::HOLDER));
             self::assertTrue(AccountDeletionService::isPending(self::HOLDER));
             self::assertCount(1, $GLOBALS['__aiya_test_cron']);
@@ -346,7 +351,7 @@ namespace Aiya\Core\Tests\Unit {
             $marker = $this->requestPending();
             $this->db->lockAvailable = false;
 
-            AccountDeletionService::execute(self::HOLDER, $marker['key']);
+            \Aiya\Core\Plugin::accountDeletionExecutor()->execute(self::HOLDER, $marker['key']);
 
             self::assertNotFalse(get_userdata(self::HOLDER));
             self::assertTrue(AccountDeletionService::isPending(self::HOLDER), 'the reconcile must find the skipped round');
@@ -358,7 +363,7 @@ namespace Aiya\Core\Tests\Unit {
             $marker = $this->requestPending();
             $this->db->failSweep = true;
 
-            AccountDeletionService::execute(self::HOLDER, $marker['key']);
+            \Aiya\Core\Plugin::accountDeletionExecutor()->execute(self::HOLDER, $marker['key']);
 
             // Nothing committed: the holder, the seeded rows and the marker
             // all survive for the daily reconcile's retry round — a server
@@ -368,6 +373,53 @@ namespace Aiya\Core\Tests\Unit {
             self::assertCount(2, $this->db->rows['wp_aiya_discussions']);
             self::assertSame(self::HOLDER, (int) $this->db->rows['wp_aiya_discussions'][0]['user_id']);
             self::assertCount(3, $this->db->rows['wp_aiya_user_follows'], 'the sweep stopped at the first failure');
+            self::assertContains('ROLLBACK', $this->db->aiya_test_sql);
+            self::assertNotContains('COMMIT', $this->db->aiya_test_sql);
+            self::assertStringContainsString('RELEASE_LOCK', end($this->db->aiya_test_sql));
+        }
+
+        public function testCleanupFailureStopsLaterDomainsAndReleasesTheLock(): void
+        {
+            $marker = $this->requestPending();
+            $calls = [];
+            $executor = new \Aiya\Core\Runtime\AccountDeletionExecutor([
+                static function (int $userId) use (&$calls): bool {
+                    $calls[] = $userId;
+
+                    return false;
+                },
+                static function (int $userId) use (&$calls): bool {
+                    $calls[] = 'must not run';
+
+                    return true;
+                },
+            ]);
+            $executor->execute(self::HOLDER, $marker['key']);
+
+            self::assertSame([self::HOLDER], $calls);
+            self::assertNotFalse(get_userdata(self::HOLDER));
+            self::assertTrue(AccountDeletionService::isPending(self::HOLDER));
+            self::assertContains('ROLLBACK', $this->db->aiya_test_sql);
+            self::assertStringContainsString('RELEASE_LOCK', end($this->db->aiya_test_sql));
+        }
+
+        public function testCleanupExceptionRollsBackAndReleasesTheLock(): void
+        {
+            $marker = $this->requestPending();
+            $executor = new \Aiya\Core\Runtime\AccountDeletionExecutor([
+                static function (int $userId): bool {
+                    throw new \RuntimeException('cleanup failed');
+                },
+            ]);
+            try {
+                $executor->execute(self::HOLDER, $marker['key']);
+                self::fail('the failure must remain observable');
+            } catch (\RuntimeException $error) {
+                self::assertSame('cleanup failed', $error->getMessage());
+            }
+            self::assertTrue(AccountDeletionService::isPending(self::HOLDER));
+            self::assertContains('ROLLBACK', $this->db->aiya_test_sql);
+            self::assertStringContainsString('RELEASE_LOCK', end($this->db->aiya_test_sql));
         }
 
         public function testTheReconcileReschedulesDroppedEvents(): void

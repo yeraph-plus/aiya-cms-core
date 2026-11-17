@@ -54,11 +54,12 @@ final class OperationsModule implements Module
             $recorder->recordDownload();
         });
 
-        // MAU. Priority 30 is after TokenAuthentication (20), so the
-        // bearer token is already resolved to a holder — cookie sessions
-        // and the headless front end count the same way. wp-admin
-        // browsing is not front-end activity.
-        add_filter('determine_current_user', [$this, 'trackActive'], 30);
+        // Observe the established identity, including REST bearer users
+        // resolved after initial cookie authentication. Admin visits do
+        // not count as front-end activity.
+        add_action('set_current_user', function (): void {
+            $this->trackActive(get_current_user_id());
+        });
 
         // Book expiries in the same tick as the prune, before it runs.
         add_action(CreditModule::CRON_HOOK, static function () use ($recorder): void {
@@ -67,8 +68,8 @@ final class OperationsModule implements Module
     }
 
     /**
-     * Counts one active holder for the current month. The filter runs very
-     * early (before `init`, so possibly before the report tables exist on
+     * Counts one active holder for the current month. Identity may resolve
+     * before `init`, so possibly before the report tables exist on
      * a fresh install) — StatsRecorder suppresses the resulting db error
      * and the row is simply missing for that request.
      *

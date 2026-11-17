@@ -319,4 +319,22 @@ final class RedeemCodeService
         /** @var \wpdb $wpdb */
         return $wpdb->prefix . 'aiya_redeem_codes';
     }
+
+    /** Account-deletion cleanup; participates in the application transaction. */
+    public function deleteAccountData(int $userId): bool
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $unlink = $wpdb->prepare(
+            'UPDATE %i SET user_id = NULL WHERE user_id = %d',
+            $this->table(),
+            $userId
+        );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+        if (!is_string($unlink) || $wpdb->query($unlink) === false) {
+            return false;
+        }
+
+        return true;
+    }
 }

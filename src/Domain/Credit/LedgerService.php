@@ -454,4 +454,12 @@ final class LedgerService
     {
         return gmdate('Y-m-d H:i:s');
     }
+
+    /** Account-deletion cleanup; participates in the application transaction. */
+    public function deleteAccountData(int $userId): bool
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        return $wpdb->delete($this->table(), ['user_id' => $userId], ['%d']) !== false;
+    }
 }

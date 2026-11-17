@@ -571,6 +571,25 @@ namespace Aiya\Core\Tests\Unit {
             self::assertSame([], $this->events());
         }
 
+        public function testEmailReauthenticationHasAPerHolderAttemptBudget(): void
+        {
+            for ($attempt = 0; $attempt < 10; ++$attempt) {
+                $error = $this->invoke('updateProfile', ['email' => 'new@aiya.test', 'currentPassword' => 'wrong']);
+                self::assertInstanceOf(WP_Error::class, $error);
+                self::assertSame('aiya_reauth_required', $error->get_error_code());
+            }
+            $error = $this->invoke('updateProfile', ['email' => 'new@aiya.test', 'currentPassword' => 'secret1']);
+            self::assertInstanceOf(WP_Error::class, $error);
+            self::assertSame(429, $this->errorStatus($error));
+            self::assertSame([], $this->events());
+
+            // Ordinary profile edits neither consume nor require this budget.
+            self::assertInstanceOf(WP_REST_Response::class, $this->invoke('updateProfile', ['nickname' => 'Nova']));
+            $GLOBALS['__aiya_test_current_user_id'] = 8;
+            $GLOBALS['__aiya_test_users'][8] = $GLOBALS['__aiya_test_users'][7];
+            self::assertInstanceOf(WP_REST_Response::class, $this->invoke('updateProfile', ['email' => 'other@aiya.test', 'currentPassword' => 'secret1']));
+        }
+
         public function testProfileRefusesAKnownMailbox(): void
         {
             $GLOBALS['__aiya_test_account_emails']['taken@aiya.test'] = 31;

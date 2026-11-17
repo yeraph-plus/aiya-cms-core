@@ -33,7 +33,7 @@ final class AccountDeletionTestWpdb
     /** False answers GET_LOCK with 0 — the contention branch. */
     public bool $lockAvailable = true;
 
-    /** True makes every non-lock query fail — the deadlock/rollback branch. */
+    /** Fail late in the sweep, after earlier domains have changed rows. */
     public bool $failSweep = false;
 
     public string $posts = 'wp_posts';
@@ -83,7 +83,7 @@ final class AccountDeletionTestWpdb
     {
         $this->aiya_test_sql[] = $sql;
 
-        if ($this->failSweep && !str_contains($sql, '_LOCK(')) {
+        if ($this->failSweep && str_starts_with($sql, 'UPDATE ') && str_contains($sql, 'aiya_redeem_codes')) {
             return false;
         }
 

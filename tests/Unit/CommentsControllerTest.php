@@ -143,14 +143,23 @@ namespace {
     if (!class_exists('WP_Comment_Query')) {
         class WP_Comment_Query
         {
-            public ?int $total_comments = null;
-
             /** @var list<WP_Comment> */
             public array $comments = [];
 
             /** @param array<string, mixed> $args */
             public function __construct(private array $args = [])
             {
+                if ($args !== []) {
+                    $this->query($args);
+                }
+            }
+
+            /** @param array<string, mixed> $args
+             *  @return list<WP_Comment>|int
+             */
+            public function query(array $args): array|int
+            {
+                $this->args = $args;
                 $postId = (int) ($args['post_id'] ?? 0);
                 $approved = array_values(array_filter(
                     $GLOBALS['__aiya_test_comments'] ?? [],
@@ -160,9 +169,7 @@ namespace {
                 ));
 
                 if (!empty($args['count'])) {
-                    $this->total_comments = count($approved);
-
-                    return;
+                    return count($approved);
                 }
 
                 $direction = strtolower((string) ($args['order'] ?? 'ASC')) === 'desc' ? -1 : 1;
@@ -173,6 +180,8 @@ namespace {
                 $number = min(100, max(1, (int) ($args['number'] ?? 10)));
                 $page = max(1, (int) ($args['paged'] ?? 1));
                 $this->comments = array_slice($approved, ($page - 1) * $number, $number);
+
+                return $this->comments;
             }
         }
     }

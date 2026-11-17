@@ -181,6 +181,7 @@ final class Plugin
         $this->addModule(new OperationsModule());
         $this->addModule(new OperationsPage());
         $this->addModule(new IdentityModule($this->metadata));
+        $this->addModule(self::accountDeletionExecutor());
         $this->addModule(new NotificationPage());
 
         $this->addModule(new MembershipModule($this->settings));
@@ -354,6 +355,23 @@ final class Plugin
                 wp_clear_scheduled_hook(IdentityModule::ACCOUNT_DELETE_HOOK, $singleArgs);
             }
         }
+    }
+
+    /** Complete cleanup inventory, assembled outside Identity. */
+    public static function accountDeletionExecutor(): \Aiya\Core\Runtime\AccountDeletionExecutor
+    {
+        return new \Aiya\Core\Runtime\AccountDeletionExecutor([
+            static fn (int $id): bool => (new DiscussionService())->deleteAccountData($id, \Aiya\Core\Domain\Identity\AccountDeletionService::REASSIGN_USER_ID),
+            static fn (int $id): bool => \Aiya\Core\Domain\Content\CommentAnonymizer::forUser($id),
+            static fn (int $id): bool => \Aiya\Core\Domain\Identity\AccountDeletionService::deleteAccountData($id),
+            static fn (int $id): bool => (new \Aiya\Core\Domain\Notification\NotificationService())->deleteAccountData($id),
+            static fn (int $id): bool => (new LedgerService())->deleteAccountData($id),
+            static fn (int $id): bool => (new EntitlementService())->deleteAccountData($id),
+            static fn (int $id): bool => (new \Aiya\Core\Domain\Operations\StatsRecorder())->deleteAccountData($id),
+            static fn (int $id): bool => (new RedeemCodeService(new EntitlementService()))->deleteAccountData($id),
+            static fn (int $id): bool => (new \Aiya\Core\Domain\Telegram\ChatStore())->deleteAccountData($id),
+            static fn (int $id): bool => (new \Aiya\Core\Domain\Identity\TokenStore())->revokeAll($id),
+        ]);
     }
 
     public function settings(): Registry

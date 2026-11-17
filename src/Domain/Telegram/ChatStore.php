@@ -231,4 +231,12 @@ class ChatStore
 
         return is_int($removed) ? $removed : 0;
     }
+
+    /** Account-deletion cleanup; participates in the application transaction. */
+    public function deleteAccountData(int $userId): bool
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        return $wpdb->delete($wpdb->prefix . self::TABLE, ['session_id' => self::sessionFor($userId)], ['%s']) !== false;
+    }
 }

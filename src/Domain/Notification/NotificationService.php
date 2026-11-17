@@ -383,4 +383,23 @@ final class NotificationService
         /** @var \wpdb $wpdb */
         return $wpdb->prefix . 'aiya_notifications';
     }
+
+    /** Account-deletion cleanup; participates in the application transaction. */
+    public function deleteAccountData(int $userId): bool
+    {
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $notices = $wpdb->prepare(
+            'DELETE FROM %i WHERE user_id = %d OR actor_id = %d',
+            $this->table(),
+            $userId,
+            $userId
+        );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+        if (!is_string($notices) || $wpdb->query($notices) === false) {
+            return false;
+        }
+
+        return true;
+    }
 }

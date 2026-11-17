@@ -167,13 +167,13 @@ final class TokenStore
         global $wpdb;
         /** @var \wpdb $wpdb */
         $sql = $wpdb->prepare('DELETE FROM %i WHERE token_hash = %s', $this->table(), $this->hash($token));
-        if (is_string($sql)) {
-            $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
-            $this->bumpGeneration($userId);
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+        if (!is_string($sql) || $wpdb->query($sql) === false) {
+            return false;
         }
         // Only a hard DB failure reports false; "no such row" is a fine
         // logout outcome.
-        return is_string($sql);
+        return $this->bumpGeneration($userId);
     }
 
     /**
@@ -190,12 +190,12 @@ final class TokenStore
         global $wpdb;
         /** @var \wpdb $wpdb */
         $sql = $wpdb->prepare('DELETE FROM %i WHERE user_id = %d', $this->table(), $userId);
-        if (is_string($sql)) {
-            $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
-            $this->bumpGeneration($userId);
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+        if (!is_string($sql) || $wpdb->query($sql) === false) {
+            return false;
         }
 
-        return is_string($sql);
+        return $this->bumpGeneration($userId);
     }
 
     /** Deletes every expired row globally; the daily cron entry point. */
@@ -243,7 +243,7 @@ final class TokenStore
      * stale cached generation would re-validate a revoked token's mirror
      * for up to CACHE_TTL.
      */
-    private function bumpGeneration(int $userId): void
+    private function bumpGeneration(int $userId): bool
     {
         global $wpdb;
         /** @var \wpdb $wpdb */
@@ -253,17 +253,23 @@ final class TokenStore
             $userId,
             self::GENERATION_KEY
         );
-        if (is_string($sql)) {
-            $wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
-        }
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- statement is prepared above
+        $updated = is_string($sql) ? $wpdb->query($sql) : false;
         wp_cache_delete((string) $userId, 'user_meta');
-        if ((int) $wpdb->rows_affected === 0) {
+        if ($updated === false) {
+            return false;
+        }
+        if ($updated === 0) {
             // First revocation for this user: seed the row. Concurrent
             // seeds may append duplicate rows — harmless, they increment
             // in lockstep and reads take the first.
             add_user_meta($userId, self::GENERATION_KEY, 1, true);
             wp_cache_delete((string) $userId, 'user_meta');
+
+            return $this->generation($userId) > 0;
         }
+
+        return true;
     }
 
     private function hash(string $token): string

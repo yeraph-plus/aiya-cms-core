@@ -29,10 +29,8 @@ final class TokenAuthentication
     /**
      * The namespaces a presented bearer token may authenticate against.
      * Pulled from the owning classes' constants — NOT from the
-     * aiya_core_firstparty_rest_namespaces filter: determine_current_user
-     * fires before rest_api_init, before the controllers have announced
-     * themselves. A new firstparty namespace opts in by referencing its
-     * constant here.
+     * first-party endpoint-discovery filter: discovery is not an opt-in to
+     * visitor authentication. A namespace explicitly joins this list.
      *
      * @return list<string>
      */
@@ -47,26 +45,33 @@ final class TokenAuthentication
 
     public function register(): void
     {
-        add_filter('determine_current_user', [$this, 'authenticate'], 20);
+        add_filter('rest_authentication_errors', [$this, 'authenticate'], 20);
     }
 
     /**
-     * @param int|false $userId
-     * @return int|false
+     * Runs after WordPress resolves rewrite/query/body routing and before
+     * the native cookie-nonce check. Non-REST entrypoints never invoke it.
+     *
+     * @param mixed $result Earlier authentication result.
      */
-    public function authenticate(int|false $userId): int|false
+    public function authenticate(mixed $result): mixed
     {
-        if ($userId) {
-            return $userId;
+        if ($result !== null || get_current_user_id() > 0) {
+            return $result;
         }
 
         if (!$this->tokenAppliesHere()) {
-            return $userId;
+            return $result;
         }
 
         $token = $this->presentedToken();
 
-        return $token !== null ? $this->tokens->resolve($token) : $userId;
+        $userId = $token !== null ? $this->tokens->resolve($token) : 0;
+        if ($userId > 0) {
+            wp_set_current_user($userId);
+        }
+
+        return $result;
     }
 
     /**
@@ -76,30 +81,23 @@ final class TokenAuthentication
      * integrations namespace is in the list for the companion-service
      * ticket flow: minting a ticket IS the bearer's one job there. A
      * presented service key never matches (no `{userId}.{secret}` shape).
-     * Both request shapes are matched (HeadlessModule::lockWpV2 and
-     * SecurityModule treat the pair the same way): the URL PATH, and
-     * `?rest_route=` for plain-permalink installs — that param IS the
-     * route in both permalink styles, so it joins the match. A stray
-     * query marker (`?x=/aiya/core/v1/`) still cannot re-enable token
-     * resolution: only rest_route is read, the rest of the query string
-     * stays out.
+     * Only WordPress's resolved route is authoritative. Testing the raw
+     * URL as an alternative would authenticate a native route overridden
+     * by rest_route while the visible path names our namespace.
      */
     private function tokenAppliesHere(): bool
     {
-        $candidates = [];
-        if (isset($_SERVER['REQUEST_URI']) && is_string($_SERVER['REQUEST_URI'])) {
-            $candidates[] = (string) wp_parse_url(wp_unslash($_SERVER['REQUEST_URI']), PHP_URL_PATH);
+        global $wp;
+        $route = $wp->query_vars['rest_route'] ?? null;
+        if (!is_string($route)) {
+            return false;
         }
-        if (isset($_GET['rest_route']) && is_string($_GET['rest_route'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- routing hint read at dispatch, not form processing
-            $candidates[] = wp_unslash($_GET['rest_route']); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- routing hint read at dispatch, not form processing
-        }
+        $route = untrailingslashit($route);
 
         foreach ($this->namespaces() as $namespace) {
-            $needle = '/' . trim((string) $namespace, '/') . '/';
-            foreach ($candidates as $candidate) {
-                if (str_contains($candidate, $needle)) {
-                    return true;
-                }
+            $prefix = '/' . trim($namespace, '/');
+            if ($route === $prefix || str_starts_with($route, $prefix . '/')) {
+                return true;
             }
         }
 

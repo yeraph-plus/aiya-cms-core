@@ -1833,7 +1833,7 @@ if (!class_exists('wpdb')) {
             return $row === null ? null : $row['user_id'];
         }
 
-        public function query(string $sql): int
+        public function query(string $sql): int|false
         {
             $this->rows_affected = 0;
 
